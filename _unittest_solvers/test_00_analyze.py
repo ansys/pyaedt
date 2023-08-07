@@ -12,12 +12,13 @@ from _unittest_solvers.conftest import local_path
 from pyaedt import is_linux
 from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
+from pyaedt import Circuit
 
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
-
+original_project_name = "Galileo_t21_231"
 
 test_subfolder = "T00"
 
@@ -60,6 +61,11 @@ def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
 
+@pytest.fixture(scope="class")
+def circuit_app(add_app):
+    app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
+    app.modeler.schematic_units = "mil"
+    return app
 
 class TestClass:
 
@@ -262,3 +268,42 @@ class TestClass:
 
     def test_04k_3dl_get_fext_xtalk_list(self):
         assert self.hfss3dl_solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+
+    def test_05a_circuit_add_3dlayout_component(self, circuit_app):
+        setup = circuit_app.create_setup("test_06b_LNA")
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
+        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
+        assert type(myedb.id) is int
+        ports = myedb.pins
+        tx = ports
+        rx = ports
+        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
+        assert circuit_app.post.create_report(
+            insertions,
+            circuit_app.nominal_adaptive,
+            plotname="Insertion Losses",
+            plot_type="Rectangular Plot",
+            report_category="Standard",
+            subdesign_id=myedb.id,
+        )
+        new_report = circuit_app.post.reports_by_category.standard(insertions)
+        new_report.sub_design_id = myedb.id
+        assert new_report.create()
+
+    def test_05b_circuit_add_hfss_component(self, circuit_app):
+        my_model, myname = circuit_app.modeler.schematic.create_field_model(
+            "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
+        )
+        assert type(my_model) is int
+
+    def test_05c_circuit_push_excitation(self, circuit_app):
+        setup_name = "test_07a_LNA"
+        setup = circuit_app.create_setup(setup_name)
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
+        assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
+        assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
+
+    def test_05d_circuit_push_excitation_time(self,circuit_app):
+        setup_name = "test_07b_Transient"
+        setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
+        assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)

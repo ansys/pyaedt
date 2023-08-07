@@ -1,10 +1,14 @@
 # Setup paths for module imports
 import os
 
-# from _unittest_solvers.conftest import BasisTest
-from _unittest_solvers.conftest import local_path
+# from _unittest.conftest import BasisTest
+from _unittest.conftest import NONGRAPHICAL
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from _unittest.conftest import new_thread
 import pytest
 
+from pyaedt import Desktop
 from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import is_linux
 
@@ -25,9 +29,21 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    netlist1 = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "netlist_small.cir")
+    netlist1 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "netlist_small.cir")
     netlist_file1 = local_scratch.copyfile(netlist1)
     return netlist_file1, None
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+    d.disable_autosave()
+    d.odesktop.SetDesktopConfiguration("Twin Builder")
+    d.odesktop.SetSchematicEnvironment(1)
+    yield d
+    d.odesktop.SetDesktopConfiguration("All")
+    d.odesktop.SetSchematicEnvironment(0)
+    d.release_desktop(True, True)
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")

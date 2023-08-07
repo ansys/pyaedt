@@ -138,45 +138,6 @@ class TestClass:
         LNA_setup = self.aedtapp.create_setup(setup_name)
         assert LNA_setup.name == "LNA"
 
-    def test_06b_add_3dlayout_component(self):
-        setup = self.aedtapp.create_setup("test_06b_LNA")
-        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
-        myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
-        assert type(myedb.id) is int
-        ports = myedb.pins
-        tx = ports
-        rx = ports
-        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
-        assert self.aedtapp.post.create_report(
-            insertions,
-            self.aedtapp.nominal_adaptive,
-            plotname="Insertion Losses",
-            plot_type="Rectangular Plot",
-            report_category="Standard",
-            subdesign_id=myedb.id,
-        )
-        new_report = self.aedtapp.post.reports_by_category.standard(insertions)
-        new_report.sub_design_id = myedb.id
-        assert new_report.create()
-
-    def test_07_add_hfss_component(self):
-        my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
-            "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
-        )
-        assert type(my_model) is int
-
-    def test_07a_push_excitation(self):
-        setup_name = "test_07a_LNA"
-        setup = self.aedtapp.create_setup(setup_name)
-        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
-
-    def test_07b_push_excitation_time(self):
-        setup_name = "test_07b_Transient"
-        setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
-        assert self.aedtapp.push_time_excitations(instance_name="U1", setup_name=setup_name)
-
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(self.netlist_file2)

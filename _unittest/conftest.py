@@ -132,7 +132,8 @@ def local_scratch(init_scratch):
 def desktop():
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
     d.disable_autosave()
-
+    d.odesktop.SetDesktopConfiguration("All")
+    d.odesktop.SetSchematicEnvironment(0)
     yield d
 
     d.release_desktop(True, True)

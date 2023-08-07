@@ -1,13 +1,12 @@
 # standard imports
 import os
 
-from _unittest_solvers.conftest import config
-from _unittest_solvers.conftest import local_path
+from _unittest.conftest import config
+from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Icepak
 from pyaedt import settings
-
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -46,18 +45,15 @@ def aedtapp(add_app):
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
     project_path_origin = os.path.join(
-        local_path, "example_models", test_subfolder, src_project_name + ".aedt"
+        local_path, "../_unittest/example_models", test_subfolder, src_project_name + ".aedt"
     )
     project_path = local_scratch.copyfile(project_path_origin)
-    source_project_path = os.path.join(
-        local_path, "example_models", test_subfolder, src_project_name
-    )
+    source_project_path = os.path.join(local_path, "../_unittest/example_models", test_subfolder, src_project_name)
 
     return project_path, source_project_path
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
@@ -484,10 +480,10 @@ class TestClass:
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn")
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "brd_board.emn")
         )
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"),
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
@@ -572,10 +568,10 @@ class TestClass:
     def test_42_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf")
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "A1_uprev Cadence172.bdf")
         )
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
