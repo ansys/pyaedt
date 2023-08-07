@@ -2773,7 +2773,7 @@ class GeometryModeler(Modeler, object):
             return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
-    def split(self, objects, plane, sides="Both"):
+    def split(self, objects, plane, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
         """Split a list of objects.
 
         Parameters
@@ -2788,6 +2788,15 @@ class GeometryModeler(Modeler, object):
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
             and ``"NegativeOnly"``. The default is ``"Both"``, in which case
             all objects are kept after the split.
+        tool : str, int, optional
+            Name or ID of the face/edge to use to split the objects.
+            If not provided the plane option is used for the split.
+        split_crossing_objs : bool, optional
+            Split crossing plane objects.
+            The default value is ``False``.
+        delete_invalid_objs : bool, optional
+            Delete invalid objects.
+            The default value is ``True``.
 
         Returns
         -------
@@ -2799,11 +2808,82 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Split
         """
-        planes = GeometryOperators.cs_plane_to_plane_str(plane)
-        selections = self.convert_to_selections(objects)
-        all_objs = [i for i in self.object_names]
+        if self._is3d:
+            selections = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if not plane and not tool or plane and tool:
+                self.logger.info("One method to split the objects has to be defined.")
+                plane = "XY"
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            elif plane and not tool:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            elif tool and not plane:
+                if isinstance(tool, str):
+                    face = self.convert_to_selections(tool, False)
+                    face_obj = [f for f in self.objects if f.name == face][0]
+                elif isinstance(tool, int):
+                    face = self.convert_to_selections(tool, False)
+                    face_obj = [f for f in self.objects if f.id == face][0]
+                else:
+                    self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
+                    return False
+                planes = "Dummy"
+                tool_type = "FaceTool"
+                tool_entity_id = face_obj.id
+                selections = [
+                    "NAME:Selections",
+                    "Selections:=",
+                    selections,
+                    "NewPartsModelFlag:=",
+                    "Model",
+                    "ToolPart:=",
+                    face_obj.name,
+                ]
+        else:
+            selections = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if not plane and not tool or plane and tool:
+                self.logger.info("One method to split the objects has to be defined.")
+                plane = "XY"
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            elif plane and not tool:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            elif tool and not plane:
+                if isinstance(tool, str):
+                    edge = self.convert_to_selections(tool, False)
+                    edge_obj = [e for e in self.objects if e.name == edge][0]
+                elif isinstance(tool, int):
+                    edge = self.convert_to_selections(tool, False)
+                    edge_obj = [e for e in self.objects if e.id == edge][0]
+                else:
+                    self.logger.error("Edge tool part has to be provided as a string (name) or an int (face id).")
+                    return False
+                planes = "Dummy"
+                tool_type = "FaceTool"
+                tool_entity_id = edge_obj.id
+                selections = [
+                    "NAME:Selections",
+                    "Selections:=",
+                    selections,
+                    "NewPartsModelFlag:=",
+                    "Model",
+                    "ToolPart:=",
+                    edge_obj.name,
+                ]
         self.oeditor.Split(
-            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            selections,
             [
                 "NAME:SplitToParameters",
                 "SplitPlane:=",
@@ -2811,13 +2891,13 @@ class GeometryModeler(Modeler, object):
                 "WhichSide:=",
                 sides,
                 "ToolType:=",
-                "PlaneTool",
+                tool_type,
                 "ToolEntityID:=",
-                -1,
+                tool_entity_id,
                 "SplitCrossingObjectsOnly:=",
-                False,
+                split_crossing_objs,
                 "DeleteInvalidObjects:=",
-                True,
+                delete_invalid_objs,
             ],
         )
         self.refresh_all_ids()
