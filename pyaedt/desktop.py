@@ -447,9 +447,16 @@ class Desktop(object):
         aedt_process_id = kwargs.get("aedt_process_id") or None if not args else args[7]
 
         if len(_desktop_sessions.keys()) > 0:
-            print("Returning found desktop!")
-            cls._invoked_from_design = False
-            return list(_desktop_sessions.values())[0]
+            sessions = list(_desktop_sessions.keys())
+            try:
+                process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
+                print("Returning found desktop with PID {}!".format(process_id))
+                cls._invoked_from_design = False
+                return _desktop_sessions[sessions[0]]
+            except:
+                del _desktop_sessions[sessions[0]]
+                print("Initializing new desktop!")
+                return object.__new__(cls)
         else:
             print("Initializing new desktop!")
             return object.__new__(cls)
