@@ -1341,7 +1341,7 @@ class Desktop(object):
         Returns
         -------
         :def :`pyaedt.Hfss`
-            Any of the Pyaedt App initialized.
+            Any of the PyAEDT App initialized.
 
         References
         ----------
