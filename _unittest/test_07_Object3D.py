@@ -648,6 +648,8 @@ class TestClass:
         assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", tighten_gaps_width="0.001")
         assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance=1.2)
         assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance="1.2")
+        assert not self.aedtapp.modeler.heal_objects(input_objects_list=None)
+        assert not self.aedtapp.modeler.heal_objects(input_objects_list=1)
 
     def test_20_simplify_objects(self):
         assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1")
@@ -659,3 +661,5 @@ class TestClass:
         assert not self.aedtapp.modeler.simplify_objects(
             input_objects_list="box_1", simplify_type="Polygon Fit", extrusion_axis="U"
         )
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=None)
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=1)
