@@ -39,10 +39,11 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 
 
-from pyaedt import Desktop
 from pyaedt import Edb
 from pyaedt import Hfss
 from pyaedt.aedt_logger import pyaedt_logger
+from pyaedt.desktop import Desktop
+from pyaedt.desktop import _delete_objects
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
@@ -131,6 +132,7 @@ def local_scratch(init_scratch):
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    _delete_objects()
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
     d.disable_autosave()
     d.odesktop.SetDesktopConfiguration("All")
