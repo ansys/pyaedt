@@ -44,6 +44,9 @@ The following class is the container of data management for nets, extended nets 
     edb = Edb(myedb, edbversion="2023.1")
 
     edb.nets["M_MA<6>"].delete()
+    edb.net_classes
+    edb.differential_pairs
+    edb.extended_nets
 
 
     ...
