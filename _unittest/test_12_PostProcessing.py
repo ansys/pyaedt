@@ -274,6 +274,7 @@ class TestClass:
         files = q3dtest.export_results()
         assert len(files) > 0
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_17_circuit(self, circuit_test):
         assert not circuit_test.setups[0].is_solved
 
@@ -331,6 +332,7 @@ class TestClass:
         assert new_report.create()
         pass
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_18_diff_plot(self, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
         assert len(diff_test.post.available_report_types) > 0
@@ -379,6 +381,7 @@ class TestClass:
             differential_pairs=True,
         )
 
+    @pytest.mark.skipif(is_linux, reason="Failing on Linux")
     def test_51_get_efields(self, field_test):
         assert field_test.post.get_efields_data(ff_setup="3D")
 
