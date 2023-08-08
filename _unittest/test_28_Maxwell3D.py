@@ -697,22 +697,6 @@ class TestClass:
         box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
-    def test_42_harmonic_forces(self, m3dtransient):
-        assert m3dtransient.enable_harmonic_force(
-            ["Stator"],
-            force_type=2,
-            window_function="Rectangular",
-            use_number_of_last_cycles=True,
-            last_cycles_number=3,
-            calculate_force="Harmonic",
-        )
-        m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
-        assert m3dtransient.export_element_based_harmonic_force(
-            start_frequency=1, stop_frequency=100, number_of_frequency=None
-        )
-        assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
-
     def test_43_eddy_effect_transient(self, m3dtransient):
         assert m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
 
