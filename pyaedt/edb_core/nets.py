@@ -265,7 +265,8 @@ class EdbNets(object):
         if exception_list is None:
             exception_list = []
         _extended_nets = []
-        all_nets = list(self.nets.keys())[:]
+        _nets = self.nets
+        all_nets = list(_nets.keys())[:]
         net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
         comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
 
@@ -313,14 +314,14 @@ class EdbNets(object):
                     if not i.lower().startswith("unnamed"):
                         break
 
-                flag = False
+                is_power = False
                 for i in new_ext:
-                    flag = flag or self._pedb.nets[i].is_power_ground
+                    is_power = is_power or _nets[i].is_power_ground
 
-                if include_power and flag:
+                if include_power and is_power:
                     self._pedb.extended_nets.create(i, new_ext)
 
-                if include_signal and not flag:
+                if include_signal and not is_power:
                     self._pedb.extended_nets.create(i, new_ext)
 
         return _extended_nets

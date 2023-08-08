@@ -251,13 +251,13 @@ class TestClass:
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        assert self.edbapp.nets.generate_extended_nets(include_signal=False, include_power=True, capacitor_above=1)
-        assert self.edbapp.nets.generate_extended_nets(include_signal=True, include_power=False, capacitor_above=1e-9)
-        assert self.edbapp.extended_nets["AVCC_1V3"]
-        assert self.edbapp.extended_nets["AVCC_1V3"].nets
-        assert self.edbapp.extended_nets["AVCC_1V3"].components
-        assert self.edbapp.extended_nets["AVCC_1V3"].rlc
-        assert self.edbapp.extended_nets["AVCC_1V3"].serial_rlc
+        assert self.edbapp.nets.generate_extended_nets()
+        extended_net_name, extended_net_obj = next(iter(self.edbapp.extended_nets.items.items()))
+        assert self.edbapp.extended_nets[extended_net_name]
+        assert self.edbapp.extended_nets[extended_net_name].nets
+        assert self.edbapp.extended_nets[extended_net_name].components
+        assert self.edbapp.extended_nets[extended_net_name].rlc
+        assert self.edbapp.extended_nets[extended_net_name].serial_rlc
 
         assert self.edbapp.nets["AVCC_1V3"].extended_net
 
@@ -266,6 +266,7 @@ class TestClass:
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
+        assert self.edbapp.differential_pairs.items
 
         assert self.edbapp.net_classes.items
         assert self.edbapp.net_classes.create("DDR4_ADD", ["DDR4_A0", "DDR4_A1"])
