@@ -27,6 +27,7 @@ from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
 from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -2784,15 +2785,19 @@ class GeometryModeler(Modeler, object):
         plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-            If neither plane nor tool parameters are provided, the plane tool option is used.
-            The default value is ``"XY"``.
+            If neither plane nor tool parameters are provided.
+            If neither plane nor tool parameter is provided the method returns ``False``.
+            The default value is ``None``.
         sides : str
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
             and ``"NegativeOnly"``. The default is ``"Both"``, in which case
             all objects are kept after the split.
-        tool : str, int, optional
-            Name or ID of the face/edge to use to split the objects.
-            If not provided the plane option is used for the split.
+        tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`,
+        :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
+            For 3D design types is the name, ID or face of the object used to split the other objects.
+            For 2D design types is the name, ID or edge of the object used to split the other objects.
+            If neither plane nor tool parameter is provided the method returns ``False``.
+            The default value is ``None``.
         split_crossing_objs : bool, optional
             Split crossing plane objects.
             The default value is ``False``.
@@ -2802,42 +2807,62 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
-            List of split objects.
+        list of str
+            List of split object names.
 
         References
         ----------
 
         >>> oEditor.Split
         """
+        if not plane and not tool or plane and tool:
+            self.logger.info("One method to split the objects has to be defined.")
+            return False
         if self._is3d:
             objects = self.convert_to_selections(objects)
             all_objs = [i for i in self.object_names]
-            if not plane and not tool or plane and tool:
-                self.logger.info("One method to split the objects has to be defined.")
-                plane = "XY"
-                tool_type = "PlaneTool"
-                tool_entity_id = -1
-                planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
-            elif plane and not tool:
+            if plane and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif tool and not plane:
-                if isinstance(tool, str):
-                    face = self.convert_to_selections(tool, False)
-                    face_obj = [f for f in self.objects if f.name == face][0]
-                elif isinstance(tool, int):
-                    face = self.convert_to_selections(tool, False)
-                    face_obj = [f for f in self.objects if f.id == face][0]
+                objs_selection = self.convert_to_selections(tool, False)
+                if isinstance(tool, str) or isinstance(tool, int):
+                    obj_name = objs_selection
+                    obj = [f for f in self.object_list if f.name == objs_selection][0]
+                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                        obj = obj.faces[0]
+                        tool_type = "FaceTool"
+                    elif obj.object_type == "Line":
+                        obj = obj.edges[0]
+                        tool_type = "EdgeTool"
+                elif isinstance(tool, FacePrimitive):
+                    for o in self.object_list:
+                        for f in o.faces:
+                            if f.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = f
+                    tool_type = "FaceTool"
+                elif isinstance(tool, EdgePrimitive):
+                    for o in self.object_list:
+                        for e in o.edges:
+                            if e.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = e
+                    tool_type = "EdgeTool"
+                elif isinstance(tool, Polyline) or tool.object_type != "Line":
+                    for o in self.object_list:
+                        if o.name == objs_selection:
+                            obj_name = objs_selection
+                            obj = o.edges[0]
+                    tool_type = "EdgeTool"
                 else:
                     self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
                     return False
                 planes = "Dummy"
-                tool_type = "FaceTool"
-                tool_entity_id = face_obj.id
+                tool_type = tool_type
+                tool_entity_id = obj.id
                 selections = [
                     "NAME:Selections",
                     "Selections:=",
@@ -2845,45 +2870,22 @@ class GeometryModeler(Modeler, object):
                     "NewPartsModelFlag:=",
                     "Model",
                     "ToolPart:=",
-                    face_obj.name,
+                    obj_name,
                 ]
         else:
             objects = self.convert_to_selections(objects)
             all_objs = [i for i in self.object_names]
-            if not plane and not tool or plane and tool:
-                self.logger.info("One method to split the objects has to be defined.")
-                plane = "XY"
+            if not plane and tool:
+                self.logger.info("For 2D design types only planes can be defined.")
+                return False
+            elif plane:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
-            elif plane and not tool:
-                tool_type = "PlaneTool"
-                tool_entity_id = -1
-                planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
-            elif tool and not plane:
-                if isinstance(tool, str):
-                    edge = self.convert_to_selections(tool, False)
-                    edge_obj = [e for e in self.objects if e.name == edge][0]
-                elif isinstance(tool, int):
-                    edge = self.convert_to_selections(tool, False)
-                    edge_obj = [e for e in self.objects if e.id == edge][0]
-                else:
-                    self.logger.error("Edge tool part has to be provided as a string (name) or an int (face id).")
-                    return False
-                planes = "Dummy"
-                tool_type = "FaceTool"
-                tool_entity_id = edge_obj.id
-                selections = [
-                    "NAME:Selections",
-                    "Selections:=",
-                    objects,
-                    "NewPartsModelFlag:=",
-                    "Model",
-                    "ToolPart:=",
-                    edge_obj.name,
-                ]
+            # else:
+            #     self.logger.error("Plane has to be defined to split object.")
+            #     return False
         self.oeditor.Split(
             selections,
             [
