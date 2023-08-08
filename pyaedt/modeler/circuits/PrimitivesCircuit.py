@@ -389,7 +389,7 @@ class CircuitComponents(object):
             """
             portnames = []
             line = file.readline()
-            while not line.startswith("! Port") and line.find("S11") == -1:
+            while not line.startswith("! Port") and not line.startswith("! NPort") and line.find("S11") == -1:
                 line = file.readline()
             if line.startswith("! Port"):
                 while line.startswith("! Port"):
