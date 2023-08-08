@@ -318,11 +318,16 @@ class EdbNets(object):
                 for i in new_ext:
                     is_power = is_power or _nets[i].is_power_ground
 
-                if include_power and is_power:
-                    self._pedb.extended_nets.create(i, new_ext)
-
-                if include_signal and not is_power:
-                    self._pedb.extended_nets.create(i, new_ext)
+                if is_power:
+                    if include_power:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+                else:
+                    if include_signal:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
 
         return _extended_nets
 

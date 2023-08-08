@@ -927,6 +927,8 @@ class Edb(Database):
         """
         if self.active_db:
             return EdbDifferentialPairs(self)
+        else:  # pragma: no cover
+            return
 
     @property
     def core_primitives(self):  # pragma: no cover
