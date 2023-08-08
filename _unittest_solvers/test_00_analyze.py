@@ -12,13 +12,14 @@ from _unittest_solvers.conftest import local_path
 from pyaedt import is_linux
 from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
-from pyaedt import Circuit
+from pyaedt import Circuit, Maxwell3d
 
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
 original_project_name = "Galileo_t21_231"
+transient = "Transient_StrandedWindings"
 
 test_subfolder = "T00"
 
@@ -66,6 +67,12 @@ def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
+
+@pytest.fixture(scope="class")
+def m3dtransient(add_app):
+    app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
+    return app
+
 
 class TestClass:
 
@@ -307,3 +314,19 @@ class TestClass:
         setup_name = "test_07b_Transient"
         setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
+
+    def test_06_m3d_harmonic_forces(self, m3dtransient):
+        assert m3dtransient.enable_harmonic_force(
+            ["Stator"],
+            force_type=2,
+            window_function="Rectangular",
+            use_number_of_last_cycles=True,
+            last_cycles_number=3,
+            calculate_force="Harmonic",
+        )
+        m3dtransient.save_project()
+        m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
+        assert m3dtransient.export_element_based_harmonic_force(
+            start_frequency=1, stop_frequency=100, number_of_frequency=None
+        )
+        assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
