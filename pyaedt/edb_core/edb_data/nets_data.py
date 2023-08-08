@@ -235,7 +235,9 @@ class EDBDifferentialPairData(DifferentialPairDotNet):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb.differential_pairs.differential_pairs
+    >>> diff_pair = edb.differential_pairs["DQ4"]
+    >>> diff_pair.positive_net
+    >>> diff_pair.negative_net
     """
 
     def __init__(self, core_app, api_object=None):

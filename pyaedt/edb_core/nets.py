@@ -223,8 +223,16 @@ class EdbNets(object):
         return self._comps_by_nets_dict
 
     @pyaedt_function_handler()
-    def generate_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
-        # type: (int | float, int | float, int |float, list) -> list
+    def generate_extended_nets(
+        self,
+        resistor_below=10,
+        inductor_below=1,
+        capacitor_above=1,
+        exception_list=None,
+        include_signal=True,
+        include_power=True,
+    ):
+        # type: (int | float, int | float, int |float, list, bool, bool) -> list
         """Get extended net and associated components.
 
         Parameters
@@ -239,6 +247,10 @@ class EdbNets(object):
             threshold.
         exception_list : list, optional
             List of components which bypass threshold check. The default is ``None``.
+        include_signal : str, optional
+            Whether to generate extended signal nets. The default is ``True``.
+        include_power : str, optional
+            Whether to generate extended power nets. The default is ``True``.
         Returns
         -------
         list
@@ -253,7 +265,8 @@ class EdbNets(object):
         if exception_list is None:
             exception_list = []
         _extended_nets = []
-        all_nets = list(self.nets.keys())[:]
+        _nets = self.nets
+        all_nets = list(_nets.keys())[:]
         net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
         comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
 
@@ -300,7 +313,22 @@ class EdbNets(object):
                 for i in new_ext:
                     if not i.lower().startswith("unnamed"):
                         break
-                self._pedb.extended_nets.create(i, new_ext)
+
+                is_power = False
+                for i in new_ext:
+                    is_power = is_power or _nets[i].is_power_ground
+
+                if is_power:
+                    if include_power:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+                else:
+                    if include_signal:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+
         return _extended_nets
 
     @staticmethod

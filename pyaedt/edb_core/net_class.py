@@ -158,14 +158,15 @@ class EdbExtendedNets(EdbCommon, object):
         return self.items[name]
 
 
-class EdbDifferentialPair(EdbCommon, object):
+class EdbDifferentialPairs(EdbCommon, object):
     """Manages EDB methods for managing nets accessible from the ``Edb.differential_pairs`` property.
 
     Examples
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_nets = edbapp.differential_pairs
+    >>> edb_nets = edbapp.differential_pairs.items
+    >>> edb_nets = edbapp.differential_pairs["DQ4"]
     """
 
     def __init__(self, p_edb):
