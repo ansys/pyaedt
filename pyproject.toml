@@ -56,7 +56,6 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf",
-
 ]
 doc = [
     "ansys-sphinx-theme==0.10.2",
@@ -84,7 +83,8 @@ doc = [
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.13.0",
     "sphinx-notfound-page==0.8.3",
-    "sphinxcontrib-websupport==1.2.4",
+    "sphinxcontrib-websupport==1.2.4; python_version <= '3.9'",
+    "sphinxcontrib-websupport==1.2.5; python_version <= '3.7'",
     "SRTM.py",
     "utm",
     "scikit-rf",

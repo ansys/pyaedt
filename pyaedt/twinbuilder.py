@@ -118,6 +118,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             aedt_process_id,
         )
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.

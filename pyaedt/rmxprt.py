@@ -237,6 +237,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 

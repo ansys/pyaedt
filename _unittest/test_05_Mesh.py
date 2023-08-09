@@ -1,22 +1,28 @@
 # Import required modules
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
+import pytest
 
 from pyaedt import Maxwell3d
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+#
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Test05")
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test05")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_assign_model_resolution(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -120,8 +126,9 @@ class TestClass(BasisTest, object):
             == False
         )
 
-    def test_07_maxwell_mesh(self):
-        m3d = Maxwell3d(specified_version=desktop_version)
+    def test_07_maxwell_mesh(self, add_app):
+        # m3d = Maxwell3d(specified_version=desktop_version)
+        m3d = add_app(application=Maxwell3d)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
         rot = m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
         assert rot.props["Number of Layers"] == "3"

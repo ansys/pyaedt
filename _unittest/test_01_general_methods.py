@@ -1,4 +1,11 @@
+import pytest
+
 from pyaedt.generic.general_methods import number_aware_string_key
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
 
 class TestClass(object):
