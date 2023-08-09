@@ -4,7 +4,7 @@
 User guide
 ==========
 PyAEDT works both inside AEDT and as a standalone application.
-It automatically detects whether it is running in an IronPython or CPython
+It automatically detects whether it is running in an IronPython (limited capabilities) or CPython
 environment and initializes AEDT accordingly. PyAEDT also provides
 advanced error management.
 

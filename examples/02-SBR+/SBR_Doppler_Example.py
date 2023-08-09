@@ -17,7 +17,7 @@ import pyaedt
 # ~~~~~~~~~~~
 # Launch AEDT.
 
-aedt_version = "2023.1"
+aedt_version = "2023.2"
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = pyaedt.downloads.download_multiparts()

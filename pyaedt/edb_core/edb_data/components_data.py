@@ -29,8 +29,8 @@ class EDBComponentDef(object):
         Edb ComponentDef Object
     """
 
-    def __init__(self, components, comp_def):
-        self._pcomponents = components
+    def __init__(self, pedb, comp_def):
+        self._pedb = pedb
         self._edb_comp_def = comp_def
 
     @property
@@ -76,9 +76,9 @@ class EDBComponentDef(object):
         dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`
         """
         comp_list = [
-            EDBComponent(self._pcomponents, l)
-            for l in self._pcomponents._pedb.edb_api.cell.hierarchy.component.FindByComponentDef(
-                self._pcomponents._pedb.active_layout, self.part_name
+            EDBComponent(self._pedb, l)
+            for l in self._pedb.edb_api.cell.hierarchy.component.FindByComponentDef(
+                self._pedb.active_layout, self.part_name
             )
         ]
         return {comp.refdes: comp for comp in comp_list}
@@ -267,16 +267,16 @@ class EDBComponent(object):
         def netlist(self):
             return self._edb_model.GetNetlist()
 
-    def __init__(self, components, cmp):
-        self._pcomponents = components
+    def __init__(self, pedb, cmp):
+        self._pedb = pedb
         self.edbcomponent = cmp
         self._layout_instance = None
         self._comp_instance = None
 
     @property
     def layout_instance(self):
-        """Edb layout instance object."""
-        return self._pcomponents._pedb.layout_instance
+        """EDB layout instance object."""
+        return self._pedb.layout_instance
 
     @property
     def component_instance(self):
@@ -284,10 +284,6 @@ class EDBComponent(object):
         if self._comp_instance is None:
             self._comp_instance = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
         return self._comp_instance
-
-    @property
-    def _pedb(self):  # pragma: no cover
-        return self._pcomponents._pedb
 
     @property
     def _active_layout(self):  # pragma: no cover
@@ -382,8 +378,13 @@ class EDBComponent(object):
         self.edbcomponent.SetName(name)
 
     @property
+    def is_null(self):
+        """Flag indicating if the current object exists."""
+        return self.edbcomponent.IsNull()
+
+    @property
     def is_enabled(self):
-        """Check if the current object is enabled.
+        """Flag indicating if the current object is enabled.
 
         Returns
         -------
@@ -686,7 +687,7 @@ class EDBComponent(object):
         """
         pins = {}
         for el in self.pinlist:
-            pins[el.GetName()] = EDBPadstackInstance(el, self._pcomponents._pedb)
+            pins[el.GetName()] = EDBPadstackInstance(el, self._pedb)
         return pins
 
     @property
@@ -723,17 +724,17 @@ class EDBComponent(object):
             ``"IC"``, ``"IO"`` and ``"Other"``.
         """
         if new_type == "Resistor":
-            type_id = self._edb.definition.ComponentType.Resistor
+            type_id = self._pedb.definition.ComponentType.Resistor
         elif new_type == "Inductor":
-            type_id = self._edb.definition.ComponentType.Inductor
+            type_id = self._pedb.definition.ComponentType.Inductor
         elif new_type == "Capacitor":
-            type_id = self._edb.definition.ComponentType.Capacitor
+            type_id = self._pedb.definition.ComponentType.Capacitor
         elif new_type == "IC":
-            type_id = self._edb.definition.ComponentType.IC
+            type_id = self._pedb.definition.ComponentType.IC
         elif new_type == "IO":
-            type_id = self._edb.definition.ComponentType.IO
+            type_id = self._pedb.definition.ComponentType.IO
         elif new_type == "Other":
-            type_id = self._edb.definition.ComponentType.Other
+            type_id = self._pedb.definition.ComponentType.Other
         else:
             return
         self.edbcomponent.SetComponentType(type_id)
@@ -783,7 +784,7 @@ class EDBComponent(object):
 
     @property
     def _edb(self):
-        return self._pcomponents._edb
+        return self._pedb.edb_api
 
     @property
     def placement_layer(self):
@@ -838,7 +839,7 @@ class EDBComponent(object):
 
     @pyaedt_function_handler
     def _get_edb_value(self, value):
-        return self._pcomponents._get_edb_value(value)
+        return self._pedb.edb_value(value)
 
     @pyaedt_function_handler
     def _set_model(self, model):  # pragma: no cover

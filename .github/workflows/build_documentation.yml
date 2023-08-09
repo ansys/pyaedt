@@ -49,7 +49,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
-          pip install .
+          pip install .[doc]
 
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
@@ -77,7 +77,6 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          pip install .[doc]
           sudo apt install graphviz
 
       # run doc build, without creating the examples directory
@@ -85,6 +84,7 @@ jobs:
       # be created as gallery is disabled on linux.
       - name: Documentation Build
         run: |
+          make -C doc clean
           mkdir doc/source/examples -p
           echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"

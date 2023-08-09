@@ -1,6 +1,6 @@
 """
 Circuit: Simulate multi-zones layout with Siwave
--------------------
+------------------------------------------------
 This example shows how you can use PyAEDT simulate multi-zones with Siwave.
 """
 
@@ -30,18 +30,18 @@ print(edb_file)
 ###############################################################################
 # AEDT version
 # ~~~~~~~~~~~~
-# Sets the Aedt version to 2023 R1.
+# Sets the Aedt version to 2023 R2.
 
-edb_version = "2023.1"
+edb_version = "2023.2"
 
-###############################################################################
+#####################################################################################
 # Ground net
 # ~~~~~~~~~~
 # Common reference net used across all sub-designs, Mandatory for this work flow.
 
 common_reference_net = "GND"
 
-###############################################################################
+########################################################################################
 # Project load
 # ~~~~~~~~~~~~
 # Load initial Edb file, checking if aedt file exists and remove to allow Edb loading.
@@ -59,12 +59,12 @@ edb_zones = edb.copy_zones(working_directory=working_directory)
 
 ###############################################################################
 # Split zones
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~
 # Clip sub-designs along with corresponding zone definition
 # and create port of clipped signal traces.
 defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
 
-###############################################################################
+#############################################################################################################
 # Circuit
 # ~~~~~~~
 # Create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit.
@@ -81,7 +81,7 @@ circuit_setup= circuit.create_setup("Pyedt_LNA")
 
 ###############################################################################
 # Frequency sweep
-# ~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~
 # Add frequency sweep from 0GHt to 20GHz with 10NHz frequency step.
 circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format("0GHz", "20GHz", "10MHz")
 
@@ -93,7 +93,7 @@ circuit.analyze()
 
 ###############################################################################
 # Define differential pairs
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 circuit.set_differential_pair(diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP",
                               negative_terminal="U0.via_39.B2B_SIGN")
 circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP",

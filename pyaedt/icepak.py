@@ -164,6 +164,9 @@ class Icepak(FieldAnalysis3D):
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 
@@ -2613,8 +2616,11 @@ class Icepak(FieldAnalysis3D):
         ansys_install_dir = os.environ.get("ANSYS{}_DIR".format(version), "")
         if not ansys_install_dir:
             ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
-        assert ansys_install_dir, "Fluent {} has to be installed on to generate mesh.".format(version)
-        assert os.getenv("ANSYS{}_DIR".format(version))
+        assert ansys_install_dir, "Fluent {} has to be installed to generate mesh. Please set ANSYS{}_DIR".format(
+            version, version
+        )
+        if not os.getenv("ANSYS{}_DIR".format(version)):
+            os.environ["ANSYS{}_DIR".format(version)] = ansys_install_dir
         if not object_lists:
             object_lists = self.get_liquid_objects()
             assert object_lists, "No Fluids objects found."
@@ -2722,17 +2728,14 @@ class Icepak(FieldAnalysis3D):
             "-meshing",
             "-hidden",
             "-i",
-            '"' + fl_uscript_file_pointer + '"',
         ]
         self.logger.info("Fluent is starting in Background with command line")
+        if is_linux:
+            fl_ucommand = ["bash"] + fl_ucommand + [fl_uscript_file_pointer]
+        else:
+            fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
         self.logger.info(" ".join(fl_ucommand))
         subprocess.call(fl_ucommand)
-        if os.path.exists(mesh_file_pointer + ".trn"):
-            os.remove(mesh_file_pointer + ".trn")
-        if os.path.exists(fl_uscript_file_pointer):
-            os.remove(fl_uscript_file_pointer)
-        if os.path.exists(sab_file_pointer):
-            os.remove(sab_file_pointer)
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
