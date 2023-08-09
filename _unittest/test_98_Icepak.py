@@ -1111,7 +1111,7 @@ class TestClass:
         )
         assert boundary
 
-    def test_61_assign_network(self):
+    def test_61_assign_network(self, add_app):
         self.aedtapp.insert_design("test_61")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20])
         ids = [f.id for f in box.faces]
@@ -1201,10 +1201,7 @@ class TestClass:
                 i._props = None
             except KeyError:
                 pass
-        new_path = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "NetworkTest.aedt")
-        )
-        app = Icepak(new_path, specified_version=desktop_version)
+        app = add_app(application=Icepak, project_name="NetworkTest", subfolder=test_subfolder)
         thermal_b = app.boundaries
         thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
         thermal_b[0].update()
