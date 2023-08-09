@@ -1335,6 +1335,38 @@ class Desktop(object):
         return str(ex_value)
 
     @pyaedt_function_handler()
+    def load_project(self, project_file, design_name=None):
+        """Open an AEDT project based on a project and optional design.
+
+        Parameters
+        ----------
+        project_file : str
+            Full path and name for the project.
+        design_name : str, optional
+            Design name. The default is ``None``.
+
+        Returns
+        -------
+        :def :`pyaedt.Hfss`
+            Any of the PyAEDT App initialized.
+
+        References
+        ----------
+        >>> oDesktop.OpenProject
+
+        """
+        proj = self.odesktop.OpenProject(project_file)
+        if proj:
+            active_design = proj.GetActiveDesign()
+            if design_name and design_name in proj.GetChildNames():  # pragma: no cover
+                return self[[proj.GetName(), design_name]]
+            elif active_design:
+                return self[[proj.GetName(), active_design.GetName()]]
+            return True
+        else:  # pragma: no cover
+            return False
+
+    @pyaedt_function_handler()
     def release_desktop(self, close_projects=True, close_on_exit=True):
         """Release AEDT.
 
