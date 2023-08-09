@@ -1,4 +1,5 @@
 from __future__ import absolute_import  # noreorder
+
 import re
 
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
@@ -159,9 +160,7 @@ class EdbExtendedNets(EdbCommon, object):
         return self.items[name]
 
     @pyaedt_function_handler
-    def auto_identify_signal(self, resistor_below=10,
-        inductor_below=1,
-        capacitor_above=1e-9, exception_list=None):
+    def auto_identify_signal(self, resistor_below=10, inductor_below=1, capacitor_above=1e-9, exception_list=None):
         # type: (int | float, int | float, int |float, list) -> list
         """Get extended signal net and associated components.
 
@@ -190,17 +189,12 @@ class EdbExtendedNets(EdbCommon, object):
         >>> app = Edb()
         >>> app.extended_nets.auto_identify_signal()
         """
-        return self._pedb.nets.generate_extended_nets(resistor_below,
-        inductor_below,
-        capacitor_above,
-        exception_list,
-        True,
-        False)
+        return self._pedb.nets.generate_extended_nets(
+            resistor_below, inductor_below, capacitor_above, exception_list, True, False
+        )
 
     @pyaedt_function_handler
-    def auto_identify_power(self, resistor_below=10,
-        inductor_below=1,
-        capacitor_above=1, exception_list=None):
+    def auto_identify_power(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
         # type: (int | float, int | float, int |float, list) -> list
         """Get extended power net and associated components.
 
@@ -229,12 +223,9 @@ class EdbExtendedNets(EdbCommon, object):
         >>> app = Edb()
         >>> app.extended_nets.auto_identify_power()
         """
-        return self._pedb.nets.generate_extended_nets(resistor_below,
-        inductor_below,
-        capacitor_above,
-        exception_list,
-        False,
-        True)
+        return self._pedb.nets.generate_extended_nets(
+            resistor_below, inductor_below, capacitor_above, exception_list, False, True
+        )
 
 
 class EdbDifferentialPairs(EdbCommon, object):
@@ -323,11 +314,11 @@ class EdbDifferentialPairs(EdbCommon, object):
                 pass
 
         for p in pos_net:
-            pattern_p = r'^(.+){}$'.format(positive_differentiator)
+            pattern_p = r"^(.+){}$".format(positive_differentiator)
             match_p = re.findall(pattern_p, p)[0]
 
             for n in neg_net:
-                pattern_n = r'^(.+){}$'.format(negative_differentiator)
+                pattern_n = r"^(.+){}$".format(negative_differentiator)
                 match_n = re.findall(pattern_n, n)[0]
 
                 if match_p == match_n:
