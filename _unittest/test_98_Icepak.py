@@ -1255,6 +1255,14 @@ class TestClass(BasisTest, object):
                 i._props = None
             except KeyError:
                 pass
+        new_path = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "NetworkTest.aedt")
+        )
+        app = Icepak(new_path, specified_version=desktop_version)
+        thermal_b = app.boundaries
+        thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
+        thermal_b[0].update()
+        app.close_project()
 
     def test_62_get_fans_operating_point(self):
         new_path = self.local_scratch.copyfile(
