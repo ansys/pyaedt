@@ -402,3 +402,10 @@ class TestClass:
             file,
         )
         assert desktop.remove_script_from_menu("test_toolkit")
+
+    def test_39_load_project(self, desktop):
+        new_project = os.path.join(self.local_scratch.path, "new.aedt")
+        self.aedtapp.save_project(project_file=new_project)
+        self.aedtapp.close_project(name="new")
+        aedtapp = desktop.load_project(new_project)
+        assert aedtapp
