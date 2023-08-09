@@ -62,8 +62,8 @@ _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
-_recognized_keywords = ["CurvesInfo", "Sweep Operations"]
-_recognized_subkeys = ["simple(", "IDMap("]
+_recognized_keywords = ["CurvesInfo", "Sweep Operations", "PropDisplayMap"]
+_recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC("]
 
 # global variables
 _all_lines = []
@@ -160,6 +160,22 @@ def _decode_recognized_subkeys(sk, d):
                 elems = None
             d[k] = elems
             return True
+    if sk.startswith(_recognized_subkeys[2]):
+        wireseglist = [_parse_value(i) for i in sk.lstrip("WireSeg(").rstrip(")").split(", ")]
+        if "WireSeg" in d.keys():
+            d["WireSeg"].append(wireseglist)
+        else:
+            d["WireSeg"] = []
+            d["WireSeg"].append(wireseglist)
+        return True
+    if sk.startswith(_recognized_subkeys[3]):
+        pclist = [i for i in sk.lstrip("PC(").rstrip(")").split(", ")]
+        if "PC" in d.keys():
+            d["PC"].append(pclist)
+        else:
+            d["PC"] = []
+            d["PC"].append(pclist)
+        return True
     return False
 
 
@@ -196,6 +212,19 @@ def _decode_recognized_key(keyword, line, d):
             d["add"].append(line.replace("add", "").translate({ord(i): None for i in " ()'"}).split(","))
             _count += 1
             line = _all_lines[_count + 1]
+    elif keyword == _recognized_keywords[2]:  # PropDisplayMap
+        pattern = ".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
+        match = re.search(pattern, line)
+        d["Name"] = []
+        for i in match.group(1).split(", "):
+            d["Name"].append(_parse_value(i))
+        d["Name"].append("Text:=")
+        temp_list = []
+        for i in match.group(2).split(", "):
+            temp_list.append(_parse_value(i))
+        temp_list.append("ExtentRect:=")
+        temp_list.append([_parse_value(i) for i in match.group(3).split(", ")])
+        d["Name"].append(temp_list)
     else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
