@@ -251,7 +251,8 @@ class TestClass:
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        assert self.edbapp.nets.generate_extended_nets()
+        assert self.edbapp.extended_nets.auto_identify_signal()
+        assert self.edbapp.extended_nets.auto_identify_power()
         extended_net_name, extended_net_obj = next(iter(self.edbapp.extended_nets.items.items()))
         assert self.edbapp.extended_nets[extended_net_name]
         assert self.edbapp.extended_nets[extended_net_name].nets
@@ -263,6 +264,7 @@ class TestClass:
 
         assert self.edbapp.extended_nets.create("new_ex_net", "DDR4_A1")
 
+        self.edbapp.differential_pairs.auto_identify()
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
