@@ -27,6 +27,7 @@ from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
 from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -2773,37 +2774,118 @@ class GeometryModeler(Modeler, object):
             return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
-    def split(self, objects, plane, sides="Both"):
+    def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
         """Split a list of objects.
+        In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
+        In case of 2D design possible splitting option is plane.
 
         Parameters
         ----------
         objects : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
-        plane : str
+        plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
+            The default value is ``None``.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-        sides : str
-            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
-            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
-            all objects are kept after the split.
+            If plane or tool parameter are not provided the method returns ``False``.
+        sides : str, optional
+            Which side to keep. The default is ``"Both"``, in which case
+            all objects are kept after the split. Options are ``"Both"``,
+            ``"NegativeOnly"``, and ``"PositiveOnly"``.
+        tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`or
+                :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
+            For 3D design types is the name, ID, face, edge or polyline used to split the objects.
+            For 2D design types is the name of the plane used to split the objects.
+            The default value is ``None``.
+            If plane or tool parameter are not provided the method returns ``False``.
+        split_crossing_objs : bool, optional
+            Whether to split crossing plane objects.
+            The default is ``False``.
+        delete_invalid_objs : bool, optional
+            Whether to delete invalid objects.
+            The default is ``True``.
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
-            List of split objects.
+        list of str
+            List of split object names.
 
         References
         ----------
 
         >>> oEditor.Split
         """
-        planes = GeometryOperators.cs_plane_to_plane_str(plane)
-        selections = self.convert_to_selections(objects)
-        all_objs = [i for i in self.object_names]
+        if not plane and not tool or plane and tool:
+            self.logger.info("One method to split the objects has to be defined.")
+            return False
+        if self._is3d:
+            objects = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if plane and not tool:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+            elif tool and not plane:
+                objs_selection = self.convert_to_selections(tool, False)
+                if isinstance(tool, str) or isinstance(tool, int):
+                    obj_name = objs_selection
+                    obj = [f for f in self.object_list if f.name == objs_selection][0]
+                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                        obj = obj.faces[0]
+                        tool_type = "FaceTool"
+                    elif obj.object_type == "Line":
+                        obj = obj.edges[0]
+                        tool_type = "EdgeTool"
+                elif isinstance(tool, FacePrimitive):
+                    for o in self.object_list:
+                        for f in o.faces:
+                            if f.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = f
+                    tool_type = "FaceTool"
+                elif isinstance(tool, EdgePrimitive):
+                    for o in self.object_list:
+                        for e in o.edges:
+                            if e.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = e
+                    tool_type = "EdgeTool"
+                elif isinstance(tool, Polyline) or tool.object_type != "Line":
+                    for o in self.object_list:
+                        if o.name == objs_selection:
+                            obj_name = objs_selection
+                            obj = o.edges[0]
+                    tool_type = "EdgeTool"
+                else:
+                    self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
+                    return False
+                planes = "Dummy"
+                tool_type = tool_type
+                tool_entity_id = obj.id
+                selections = [
+                    "NAME:Selections",
+                    "Selections:=",
+                    objects,
+                    "NewPartsModelFlag:=",
+                    "Model",
+                    "ToolPart:=",
+                    obj_name,
+                ]
+        else:
+            objects = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if not plane and tool or not plane:
+                self.logger.info("For 2D design types only planes can be defined.")
+                return False
+            elif plane:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
         self.oeditor.Split(
-            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            selections,
             [
                 "NAME:SplitToParameters",
                 "SplitPlane:=",
@@ -2811,17 +2893,17 @@ class GeometryModeler(Modeler, object):
                 "WhichSide:=",
                 sides,
                 "ToolType:=",
-                "PlaneTool",
+                tool_type,
                 "ToolEntityID:=",
-                -1,
+                tool_entity_id,
                 "SplitCrossingObjectsOnly:=",
-                False,
+                split_crossing_objs,
                 "DeleteInvalidObjects:=",
-                True,
+                delete_invalid_objs,
             ],
         )
         self.refresh_all_ids()
-        return [selections] + [i for i in self.object_names if i not in all_objs]
+        return [objects] + [i for i in self.object_names if i not in all_objs]
 
     @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
     def duplicate_and_mirror(
