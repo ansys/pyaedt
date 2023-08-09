@@ -2776,6 +2776,8 @@ class GeometryModeler(Modeler, object):
     @pyaedt_function_handler()
     def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
         """Split a list of objects.
+        In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
+        In case of 2D design possible splitting option is plane.
 
         Parameters
         ----------
@@ -2785,17 +2787,16 @@ class GeometryModeler(Modeler, object):
         plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-            If neither plane nor tool parameters are provided.
             If neither plane nor tool parameter is provided the method returns ``False``.
             The default value is ``None``.
-        sides : str
+        sides : str, optional
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
             and ``"NegativeOnly"``. The default is ``"Both"``, in which case
             all objects are kept after the split.
-        tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`,
-        :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
-            For 3D design types is the name, ID or face of the object used to split the other objects.
-            For 2D design types is the name, ID or edge of the object used to split the other objects.
+        tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`or
+                :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
+            For 3D design types is the name, ID, face, edge or polyline used to split the other objects.
+            For 2D design types is the name of the plane used to split the other objects.
             If neither plane nor tool parameter is provided the method returns ``False``.
             The default value is ``None``.
         split_crossing_objs : bool, optional
@@ -2875,7 +2876,7 @@ class GeometryModeler(Modeler, object):
         else:
             objects = self.convert_to_selections(objects)
             all_objs = [i for i in self.object_names]
-            if not plane and tool:
+            if not plane and tool or not plane:
                 self.logger.info("For 2D design types only planes can be defined.")
                 return False
             elif plane:
@@ -2883,9 +2884,6 @@ class GeometryModeler(Modeler, object):
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
-            # else:
-            #     self.logger.error("Plane has to be defined to split object.")
-            #     return False
         self.oeditor.Split(
             selections,
             [

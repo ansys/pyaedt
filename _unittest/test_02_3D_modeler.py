@@ -116,7 +116,13 @@ class TestClass:
         split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly3)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
-        # Add test case edge
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        poly4 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 37], [30, 25, 37], [30, 45, 37]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly4.edges[0])
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
 
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
