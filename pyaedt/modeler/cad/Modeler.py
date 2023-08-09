@@ -2786,25 +2786,25 @@ class GeometryModeler(Modeler, object):
             both strings (object names) and integers (object IDs).
         plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
-            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-            If neither plane nor tool parameter is provided the method returns ``False``.
             The default value is ``None``.
+            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
+            If plane or tool parameter are not provided the method returns ``False``.
         sides : str, optional
-            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
-            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
-            all objects are kept after the split.
+            Which side to keep. The default is ``"Both"``, in which case
+            all objects are kept after the split. Options are ``"Both"``,
+            ``"NegativeOnly"``, and ``"PositiveOnly"``.
         tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`or
                 :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
-            For 3D design types is the name, ID, face, edge or polyline used to split the other objects.
-            For 2D design types is the name of the plane used to split the other objects.
-            If neither plane nor tool parameter is provided the method returns ``False``.
+            For 3D design types is the name, ID, face, edge or polyline used to split the objects.
+            For 2D design types is the name of the plane used to split the objects.
             The default value is ``None``.
+            If plane or tool parameter are not provided the method returns ``False``.
         split_crossing_objs : bool, optional
-            Split crossing plane objects.
-            The default value is ``False``.
+            Whether to split crossing plane objects.
+            The default is ``False``.
         delete_invalid_objs : bool, optional
-            Delete invalid objects.
-            The default value is ``True``.
+            Whether to delete invalid objects.
+            The default is ``True``.
 
         Returns
         -------
