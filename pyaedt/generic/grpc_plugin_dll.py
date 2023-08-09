@@ -59,7 +59,7 @@ def SetPyObjCalbacks(CreateAedtObj, CreateAedtBlockObj, GetAedtObjId):
     AedtAPI.SetPyObjCalbacks(callbackToCreateObj, callbackCreateBlock, callbackGetObjID)
 
 
-AedtAPI.CreateAedtApplication.argtypes = c_wchar_p, c_int, c_bool, c_bool
+AedtAPI.CreateAedtApplication.argtypes = c_wchar_p, py_object, c_bool, c_bool
 AedtAPI.CreateAedtApplication.restype = py_object
 
 AedtAPI.InvokeAedtObjMethod.argtypes = c_int, c_wchar_p, py_object
