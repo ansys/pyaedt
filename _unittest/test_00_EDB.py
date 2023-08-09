@@ -2672,7 +2672,7 @@ class TestClass:
         edbapp.close()
 
     def test_143_backdrill_via_with_offset(self):
-        edb = Edb(edbversion="2023.2")
+        edb = Edb(edbversion=desktop_version)
         edb.stackup.add_layer(layer_name="bot")
         edb.stackup.add_layer(layer_name="diel1", base_layer="bot", layer_type="dielectric", thickness="127um")
         edb.stackup.add_layer(layer_name="signal1", base_layer="diel1")
