@@ -130,16 +130,16 @@ jobs:
       - name: Scrape the stable documentation to meilisearch
         shell: bash
         run: |
-          pymeilisearch upload --template sphinx_pydata --index "pyaedt-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION" html documentation-html --stop_urls "EDBAPI" 
+          pymeilisearch upload --template sphinx_pydata --index "pyaedt-v${{ env.VERSION_MEILI }}" --cname "${{ env.DOCUMENTATION_CNAME }}/version/$VERSION" html documentation-html --stop_urls "EDBAPI" 
         env:
-          MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
+          MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
           MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
 
       - name: Scrape the stable EDB API documentation to meilisearch
         shell: bash
         run: |
-          pymeilisearch upload --template sphinx_pydata --index "pyedb-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION/EDBAPI/" html documentation-html/EDBAPI
+          pymeilisearch upload --template sphinx_pydata --index "pyedb-v${{ env.VERSION_MEILI }}" --cname "${{ env.DOCUMENTATION_CNAME }}/version/$VERSION/EDBAPI/" html documentation-html/EDBAPI
         env:
-          MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
+          MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
           MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
 

@@ -8,7 +8,7 @@ on:
 env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
-  MEILISEARCH_HOST_URL: https://backend.search.pyansys.com
+  MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -82,17 +82,17 @@ jobs:
       - name: Scrape the dev documentation to meilisearch
         shell: bash
         run: |
-          pymeilisearch upload --template sphinx_pydata --index "pyaedt-vdev" --cname "$DOCUMENTATION_CNAME/version/dev" html documentation-html --stop_urls "EDBAPI" 
+          pymeilisearch upload --template sphinx_pydata --index "pyaedt-vdev" --cname "${{ env.DOCUMENTATION_CNAME }}/version/dev" html documentation-html --stop_urls "EDBAPI" 
         env:
-          MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
+          MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
           MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
 
       - name: Scrape the dev EDB API documentation to meilisearch
         shell: bash
         run: |
-          pymeilisearch upload --template sphinx_pydata --index "pyedb-vdev" --cname "$DOCUMENTATION_CNAME/version/dev/EDBAPI/" html documentation-html/EDBAPI
+          pymeilisearch upload --template sphinx_pydata --index "pyedb-vdev" --cname "${{ env.DOCUMENTATION_CNAME }}/version/dev/EDBAPI/" html documentation-html/EDBAPI
         env:
-          MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
+          MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
           MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
 
 
