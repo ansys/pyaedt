@@ -5,35 +5,31 @@ import os
 import shutil
 import sys
 import tempfile
+import unittest.mock
 
-try:
-    import unittest.mock
-
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
-from _unittest.conftest import BasisTest
+import pytest
 
 from pyaedt import settings
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.general_methods import is_ironpython
 
 settings.enable_desktop_logs = True
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        settings.enable_local_log_file = True
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_14")
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    settings.enable_local_log_file = True
+    app = add_app(project_name="Test_14")
+    yield app
+    settings.enable_local_log_file = False
 
-    def teardown_class(self):
-        settings.enable_local_log_file = False
-        BasisTest.my_teardown(self)
-        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"), ignore_errors=True)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_formatter(self):
         settings.formatter = logging.Formatter(
@@ -52,6 +48,7 @@ class TestClass(BasisTest, object):
         logger.enable_log_on_file()
 
     def test_02_output_file_with_app_filter(self):
+        settings.enable_debug_logger = True
         content = None
         temp_dir = tempfile.gettempdir()
         path = os.path.join(self.local_scratch.path, "test02.txt")
@@ -73,6 +70,7 @@ class TestClass(BasisTest, object):
         design_logger.error("Error for Design")
         logger.info_timer("Info with message")
         logger.reset_timer()
+        settings.enable_debug_logger = False
 
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
@@ -114,7 +112,6 @@ class TestClass(BasisTest, object):
         #     self.aedtapp.logger.design.handlers.pop()
         shutil.rmtree(path, ignore_errors=True)
 
-    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         settings.logger_file_path = ""
@@ -128,7 +125,6 @@ class TestClass(BasisTest, object):
         assert "PyAEDT WARNING: Warning for Global" in capture.content
         assert "PyAEDT ERROR: Error for Global" in capture.content
 
-    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
@@ -196,7 +192,6 @@ class TestClass(BasisTest, object):
         shutil.rmtree(path, ignore_errors=True)
         settings.logger_file_path = ""
 
-    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
         with tempfile.TemporaryFile("w+") as fp:
             stream = unittest.mock.MagicMock()
@@ -226,7 +221,7 @@ class TestClass(BasisTest, object):
                 handler.close()
                 logger._global.removeHandler(handler)
         assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
-        assert stream_content[1] == "PyAEDT INFO: StdOut has been enabled\n"
+        assert stream_content[1] == "PyAEDT INFO: StdOut is enabled\n"
         assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 

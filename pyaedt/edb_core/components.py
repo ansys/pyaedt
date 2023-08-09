@@ -193,7 +193,7 @@ class Components(object):
         Returns
         -------
         dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponentDef`"""
-        return {l.GetName(): EDBComponentDef(self, l) for l in list(self._pedb.component_defs)}
+        return {l.GetName(): EDBComponentDef(self._pedb, l) for l in list(self._pedb.component_defs)}
 
     @property
     def nport_comp_definition(self):
@@ -291,7 +291,7 @@ class Components(object):
         """Refresh the component dictionary."""
         # self._logger.info("Refreshing the Components dictionary.")
         self._cmp = {
-            l.GetName(): EDBComponent(self, l)
+            l.GetName(): EDBComponent(self._pedb, l)
             for l in self._layout.groups
             if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component"
         }
@@ -1435,7 +1435,7 @@ class Components(object):
             ):
                 return False  # pragma no cover
         new_cmp.SetTransform(hosting_component_location)
-        new_edb_comp = EDBComponent(self, new_cmp)
+        new_edb_comp = EDBComponent(self._pedb, new_cmp)
         self._cmp[new_cmp.GetName()] = new_edb_comp
         return new_edb_comp
 

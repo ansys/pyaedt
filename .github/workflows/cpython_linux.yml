@@ -58,13 +58,22 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
-        timeout-minutes: 30
+        timeout-minutes: 120
         run: |
           export ANS_NODEPCHECK=1
           export ANSYSEM_ROOT231=/apps/AnsysEM/v231/Linux64
           export LD_LIBRARY_PATH=$ANSYSEM_ROOT231/common/mono/Linux64/lib64:$ANSYSEM_ROOT231/Delcross:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
-          pytest --tx 6*popen --durations=50  --dist loadfile -v _unittest
+          pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest
+
+      - name: 'Unit testing_solvers'
+        timeout-minutes: 120
+        run: |
+          export ANS_NODEPCHECK=1
+          export ANSYSEM_ROOT231=/apps/AnsysEM/v231/Linux64
+          export LD_LIBRARY_PATH=$ANSYSEM_ROOT231/common/mono/Linux64/lib64:$ANSYSEM_ROOT231/Delcross:$LD_LIBRARY_PATH
+          source .pyaedt_test_env/bin/activate
+          pytest --durations=50  --dist loadfile -v _unittest_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3

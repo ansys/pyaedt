@@ -19,11 +19,11 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q = pyaedt.Q2d(specified_version=desktop_version,

@@ -1,6 +1,6 @@
 """
 HFSS: Eigenmode filter
---------------------
+----------------------
 This example shows how you can use PyAEDT to automate the eigenmode solver in HFSS.
 Eigenmode analysis can be applied to open, radiating structures
 using an absorbing boundary condition. This type of analysis is useful for
@@ -41,9 +41,9 @@ project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt",
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode.
+# Launch AEDT 2023 R2 in graphical mode.
 
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -56,14 +56,14 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode.
+# Launch AEDT 2023 R2 in graphical mode.
 
 d = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launch HFSS 2023 R1 in graphical mode.
+# Launch HFSS 2023 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
 

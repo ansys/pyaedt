@@ -8,14 +8,13 @@ It can be opened and edited using the ``Edb`` class.
   :alt: HFSS 3D Layout is the tool used to visualize EDB content.
 
 
-.. currentmodule:: pyaedt
 
 .. autosummary::
    :toctree: _autosummary
 
-   edb.Edb
-   edb_core.edb_data.variables.Variable
-   edb_core.edb_data.edbvalue.EdbValue
+   pyaedt.edb.Edb
+   pyaedt.edb_core.edb_data.variables.Variable
+   pyaedt.edb_core.edb_data.edbvalue.EdbValue
 
 
 .. code:: python

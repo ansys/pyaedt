@@ -1729,308 +1729,6 @@ class Maxwell(object):
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup_name, freq_option, f1, f2)
         return output_directory
 
-    @pyaedt_function_handler()
-    def heal_objects(
-        self,
-        input_objects_list,
-        auto_heal=True,
-        tolerant_stitch=True,
-        simplify_geometry=True,
-        tighten_gaps=True,
-        heal_to_solid=False,
-        stop_after_first_stitch_error=False,
-        max_stitch_tolerance=0.001,
-        explode_and_stitch=True,
-        geometry_simplification_tolerance=1,
-        maximum_generated_radius=1,
-        simplify_type=0,
-        tighten_gaps_width=0.00001,
-        remove_silver_faces=True,
-        remove_small_edges=True,
-        remove_small_faces=True,
-        silver_face_tolerance=1,
-        small_edge_tolerance=1,
-        small_face_area_tolerance=1,
-        bounding_box_scale_factor=0,
-        remove_holes=True,
-        remove_chamfers=True,
-        remove_blends=True,
-        hole_radius_tolerance=1,
-        chamfer_width_tolerance=1,
-        blend_radius_tolerance=1,
-        allowable_surface_area_change=5,
-        allowable_volume_change=5,
-    ):
-        """Repair invalid geometry entities for the selected objects within the specified tolerance settings.
-
-        Parameters
-        ----------
-        input_objects_list : str
-            List of object names to analyze.
-        auto_heal : bool, optional
-            Auto heal option. Default value is ``True``.
-        tolerant_stitch : bool, optional
-            Tolerant stitch for manual healing. Default value is ``True``.
-        simplify_geometry : bool, optional
-            Simplify geometry for manual healing. Default value is ``True``.
-        tighten_gaps : bool, optional
-            Tighten gaps for manual healing. Default value is ``True``.
-        heal_to_solid : bool, optional
-            Heal to solid for manual healing. Default value is ``False``.
-        stop_after_first_stitch_error : bool, optional
-            Stop after first stitch error for manual healing. Default value is ``False``.
-        max_stitch_tolerance : float, str, optional
-            Max stitch tolerance for manual healing. Default value is ``0.001``.
-        explode_and_stitch : bool, optional
-            Explode and stitch for manual healing. Default value is ``True``.
-        geometry_simplification_tolerance : float, str, optional
-            Geometry simplification tolerance for manual healing in mm. Default value is ``1``.
-        maximum_generated_radius : float, str, optional
-            Maximum generated radius for manual healing in mm. Default value is ``1``.
-        simplify_type : int, optional
-            Simplify type for manual healing. Default value is ``0`` which refers to ``Curves``.
-            Other available values are ``1`` for ``Surfaces`` and ``2`` for ``Both``.
-        tighten_gaps_width : float, str, optional
-            Tighten gaps width for manual healing in mm. Default value is ``0.00001``.
-        remove_silver_faces : bool, optional
-            Remove silver faces for manual healing. Default value is ``True``.
-        remove_small_edges : bool, optional
-            Remove small edges faces for manual healing. Default value is ``True``.
-        remove_small_faces : bool, optional
-            Remove small faces for manual healing. Default value is ``True``.
-        silver_face_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm. Default value is ``1``.
-        small_edge_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm. Default value is ``1``.
-        small_face_area_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm^2. Default value is ``1``.
-        bounding_box_scale_factor : int, optional
-            Bounding box scaling factor for manual healing. Default value is ``0``.
-        remove_holes : bool, optional
-            Remove holes for manual healing. Default value is ``True``.
-        remove_chamfers : bool, optional
-            Remove chamfers for manual healing. Default value is ``True``.
-        remove_blends : bool, optional
-            Remove blends for manual healing. Default value is ``True``.
-        hole_radius_tolerance : float, str, optional
-            Hole radius tolerance for manual healing in mm. Default value is ``1``.
-        chamfer_width_tolerance : float, str, optional
-            Chamfer width tolerance for manual healing in mm. Default value is ``1``.
-        blend_radius_tolerance : float, str, optional
-            Blend radius tolerance for manual healing in mm. Default value is ``1``.
-        allowable_surface_area_change : float, str, optional
-            Allowable surface area for manual healing in mm. Default value is ``1``.
-        allowable_volume_change : float, str, optional
-            Allowable volume change for manual healing in mm. Default value is ``1``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not input_objects_list:
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif not isinstance(input_objects_list, str):
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif "," in input_objects_list:
-            input_objects_list = input_objects_list.strip()
-            if ", " in input_objects_list:
-                input_objects_list_split = input_objects_list.split(", ")
-            else:
-                input_objects_list_split = input_objects_list.split(",")
-            for obj in input_objects_list_split:
-                if obj not in self.modeler.object_names:
-                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
-                    return False
-            objects_selection = ",".join(input_objects_list_split)
-        else:
-            objects_selection = input_objects_list
-
-        if simplify_type not in [0, 1, 2]:
-            self.logger.error("Invalid simplify type.")
-            return False
-
-        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
-        healing_parameters = [
-            "NAME:ObjectHealingParameters",
-            "Version:=",
-            1,
-            "AutoHeal:=",
-            auto_heal,
-            "TolerantStitch:=",
-            tolerant_stitch,
-            "SimplifyGeom:=",
-            simplify_geometry,
-            "TightenGaps:=",
-            tighten_gaps,
-            "HealToSolid:=",
-            heal_to_solid,
-            "StopAfterFirstStitchError:=",
-            stop_after_first_stitch_error,
-            "MaxStitchTol:=",
-            max_stitch_tolerance,
-            "ExplodeAndStitch:=",
-            explode_and_stitch,
-            "GeomSimplificationTol:=",
-            geometry_simplification_tolerance,
-            "MaximumGeneratedRadiusForSimplification:=",
-            maximum_generated_radius,
-            "SimplifyType:=",
-            simplify_type,
-            "TightenGapsWidth:=",
-            tighten_gaps_width,
-            "RemoveSliverFaces:=",
-            remove_silver_faces,
-            "RemoveSmallEdges:=",
-            remove_small_edges,
-            "RemoveSmallFaces:=",
-            remove_small_faces,
-            "SliverFaceTol:=",
-            silver_face_tolerance,
-            "SmallEdgeTol:=",
-            small_edge_tolerance,
-            "SmallFaceAreaTol:=",
-            small_face_area_tolerance,
-            "SpikeTol:=",
-            -1,
-            "GashWidthBound:=",
-            -1,
-            "GashAspectBound:=",
-            -1,
-            "BoundingBoxScaleFactor:=",
-            bounding_box_scale_factor,
-            "RemoveHoles:=",
-            remove_holes,
-            "RemoveChamfers:=",
-            remove_chamfers,
-            "RemoveBlends:=",
-            remove_blends,
-            "HoleRadiusTol:=",
-            hole_radius_tolerance,
-            "ChamferWidthTol:=",
-            chamfer_width_tolerance,
-            "BlendRadiusTol:=",
-            blend_radius_tolerance,
-            "AllowableSurfaceAreaChange:=",
-            allowable_surface_area_change,
-            "AllowableVolumeChange:=",
-            allowable_volume_change,
-        ]
-        self.oeditor.HealObject(selections_args, healing_parameters)
-        return True
-
-    @pyaedt_function_handler()
-    def simplify_objects(
-        self,
-        input_objects_list,
-        simplify_type="Polygon Fit",
-        extrusion_axis="Auto",
-        clean_up=True,
-        allow_splitting=True,
-        separate_bodies=True,
-        clone_body=True,
-        generate_primitive_history=False,
-        interior_points_on_arc=5,
-        length_threshold_percentage=25,
-        create_group_for_new_objects=False,
-    ):
-        """Simplify command to converts complex objects into simpler primitives which are easy to mesh and solve.
-
-        Parameters
-        ----------
-        input_objects_list : str
-            List of object names to simplify.
-        simplify_type : str, optional
-            Simplify type. Default value is ``Polygon Fit``.
-            Available values are ``Polygon Fit`` ``Primitive Fit`` or ``Bounding Box``.
-        extrusion_axis : str, optional
-            Extrusion axis. Default value is ``Auto``.
-            Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
-        clean_up : bool, optional
-            Clean up. Default value is ``True``.
-        allow_splitting : bool, optional
-            Allow splitting. Default value is ``True``.
-        separate_bodies : bool, optional
-            Separate bodies. Default value is ``True``.
-        clone_body : bool, optional
-            Clone body. Default value is ``True``.
-        generate_primitive_history : bool, optional
-            Generate primitive history.
-            This option will purge the history for selected objects.
-            Default value is ``False``.
-        interior_points_on_arc : float, optional
-            Number points on curve. Default value is ``5``.
-        length_threshold_percentage : float, optional
-            Number points on curve. Default value is ``25``.
-        create_group_for_new_objects : bool, optional
-            Create group for new objects. Default value is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not input_objects_list:
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif not isinstance(input_objects_list, str):
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif "," in input_objects_list:
-            input_objects_list = input_objects_list.strip()
-            if ", " in input_objects_list:
-                input_objects_list_split = input_objects_list.split(", ")
-            else:
-                input_objects_list_split = input_objects_list.split(",")
-            for obj in input_objects_list_split:
-                if obj not in self.modeler.object_names:
-                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
-                    return False
-            objects_selection = ",".join(input_objects_list_split)
-        else:
-            objects_selection = input_objects_list
-
-        if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
-            self.logger.error("Invalid simplify type.")
-            return False
-
-        if extrusion_axis not in ["Auto", "X", "Y", "Z"]:
-            self.logger.error("Invalid extrusion axis.")
-            return False
-
-        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
-        simplify_parameters = [
-            "NAME:SimplifyParameters",
-            "Type:=",
-            simplify_type,
-            "ExtrusionAxis:=",
-            extrusion_axis,
-            "Cleanup:=",
-            clean_up,
-            "Splitting:=",
-            allow_splitting,
-            "SeparateBodies:=",
-            separate_bodies,
-            "CloneBody:=",
-            clone_body,
-            "Generate Primitive History:=",
-            generate_primitive_history,
-            "NumberPointsCurve:=",
-            interior_points_on_arc,
-            "LengthThresholdCurve:=",
-            length_threshold_percentage,
-        ]
-        groups_for_new_object = ["CreateGroupsForNewObjects:=", create_group_for_new_objects]
-
-        try:
-            self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
-            return True
-        except:
-            self.logger.error("Simplify objects failed.")
-            return False
-
     @pyaedt_function_handler
     def edit_external_circuit(self, netlist_file_path, schematic_design_name):
         """
@@ -2252,6 +1950,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             aedt_process_id,
         )
         Maxwell.__init__(self)
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     def assign_insulating(self, geometry_selection, insulation_name=None):
@@ -2743,6 +2444,134 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             self._boundaries[bound.name] = bound
             return bound
 
+    @pyaedt_function_handler()
+    def assign_tangential_h_field(
+        self,
+        faces,
+        x_component_real=0,
+        x_component_imag=0,
+        y_component_real=0,
+        y_component_imag=0,
+        coordinate_system="Global",
+        origin=None,
+        u_pos=None,
+        reverse=False,
+        bound_name=None,
+    ):
+        """Assign a tangential H field boundary to a list of faces.
+
+        Parameters
+        ----------
+        faces : list of int  or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            List of objects to assign an end connection to.
+        x_component_real : float, str, optional
+            X component value real part. The default is ``0``.
+        x_component_imag : float, str, optional
+            X component value imaginary part. The default is ``0``.
+        y_component_real : float, str, optional
+            Y component value real part. The default is ``0``.
+        y_component_imag : float, str, optional
+            Y component value imaginary part. The default is ``0``.
+        coordinate_system : str, optional
+            Coordinate system to use for the UV vector.
+        origin : list, optional
+            Origin of the UV vector.
+            The default is ``None`, in which case the bottom left vertex is used.
+        u_pos : list, optional
+            Direction of the U vector.
+            The default is ``None``, in which case the top left vertex is used.
+        reverse : bool, optional
+            Whether the vector is reversed. The default is ``False``.
+        bound_name : str, optional
+            Name of the end connection boundary.
+            The default is ``None``, in which case the default name is used.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Newly created object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignTangentialHField
+        """
+        if self.solution_type not in ["EddyCurrent", "Magnetostatic"]:
+            self.logger.error("Tangential H Field is applicable only to Eddy current.")
+            return False
+        objects = self.modeler.convert_to_selections(faces, True)
+        if not bound_name:
+            bound_name = generate_unique_name("TangentialHField")
+        props = OrderedDict(
+            {
+                "Faces": objects,
+            }
+        )
+        if isinstance(objects[0], str):
+            props = OrderedDict(
+                {
+                    "Objects": objects,
+                }
+            )
+        props["ComponentXReal"] = x_component_real
+        if self.solution_type == "EddyCurrent":
+            props["ComponentXImag"] = x_component_imag
+        props["ComponentYReal"] = y_component_real
+        if self.solution_type == "EddyCurrent":
+            props["ComponentYImag"] = y_component_imag
+        if not origin and isinstance(objects[0], int):
+            edges = self.modeler.get_face_edges(objects[0])
+            origin = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 0)
+            if not u_pos:
+                u_pos = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 1)
+
+        props["CoordSysVector"] = OrderedDict({"Coordinate System": coordinate_system, "Origin": origin, "UPos": u_pos})
+        props["ReverseV"] = reverse
+        bound = BoundaryObject(self, bound_name, props, "Tangential H Field")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def assign_zero_tangential_h_field(self, faces, bound_name=None):
+        """Assign a zero tangential H field boundary to a list of faces.
+
+        Parameters
+        ----------
+        faces : list of int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            List of objects to assign an end connection to.
+        bound_name : str, optional
+            Name of the end connection boundary. The default is ``None``, in which case the
+            default name is used.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Newly created object. ``False`` if it fails.
+
+        References
+        ----------
+
+        >>> oModule.AssignZeroTangentialHField
+        """
+        if self.solution_type not in ["EddyCurrent"]:
+            self.logger.error("Tangential H Field is applicable only to Eddy current.")
+            return False
+        objects = self.modeler.convert_to_selections(faces, True)
+        if not bound_name:
+            bound_name = generate_unique_name("ZeroTangentialHField")
+        props = OrderedDict(
+            {
+                "Faces": objects,
+            }
+        )
+        bound = BoundaryObject(self, bound_name, props, "Zero Tangential H Field")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D app interface.
@@ -2869,6 +2698,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             aedt_process_id,
         )
         Maxwell.__init__(self)
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @property
     def xy_plane(self):
