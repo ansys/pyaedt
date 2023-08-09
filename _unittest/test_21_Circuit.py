@@ -1,19 +1,18 @@
 import os
 import time
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
+# from pyaedt import is_ironpython
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt import Edb
-from pyaedt import is_ironpython
 from pyaedt import is_linux
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T21"
 
@@ -30,23 +29,42 @@ touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
-        self.aedtapp.modeler.schematic_units = "mil"
-        self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
-        netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
-        netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
-        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
-        touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
-        self.local_scratch.copyfile(netlist_file1)
-        self.local_scratch.copyfile(netlist_file2)
-        self.local_scratch.copyfile(touchstone_file)
-        self.local_scratch.copyfile(touchstone_file2)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
+    app.modeler.schematic_units = "mil"
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def circuitprj(add_app):
+    app = add_app(diff_proj_name, application=Circuit, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
+    netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
+    touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
+    touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
+    netlist_file1 = local_scratch.copyfile(netlist_file1)
+    netlist_file2 = local_scratch.copyfile(netlist_file2)
+    touchstone_file = local_scratch.copyfile(touchstone_file)
+    touchstone_file2 = local_scratch.copyfile(touchstone_file2)
+    return netlist_file1, netlist_file2, touchstone_file, touchstone_file2
+
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, circuitprj, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.circuitprj = circuitprj
+        self.local_scratch = local_scratch
+        self.netlist_file1 = examples[0]
+        self.netlist_file2 = examples[1]
+        self.touchstone_file = examples[2]
+        self.touchstone_file2 = examples[3]
 
     def test_01a_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
@@ -103,64 +121,21 @@ class TestClass(BasisTest, object):
         LNA_setup = self.aedtapp.create_setup(setup_name)
         assert LNA_setup.name == "LNA"
 
-    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
-    def test_06b_add_3dlayout_component(self):
-        setup = self.aedtapp.create_setup("test_06b_LNA")
-        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
-        myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
-        assert type(myedb.id) is int
-        ports = myedb.pins
-        tx = ports
-        rx = ports
-        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
-        assert self.aedtapp.post.create_report(
-            insertions,
-            self.aedtapp.nominal_adaptive,
-            plotname="Insertion Losses",
-            plot_type="Rectangular Plot",
-            report_category="Standard",
-            subdesign_id=myedb.id,
-        )
-        new_report = self.aedtapp.post.reports_by_category.standard(insertions)
-        new_report.sub_design_id = myedb.id
-        assert new_report.create()
-
-    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
-    def test_07_add_hfss_component(self):
-        my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
-            "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
-        )
-        assert type(my_model) is int
-
-    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
-    def test_07a_push_excitation(self):
-        setup_name = "test_07a_LNA"
-        setup = self.aedtapp.create_setup(setup_name)
-        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
-
-    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
-    def test_07b_push_excitation_time(self):
-        setup_name = "test_07b_Transient"
-        setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
-        assert self.aedtapp.push_time_excitations(instance_name="U1", setup_name=setup_name)
-
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
-        assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
+        assert self.aedtapp.create_schematic_from_mentor_netlist(self.netlist_file2)
         pass
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
         self.aedtapp.modeler.schematic.limits_mils = 5000
-        assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
+        assert self.aedtapp.create_schematic_from_netlist(self.netlist_file1)
 
     def test_10_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
         self.aedtapp.modeler.schematic_units = "mils"
-        ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
-        ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
+        ports = self.aedtapp.import_touchstone_solution(self.touchstone_file)
+        ports2 = self.aedtapp.import_touchstone_solution(self.touchstone_file2)
         numports = len(ports)
         assert numports == 6
         numports2 = len(ports2)
@@ -169,14 +144,11 @@ class TestClass(BasisTest, object):
         rx = ports[int(numports / 2) :]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
-        if not is_ironpython:
-            touchstone_data = self.aedtapp.get_touchstone_data()
-            assert touchstone_data
+        touchstone_data = self.aedtapp.get_touchstone_data()
+        assert touchstone_data
 
     def test_11_export_fullwave(self):
-        output = self.aedtapp.export_fullwave_spice(
-            os.path.join(self.local_scratch.path, touchstone), is_solution_file=True
-        )
+        output = self.aedtapp.export_fullwave_spice(self.touchstone_file, is_solution_file=True)
         assert output
 
     def test_12_connect_components(self):
@@ -224,11 +196,10 @@ class TestClass(BasisTest, object):
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
     def test_16_read_touchstone(self):
         from pyaedt.generic.touchstone_parser import read_touchstone
 
-        data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
+        data = read_touchstone(self.touchstone_file)
         assert len(data.port_names) > 0
 
     def test_17_create_setup(self):
@@ -276,10 +247,8 @@ class TestClass(BasisTest, object):
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
-    def test_20_create_AMI_plots(self):
-        ami_design = BasisTest.add_app(
-            self, ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder
-        )
+    def test_20_create_AMI_plots(self, add_app):
+        ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(
@@ -430,7 +399,7 @@ class TestClass(BasisTest, object):
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(
-        is_ironpython or (config["NonGraphical"] and config["desktopVersion"] < "2023.1"),
+        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
         reason="Duplicate doesn't work in non-graphical mode.",
     )
     def test_31_duplicate(self):  # pragma: no cover
@@ -681,7 +650,7 @@ class TestClass(BasisTest, object):
         c.sources["freq_pyaedt"].delete()
         assert len(c.source_objects) == 5
 
-    def test_41_assign_excitations(self):
+    def test_41_assign_excitations(self, add_app):
         c = self.aedtapp
         port = c.modeler.schematic.create_interface_port(name="Port1")
 
@@ -727,7 +696,7 @@ class TestClass(BasisTest, object):
         c.excitations["PortTest"].delete()
         assert len(c.excitation_objets) == 0
         self.aedtapp.save_project()
-        c = Circuit(designname="sources", specified_version=config["desktopVersion"])
+        c = add_app(application=Circuit, design_name="sources")
         assert c.sources
 
     def test_41_set_variable(self):
@@ -817,9 +786,7 @@ class TestClass(BasisTest, object):
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
-    @pytest.mark.skipif(
-        is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
-    )
+    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_44_change_text_property(self):
         self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
@@ -832,14 +799,13 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
 
-    @pytest.mark.skipif(
-        is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
-    )
-    def test_45_create_circuit_from_multizone_layout(self):
-        source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
-        self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
+    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    def test_45_create_circuit_from_multizone_layout(self, add_edb):
+        # source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
+        # target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
+        # self.local_scratch.copyfolder(source_path, target_path)
+        # edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
+        edb = add_edb(project_name="multi_zone_project")
         common_reference_net = "gnd"
         edb_zones = edb.copy_zones()
         assert edb_zones

@@ -165,6 +165,9 @@ class Emit(Design, object):
             unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
             self.set_units(unit_types, unit_values)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @property
     def modeler(self):
         """Modeler.

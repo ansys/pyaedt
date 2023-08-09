@@ -223,8 +223,16 @@ class EdbNets(object):
         return self._comps_by_nets_dict
 
     @pyaedt_function_handler()
-    def get_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
-        # type: (int | float, int | float, int |float, list) -> list
+    def generate_extended_nets(
+        self,
+        resistor_below=10,
+        inductor_below=1,
+        capacitor_above=1,
+        exception_list=None,
+        include_signal=True,
+        include_power=True,
+    ):
+        # type: (int | float, int | float, int |float, list, bool, bool) -> list
         """Get extended net and associated components.
 
         Parameters
@@ -239,6 +247,10 @@ class EdbNets(object):
             threshold.
         exception_list : list, optional
             List of components which bypass threshold check. The default is ``None``.
+        include_signal : str, optional
+            Whether to generate extended signal nets. The default is ``True``.
+        include_power : str, optional
+            Whether to generate extended power nets. The default is ``True``.
         Returns
         -------
         list
@@ -252,8 +264,9 @@ class EdbNets(object):
         """
         if exception_list is None:
             exception_list = []
-        self._extendend_nets = []
-        all_nets = list(self.nets.keys())[:]
+        _extended_nets = []
+        _nets = self.nets
+        all_nets = list(_nets.keys())[:]
         net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
         comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
 
@@ -271,6 +284,7 @@ class EdbNets(object):
                 val_type = cmp.type
                 if val_type not in ["Inductor", "Resistor", "Capacitor"]:
                     continue
+
                 val_value = cmp.rlc_values
                 if refdes in exception_list:
                     pass
@@ -292,9 +306,30 @@ class EdbNets(object):
             new_ext = [all_nets[0]]
             get_net_list(new_ext[0], new_ext)
             all_nets = [i for i in all_nets if i not in new_ext]
-            self._extendend_nets.append(new_ext)
+            _extended_nets.append(new_ext)
 
-        return self._extendend_nets
+            if len(new_ext) > 1:
+                i = new_ext[0]
+                for i in new_ext:
+                    if not i.lower().startswith("unnamed"):
+                        break
+
+                is_power = False
+                for i in new_ext:
+                    is_power = is_power or _nets[i].is_power_ground
+
+                if is_power:
+                    if include_power:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+                else:
+                    if include_signal:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+
+        return _extended_nets
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
