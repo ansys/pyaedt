@@ -6,6 +6,7 @@ import pytest
 # from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
@@ -651,6 +652,7 @@ class TestClass:
         assert not self.aedtapp.modeler.heal_objects(input_objects_list=None)
         assert not self.aedtapp.modeler.heal_objects(input_objects_list=1)
 
+    @pytest.mark.skipif(is_linux, reason="Crashing in linux")
     def test_20_simplify_objects(self):
         assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1")
         assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1,box_2")

@@ -439,17 +439,24 @@ class Desktop(object):
     _invoked_from_design = False
 
     def __new__(cls, *args, **kwargs):
-        specified_version = kwargs.get("specified_version") or None if not args else args[0]
-        new_desktop_session = kwargs.get("new_desktop_session") or True if not args else args[2]
-        student_version = kwargs.get("student_version") or False if not args else args[4]
-        machine = kwargs.get("machine") or "" if not args else args[5]
-        port = kwargs.get("port") or 0 if not args else args[6]
-        aedt_process_id = kwargs.get("aedt_process_id") or None if not args else args[7]
+        # specified_version = kwargs.get("specified_version") or None if not args else args[0]
+        # new_desktop_session = kwargs.get("new_desktop_session") or True if (not args or len(args)<3) else args[2]
+        # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
+        # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
+        # port = kwargs.get("port") or 0 if (not args or len(args)<7) else args[6]
+        # aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args)<8) else args[7]
 
         if len(_desktop_sessions.keys()) > 0:
-            print("Returning found desktop!")
-            cls._invoked_from_design = False
-            return list(_desktop_sessions.values())[0]
+            sessions = list(_desktop_sessions.keys())
+            try:
+                process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
+                print("Returning found desktop with PID {}!".format(process_id))
+                cls._invoked_from_design = False
+                return _desktop_sessions[sessions[0]]
+            except:
+                del _desktop_sessions[sessions[0]]
+                print("Initializing new desktop!")
+                return object.__new__(cls)
         else:
             print("Initializing new desktop!")
             return object.__new__(cls)

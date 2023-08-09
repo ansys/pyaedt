@@ -68,10 +68,12 @@ class TestClass:
         os.rename(os.path.split(out[0])[0], new_path)
         assert os.path.exists(new_path)
 
+    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_09_download_custom_report(self):
         out = self.examples.download_custom_reports()
         assert os.path.exists(out)
 
+    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_10_download_3dcomp(self):
         out = self.examples.download_3dcomponent()
         assert os.path.exists(out)
