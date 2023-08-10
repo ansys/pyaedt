@@ -82,6 +82,13 @@ release = version = __version__
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
+html_context = {
+    "github_user": "ansys",
+    "github_repo": "pyaedt",
+    "github_version": "main",
+    "doc_path": "doc/source",
+    "source_path": "src",
+}
 
 # -- General configuration ---------------------------------------------------
 
@@ -271,14 +278,6 @@ html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 
 # specify the location of your github repo
-html_context = {
-    "github_user": "ansys",
-    "github_repo": "pyaedt",
-    "github_version": "main",
-    "doc_path": "doc/source",
-    "source_path": "src",
-}
-
 html_theme_options = {
     "github_url": "https://github.com/ansys/pyaedt",
     "show_prev_next": False,
