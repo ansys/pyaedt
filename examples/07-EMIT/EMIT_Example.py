@@ -11,6 +11,7 @@ the simulation of an antenna.
 #
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
+import os
 import pyaedt
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
@@ -66,7 +67,7 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
 
-if desktop_version > "2023.1":
+if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX) 
     tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX) 
