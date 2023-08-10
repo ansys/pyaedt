@@ -1,11 +1,11 @@
 # Setup paths for module imports
-
 from _unittest.conftest import config
 import pytest
 
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
+from pyaedt.modeler.cad.object3d import Object3d
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -914,3 +914,11 @@ class TestClass:
                 "Absolute Position",
             ],
         )
+
+    def test_60_sweep_along_normal(self):
+        selected_faces = [face for face in self.aedtapp.modeler["Core"].faces if face.is_planar]
+        selected_faces = [selected_faces[0].id, selected_faces[1].id]
+        a = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces, sweep_value=100)
+        b = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces[0], sweep_value=200)
+        assert isinstance(a, list)
+        assert isinstance(b, Object3d)
