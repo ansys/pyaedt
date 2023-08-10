@@ -280,7 +280,7 @@ html_context = {
 }
 
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pyaedt",
+    "github_url": "https://github.com/ansys/pyaedt",
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
@@ -291,7 +291,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "Support",
-            "url": "https://github.com/pyansys/pyaedt/discussions",
+            "url": "https://github.com/ansys/pyaedt/discussions",
             "icon": "fa fa-comment fa-fw",
         },
     ],

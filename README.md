@@ -11,7 +11,7 @@
     <br> English | <a href="README_CN.md">中文</a>
 </p>
 
-[![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)[![PyPIact](https://pepy.tech/badge/pyaedt/month)](https://pypi.org/project/pyaedt/)[![PythonVersion](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)[![GH-CI](https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml)[![codecov](https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/pyansys/pyaedt)[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)[![pre-commit](https://results.pre-commit.ci/badge/github/pyansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/pyansys/pyaedt/main)
+[![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)[![PyPIact](https://pepy.tech/badge/pyaedt/month)](https://pypi.org/project/pyaedt/)[![PythonVersion](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml)[![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)[![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
 ## What is PyAEDT?
 
@@ -72,7 +72,7 @@ faster resolution of complex simulations for design and optimization.
   />
 </p>
 
-`PyAEDT` is licensed under the [MIT License](https://github.com/pyansys/PyAEDT/blob/main/LICENSE)
+`PyAEDT` is licensed under the [MIT License](https://github.com/ansys/pyaedt/blob/main/LICENSE)
 
 `PyAEDT` includes functionality for interacting with the following `AEDT tools` and `Ansys products`:
 
@@ -94,7 +94,7 @@ for switching from viewing the documentation for the latest stable release
 to viewing the documentation for the development version or previously
 released versions.
 
-On the [PyAEDT Issues](https://github.com/pyansys/PyAEDT/issues) page, you can
+On the [PyAEDT Issues](https://github.com/ansys/pyaedt/issues) page, you can
 create issues to submit questions, report bugs, and request new features.
 
 To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.

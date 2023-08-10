@@ -1821,7 +1821,7 @@ class Help:  # pragma: no cover
 
     def github(self):
         """Open the PyAEDT GitHub page."""
-        url = "https://github.com/pyansys/pyaedt"
+        url = "https://github.com/ansys/pyaedt"
         self._launch_ur(url)
 
     def changelog(self, release=None):
@@ -1834,12 +1834,12 @@ class Help:  # pragma: no cover
         """
         if release is None:
             from pyaedt import __version__ as release
-        url = "https://github.com/pyansys/pyaedt/releases/tag/v" + release
+        url = "https://github.com/ansys/pyaedt/releases/tag/v" + release
         self._launch_ur(url)
 
     def issues(self):
         """Open the PyAEDT GitHub Issues page."""
-        url = "https://github.com/pyansys/pyaedt/issues"
+        url = "https://github.com/ansys/pyaedt/issues"
         self._launch_ur(url)
 
     def ansys_forum(self):
