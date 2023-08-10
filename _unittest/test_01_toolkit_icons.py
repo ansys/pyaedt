@@ -1,17 +1,20 @@
 import os
 import xml.etree.ElementTree as ET
 
-from _unittest.conftest import BasisTest
+import pytest
 
 from pyaedt.misc.aedtlib_personalib_install import write_tab_config
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self, launch_desktop=False)
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
-    def teardown_class(self):
-        self.local_scratch.remove()
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, local_scratch):
+        self.local_scratch = local_scratch
 
     def test_00_write_new_xml(self):
         file_path = os.path.join(self.local_scratch.path, "TabConfig.xml")

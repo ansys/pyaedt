@@ -1,21 +1,20 @@
 import random
 import time
 
-from _unittest.conftest import BasisTest
 import numpy as np
+import pytest
 
 from pyaedt.generic.python_optimizers import GeneticAlgorithm as ga
 
 # Setup paths for module imports
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
 
+class TestClass:
     def test_01_ga_launch(self):
         def f(X):
             return np.sum(X)

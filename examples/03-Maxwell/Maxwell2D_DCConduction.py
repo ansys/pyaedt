@@ -17,7 +17,7 @@ import pyaedt
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version="2023.1",
+    specified_version="2023.2",
     new_desktop_session=True,
     close_on_exit=True,
     solution_type="DCConduction",
@@ -158,7 +158,7 @@ py_vista_plot.plot(os.path.join(m2d.working_directory, "Image.jpg"))
 ##################################################################################
 # Field animation
 # ~~~~~~~~~~~~~~~
-# Plot  current density vs the Material index.
+# Plot current density vs the Material index.
 
 animated = m2d.post.plot_animated_field(
     quantity="Mag_J",

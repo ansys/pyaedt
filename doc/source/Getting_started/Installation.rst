@@ -153,7 +153,7 @@ Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like
 ``matplotlib``, ``numpy``, and ``pyvista``. A user can still use PyAEDT in the IronPython
-environment available in AEDT with some limitations.
+environment available in AEDT with many limitations.
 
 To use IronPython in AEDT:
 

@@ -33,14 +33,14 @@ target = pyaedt.Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2023.1",
+    specified_version="2023.2",
     new_desktop_session=True,
     non_graphical=non_graphical
 )
 
 source = pyaedt.Hfss(projectname=target.project_name,
                      designname="feeder",
-                     specified_version="2023.1",
+                     specified_version="2023.2",
                      )
 
 ###############################################################################

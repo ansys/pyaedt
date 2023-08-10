@@ -7,10 +7,14 @@ Installation
 
 Error installing Python or Conda
 --------------------------------
-It may happen, that IT Department doesn't allow users to install a Python interpreter in the machine.
-In this case user can use the interpreter available in installation path of Ansys Electronics Desktop.
-Please note that Python 3.7 is available in AEDT <= 2023R1 while Python 3.10 is available on Ansys Electronics
-Desktop 2023 R2.
+Sometimes companies do not allow installation of a Python interpreter.
+In this case, you can use the Python interpreter available in the AEDT installation.
+
+.. note::
+
+   Python 3.7 is available in AEDT 2023 R1 and earlier. Python 3.10 is available in AEDT 2023 R2.
+
+Here is the path to the Python 3.7 interpreter for the 2023 R1 installation:
 
 .. code:: python
 
@@ -19,12 +23,17 @@ Desktop 2023 R2.
 
 Error installing PyAEDT using pip
 ---------------------------------
-1. **Proxy Server** If your company uses a proxy server you may have to update some settings at the command line.
-   See the `pip documentation <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ for details.
-2. **Install Permission** Make sure you have write access to the directory where the Python interpreter is
-   installed. This is more reason to use a `virtual environment <https://docs.python.org/3/library/venv.html>`_.
-3. **Firewall** Some corporate firewalls may block pip. If you face this issue you'll have to work with your IT
-   administrator to enable pip. The proxy server settings (described above) allow you to explicitly define
+- **Proxy server**: If your company uses a proxy server, you may have to update proxy
+  settings at the command line. For more information, see the `Using a Proxy
+  Server <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ in the pip
+  documentation.
+- **Install permission**: Make sure that you have write access to the directory where the
+   Python interpreter is
+   installed. The use of a `virtual environment <https://docs.python.org/3/library/venv.html>`_ helps
+   mitigate this issue by placing the Python interpreter and dependencies in a location that is owned
+   by the user.
+- **Firewall**: Some corporate firewalls may block pip. If you face this issue, you'll have to work with your IT
+   administrator to enable pip. The proxy server settings (described earlier) allow you to explicitly define
    the ports used by pip.
 
 If downloads from `pypi <https://pypi.org/>`_ are not allowed, you may use a
@@ -60,56 +69,55 @@ Communication between Python and the AEDT API were translated through an interme
 
 `gRPC <https://grpc.io/>`_ is a modern open source high performance Remote Procedure Call (RPC)
 framework that can run in any environment and supports client/server remote calls.
-Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC interface.
+Starting from 2022R2 the AEDT API has replaced the COM interface with a gRPC interface.
 
 
-.. list-table:: gRPC Compatibility Table
-   :widths: 25 25 75 75
+.. list-table:: *gRPC Compatibility:*
+   :widths: 65 65 65
    :header-rows: 1
 
-   * -
-     - <2022R2
-     - 2022R2
-     - >2022R2
-   * - AEDT
-     - Only ``Python.NET``
-     - gRPC Beta
-     - gRPC Available
-   * - AEDT
-     - Only ``Python.NET``
-     - ``Python.NET`` default.
-       gRPC: pyaedt.settings.use_grpc_api = True
-     - gRPC default
-       ``Python.NET``: pyaedt.settings.use_grpc_api = False
+   * - < 2022 R2
+     - 2022 R2
+     - > 2022 R2
+   * - Only ``Python.NET``
+     - | ``Python.NET``: *Default*
+       | Enable gRPC: ``pyaedt.settings.use_grpc_api = True``
+     - | gRPC: *Default*
+       | Enable ``Python.NET``: ``pyaedt.settings.use_grpc_api = False``
 
 The options shown here apply only to the Windows platform.
 On Linux, the Python interface to AEDT uses gRPC for all versions.
 
+.. _GRPC ref:
 
 Check the AEDT API configuration
 --------------------------------
-To start the Electronics Desktop server in gRPC mode use the following syntax:
+Run the following command to start AEDT as a gRPC server:
+
+*Windows:*
 
 .. code:: console
 
    path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
+
+**On Linux:**
 
 .. code:: console
 
    path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352
 
 The server port number is used by AEDT to listen and receive
-commands from PyAEDT client instances. This configuration
+commands from the PyAEDT client. This configuration
 supports multiple sessions of AEDT running on a single server
 and listening on the same port.
 
 Check the gRPC interface
 ------------------------
 The native Electronics Desktop API can be used to launch
-Electronics Desktop from the command line.
-This can be done even without PyAEDT to check that everything is set up correctly
-and all environment
-variables have been defined.
+AEDT from the command line.
+PyAEDT is not required to verify the setup for the server and ensure that
+all environment
+variables have been defined correctly.
 
 .. code:: python
 
@@ -122,33 +130,37 @@ variables have been defined.
 
 
 
-Failures in connecting to gRPC API
-----------------------------------
-On Linux, it may happens that PyAEDT fails to initialize a new session of Electronics Desktop
-or to connect to an existing one.
+Failure connecting to the gRPC server
+-------------------------------------
+On Linux, PyAEDT may fail to initialize a new instance of the gRPC server
+or connect to an existing server session.
 This may be due to:
  - Firewall
  - Proxy
  - Permissions
  - License
- - Scheduler used to launch AEDT like LSF
+ - Scheduler (for example if the gRPC server was started from LSF or Slurm)
 
-In case of issues due to use of a proxy server, you may set the following environment variable:
+For issues related to use of a proxy server, you may set the following environment variable to
+disable the proxy server for the *localhost*.
 
 .. code:: console
 
     export no_proxy=localhost,127.0.0.1
 
-Run your PyAEDT script. If it still fails, the proxy server can be disabled using
+Run your PyAEDT script.
+
+If it still fails, you can disable the proxy server:
 
 .. code:: console
 
     export http_proxy=
 
-Run your PyAEDT script. If the errors still persists, try the following:
+Run your PyAEDT script. If the errors persist, perform these steps:
 
-1. Check that AEDT starts correctly from command line using gRPC port option
-2. enable all debug log variables and check logs.
+1. Check that AEDT starts correctly from the command line by
+   starting the :ref:`gRPC server<GRPC ref>`.
+2. Enable debugging.
 
 .. code:: console
 
@@ -159,26 +171,30 @@ Run your PyAEDT script. If the errors still persists, try the following:
     export ANSOFT_DEBUG_MODE=3
 
 
-Turn on the gRPC trace on the server side too:
+Enable the gRPC trace on the server:
 
 .. code:: console
 
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Then start ansysedt.exe as gRPC server.
+Then run ansysedt.exe as a gRPC server and redirect the output.
 
 .. code:: console
 
-    ansysedt -grpcsrv 50051
+    ansysedt -grpcsrv 50051 > /path/to/file/server.txt
 
-The gRPC trace is printed on the terminal console. Capture the output as the server.txt file.
-In another terminal:
+The preceding command redirects the gRPC trace
+to the file ``server.txt``.
+
+Open another terminal window to trace the
+gRPC calls on the client where the Python script is to be run.
 
 .. code:: console
 
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Run the PyAEDT script(make sure it is trying to connect to the same port as the gRPC server).
-Capture the output as the client.txt file. Send all the logs generated to Ansys Support.
+Now run the PyAEDT script, (making sure it connects to the same port as the gRPC server - 50051).
+Capture the output in a file. For example *client.txt*. Then send all the logs
+to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.

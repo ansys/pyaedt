@@ -24,9 +24,9 @@ project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folde
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
+# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
 
-desktopVersion = "2023.1"
+desktopVersion = "2023.2"
 
 ##########################################################
 # Set non-graphical mode

@@ -183,6 +183,9 @@ class Hfss(FieldAnalysis3D, object):
         )
         self._field_setups = []
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 
@@ -3437,7 +3440,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         sheet_list = self.modeler.convert_to_selections(sheet_list, True)
-        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+", "Eigenmode"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
             elif sourcename in self.modeler.get_boundaries_name():
@@ -3479,7 +3482,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
+        if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+", "Eigenmode"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
             elif sourcename in self.modeler.get_boundaries_name():

@@ -1232,7 +1232,7 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        if settings.non_graphical:
+        if self._app.desktop_class.non_graphical:
             if width == 0:
                 width = 500
             if height == 0:
@@ -1853,10 +1853,12 @@ class PostProcessor(PostProcessorCommon, object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._post_osolution = self._app.osolution
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
+        app.logger.info_timer("PostProcessor class has been initialized!")
 
     @property
     def _primitives(self):  # pragma: no cover
@@ -3297,7 +3299,7 @@ class PostProcessor(PostProcessorCommon, object):
                 height = 1080
             self.oeditor.ExportImage(full_name, width, height)
         else:
-            if settings.non_graphical:
+            if self._app.desktop_class.non_graphical:
                 if width == 0:
                     width = 500
                 if height == 0:
