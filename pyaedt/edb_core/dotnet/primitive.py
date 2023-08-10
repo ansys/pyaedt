@@ -103,8 +103,8 @@ class PrimitiveDotNet:
 
     @property
     def polygon_data(self):
-        """:class:`PolygonData <ansys.edb.geometry.PolygonData>`: Outer contour of the Polygon object."""
-        return PolygonDataDotNet(self.prim_obj.GetPolygonData())
+        """:class:`pyaedt.edb_core.dotnet.database.PolygonDataDotNet`: Outer contour of the Polygon object."""
+        return PolygonDataDotNet(self._app.edb_api, self.prim_obj.GetPolygonData())
 
     @polygon_data.setter
     def polygon_data(self, poly):

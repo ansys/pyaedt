@@ -65,9 +65,10 @@ class PolygonDataDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, pdata):
-        self.dotnetobj = pdata.Geometry.PolygonData
-        self.edb_api = pdata
+    def __init__(self, pedb, api_object):
+        self._pedb = pedb
+        self.dotnetobj = pedb.geometry
+        self.edb_api = api_object
 
     @property
     def api_class(self):  # pragma: no cover
