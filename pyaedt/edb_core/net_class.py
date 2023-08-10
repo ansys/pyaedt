@@ -299,7 +299,7 @@ class EdbDifferentialPairs(EdbCommon, object):
         Returns
         -------
         list
-            A list contatining identified differential pair names.
+            A list containing identified differential pair names.
         Examples
         --------
         >>> from pyaedt import Edb
