@@ -216,7 +216,7 @@ class EdbExtendedNets(EdbCommon, object):
         Returns
         -------
         list
-            List of all extended nets.
+            List of all extended nets and their associated components.
 
         Examples
         --------
