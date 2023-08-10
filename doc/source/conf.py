@@ -102,6 +102,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
     "numpydoc",
+    "ansys_sphinx_theme.extension.linkcode",
 ]
 
 # Intersphinx mapping
@@ -271,10 +272,11 @@ html_logo = pyansys_logo_black
 
 # specify the location of your github repo
 html_context = {
-    "github_user": "pyansys",
+    "github_user": "ansys",
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
+    "source_path": "src",
 }
 
 html_theme_options = {
