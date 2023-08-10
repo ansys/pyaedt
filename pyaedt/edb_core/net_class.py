@@ -298,7 +298,8 @@ class EdbDifferentialPairs(EdbCommon, object):
  
         Returns
         -------
-
+        list
+            A list contatining identified differential pair names.
         Examples
         --------
         >>> from pyaedt import Edb
@@ -316,6 +317,7 @@ class EdbDifferentialPairs(EdbCommon, object):
             else:
                 pass
 
+        temp = []
         for p in pos_net:
             pattern_p = r"^(.+){}$".format(positive_differentiator)
             match_p = re.findall(pattern_p, p)[0]
@@ -325,4 +327,7 @@ class EdbDifferentialPairs(EdbCommon, object):
                 match_n = re.findall(pattern_n, n)[0]
 
                 if match_p == match_n:
-                    self.create("DIFF_{}".format(match_p), p, n)
+                    diff_name = "DIFF_{}".format(match_p)
+                    self.create(diff_name, p, n)
+                    temp.append(diff_name)
+        return temp
