@@ -456,7 +456,7 @@ class TestClass:
         # m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
         m3d1 = add_app(application=Maxwell3d, project_name=core_loss_file, subfolder=test_subfolder)
         assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
-        assert m3d1.set_core_losses(["PQ_Core_Bottom"], False)
+        assert m3d1.set_core_losses(["PQ_Core_Bottom"], True)
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self, add_app):
