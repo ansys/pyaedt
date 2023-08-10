@@ -302,7 +302,7 @@ class EdbDifferentialPairs(EdbCommon, object):
         Examples
         --------
         >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+        >>> edbapp = Edb("myaedbfolder", edbversion="2023.1")
         >>> edb_nets = edbapp.differential_pairs.auto_identify()
         """
         nets = self._pedb.nets.nets
