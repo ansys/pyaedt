@@ -91,7 +91,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
@@ -117,6 +116,8 @@ intersphinx_mapping = {
 
 
 toc_object_entries_show_parents = "hide"
+
+html_show_sourcelink = True
 
 # numpydoc configuration
 numpydoc_use_plots = True
