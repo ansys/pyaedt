@@ -11,7 +11,7 @@ available_toolkits = {
     "AntennaWizard": {
         "pip": "git+https://github.com/ansys/pyaedt-antenna-toolkit.git",
         "image": "pyansys.png",
-        "toolkit_script": "ansys/aedt/toolkits/antennas/antenna_toolkit.py",
+        "toolkit_script": "ansys/aedt/toolkits/antennas/run_toolkit.py",
         "installation_path": "HFSS",
         "package_name": "ansys.aedt.toolkits.antennas",
     },
