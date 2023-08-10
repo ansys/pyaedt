@@ -287,7 +287,7 @@ class EdbDifferentialPairs(EdbCommon, object):
 
     @pyaedt_function_handler
     def auto_identify(self, positive_differentiator="_P", negative_differentiator="_N"):
-        """Generate diffperential pairs.
+        """Generate differential pairs.
 
         Parameters
         ----------
@@ -295,7 +295,7 @@ class EdbDifferentialPairs(EdbCommon, object):
             Differentiator of the positive net. The default is ``"_P"``.
         negative_differentiator: str, optional
             Differentiator of the negative net. The default is ``"_N"``.
- 
+
         Returns
         -------
         list
