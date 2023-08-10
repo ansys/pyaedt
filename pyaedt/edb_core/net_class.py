@@ -197,7 +197,7 @@ class EdbExtendedNets(EdbCommon, object):
     @pyaedt_function_handler
     def auto_identify_power(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
         # type: (int | float, int | float, int |float, list) -> list
-        """Get extended power net and associated components.
+        """Get all extended power nets and their associated components.
 
         Parameters
         ----------
