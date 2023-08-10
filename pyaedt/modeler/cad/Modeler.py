@@ -3226,8 +3226,8 @@ class GeometryModeler(Modeler, object):
         ----------
         obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        face_id : int
-            Face to sweep.
+        face_id : int or list
+            Face or list of faces to sweep.
         sweep_value : float, optional
             Sweep value. The default is ``0.1``.
 
@@ -3240,6 +3240,8 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.SweepFacesAlongNormal
         """
+        if not isinstance(face_id, list):
+            face_id = [face_id]
         selections = self.convert_to_selections(obj_name)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:Parameters"]
@@ -3247,7 +3249,7 @@ class GeometryModeler(Modeler, object):
             [
                 "NAME:SweepFaceAlongNormalToParameters",
                 "FacesToDetach:=",
-                [face_id],
+                face_id,
                 "LengthOfSweep:=",
                 self._arg_with_dim(sweep_value),
             ]
@@ -3261,7 +3263,10 @@ class GeometryModeler(Modeler, object):
         for el in obj:
             self._create_object(el)
         if obj:
-            return self.update_object(self[obj[0]])
+            if len(obj) > 1:
+                return [self.update_object(self[o]) for o in obj]
+            else:
+                return self.update_object(self[obj[0]])
         return False
 
     @pyaedt_function_handler()
