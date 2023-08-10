@@ -82,14 +82,6 @@ release = version = __version__
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
-html_context = {
-    "github_user": "ansys",
-    "github_repo": "pyaedt",
-    "github_version": "main",
-    "doc_path": "doc/source",
-    "source_path": "src",
-}
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here as strings. They can be
@@ -276,6 +268,13 @@ html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
+html_context = {
+    "github_user": "ansys",
+    "github_repo": "pyaedt",
+    "github_version": "main",
+    "doc_path": "doc/source",
+    "source_path": "src",
+}
 
 # specify the location of your github repo
 html_theme_options = {
