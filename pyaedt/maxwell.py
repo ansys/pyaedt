@@ -107,7 +107,7 @@ class Maxwell(object):
         )
 
     @pyaedt_function_handler()
-    def set_core_losses(self, objects, value=True):
+    def set_core_losses(self, objects, value=False):
         """Whether to enable core losses for a set of objects.
 
         For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
@@ -119,8 +119,8 @@ class Maxwell(object):
         objects : list, str
             List of object to apply core losses to.
         value : bool, optional
-            Whether to enable core losses for the given list. The default is
-            ``True``.
+            Whether to enable ``Consider core loss effect on field`` for the given list. The default is
+            ``False``.
 
         Returns
         -------
@@ -138,7 +138,7 @@ class Maxwell(object):
 
         >>> from pyaedt import Maxwell3d
         >>> maxwell_3d = Maxwell3d()
-        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], True)
+        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], False)
 
         """
         if self.solution_type in ["EddyCurrent", "Transient"]:
