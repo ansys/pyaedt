@@ -225,10 +225,11 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # Get all the radios in the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get lists of all transmitters and receivers in the project.
-rev = emitapp.results.current_revision
-rx_radios = rev.get_receiver_names()
-tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)
-domain = emitapp.results.interaction_domain()
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    rev = emitapp.results.current_revision
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)
+    domain = emitapp.results.interaction_domain()
 
 ###############################################################################
 # Classify the results
@@ -236,17 +237,17 @@ domain = emitapp.results.interaction_domain()
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    power_matrix=[]
+    all_colors=[]
 
-power_matrix=[]
-all_colors=[]
+    all_colors, power_matrix = rev.protection_level_classification(domain, global_levels = protection_levels)
 
-all_colors, power_matrix = rev.protection_level_classification(domain, global_levels = protection_levels)
+    # Create a scenario matrix-like view for the protection levels
+    create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 
-# Create a scenario matrix-like view for the protection levels
-create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
-
-# Create a legend for the protection levels
-create_legend_table()
+    # Create a legend for the protection levels
+    create_legend_table()
 
 ###############################################################################
 # Save project and close AEDT
