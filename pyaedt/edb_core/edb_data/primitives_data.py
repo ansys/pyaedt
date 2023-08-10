@@ -191,6 +191,10 @@ class EDBPrimitives(EDBPrimitivesMain):
         return area
 
     @property
+    def arcs(self):
+        return self.polygon_data
+
+    @property
     def is_void(self):
         """Either if the primitive is a void or not.
 

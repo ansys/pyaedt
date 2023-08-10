@@ -1,5 +1,6 @@
 """Primitive."""
 from pyaedt.edb_core.dotnet.database import NetDotNet
+from pyaedt.edb_core.dotnet.database import PolygonDataDotNet
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
@@ -103,7 +104,7 @@ class PrimitiveDotNet:
     @property
     def polygon_data(self):
         """:class:`PolygonData <ansys.edb.geometry.PolygonData>`: Outer contour of the Polygon object."""
-        return self.prim_obj.GetPolygonData()
+        return PolygonDataDotNet(self.prim_obj.GetPolygonData())
 
     @polygon_data.setter
     def polygon_data(self, poly):
