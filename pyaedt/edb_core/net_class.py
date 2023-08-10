@@ -292,9 +292,10 @@ class EdbDifferentialPairs(EdbCommon, object):
         Parameters
         ----------
         positive_differentiator: str, optional
-            Differentiator of the positive net.
+            Differentiator of the positive net. The default is ``"_P"``.
         negative_differentiator: str, optional
-            Differentiator of the negative net.
+            Differentiator of the negative net. The default is ``"_N"``.
+ 
         Returns
         -------
 
