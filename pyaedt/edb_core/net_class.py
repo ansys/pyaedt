@@ -202,16 +202,17 @@ class EdbExtendedNets(EdbCommon, object):
         Parameters
         ----------
         resistor_below : int, float, optional
-            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
+            Threshold for the resistor value. Search the extended net across resistors that
+            have a value lower than the threshold.
         inductor_below : int, float, optional
-            Threshold of inductor value. Search extended net across inductances which has value lower than the
-            threshold.
+            Threshold for the inductor value. Search the extended net across inductances that
+            have a value lower than the threshold.
         capacitor_above : int, float, optional
-            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
-            threshold.
+            Threshold for the capacitor value. Search the extended net across capacitors that
+            have a value higher than the threshold.
         exception_list : list, optional
-            List of components which bypass threshold check. Components in the list are considerred as serial
-        components.The default is ``None``.
+            List of components to bypass when performing threshold checks. Components
+            in the list are considered as serial components. The default is ``None``.
 
         Returns
         -------
