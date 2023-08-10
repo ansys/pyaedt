@@ -118,9 +118,6 @@ intersphinx_mapping = {
 
 toc_object_entries_show_parents = "hide"
 
-
-
-
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
@@ -265,7 +262,6 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
-html_show_sourcelink = False
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 html_context = {
