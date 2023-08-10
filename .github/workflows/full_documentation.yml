@@ -97,6 +97,7 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: doc-deploy-stable
+    
     steps:
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -134,7 +135,7 @@ jobs:
       - name: "Deploy the stable documentation index for EDB API"
         uses: ansys/actions/doc-deploy-index@v4
         with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev/EDBAPI/
+          cname: ${{ env.DOCUMENTATION_CNAME }}/version/${{ env.VERSION }}/EDBAPI/
           index-name: pyedb-v${{ env.VERSION_MEILI }}
           host-url: ${{ vars.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
