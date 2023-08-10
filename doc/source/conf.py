@@ -273,7 +273,6 @@ html_context = {
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
-    "source_path": "src",
 }
 
 # specify the location of your github repo
