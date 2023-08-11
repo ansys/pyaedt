@@ -161,12 +161,12 @@ def _decode_recognized_subkeys(sk, d):
             d[k] = elems
             return True
     if sk.startswith(_recognized_subkeys[2]):
-        wireseglist = [_parse_value(i) for i in sk.lstrip("WireSeg(").rstrip(")").split(", ")]
+        wire_seg_list = [_parse_value(i) for i in sk.lstrip("WireSeg(").rstrip(")").split(", ")]
         if "WireSeg" in d.keys():
-            d["WireSeg"].append(wireseglist)
+            d["WireSeg"].append(wire_seg_list)
         else:
             d["WireSeg"] = []
-            d["WireSeg"].append(wireseglist)
+            d["WireSeg"].append(wire_seg_list)
         return True
     if sk.startswith(_recognized_subkeys[3]):
         pclist = [i for i in sk.lstrip("PC(").rstrip(")").split(", ")]
