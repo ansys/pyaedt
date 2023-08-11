@@ -11,11 +11,11 @@
     <br> English | <a href="README_CN.md">中文</a>
 </p>
 
-[![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)[![PyPIact](https://pepy.tech/badge/pyaedt/month)](https://pypi.org/project/pyaedt/)[![PythonVersion](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)[![GH-CI](https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml)[![codecov](https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/pyansys/pyaedt)[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)[![pre-commit](https://results.pre-commit.ci/badge/github/pyansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/pyansys/pyaedt/main)
+[![PyAnsys](https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC)](https://docs.pyansys.com/)[![pypi](https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white)](https://pypi.org/project/pyaedt/)[![PyPIact](https://pepy.tech/badge/pyaedt/month)](https://pypi.org/project/pyaedt/)[![PythonVersion](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)[![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml)[![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)[![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
 ## What is PyAEDT?
 
-`PyAEDT` is a Python library that interacts directly with the API for
+PyAEDT is a Python library that interacts directly with the API for
 Ansys Electronics Desktop (AEDT) to make scripting simpler. The architecture
 for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
 and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
@@ -33,7 +33,7 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
   pip install pyaedt
 ```
 
-Install `PyAEDT` with all extra packages (matplotlib, numpy, pandas, pyvista):
+Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 ```sh
   pip install pyaedt[full]
@@ -48,7 +48,7 @@ PyAEDT remains compatible with IronPython and can be still used in the AEDT Fram
 
 ## About PyAnsys
 
-`PyAEDT` is part of the larger [PyAnsys](https://docs.pyansys.com "PyAnsys") effort to facilitate the use of Ansys technologies directly from Python.
+PyAEDT is part of the larger [PyAnsys](https://docs.pyansys.com "PyAnsys") effort to facilitate the use of Ansys technologies directly from Python.
 
 PyAEDT is intended to consolidate and extend all existing
 functionalities around scripting for AEDT to allow reuse of existing code,
@@ -72,9 +72,9 @@ faster resolution of complex simulations for design and optimization.
   />
 </p>
 
-`PyAEDT` is licensed under the [MIT License](https://github.com/pyansys/PyAEDT/blob/main/LICENSE)
+`PyAEDT` is licensed under the [MIT License](https://github.com/ansys/pyaedt/blob/main/LICENSE)
 
-`PyAEDT` includes functionality for interacting with the following `AEDT tools` and `Ansys products`:
+PyAEDT includes functionality for interacting with the following AEDT tools and Ansys products:
 
   - HFSS and HFSS 3D Layout
   - Icepak
@@ -87,26 +87,44 @@ faster resolution of complex simulations for design and optimization.
 
 ## Documentation and issues
 
-In addition to installation and usage information, the `PyAEDT` documentation provides [API reference](https://aedt.docs.pyansys.com/version/stable), [Examples](https://aedt.docs.pyansys.com/version/stable/examples/index.html), and [Contribute](https://aedt.docs.pyansys.com/version/stable/Contributing.html) sections.
+Documentation for the latest stable release of PyAEDT is hosted at
+[PyAEDT documentation](https://aedt.docs.pyansys.com/version/stable/).
 
 In the upper right corner of the documentation's title bar, there is an option
 for switching from viewing the documentation for the latest stable release
 to viewing the documentation for the development version or previously
 released versions.
 
-On the [PyAEDT Issues](https://github.com/pyansys/PyAEDT/issues) page, you can
-create issues to submit questions, report bugs, and request new features.
+You can also view or download PyAEDT cheat sheets, which are one-page references
+providing syntax rules and commands for using the PyAEDT API and PyEDB API:
 
-To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+- [View](https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png) or
+  [download](https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf) the
+  PyAEDT API cheat sheet.
+
+- [View](https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png) or
+  [download](https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf) the
+  PyAEDT API cheat sheet.
+
+
+On the [PyAEDT Issues](https://github.com/ansys/PyAEDT/issues) page, you can
+create issues to report bugs and request new features. On the
+[PyAEDT Discussions](https://github.com/ansys/pyaedt/discussions) page or the
+[Discussions](https://discuss.ansys.com/) page on the Ansys Developer portal,
+you can post questions, share ideas, and get community feedback.
+
+To reach the project support team, email [pyansys.core@ansys.com](mailto:pyansys.core@ansys.com).
 
 ## Dependencies
 
-To run `PyAEDT`, you must have a local licenced copy of AEDT.
-`PyAEDT` supports AEDT versions 2022 R1 or newer.
+To run PyAEDT, you must have a local licenced copy of AEDT.
+PyAEDT supports AEDT versions 2022 R1 or newer.
 
 ## Student version
 
-`PyAEDT` supports `AEDT Student version 2022 R1` and later. For more information, see [Student Version page](https://www.ansys.com/academic/students/ansys-electronics-desktop-student).
+PyAEDT supports AEDT Student versions 2022 R1 and later. For more information, see the
+[Ansys Electronics Desktop Student - Free Software Download](https://www.ansys.com/academic/students/ansys-electronics-desktop-student)
+page on the Ansys website.
 
 ## Why PyAEDT?
 
@@ -114,11 +132,11 @@ A quick and easy approach for automating a simple operation in the AEDT UI is to
 
   - Recorded code is dirty and difficult to read and understand.
   - Recorded scripts are difficult to reuse and adapt.
-  - Complex coding is required by many global users of `AEDT`.
+  - Complex coding is required by many global users of AEDT.
 
-The main advantages of `PyAEDT` are:
+The main advantages of PyAEDT are:
 
-  - Automatic initialization of all `AEDT` objects, such as desktop objects like the editor, boundaries, and so on
+  - Automatic initialization of all AEDT objects, such as desktop objects like the editor and boundaries
   - Error management
   - Log management
   - Variable management
@@ -130,13 +148,15 @@ The main advantages of `PyAEDT` are:
 
 ## Example workflow
 
- 1. Initialize the ``Desktop`` class with the version of `AEDT` to use.
- 2. Initialize the application to use within `AEDT`.
+ 1. Initialize the ``Desktop`` class with the version of AEDT to use.
+ 2. Initialize the application to use within AEDT.
 
 ## Connect to AEDT from Python IDE
 
-``PyAEDT`` works both inside AEDT and as a standalone application. This Python library automatically detects whether it is running in an IronPython or CPython environment and initializes AEDT accordingly.
-``PyAEDT`` also provides advanced error management. Usage examples follow.
+PyAEDT works both inside AEDT and as a standalone application. This Python library
+automatically detects whether it is running in an IronPython or CPython environment
+and initializes AEDT accordingly. PyAEDT also provides advanced error management.
+Usage examples follow.
 
 ## Explicit AEDT declaration and error management
 
@@ -216,9 +236,15 @@ On any Windows client machine:
 
 ## License
 
-`PyAEDT` is licensed under the `MIT` license.
+PyAEDT is licensed under the MIT license.
 
-This module makes no commercial claim over Ansys whatsoever. `PyAEDT` extends the functionality of `AEDT` by adding an additional Python interface to `AEDT` without changing the core behavior or license of the original software. The use of the interactive control of `PyAEDT` requires a legally licensed local copy of `AEDT`. For more information about `AEDT`, visit the [AEDT page](https://www.ansys.com/products/electronics) on the `Ansys` website.
+PyAEDT makes no commercial claim over Ansys whatsoever. This library extends the
+functionality of AEDT by adding a Python interface to AEDT without changing the
+core behavior or license of the original software. The use of PyAEDT requires a
+legally licensed local copy of AEDT.
+
+To get a copy of AEDT, see the [Ansys Electronics](https://www.ansys.com/products/electronics)
+page on the Ansys website.
 
 <p style="text-align: right;"> <a href="#readme-top">back to top</a> </p>
 

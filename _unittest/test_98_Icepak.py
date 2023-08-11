@@ -1111,7 +1111,7 @@ class TestClass:
         )
         assert boundary
 
-    def test_61_assign_network(self):
+    def test_61_assign_network(self, add_app):
         self.aedtapp.insert_design("test_61")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20])
         ids = [f.id for f in box.faces]
@@ -1201,6 +1201,11 @@ class TestClass:
                 i._props = None
             except KeyError:
                 pass
+        app = add_app(application=Icepak, project_name="NetworkTest", subfolder=test_subfolder)
+        thermal_b = app.boundaries
+        thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
+        thermal_b[0].update()
+        app.close_project()
 
     def test_62_get_fans_operating_point(self, add_app):
         # new_path = self.local_scratch.copyfile(

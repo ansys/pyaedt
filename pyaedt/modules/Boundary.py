@@ -3583,6 +3583,28 @@ class NetworkObject(BoundaryObject):
         if create:
             self.create()
 
+    def _clean_list(self, arg):
+        new_list = []
+        for item in arg:
+            if isinstance(item, list):
+                if item[0] == "NAME:PageNet":
+                    page_net_list = []
+                    for i in item:
+                        if isinstance(i, list):
+                            name = page_net_list[-1]
+                            page_net_list.pop(-1)
+                            for j in i:
+                                page_net_list.append(name)
+                                page_net_list.append(j)
+                        else:
+                            page_net_list.append(i)
+                    new_list.append(page_net_list)
+                else:
+                    new_list.append(self._clean_list(item))
+            else:
+                new_list.append(item)
+        return new_list
+
     @pyaedt_function_handler
     def create(self):
         """
@@ -3597,7 +3619,10 @@ class NetworkObject(BoundaryObject):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
         if not self.props.get("SchematicData", None):
             self.props["SchematicData"] = OrderedDict({})
-        self._app.oboundary.AssignNetworkBoundary(self._get_args())
+        args = self._get_args()
+
+        clean_args = self._clean_list(args)
+        self._app.oboundary.AssignNetworkBoundary(clean_args)
         return True
 
     @pyaedt_function_handler
