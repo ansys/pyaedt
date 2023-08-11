@@ -16,11 +16,11 @@ PyAEDT documentation  |version|
 .. |PythonVersion| image:: https://img.shields.io/badge/python-3.7+-blue.svg
    :target: https://www.python.org/downloads/
 
-.. |GH-CI| image:: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
-   :target: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml
+.. |GH-CI| image:: https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
+   :target: https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml
 
-.. |coverage| image:: https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/pyansys/pyaedt
+.. |coverage| image:: https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/ansys/pyaedt
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
@@ -32,8 +32,8 @@ PyAEDT documentation  |version|
 .. |Anaconda| image:: https://anaconda.org/conda-forge/pyaedt/badges/version.svg
   :target: https://anaconda.org/conda-forge/pyaedt
 
-.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/pyansys/pyaedt/main.svg
-   :target: https://results.pre-commit.ci/latest/github/pyansys/pyaedt/main
+.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg
+   :target: https://results.pre-commit.ci/latest/github/ansys/pyaedt/main
    :alt: pre-commit.ci status
 
 
@@ -106,7 +106,7 @@ faster resolution of complex simulations for design and optimization.
 
 
 PyAEDT is licensed under the `MIT License
-<https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
+<https://github.com/ansys/pyaedt/blob/main/LICENSE>`_.
 
 PyAEDT includes functionality for interacting with the following AEDT tools and Ansys products:
 
@@ -142,7 +142,7 @@ providing syntax rules and commands for using the PyAEDT API and PyEDB API:
   PyAEDT API cheat sheet.
 
 
-On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
+On the `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page, you can
 create issues to report bugs and request new features. On the `PyAEDT Discussions
 <https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
 page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback.
