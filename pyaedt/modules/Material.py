@@ -13,6 +13,7 @@ This module contains these data classes for creating a material library:
 
 """
 from collections import OrderedDict
+import copy
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import CSS4_COLORS
@@ -196,10 +197,11 @@ class Dataset(object):
 class BasicValue(object):
     """Manages thermal and spatial modifier calculations."""
 
-    value = None
-    dataset = None
-    thermalmodifier = None
-    spatialmodifier = None
+    def __init__(self):
+        value = None
+        dataset = None
+        thermalmodifier = None
+        spatialmodifier = None
 
 
 class MatProperty(object):
@@ -291,9 +293,15 @@ class MatProperty(object):
         if self._type == "simple":
             self._property_value = [self._property_value[0]]
         elif self._type == "anisotropic":
-            self._property_value = [self._property_value[0] for i in range(3)]
+            try:
+                self._property_value = [self._property_value[i] for i in range(3)]
+            except IndexError:
+                self._property_value = [copy.deepcopy(self._property_value[0]) for i in range(3)]
         elif self._type == "tensor":
-            self._property_value = [self._property_value[0] for i in range(9)]
+            try:
+                self._property_value = [copy.deepcopy(self._property_value[i]) for i in range(9)]
+            except IndexError:
+                self._property_value = [self._property_value[0] for i in range(9)]
         elif self._type == "nonlinear":
             self._property_value = [self._property_value[0]]
 
@@ -1081,7 +1089,7 @@ class CommonMaterial(object):
         ):
             i = 1
             for val in provpavlue:
-                if not self._props.get(propname, None) or isinstance(self._props[propname], str):
+                if not self._props.get(propname, None) or not isinstance(self._props[propname], dict):
                     self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
                     self._props[propname]["unit"] = ""
                 self._props[propname]["component" + str(i)] = str(val)
