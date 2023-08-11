@@ -191,10 +191,6 @@ class EDBPrimitives(EDBPrimitivesMain):
         return area
 
     @property
-    def arcs(self):
-        return self.polygon_data
-
-    @property
     def is_void(self):
         """Either if the primitive is a void or not.
 
@@ -664,8 +660,8 @@ class EDBPrimitives(EDBPrimitivesMain):
     def arcs(self):
         """Get the Primitive Arc Data."""
         arcs = []
-        if self.polygon_data.IsClosed():
-            arcs = [EDBArcs(self, i) for i in list(self.polygon_data.GetArcData())]
+        if self.polygon_data.edb_api.IsClosed():
+            arcs = [EDBArcs(self, i) for i in list(self.polygon_data.arcs)]
         return arcs
 
     @property
@@ -899,6 +895,30 @@ class EDBArcs(object):
     def __init__(self, app, arc):
         self._app = app
         self.arc_object = arc
+
+    @property
+    def start_x(self):
+        point = self.arc_object.Start
+        return point.X.ToDouble()
+
+    @property
+    def start_y(self):
+        point = self.arc_object.Start
+        return point.Y.ToDouble()
+
+    @property
+    def end_x(self):
+        point = self.arc_object.End
+        return point.X.ToDouble()
+
+    @property
+    def end_y(self):
+        point = self.arc_object.End
+        return point.Y.ToDouble()
+
+    @property
+    def height(self):
+        return self.arc_object.Height.ToDouble()
 
     @property
     def center(self):
