@@ -123,15 +123,29 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 Documentation and issues
 ------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
-`PyAEDT Documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
+`PyAEDT documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
 
 In the upper right corner of the documentation's title bar, there is an option
 for switching from viewing the documentation for the latest stable release
 to viewing the documentation for the development version or previously
 released versions.
 
-On the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_ page, you can
-create issues to submit questions, report bugs, and request new features.
+You can also view or download PyAEDT cheat sheets, which are one-page references
+providing syntax rules and commands for using the PyAEDT API and PyEDB API:
+
+- `View <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
+  `download <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
+  PyAEDT API cheat sheet.
+
+- - `View <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
+  `download <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
+  PyAEDT API cheat sheet.
+
+
+On the `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page, you can
+create issues to report bugs and request new features. On the `PyAEDT Discussions
+<https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
+page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback.
 
 To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
@@ -143,9 +157,9 @@ PyAEDT supports AEDT versions 2022 R2 and later.
 Student version
 ---------------
 
-PyAEDT supports AEDT Student versions 2022 R2 and later. For more information, see
+PyAEDT supports AEDT Student versions 2022 R2 and later. For more information, see the
 `Ansys Electronics Desktop Student  - Free Software Download <https://www.ansys.com/academic/students/ansys-e
-lectronics-desktop-student>`_ on the Ansys website.
+lectronics-desktop-student>`_ page on the Ansys website.
 
 
 Why PyAEDT?
@@ -274,13 +288,12 @@ License
 -------
 PyAEDT is licensed under the MIT license.
 
-This module makes no commercial claim over Ansys whatsoever.
-PyAEDT extends the functionality of AEDT by adding
-an additional Python interface to AEDT without changing the core
-behavior or license of the original software. The use of the
-interactive control of PyAEDT requires a legally licensed
-local copy of AEDT. For more information about AEDT,
-see the `Ansys Electronics <https://www.ansys.com/products/electronics>`_
+PyAEDT makes no commercial claim over Ansys whatsoever. This library extends the
+functionality of AEDT by adding a Python interface to AEDT without changing the
+core behavior or license of the original software. The use of PyAEDT requires a
+legally licensed local copy of AEDT.
+
+To get a copy of AEDT, see the `Ansys Electronics <https://www.ansys.com/products/electronics>`_
 page on the Ansys website.
 
 
