@@ -19,14 +19,14 @@ development mode, run:
 
 .. code::
 
-    git clone https://github.com/pyansys/pyaedt
+    git clone https://github.com/ansys/pyaedt
     cd pyaedt
     python -m pip install --upgrade pip
     pip install -e .
 
 Post issues
 -----------
-Use the `PyAEDT Issues <https://github.com/pyansys/pyaedt/issues>`_
+Use the `PyAEDT Issues <https://github.com/ansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
 To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
