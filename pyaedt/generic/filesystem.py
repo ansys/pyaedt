@@ -60,8 +60,8 @@ class Scratch:
             try:
                 os.mkdir(self.path)
                 os.chmod(self.path, permission)
-            except:
-                pass
+            except FileNotFoundError as fnf_error:  # Raise error if folder doesn't exist.
+                print(fnf_error)
 
     def remove(self):
         """ """
@@ -101,8 +101,8 @@ class Scratch:
                 pass
         try:
             shutil.copy2(src_file, dst_file)
-        except:  # pragma: no cover
-            pass
+        except FileNotFoundError as fnf_error:
+            print(fnf_error)
 
         return dst_file
 
