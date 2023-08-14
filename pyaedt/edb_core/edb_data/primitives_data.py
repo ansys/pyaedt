@@ -916,12 +916,12 @@ class EDBArcs(object):
 
     @property
     def end(self):
-        """Get the coordinate of the end point.
+        """Get the coordinates of the ending point.
 
         Returns
         -------
         list
-            A list containing the X and Y coordinates of the end point.
+            List containing the X and Y coordinates of the ending point.
 
         Examples
         -------
