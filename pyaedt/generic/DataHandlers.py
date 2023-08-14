@@ -55,13 +55,17 @@ def _tuple2dict(t, d):
 
 @pyaedt_function_handler()
 def _dict2arg(d, arg_out):
-    """
+    """Create a valid string of name/value pairs for the native AEDT API.
+
+    Prepend the argument string in `arg_aut` using the dict `d`
+    to create a valid input string as an argument for the native AEDT API.
 
     Parameters
     ----------
     d : dict
 
-    arg_out :
+    arg_out : str. String of name/value pair
+              be built as an argument for the native AEDT API.
 
     """
     for k, v in d.items():
