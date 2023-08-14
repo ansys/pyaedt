@@ -902,7 +902,8 @@ class EDBArcs(object):
         -------
         list
                 A list containing the X and Y coordinates of the starting point.
-        Example
+
+        Examples
         -------
         >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> start_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].start
@@ -920,7 +921,8 @@ class EDBArcs(object):
         -------
         list
             A list containing the X and Y coordinates of the end point.
-        Example
+
+        Examples
         -------
         >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> end_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].end
@@ -937,7 +939,7 @@ class EDBArcs(object):
         Returns
         -------
         float
-        Example
+        Examples
         -------
         >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> arc_height = appedb.nets["V1P0_S0"].primitives[0].arcs[0].height
