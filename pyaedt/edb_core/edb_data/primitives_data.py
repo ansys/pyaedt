@@ -896,7 +896,7 @@ class EDBArcs(object):
 
     @property
     def start(self):
-        """Get the coordinate of the start point.
+        """Get the coordinates of the starting point.
 
         Returns
         -------
