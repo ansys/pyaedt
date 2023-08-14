@@ -906,7 +906,7 @@ class EDBArcs(object):
                 A list containing the X and Y coordinates of the starting point.
         Example
         -------
-        >>> appedb = Edb(fpath, edbversion="2023.2")  # Assuming Arc is the class containing the method
+        >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> start_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].start
         >>> print(start_coordinate)
         [x_value, y_value]
@@ -921,7 +921,7 @@ class EDBArcs(object):
         Returns
         -------
         list
-            A list containing the X and Y coordinates of the starting point.
+            A list containing the X and Y coordinates of the end point.
         Example
         -------
         >>> appedb = Edb(fpath, edbversion="2023.2")
