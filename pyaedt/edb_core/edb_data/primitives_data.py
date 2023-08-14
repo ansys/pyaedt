@@ -901,7 +901,8 @@ class EDBArcs(object):
         Returns
         -------
         list
-                A list containing the X and Y coordinates of the starting point.
+            List containing the X and Y coordinates of the starting point.
+
 
         Examples
         -------
