@@ -72,7 +72,7 @@ class PolygonDataDotNet:
 
     @property
     def api_class(self):  # pragma: no cover
-        """Return Ansys.Ansoft.Edb class object."""
+        """:class:`Ansys.Ansoft.Edb` class object."""
         return self.dotnetobj
 
     @property
