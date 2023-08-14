@@ -81,7 +81,7 @@ class PolygonDataDotNet:
         return list(self.edb_api.GetArcData())
 
     def get_bbox_of_boxes(self, points):
-        """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfBoxes`.
+        """Get the EDB .NET API ``Edb.Geometry.GetBBoxOfBoxes`` database.
 
         Parameters
         ----------
