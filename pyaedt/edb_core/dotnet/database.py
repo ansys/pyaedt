@@ -75,6 +75,10 @@ class PolygonDataDotNet:
         """Return Ansys.Ansoft.Edb class object."""
         return self.dotnetobj
 
+    @property
+    def arcs(self):
+        return list(self.edb_api.GetArcData())
+
     def get_bbox_of_boxes(self, points):
         """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfBoxes`.
 

@@ -2754,3 +2754,9 @@ class TestClass:
             use_q3d=True,
         )
         assert setup.sweeps
+
+    def test_144_arc_data(self):
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
+

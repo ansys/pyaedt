@@ -661,7 +661,7 @@ class EDBPrimitives(EDBPrimitivesMain):
         """Get the Primitive Arc Data."""
         arcs = []
         if self.polygon_data.edb_api.IsClosed():
-            arcs = [EDBArcs(self, i) for i in list(self.polygon_data.arcs)]
+            arcs = [EDBArcs(self, i) for i in self.polygon_data.arcs]
         return arcs
 
     @property
@@ -897,28 +897,54 @@ class EDBArcs(object):
         self.arc_object = arc
 
     @property
-    def start_x(self):
+    def start(self):
+        """Get the coordinate of the start point.
+
+        Returns
+        -------
+        list
+                A list containing the X and Y coordinates of the starting point.
+        Example
+        -------
+        >>> appedb = Edb(fpath, edbversion="2023.2")  # Assuming Arc is the class containing the method
+        >>> start_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].start
+        >>> print(start_coordinate)
+        [x_value, y_value]
+        """
         point = self.arc_object.Start
-        return point.X.ToDouble()
+        return [point.X.ToDouble(), point.Y.ToDouble()]
 
     @property
-    def start_y(self):
-        point = self.arc_object.Start
-        return point.Y.ToDouble()
+    def end(self):
+        """Get the coordinate of the end point.
 
-    @property
-    def end_x(self):
+        Returns
+        -------
+        list
+            A list containing the X and Y coordinates of the starting point.
+        Example
+        -------
+        >>> appedb = Edb(fpath, edbversion="2023.2")
+        >>> end_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].end
+        >>> print(end_coordinate)
+        [x_value, y_value]
+        """
         point = self.arc_object.End
-        return point.X.ToDouble()
-
-    @property
-    def end_y(self):
-        point = self.arc_object.End
-        return point.Y.ToDouble()
+        return [point.X.ToDouble(), point.Y.ToDouble()]
 
     @property
     def height(self):
-        return self.arc_object.Height.ToDouble()
+        """Get the coordinate of the end point.
+
+        Returns
+        -------
+        float
+        Example
+        -------
+        >>> appedb = Edb(fpath, edbversion="2023.2")
+        >>> arc_height = appedb.nets["V1P0_S0"].primitives[0].arcs[0].height
+        """
+        return self.arc_object.Height
 
     @property
     def center(self):
