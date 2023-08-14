@@ -65,9 +65,9 @@ class PolygonDataDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, pedb, api_object):
+    def __init__(self, pedb, api_object=None):
         self._pedb = pedb
-        self.dotnetobj = pedb.geometry
+        self.dotnetobj = pedb.edb_api.geometry.api_class.PolygonData
         self.edb_api = api_object
 
     @property
@@ -77,6 +77,7 @@ class PolygonDataDotNet:
 
     @property
     def arcs(self):
+        """Get list of Edb.Geometry.ArcData."""
         return list(self.edb_api.GetArcData())
 
     def get_bbox_of_boxes(self, points):
@@ -503,7 +504,7 @@ class GeometryDotNet:
             try:
                 return getattr(self.geometry, key)
             except AttributeError:
-                raise AttributeError("Attribute not present")
+                raise AttributeError("Attribute {} not present".format(key))
 
     def __init__(self, app):
         self._app = app
@@ -550,7 +551,7 @@ class GeometryDotNet:
         -------
         :class:`pyaedt.edb_core.dotnet.PolygonDataDotNet`
         """
-        return PolygonDataDotNet(self.edb_api)
+        return PolygonDataDotNet(self._app)
 
     def arc_data(self, point1, point2, rotation=None, center=None, height=None):
         """Compute Edb ArcData.

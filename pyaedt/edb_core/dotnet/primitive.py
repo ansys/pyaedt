@@ -43,7 +43,7 @@ class PrimitiveDotNet:
             try:
                 return getattr(obj, key)
             except AttributeError:
-                raise AttributeError("Attribute not present")
+                raise AttributeError("Attribute {} not present".format(key))
 
     def __init__(self, api, prim_object=None):
         self._app = api
@@ -104,7 +104,7 @@ class PrimitiveDotNet:
     @property
     def polygon_data(self):
         """:class:`pyaedt.edb_core.dotnet.database.PolygonDataDotNet`: Outer contour of the Polygon object."""
-        return PolygonDataDotNet(self._app.edb_api, self.prim_obj.GetPolygonData())
+        return PolygonDataDotNet(self._app, self.prim_obj.GetPolygonData())
 
     @polygon_data.setter
     def polygon_data(self, poly):

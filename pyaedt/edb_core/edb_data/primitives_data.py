@@ -659,9 +659,7 @@ class EDBPrimitives(EDBPrimitivesMain):
     @property
     def arcs(self):
         """Get the Primitive Arc Data."""
-        arcs = []
-        if self.polygon_data.edb_api.IsClosed():
-            arcs = [EDBArcs(self, i) for i in self.polygon_data.arcs]
+        arcs = [EDBArcs(self, i) for i in self.polygon_data.arcs]
         return arcs
 
     @property
