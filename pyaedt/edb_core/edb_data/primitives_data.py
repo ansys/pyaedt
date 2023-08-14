@@ -924,11 +924,9 @@ class EDBArcs(object):
             List containing the X and Y coordinates of the ending point.
 
         Examples
-        -------
+        --------
         >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> end_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].end
-        >>> print(end_coordinate)
-        [x_value, y_value]
         """
         point = self.arc_object.End
         return [point.X.ToDouble(), point.Y.ToDouble()]
@@ -941,8 +939,9 @@ class EDBArcs(object):
         -------
         float
             Height of the arc.
+
         Examples
-        -------
+        --------
         >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> arc_height = appedb.nets["V1P0_S0"].primitives[0].arcs[0].height
         """
