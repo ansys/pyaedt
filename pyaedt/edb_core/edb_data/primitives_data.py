@@ -935,11 +935,12 @@ class EDBArcs(object):
 
     @property
     def height(self):
-        """Get the coordinate of the end point.
+        """Get the height of the arc.
 
         Returns
         -------
         float
+            Height of the arc.
         Examples
         -------
         >>> appedb = Edb(fpath, edbversion="2023.2")
