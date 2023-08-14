@@ -486,6 +486,33 @@ def to_aedt(code):
     return return_code
 
 
+def str_to_bool(s):
+    """Convert a string `"True"` or `"False"` to its corresponding Boolean value.
+
+    If the passed arguments are not relevant in the context of conversion, the argument
+    itself is returned.  This method can be called using the `map()` function to
+    ensure conversion of Boolean strings in a list.
+
+    Parameters
+    ----------
+    s: str
+
+    Returns
+    -------
+    Boolean
+
+    """
+    if type(s) == str:
+        if s.lower() == "true":
+            return True
+        elif s.lower() == "false":
+            return False
+        else:
+            return s
+    else:
+        return s
+
+
 @pyaedt_function_handler()
 def from_rkm_to_aedt(code):
     """

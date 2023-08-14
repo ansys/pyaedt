@@ -13,6 +13,7 @@ from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.DataHandlers import str_to_bool
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 
 # from pyaedt.generic.general_methods import property
@@ -5460,10 +5461,11 @@ class Hfss(FieldAnalysis3D, object):
         arg2 = ["NAME:EditDiffPairs", arg]
 
         existing_pairs = self.oboundary.GetDiffPairs()
+        # Native API returns Boolean values as strings. Therefore, map to Boolean.
         num_old_pairs = len(existing_pairs)
         if existing_pairs:
             for i, p in enumerate(existing_pairs):
-                tmp_p = list(p)
+                tmp_p = list(map(str_to_bool, p))
                 tmp_p.insert(0, "NAME:Pair_" + str(i))
                 arg2.append(tmp_p)
 
