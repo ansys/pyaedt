@@ -111,7 +111,7 @@ class PolygonDataDotNet:
         from pyaedt.generic.clr_module import Tuple
 
         if isinstance(points, (tuple, list)):
-            points = Tuple[self.edb_api.Geometry.PointData, self.edb_api.Geometry.PointData](points[0], points[1])
+            points = Tuple[self._pedb.edb_api.Geometry.PointData, self._pedb.edb_api.Geometry.PointData](points[0], points[1])
         return self.dotnetobj.CreateFromBBox(points)
 
     def create_from_arcs(self, arcs, flag):
