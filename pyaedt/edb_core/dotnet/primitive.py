@@ -102,7 +102,7 @@ class PrimitiveDotNet:
             self._app.logger.error("Error setting net object")
 
     @property
-    def polygon_data(self):  # pragma: no cover
+    def polygon_data(self):
         """:class:`pyaedt.edb_core.dotnet.database.PolygonDataDotNet`: Outer contour of the Polygon object."""
         return PolygonDataDotNet(self._app, self.prim_obj.GetPolygonData())
 

@@ -626,7 +626,7 @@ class EDBPrimitives(EDBPrimitivesMain):
         -------
         list of float
         """
-        if isinstance(point, list):
+        if isinstance(point, (list, tuple)):
             point = self._app.edb_api.geometry.point_data(self._app.edb_value(point[0]), self._app.edb_value(point[1]))
 
         p0 = self.polygon_data.edb_api.GetClosestPoint(point)
