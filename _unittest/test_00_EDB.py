@@ -985,7 +985,7 @@ class TestClass:
             i += 1
         assert self.edbapp.modeler.primitives[i].bbox
         assert self.edbapp.modeler.primitives[i].center
-        assert self.edbapp.modeler.primitives[i].get_closest_point((0,0))
+        assert self.edbapp.modeler.primitives[i].get_closest_point((0, 0))
         assert self.edbapp.modeler.primitives[i].polygon_data
 
     def test_085_short_component(self):
