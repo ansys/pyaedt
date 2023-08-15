@@ -940,6 +940,7 @@ class EDBArcs(object):
         float
             Height of the arc.
 
+
         Examples
         --------
         >>> appedb = Edb(fpath, edbversion="2023.2")
