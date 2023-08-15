@@ -556,7 +556,7 @@ class GeometryDotNet:
         return PolygonDataDotNet(self._app)
 
     def arc_data(self, point1, point2, rotation=None, center=None, height=None):
-        """Compute Edb ArcData.
+        """Compute EBD arc data.
 
         Parameters
         ----------
