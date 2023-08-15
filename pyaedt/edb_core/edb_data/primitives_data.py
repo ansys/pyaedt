@@ -905,7 +905,7 @@ class EDBArcs(object):
 
 
         Examples
-        -------
+        --------
         >>> appedb = Edb(fpath, edbversion="2023.2")
         >>> start_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].start
         >>> print(start_coordinate)
