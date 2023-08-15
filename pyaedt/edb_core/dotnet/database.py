@@ -505,7 +505,7 @@ class GeometryDotNet:
         except AttributeError:
             try:
                 return getattr(self.geometry, key)
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 raise AttributeError("Attribute {} not present".format(key))
 
     def __init__(self, app):
