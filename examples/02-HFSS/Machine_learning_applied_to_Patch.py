@@ -44,7 +44,23 @@ from pyaedt.generic import constants as const
 # Use the 2023R1 release of HFSS.
 
 non_graphical = False
-desktop_version = "2023.1"
+desktop_version = "2023.2"
+
+########################################################
+# Temporary Working Folder
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use tempfile to create a temporary working folder.  Project data
+# will be deleted after this example is run.
+#
+# In order to save the project data in another location, change
+# the location of the project directory.
+#
+
+# tmpdir.cleanup() at the end of this notebook removes all
+# project files and data.
+
+tmpdir = tempfile.TemporaryDirectory(suffix="_aedt")
+project_folder = os.path.join(tmpdir.name, "ML_patch")
 
 
 c0 = 2.99792458e8  # Speed of light in free space.
@@ -180,10 +196,10 @@ for s in samples:
 
 # new_desktop_session=True
 
-project_folder = os.path.join(tempfile.gettempdir(), "ML_patch")
 if not os.path.exists(project_folder):
     os.mkdir(project_folder)
-project_name = os.path.join(project_folder, pyaedt.general_methods.generate_unique_name("Proj", n=3))
+# project_name = os.path.join(project_folder, pyaedt.general_methods.generate_unique_name("Proj", n=3))
+project_name = "ml_patch.aedt"
 hfss = pyaedt.Hfss(projectname=project_name,
                    solution_type="Terminal",
                    designname="patch",
@@ -641,6 +657,7 @@ print("average is : " + str(average_relative_gap))
 ###############################################################################
 # Release AEDT
 # ------------
-# Release AEDT.
+# Release AEDT and clean up temporary folders and files.
 
 hfss.release_desktop()
+tmpdir.cleanup()
