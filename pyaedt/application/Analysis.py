@@ -28,6 +28,8 @@ from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -122,14 +124,11 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
         )
-        self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
-        self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
-
         if self.design_type != "Maxwell Circuit":
             self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
 
@@ -435,7 +434,9 @@ class Analysis(Design, object):
         first_element_filter=None,
         second_element_filter=None,
         category="dB(S",
+        differential_pairs=[],
     ):
+        # type: (bool, bool, str, str, str, list) -> list
         """Retrieve a list of traces of specified designs ready to use in plot reports.
 
         Parameters
@@ -450,9 +451,11 @@ class Analysis(Design, object):
         second_element_filter : str, optional
             Filter to apply to the second element of the equation.
             This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
-        category : str
+        category : str, optional
             Plot category name as in the report (including operator).
             The default is ``"dB(S"``,  which is the plot category name for capacitance.
+        differential_pairs : list, optional
+            Differential pairs defined. The default is ``[]``.
 
         Returns
         -------
@@ -461,10 +464,13 @@ class Analysis(Design, object):
 
         Examples
         --------
-        >>> from pyaedt import Q3d
-        >>> hfss = hfss(project_path)
+        >>> from pyaedt import Hfss3dLayout
+        >>> hfss = Hfss3dLayout(project_path)
         >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                           second_element_filter="GND*", category="dB(S")
+        ...                          second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
+        ...                          first_element_filter="*_U1_data?",
+        ...                          second_element_filter="*_U0_*", category="dB(S")
         """
         if not first_element_filter:
             first_element_filter = "*"
@@ -472,14 +478,18 @@ class Analysis(Design, object):
             second_element_filter = "*"
         list_output = []
         end_str = ")" * (category.count("(") + 1)
+        if differential_pairs:
+            excitations = differential_pairs
+        else:
+            excitations = self.excitations
         if get_self_terms:
-            for el in self.excitations:
+            for el in excitations:
                 value = "{}({},{}{}".format(category, el, el, end_str)
                 if filter_tuple(value, first_element_filter, second_element_filter):
                     list_output.append(value)
         if get_mutual_terms:
-            for el1 in self.excitations:
-                for el2 in self.excitations:
+            for el1 in excitations:
+                for el2 in excitations:
                     if el1 != el2:
                         value = "{}({},{}{}".format(category, el1, el2, end_str)
                         if filter_tuple(value, first_element_filter, second_element_filter):
@@ -1258,7 +1268,7 @@ class Analysis(Design, object):
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
-        pyaedt INFO: Sweep was deleted correctly.
+        PyAEDT INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])
@@ -1513,7 +1523,7 @@ class Analysis(Design, object):
     def analyze(
         self,
         setup_name=None,
-        num_cores=1,
+        num_cores=4,
         num_tasks=1,
         num_gpu=1,
         acf_file=None,
@@ -1522,6 +1532,7 @@ class Analysis(Design, object):
         machine="localhost",
         run_in_thread=False,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Solve the active design.
 
@@ -1530,7 +1541,7 @@ class Analysis(Design, object):
         setup_name : str, optional
             Setup to analyze. Default is ``None`` which solves all the setups.
         num_cores : int, optional
-            Number of simulation cores. Default is ``1``.
+            Number of simulation cores. Default is ``4`` which is the number of cores available in license.
         num_tasks : int, optional
             Number of simulation tasks. Default is ``1``.
             In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
@@ -1551,6 +1562,9 @@ class Analysis(Design, object):
             ``False``.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1580,13 +1594,14 @@ class Analysis(Design, object):
                 acf_file,
                 use_auto_settings,
                 revert_to_initial_mesh=revert_to_initial_mesh,
+                blocking=blocking,
             )
 
     @pyaedt_function_handler()
     def analyze_setup(
         self,
         name,
-        num_cores=1,
+        num_cores=4,
         num_tasks=1,
         num_gpu=0,
         acf_file=None,
@@ -1594,6 +1609,7 @@ class Analysis(Design, object):
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Analyze a design setup.
 
@@ -1619,6 +1635,9 @@ class Analysis(Design, object):
             An empty list ``[]`` disables all types.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1709,18 +1728,24 @@ class Analysis(Design, object):
         if not name:
             try:
                 self.logger.info("Solving all design setups")
-                self.odesign.AnalyzeAll()
+                if self.desktop_class.aedt_version_id > "2023.1":
+                    self.odesign.AnalyzeAll(blocking)
+                else:
+                    self.odesign.AnalyzeAll()
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-                self.logger.error("Error in Solving Setup %s", name)
+                self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
         elif name in self.existing_analysis_setups:
             try:
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
                 self.logger.info("Solving design setup %s", name)
-                self.odesign.Analyze(name)
+                if self.desktop_class.aedt_version_id > "2023.1":
+                    self.odesign.Analyze(name, blocking)
+                else:
+                    self.odesign.Analyze(name)
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -1743,6 +1768,48 @@ class Analysis(Design, object):
             "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
         )
         return True
+
+    @property
+    def are_there_simulations_running(self):
+        """Check if there are simulation running.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        float
+
+        """
+        return self.desktop_class.are_there_simulations_running
+
+    @pyaedt_function_handler()
+    def get_monitor_data(self):
+        """Check and get monitor data of an existing analysis.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        dict
+
+        """
+        return self.desktop_class.get_monitor_data()
+
+    @pyaedt_function_handler()
+    def stop_simulations(self, clean_stop=True):
+        """Check if there are simulation running and stops them.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        str
+
+        """
+        return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
     @pyaedt_function_handler()
     def solve_in_batch(
@@ -1994,7 +2061,7 @@ class Analysis(Design, object):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containing the frequencies to export, use ["all"] for all frequencies
         FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization

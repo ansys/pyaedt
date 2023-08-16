@@ -1,8 +1,9 @@
 import os
-import sys
+
+# import sys
 import warnings
 
-from pyaedt.generic.general_methods import _retry_ntimes
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -65,7 +66,7 @@ class Primitives3DLayout(object):
         return None
 
     def __init__(self, app):
-        self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
+        # self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
         self._padstacks = {}
         self._components3d = {}
@@ -110,7 +111,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Components3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`]
             Components objects.
 
         """
@@ -397,7 +398,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`]
             Pyaedt Objects.
         """
         if self._polygons:
@@ -412,7 +413,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Line3dLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
 
@@ -429,7 +430,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Circle3dLayout`]
             Pyaedt Objects.
         """
         if self._circles:
@@ -444,7 +445,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Rect3dLayout`]
             Pyaedt Objects.
         """
         if self._rectangles:
@@ -459,7 +460,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`]
             Pyaedt Objects.
         """
         if self._polygons_voids:
@@ -474,7 +475,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Line3dLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
 
@@ -490,7 +491,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Circle3dLayout`]
             Pyaedt Objects.
         """
         if self._circles:
@@ -505,7 +506,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Rect3dLayout`]
             Pyaedt Objects.
         """
         if self._rectangles:
@@ -520,7 +521,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Components3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`]
             Pyaedt Objects.
         """
         if not self._components3d:
@@ -561,7 +562,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Pins3DLayout`]
             Pins Dictionary.
 
         """
@@ -576,7 +577,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Pins3DLayout`]
             Vias Dictionary.
         """
         if self._vias or len(self._get_names(["via"])) == len(self._vias):
@@ -591,7 +592,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
             Nets Dictionary.
 
         """
@@ -610,7 +611,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
             Power Nets Dictionary.
 
         """
@@ -628,7 +629,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
             Signal Nets Dictionary.
 
         """
@@ -646,7 +647,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
             No Nets Dictionary.
 
         """
@@ -714,7 +715,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Padstack`
+        :class:`pyaedt.modeler.cad.object3dlayout.Padstack`
             Padstack object if a padstack with this name does not already exist.
 
         """
@@ -880,6 +881,7 @@ class Primitives3DLayout(object):
         name=None,
         netname=None,
     ):
+        # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
         """Create a via based on an existing padstack.
 
         Parameters
@@ -907,7 +909,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Pins3DLayout` or bool
+        :class:`pyaedt.modeler.cad.object3dlayout.Pins3DLayout` or bool
             Object via created when successful, ``False`` when failed.
 
         References
@@ -945,7 +947,7 @@ class Primitives3DLayout(object):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            _retry_ntimes(10, self.oeditor.CreateVia, arg)
+            self.oeditor.CreateVia(arg)
             if netname:
                 self.oeditor.ChangeProperty(
                     [
@@ -986,7 +988,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Circle3dLayout`
             Objects of the circle created when successful.
 
         References
@@ -1051,7 +1053,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Rect3dLayout`
             Name of the rectangle created when successful.
 
         References
@@ -1119,7 +1121,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`
             Object of the rectangle created when successful.
 
         References
@@ -1174,7 +1176,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`
             Object of the rectangle created when successful.
 
         References
@@ -1213,6 +1215,7 @@ class Primitives3DLayout(object):
     def create_line(
         self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None, **kwargs
     ):
+        # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
         """Create a line based on a list of points.
 
         Parameters
@@ -1243,7 +1246,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Line3dLayout`
             Object of the line created when successful.
 
         References
@@ -1445,7 +1448,7 @@ class Primitives3DLayout(object):
         args.append("3DCompSourceFileName:=")
         args.append(component_path)
 
-        _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
+        self.modeler.o_component_manager.Add(args)
         stack_layers = ["0:{}".format(i.name) for i in self.modeler.layers.stackup_layers]
         drawing = ["{}:{}".format(i.name, i.name) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
@@ -1469,14 +1472,14 @@ class Primitives3DLayout(object):
             "DrawLayers:=",
             drawing,
         ]
-        comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
+        comp_name = self.modeler.oeditor.CreateComponent(args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
         if create_ports:
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
-    def create_text(self, text, position, angle=0, font_size=12):
+    def create_text(self, text, position, placement_layer="PostProcessing", angle=0, font_size=12):
         """Create a text primitive object.
 
         Parameters
@@ -1485,6 +1488,8 @@ class Primitives3DLayout(object):
             Name for the text primitive object.
         position : list
             Position of the text.
+        placement_layer : str, optional
+            Layer where text will be placed. The default value is ``"PostProcessing"``.
         angle : float, optional
             Angle of the text. The default value is ``0``.
         font_size : int, optional
@@ -1503,7 +1508,7 @@ class Primitives3DLayout(object):
                 "Name:=",
                 name,
                 "LayerName:=",
-                "Postprocessing",
+                placement_layer,
                 "x:=",
                 position[0],
                 "y:=",

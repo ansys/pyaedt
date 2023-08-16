@@ -1,6 +1,8 @@
 import os
 
 from pyaedt.application.Analysis import Analysis
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
@@ -86,9 +88,7 @@ class FieldAnalysis3DLayout(Analysis):
             port,
             aedt_process_id,
         )
-        self.logger.info("Analysis Loaded")
         self._modeler = None
-        self.logger.info("Modeler Loaded")
         self._mesh = None
         self._post = None
 
@@ -495,7 +495,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
         >>> hfss3dlayout.delete_setup(setupname='Setup1')
         ...
-        pyaedt INFO: Sweep was deleted correctly.
+        PyAEDT INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.osolution.Delete(setupname)

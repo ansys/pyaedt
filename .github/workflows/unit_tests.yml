@@ -1,12 +1,12 @@
 name: CI
 
 env:
-  python.version: 3.8
+  python.version: '3.10'
   python.venv: 'testvenv'
   # Following env vars when changed will "reset" the mentioned cache,
   # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
   # You should go up in number, if you go down (or repeat a previous value)
-  # you might end up reusing a previous cache if it haven't been deleted already.
+  # you might end up reusing a previous cache if it hasn't been deleted already.
   # It applies 7 days retention policy by default.
   RESET_PIP_CACHE: 0
   PACKAGE_NAME: PyAEDT
@@ -33,7 +33,7 @@ jobs:
     runs-on: [windows-latest, pyaedt]
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ['3.10']
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
@@ -44,6 +44,7 @@ jobs:
 
       - name: 'Create virtual env'
         run: |
+          Remove-Item D:\Temp\* -Recurse -Force
           python -m venv testenv
           testenv\Scripts\Activate.ps1
           python -m pip install pip -U
@@ -69,10 +70,10 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest --tx 8*popen --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
+          pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == '3.10'
         name: 'Upload coverage to Codecov'
 
       - name: Upload pytest test results

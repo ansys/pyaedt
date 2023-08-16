@@ -1,15 +1,11 @@
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+import pytest
 
-from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
-
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+from pyaedt.modeler.cad.object3d import Object3d
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -17,19 +13,23 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-if is_ironpython:
-    tol = 5e-4
-else:
-    tol = 1e-12
+# if is_ironpython:
+#     tol = 5e-4
+# else:
+tol = 1e-12
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def restore_model(self):
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):
@@ -85,6 +85,44 @@ class TestClass(BasisTest, object):
         split2 = box2.split(1)
         assert isinstance(split2, list)
         assert box2.name in split2[0]
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3")
+        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 20], [20, 30], name="rect1")
+        split = self.aedtapp.modeler.split(objects=box3, sides="Both", tool=rect1.id)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 14], [20, 30], name="rect2")
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=rect2.faces[0])
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 12], [20, 30], name="rect3")
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool="rect3")
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        assert not self.aedtapp.modeler.split(objects=obj_split)
+        box4 = self.aedtapp.modeler.create_box([20, 20, 20], [20, 20, 20], "box_to_split4")
+        poly2 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=box4, sides="Both", tool=poly2.name)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        poly3 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 35], [30, 25, 35], [30, 45, 35]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly3)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        poly4 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 37], [30, 25, 37], [30, 45, 37]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly4.edges[0])
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
 
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
@@ -336,6 +374,8 @@ class TestClass(BasisTest, object):
 
     def test_40_create_coordinate_system(self):
         cs = self.aedtapp.modeler.create_coordinate_system()
+        self.aedtapp.modeler.coordinate_systems
+        cs1 = self.aedtapp.modeler.create_coordinate_system()
         assert cs
         assert cs.update()
         assert cs.change_cs_mode(1)
@@ -346,9 +386,19 @@ class TestClass(BasisTest, object):
             assert False
         except ValueError:
             assert True
-
         assert cs.change_cs_mode(0)
         assert cs.delete()
+        assert len(self.aedtapp.modeler.coordinate_systems) == 1
+        cs2 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs1.name)
+        cs3 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs2.name)
+        assert cs1.delete()
+        assert not self.aedtapp.modeler.coordinate_systems
+        cs4 = self.aedtapp.modeler.create_coordinate_system()
+        cs5 = self.aedtapp.modeler.create_coordinate_system()
+        cs6 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
+        assert cs4.delete()
+        assert len(self.aedtapp.modeler.coordinate_systems) == 1
+        assert cs5.delete()
 
     def test_40a_create_face_coordinate_system(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
@@ -641,12 +691,12 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.imprint(rect, box1)
 
     def test_51_imprint_projection(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn1")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [5, 20], "imprintn1")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
         assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [6, 18], "imprintn3")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
-        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
+        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [0.2, -0.8, -5], 1)
 
     def test_52_objects_in_bounding_box(self):
         bounding_box = [-100, -300, -200, 100, 200, 100]
@@ -657,10 +707,9 @@ class TestClass(BasisTest, object):
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert len(objects_in_bounding_box) == 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                bounding_box = [100, 200, 100, -100, -300]
-                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        with pytest.raises(ValueError):
+            bounding_box = [100, 200, 100, -100, -300]
+            self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
@@ -725,6 +774,80 @@ class TestClass(BasisTest, object):
         assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
         assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
         assert self.aedtapp.modeler.reference_cs_to_global(cs4)
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1].vertices[0])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[1].vertices[0], face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -749,3 +872,53 @@ class TestClass(BasisTest, object):
         sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
         assert all(abs(res[i] - sol[i]) < tol for i in range(3))
         assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)
+
+    def test_59a_region_property(self):
+        self.aedtapp.modeler.create_air_region()
+        cs_name = "TestCS"
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
+        )
+        assert self.aedtapp.modeler.change_region_coordinate_system(region_cs=cs_name)
+        assert self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+        assert self.aedtapp.modeler.change_region_padding(
+            ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
+            padding_type=[
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+            ],
+        )
+
+    def test_59b_region_property_failing(self):
+        self.aedtapp.modeler.create_air_region()
+        assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")
+        assert not self.aedtapp.modeler.change_region_padding(
+            "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
+        )
+        with pytest.raises(Exception, match="Check ``axes`` input."):
+            self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
+        with pytest.raises(Exception, match="Check ``padding_type`` input."):
+            self.aedtapp.modeler.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")
+        assert not self.aedtapp.modeler.change_region_padding(
+            ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
+            padding_type=[
+                "Absolute Position",
+                "Percentage Offset",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+            ],
+        )
+
+    def test_60_sweep_along_normal(self):
+        selected_faces = [face for face in self.aedtapp.modeler["Core"].faces if face.is_planar]
+        selected_faces = [selected_faces[0].id, selected_faces[1].id]
+        a = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces, sweep_value=100)
+        b = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces[0], sweep_value=200)
+        assert isinstance(a, list)
+        assert isinstance(b, Object3d)

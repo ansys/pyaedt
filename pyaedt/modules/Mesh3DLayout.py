@@ -9,6 +9,8 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -129,6 +131,7 @@ class Mesh3d(object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
 
         self.logger = self._app.logger
@@ -138,7 +141,7 @@ class Mesh3d(object):
 
         self.meshoperations = self._get_design_mesh_operations()
 
-        pass
+        app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
     def generate_mesh(self, name):

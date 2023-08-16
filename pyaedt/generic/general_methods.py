@@ -24,6 +24,7 @@ import time
 import traceback
 
 from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.settings import settings
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
@@ -42,6 +43,12 @@ except ImportError:
     ET = None
 
 
+class GrpcApiError(Exception):
+    """ """
+
+    pass
+
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -53,6 +60,16 @@ def _write_mes(mes_text):
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
         settings.logger.error(el)
+
+
+def _get_args_dicts(func, args, kwargs):
+    if int(sys.version[0]) > 2:
+        args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+    else:
+        args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+    return args_dict
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -75,50 +92,57 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
+
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
-    if len(tb_trace) > 1:
-        tblist = tb_trace[1].split("\n")
-    else:
-        tblist = tb_trace[0].split("\n")
+    _write_mes("{} on {}".format(message.upper(), func.__name__))
+    try:
+        _write_mes(ex_info[1].args[0])
+    except (IndexError, AttributeError):
+        pass
+    for trace in traceback.format_stack():
+        if func.__name__ in trace:
+            for el in trace.split("\n"):
+                _write_mes(el)
+    for trace in tb_trace:
+        tblist = trace.split("\n")
+        for el in tblist:
+            if func.__name__ in el:
+                _write_mes(el)
 
     message_to_print = ""
+    messages = ""
     try:
-        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-    except AttributeError:
-        messages = []
-    except TypeError:
-        messages = []
-    if messages:
-        message_to_print = messages[-1]
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("Error in : " + el)
-    _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
+    except (GrpcApiError, AttributeError, TypeError, IndexError):
+        pass
+    if "error" in messages:
+        message_to_print = messages[messages.index("[error]") :]
+    # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
-        _write_mes(message_to_print)
-    _write_mes("Arguments with values: ")
+        _write_mes("Last Electronics Desktop Message - " + message_to_print)
+
     args_name = []
     try:
-        if int(sys.version[0]) > 2:
-            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-        else:
-            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        args_dict = _get_args_dicts(func, args, kwargs)
+        first_time_log = True
 
         for el in args_dict:
-            if el != "self":
+            if el != "self" and args_dict[el]:
+                if first_time_log:
+                    _write_mes("Method arguments: ")
+                    first_time_log = False
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
     args = [func.__name__] + [i for i in args_name if i not in ["self"]]
-    _write_mes(
-        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
-            "+".join(args)
+    if not func.__name__.startswith("_"):
+        _write_mes(
+            "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+                "+".join(args)
+            )
         )
-    )
 
 
 def normalize_path(path_in, sep=None):
@@ -162,7 +186,7 @@ def _function_handler_wrapper(user_function):
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger:
+                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
@@ -198,6 +222,9 @@ def _function_handler_wrapper(user_function):
                     print("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
+                return False
+            except GrpcApiError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -279,7 +306,6 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def check_if_path_exists(path):
     """Check whether a path exists or not local or remote machine (for remote sessions only).
 
@@ -322,7 +348,6 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
@@ -366,8 +391,7 @@ def _log_method(func, new_args, new_kwargs):
         or "edb_core" in str(func) + str(new_args)
     ):
         return
-    line_begin = "    Implicit Arguments: "
-    line_begin2 = "    Explicit Arguments: "
+    line_begin = "ARGUMENTS: "
     message = []
     delta = time.time() - settings.time_tick
     m, s = divmod(delta, 60)
@@ -380,28 +404,21 @@ def _log_method(func, new_args, new_kwargs):
         time_msg = " {}h {}m {}sec.".format(h, m, int(s))
     else:
         time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
-    if new_args and settings.enable_debug_methods_argument_logger:
-        object_name = str([new_args[0]])[1:-1]
-        id = object_name.find(" object at ")
-        if id >= 0:
+    if settings.enable_debug_methods_argument_logger:
+        args_dict = _get_args_dicts(func, new_args, new_kwargs)
+        id = 0
+        if new_args:
+            object_name = str([new_args[0]])[1:-1]
+            id = object_name.find(" object at ")
+        if id > 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
+            message.append("'{}' was run in {}".format(object_name + "." + str(func.__name__), time_msg))
         else:
-            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-    else:
-        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
-        if new_kwargs and settings.enable_debug_methods_argument_logger:
-            message.append(line_begin2 + str(new_kwargs)[1:-1])
+            message.append("'{}' was run in {}".format(str(func.__name__), time_msg))
+        message.append(line_begin)
+        for k, v in args_dict.items():
+            if k != "self":
+                message.append("    {} = {}".format(k, v))
     for m in message:
         settings.logger.debug(m)
 
@@ -647,25 +664,35 @@ def _retry_ntimes(n, function, *args, **kwargs):
     -------
 
     """
+    func_name = None
+    if function.__name__ == "InvokeAedtObjMethod":
+        func_name = args[1]
     retry = 0
     ret_val = None
+    inclusion_list = [
+        "CreateVia",
+        "PasteDesign",
+        "Paste",
+        "PushExcitations",
+        "Rename",
+        "RestoreProjectArchive",
+    ]
+    # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
+    if func_name and func_name not in inclusion_list:
+        n = 1
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if not ret_val and type(ret_val) is not float and type(ret_val) is not int:
-                ret_val = True
         except:
             retry += 1
-            time.sleep(0.1)
+            time.sleep(settings.retry_n_times_time_interval)
         else:
-            break
+            return ret_val
     if retry == n:
         if "__name__" in dir(function):
             raise AttributeError("Error in Executing Method {}.".format(function.__name__))
         else:
             raise AttributeError("Error in Executing Method.")
-
-    return ret_val
 
 
 def time_fn(fn, *args, **kwargs):
@@ -962,6 +989,8 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
+    if not os.path.exists(os.path.dirname(full_json_path)):
+        os.makedirs(os.path.dirname(full_json_path))
     if not is_ironpython:
         with open(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
@@ -977,6 +1006,212 @@ def _create_json_file(json_dict, full_json_path):
             file.write(filedata)
         os.remove(temp_path)
     return True
+
+
+# @pyaedt_function_handler()
+# def com_active_sessions(version=None, student_version=False, non_graphical=False):
+#     """Get information for the active COM AEDT sessions.
+#
+#     Parameters
+#     ----------
+#     version : str, optional
+#         Version to check. The default is ``None``, in which case all versions are checked.
+#         When specifying a version, you can use a three-digit format like ``"222"`` or a
+#         five-digit format like ``"2022.2"``.
+#     student_version : bool, optional
+#         Whether to check for student version sessions. The default is ``False``.
+#     non_graphical : bool, optional
+#         Whether to check only for active non-graphical sessions. The default is ``False``.
+#
+#     Returns
+#     -------
+#     list
+#         List of AEDT PIDs.
+#     """
+#     if student_version:
+#         keys = ["ansysedtsv.exe"]
+#     else:
+#         keys = ["ansysedt.exe"]
+#     long_version = None
+#     if len(version) > 6:
+#         version = version[-6:]
+#     if version and "." in version:
+#         long_version = version
+#         version = version[-4:].replace(".", "")
+#     if version < "221":
+#         version = version[:2] + "." + version[2]
+#         long_version = "20{}".format(version)
+#     sessions = []
+#     for p in psutil.process_iter():
+#         try:
+#             if p.name() in keys:
+#                 if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
+#                     sessions.append(p.pid)
+#                     continue
+#                 cmd = p.cmdline()
+#                 if non_graphical and "-ng" in cmd or not non_graphical:
+#                     if not version or (version and version in cmd[0]):
+#                         sessions.append(p.pid)
+#         except:
+#             pass
+#     return sessions
+#
+#
+# @pyaedt_function_handler()
+# def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+#     """Get information for the active gRPC AEDT sessions.
+#
+#     Parameters
+#     ----------
+#     version : str, optional
+#         Version to check. The default is ``None``, in which case all versions are checked.
+#         When specififying a version, you can use a three-digit format like ``"222"`` or a
+#         five-digit format like ``"2022.2"``.
+#     student_version : bool, optional
+#         Whether to check for student version sessions. The default is ``False``.
+#     non_graphical : bool, optional
+#         Whether to check only for active non-graphical sessions. The default is ``False``.
+#
+#     Returns
+#     -------
+#     list
+#         List of gRPC ports.
+#     """
+#     if student_version:
+#         keys = ["ansysedtsv.exe", "ansysedtsv"]
+#     else:
+#         keys = ["ansysedt.exe", "ansysedt"]
+#     if version and "." in version:
+#         version = version[-4:].replace(".", "")
+#     sessions = []
+#     for p in psutil.process_iter():
+#         try:
+#             if p.name() in keys:
+#                 cmd = p.cmdline()
+#                 if "-grpcsrv" in cmd:
+#                     if non_graphical and "-ng" in cmd or not non_graphical:
+#                         if not version or (version and version in cmd[0]):
+#                             try:
+#                                 sessions.append(
+#                                     int(cmd[cmd.index("-grpcsrv") + 1]),
+#                                 )
+#                             except (IndexError, ValueError):
+#                                 # default desktop grpc port.
+#                                 sessions.append(50051)
+#         except:
+#             pass
+#     return sessions
+#
+#
+# def active_sessions(version=None, student_version=False, non_graphical=False):
+#     """Get information for the active AEDT sessions.
+#
+#     Parameters
+#     ----------
+#     version : str, optional
+#         Version to check. The default is ``None``, in which case all versions are checked.
+#         When specifying a version, you can use a three-digit format like ``"222"`` or a
+#         five-digit format like ``"2022.2"``.
+#     student_version : bool, optional
+#     non_graphical : bool, optional
+#
+#
+#     Returns
+#     -------
+#     list
+#         List of tuple (AEDT PIDs, port).
+#     """
+#     if student_version:
+#         keys = ["ansysedtsv.exe", "ansysedtsv"]
+#     else:
+#         keys = ["ansysedt.exe", "ansysedt"]
+#     if version and "." in version:
+#         version = version[-4:].replace(".", "")
+#     if version and version < "222":
+#         version = version[:2] + "." + version[2]
+#     sessions = []
+#     for p in psutil.process_iter():
+#         try:
+#             if p.name() in keys:
+#                 cmd = p.cmdline()
+#                 if non_graphical and "-ng" in cmd or not non_graphical:
+#                     if not version or (version and version in cmd[0]):
+#                         if "-grpcsrv" in cmd:
+#                             if not version or (version and version in cmd[0]):
+#                                 try:
+#                                     sessions.append(
+#                                         [
+#                                             p.pid,
+#                                             int(cmd[cmd.index("-grpcsrv") + 1]),
+#                                         ]
+#                                     )
+#                                 except (IndexError, ValueError):
+#                                     # default desktop grpc port.
+#                                     sessions.append(
+#                                         [
+#                                             p.pid,
+#                                             50051,
+#                                         ]
+#                                     )
+#                         else:
+#                             sessions.append(
+#                                 [
+#                                     p.pid,
+#                                     -1,
+#                                 ]
+#                             )
+#         except:
+#             pass
+#     return sessions
+
+
+@pyaedt_function_handler()
+def active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+    non_graphical : bool, optional
+
+
+    Returns
+    -------
+    dict
+        {AEDT PID: port}
+        If the PID corresponds to a COM session port is set to -1
+    """
+    return_dict = {}
+    if student_version:
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
+    else:
+        keys = ["ansysedt.exe", "ansysedt"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    if version and version < "222":
+        version = version[:2] + "." + version[2]
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        if "-grpcsrv" in cmd:
+                            if not version or (version and version in cmd[0]):
+                                try:
+                                    return_dict[p.pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                except (IndexError, ValueError):
+                                    # default desktop grpc port.
+                                    return_dict[p.pid] = 50051
+                        else:
+                            return_dict[p.pid] = -1
+        except:
+            pass
+    return return_dict
 
 
 @pyaedt_function_handler()
@@ -996,36 +1231,17 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
 
     Returns
     -------
-    list
-        List of AEDT PIDs.
+    List
+        List of AEDT process IDs.
     """
-    if student_version:
-        keys = ["ansysedtsv.exe"]
-    else:
-        keys = ["ansysedt.exe"]
-    long_version = None
-    if len(version) > 6:
-        version = version[-6:]
-    if version and "." in version:
-        long_version = version
-        version = version[-4:].replace(".", "")
-    if version < "221":
-        version = version[:2] + "." + version[2]
-        long_version = "20{}".format(version)
-    sessions = []
-    for p in psutil.process_iter():
-        try:
-            if p.name() in keys:
-                if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
-                    sessions.append(p.pid)
-                    continue
-                cmd = p.cmdline()
-                if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
-                        sessions.append(p.pid)
-        except:
-            pass
-    return sessions
+
+    all_sessions = active_sessions(version, student_version, non_graphical)
+
+    return_list = []
+    for s, p in all_sessions.items():
+        if p == -1:
+            return_list.append(s)
+    return return_list
 
 
 @pyaedt_function_handler()
@@ -1045,95 +1261,16 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
     Returns
     -------
-    list
+    List
         List of gRPC ports.
     """
-    if student_version:
-        keys = ["ansysedtsv.exe"]
-    else:
-        keys = ["ansysedt.exe"]
-    if version and "." in version:
-        version = version[-4:].replace(".", "")
-    sessions = []
-    for p in psutil.process_iter():
-        try:
-            if p.name() in keys:
-                cmd = p.cmdline()
-                if "-grpcsrv" in cmd:
-                    if non_graphical and "-ng" in cmd or not non_graphical:
-                        if not version or (version and version in cmd[0]):
-                            try:
-                                sessions.append(
-                                    int(cmd[cmd.index("-grpcsrv") + 1]),
-                                )
-                            except (IndexError, ValueError):
-                                # default desktop grpc port.
-                                sessions.append(50051)
-        except:
-            pass
-    return sessions
+    all_sessions = active_sessions(version, student_version, non_graphical)
 
-
-def active_sessions(version=None, student_version=False, non_graphical=False):
-    """Get information for the active COM AEDT sessions.
-
-    Parameters
-    ----------
-    version : str, optional
-        Version to check. The default is ``None``, in which case all versions are checked.
-        When specifying a version, you can use a three-digit format like ``"222"`` or a
-        five-digit format like ``"2022.2"``.
-    student_version : bool, optional
-    non_graphical : bool, optional
-
-
-    Returns
-    -------
-    list
-        List of AEDT PIDs.
-    """
-    if student_version:
-        keys = ["ansysedtsv.exe"]
-    else:
-        keys = ["ansysedt.exe"]
-    if version and "." in version:
-        version = version[-4:].replace(".", "")
-    if version < "222":
-        version = version[:2] + "." + version[2]
-    sessions = []
-    for p in psutil.process_iter():
-        try:
-            if p.name() in keys:
-                cmd = p.cmdline()
-                if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
-                        if "-grpcsrv" in cmd:
-                            if not version or (version and version in cmd[0]):
-                                try:
-                                    sessions.append(
-                                        [
-                                            p.pid,
-                                            int(cmd[cmd.index("-grpcsrv") + 1]),
-                                        ]
-                                    )
-                                except (IndexError, ValueError):
-                                    # default desktop grpc port.
-                                    sessions.append(
-                                        [
-                                            p.pid,
-                                            50051,
-                                        ]
-                                    )
-                        else:
-                            sessions.append(
-                                [
-                                    p.pid,
-                                    -1,
-                                ]
-                            )
-        except:
-            pass
-    return sessions
+    return_list = []
+    for _, p in all_sessions.items():
+        if p > -1:
+            return_list.append(p)
+    return return_list
 
 
 @pyaedt_function_handler()
@@ -1410,7 +1547,9 @@ class PropsManager(object):
         -------
         list
         """
-        return self._recursive_list(self.props)
+        if self.props:
+            return self._recursive_list(self.props)
+        return []
 
     @pyaedt_function_handler()
     def update(self):
@@ -1682,7 +1821,7 @@ class Help:  # pragma: no cover
 
     def github(self):
         """Open the PyAEDT GitHub page."""
-        url = "https://github.com/pyansys/pyaedt"
+        url = "https://github.com/ansys/pyaedt"
         self._launch_ur(url)
 
     def changelog(self, release=None):
@@ -1695,12 +1834,12 @@ class Help:  # pragma: no cover
         """
         if release is None:
             from pyaedt import __version__ as release
-        url = "https://github.com/pyansys/pyaedt/releases/tag/v" + release
+        url = "https://github.com/ansys/pyaedt/releases/tag/v" + release
         self._launch_ur(url)
 
     def issues(self):
         """Open the PyAEDT GitHub Issues page."""
-        url = "https://github.com/pyansys/pyaedt/issues"
+        url = "https://github.com/ansys/pyaedt/issues"
         self._launch_ur(url)
 
     def ansys_forum(self):
@@ -1714,483 +1853,23 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
 
-class Settings(object):
-    """Manages all PyAEDT environment variables and global settings."""
+# class Property(property):
+#
+#     @pyaedt_function_handler()
+#     def getter(self, fget):
+#         """Property getter."""
+#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def setter(self, fset):
+#         """Property setter."""
+#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def deleter(self, fdel):
+#         """Property deleter."""
+#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
+
+# property = Property
 
-    def __init__(self):
-        self._enable_logger = True
-        self._enable_desktop_logs = True
-        self._enable_screen_logs = True
-        self._enable_file_logs = True
-        self.pyaedt_server_path = ""
-        self._logger_file_path = None
-        self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
-        self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
-        self._enable_debug_edb_logger = False
-        self._enable_debug_methods_argument_logger = False
-        self._enable_debug_geometry_operator_logger = False
-        self._enable_debug_internal_methods_logger = False
-        self._enable_debug_logger = False
-        self._enable_error_handler = True
-        self._non_graphical = False
-        self._aedt_version = None
-        self.remote_api = False
-        self._use_grpc_api = None
-        self.machine = ""
-        self.port = 0
-        self.formatter = None
-        self.remote_rpc_session = None
-        self.remote_rpc_session_temp_folder = ""
-        self.remote_rpc_service_manager_port = 17878
-        self._project_properties = {}
-        self._project_time_stamp = 0
-        self._disable_bounding_box_sat = False
-        self._force_error_on_missing_project = False
-        self._enable_pandas_output = False
-        self.time_tick = time.time()
-        self._global_log_file_name = "pyaedt_{}.log".format(os.path.split(os.path.expanduser("~"))[-1])
-        self._enable_global_log_file = True
-        self._enable_local_log_file = False
-        self._global_log_file_size = 10
-        self._edb_dll_path = None
-        self._lsf_num_cores = 2
-        self._lsf_ram = 1000
-        self._use_lsf_scheduler = False
-        self._lsf_aedt_command = "ansysedt"
-        self._lsf_timeout = 3600
-        self._lsf_queue = None
-        self._aedt_environment_variables = {
-            "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
-            "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
-            "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
-            "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
-            "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
-            "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
-        }
-        if is_linux:
-            self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
-        self._desktop_launch_timeout = 90
-        self._aedt_process_id = None
-        self._is_student = False
-
-    @property
-    def aedt_process_id(self):
-        """ID of the desktop process. The default is ``None``.
-
-        Returns
-        -------
-        int
-        """
-        return self._aedt_process_id
-
-    @aedt_process_id.setter
-    def aedt_process_id(self, value):
-        self._aedt_process_id = int(value)
-
-    @property
-    def is_student(self):
-        """Whether the desktop process is set to the student version. The
-        default is ``False``.
-
-        Returns
-        -------
-        bool
-        """
-        return self._is_student
-
-    @is_student.setter
-    def is_student(self, value):
-        self._is_student = value
-
-    @property
-    def desktop_launch_timeout(self):
-        """Set the desktop launcher max timeout. Default is ``90`` seconds.
-
-        Returns
-        -------
-        int
-        """
-        return self._desktop_launch_timeout
-
-    @desktop_launch_timeout.setter
-    def desktop_launch_timeout(self, value):
-        self._desktop_launch_timeout = int(value)
-
-    @property
-    def aedt_environment_variables(self):
-        """Set environment variables to be set before launching a new aedt session.
-        This includes beta features enablemement.
-
-        Returns
-        -------
-        dict
-        """
-        return self._aedt_environment_variables
-
-    @aedt_environment_variables.setter
-    def aedt_environment_variables(self, value):
-        self._aedt_environment_variables = value
-
-    @property
-    def lsf_queue(self):
-        """LSF queue name. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
-        return self._lsf_queue
-
-    @lsf_queue.setter
-    def lsf_queue(self, value):
-        self._lsf_queue = value
-
-    @property
-    def use_lsf_scheduler(self):
-        """Whether to use LSF Scheduler. This attribute is valid only on Linux
-        systems running LSF Scheduler."""
-        return self._use_lsf_scheduler
-
-    @use_lsf_scheduler.setter
-    def use_lsf_scheduler(self, value):
-        self._use_lsf_scheduler = value
-
-    @property
-    def lsf_aedt_command(self):
-        """Get or set the ``ansysedt`` command to launch. The default is ``"ansysedt"``.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
-        return self._lsf_aedt_command
-
-    @lsf_aedt_command.setter
-    def lsf_aedt_command(self, value):
-        self._lsf_aedt_command = value
-
-    @property
-    def lsf_num_cores(self):
-        """Get or set the number of LSF cores. This attribute is valid only
-        on Linux systems running LSF Scheduler."""
-        return self._lsf_num_cores
-
-    @lsf_num_cores.setter
-    def lsf_num_cores(self, value):
-        self._lsf_num_cores = int(value)
-
-    @property
-    def lsf_ram(self):
-        """Get or set the RAM allocated for the LSF job. This attribute is valid
-        only on Linux systems running LSF Scheduler."""
-        return self._lsf_ram
-
-    @lsf_ram.setter
-    def lsf_ram(self, value):
-        self._lsf_ram = int(value)
-
-    @property
-    def lsf_timeout(self):
-        """Get or set the timeout for starting the interactive session. The default is ``3600`` seconds."""
-        return self._lsf_timeout
-
-    @lsf_timeout.setter
-    def lsf_timeout(self, value):
-        self._lsf_timeout = int(value)
-
-    @property
-    def aedt_version(self):
-        """Get and set the aedt version.
-        It disables the sat bounding box for AEDT version > 2022.2.
-
-        Returns
-        -------
-        str
-            Aedt version in the form ``"2023.x"``.
-        """
-        return self._aedt_version
-
-    @aedt_version.setter
-    def aedt_version(self, value):
-        self._aedt_version = value
-        if self._aedt_version >= "2023.1":
-            self.disable_bounding_box_sat = True
-
-    @property
-    def edb_dll_path(self):
-        """Get/Set an optional path for Edb Dll.
-
-        Returns
-        -------
-        bool
-        """
-        return self._edb_dll_path
-
-    @edb_dll_path.setter
-    def edb_dll_path(self, value):
-        if os.path.exists(value):
-            self._edb_dll_path = value
-
-    @property
-    def global_log_file_size(self):
-        """Get/Set the global pyaedt log file size in Mbytes. The default value is ``10``.
-
-        Returns
-        -------
-        bool
-        """
-        return self._global_log_file_size
-
-    @global_log_file_size.setter
-    def global_log_file_size(self, value):
-        self._global_log_file_size = value
-
-    @property
-    def enable_global_log_file(self):
-        """Enable/Disable the global pyaedt log file logging in global temp folder. Default is `True`.
-
-        Returns
-        -------
-        bool
-        """
-        return self._enable_global_log_file
-
-    @enable_global_log_file.setter
-    def enable_global_log_file(self, value):
-        self._enable_global_log_file = value
-
-    @property
-    def enable_local_log_file(self):
-        """Enable/Disable the local pyaedt log file logging in projectname.pyaedt project folder. Default is `True`.
-
-        Returns
-        -------
-        bool
-        """
-        return self._enable_local_log_file
-
-    @enable_local_log_file.setter
-    def enable_local_log_file(self, value):
-        self._enable_local_log_file = value
-
-    @property
-    def global_log_file_name(self):
-        """Get/Set the global pyaedt log file path. Default is pyaedt_username.log.
-
-        Returns
-        -------
-        str
-        """
-        return self._global_log_file_name
-
-    @global_log_file_name.setter
-    def global_log_file_name(self, value):
-        self._global_log_file_name = value
-
-    @property
-    def enable_pandas_output(self):
-        """
-        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
-        If ``True`` the property or method will return a pandas object in CPython environment.
-        Default is ``False``.
-
-        Returns
-        -------
-        bool
-        """
-        return self._enable_pandas_output
-
-    @enable_pandas_output.setter
-    def enable_pandas_output(self, val):
-        self._enable_pandas_output = val
-
-    @property
-    def enable_debug_methods_argument_logger(self):
-        """
-        Set/Get a flag to plot methods argument in debug logger.
-        Default is ``False``.
-
-        Returns
-        -------
-        bool
-        """
-        return self._enable_debug_methods_argument_logger
-
-    @enable_debug_methods_argument_logger.setter
-    def enable_debug_methods_argument_logger(self, val):
-        self._enable_debug_methods_argument_logger = val
-
-    @property
-    def force_error_on_missing_project(self):
-        """Set/Get a flag to check project path.
-        If ``True`` when passing a project path, the project has to exist otherwise it will raise an error.
-        Default is ``False``.
-
-        Returns
-        -------
-        bool
-        """
-        return self._force_error_on_missing_project
-
-    @force_error_on_missing_project.setter
-    def force_error_on_missing_project(self, val):
-        self._force_error_on_missing_project = val
-
-    @property
-    def disable_bounding_box_sat(self):
-        """Set/Get Bounding Box Sat enablement.
-
-        Returns
-        -------
-        bool
-        """
-        return self._disable_bounding_box_sat
-
-    @disable_bounding_box_sat.setter
-    def disable_bounding_box_sat(self, val):
-        self._disable_bounding_box_sat = val
-
-    @property
-    def use_grpc_api(self):
-        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr.
-
-        Returns
-        -------
-        bool
-        """
-        return self._use_grpc_api
-
-    @use_grpc_api.setter
-    def use_grpc_api(self, val):
-        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr."""
-        self._use_grpc_api = val
-
-    @property
-    def logger(self):
-        """Get the active logger."""
-        try:
-            return logging.getLogger("Global")
-        except:
-            return logging.getLogger(__name__)
-
-    @property
-    def non_graphical(self):
-        """Get the value for the non-graphical flag."""
-        return self._non_graphical
-
-    @non_graphical.setter
-    def non_graphical(self, val):
-        self._non_graphical = val
-
-    @property
-    def enable_error_handler(self):
-        """Return the content for the environment variable."""
-        return self._enable_error_handler
-
-    @enable_error_handler.setter
-    def enable_error_handler(self, val):
-        self._enable_error_handler = val
-
-    @property
-    def enable_desktop_logs(self):
-        """Get the content for the environment variable."""
-        return False if self.non_graphical else self._enable_desktop_logs
-
-    @enable_desktop_logs.setter
-    def enable_desktop_logs(self, val):
-        self._enable_desktop_logs = val
-
-    @property
-    def enable_screen_logs(self):
-        """Get the content for the environment variable."""
-        return self._enable_screen_logs
-
-    @enable_screen_logs.setter
-    def enable_screen_logs(self, val):
-        self._enable_screen_logs = val
-
-    @property
-    def pyaedt_server_path(self):
-        """Get the content for the environment variable."""
-        return os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-
-    @pyaedt_server_path.setter
-    def pyaedt_server_path(self, val):
-        os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
-
-    @property
-    def enable_file_logs(self):
-        """Get the content for the environment variable."""
-        return self._enable_file_logs
-
-    @enable_file_logs.setter
-    def enable_file_logs(self, val):
-        self._enable_file_logs = val
-
-    @property
-    def enable_logger(self):
-        """Return the Environment Variable Content."""
-        return self._enable_logger
-
-    @enable_logger.setter
-    def enable_logger(self, val):
-        self._enable_logger = val
-
-    @property
-    def logger_file_path(self):
-        """Return the Environment Variable Content."""
-        return self._logger_file_path
-
-    @logger_file_path.setter
-    def logger_file_path(self, val):
-        self._logger_file_path = val
-
-    @property
-    def logger_formatter(self):
-        """Return the Environment Variable Content."""
-        return self._logger_formatter
-
-    @logger_formatter.setter
-    def logger_formatter(self, val):
-        self._logger_formatter = val
-
-    @property
-    def logger_datefmt(self):
-        """Return the Environment Variable Content."""
-        return self._logger_datefmt
-
-    @logger_datefmt.setter
-    def logger_datefmt(self, val):
-        self._logger_datefmt = val
-
-    @property
-    def enable_debug_edb_logger(self):
-        """Return the Environment Variable Content."""
-        return self._enable_debug_edb_logger
-
-    @enable_debug_edb_logger.setter
-    def enable_debug_edb_logger(self, val):
-        self._enable_debug_edb_logger = val
-
-    @property
-    def enable_debug_geometry_operator_logger(self):
-        """Return the Environment Variable Content."""
-        return self._enable_debug_geometry_operator_logger
-
-    @enable_debug_geometry_operator_logger.setter
-    def enable_debug_geometry_operator_logger(self, val):
-        self._enable_debug_geometry_operator_logger = val
-
-    @property
-    def enable_debug_internal_methods_logger(self):
-        """Return the Environment Variable Content."""
-        return self._enable_debug_internal_methods_logger
-
-    @enable_debug_internal_methods_logger.setter
-    def enable_debug_internal_methods_logger(self, val):
-        self._enable_debug_internal_methods_logger = val
-
-    @property
-    def enable_debug_logger(self):
-        """Return the Environment Variable Content."""
-        return self._enable_debug_logger
-
-    @enable_debug_logger.setter
-    def enable_debug_logger(self, val):
-        self._enable_debug_logger = val
-
-
-settings = Settings()
 online_help = Help()

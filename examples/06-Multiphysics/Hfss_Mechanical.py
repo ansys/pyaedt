@@ -16,8 +16,7 @@ import pyaedt
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -34,7 +33,7 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # ~~~~~~~~~~
 # Start HFSS and initialize the PyAEDT object.
 
-version = "2023.1"
+version = "2023.2"
 hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
                    new_desktop_session=True)
 pin_names = hfss.excitations

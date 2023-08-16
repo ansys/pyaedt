@@ -20,11 +20,13 @@ import os
 import re
 import types
 
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
@@ -255,7 +257,7 @@ def decompose_variable_value(variable_value, full_variables={}):
 
     Parameters
     ----------
-    variable_value : float
+    variable_value : str
     full_variables : dict
 
     Returns
@@ -1194,15 +1196,22 @@ class VariableManager(object):
         var_list = []
         if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             # To retrieve local variables
-            var_list += list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+            try:
+                v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+            except AttributeError:
+                v = []
+            var_list += v
         if self._app._is_object_oriented_enabled() and self._app.design_type in [
             "Circuit Design",
             "Twin Builder",
             "HFSS 3D Layout Design",
         ]:
             # To retrieve Parameter Default Variables
-            var_list += list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
-
+            try:
+                v = list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
+            except AttributeError:
+                v = []
+            var_list += v
         var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
         var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
         return var_list
@@ -1607,7 +1616,7 @@ class Variable(object):
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
             _, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
             return self._units
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, GrpcApiError):
             pass
         return self._units
 

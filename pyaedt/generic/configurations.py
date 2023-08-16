@@ -11,6 +11,8 @@ from pyaedt import get_pyaedt_app
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -767,7 +769,7 @@ class Configurations(object):
     #         return True
     #     cs = FaceCoordinateSystem(self._app.modeler, props, name)
     #     try:
-    #         cs._modeler.oeditor.CreateFaceCS(cs._face_paramenters, cs._attributes)
+    #         cs._modeler.oeditor.CreateFaceCS(cs._face_parameters, cs._attributes)
     #         cs._modeler.coordinate_systems.append(cs)
     #         self._app.logger.info("Face Coordinate System {} added.".format(name))
     #     except Exception:
@@ -1171,8 +1173,9 @@ class Configurations(object):
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
                 if isinstance(cs, CoordinateSystem):
-                    dict_out["coordinatesystems"][cs.name] = cs.props
-                    dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
+                    if cs.props:
+                        dict_out["coordinatesystems"][cs.name] = cs.props
+                        dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
 
     # @pyaedt_function_handler()
     # def _export_face_coordinate_systems(self, dict_out):

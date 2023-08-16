@@ -6,6 +6,11 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
     commit-message:
       prefix: "MAINT"
 
@@ -15,5 +20,10 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
     commit-message:
       prefix: "MAINT"

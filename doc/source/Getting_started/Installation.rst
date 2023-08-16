@@ -18,8 +18,15 @@ Install from a Python file
 AEDT already includes CPython 3.7, which can be used to run PyAEDT.
 It is also possible to use CPython 3.7 (3.10 from AEDT 2023R2) as a virtual environment to run PyAEDT.
 In order to do that you can download the following file
-:download:`PyAEDT Installer python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
 Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
+Offline install is also possible using wheelhouses.
+A wheelhouse is a zip containing all needed packages that can be installed offline.
+PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
+After downloading the wheelhouse zip specific for your distribution and Python release,
+run the script from Electronics Desktop using the zip full path as argument.
+Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
+and higher requires the Python 3.10 wheelhouse.
 
 After installation a new menu appears in AEDT Menu as in the image below.
 
@@ -67,7 +74,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 Wheelhouses for CPython 3.7, 3.8, and 3.9 are available in the releases for PyAEDT v0.4.70
-and later for both Windows and Linux. From the `Releases <https://github.com/pyansys/pyaedt/releases>`_
+and later for both Windows and Linux. From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
 
@@ -146,7 +153,7 @@ Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like
 ``matplotlib``, ``numpy``, and ``pyvista``. A user can still use PyAEDT in the IronPython
-environment available in AEDT with some limitations.
+environment available in AEDT with many limitations.
 
 To use IronPython in AEDT:
 
@@ -175,7 +182,7 @@ Activate virtual environment
 
 Install required packages.
 
-Download `requirements.txt <https://github.com/pyansys/pyaedt/blob/main/requirements/requirements.txt>`_
+Download `requirements.txt <https://github.com/ansys/pyaedt/blob/main/requirements/requirements.txt>`_
 
 .. code:: bash
 

@@ -79,4 +79,7 @@ reusability
 pypi
 EDT
 pyansys
+Slurm
+Python.NET
+
 

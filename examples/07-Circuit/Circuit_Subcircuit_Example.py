@@ -16,8 +16,7 @@ import pyaedt
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -25,10 +24,10 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode with Circuit.
+# Launch AEDT 2023 R2 in graphical mode with Circuit.
 
 circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                         specified_version="2023.1",
+                         specified_version="2023.2",
                          non_graphical=non_graphical,
                          new_desktop_session=True
                          )

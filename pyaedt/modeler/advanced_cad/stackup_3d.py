@@ -15,6 +15,8 @@ if not is_ironpython:
 
 from pyaedt import constants
 from pyaedt import pyaedt_path
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1150,7 +1152,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object created.
         """
         if not instance_name:
@@ -1901,7 +1903,7 @@ class CommonObject(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
         """
         return self._aedt_object
 

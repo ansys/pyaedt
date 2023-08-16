@@ -16,10 +16,10 @@ import pyaedt
 
 ###############################################################################
 # Set up project files and path
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download needed project file and set up temporary project directory.
-project_dir = tempfile.gettempdir()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
+project_dir = pyaedt.generate_unique_folder_name()
+aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
 coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
 res = pyaedt.downloads.download_file('resistors', 'Res_0402.a3dcomp')
 project_name = pyaedt.generate_unique_name("HSD")
@@ -32,7 +32,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # ~~~~~~~~
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
-edb = pyaedt.Edb(aedb_project, edbversion="2023.1")
+edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
 edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
            ["GND"],
            output_aedb_path=output_edb,
@@ -83,13 +83,13 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 
 ###############################################################################
 # Save and close EDB
-# ~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model.
 
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1", non_graphical=False, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=False, new_desktop_session=True)
 
 ###############################################################################
 # Export to Q3D
@@ -105,11 +105,9 @@ h3d.close_project()
 ###############################################################################
 # Open Q3D
 # ~~~~~~~~
-# Launch the newly created q3d project and plot it.
+# Launch the newly created q3d project.
 
 q3d = pyaedt.Q3d(output_q3d)
-q3d.plot(show=False, objects=["1_2V_AVDLL_PLL", "1_2V_AVDDL", "1_2V_DVDDL"],
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
 
@@ -149,10 +147,16 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4_2"))
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4_3"))
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
+objs_copper = q3d.modeler.get_objects_by_material("copper")
+objs_copper_names = [i.name for i in objs_copper]
+q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
+         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+
 ###############################################################################
 # Assign source and sink
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Use previously calculated positions to identify faces and
+# Use previously calculated positions to identify faces,
+# select the net "1_Top" and
 # assign sources and sinks on nets.
 
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
@@ -161,16 +165,17 @@ source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
 source_f3= q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
 q3d.auto_identify_nets()
 
+identified_net = q3d.nets[0]
 
-q3d.sink(sink_f, net_name="1_2V_AVDDL")
+q3d.sink(sink_f, net_name=identified_net)
 
-source1 = q3d.source(source_f1, net_name="1_2V_AVDDL")
+source1 = q3d.source(source_f1, net_name=identified_net)
 
-source2 = q3d.source(source_f2, net_name="1_2V_AVDDL")
-sourc3 = q3d.source(source_f3, net_name="1_2V_AVDDL")
+source2 = q3d.source(source_f2, net_name=identified_net)
+source3 = q3d.source(source_f3, net_name=identified_net)
 
 q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "1.0A",
-                       "{}:{}".format(source1.props["Net"], source2.name): "1.0A"})
+                       "{}:{}".format(source2.props["Net"], source2.name): "1.0A"})
 
 ###############################################################################
 # Create setup

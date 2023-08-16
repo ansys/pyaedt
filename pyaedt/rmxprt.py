@@ -2,6 +2,8 @@
 from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -235,6 +237,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 
@@ -244,7 +249,6 @@ class Rmxprt(FieldAnalysisRMxprt):
         return self.design_solutions.design_type
 
     @design_type.setter
-    @pyaedt_function_handler()
     def design_type(self, value):
         self.design_solutions.design_type = value
 

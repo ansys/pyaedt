@@ -17,7 +17,7 @@ import pyaedt
 # ~~~~~~~~~~~
 # Launch AEDT.
 
-aedt_version = "2023.1"
+aedt_version = "2023.2"
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = pyaedt.downloads.download_multiparts()
@@ -25,8 +25,7 @@ library_path = pyaedt.downloads.download_multiparts()
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False

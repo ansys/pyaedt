@@ -61,14 +61,12 @@ jobs:
       - name: Generate wheelhouse
         run: |
           testenv\Scripts\Activate.ps1
-          pip install wheel setuptools -U
-          packages=$(pip freeze)
+          $packages=$(pip freeze)
           # Iterate over the packages and generate wheels
-          for package in $packages
-          do
+          foreach ($package in $packages) {
             echo "Generating wheel for $package"
             pip wheel "$package" -w wheelhouse
-          done
+          }
 
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1

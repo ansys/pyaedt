@@ -3,7 +3,8 @@ import random
 import re
 
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import _retry_ntimes
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
@@ -32,11 +33,17 @@ class ModelerCircuit(Modeler):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._schematic_units = "meter"
-        self.o_def_manager = self._app.odefinition_manager
         Modeler.__init__(self, app)
         self.wire = Wire(self)
+        app.logger.info_timer("ModelerCircuit class has been initialized!")
+
+    @property
+    def o_def_manager(self):
+        """AEDT Definition manager."""
+        return self._app.odefinition_manager
 
     @property
     def schematic_units(self):
@@ -73,16 +80,6 @@ class ModelerCircuit(Modeler):
 
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         return self._app.oeditor
-
-    @property
-    def obounding_box(self):
-        """Bounding box.
-
-        References
-        ----------
-
-        >>> oEditor.GetModelBoundingBox()"""
-        return self.oeditor.GetModelBoundingBox()
 
     @pyaedt_function_handler()
     def zoom_to_fit(self):
@@ -240,6 +237,20 @@ class ModelerCircuit(Modeler):
         >>> oEditor.CreateText
 
         """
+        fill = {
+            0: "Hollow",
+            1: "Solid",
+            2: "NE Diagonal",
+            3: "Orthogonal Cross",
+            4: "Diagonal Cross",
+            5: "NW Diagonal",
+            6: "Horizontal",
+            7: "Vertical",
+        }
+        x_origin, y_origin = self.schematic._convert_point_to_meter([x_origin, y_origin])
+        x1, y1 = self.schematic._convert_point_to_meter([x1, y1])
+        x2, y2 = self.schematic._convert_point_to_meter([x2, y2])
+
         element_ids = []
         for el in self.oeditor.GetAllGraphics():
             element_ids.append(int(el.split("@")[1]))
@@ -254,13 +265,13 @@ class ModelerCircuit(Modeler):
             "Y:=",
             y_origin,
             "Size:=",
-            text_size,
+            12,
             "Angle:=",
-            text_angle,
+            0,
             "Text:=",
             text,
             "Color:=",
-            text_color,
+            0,
             "Id:=",
             text_id,
             "ShowRect:=",
@@ -274,17 +285,46 @@ class ModelerCircuit(Modeler):
             "Y2:=",
             y2,
             "RectLineWidth:=",
-            rect_line_width,
+            0,
             "RectBorderColor:=",
-            rect_border_color,
+            0,
             "RectFill:=",
-            rect_fill,
+            0,
             "RectColor:=",
-            rect_color,
+            0,
         ]
         a = ["NAME:Attributes", "Page:=", 1]
         try:
-            return self.oeditor.CreateText(args, a)
+            text_out = self.oeditor.CreateText(args, a)
+            if isinstance(text_color, (tuple, list)):
+                r, g, b = text_color
+            else:
+                r = (text_color >> 16) & 0xFF
+                g = (text_color >> 8) & 0xFF
+                b = (text_color >> 0) & 0xFF
+            if isinstance(rect_color, (tuple, list)):
+                r2, g2, b2 = rect_color
+            else:
+                r2 = (rect_color >> 16) & 0xFF
+                g2 = (rect_color >> 8) & 0xFF
+                b2 = (rect_color >> 0) & 0xFF
+            if isinstance(rect_border_color, (tuple, list)):
+                r3, g3, b3 = rect_border_color
+            else:
+                r3 = (rect_border_color >> 16) & 0xFF
+                g3 = (rect_border_color >> 8) & 0xFF
+                b3 = (rect_border_color >> 0) & 0xFF
+            self.change_text_property(str(text_id), "Color", [r, g, b])
+            self.change_text_property(str(text_id), "Angle", self._arg_with_dim(text_angle, "deg"))
+            self.change_text_property(str(text_id), "DisplayRectangle", show_rect)
+            if show_rect:
+                self.change_text_property(str(text_id), "Rectangle Color", [r2, g2, b2])
+                self.change_text_property(
+                    str(text_id), "Rectangle BorderWidth", self._arg_with_dim(rect_line_width, "mil")
+                )
+                self.change_text_property(str(text_id), "Rectangle BorderColor", [r3, g3, b3])
+                self.change_text_property(str(text_id), "Rectangle FillStyle", fill[rect_fill])
+            return text_out
         except:
             return False
 
@@ -383,7 +423,7 @@ class ModelerCircuit(Modeler):
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.info("Property {} Changed correctly.".format(property_name))
+        self.logger.debug("Property {} Changed correctly.".format(property_name))
         return True
 
     @pyaedt_function_handler()
@@ -435,6 +475,7 @@ class ModelerNexxim(ModelerCircuit):
         self._layouteditor = None
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(app)
+        self.logger.info("ModelerNexxim class has been initialized!")
 
     @property
     def layouteditor(self):
@@ -493,7 +534,7 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        return _retry_ntimes(10, self.layouteditor.GetActiveUnits)
+        return self.layouteditor.GetActiveUnits()
 
     @property
     def layout(self):
@@ -631,6 +672,7 @@ class ModelerTwinBuilder(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
+        self.logger.info("ModelerTwinBuilder class has been initialized!")
 
     @property
     def components(self):
@@ -666,6 +708,7 @@ class ModelerEmit(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
+        self.logger.info("ModelerEmit class has been initialized!")
 
 
 class ModelerMaxwellCircuit(ModelerCircuit):
@@ -681,6 +724,7 @@ class ModelerMaxwellCircuit(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = MaxwellCircuitComponents(self)
+        self.logger.info("ModelerMaxwellCircuit class has been initialized!")
 
     @property
     def schematic(self):

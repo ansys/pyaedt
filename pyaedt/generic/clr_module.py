@@ -13,6 +13,7 @@ sys.path.append(os.path.join(pyaedt_path, "dlls", "PDFReport"))
 if is_linux and cpython:  # pragma: no cover
     try:
         if os.environ.get("DOTNET_ROOT") is None:
+            runtime = None
             try:
                 import dotnet
 

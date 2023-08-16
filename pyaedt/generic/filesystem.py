@@ -1,36 +1,36 @@
-from glob import glob
 import os
 import random
 import shutil
 import string
 
 
-def my_location():
-    """ """
-    return os.path.normpath(os.path.dirname(__file__))
-
-
-def files_in_directory(path=".", ext=""):
-    """
+def search_files(dirname, pattern="*"):
+    """Search for files inside a directory given a specific pattern.
 
     Parameters
     ----------
-    path :
-         (Default value = '.')
-    ext :
-         (Default value = '')
+    dirname : str
+    pattern :str, optional
 
     Returns
     -------
-
+    list
     """
-    result = []
-    if os.path.exists(path):
-        for dir in os.listdir(path):
-            bd = os.path.join(path, dir)
-            if os.path.isfile(bd) and dir.endswith("." + ext):
-                result.append(bd)
-    return result
+    from pyaedt.generic.general_methods import is_ironpython
+
+    if is_ironpython:
+        import glob
+
+        return list(glob.glob(os.path.join(dirname, pattern)))
+    else:
+        import pathlib
+
+        return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
+
+
+def my_location():
+    """ """
+    return os.path.normpath(os.path.dirname(__file__))
 
 
 class Scratch:
@@ -141,4 +141,4 @@ def get_json_files(start_folder):
     Returns
     -------
     """
-    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))]
+    return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]

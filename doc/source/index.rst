@@ -16,11 +16,11 @@ PyAEDT documentation  |version|
 .. |PythonVersion| image:: https://img.shields.io/badge/python-3.7+-blue.svg
    :target: https://www.python.org/downloads/
 
-.. |GH-CI| image:: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
-   :target: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml
+.. |GH-CI| image:: https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
+   :target: https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml
 
-.. |coverage| image:: https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/pyansys/pyaedt
+.. |coverage| image:: https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/ansys/pyaedt
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
@@ -32,8 +32,8 @@ PyAEDT documentation  |version|
 .. |Anaconda| image:: https://anaconda.org/conda-forge/pyaedt/badges/version.svg
   :target: https://anaconda.org/conda-forge/pyaedt
 
-.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/pyansys/pyaedt/main.svg
-   :target: https://results.pre-commit.ci/latest/github/pyansys/pyaedt/main
+.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg
+   :target: https://results.pre-commit.ci/latest/github/ansys/pyaedt/main
    :alt: pre-commit.ci status
 
 
@@ -70,7 +70,8 @@ You can also install PyAEDT from Conda-Forge with this command:
 
     conda install -c conda-forge pyaedt
 
-PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
+PyAEDT remains partially compatible with IronPython.
+User can still use in the AEDT Framework with IronPython or with CPython.
 
 
 PyAnsys
@@ -105,7 +106,7 @@ faster resolution of complex simulations for design and optimization.
 
 
 PyAEDT is licensed under the `MIT License
-<https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
+<https://github.com/ansys/pyaedt/blob/main/LICENSE>`_.
 
 PyAEDT includes functionality for interacting with the following AEDT tools and Ansys products:
 
@@ -122,29 +123,43 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 Documentation and issues
 ------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
-`PyAEDT Documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
+`PyAEDT documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
 
 In the upper right corner of the documentation's title bar, there is an option
 for switching from viewing the documentation for the latest stable release
 to viewing the documentation for the development version or previously
 released versions.
 
-On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
-create issues to submit questions, report bugs, and request new features.
+You can also view or download PyAEDT cheat sheets, which are one-page references
+providing syntax rules and commands for using the PyAEDT API and PyEDB API:
+
+- `View <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
+  `download <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
+  PyAEDT API cheat sheet.
+
+- - `View <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
+  `download <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
+  PyAEDT API cheat sheet.
+
+
+On the `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page, you can
+create issues to report bugs and request new features. On the `PyAEDT Discussions
+<https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
+page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback.
 
 To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 Dependencies
 ------------
 To run PyAEDT, you must have a local licensed copy of AEDT.
-PyAEDT supports AEDT versions 2022 R1 and later.
+PyAEDT supports AEDT versions 2022 R2 and later.
 
 Student version
 ---------------
 
-PyAEDT supports AEDT Student versions 2022 R1 and later. For more information, see
+PyAEDT supports AEDT Student versions 2022 R2 and later. For more information, see the
 `Ansys Electronics Desktop Student  - Free Software Download <https://www.ansys.com/academic/students/ansys-e
-lectronics-desktop-student>`_ on the Ansys website.
+lectronics-desktop-student>`_ page on the Ansys website.
 
 
 Why PyAEDT?
@@ -164,7 +179,7 @@ Here are the main advantages that PyAEDT provides:
 - Error management
 - Log management
 - Variable management
-- Compatibility with IronPython and CPython
+- Compatibility with IronPython (limited) and CPython
 - Simplification of complex API syntax using data objects while
   maintaining PEP8 compliance.
 - Code reusability across different solvers
@@ -273,13 +288,12 @@ License
 -------
 PyAEDT is licensed under the MIT license.
 
-This module makes no commercial claim over Ansys whatsoever.
-PyAEDT extends the functionality of AEDT by adding
-an additional Python interface to AEDT without changing the core
-behavior or license of the original software. The use of the
-interactive control of PyAEDT requires a legally licensed
-local copy of AEDT. For more information about AEDT,
-see the `Ansys Electronics <https://www.ansys.com/products/electronics>`_
+PyAEDT makes no commercial claim over Ansys whatsoever. This library extends the
+functionality of AEDT by adding a Python interface to AEDT without changing the
+core behavior or license of the original software. The use of PyAEDT requires a
+legally licensed local copy of AEDT.
+
+To get a copy of AEDT, see the `Ansys Electronics <https://www.ansys.com/products/electronics>`_
 page on the Ansys website.
 
 

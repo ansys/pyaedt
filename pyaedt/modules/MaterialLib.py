@@ -15,8 +15,9 @@ import sys
 from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _create_json_file
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -42,20 +43,29 @@ class Materials(object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._color_id = 0
-        self.odefinition_manager = self._app.odefinition_manager
-        self.omaterial_manager = self._app.omaterial_manager
         self._mats = []
         self._mats_lower = []
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
-        self.logger.info("Successfully loaded project materials !")
         # self.material_keys = self._get_materials()
         self.material_keys = {}
         self._surface_material_keys = {}
         self._load_from_project()
+        app.logger.info_timer("Material library initialized and project materials loaded successfully!")
+
+    @property
+    def odefinition_manager(self):
+        """Definition Manager from AEDT."""
+        return self._app.odefinition_manager
+
+    @property
+    def omaterial_manager(self):
+        """Material Manager from AEDT."""
+        return self._app.omaterial_manager
 
     def __len__(self):
         return len(self.material_keys)
@@ -671,7 +681,7 @@ class Materials(object):
         if matname not in self.odefinition_manager.GetProjectMaterialNames() and not settings.remote_api:
             matname = self._get_aedt_case_name(matname)
         props = {}
-        _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
+        _arg2dict(list(self.omaterial_manager.GetData(matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)

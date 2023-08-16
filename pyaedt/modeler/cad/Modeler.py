@@ -15,10 +15,11 @@ import math
 import os
 import warnings
 
+# from pyaedt.generic.general_methods import property
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -26,6 +27,7 @@ from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
 from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -97,6 +99,125 @@ class BaseCoordinateSystem(PropsManager, object):
         self.model_units = self._modeler.model_units
         self.name = name
 
+    def _get_coordinates_data(self):
+        self._props = {}
+        id2name = {1: "Global"}
+        name2refid = {}
+        if self._modeler._app.design_properties and "ModelSetup" in self._modeler._app.design_properties:
+            cs = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                "CoordinateSystems"
+            ]
+            for ds in cs:
+                try:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
+                        if cs[ds]["OperationType"] == "CreateRelativeCoordinateSystem":
+                            props = cs[ds]["RelativeCSParameters"]
+                            name = cs[ds]["Attributes"]["Name"]
+                            if name != self.name:
+                                continue
+                            cs_id = cs[ds]["ID"]
+                            id2name[cs_id] = name
+                            name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
+                            self._props = CsProps(self, props)
+                            if "ZXZ" in props["Mode"]:
+                                self.mode = "zxz"
+                            elif "ZYZ" in props["Mode"]:
+                                self.mode = "zyz"
+                            else:
+                                self.mode = "axis"
+                        elif cs[ds]["OperationType"] == "CreateFaceCoordinateSystem":
+                            name = cs[ds]["Attributes"]["Name"]
+                            if name != self.name:
+                                continue
+                            cs_id = cs[ds]["ID"]
+                            id2name[cs_id] = name
+                            op_id = cs[ds]["PlaceHolderOperationID"]
+                            geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
+                                "GeometryOperations"
+                            ]["ToplevelParts"]["GeometryPart"]
+                            if isinstance(geometry_part, (OrderedDict, dict)):
+                                op = geometry_part["Operations"]["FaceCSHolderOperation"]
+                                if isinstance(op, (OrderedDict, dict)):
+                                    if op["ID"] == op_id:
+                                        props = op["FaceCSParameters"]
+                                        self._props = CsProps(self, props)
+                                elif isinstance(op, list):
+                                    for iop in op:
+                                        if iop["ID"] == op_id:
+                                            props = iop["FaceCSParameters"]
+                                            self._props = CsProps(self, props)
+                                            break
+                            elif isinstance(geometry_part, list):
+                                for gp in geometry_part:
+                                    op = gp["Operations"]["FaceCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["FaceCSParameters"]
+                                            self._props = CsProps(self, props)
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["FaceCSParameters"]
+                                                self._props = CsProps(self, props)
+                                                break
+                    elif isinstance(cs[ds], list):
+                        for el in cs[ds]:
+                            if el["OperationType"] == "CreateRelativeCoordinateSystem":
+                                props = el["RelativeCSParameters"]
+                                name = el["Attributes"]["Name"]
+                                if name != self.name:
+                                    continue
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                name2refid[name] = el["ReferenceCoordSystemID"]
+                                self._props = CsProps(self, props)
+                                if "ZXZ" in props["Mode"]:
+                                    self.mode = "zxz"
+                                elif "ZYZ" in props["Mode"]:
+                                    self.mode = "zyz"
+                                else:
+                                    self.mode = "axis"
+                            elif el["OperationType"] == "CreateFaceCoordinateSystem":
+                                name = el["Attributes"]["Name"]
+                                if name != self.name:
+                                    continue
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                op_id = el["PlaceHolderOperationID"]
+                                geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
+                                    "GeometryOperations"
+                                ]["ToplevelParts"]["GeometryPart"]
+                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                    op = geometry_part["Operations"]["FaceCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["FaceCSParameters"]
+                                            self._props = CsProps(self, props)
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["FaceCSParameters"]
+                                                self._props = CsProps(self, props)
+                                                break
+                                elif isinstance(geometry_part, list):
+                                    for gp in geometry_part:
+                                        try:
+                                            op = gp["Operations"]["FaceCSHolderOperation"]
+                                        except KeyError:
+                                            continue
+                                        if isinstance(op, (OrderedDict, dict)):
+                                            if op["ID"] == op_id:
+                                                props = op["FaceCSParameters"]
+                                                self._props = CsProps(self, props)
+                                        elif isinstance(op, list):
+                                            for iop in op:
+                                                if iop["ID"] == op_id:
+                                                    props = iop["FaceCSParameters"]
+                                                    self._props = CsProps(self, props)
+                                                    break
+                except:
+                    pass
+
     @pyaedt_function_handler()
     def _dim_arg(self, value, units=None):
         """Dimension argument.
@@ -144,11 +265,11 @@ class BaseCoordinateSystem(PropsManager, object):
         """
         try:
             self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-            if "ref_cs" in dir(self):
-                for cs in range(0, len(self._modeler.coordinate_systems)):
-                    if self._modeler.coordinate_systems[cs].ref_cs == self.name:
-                        self._modeler.coordinate_systems.pop(cs)
             self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            coordinate_systems = self._modeler._app.oeditor.GetRelativeCoordinateSystems()
+            for cs in self._modeler.coordinate_systems[:]:
+                if cs.name not in coordinate_systems:
+                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
             self._modeler.cleanup_objects()
         except:
             self._modeler._app.logger.warning("Coordinate system does not exist")
@@ -188,7 +309,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        _retry_ntimes(5, self._modeler.oeditor.ChangeProperty, arguments)
+        self._modeler.oeditor.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
     def rename(self, newname):
@@ -229,12 +350,27 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None, face_id=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
-        self.props = CsProps(self, props)
-        try:  # pragma: no cover
-            if "KernelVersion" in self.props:
-                del self.props["KernelVersion"]
-        except:
-            pass
+        self._props = None
+        if props:
+            self._props = CsProps(self, props)
+            try:  # pragma: no cover
+                if "KernelVersion" in self.props:
+                    del self.props["KernelVersion"]
+            except:
+                pass
+
+    @property
+    def props(self):
+        """Properties of the coordinate system.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CSProps`
+        """
+        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+            return self._props
+        self._get_coordinates_data()
+        return self._props
 
     @property
     def _part_name(self):
@@ -249,8 +385,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         return None  # part has not been found
 
     @property
-    def _face_paramenters(self):
-        """Internal named array for paramenteers of the face coordinate system."""
+    def _face_parameters(self):
+        """Internally named array with parameters of the face coordinate system."""
         arg = ["Name:FaceCSParameters"]
         _dict2arg(self.props, arg)
         return arg
@@ -396,9 +532,9 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         parameters["YOffset"] = self._dim_arg((offset[1]), self.model_units)
         parameters["AutoAxis"] = False
 
-        self.props = CsProps(self, parameters)
-        self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-        self._modeler.coordinate_systems.insert(0, self)
+        self._props = CsProps(self, parameters)
+        self._modeler.oeditor.CreateFaceCS(self._face_parameters, self._attributes)
+        self._modeler._coordinate_systems.insert(0, self)
         return True
 
     @pyaedt_function_handler()
@@ -485,15 +621,76 @@ class CoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
-        self.props = CsProps(self, props)
-        self.ref_cs = None
+        self._props = None
+        if props:
+            self._props = CsProps(self, props)
+            try:  # pragma: no cover
+                if "KernelVersion" in self.props:
+                    del self.props["KernelVersion"]
+            except:
+                pass
+        self._ref_cs = None
         self._quaternion = None
-        self.mode = None
-        try:  # pragma: no cover
-            if "KernelVersion" in self.props:
-                del self.props["KernelVersion"]
+        self._mode = None
+
+    @property
+    def mode(self):
+        """Coordinate System mode."""
+        if self._mode:
+            return self._mode
+        try:
+            if "Axis" in self.props["Mode"]:
+                self._mode = "axis"
+            elif "ZXZ" in self.props["Mode"]:
+                self._mode = "zxz"
+            elif "ZYZ" in self.props["Mode"]:
+                self._mode = "zyz"
         except:
             pass
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        self._mode = value
+
+    @property
+    def props(self):
+        """Coordinate System Properties.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CSProps`
+        """
+        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+            return self._props
+        self._get_coordinates_data()
+        return self._props
+
+    @property
+    def ref_cs(self):
+        """Reference coordinate system getter and setter.
+
+        Returns
+        -------
+        str
+        """
+        if self._ref_cs or settings.aedt_version <= "2022.2":
+            return self._ref_cs
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        self._ref_cs = obj1.GetPropValue("Reference CS")
+        return self._ref_cs
+
+    @ref_cs.setter
+    def ref_cs(self, value):
+        if settings.aedt_version <= "2022.2":
+            self._ref_cs = value
+            self.update()
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        try:
+            obj1.SetPropValue("Reference CS", value)
+            self._ref_cs = value
+        except:
+            self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @pyaedt_function_handler()
     def update(self):
@@ -832,11 +1029,11 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         else:  # pragma: no cover
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
-        self.props = CsProps(self, orientationParameters)
+        self._props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
-        self._modeler.coordinate_systems.insert(0, self)
+        self._modeler._coordinate_systems.insert(0, self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
-        self.ref_cs = reference_cs
+        self._ref_cs = reference_cs
         return self.update()
 
     @property
@@ -1173,13 +1370,11 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._app = app
-        self._odefinition_manager = self._app.odefinition_manager
-        self._omaterial_manager = self._app.omaterial_manager
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
-        self._coordinate_systems = None
-        self._user_lists = None
-        self._planes = None
+        self._coordinate_systems = []
+        self._user_lists = []
+        self._planes = []
         self._is3d = is3d
         self._solids = []
         self._sheets = []
@@ -1192,9 +1387,28 @@ class GeometryModeler(Modeler, object):
         self._object_names_to_ids = {}
 
     @property
+    def _odefinition_manager(self):
+        return self._app.odefinition_manager
+
+    @property
+    def _omaterial_manager(self):
+        return self._app.omaterial_manager
+
+    @property
     def coordinate_systems(self):
         """Coordinate Systems."""
-        if self._coordinate_systems is None:
+        if settings.aedt_version > "2022.2":
+            cs_names = [i for i in self.oeditor.GetChildNames("CoordinateSystems") if i != "Global"]
+            for cs_name in cs_names:
+                props = {}
+                local_names = [i.name for i in self._coordinate_systems]
+                if cs_name not in local_names:
+                    if self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Relative":
+                        self._coordinate_systems.append(CoordinateSystem(self, props, cs_name))
+                    elif self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Face":
+                        self._coordinate_systems.append(FaceCoordinateSystem(self, props, cs_name))
+            return self._coordinate_systems
+        if not self._coordinate_systems:
             self._coordinate_systems = self._get_coordinates_data()
         return self._coordinate_systems
 
@@ -1234,7 +1448,7 @@ class GeometryModeler(Modeler, object):
         """
         return self._app.materials
 
-    def _get_coordinates_data(self):
+    def _get_coordinates_data(self):  # pragma: no cover
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
@@ -1345,7 +1559,7 @@ class GeometryModeler(Modeler, object):
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
                     try:
-                        cs.ref_cs = id2name[name2refid[cs.name]]
+                        cs._ref_cs = id2name[name2refid[cs.name]]
                     except:
                         pass
         coord.reverse()
@@ -1416,7 +1630,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
         """
-        return _retry_ntimes(10, self.oeditor.GetModelUnits)
+        return self.oeditor.GetModelUnits()
 
     @model_units.setter
     def model_units(self, units):
@@ -1982,24 +2196,69 @@ class GeometryModeler(Modeler, object):
             cs = self.coordinate_systems[cs_names.index(coordinate_system)]
         else:  # pragma: no cover
             raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
-        o, q = self.reference_cs_to_global(coordinate_system)
-        x, y, _ = GeometryOperators.quaternion_to_axis(q)
-        reference_cs = "Global"
-        name = cs.name + "_RefToGlobal"
-        if name in cs_names:
-            name = cs.name + generate_unique_name("_RefToGlobal")
-        cs = CoordinateSystem(self)
-        if cs:
-            result = cs.create(
-                origin=o,
-                reference_cs=reference_cs,
-                name=name,
-                mode="axis",
-                x_pointing=x,
-                y_pointing=y,
-            )
-            if result:
-                return cs
+        if isinstance(cs, CoordinateSystem):
+            o, q = self.reference_cs_to_global(coordinate_system)
+            x, y, _ = GeometryOperators.quaternion_to_axis(q)
+            reference_cs = "Global"
+            name = cs.name + "_RefToGlobal"
+            if name in cs_names:
+                name = cs.name + generate_unique_name("_RefToGlobal")
+            cs = CoordinateSystem(self)
+            if cs:
+                result = cs.create(
+                    origin=o,
+                    reference_cs=reference_cs,
+                    name=name,
+                    mode="axis",
+                    x_pointing=x,
+                    y_pointing=y,
+                )
+                if result:
+                    return cs
+        elif isinstance(cs, FaceCoordinateSystem):
+            name = cs.name + "_RefToGlobal"
+            if name in cs_names:
+                name = cs.name + generate_unique_name("_RefToGlobal")
+            face_cs = FaceCoordinateSystem(self, props=cs.props, name=name, face_id=cs.props["FaceID"])
+            obj = [
+                obj for obj in self._app.modeler.object_list for face in obj.faces if face.id == face_cs.props["FaceID"]
+            ][0]
+            face = [face for face in obj.faces if face.id == face_cs.props["FaceID"]][0]
+            if face_cs.props["Origin"]["PositionType"] == "FaceCenter":
+                origin = face
+            elif face_cs.props["Origin"]["PositionType"] == "EdgeCenter":
+                origin = [edge for edge in face.edges if edge.id == face_cs.props["Origin"]["EntityID"]][0]
+            elif face_cs.props["Origin"]["PositionType"] == "OnVertex":
+                edge = [
+                    edge
+                    for edge in face.edges
+                    for vertex in edge.vertices
+                    if vertex.id == face_cs.props["Origin"]["EntityID"]
+                ][0]
+                origin = [v for v in edge.vertices if v.id == face_cs.props["Origin"]["EntityID"]][0]
+            if face_cs.props["AxisPosn"]["PositionType"] == "EdgeCenter":
+                axis_position = [edge for edge in face.edges if edge.id == face_cs.props["AxisPosn"]["EntityID"]][0]
+            elif face_cs.props["AxisPosn"]["PositionType"] == "OnVertex":
+                edge = [
+                    edge
+                    for edge in face.edges
+                    for vertex in edge.vertices
+                    if vertex.id == face_cs.props["AxisPosn"]["EntityID"]
+                ][0]
+                axis_position = [v for v in edge.vertices if v.id == face_cs.props["AxisPosn"]["EntityID"]][0]
+            if face_cs:
+                result = face_cs.create(
+                    face=face,
+                    origin=origin,
+                    axis_position=axis_position,
+                    axis=face_cs.props["WhichAxis"],
+                    name=name,
+                    offset=[face_cs["XOffset"], face_cs["YOffset"]],
+                    rotation=decompose_variable_value(face_cs["ZRotationAngle"])[0],
+                    always_move_to_end=face_cs["MoveToEnd"],
+                )
+                if result:
+                    return face_cs
         return False
 
     @pyaedt_function_handler()
@@ -2515,37 +2774,118 @@ class GeometryModeler(Modeler, object):
             return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
-    def split(self, objects, plane, sides="Both"):
+    def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
         """Split a list of objects.
+        In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
+        In case of 2D design possible splitting option is plane.
 
         Parameters
         ----------
         objects : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
-        plane : str
+        plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
+            The default value is ``None``.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-        sides : str
-            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
-            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
-            all objects are kept after the split.
+            If plane or tool parameter are not provided the method returns ``False``.
+        sides : str, optional
+            Which side to keep. The default is ``"Both"``, in which case
+            all objects are kept after the split. Options are ``"Both"``,
+            ``"NegativeOnly"``, and ``"PositiveOnly"``.
+        tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`or
+                :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
+            For 3D design types is the name, ID, face, edge or polyline used to split the objects.
+            For 2D design types is the name of the plane used to split the objects.
+            The default value is ``None``.
+            If plane or tool parameter are not provided the method returns ``False``.
+        split_crossing_objs : bool, optional
+            Whether to split crossing plane objects.
+            The default is ``False``.
+        delete_invalid_objs : bool, optional
+            Whether to delete invalid objects.
+            The default is ``True``.
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
-            List of split objects.
+        list of str
+            List of split object names.
 
         References
         ----------
 
         >>> oEditor.Split
         """
-        planes = GeometryOperators.cs_plane_to_plane_str(plane)
-        selections = self.convert_to_selections(objects)
-        all_objs = [i for i in self.object_names]
+        if not plane and not tool or plane and tool:
+            self.logger.info("One method to split the objects has to be defined.")
+            return False
+        if self._is3d:
+            objects = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if plane and not tool:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+            elif tool and not plane:
+                objs_selection = self.convert_to_selections(tool, False)
+                if isinstance(tool, str) or isinstance(tool, int):
+                    obj_name = objs_selection
+                    obj = [f for f in self.object_list if f.name == objs_selection][0]
+                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                        obj = obj.faces[0]
+                        tool_type = "FaceTool"
+                    elif obj.object_type == "Line":
+                        obj = obj.edges[0]
+                        tool_type = "EdgeTool"
+                elif isinstance(tool, FacePrimitive):
+                    for o in self.object_list:
+                        for f in o.faces:
+                            if f.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = f
+                    tool_type = "FaceTool"
+                elif isinstance(tool, EdgePrimitive):
+                    for o in self.object_list:
+                        for e in o.edges:
+                            if e.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = e
+                    tool_type = "EdgeTool"
+                elif isinstance(tool, Polyline) or tool.object_type != "Line":
+                    for o in self.object_list:
+                        if o.name == objs_selection:
+                            obj_name = objs_selection
+                            obj = o.edges[0]
+                    tool_type = "EdgeTool"
+                else:
+                    self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
+                    return False
+                planes = "Dummy"
+                tool_type = tool_type
+                tool_entity_id = obj.id
+                selections = [
+                    "NAME:Selections",
+                    "Selections:=",
+                    objects,
+                    "NewPartsModelFlag:=",
+                    "Model",
+                    "ToolPart:=",
+                    obj_name,
+                ]
+        else:
+            objects = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if not plane and tool or not plane:
+                self.logger.info("For 2D design types only planes can be defined.")
+                return False
+            elif plane:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
         self.oeditor.Split(
-            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            selections,
             [
                 "NAME:SplitToParameters",
                 "SplitPlane:=",
@@ -2553,17 +2893,17 @@ class GeometryModeler(Modeler, object):
                 "WhichSide:=",
                 sides,
                 "ToolType:=",
-                "PlaneTool",
+                tool_type,
                 "ToolEntityID:=",
-                -1,
+                tool_entity_id,
                 "SplitCrossingObjectsOnly:=",
-                False,
+                split_crossing_objs,
                 "DeleteInvalidObjects:=",
-                True,
+                delete_invalid_objs,
             ],
         )
         self.refresh_all_ids()
-        return [selections] + [i for i in self.object_names if i not in all_objs]
+        return [objects] + [i for i in self.object_names if i not in all_objs]
 
     @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
     def duplicate_and_mirror(
@@ -2654,7 +2994,7 @@ class GeometryModeler(Modeler, object):
             vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
             if is_3d_comp:
                 orig_3d = [i for i in self.user_defined_component_names]
-            added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
+            added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
             self.add_new_objects()
             if is_3d_comp:
                 added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
@@ -2833,7 +3173,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
+        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
         if attachObject:
@@ -2855,7 +3195,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -2886,20 +3226,22 @@ class GeometryModeler(Modeler, object):
         ----------
         obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        face_id : int
-            Face to sweep.
+        face_id : int or list
+            Face or list of faces to sweep.
         sweep_value : float, optional
             Sweep value. The default is ``0.1``.
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
 
         >>> oEditor.SweepFacesAlongNormal
         """
+        if not isinstance(face_id, list):
+            face_id = [face_id]
         selections = self.convert_to_selections(obj_name)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:Parameters"]
@@ -2907,7 +3249,7 @@ class GeometryModeler(Modeler, object):
             [
                 "NAME:SweepFaceAlongNormalToParameters",
                 "FacesToDetach:=",
-                [face_id],
+                face_id,
                 "LengthOfSweep:=",
                 self._arg_with_dim(sweep_value),
             ]
@@ -2921,7 +3263,10 @@ class GeometryModeler(Modeler, object):
         for el in obj:
             self._create_object(el)
         if obj:
-            return self.update_object(self[obj[0]])
+            if len(obj) > 1:
+                return [self.update_object(self[o]) for o in obj]
+            else:
+                return self.update_object(self[obj[0]])
         return False
 
     @pyaedt_function_handler()
@@ -3370,7 +3715,8 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
-        return _retry_ntimes(10, self.oeditor.PurgeHistory, vArg1)
+        self.oeditor.PurgeHistory(vArg1)
+        return True
 
     @pyaedt_function_handler()
     def get_model_bounding_box(self):
@@ -3393,15 +3739,17 @@ class GeometryModeler(Modeler, object):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, theList, purge=False):
+    def unite(self, unite_list, purge=False, keep_originals=False):
         """Unite objects from a list.
 
         Parameters
         ----------
-        theList : list
+        unite_list : list
             List of objects.
         purge : bool, optional
-            Purge history after unite.
+            Purge history after unite. Default is False.
+        keep_originals : bool, optional
+            Keep original objects used for the operation. Default is False.
 
         Returns
         -------
@@ -3413,15 +3761,15 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Unite
         """
-        slice = min(100, len(theList))
-        num_objects = len(theList)
+        slice = min(100, len(unite_list))
+        num_objects = len(unite_list)
         remaining = num_objects
         objs_groups = []
         while remaining > 1:
-            objs = theList[:slice]
+            objs = unite_list[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
             self.oeditor.Unite(vArg1, vArg2)
             if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
@@ -3433,14 +3781,14 @@ class GeometryModeler(Modeler, object):
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
-                theList = theList[slice:]
+                unite_list = unite_list[slice:]
         if remaining > 0:
-            objs_groups.extend(theList)
+            objs_groups.extend(unite_list)
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return self.convert_to_selections(theList[0], False)
+        return self.convert_to_selections(unite_list[0], False)
 
     @pyaedt_function_handler()
     def clone(self, objid):
@@ -3466,8 +3814,8 @@ class GeometryModeler(Modeler, object):
         """
         szSelections = self.convert_to_selections(objid)
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        _retry_ntimes(10, self.oeditor.Copy, vArg1)
-        _retry_ntimes(10, self.oeditor.Paste)
+        self.oeditor.Copy(vArg1)
+        self.oeditor.Paste()
         new_objects = self.add_new_objects()
         return True, new_objects
 
@@ -3814,7 +4162,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -5319,3 +5667,305 @@ class GeometryModeler(Modeler, object):
         if imprinted:
             self.cleanup_objects()
         return True
+
+    @pyaedt_function_handler()
+    def heal_objects(
+        self,
+        input_objects_list,
+        auto_heal=True,
+        tolerant_stitch=True,
+        simplify_geometry=True,
+        tighten_gaps=True,
+        heal_to_solid=False,
+        stop_after_first_stitch_error=False,
+        max_stitch_tolerance=0.001,
+        explode_and_stitch=True,
+        geometry_simplification_tolerance=1,
+        maximum_generated_radius=1,
+        simplify_type=0,
+        tighten_gaps_width=0.00001,
+        remove_silver_faces=True,
+        remove_small_edges=True,
+        remove_small_faces=True,
+        silver_face_tolerance=1,
+        small_edge_tolerance=1,
+        small_face_area_tolerance=1,
+        bounding_box_scale_factor=0,
+        remove_holes=True,
+        remove_chamfers=True,
+        remove_blends=True,
+        hole_radius_tolerance=1,
+        chamfer_width_tolerance=1,
+        blend_radius_tolerance=1,
+        allowable_surface_area_change=5,
+        allowable_volume_change=5,
+    ):
+        """Repair invalid geometry entities for the selected objects within the specified tolerance settings.
+
+        Parameters
+        ----------
+        input_objects_list : str
+            List of object names to analyze.
+        auto_heal : bool, optional
+            Auto heal option. Default value is ``True``.
+        tolerant_stitch : bool, optional
+            Tolerant stitch for manual healing. The default is ``True``.
+        simplify_geometry : bool, optional
+            Simplify geometry for manual healing. The default is ``True``.
+        tighten_gaps : bool, optional
+            Tighten gaps for manual healing. The default is ``True``.
+        heal_to_solid : bool, optional
+            Heal to solid for manual healing. The default is ``False``.
+        stop_after_first_stitch_error : bool, optional
+            Stop after first stitch error for manual healing. The default is ``False``.
+        max_stitch_tolerance : float, str, optional
+            Max stitch tolerance for manual healing. The default is ``0.001``.
+        explode_and_stitch : bool, optional
+            Explode and stitch for manual healing. The default is ``True``.
+        geometry_simplification_tolerance : float, str, optional
+            Geometry simplification tolerance for manual healing in mm. The default is ``1``.
+        maximum_generated_radius : float, str, optional
+            Maximum generated radius for manual healing in mm. The default is ``1``.
+        simplify_type : int, optional
+            Simplify type for manual healing. The default is ``0`` which refers to ``Curves``.
+            Other available values are ``1`` for ``Surfaces`` and ``2`` for ``Both``.
+        tighten_gaps_width : float, str, optional
+            Tighten gaps width for manual healing in mm. The default is ``0.00001``.
+        remove_silver_faces : bool, optional
+            Remove silver faces for manual healing. The default is ``True``.
+        remove_small_edges : bool, optional
+            Remove small edges faces for manual healing. The default is ``True``.
+        remove_small_faces : bool, optional
+            Remove small faces for manual healing. The default is ``True``.
+        silver_face_tolerance : float, str, optional
+            Silver face tolerance for manual healing in mm. The default is ``1``.
+        small_edge_tolerance : float, str, optional
+            Silver face tolerance for manual healing in mm. The default is ``1``.
+        small_face_area_tolerance : float, str, optional
+            Silver face tolerance for manual healing in mm^2. The default is ``1``.
+        bounding_box_scale_factor : int, optional
+            Bounding box scaling factor for manual healing. The default is ``0``.
+        remove_holes : bool, optional
+            Remove holes for manual healing. The default is ``True``.
+        remove_chamfers : bool, optional
+            Remove chamfers for manual healing. The default is``True``.
+        remove_blends : bool, optional
+            Remove blends for manual healing. The default is ``True``.
+        hole_radius_tolerance : float, str, optional
+            Hole radius tolerance for manual healing in mm. The default is ``1``.
+        chamfer_width_tolerance : float, str, optional
+            Chamfer width tolerance for manual healing in mm. The default is ``1``.
+        blend_radius_tolerance : float, str, optional
+            Blend radius tolerance for manual healing in mm. The default is ``1``.
+        allowable_surface_area_change : float, str, optional
+            Allowable surface area for manual healing in mm. The default is ``1``.
+        allowable_volume_change : float, str, optional
+            Allowable volume change for manual healing in mm. The default is ``1``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not input_objects_list:
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif not isinstance(input_objects_list, str):
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif "," in input_objects_list:
+            input_objects_list = input_objects_list.strip()
+            if ", " in input_objects_list:
+                input_objects_list_split = input_objects_list.split(", ")
+            else:
+                input_objects_list_split = input_objects_list.split(",")
+            for obj in input_objects_list_split:
+                if obj not in self.modeler.object_names:
+                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
+                    return False
+            objects_selection = ",".join(input_objects_list_split)
+        else:
+            objects_selection = input_objects_list
+
+        if simplify_type not in [0, 1, 2]:
+            self.logger.error("Invalid simplify type.")
+            return False
+
+        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
+        healing_parameters = [
+            "NAME:ObjectHealingParameters",
+            "Version:=",
+            1,
+            "AutoHeal:=",
+            auto_heal,
+            "TolerantStitch:=",
+            tolerant_stitch,
+            "SimplifyGeom:=",
+            simplify_geometry,
+            "TightenGaps:=",
+            tighten_gaps,
+            "HealToSolid:=",
+            heal_to_solid,
+            "StopAfterFirstStitchError:=",
+            stop_after_first_stitch_error,
+            "MaxStitchTol:=",
+            max_stitch_tolerance,
+            "ExplodeAndStitch:=",
+            explode_and_stitch,
+            "GeomSimplificationTol:=",
+            geometry_simplification_tolerance,
+            "MaximumGeneratedRadiusForSimplification:=",
+            maximum_generated_radius,
+            "SimplifyType:=",
+            simplify_type,
+            "TightenGapsWidth:=",
+            tighten_gaps_width,
+            "RemoveSliverFaces:=",
+            remove_silver_faces,
+            "RemoveSmallEdges:=",
+            remove_small_edges,
+            "RemoveSmallFaces:=",
+            remove_small_faces,
+            "SliverFaceTol:=",
+            silver_face_tolerance,
+            "SmallEdgeTol:=",
+            small_edge_tolerance,
+            "SmallFaceAreaTol:=",
+            small_face_area_tolerance,
+            "SpikeTol:=",
+            -1,
+            "GashWidthBound:=",
+            -1,
+            "GashAspectBound:=",
+            -1,
+            "BoundingBoxScaleFactor:=",
+            bounding_box_scale_factor,
+            "RemoveHoles:=",
+            remove_holes,
+            "RemoveChamfers:=",
+            remove_chamfers,
+            "RemoveBlends:=",
+            remove_blends,
+            "HoleRadiusTol:=",
+            hole_radius_tolerance,
+            "ChamferWidthTol:=",
+            chamfer_width_tolerance,
+            "BlendRadiusTol:=",
+            blend_radius_tolerance,
+            "AllowableSurfaceAreaChange:=",
+            allowable_surface_area_change,
+            "AllowableVolumeChange:=",
+            allowable_volume_change,
+        ]
+        self.oeditor.HealObject(selections_args, healing_parameters)
+        return True
+
+    @pyaedt_function_handler()
+    def simplify_objects(
+        self,
+        input_objects_list,
+        simplify_type="Polygon Fit",
+        extrusion_axis="Auto",
+        clean_up=True,
+        allow_splitting=True,
+        separate_bodies=True,
+        clone_body=True,
+        generate_primitive_history=False,
+        interior_points_on_arc=5,
+        length_threshold_percentage=25,
+        create_group_for_new_objects=False,
+    ):
+        """Simplify command to converts complex objects into simpler primitives which are easy to mesh and solve.
+
+        Parameters
+        ----------
+        input_objects_list : str
+            List of object names to simplify.
+        simplify_type : str, optional
+            Simplify type. Default value is ``Polygon Fit``.
+            Available values are ``Polygon Fit`` ``Primitive Fit`` or ``Bounding Box``.
+        extrusion_axis : str, optional
+            Extrusion axis. Default value is ``Auto``.
+            Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
+        clean_up : bool, optional
+            Clean up. The default is ``True``.
+        allow_splitting : bool, optional
+            Allow splitting. The default is ``True``.
+        separate_bodies : bool, optional
+            Separate bodies. The default is ``True``.
+        clone_body : bool, optional
+            Clone body. The default is ``True``.
+        generate_primitive_history : bool, optional
+            Generate primitive history.
+            This option will purge the history for selected objects.
+            The default is ``False``.
+        interior_points_on_arc : float, optional
+            Number points on curve. The default is ``5``.
+        length_threshold_percentage : float, optional
+            Number points on curve. The default is ``25``.
+        create_group_for_new_objects : bool, optional
+            Create group for new objects. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not input_objects_list:
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif not isinstance(input_objects_list, str):
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif "," in input_objects_list:
+            input_objects_list = input_objects_list.strip()
+            if ", " in input_objects_list:
+                input_objects_list_split = input_objects_list.split(", ")
+            else:
+                input_objects_list_split = input_objects_list.split(",")
+            for obj in input_objects_list_split:
+                if obj not in self.modeler.object_names:
+                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
+                    return False
+            objects_selection = ",".join(input_objects_list_split)
+        else:
+            objects_selection = input_objects_list
+
+        if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
+            self.logger.error("Invalid simplify type.")
+            return False
+
+        if extrusion_axis not in ["Auto", "X", "Y", "Z"]:
+            self.logger.error("Invalid extrusion axis.")
+            return False
+
+        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
+        simplify_parameters = [
+            "NAME:SimplifyParameters",
+            "Type:=",
+            simplify_type,
+            "ExtrusionAxis:=",
+            extrusion_axis,
+            "Cleanup:=",
+            clean_up,
+            "Splitting:=",
+            allow_splitting,
+            "SeparateBodies:=",
+            separate_bodies,
+            "CloneBody:=",
+            clone_body,
+            "Generate Primitive History:=",
+            generate_primitive_history,
+            "NumberPointsCurve:=",
+            interior_points_on_arc,
+            "LengthThresholdCurve:=",
+            length_threshold_percentage,
+        ]
+        groups_for_new_object = ["CreateGroupsForNewObjects:=", create_group_for_new_objects]
+
+        try:
+            self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
+            return True
+        except:
+            self.logger.error("Simplify objects failed.")
+            return False

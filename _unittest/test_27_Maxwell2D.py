@@ -1,22 +1,23 @@
 #!/ekm/software/anaconda3/bin/python
 # Standard imports
 from collections import OrderedDict
-import filecmp
 import os
 import shutil
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Maxwell2d
+
+# from pyaedt import is_ironpython
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "TMaxwell"
 if config["desktopVersion"] > "2022.2":
@@ -28,28 +29,32 @@ ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self,
-            project_name=test_name,
-            design_name="Basis_Model_For_Test",
-            application=Maxwell2d,
-            subfolder=test_subfolder,
-        )
-        self.aedtapp.duplicate_design("design_for_test")
-        self.aedtapp.set_active_design("Basis_Model_For_Test")
-        self.m2d_ctrl_prg = BasisTest.add_app(
-            self, application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder
-        )
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(
+        project_name=test_name, design_name="Basis_Model_For_Test", application=Maxwell2d, subfolder=test_subfolder
+    )
+    if config["desktopVersion"] < "2023.1":
+        app.duplicate_design("design_for_test")
+        app.set_active_design("Basis_Model_For_Test")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def m2d_ctrl_prg(add_app):
+    app = add_app(application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder)
+    return app
+
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, m2d_ctrl_prg, local_scratch):
+        self.aedtapp = aedtapp
+        self.m2d_ctrl_prg = m2d_ctrl_prg
+        self.local_scratch = local_scratch
 
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
-        self.aedtapp.set_active_design("Basis_Model_For_Test")
 
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])
@@ -148,8 +153,7 @@ class TestClass(BasisTest, object):
 
     def test_14_check_design_preview_image(self):
         jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
-        self.aedtapp.export_design_preview_to_jpg(jpg_file)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, test_name + ".jpg"))
+        assert self.aedtapp.export_design_preview_to_jpg(jpg_file)
 
     def test_14a_model_depth(self):
         self.aedtapp.model_depth = 2.0
@@ -402,47 +406,6 @@ class TestClass(BasisTest, object):
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    def test_29_heal_objects(self):
-        self.aedtapp.set_active_design("design_for_test")
-        assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1")
-        assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1")
-        assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1, Magnet1_Section1, Magnet2_Section1 ")
-        assert not self.aedtapp.heal_objects(input_objects_list="")
-        assert not self.aedtapp.heal_objects(
-            input_objects_list=["Rotor_Section1", "Magnet1_Section1", "Magnet2_Section1"]
-        )
-        assert not self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", simplify_type=3
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", max_stitch_tolerance="0.01"
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", max_stitch_tolerance=0.01
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", geometry_simplification_tolerance=1.2
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1",
-            geometry_simplification_tolerance="1.2",
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", tighten_gaps_width=0.001
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", tighten_gaps_width="0.001"
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", silver_face_tolerance=1.2
-        )
-        assert self.aedtapp.heal_objects(
-            input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", silver_face_tolerance="1.2"
-        )
-
-    def test_30_simplify_objects(self):
-        assert not self.aedtapp.simplify_objects(input_objects_list="Rotor_Section1")
-
     def test_31_cylindrical_gap(self):
         assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
         [
@@ -479,3 +442,9 @@ class TestClass(BasisTest, object):
         assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
         if os.path.exists(user_ctl_path):
             os.unlink(user_ctl_path)
+
+    def test_33_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)

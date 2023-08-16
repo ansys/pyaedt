@@ -18,8 +18,7 @@ project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -34,14 +33,14 @@ target = pyaedt.Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2023.1",
+    specified_version="2023.2",
     new_desktop_session=True,
     non_graphical=non_graphical
 )
 
 source = pyaedt.Hfss(projectname=target.project_name,
                      designname="feeder",
-                     specified_version="2023.1",
+                     specified_version="2023.2",
                      )
 
 ###############################################################################

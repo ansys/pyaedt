@@ -5,9 +5,12 @@ from collections import OrderedDict
 import copy
 import re
 
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.constants import CATEGORIESQ3D
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple
@@ -97,6 +100,47 @@ class BoundaryCommon(PropsManager):
                 self._app.boundaries.remove(el)
         return True
 
+    def _get_boundary_data(self, ds):
+        try:
+            if "MaxwellParameterSetup" in self._app.design_properties:
+                param = "MaxwellParameters"
+                setup = "MaxwellParameterSetup"
+                if isinstance(self._app.design_properties[setup][param][ds], (OrderedDict, dict)):
+                    return [
+                        self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds],
+                        self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds][
+                            "MaxwellParameterType"
+                        ],
+                    ]
+        except:
+            pass
+        try:
+            if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
+                motion_list = "MotionSetupList"
+                setup = "ModelSetup"
+                # check moving part
+                if isinstance(self._app.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                    return [
+                        self._app.design_properties["ModelSetup"]["MotionSetupList"][ds],
+                        self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+                    ]
+        except:
+            pass
+        try:
+            if ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
+                if (
+                    self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
+                    and self._app.design_type == "Icepak"
+                ):
+                    return [self._app.design_properties["BoundarySetup"]["Boundaries"][ds], ""]
+                else:
+                    return [
+                        self._app.design_properties["BoundarySetup"]["Boundaries"][ds],
+                        self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                    ]
+        except:
+            return []
+
 
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
@@ -129,6 +173,7 @@ class NativeComponentObject(BoundaryCommon, object):
         self._app = app
         self.name = "InsertNativeComponentData"
         self.component_name = component_name
+
         self.props = BoundaryProps(
             self,
             OrderedDict(
@@ -293,9 +338,9 @@ class BoundaryObject(BoundaryCommon, object):
         An AEDT application from ``pyaedt.application``.
     name : str
         Name of the boundary.
-    props : dict
+    props : dict, optional
         Properties of the boundary.
-    boundarytype : str
+    boundarytype : str, optional
         Type of the boundary.
 
     Examples
@@ -312,14 +357,83 @@ class BoundaryObject(BoundaryCommon, object):
     >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name, props, boundarytype):
+    def __init__(self, app, name, props=None, boundarytype=None, auto_update=True):
         self.auto_update = False
         self._app = app
         self._name = name
-        self.props = BoundaryProps(self, OrderedDict(props))
+        self._props = None
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props))
         self._type = boundarytype
         self._boundary_name = self.name
-        self.auto_update = True
+        self.auto_update = auto_update
+
+    @property
+    def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+
+        """
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Thermal" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Thermal")
+            cc_names = self._app.get_oo_name(cc)
+            if self.name in cc_names:
+                child_object = cc_names
+            if child_object:
+                return BinaryTreeNode(self.name, child_object, False)
+        elif "Boundaries" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
+            if self.name in cc.GetChildNames():
+                child_object = cc.GetChildObject(self.name)
+            elif "Excitations" in design_childs and self.name in self._app.get_oo_name(
+                self._app.odesign, "Excitations"
+            ):
+                child_object = self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self.name)
+            elif self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+                model = self._app.get_oo_object(self._app.odesign, "Model")
+                if self.name in model.GetChildNames():
+                    child_object = model.GetChildObject(self.name)
+            elif "Excitations" in design_childs and self._app.get_oo_name(self._app.odesign, "Excitations"):
+                for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
+                    terminals = self._app.get_oo_name(self._app.odesign, "Excitations\\{}".format(port))
+                    if self.name in terminals:
+                        child_object = self._app.get_oo_object(
+                            self._app.odesign, "Excitations\\{}\\{}".format(port, self.name)
+                        )
+            elif "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
+                for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
+                    if self.name == port:
+                        child_object = self._app.get_oo_object(self._app.odesign, "Conductors\\{}".format(port))
+
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+
+        return False
+
+    @property
+    def props(self):
+        """Boundary data.
+
+        Returns
+        -------
+        :class:BoundaryProps
+        """
+        if self._props:
+            return self._props
+        props = self._get_boundary_data(self.name)
+
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props[0]))
+            self._type = props[1]
+        return self._props
 
     @property
     def type(self):
@@ -328,8 +442,17 @@ class BoundaryObject(BoundaryCommon, object):
         Returns
         -------
         str
-            Returns Type of the boundary
+            Returns the type of the boundary.
         """
+        if not self._type:
+            if self.available_properties:
+                if "Type" in self.available_properties:
+                    self._type = self.props["Type"]
+                elif "BoundType" in self.available_properties:
+                    self._type = self.props["BoundType"]
+            elif self.object_properties and self.object_properties.props["Type"]:
+                self._type = self.object_properties.props["Type"]
+
         if self._app.design_type == "Icepak" and self._type == "Source":
             return "SourceIcepak"
         else:
@@ -380,141 +503,142 @@ class BoundaryObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "Perfect E":
+        bound_type = self.type
+        if bound_type == "Perfect E":
             self._app.oboundary.AssignPerfectE(self._get_args())
-        elif self.type == "Perfect H":
+        elif bound_type == "Perfect H":
             self._app.oboundary.AssignPerfectH(self._get_args())
-        elif self.type == "Aperture":
+        elif bound_type == "Aperture":
             self._app.oboundary.AssignAperture(self._get_args())
-        elif self.type == "Radiation":
+        elif bound_type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
-        elif self.type == "Finite Conductivity":
+        elif bound_type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
-        elif self.type == "Lumped RLC":
+        elif bound_type == "Lumped RLC":
             self._app.oboundary.AssignLumpedRLC(self._get_args())
-        elif self.type == "Impedance":
+        elif bound_type == "Impedance":
             self._app.oboundary.AssignImpedance(self._get_args())
-        elif self.type == "Layered Impedance":
+        elif bound_type == "Layered Impedance":
             self._app.oboundary.AssignLayeredImp(self._get_args())
-        elif self.type == "Anisotropic Impedance":
+        elif bound_type == "Anisotropic Impedance":
             self._app.oboundary.AssignAnisotropicImpedance(self._get_args())
-        elif self.type == "Primary":
+        elif bound_type == "Primary":
             self._app.oboundary.AssignPrimary(self._get_args())
-        elif self.type == "Secondary":
+        elif bound_type == "Secondary":
             self._app.oboundary.AssignSecondary(self._get_args())
-        elif self.type == "Lattice Pair":
+        elif bound_type == "Lattice Pair":
             self._app.oboundary.AssignLatticePair(self._get_args())
-        elif self.type == "HalfSpace":
+        elif bound_type == "HalfSpace":
             self._app.oboundary.AssignHalfSpace(self._get_args())
-        elif self.type == "Multipaction SEE":
+        elif bound_type == "Multipaction SEE":
             self._app.oboundary.AssignMultipactionSEE(self._get_args())
-        elif self.type == "Fresnel":
+        elif bound_type == "Fresnel":
             self._app.oboundary.AssignFresnel(self._get_args())
-        elif self.type == "Symmetry":
+        elif bound_type == "Symmetry":
             self._app.oboundary.AssignSymmetry(self._get_args())
-        elif self.type == "Zero Tangential H Field":
+        elif bound_type == "Zero Tangential H Field":
             self._app.oboundary.AssignZeroTangentialHField(self._get_args())
-        elif self.type == "Zero Integrated Tangential H Field":
+        elif bound_type == "Zero Integrated Tangential H Field":
             self._app.oboundary.AssignIntegratedZeroTangentialHField(self._get_args())
-        elif self.type == "Tangential H Field":
+        elif bound_type == "Tangential H Field":
             self._app.oboundary.AssignTangentialHField(self._get_args())
-        elif self.type == "Insulating":
+        elif bound_type == "Insulating":
             self._app.oboundary.AssignInsulating(self._get_args())
-        elif self.type == "Independent":
+        elif bound_type == "Independent":
             self._app.oboundary.AssignIndependent(self._get_args())
-        elif self.type == "Dependent":
+        elif bound_type == "Dependent":
             self._app.oboundary.AssignDependent(self._get_args())
-        elif self.type == "Band":
+        elif bound_type == "Band":
             self._app.omodelsetup.AssignBand(self._get_args())
-        elif self.type == "InfiniteGround":
+        elif bound_type == "InfiniteGround":
             self._app.oboundary.AssignInfiniteGround(self._get_args())
-        elif self.type == "ThinConductor":
+        elif bound_type == "ThinConductor":
             self._app.oboundary.AssignThinConductor(self._get_args())
-        elif self.type == "Stationary Wall":
+        elif bound_type == "Stationary Wall":
             self._app.oboundary.AssignStationaryWallBoundary(self._get_args())
-        elif self.type == "Symmetry Wall":
+        elif bound_type == "Symmetry Wall":
             self._app.oboundary.AssignSymmetryWallBoundary(self._get_args())
-        elif self.type == "Resistance":
+        elif bound_type == "Resistance":
             self._app.oboundary.AssignResistanceBoundary(self._get_args())
-        elif self.type == "Conducting Plate":
+        elif bound_type == "Conducting Plate":
             self._app.oboundary.AssignConductingPlateBoundary(self._get_args())
-        elif self.type == "Adiabatic Plate":
+        elif bound_type == "Adiabatic Plate":
             self._app.oboundary.AssignAdiabaticPlateBoundary(self._get_args())
-        elif self.type == "Network":
+        elif bound_type == "Network":
             self._app.oboundary.AssignNetworkBoundary(self._get_args())
-        elif self.type == "Grille":
+        elif bound_type == "Grille":
             self._app.oboundary.AssignGrilleBoundary(self._get_args())
-        elif self.type == "Block":
+        elif bound_type == "Block":
             self._app.oboundary.AssignBlockBoundary(self._get_args())
-        elif self.type == "SourceIcepak":
+        elif bound_type == "SourceIcepak":
             self._app.oboundary.AssignSourceBoundary(self._get_args())
-        elif self.type == "Opening":
+        elif bound_type == "Opening":
             self._app.oboundary.AssignOpeningBoundary(self._get_args())
-        elif self.type == "EMLoss":
+        elif bound_type == "EMLoss":
             self._app.oboundary.AssignEMLoss(self._get_args())
-        elif self.type == "ThermalCondition":
+        elif bound_type == "ThermalCondition":
             self._app.oboundary.AssignThermalCondition(self._get_args())
-        elif self.type == "Convection":
+        elif bound_type == "Convection":
             self._app.oboundary.AssignConvection(self._get_args())
-        elif self.type == "HeatFlux":
+        elif bound_type == "HeatFlux":
             self._app.oboundary.AssignHeatFlux(self._get_args())
-        elif self.type == "HeatGeneration":
+        elif bound_type == "HeatGeneration":
             self._app.oboundary.AssignHeatGeneration(self._get_args())
-        elif self.type == "Temperature":
+        elif bound_type == "Temperature":
             self._app.oboundary.AssignTemperature(self._get_args())
-        elif self.type == "RotatingFluid":
+        elif bound_type == "RotatingFluid":
             self._app.oboundary.AssignRotatingFluid(self._get_args())
-        elif self.type == "Frictionless":
+        elif bound_type == "Frictionless":
             self._app.oboundary.AssignFrictionlessSupport(self._get_args())
-        elif self.type == "FixedSupport":
+        elif bound_type == "FixedSupport":
             self._app.oboundary.AssignFixedSupport(self._get_args())
-        elif self.type == "Voltage":
+        elif bound_type == "Voltage":
             self._app.oboundary.AssignVoltage(self._get_args())
-        elif self.type == "VoltageDrop":
+        elif bound_type == "VoltageDrop":
             self._app.oboundary.AssignVoltageDrop(self._get_args())
-        elif self.type == "Current":
+        elif bound_type == "Current":
             self._app.oboundary.AssignCurrent(self._get_args())
-        elif self.type == "CurrentDensity":
+        elif bound_type == "CurrentDensity":
             self._app.oboundary.AssignCurrentDensity(self._get_args())
-        elif self.type == "CurrentDensityGroup":
+        elif bound_type == "CurrentDensityGroup":
             self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
-        elif self.type == "CurrentDensityTerminal":
+        elif bound_type == "CurrentDensityTerminal":
             self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
-        elif self.type == "CurrentDensityTerminalGroup":
+        elif bound_type == "CurrentDensityTerminalGroup":
             self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
-        elif self.type == "Balloon":
+        elif bound_type == "Balloon":
             self._app.oboundary.AssignBalloon(self._get_args())
-        elif self.type == "Winding" or self.type == "Winding Group":
+        elif bound_type == "Winding" or bound_type == "Winding Group":
             self._app.oboundary.AssignWindingGroup(self._get_args())
-        elif self.type == "Vector Potential":
+        elif bound_type == "Vector Potential":
             self._app.oboundary.AssignVectorPotential(self._get_args())
-        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
+        elif bound_type == "CoilTerminal" or bound_type == "Coil Terminal":
             self._app.oboundary.AssignCoilTerminal(self._get_args())
-        elif self.type == "Coil":
+        elif bound_type == "Coil":
             self._app.oboundary.AssignCoil(self._get_args())
-        elif self.type == "Source":
+        elif bound_type == "Source":
             self._app.oboundary.AssignSource(self._get_args())
-        elif self.type == "Sink":
+        elif bound_type == "Sink":
             self._app.oboundary.AssignSink(self._get_args())
-        elif self.type == "SignalNet":
+        elif bound_type == "SignalNet":
             self._app.oboundary.AssignSignalNet(self._get_args())
-        elif self.type == "GroundNet":
+        elif bound_type == "GroundNet":
             self._app.oboundary.AssignGroundNet(self._get_args())
-        elif self.type == "FloatingNet":
+        elif bound_type == "FloatingNet":
             self._app.oboundary.AssignFloatingNet(self._get_args())
-        elif self.type == "SignalLine":
+        elif bound_type == "SignalLine":
             self._app.oboundary.AssignSingleSignalLine(self._get_args())
-        elif self.type == "ReferenceGround":
+        elif bound_type == "ReferenceGround":
             self._app.oboundary.AssignSingleReferenceGround(self._get_args())
-        elif self.type == "Circuit Port":
+        elif bound_type == "Circuit Port":
             self._app.oboundary.AssignCircuitPort(self._get_args())
-        elif self.type == "Lumped Port":
+        elif bound_type == "Lumped Port":
             self._app.oboundary.AssignLumpedPort(self._get_args())
-        elif self.type == "Wave Port":
+        elif bound_type == "Wave Port":
             self._app.oboundary.AssignWavePort(self._get_args())
-        elif self.type == "Floquet Port":
+        elif bound_type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
-        elif self.type == "AutoIdentify":
+        elif bound_type == "AutoIdentify":
             self._app.oboundary.AutoIdentifyPorts(
                 ["NAME:Faces", self.props["Faces"]],
                 self.props["IsWavePort"],
@@ -522,12 +646,14 @@ class BoundaryObject(BoundaryCommon, object):
                 self.name,
                 self.props["RenormalizeModes"],
             )
-        elif self.type == "SBRTxRxSettings":
+        elif bound_type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
-        elif self.type == "EndConnection":
+        elif bound_type == "EndConnection":
             self._app.oboundary.AssignEndConnection(self._get_args())
-        elif self.type == "Hybrid":
+        elif bound_type == "Hybrid":
             self._app.oboundary.AssignHybridRegion(self._get_args())
+        elif bound_type == "FluxTangential":
+            self._app.oboundary.AssignFluxTangential(self._get_args())
         else:
             return False
         return True
@@ -542,133 +668,137 @@ class BoundaryObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "Perfect E":
+        bound_type = self.type
+        if bound_type == "Perfect E":
             self._app.oboundary.EditPerfectE(self._boundary_name, self._get_args())
-        elif self.type == "Perfect H":
+        elif bound_type == "Perfect H":
             self._app.oboundary.EditPerfectH(self._boundary_name, self._get_args())
-        elif self.type == "Aperture":
+        elif bound_type == "Aperture":
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
-        elif self.type == "Radiation":
+        elif bound_type == "Radiation":
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
-        elif self.type == "Finite Conductivity":
+        elif bound_type == "Finite Conductivity":
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
-        elif self.type == "Lumped RLC":
+        elif bound_type == "Lumped RLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
-        elif self.type == "Impedance":
+        elif bound_type == "Impedance":
             self._app.oboundary.EditImpedance(self._boundary_name, self._get_args())
-        elif self.type == "Layered Impedance":
+        elif bound_type == "Layered Impedance":
             self._app.oboundary.EditLayeredImpedance(self._boundary_name, self._get_args())
-        elif self.type == "Anisotropic Impedance":
+        elif bound_type == "Anisotropic Impedance":
             self._app.oboundary.EditAssignAnisotropicImpedance(
                 self._boundary_name, self._get_args()
             )  # pragma: no cover
-        elif self.type == "Primary":
+        elif bound_type == "Primary":
             self._app.oboundary.EditPrimary(self._boundary_name, self._get_args())
-        elif self.type == "Secondary":
+        elif bound_type == "Secondary":
             self._app.oboundary.EditSecondary(self._boundary_name, self._get_args())
-        elif self.type == "Lattice Pair":
+        elif bound_type == "Lattice Pair":
             self._app.oboundary.EditLatticePair(self._boundary_name, self._get_args())
-        elif self.type == "HalfSpace":
+        elif bound_type == "HalfSpace":
             self._app.oboundary.EditHalfSpace(self._boundary_name, self._get_args())
-        elif self.type == "Multipaction SEE":
+        elif bound_type == "Multipaction SEE":
             self._app.oboundary.EditMultipactionSEE(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Fresnel":
+        elif bound_type == "Fresnel":
             self._app.oboundary.EditFresnel(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Symmetry":
+        elif bound_type == "Symmetry":
             self._app.oboundary.EditSymmetry(self._boundary_name, self._get_args())
-        elif self.type == "Zero Tangential H Field":
+        elif bound_type == "Zero Tangential H Field":
             self._app.oboundary.EditZeroTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Zero Integrated Tangential H Field":
+        elif bound_type == "Zero Integrated Tangential H Field":
             self._app.oboundary.EditIntegratedZeroTangentialHField(
                 self._boundary_name, self._get_args()
             )  # pragma: no cover
-        elif self.type == "Tangential H Field":
+        elif bound_type == "Tangential H Field":
             self._app.oboundary.EditTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Insulating":
+        elif bound_type == "Insulating":
             self._app.oboundary.EditInsulating(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Independent":
+        elif bound_type == "Independent":
             self._app.oboundary.EditIndependent(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Dependent":
+        elif bound_type == "Dependent":
             self._app.oboundary.EditDependent(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Band":
+        elif bound_type == "Band":
             self._app.omodelsetup.EditMotionSetup(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "InfiniteGround":
+        elif bound_type == "InfiniteGround":
             self._app.oboundary.EditInfiniteGround(self._boundary_name, self._get_args())
-        elif self.type == "ThinConductor":
+        elif bound_type == "ThinConductor":
             self._app.oboundary.EditThinConductor(self._boundary_name, self._get_args())
-        elif self.type == "Stationary Wall":
+        elif bound_type == "Stationary Wall":
             self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Symmetry Wall":
+        elif bound_type == "Symmetry Wall":
             self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Resistance":
+        elif bound_type == "Resistance":
             self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Conducting Plate":
+        elif bound_type == "Conducting Plate":
             self._app.oboundary.EditConductingPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Adiabatic Plate":
+        elif bound_type == "Adiabatic Plate":
             self._app.oboundary.EditAdiabaticPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Network":
+        elif bound_type == "Network":
             self._app.oboundary.EditNetworkBoundary(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Grille":
+        elif bound_type == "Grille":
             self._app.oboundary.EditGrilleBoundary(self._boundary_name, self._get_args())
-        elif self.type == "Opening":
+        elif bound_type == "Opening":
             self._app.oboundary.EditOpeningBoundary(self._boundary_name, self._get_args())
-        elif self.type == "EMLoss":
+        elif bound_type == "EMLoss":
             self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Block":
+        elif bound_type == "Block":
             self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
-        elif self.type == "SourceIcepak":
+        elif bound_type == "SourceIcepak":
             self._app.oboundary.EditSourceBoundary(self._boundary_name, self._get_args())
-        elif self.type == "HeatFlux":
+        elif bound_type == "HeatFlux":
             self._app.oboundary.EditHeatFlux(self._boundary_name, self._get_args())
-        elif self.type == "HeatGeneration":
+        elif bound_type == "HeatGeneration":
             self._app.oboundary.EditHeatGeneration(self._boundary_name, self._get_args())
-        elif self.type == "Voltage":
+        elif bound_type == "Voltage":
             self._app.oboundary.EditVoltage(self._boundary_name, self._get_args())
-        elif self.type == "VoltageDrop":
+        elif bound_type == "VoltageDrop":
             self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
-        elif self.type == "Current":
+        elif bound_type == "Current":
             self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
-        elif self.type == "CurrentDensity":
+        elif bound_type == "CurrentDensity":
             self._app.oboundary.AssignCurrentDensity(self._get_args())
-        elif self.type == "CurrentDensityGroup":
+        elif bound_type == "CurrentDensityGroup":
             self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
-        elif self.type == "CurrentDensityTerminal":
+        elif bound_type == "CurrentDensityTerminal":
             self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
-        elif self.type == "CurrentDensityTerminalGroup":
+        elif bound_type == "CurrentDensityTerminalGroup":
             self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
-        elif self.type == "Winding" or self.type == "Winding Group":
+        elif bound_type == "Winding" or bound_type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Vector Potential":
+        elif bound_type == "Vector Potential":
             self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
+        elif bound_type == "CoilTerminal" or bound_type == "Coil Terminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
-        elif self.type == "Coil":
+        elif bound_type == "Coil":
             self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
-        elif self.type == "Source":
+        elif bound_type == "Source":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "Sink":
+        elif bound_type == "Sink":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
-        elif self.type == "SignalNet" or self.type == "GroundNet" or self.type == "FloatingNet":
+        elif bound_type == "SignalNet" or bound_type == "GroundNet" or bound_type == "FloatingNet":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
-        elif self.type in "Circuit Port":
+        elif bound_type in "Circuit Port":
             self._app.oboundary.EditCircuitPort(self._boundary_name, self._get_args())
-        elif self.type in "Lumped Port":
+        elif bound_type in "Lumped Port":
             self._app.oboundary.EditLumpedPort(self._boundary_name, self._get_args())
-        elif self.type in "Wave Port":
+        elif bound_type in "Wave Port":
             self._app.oboundary.EditWavePort(self._boundary_name, self._get_args())
-        elif self.type == "SetSBRTxRxSettings":
+        elif bound_type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
-        elif self.type == "Floquet Port":
+        elif bound_type == "Floquet Port":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "End Connection":
+        elif bound_type == "End Connection":
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
-        elif self.type == "Hybrid":
+        elif bound_type == "Hybrid":
             self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
-        elif self.type == "Terminal":
+        elif bound_type == "Terminal":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
+
+        self._app._boundaries[self.name] = self._app._boundaries.pop(self._boundary_name)
         self._boundary_name = self.name
+
         return True
 
     @pyaedt_function_handler()
@@ -722,9 +852,9 @@ class MaxwellParameters(BoundaryCommon, object):
         Either ``Maxwell3d`` or ``Maxwell2d`` application.
     name : str
         Name of the boundary.
-    props : dict
+    props : dict, optional
         Properties of the boundary.
-    boundarytype : str
+    boundarytype : str, optional
         Type of the boundary.
 
     Examples
@@ -739,18 +869,59 @@ class MaxwellParameters(BoundaryCommon, object):
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
-    def __init__(self, app, name, props, boundarytype):
+    def __init__(self, app, name, props=None, boundarytype=None):
         self.auto_update = False
         self._app = app
         self._name = name
-        self.props = BoundaryProps(self, OrderedDict(props))
+        self._props = None
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
 
     @property
+    def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+
+        """
+
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        cc = self._app.odesign.GetChildObject("Parameters")
+        child_object = None
+        if self.name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+        elif self.name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
+
+    @property
+    def props(self):
+        """Maxwell parameter data.
+
+        Returns
+        -------
+        :class:BoundaryProps
+        """
+        if self._props:
+            return self._props
+        props = self._get_boundary_data(self.name)
+
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props[0]))
+            self._type = props[1]
+        return self._props
+
+    @property
     def name(self):
-        """Boundary Name."""
+        """Boundary name."""
         return self._name
 
     @name.setter
@@ -795,6 +966,8 @@ class MaxwellParameters(BoundaryCommon, object):
             self._app.o_maxwell_parameters.AssignTorque(self._get_args())
         elif self.type == "Force":
             self._app.o_maxwell_parameters.AssignForce(self._get_args())
+        elif self.type == "LayoutForce":
+            self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
         return True
@@ -1609,10 +1782,33 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
         self.auto_update = False
         self._app = app
         self._name = name
-        self.props = BoundaryProps(self, OrderedDict(props))
+        self._props = None
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+
+    @property
+    def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+
+        """
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        cc = self._app.odesign.GetChildObject("Excitations")
+        child_object = None
+        if self.name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+        elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
 
     @property
     def name(self):
@@ -1627,6 +1823,23 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             self.auto_update = True
         self.update()
         self._name = value
+
+    @property
+    def props(self):
+        """Excitation data.
+
+        Returns
+        -------
+        :class:BoundaryProps
+        """
+        if self._props:
+            return self._props
+        props = self._get_boundary_data(self.name)
+
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props[0]))
+            self._type = props[1]
+        return self._props
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -1656,7 +1869,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             props = OrderedDict()
             for prop in propnames:
                 props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
-            self.props = BoundaryProps(self, props)
+            self._props = BoundaryProps(self, props)
 
     @pyaedt_function_handler()
     def update(self):
@@ -3348,3 +3561,936 @@ class Excitations(object):
     def _logger(self):
         """Logger."""
         return self._app.logger
+
+
+class NetworkObject(BoundaryObject):
+    """Manages networks in Icepak projects."""
+
+    def __init__(self, app, name=None, props=None, create=False):
+        if not app.design_type == "Icepak":  # pragma: no cover
+            raise NotImplementedError("Networks object works only with Icepak projects ")
+        if name is None:
+            self._name = generate_unique_name("Network")
+        else:
+            self._name = name
+        super(NetworkObject, self).__init__(app, self._name, props, "Network", False)
+        if self.props is None:
+            self._props = {}
+        self._nodes = []
+        self._links = []
+        self._schematic_data = OrderedDict({})
+        self._update_from_props()
+        if create:
+            self.create()
+
+    def _clean_list(self, arg):
+        new_list = []
+        for item in arg:
+            if isinstance(item, list):
+                if item[0] == "NAME:PageNet":
+                    page_net_list = []
+                    for i in item:
+                        if isinstance(i, list):
+                            name = page_net_list[-1]
+                            page_net_list.pop(-1)
+                            for j in i:
+                                page_net_list.append(name)
+                                page_net_list.append(j)
+                        else:
+                            page_net_list.append(i)
+                    new_list.append(page_net_list)
+                else:
+                    new_list.append(self._clean_list(item))
+            else:
+                new_list.append(item)
+        return new_list
+
+    @pyaedt_function_handler
+    def create(self):
+        """
+        Create network in AEDT.
+
+        Returns
+        -------
+        bool:
+            True if successful.
+        """
+        if not self.props.get("Faces", None):
+            self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
+        if not self.props.get("SchematicData", None):
+            self.props["SchematicData"] = OrderedDict({})
+        args = self._get_args()
+
+        clean_args = self._clean_list(args)
+        self._app.oboundary.AssignNetworkBoundary(clean_args)
+        return True
+
+    @pyaedt_function_handler
+    def _update_from_props(self):
+        nodes = self.props.get("Nodes", None)
+        if nodes is not None:
+            nd_name_list = [node.name for node in self._nodes]
+            for node_name, node_dict in nodes.items():
+                if node_name not in nd_name_list:
+                    nd_type = node_dict.get("NodeType", None)
+                    if nd_type == "InternalNode":
+                        self.add_internal_node(
+                            node_name,
+                            node_dict.get("Power", node_dict.get("Power Variation Data", None)),
+                            mass=node_dict.get("Mass", None),
+                            specific_heat=node_dict.get("SpecificHeat", None),
+                        )
+                    elif nd_type == "BoundaryNode":
+                        self.add_boundary_node(
+                            node_name,
+                            assignment_type=node_dict["ValueType"].replace("Value", ""),
+                            value=node_dict[node_dict["ValueType"].replace("Value", "")],
+                        )
+                    else:
+                        if (
+                            node_dict["ThermalResistance"] == "NoResistance"
+                            or node_dict["ThermalResistance"] == "Specified"
+                        ):
+                            node_material, node_thickness = None, None
+                            node_resistance = node_dict["Resistance"]
+                        else:
+                            node_thickness, node_material = node_dict["Thickness"], node_dict["Material"]
+                            node_resistance = None
+                        self.add_face_node(
+                            node_dict["FaceID"],
+                            name=node_name,
+                            thermal_resistance=node_dict["ThermalResistance"],
+                            material=node_material,
+                            thickness=node_thickness,
+                            resistance=node_resistance,
+                        )
+        links = self.props.get("Links", None)
+        if links is not None:
+            l_name_list = [l.name for l in self._links]
+            for link_name, link_dict in links.items():
+                if link_name not in l_name_list:
+                    self.add_link(link_dict[0], link_dict[1], link_dict[-1], link_name)
+
+    @property
+    def auto_update(self):
+        """
+        Get if auto-update is enabled.
+
+        Returns
+        -------
+        bool:
+            Whether auto-update is enabled.
+        """
+        return False
+
+    @auto_update.setter
+    def auto_update(self, b):
+        """
+        Set auto-update on or off.
+
+        Parameters
+        ----------
+        b: bool
+            Whether to enable auto-update.
+
+        """
+        if b:
+            self._app.logger.warning(
+                "Network objects auto_update property is False by default" " and cannot be set to True."
+            )
+
+    @property
+    def links(self):
+        """
+        Get links of the network.
+
+        Returns
+        -------
+        dict:
+            Links dictionary.
+
+        """
+        self._update_from_props()
+        return {link.name: link for link in self._links}
+
+    @property
+    def r_links(self):
+        """
+        Get r-links of the network.
+
+        Returns
+        -------
+        dict:
+            R-links dictionary.
+
+        """
+        self._update_from_props()
+        return {link.name: link for link in self._links if link._link_type[0] == "R-Link"}
+
+    @property
+    def c_links(self):
+        """
+        Get c-links of the network.
+
+        Returns
+        -------
+        dict:
+            C-links dictionary.
+
+        """
+        self._update_from_props()
+        return {link.name: link for link in self._links if link._link_type[0] == "C-Link"}
+
+    @property
+    def nodes(self):
+        """
+        Get nodes of the network.
+
+        Returns
+        -------
+        dict:
+            Nodes dictionary.
+
+        """
+        self._update_from_props()
+        return {node.name: node for node in self._nodes}
+
+    @property
+    def face_nodes(self):
+        """
+        Get face nodes of the network.
+
+        Returns
+        -------
+        dict:
+            Face nodes dictionary.
+
+        """
+        self._update_from_props()
+        return {node.name: node for node in self._nodes if node.node_type == "FaceNode"}
+
+    @property
+    def faces_ids_in_network(self):
+        """
+        Get ID of faces included in the network.
+
+        Returns
+        -------
+        list:
+            Face IDs.
+
+        """
+        out_arr = []
+        for _, node_dict in self.face_nodes.items():
+            out_arr.append(node_dict.props["FaceID"])
+        return out_arr
+
+    @property
+    def objects_in_network(self):
+        """
+        Get objects included in the network.
+
+        Returns
+        -------
+        list:
+            Objects names.
+
+        """
+        out_arr = []
+        for face_id in self.faces_ids_in_network:
+            out_arr.append(self._app.oeditor.GetObjectNameByFaceID(face_id))
+        return out_arr
+
+    @property
+    def internal_nodes(self):
+        """
+        Get internal nodes.
+
+        Returns
+        -------
+        dict:
+            Internal nodes.
+
+        """
+        self._update_from_props()
+        return {node.name: node for node in self._nodes if node.node_type == "InternalNode"}
+
+    @property
+    def boundary_nodes(self):
+        """
+        Get boundary nodes.
+
+        Returns
+        -------
+        dict:
+            Boundary nodes.
+
+        """
+        self._update_from_props()
+        return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
+
+    @property
+    def name(self):
+        """
+        Get network name.
+
+        Returns
+        -------
+        str
+            Network name.
+        """
+        return self._name
+
+    @name.setter
+    def name(self, new_network_name):
+        """
+        Set new name of the network.
+
+        Parameters
+        ----------
+        new_network_name: str
+            New name of the network.
+        """
+        bound_names = [b.name for b in self._app.boundaries]
+        if self.name in bound_names:
+            if new_network_name not in bound_names:
+                if new_network_name != self._name:
+                    self._app._oboundary.RenameBoundary(self._name, new_network_name)
+                    self._name = new_network_name
+            else:
+                self._app.logger.warning("Name %s already assigned in the design", new_network_name)
+        else:
+            self._name = new_network_name
+
+    @pyaedt_function_handler()
+    def add_internal_node(self, name, power, mass=None, specific_heat=None):
+        """
+
+        Parameters
+        ----------
+        name : str
+            Name of the node.
+        power : str or float or dict
+            String, float, or dictionary containing the value of the assignment.
+            If a float is passed, the ``"W"`` unit is used. A dictionary can be
+            passed to use temperature-dependent or transient
+            assignments.
+        mass : str or float, optional
+            Value of the mass assignment. This parameter is relevant only
+            if the solution is transient. If a float is passed, the ``"Kg"`` unit
+            is used. The default is ``None``, in which case ``"0.001kg"`` is used.
+        specific_heat : str or float, optional
+            Value of the specific heat assignment. This parameter is
+            relevant only if the solution is transient. If a float is passed,
+            the ``"J_per_Kelkg"`` unit is used. The default is ``None`, in
+            which case ``"1000J_per_Kelkg"`` is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> network = pyaedt.modules.Boundary.Network(app)
+        >>> network.add_internal_node("TestNode", {"Type": "Transient",
+        >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
+        """
+        if self._app.solution_type != "SteadyState" and mass is None and specific_heat is None:
+            self._app.logger.warning("The solution is transient but neither mass nor specific heat is assigned.")
+        if self._app.solution_type == "SteadyState" and (
+            mass is not None or specific_heat is not None
+        ):  # pragma: no cover
+            self._app.logger.warning(
+                "Because the solution is steady state, neither mass nor specific heat assignment is relevant."
+            )
+        if isinstance(power, (int, float)):
+            power = str(power) + "W"
+        props_dict = {"Power": power}
+        if mass is not None:
+            if isinstance(mass, (int, float)):
+                mass = str(mass) + "kg"
+            props_dict.update({"Mass": mass})
+        if specific_heat is not None:
+            if isinstance(specific_heat, (int, float)):
+                specific_heat = str(specific_heat) + "J_per_Kelkg"
+            props_dict.update({"SpecificHeat": specific_heat})
+        new_node = self._Node(name, self._app, node_type="InternalNode", props=props_dict, network=self)
+        self._nodes.append(new_node)
+        self._add_to_props(new_node)
+        return new_node
+
+    @pyaedt_function_handler()
+    def add_boundary_node(self, name, assignment_type, value):
+        """
+
+        Parameters
+        ----------
+        name: str
+            Name of the node.
+        assignment_type: str
+            Type assignment. Options are ``"Power"`` and ``"Temperature"``.
+        value: str or float or dict
+            String, float, or dictionary containing the value of the assignment.
+            If a float is passed the ``"W"`` or ``"cel"`` unit is used, depending on
+            the selection for the ``assignment_type`` parameter. If ``"Power"`
+            is selected for the type, a dictionary can be passed to use
+            temperature-dependent or transient assignment.
+
+        Returns
+        -------
+        bool
+            True if successful.
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> network = pyaedt.modules.Boundary.Network(app)
+        >>> network.add_boundary_node("TestNode", "Temperature", 2)
+        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
+        >>>                                                       "Function": "Piecewise Linear",
+        >>>                                                       "Values": "Test_DataSet"})
+        """
+        if assignment_type not in ["Power", "Temperature"]:  # pragma: no cover
+            raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``.')
+        if isinstance(value, (float, int)):
+            if assignment_type == "Power":
+                value = str(value) + "W"
+            else:
+                value = str(value) + "cel"
+        if isinstance(value, dict) and assignment_type == "Temperature":  # pragma: no cover
+            raise AttributeError(
+                "Temperature-dependent or transient assignment is not supported in a temperature boundary node."
+            )
+        new_node = self._Node(
+            name,
+            self._app,
+            node_type="BoundaryNode",
+            props={"ValueType": assignment_type + "Value", assignment_type: value},
+            network=self,
+        )
+        self._nodes.append(new_node)
+        self._add_to_props(new_node)
+        return new_node
+
+    @pyaedt_function_handler()
+    def _add_to_props(self, new_node, type_dict="Nodes"):
+        try:
+            self.props[type_dict].update({new_node.name: new_node.props})
+        except KeyError:
+            self.props[type_dict] = {new_node.name: new_node.props}
+
+    @pyaedt_function_handler()
+    def add_face_node(
+        self, face_id, name=None, thermal_resistance="NoResistance", material=None, thickness=None, resistance=None
+    ):
+        """
+        Create a face node in the network.
+
+        Parameters
+        ----------
+        face_id : int
+            Face ID.
+        name : str, optional
+            Name of the node. Default is ``None``.
+        thermal_resistance : str
+            Thermal resistance value and unit. Default is ``"NoResistance"``.
+        material : str, optional
+            Material specification (required if ``thermal_resistance="Compute"``).
+            Default is ``None``.
+        thickness : str or float, optional
+            Thickness value and unit (required if ``thermal_resistance="Compute"``).
+            If a float is passed, ``"mm"`` unit is automatically used. Default is ``None``.
+        resistance : str or float, optional
+            Resistance value and unit (required if ``thermal_resistance="Specified"``).
+            If a float is passed, ``"cel_per_w"`` unit is automatically used. Default is ``None``.
+
+        Returns
+        -------
+        bool
+            True if successful.
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> network = pyaedt.modules.Boundary.Network(app)
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> faces_ids = [face.id for face in box.faces]
+        >>> network.add_face_node(faces_ids[0])
+        >>> network.add_face_node(faces_ids[1], name="TestNode", thermal_resistance="Compute",
+        >>>                       material="Al-Extruded", thickness="2mm")
+        >>> network.add_face_node(faces_ids[2], name="TestNode", thermal_resistance="Specified", resistance=2)
+        """
+        props_dict = OrderedDict({})
+        props_dict["FaceID"] = face_id
+        if thermal_resistance is not None:
+            if thermal_resistance == "Compute":
+                if resistance is not None:
+                    self._app.logger.info(
+                        '``resistance`` assignment is incompatible with ``thermal_resistance="Compute"``'
+                        "and it is ignored."
+                    )
+                if material is not None or thickness is not None:
+                    props_dict["ThermalResistance"] = thermal_resistance
+                    props_dict["Material"] = material
+                    if not isinstance(thickness, str):
+                        thickness = str(thickness) + "mm"
+                    props_dict["Thickness"] = thickness
+                else:  # pragma: no cover
+                    raise AttributeError(
+                        'If ``thermal_resistance="Compute"`` both ``material`` and ``thickness``'
+                        "arguments must be prescribed."
+                    )
+            if thermal_resistance == "Specified":
+                if material is not None or thickness is not None:
+                    self._app.logger.warning(
+                        "Because ``material`` and ``thickness`` assignments are incompatible with"
+                        '``thermal_resistance="Specified"``, they are ignored.'
+                    )
+                if resistance is not None:
+                    props_dict["ThermalResistance"] = thermal_resistance
+                    if not isinstance(resistance, str):
+                        resistance = str(resistance) + "cel_per_w"
+                    props_dict["Resistance"] = resistance
+                else:  # pragma : no cover
+                    raise AttributeError(
+                        'If ``thermal_resistance="Specified"``, ``resistance`` argument must be prescribed.'
+                    )
+
+        if name is None:
+            name = "FaceID" + str(face_id)
+        new_node = self._Node(name, self._app, node_type="FaceNode", props=props_dict, network=self)
+        self._nodes.append(new_node)
+        self._add_to_props(new_node)
+        return new_node
+
+    @pyaedt_function_handler()
+    def add_nodes_from_dictionaries(self, nodes_dict):
+        """
+        Add nodes to the network from dictionary.
+
+        Parameters
+        -------
+        nodes_dict : list or dict
+            A dictionary or list of dictionaries containing nodes to add to the network. Different
+            node types require different key and value pairs:
+
+            - Face nodes must contain the ``"ID"`` key associated with an integer containing the face ID.
+              Optional keys and values pairs are:
+
+              - ``"ThermalResistance"``: a string specifying the type of thermal resistance.
+                 Options are ``"NoResistance"`` (default), ``"Compute"``, and ``"Specified"``.
+              - ``"Thickness"``: a string with the thickness value and unit (required if ``"Compute"``
+              is selected for ``"ThermalResistance"``).
+              - ``"Material"``: a string with the name of the material (required if ``"Compute"`` is
+              selected for ``"ThermalResistance"``).
+              - ``"Resistance"``: a string with the resistance value and unit (required if
+                 ``"Specified"`` is selected for ``"ThermalResistance"``).
+              - ``"Name"``: a string with the name of the node. If not
+                 specified, a name is generated automatically.
+
+
+            - Internal nodes must contain the following keys and values pairs:
+
+              - ``"Name"``: a string with the node name
+              - ``"Power"``: a string with the assigned power or a dictionary for transient or
+              temperature-dependent assignment
+              Optional keys and values pairs:
+              - ``"Mass"``: a string with the mass value and unit
+              - ``"SpecificHeat"``: a string with the specific heat value and unit
+
+            - Boundary nodes must contain the following keys and values pairs:
+              - ``"Name"``: a string with the node name
+              - ``"ValueType"``: a string specifying the type of value (``"Power"`` or
+              ``"Temperature"``)
+              Depending on the ``"ValueType"`` choice, one of the following keys and values pairs must
+              be used:
+              - ``"Power"``: a string with the power value and unit or a dictionary for transient or
+              temperature-dependent assignment
+              - ``"Temperature"``: a string with the temperature value and unit or a dictionary for
+              transient or temperature-dependent assignment
+              According to the ``"ValueType"`` choice, ``"Power"`` or ``"Temperature"`` key must be
+              used. Their associated value a string with the value and unit of the quantity prescribed or
+              a dictionary for transient or temperature dependent assignment.
+
+            All the temperature dependent or thermal dictionaries should contain three keys:
+            ``"Type"``, ``"Function"``, and ``"Values"``. Accepted ``"Type"`` values are:
+            ``"Temp Dep"`` and ``"Transient"``. Accepted ``"Function"`` are: ``"Linear"``,
+            ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``, ``"Square Wave"``, and
+            ``"Piecewise Linear"``. ``"Temp Dep"`` only support the latter. ``"Values"``
+            contains a list of strings containing the parameters required by the ``"Function"``
+            selection (e.g. ``"Linear"`` requires two parameters: the value of the variable at t=0
+            and the slope of the line). The parameters required by each ``Function`` option is in
+            Icepak documentation. The parameters must contain the units where needed.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> network = pyaedt.modules.Boundary.Network(app)
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> faces_ids = [face.id for face in box.faces]
+        >>> nodes_dict = [
+        >>>         {"FaceID": faces_ids[0]},
+        >>>         {"Name": "TestNode", "FaceID": faces_ids[1],
+        >>>          "ThermalResistance": "Compute", "Thickness": "2mm"},
+        >>>         {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
+        >>>         {"Name": "Junction", "Power": "1W"}]
+        >>> network.add_nodes_from_dictionaries(nodes_dict)
+
+        """
+        if isinstance(nodes_dict, dict):
+            nodes_dict = [nodes_dict]
+        for node_dict in nodes_dict:
+            if "FaceID" in node_dict.keys():
+                self.add_face_node(
+                    face_id=node_dict["FaceID"],
+                    name=node_dict.get("Name", None),
+                    thermal_resistance=node_dict.get("ThermalResistance", None),
+                    material=node_dict.get("Material", None),
+                    thickness=node_dict.get("Thickness", None),
+                    resistance=node_dict.get("Resistance", None),
+                )
+            elif "ValueType" in node_dict.keys():
+                self.add_boundary_node(
+                    name=node_dict["Name"],
+                    assignment_type=node_dict["ValueType"],
+                    value=node_dict[node_dict["ValueType"]],
+                )
+            else:
+                self.add_internal_node(
+                    name=node_dict["Name"],
+                    power=node_dict.get("Power", None),
+                    mass=node_dict.get("Mass", None),
+                    specific_heat=node_dict.get("SpecificHeat", None),
+                )
+        return True
+
+    @pyaedt_function_handler()
+    def add_link(self, node1, node2, value, name=None):
+        """Create links in the network object.
+
+        Parameters
+        ----------
+        node1 : str or int
+            String containing one of the node names that the link is connecting or an integer
+            containing the ID of the face. If an ID is used and the node associated with the
+            corresponding face is not created yet, it is added automatically.
+        node2 : str or int
+            String containing one of the node names that the link is connecting or an integer
+            containing the ID of the face. If an ID is used and the node associated with the
+            corresponding face is not created yet, it is added atuomatically.
+        value : str or float
+            String containing the value and unit of the connection. If a float is passed, an
+            R-Link is added to the network and the ``"cel_per_w"`` unit is used.
+        name : str, optional
+            Name of the link. The default is ``None``, in which case a name is
+            automatically generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> network = pyaedt.modules.Boundary.Network(app)
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> faces_ids = [face.id for face in box.faces]
+        >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
+        >>> network.add_links_from_dictionaries(connection)
+
+        """
+        if name is None:
+            new_name = True
+            while new_name:
+                name = generate_unique_name("Link")
+                if name not in self.links.keys():
+                    new_name = False
+        new_link = self._Link(node1, node2, value, name, self)
+        self._links.append(new_link)
+        self._add_to_props(new_link, "Links")
+        return True
+
+    @pyaedt_function_handler()
+    def add_links_from_dictionaries(self, connections):
+        """Create links in the network object.
+
+        Parameters
+        ----------
+        connections : dict or list of dict
+            Dictionary or list of dictionaries containing the links between nodes. Each dictionary
+            consists of these elements:
+
+            - ``"Link"``: a three-item list consisting of the two nodes that the link is connecting and
+               the value with unit of the link. The node of the connection can be referred to with the
+               name (str) or face ID (int). The link type (resistance, heat transfer coefficient, or
+               mass flow) is determined automatically from the unit.
+            - ``"Name"`` (optional): a string specifying the name of the link.
+
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> network = pyaedt.modules.Boundary.Network(app)
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> faces_ids = [face.id for face in box.faces]
+        >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
+        >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
+        >>> network.add_links_from_dictionaries(connection)
+
+        """
+        if isinstance(connections, dict):
+            connections = [connections]
+        for connection in connections:
+            name = connection.get("Name", None)
+            try:
+                self.add_link(connection["Link"][0], connection["Link"][1], connection["Link"][2], name)
+            except Exception:  # pragma : no cover
+                if name:
+                    self._app.logger.error("Failed to add " + name + " link.")
+                else:
+                    self._app.logger.error(
+                        "Failed to add link associated with the following dictionary:\n" + str(connection)
+                    )
+        return True
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the network in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if self.name in [b.name for b in self._app.boundaries]:
+            self.delete()
+            try:
+                self.create()
+                self._app.boundaries.append(self)
+                return True
+            except Exception:  # pragma : no cover
+                self._app.odesign.Undo()
+                self._app.logger.error("Update of network object failed.")
+                return False
+        else:  # pragma : no cover
+            self._app.logger.warning("Network object not yet created in design.")
+            return False
+
+    @pyaedt_function_handler()
+    def update_assignment(self):
+        """
+        Update assignments of the network.
+        """
+        return self.update()
+
+    class _Link:
+        def __init__(self, node_1, node_2, value, name, network):
+            self.name = name
+            if not isinstance(node_1, str):
+                node_1 = "FaceID" + str(node_1)
+            if not isinstance(node_2, str):
+                node_2 = "FaceID" + str(node_2)
+            if not isinstance(value, str):
+                value = str(value) + "cel_per_w"
+            self.node_1 = node_1
+            self.node_2 = node_2
+            self.value = value
+            self._network = network
+
+        @property
+        def _link_type(self):
+            unit2type_conversion = {
+                "g_per_s": ["C-Link", "Node1ToNode2"],
+                "kg_per_s": ["C-Link", "Node1ToNode2"],
+                "lbm_per_min": ["C-Link", "Node1ToNode2"],
+                "lbm_per_s": ["C-Link", "Node1ToNode2"],
+                "Kel_per_W": ["R-Link", "R"],
+                "cel_per_w": ["R-Link", "R"],
+                "FahSec_per_btu": ["R-Link", "R"],
+                "Kels_per_J": ["R-Link", "R"],
+                "w_per_m2kel": ["R-Link", "HTC"],
+                "w_per_m2Cel": ["R-Link", "HTC"],
+                "btu_per_rankHrFt2": ["R-Link", "HTC"],
+                "btu_per_fahHrFt2": ["R-Link", "HTC"],
+                "btu_per_rankSecFt2": ["R-Link", "HTC"],
+                "btu_per_fahSecFt2": ["R-Link", "HTC"],
+                "w_per_cm2kel": ["R-Link", "HTC"],
+            }
+            _, unit = decompose_variable_value(self.value)
+            return unit2type_conversion[unit]
+
+        @property
+        def props(self):
+            """
+            Get link properties.
+
+            Returns
+            -------
+            list
+                First two elements of the list are the node names that the link connects,
+                the third element is the link type while the fourth contains the value
+                associated with the link.
+            """
+            return [self.node_1, self.node_2] + self._link_type + [self.value]
+
+        @pyaedt_function_handler
+        def delete_link(self):
+            """
+            Delete link from network.
+            """
+            self._network.props["Links"].pop(self.name)
+            self._network._links.remove(self)
+
+    class _Node:
+        def __init__(self, name, app, network, node_type=None, props=None):
+            self.name = name
+            self._type = node_type
+            self._app = app
+            self._props = props
+            self._node_props()
+            self._network = network
+
+        @pyaedt_function_handler
+        def delete_node(self):
+            """
+            Delete node from network.
+            """
+            self._network.props["Nodes"].pop(self.name)
+            self._network._nodes.remove(self)
+
+        @property
+        def node_type(self):
+            """
+            Get node type.
+
+            Returns
+            -------
+            str
+                Node type.
+            """
+            if self._type is None:  # pragma: no cover
+                if self.props is None:
+                    self._app.logger.error(
+                        "Cannot define node_type. Both its assignment and properties assignment are missing."
+                    )
+                    return None
+                else:
+                    type_in_dict = self.props.get("NodeType", None)
+                    if type_in_dict is None:
+                        self._type = "FaceNode"
+                    else:
+                        self._type = type_in_dict
+            return self._type
+
+        @property
+        def props(self):
+            """
+            Get properties of the node.
+
+            Returns
+            -------
+            dict
+                Node properties.
+            """
+            return self._props
+
+        @props.setter
+        def props(self, props):
+            """
+            Set properties of the node.
+
+            Parameters
+            -------
+            props: dict
+                Node properties.
+            """
+            self._props = props
+            self._node_props()
+
+        def _node_props(self):
+            face_node_default_dict = {
+                "FaceID": None,
+                "ThermalResistance": "NoResistance",
+                "Thickness": "1mm",
+                "Material": "Al-Extruded",
+                "Resistance": "0cel_per_w",
+            }
+            boundary_node_default_dict = {
+                "NodeType": "BoundaryNode",
+                "ValueType": "PowerValue",
+                "Power": "0W",
+                "Temperature": "25cel",
+            }
+            internal_node_default_dict = {
+                "NodeType": "InternalNode",
+                "Power": "0W",
+                "Mass": "0.001kg",
+                "SpecificHeat": "1000J_per_Kelkg",
+            }
+            if self.props is None:
+                if self.node_type == "InternalNode":
+                    self._props = internal_node_default_dict
+                elif self.node_type == "FaceNode":
+                    self._props = face_node_default_dict
+                elif self.node_type == "BoundaryNode":
+                    self._props = boundary_node_default_dict
+            else:
+                if self.node_type == "InternalNode":
+                    self._props = self._create_node_dict(internal_node_default_dict)
+                elif self.node_type == "FaceNode":
+                    self._props = self._create_node_dict(face_node_default_dict)
+                elif self.node_type == "BoundaryNode":
+                    self._props = self._create_node_dict(boundary_node_default_dict)
+
+        @pyaedt_function_handler()
+        def _create_node_dict(self, default_dict):
+            node_dict = self.props
+            node_name = node_dict.get("Name", self.name)
+            if not node_name:
+                try:
+                    self.name = "Face" + str(node_dict["FaceID"])
+                except KeyError:  # pragma: no cover
+                    raise KeyError('"Name" key is needed for "BoundaryNodes" and "InternalNodes" dictionaries.')
+            else:
+                self.name = node_name
+                node_dict.pop("Name", None)
+            node_args = copy.deepcopy(default_dict)
+            for k in node_dict.keys():
+                val = node_dict[k]
+                if isinstance(val, dict):  # pragma : no cover
+                    val = self._app._parse_variation_data(
+                        k, val["Type"], variation_value=val["Values"], function=val["Function"]
+                    )
+                    node_args.pop(k)
+                    node_args.update(val)
+                else:
+                    node_args[k] = val
+
+            return node_args

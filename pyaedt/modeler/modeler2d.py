@@ -1,6 +1,7 @@
 import math
 from warnings import warn
 
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Modeler import Modeler
@@ -16,7 +17,9 @@ class ModelerRMxprt(Modeler):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         Modeler.__init__(self, app)
+        app.logger.info_timer("ModelerRMxprt class has been initialized!")
 
     @property
     def oeditor(self):
@@ -50,6 +53,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         GeometryModeler.__init__(self, application, is3d=False)
         Primitives2D.__init__(self)
         self._primitives = self
+        self.logger.info("Modeler2D class has been initialized!")
 
     def __get__(self, instance, owner):
         self._app = instance
@@ -157,7 +161,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d`
+        list of :class:`pyaedt.modeler.cad.object3d`
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

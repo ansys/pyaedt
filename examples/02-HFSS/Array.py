@@ -16,8 +16,7 @@ import pyaedt
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -34,7 +33,7 @@ example_path = pyaedt.downloads.download_3dcomponent()
 # Launch HFSS and save the project.
 project_name = pyaedt.generate_unique_project_name(project_name="array")
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.1",
+                   specified_version="2023.2",
                    designname="Array_Simple",
                    non_graphical=non_graphical,
                    new_desktop_session=True)

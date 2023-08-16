@@ -12,6 +12,8 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
@@ -1294,6 +1296,9 @@ class Q3d(QExtractor, object):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @property
     def nets(self):
         """Nets in a Q3D project.
@@ -1446,7 +1451,7 @@ class Q3d(QExtractor, object):
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
@@ -1499,7 +1504,7 @@ class Q3d(QExtractor, object):
             type_bound = "FloatingNet"
         bound = BoundaryObject(self, net_name, props, type_bound)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1511,7 +1516,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -1543,7 +1548,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -1601,7 +1606,7 @@ class Q3d(QExtractor, object):
             props["Net"] = net_name
         bound = BoundaryObject(self, name, props, exc_type)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1718,7 +1723,7 @@ class Q3d(QExtractor, object):
             )
             bound = BoundaryObject(self, sink_name, props, "Sink")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         return False
 
@@ -1771,7 +1776,7 @@ class Q3d(QExtractor, object):
 
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1939,7 +1944,7 @@ class Q3d(QExtractor, object):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not is_ironpython and not settings.use_grpc_api:
+            if not is_ironpython and not self.desktop_class.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)
@@ -2112,6 +2117,9 @@ class Q2d(QExtractor, object):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """Create a rectangle.
@@ -2131,7 +2139,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -2239,7 +2247,7 @@ class Q2d(QExtractor, object):
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2282,7 +2290,7 @@ class Q2d(QExtractor, object):
 
         bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2305,7 +2313,7 @@ class Q2d(QExtractor, object):
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             i += 2
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))

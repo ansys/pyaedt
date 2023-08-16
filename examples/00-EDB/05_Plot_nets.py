@@ -19,43 +19,43 @@ import pyaedt
 
 temp_folder = pyaedt.generate_unique_folder_name()
 
-targetfolder = os.path.dirname(pyaedt.downloads.download_aedb(temp_folder))
+targetfolder = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
 
 
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
 
-edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2023.1")
+edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2023.2")
 
 ###############################################################################
 # Plot custom set of nets colored by layer
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot a custom set of nets colored by layer (default).
 
-edb.nets.plot("V3P3_S0")
+edb.nets.plot("AVCC_1V3")
 
 ###############################################################################
 # Plot custom set of nets colored by nets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot a custom set of nets colored by nets.
 
-edb.nets.plot(["VREF", "V3P3_S0"], color_by_net=True)
+edb.nets.plot(["GND", "GND_DP", "AVCC_1V3"], color_by_net=True)
 
 ###############################################################################
 # Plot all nets on a layer colored by nets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot all nets on a layer colored by nets
 
-edb.nets.plot(None, ["TOP"], color_by_net=True, plot_components_on_top=True)
+edb.nets.plot(None, ["1_Top"], color_by_net=True, plot_components_on_top=True)
 
 ###############################################################################
 # Plot stackup and some padstack definition
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot all nets on a layer colored by nets
 
-edb.stackup.plot(scale_elevation=False,plot_definitions=["S45P29", "S50P35"])
+edb.stackup.plot(scale_elevation=False,plot_definitions=["c100hn140", "c35"])
 
 ###############################################################################
 # Close EDB

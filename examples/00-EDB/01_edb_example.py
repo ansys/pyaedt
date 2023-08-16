@@ -15,11 +15,9 @@ import time
 import pyaedt
 
 temp_folder = pyaedt.generate_unique_folder_name()
-example_path = pyaedt.downloads.download_aedb(temp_folder)
+targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
 
-targetfile = os.path.dirname(example_path)
-
-siwave_file = os.path.join(os.path.dirname(targetfile), "Galileo.siw")
+siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
@@ -27,8 +25,8 @@ aedt_file = targetfile[:-4] + "aedt"
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
-edb_version = "2023.1"
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
+edb_version = "2023.2"
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
@@ -77,7 +75,7 @@ rats = edb.components.get_rats()
 # The inputs needed are ground net lists. The returned list contains all nets
 # connected to a ground through an inductor.
 
-GROUND_NETS = ["GND", "PGND"]
+GROUND_NETS = ["GND", "GND_DP"]
 dc_connected_net_list = edb.nets.get_dcconnected_net_list(GROUND_NETS)
 print(dc_connected_net_list)
 
@@ -86,8 +84,8 @@ print(dc_connected_net_list)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get the power tree based on a specific net.
 
-VRM = "U3A1"
-OUTPUT_NET = "BST_V1P0_S0"
+VRM = "U1"
+OUTPUT_NET = "AVCC_1V3"
 powertree_df, component_list_columns, net_group = edb.nets.get_powertree(OUTPUT_NET, GROUND_NETS)
 for el in powertree_df:
     print(el)
@@ -105,14 +103,14 @@ edb.components.delete_single_pin_rlc()
 # ~~~~~~~~~~~~~~~~~
 # Delete manually one or more components.
 
-edb.components.delete("C3B17")
+edb.components.delete("C380")
 
 ###############################################################################
 # Delete nets
 # ~~~~~~~~~~~
 # Delete manually one or more nets.
 
-edb.nets.delete("A0_N")
+edb.nets.delete("PDEN")
 
 ###############################################################################
 # Get stackup limits
@@ -121,22 +119,6 @@ edb.nets.delete("A0_N")
 
 print(edb.stackup.limits())
 
-###############################################################################
-# Create coaxial port
-# ~~~~~~~~~~~~~~~~~~~
-# Create a coaxial port for the HFSS simulation.
-
-edb.hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
-
-###############################################################################
-# Edit stackup layers and material
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Edit the stackup layers and material. You can change stackup layer
-# properties with assignment and create materials and assign them to layers.
-
-edb.stackup["TOP"].thickness = "75um"
-edb.materials.add_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
-
 
 
 ###############################################################################
@@ -144,8 +126,8 @@ edb.materials.add_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a voltage source and then set up a DCIR analysis.
 
-edb.siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
-edb.siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")
+edb.siwave.create_voltage_source_on_net("U1", "AVCC_1V3", "U1", "GND", 1.3, 0, "V1")
+edb.siwave.create_current_source_on_net("IC2", "NetD3_2", "IC2", "GND", 1.0, 0, "I1")
 setup = edb.siwave.add_siwave_dc_analysis("myDCIR_4")
 setup.use_dc_custom_settings = True
 setup.dc_slider_position = 0
@@ -159,7 +141,7 @@ setup.add_source_terminal_to_ground("V1", 1)
 # Save modifications.
 
 edb.save_edb()
-edb.nets.plot(None, "TOP",plot_components_on_top=True)
+edb.nets.plot(None, "1_Top",plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 
@@ -182,9 +164,9 @@ edb.close_edb()
 # Open Siwave and generate a report. This works on Window only.
 
 # from pyaedt import Siwave
-# siwave = Siwave("2023.1")
+# siwave = Siwave("2023.2")
 # siwave.open_project(siwave_file)
-# report_file = os.path.join(temp_folder,'Galileo.htm')
+# report_file = os.path.join(temp_folder,'Ansys.htm')
 #
 # siwave.export_siwave_report("myDCIR_4", report_file)
 # siwave.close_project()
