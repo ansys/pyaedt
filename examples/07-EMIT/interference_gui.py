@@ -319,7 +319,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if fname:
             workbook = openpyxl.Workbook()
             worksheet = workbook.active
-            header = self.tx_radios
+            header = self.tx_radios[:]
             header.insert(0, "Tx/Rx")
             worksheet.append(header)
             for row in range(2, table.rowCount()+2):
