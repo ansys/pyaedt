@@ -77,13 +77,18 @@ set aedt_path=potato
 if [%specified_python%]==[y] (
 	aedt_path=!argVec[%python_path_index%]!
 ) else (
-	set aedt_path=!%chosen_root%!\commonfiles\CPython\3_7\winx64\Release\python
+	set python_ver=3_10
+	if %version% leq 231 (
+		set python_ver=3_7
+	)
+	echo using python version !python_ver!.
+	set aedt_path=!%chosen_root%!\commonfiles\CPython\!python_ver!\winx64\Release\python
 	echo Built-in Python is !aedt_path!.
 )
+
 set aedt_path=!aedt_path:"=!
 
 echo %aedt_path%
-
 
 
 set pyaedt_install_dir=%APPDATA%\pyaedt_env_ide\v%version%
