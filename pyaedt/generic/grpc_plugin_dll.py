@@ -59,7 +59,19 @@ def SetPyObjCalbacks(CreateAedtObj, CreateAedtBlockObj, GetAedtObjId):
     AedtAPI.SetPyObjCalbacks(callbackToCreateObj, callbackCreateBlock, callbackGetObjID)
 
 
-AedtAPI.CreateAedtApplication.argtypes = c_wchar_p, c_int, c_bool, c_bool
+# Find the version of AEDT from product info file
+version = None
+with open(os.path.join(pathDir, "product.info"), "r") as f:
+    for line in f:
+        if "AnsProductVersion" in line:
+            version = line.split("=")[1].strip('\n"')
+            break
+
+if version >= "24.1":
+    AedtAPI.CreateAedtApplication.argtypes = c_wchar_p, py_object, c_bool, c_bool
+else:
+    AedtAPI.CreateAedtApplication.argtypes = c_wchar_p, c_int, c_bool, c_bool
+
 AedtAPI.CreateAedtApplication.restype = py_object
 
 AedtAPI.InvokeAedtObjMethod.argtypes = c_int, c_wchar_p, py_object
