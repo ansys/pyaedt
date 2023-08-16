@@ -3914,3 +3914,19 @@ class Design(AedtObjects):
         """
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
+
+    @pyaedt_function_handler()
+    def get_design_settings(self):
+        """Get design settings for current aedt application
+
+        Returns
+        -------
+        dict of valid design settings
+
+        References
+        ----------
+
+        >>> oDesign.
+        """
+        design_settings_dict = {"This is test dict": "no value"}
+        return design_settings_dict
