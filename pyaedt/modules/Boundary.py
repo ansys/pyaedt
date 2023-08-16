@@ -1754,7 +1754,7 @@ class Matrix(object):
             id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
-                    id_ = self._app.modeler[el.props["Objects"][0]].id_
+                    id_ = self._app.modeler[el.props["Objects"][0]].id
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
                 self._operations[-1], len(source_names), "', '".join(source_names), id_, new_name
             )
