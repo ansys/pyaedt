@@ -498,7 +498,7 @@ def str_to_bool(s):
     ----------
     s: str
          Input parameter to convert to a Boolean if the data type is a string
-         with a vlue of ``"True"``, ``"true"``,
+         with a value of ``"True"``, ``"true"``,
          ``"False"`` or ``"false"``.
 
     Returns
