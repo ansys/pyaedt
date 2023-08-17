@@ -2480,8 +2480,33 @@ class Hfss(FieldAnalysis3D, object):
             primary_name = generate_unique_name("Primary")
         return self._create_boundary(primary_name, props, "Primary")
 
+    def _wave_port_from_face(self, face, dist, name="1", deembed=0.0):
+        props = OrderedDict({})
+        props["Faces"] = face.id
+        props["ReferenceConductors"] = name
+
+        omodule = self.odesign.GetModule("BoundarySetup")
+
+        omodule.AutoIdentifyPorts(["NAME:Faces", face.id], True, ["NAME:ReferenceConductors"], name, True)
+        omodule.AutoCreatePECCapForWavePort(
+            [
+                "NAME:AutoCreatePECCapForWavePort",
+                "Wave Port Name:=",
+                name,
+                "Face ID:=",
+                face.id,
+                "Thickness:=",
+                str(dist) + self.modeler.model_units,
+                "Flip Side:=",
+                False,
+                "Cover Holes:=",
+                True,
+            ]
+        )
+
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
-        # TODO check method
+        #  Use _wave_port_from_face() for settings.aedt_version > "2022.2"
+        #
         obj = self.modeler[sheet_name].clone()
         out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
         bounding2 = out_obj.bounding_box
@@ -6237,7 +6262,10 @@ class Hfss(FieldAnalysis3D, object):
                 sheet_name, int_start, int_stop = self.modeler._create_sheet_from_object_closest_edge(
                     signal, reference, integration_line, port_on_plane
                 )
+
         else:
+            # First argument is a list. Assume 1 or two objects as terminals and create the port
+            # between the two objects.
             if isinstance(signal, list):
                 objs = self.modeler.get_faceid_from_position(signal)
                 if len(objs) == 1:
@@ -6249,8 +6277,8 @@ class Hfss(FieldAnalysis3D, object):
                     self.logger.error("No Faces found on given location.")
                     return False
             sheet_name = self.modeler.convert_to_selections(signal, True)[0]
-            if isinstance(sheet_name, int):
-                try:
+            if isinstance(sheet_name, int):  # FaceID
+                try:  # Object name - also for sheet?
                     oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
                 except:
                     oname = ""
@@ -6272,18 +6300,22 @@ class Hfss(FieldAnalysis3D, object):
                         int_start = int_stop = None
             else:
                 int_start = int_stop = None
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            if create_pec_cap:
-                if oname:
-                    face = oname
-                else:
-                    face = sheet_name
-                dist = math.sqrt(self.modeler[face].faces[0].area)
-                if settings.aedt_version > "2022.2":
-                    self._create_pec_cap(face, signal, -dist / 10)
-                else:
-                    self._create_pec_cap(face, signal, dist / 10)
+        if not name:
             name = self._get_unique_source_name(name, "Port")
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            if create_pec_cap and settings.aedt_version <= "2022.2":
+                #  if oname:
+                #      face = oname
+                #  else:
+                face = sheet_name
+                #  dist = math.sqrt(self.modeler[face].faces[0].area) # Cap thickness is 10% * sqrt of face area.
+                dist = math.sqrt(signal.area) * 0.5
+                # if settings.aedt_version > "2022.2":
+                #     return self._wave_port_from_face(signal, dist,
+                #                                      name=name,
+                #                                      deembed=deembed)
+                # else:
+                self._create_pec_cap(face, signal, dist)
 
             if "Modal" in self.solution_type:
                 return self._create_waveport_driven(
@@ -6308,6 +6340,9 @@ class Hfss(FieldAnalysis3D, object):
                     impedance=impedance,
                     terminals_rename=terminals_rename,
                 )
+            elif "Terminal" in self.solution_type and settings.aedt_version > "2022.2":
+                dist = math.sqrt(signal.area) * 0.5  # Cap size
+                return self._wave_port_from_face(signal, dist, name=name, deembed=deembed)
             else:
                 self.logger.error("Reference conductors are missing.")
                 return False
