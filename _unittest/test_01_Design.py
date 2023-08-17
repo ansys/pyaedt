@@ -37,14 +37,15 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class")
 def icepak_design(add_app):
-    app = add_app(project_name="Icepak", application=Icepak, subfolder=test_subfolder)
+    app = add_app(project_name="icepak_proj", design_name="ipk_test_design", application=Icepak, subfolder=test_subfolder)
     return app
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
+    def init(self, aedtapp, local_scratch, icepak_design):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
+        self.icepak_design = icepak_design
 
     def test_app(self):
         assert self.aedtapp
@@ -415,4 +416,6 @@ class TestClass:
         aedtapp = desktop.load_project(new_project)
         assert aedtapp
 
-    def test_40_get_design_settings(self)
+    def test_40_get_design_settings(self):
+        self.icepak_design
+        x = 0
