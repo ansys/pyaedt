@@ -55,13 +55,18 @@ def _tuple2dict(t, d):
 
 @pyaedt_function_handler()
 def _dict2arg(d, arg_out):
-    """
+    """Create a valid string of name-value pairs for the native AEDT API.
+
+    Prepend the argument string in `arg_out` using the dict ``d``
+    to create a valid input string as an argument for the native AEDT API.
 
     Parameters
     ----------
     d : dict
 
-    arg_out :
+    arg_out : str.
+        String of name/value pair to
+        be built as an argument for the native AEDT API.
 
     """
     for k, v in d.items():
@@ -480,6 +485,36 @@ def to_aedt(code):
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
     return return_code
+
+
+def str_to_bool(s):
+    """Convert a ``"True"`` or ``"False"`` string to its corresponding Boolean value.
+
+    If the passed arguments are not relevant in the context of conversion, the argument
+    itself is returned. This method can be called using the `map()` function to
+    ensure conversion of Boolean strings in a list.
+
+    Parameters
+    ----------
+    s: str
+         Input parameter to convert to a Boolean if the data type is a string
+         with a vlue of ``"True"``, ``"true"``,
+         ``"False"`` or ``"false"``.
+
+    Returns
+    -------
+    bool
+
+    """
+    if type(s) == str:
+        if s.lower() == "true":
+            return True
+        elif s.lower() == "false":
+            return False
+        else:
+            return s
+    else:
+        return s
 
 
 @pyaedt_function_handler()

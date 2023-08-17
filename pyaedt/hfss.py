@@ -13,6 +13,7 @@ from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.DataHandlers import str_to_bool
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 
 # from pyaedt.generic.general_methods import property
@@ -1582,11 +1583,11 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "SBR+":
             self.logger.error("This boundary only applies to a SBR+ solution.")
             return False
-        id = 0
+        id_ = 0
         props = OrderedDict({})
         for el, val in txrx_settings.items():
-            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
-            id += 1
+            props["Tx/Rx List " + str(id_)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
+            id_ += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
     @pyaedt_function_handler()
@@ -5406,6 +5407,8 @@ class Hfss(FieldAnalysis3D, object):
         """Add a differential pair definition.
 
         Differential pairs can be defined only in Terminal and Transient solution types.
+        The differential pair is created from an existing port definition having at least two
+        terminals and a ground conductor.
 
         Parameters
         ----------
@@ -5458,10 +5461,11 @@ class Hfss(FieldAnalysis3D, object):
         arg2 = ["NAME:EditDiffPairs", arg]
 
         existing_pairs = self.oboundary.GetDiffPairs()
+        # Native API returns Boolean values as strings. Therefore, map to Boolean.
         num_old_pairs = len(existing_pairs)
         if existing_pairs:
             for i, p in enumerate(existing_pairs):
-                tmp_p = list(p)
+                tmp_p = list(map(str_to_bool, p))
                 tmp_p.insert(0, "NAME:Pair_" + str(i))
                 arg2.append(tmp_p)
 
