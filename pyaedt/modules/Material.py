@@ -198,10 +198,10 @@ class BasicValue(object):
     """Manages thermal and spatial modifier calculations."""
 
     def __init__(self):
-        value = None
-        dataset = None
-        thermalmodifier = None
-        spatialmodifier = None
+        self.value = None
+        self.dataset = None
+        self.thermalmodifier = None
+        self.spatialmodifier = None
 
 
 class MatProperty(object):
@@ -296,12 +296,12 @@ class MatProperty(object):
             try:
                 self._property_value = [self._property_value[i] for i in range(3)]
             except IndexError:
-                self._property_value = [copy.deepcopy(self._property_value[0]) for i in range(3)]
+                self._property_value = [copy.deepcopy(self._property_value[0]) for _ in range(3)]
         elif self._type == "tensor":
             try:
                 self._property_value = [copy.deepcopy(self._property_value[i]) for i in range(9)]
             except IndexError:
-                self._property_value = [self._property_value[0] for i in range(9)]
+                self._property_value = [self._property_value[0] for _ in range(9)]
         elif self._type == "nonlinear":
             self._property_value = [self._property_value[0]]
 
