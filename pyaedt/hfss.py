@@ -1583,11 +1583,11 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "SBR+":
             self.logger.error("This boundary only applies to a SBR+ solution.")
             return False
-        id = 0
+        id_ = 0
         props = OrderedDict({})
         for el, val in txrx_settings.items():
-            props["Tx/Rx List " + str(id)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
-            id += 1
+            props["Tx/Rx List " + str(id_)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
+            id_ += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
     @pyaedt_function_handler()
