@@ -2151,7 +2151,7 @@ class Icepak(FieldAnalysis3D):
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
             native_props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
             native_props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = custom_x_resolution
-            native_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = 600
+            native_props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = custom_y_resolution
             # compDefinition += ["UseThermalLink:=", solutionFreq!="",
             #                    "CustomResolution:=", True, "CustomResolutionRow:=", custom_x_resolution,
             #                    "CustomResolutionCol:=", 600]
