@@ -81,7 +81,7 @@ class Scratch:
         src_file : str
             Source File with fullpath
         dst_filename : str, optional
-            Optional destination filename with extension.
+            Destination filename with the extension. The default is ``None``.
 
 
         Returns

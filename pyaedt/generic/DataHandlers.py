@@ -57,15 +57,16 @@ def _tuple2dict(t, d):
 def _dict2arg(d, arg_out):
     """Create a valid string of name-value pairs for the native AEDT API.
 
-    Prepend the argument string in `arg_aut` using the dict `d`
+    Prepend the argument string in `arg_out` using the dict ``d``
     to create a valid input string as an argument for the native AEDT API.
 
     Parameters
     ----------
     d : dict
 
-    arg_out : str. String of name/value pair
-              be built as an argument for the native AEDT API.
+    arg_out : str.
+        String of name/value pair to
+        be built as an argument for the native AEDT API.
 
     """
     for k, v in d.items():
@@ -490,13 +491,14 @@ def str_to_bool(s):
     """Convert a ``"True"`` or ``"False"`` string to its corresponding Boolean value.
 
     If the passed arguments are not relevant in the context of conversion, the argument
-    itself is returned.  This method can be called using the `map()` function to
+    itself is returned. This method can be called using the `map()` function to
     ensure conversion of Boolean strings in a list.
 
     Parameters
     ----------
     s: str
-         Input parameter will be converted to Bool if the type is ``str`` with a value ``"True``, ``"true"``,
+         Input parameter to convert to a Boolean if the data type is a string
+         with a vlue of ``"True"``, ``"true"``,
          ``"False"`` or ``"false"``.
 
     Returns

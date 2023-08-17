@@ -5408,7 +5408,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Differential pairs can be defined only in Terminal and Transient solution types.
         The differential pair is created from an existing port definition having at least two
-        terminals in addition to a ground conductor.
+        terminals and a ground conductor.
 
         Parameters
         ----------
