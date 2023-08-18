@@ -604,7 +604,7 @@ class IcepakMesh(object):
                 "PriorityNumber:=",
                 i,
                 "PriorityListType:=",
-                "3D",
+                ["2D", "3D"][int(self._app.modeler[new_obj_list[0]].is3d)],
             ]
             self._priorities_args.append(prio)
             args += self._priorities_args
