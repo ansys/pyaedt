@@ -769,9 +769,9 @@ class PostProcessorCommon(object):
         if not solution:
             solution = self._app.nominal_adaptive
         if is_siwave_dc:  # pragma: no cover
-            id = "0"
+            id_ = "0"
             if context:
-                id = str(
+                id_ = str(
                     [
                         "RL",
                         "Sources",
@@ -783,7 +783,7 @@ class PostProcessorCommon(object):
             context = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
 
         elif not context:  # pragma: no cover
