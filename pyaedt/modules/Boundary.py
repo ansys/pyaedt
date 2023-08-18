@@ -639,10 +639,14 @@ class BoundaryObject(BoundaryCommon, object):
         elif bound_type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif bound_type == "AutoIdentify":
+            # Build reference conductor argument as a list of strings
+            ref_cond_arg = ["NAME:ReferenceConductors"]
+            for cond_name in self.props["ReferenceConductors"]:
+                ref_cond_arg.append(cond_name)
             self._app.oboundary.AutoIdentifyPorts(
                 ["NAME:Faces", self.props["Faces"]],
                 self.props["IsWavePort"],
-                ["NAME:ReferenceConductors"] + self.props["ReferenceConductors"],
+                ref_cond_arg,
                 self.name,
                 self.props["RenormalizeModes"],
             )

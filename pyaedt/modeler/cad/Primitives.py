@@ -622,6 +622,8 @@ class Primitives(object):
             pad_percent = [pad_percent] * 6
 
         arg = ["NAME:RegionParameters"]
+
+        # TODO: Can the order be updated to match the UI?
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
         for pval in p:

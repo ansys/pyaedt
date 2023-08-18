@@ -72,16 +72,24 @@ stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
 dielectric = stackup.add_dielectric_layer("dielectric", thickness="0.5" + length_units, material="Duroid (tm)")
 signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
-patch = signal.add_patch(patch_length=100.0, patch_width=100.0,
+patch = signal.add_patch(patch_length=9.57, patch_width=9.25,
                          patch_name="Patch", frequency=1E10)
 
 stackup.resize_around_element(patch)
-pad_length= [50, 50, 50, 50, 80, 80]
+pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
 region = hfss.modeler.create_region(pad_length, is_percentage=False)
 hfss.assign_radiation_boundary_to_objects(region)
 
-patch.create_probe_port(ground)
-hfss.create_setup(setupname="Setup1")
+patch.create_probe_port(ground, rel_x_offset=0.485)
+setup = hfss.create_setup(setupname="Setup1",
+                          setuptype="HFSSDriven",
+                          Frequency="10GHz")
+
+setup.create_frequency_sweep(unit="GHz",
+                             sweepname="Sweep1",
+                             freqstart=8,
+                             freqstop=12,
+                             sweep_type="Interpolating")
 
 hfss.save_project()
 hfss.analyze()

@@ -2400,13 +2400,15 @@ class Patch(CommonObject, object):
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_patch.create_probe_port(gnd)
         """
-        probe_or = 2.35 * r  # Probe outer radius (relative to inner radius).
-        feed_length = -6 * probe_or
+        probe_or = 2.45 * r  # Probe outer radius (relative to inner radius).
+        feed_length = 6 * probe_or
 
-        x_probe = self.position_x.name + "+(1.0 + " + str(rel_x_offset * 0.5) + ")*" + self.length.name + " / 2"
-        y_probe = self.position_y.name + "+" + str(rel_y_offset * 0.5) + "*" + self.width.name + " / 2"
-        # TODO: Draw probe from signal layer to ground.
-        #       Create port at ground layer.
+        # Add parameters for relative probe feed location.
+        self.application["probe_x_rel"] = str(rel_x_offset)
+        self.application["probe_y_rel"] = str(rel_y_offset)
+        x_probe = self.position_x.name + "+(1.0 + probe_x_rel)*" + self.length.name + " / 2"
+        y_probe = self.position_y.name + "+  probe_y_rel *" + self.width.name + " / 2"
+
         probe_height = (
             self._signal_layer.elevation.name
             + " - "
@@ -2420,20 +2422,21 @@ class Patch(CommonObject, object):
             cs_axis="Z", position=probe_pos, radius=r, height=probe_height, name=name, matname="copper"
         )
         probe_feed_wire = self.application.modeler.create_cylinder(
-            cs_axis="Z", position=probe_pos, radius=r, height=feed_length, name=name + "_feed_wire", matname="copper"
+            cs_axis="Z", position=probe_pos, radius=r, height=-feed_length, name=name + "_feed_wire", matname="copper"
         )
         probe_feed_outer = self.application.modeler.create_cylinder(
             cs_axis="Z",
             position=probe_pos,
             radius=probe_or,
-            height=feed_length,
+            height=-feed_length,
             name=name + "_feed_outer",
             matname="vacuum",
         )
 
+        # Probe extends through the ground plane.
         self.application.modeler.subtract(reference_layer.name, probe_feed_outer.name)
 
-        # Find face on probe with max area. This will be assigned PEC.
+        # Find face on probe with max area. This is the outer ground and will be assigned PEC.
         areas = [f.area for f in probe_feed_outer.faces]
         i_pec = areas.index(max(areas))
         outer_sheet_id = probe_feed_outer.faces[i_pec].id
@@ -2442,7 +2445,11 @@ class Patch(CommonObject, object):
         # Assign port. Find the face with the minimum z-position.
         face_z_values = [f.center[2] for f in probe_feed_outer.faces]
         i_port = face_z_values.index(min(face_z_values))
-        self.application.wave_port(probe_feed_outer.faces[i_port], create_pec_cap=True, name="Probe_Port")
+        self.application.wave_port(
+            probe_feed_outer.faces[i_port],
+            create_pec_cap=True,
+            name="Probe_Port",
+        )
 
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
