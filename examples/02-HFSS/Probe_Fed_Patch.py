@@ -94,6 +94,15 @@ setup.create_frequency_sweep(unit="GHz",
 hfss.save_project()
 hfss.analyze()
 
+###############################
+# Plot S11
+# ---------
+
+plot_data = hfss.get_traces_for_plot()
+report = hfss.post.create_report(plot_data)
+solution = report.get_solution_data()
+plt = solution.plot(solution.expressions)
+
 ###############################################################################
 # Release AEDT
 # ------------
