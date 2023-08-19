@@ -6298,14 +6298,17 @@ class Hfss(FieldAnalysis3D, object):
                     oname = ""
             if reference:
                 reference = self.modeler.convert_to_selections(reference, True)
+            #  TODO: integration_line == self.aedtapp.AxisDir.XNeg will be False in next line. Fix this.
             if integration_line:
-                if isinstance(integration_line, list):
+                if isinstance(integration_line, list):  # Check that integration line consists of two points.
                     if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
                         self.logger.error("List of coordinates is not set correctly")
                         return False
                     int_start = integration_line[0]
                     int_stop = integration_line[1]
                 else:
+                    # Get two points on the port surface: if only the direction is given.
+                    # int_start and int_stop.
                     try:
                         _, int_start, int_stop = self._get_reference_and_integration_points(
                             sheet_name, integration_line, oname
