@@ -5106,10 +5106,10 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Selecting outer faces.")
 
         sel = []
+        objs = []
         if type(mats) is str:
             mats = [mats]
         for mat in mats:
-            objs = list(self.oeditor.GetObjectsByMaterial(mat))
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
