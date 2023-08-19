@@ -21,6 +21,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler import cad
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -6256,6 +6257,15 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         oname = ""
+        # TODO: use imported module 'cad' to detect type of signal. Then simplify logic.
+
+        # If an object with a single face is passed as the input
+        # argument 'signal', then convert it to a FacePrimitive
+        # for further processing.
+        if isinstance(signal, cad.object3d.Object3d):
+            if len(signal.faces) == 1:
+                if signal.faces[0].is_planar and reference is None:
+                    signal = signal.faces[0]
 
         if create_port_sheet:
             if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
@@ -6323,7 +6333,7 @@ class Hfss(FieldAnalysis3D, object):
                 return self._create_waveport_driven(
                     sheet_name, int_start, int_stop, impedance, name, renormalize, num_modes, deembed
                 )
-            elif reference and not signal.is_planar:
+            elif reference and isinstance(signal, cad.object3d.Object3d):
                 if isinstance(sheet_name, int):
                     faces = [sheet_name]
                 else:
@@ -6344,14 +6354,18 @@ class Hfss(FieldAnalysis3D, object):
                     impedance=impedance,
                     terminals_rename=terminals_rename,
                 )
-            elif not reference and signal.is_planar:
+            elif not reference and isinstance(signal, cad.elements3d.FacePrimitive):
                 # Terminal or transient solution type. First passed argument is a planar
                 # sheet.
                 # Use native method AutoIdentifyPorts via
                 # self._create_wave_port_from_face() to automatically
                 # create a port from a face.
                 if settings.aedt_version > "2022.2":
-                    return self._create_wave_port_from_face(signal, name=name, pec_cap=create_pec_cap)
+                    try:
+                        return self._create_wave_port_from_face(signal, name=name, pec_cap=create_pec_cap)
+                    except:
+                        self.logger.error("Unable to create port on face %s." % str(signal.id))
+                        return False
                 else:
                     self.logger.error("Reference conductors required for version 2022.2 and lower.")
                     return False
