@@ -27,9 +27,9 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 # You can set ``non_graphical``  to ``True`` in order to view
 # HFSS while the notebook cells are executed.
 #
-# Use the 2023R1 release of HFSS.
+# Use the 2023R2 release of HFSS.
 
-non_graphical = False
+non_graphical = True
 desktop_version = "2023.2"
 length_units = "mm"
 freq_units = "GHz"
