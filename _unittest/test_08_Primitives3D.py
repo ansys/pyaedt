@@ -236,6 +236,7 @@ class TestClass:
     def test_11b_get_faces_from_mat(self):
         self.create_copper_box()
         faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
+        assert len(faces) == len(set(faces))
         assert len(faces) >= 6
 
     def test_11c_check_object_faces(self):
