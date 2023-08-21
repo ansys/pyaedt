@@ -63,7 +63,7 @@ def main():
         subprocess.Popen(command)
     else:
         if notebook_dir:
-            command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target),"--notebook-dir",'"{0}"'.format(notebook_dir)] 
+            command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target),"--notebook-dir",'"{0}"'.format(notebook_dir)]
         else:
             command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
         subprocess.Popen(" ".join(command))
