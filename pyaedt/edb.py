@@ -529,10 +529,7 @@ class Edb(Database):
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
-        if is_linux:
-            p = subprocess.Popen(cmd_translator)
-        else:
-            p = subprocess.Popen(" ".join(cmd_translator))
+        p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self.logger.error("Translator failed to translate.")
