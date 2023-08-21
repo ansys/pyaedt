@@ -295,11 +295,10 @@ html_theme_options = {
     },
     "collapse_navigation": True,
     "use_meilisearch": {
-        "host": "https://backend.search.pyansys.com/",
-        "api_key": os.getenv("MEILISEARCH_API_KEY", ""),
+        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
-            "pyansys-pyaedt-sphinx-docs": "PyAEDT",
-            "pyansys-pyedb-sphinx-docs": "EDB API",
+            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
+            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
         },
     },
 }
