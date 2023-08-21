@@ -27,6 +27,7 @@ from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
 from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -663,6 +664,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
         self._get_coordinates_data()
+        return self._props
 
     @property
     def ref_cs(self):
@@ -2772,37 +2774,118 @@ class GeometryModeler(Modeler, object):
             return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
-    def split(self, objects, plane, sides="Both"):
+    def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
         """Split a list of objects.
+        In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
+        In case of 2D design possible splitting option is plane.
 
         Parameters
         ----------
         objects : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
-        plane : str
+        plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
+            The default value is ``None``.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-        sides : str
-            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
-            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
-            all objects are kept after the split.
+            If plane or tool parameter are not provided the method returns ``False``.
+        sides : str, optional
+            Which side to keep. The default is ``"Both"``, in which case
+            all objects are kept after the split. Options are ``"Both"``,
+            ``"NegativeOnly"``, and ``"PositiveOnly"``.
+        tool : str, int, :class:`pyaedt.modeler.cad.elements3d.FacePrimitive`or
+                :class:`pyaedt.modeler.cad.elements3d.EdgePrimitive`, optional
+            For 3D design types is the name, ID, face, edge or polyline used to split the objects.
+            For 2D design types is the name of the plane used to split the objects.
+            The default value is ``None``.
+            If plane or tool parameter are not provided the method returns ``False``.
+        split_crossing_objs : bool, optional
+            Whether to split crossing plane objects.
+            The default is ``False``.
+        delete_invalid_objs : bool, optional
+            Whether to delete invalid objects.
+            The default is ``True``.
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
-            List of split objects.
+        list of str
+            List of split object names.
 
         References
         ----------
 
         >>> oEditor.Split
         """
-        planes = GeometryOperators.cs_plane_to_plane_str(plane)
-        selections = self.convert_to_selections(objects)
-        all_objs = [i for i in self.object_names]
+        if not plane and not tool or plane and tool:
+            self.logger.info("One method to split the objects has to be defined.")
+            return False
+        if self._is3d:
+            objects = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if plane and not tool:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+            elif tool and not plane:
+                objs_selection = self.convert_to_selections(tool, False)
+                if isinstance(tool, str) or isinstance(tool, int):
+                    obj_name = objs_selection
+                    obj = [f for f in self.object_list if f.name == objs_selection][0]
+                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                        obj = obj.faces[0]
+                        tool_type = "FaceTool"
+                    elif obj.object_type == "Line":
+                        obj = obj.edges[0]
+                        tool_type = "EdgeTool"
+                elif isinstance(tool, FacePrimitive):
+                    for o in self.object_list:
+                        for f in o.faces:
+                            if f.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = f
+                    tool_type = "FaceTool"
+                elif isinstance(tool, EdgePrimitive):
+                    for o in self.object_list:
+                        for e in o.edges:
+                            if e.id == int(objs_selection):
+                                obj_name = o.name
+                                obj = e
+                    tool_type = "EdgeTool"
+                elif isinstance(tool, Polyline) or tool.object_type != "Line":
+                    for o in self.object_list:
+                        if o.name == objs_selection:
+                            obj_name = objs_selection
+                            obj = o.edges[0]
+                    tool_type = "EdgeTool"
+                else:
+                    self.logger.error("Face tool part has to be provided as a string (name) or an int (face id).")
+                    return False
+                planes = "Dummy"
+                tool_type = tool_type
+                tool_entity_id = obj.id
+                selections = [
+                    "NAME:Selections",
+                    "Selections:=",
+                    objects,
+                    "NewPartsModelFlag:=",
+                    "Model",
+                    "ToolPart:=",
+                    obj_name,
+                ]
+        else:
+            objects = self.convert_to_selections(objects)
+            all_objs = [i for i in self.object_names]
+            if not plane and tool or not plane:
+                self.logger.info("For 2D design types only planes can be defined.")
+                return False
+            elif plane:
+                tool_type = "PlaneTool"
+                tool_entity_id = -1
+                planes = GeometryOperators.cs_plane_to_plane_str(plane)
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
         self.oeditor.Split(
-            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            selections,
             [
                 "NAME:SplitToParameters",
                 "SplitPlane:=",
@@ -2810,17 +2893,17 @@ class GeometryModeler(Modeler, object):
                 "WhichSide:=",
                 sides,
                 "ToolType:=",
-                "PlaneTool",
+                tool_type,
                 "ToolEntityID:=",
-                -1,
+                tool_entity_id,
                 "SplitCrossingObjectsOnly:=",
-                False,
+                split_crossing_objs,
                 "DeleteInvalidObjects:=",
-                True,
+                delete_invalid_objs,
             ],
         )
         self.refresh_all_ids()
-        return [selections] + [i for i in self.object_names if i not in all_objs]
+        return [objects] + [i for i in self.object_names if i not in all_objs]
 
     @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
     def duplicate_and_mirror(
@@ -3143,8 +3226,8 @@ class GeometryModeler(Modeler, object):
         ----------
         obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        face_id : int
-            Face to sweep.
+        face_id : int or list
+            Face or list of faces to sweep.
         sweep_value : float, optional
             Sweep value. The default is ``0.1``.
 
@@ -3157,6 +3240,8 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.SweepFacesAlongNormal
         """
+        if not isinstance(face_id, list):
+            face_id = [face_id]
         selections = self.convert_to_selections(obj_name)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:Parameters"]
@@ -3164,7 +3249,7 @@ class GeometryModeler(Modeler, object):
             [
                 "NAME:SweepFaceAlongNormalToParameters",
                 "FacesToDetach:=",
-                [face_id],
+                face_id,
                 "LengthOfSweep:=",
                 self._arg_with_dim(sweep_value),
             ]
@@ -3178,7 +3263,10 @@ class GeometryModeler(Modeler, object):
         for el in obj:
             self._create_object(el)
         if obj:
-            return self.update_object(self[obj[0]])
+            if len(obj) > 1:
+                return [self.update_object(self[o]) for o in obj]
+            else:
+                return self.update_object(self[obj[0]])
         return False
 
     @pyaedt_function_handler()
@@ -5018,10 +5106,10 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Selecting outer faces.")
 
         sel = []
+        objs = []
         if type(mats) is str:
             mats = [mats]
         for mat in mats:
-            objs = list(self.oeditor.GetObjectsByMaterial(mat))
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
@@ -5579,3 +5667,305 @@ class GeometryModeler(Modeler, object):
         if imprinted:
             self.cleanup_objects()
         return True
+
+    @pyaedt_function_handler()
+    def heal_objects(
+        self,
+        input_objects_list,
+        auto_heal=True,
+        tolerant_stitch=True,
+        simplify_geometry=True,
+        tighten_gaps=True,
+        heal_to_solid=False,
+        stop_after_first_stitch_error=False,
+        max_stitch_tolerance=0.001,
+        explode_and_stitch=True,
+        geometry_simplification_tolerance=1,
+        maximum_generated_radius=1,
+        simplify_type=0,
+        tighten_gaps_width=0.00001,
+        remove_silver_faces=True,
+        remove_small_edges=True,
+        remove_small_faces=True,
+        silver_face_tolerance=1,
+        small_edge_tolerance=1,
+        small_face_area_tolerance=1,
+        bounding_box_scale_factor=0,
+        remove_holes=True,
+        remove_chamfers=True,
+        remove_blends=True,
+        hole_radius_tolerance=1,
+        chamfer_width_tolerance=1,
+        blend_radius_tolerance=1,
+        allowable_surface_area_change=5,
+        allowable_volume_change=5,
+    ):
+        """Repair invalid geometry entities for the selected objects within the specified tolerance settings.
+
+        Parameters
+        ----------
+        input_objects_list : str
+            List of object names to analyze.
+        auto_heal : bool, optional
+            Auto heal option. Default value is ``True``.
+        tolerant_stitch : bool, optional
+            Tolerant stitch for manual healing. The default is ``True``.
+        simplify_geometry : bool, optional
+            Simplify geometry for manual healing. The default is ``True``.
+        tighten_gaps : bool, optional
+            Tighten gaps for manual healing. The default is ``True``.
+        heal_to_solid : bool, optional
+            Heal to solid for manual healing. The default is ``False``.
+        stop_after_first_stitch_error : bool, optional
+            Stop after first stitch error for manual healing. The default is ``False``.
+        max_stitch_tolerance : float, str, optional
+            Max stitch tolerance for manual healing. The default is ``0.001``.
+        explode_and_stitch : bool, optional
+            Explode and stitch for manual healing. The default is ``True``.
+        geometry_simplification_tolerance : float, str, optional
+            Geometry simplification tolerance for manual healing in mm. The default is ``1``.
+        maximum_generated_radius : float, str, optional
+            Maximum generated radius for manual healing in mm. The default is ``1``.
+        simplify_type : int, optional
+            Simplify type for manual healing. The default is ``0`` which refers to ``Curves``.
+            Other available values are ``1`` for ``Surfaces`` and ``2`` for ``Both``.
+        tighten_gaps_width : float, str, optional
+            Tighten gaps width for manual healing in mm. The default is ``0.00001``.
+        remove_silver_faces : bool, optional
+            Remove silver faces for manual healing. The default is ``True``.
+        remove_small_edges : bool, optional
+            Remove small edges faces for manual healing. The default is ``True``.
+        remove_small_faces : bool, optional
+            Remove small faces for manual healing. The default is ``True``.
+        silver_face_tolerance : float, str, optional
+            Silver face tolerance for manual healing in mm. The default is ``1``.
+        small_edge_tolerance : float, str, optional
+            Silver face tolerance for manual healing in mm. The default is ``1``.
+        small_face_area_tolerance : float, str, optional
+            Silver face tolerance for manual healing in mm^2. The default is ``1``.
+        bounding_box_scale_factor : int, optional
+            Bounding box scaling factor for manual healing. The default is ``0``.
+        remove_holes : bool, optional
+            Remove holes for manual healing. The default is ``True``.
+        remove_chamfers : bool, optional
+            Remove chamfers for manual healing. The default is``True``.
+        remove_blends : bool, optional
+            Remove blends for manual healing. The default is ``True``.
+        hole_radius_tolerance : float, str, optional
+            Hole radius tolerance for manual healing in mm. The default is ``1``.
+        chamfer_width_tolerance : float, str, optional
+            Chamfer width tolerance for manual healing in mm. The default is ``1``.
+        blend_radius_tolerance : float, str, optional
+            Blend radius tolerance for manual healing in mm. The default is ``1``.
+        allowable_surface_area_change : float, str, optional
+            Allowable surface area for manual healing in mm. The default is ``1``.
+        allowable_volume_change : float, str, optional
+            Allowable volume change for manual healing in mm. The default is ``1``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not input_objects_list:
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif not isinstance(input_objects_list, str):
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif "," in input_objects_list:
+            input_objects_list = input_objects_list.strip()
+            if ", " in input_objects_list:
+                input_objects_list_split = input_objects_list.split(", ")
+            else:
+                input_objects_list_split = input_objects_list.split(",")
+            for obj in input_objects_list_split:
+                if obj not in self.modeler.object_names:
+                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
+                    return False
+            objects_selection = ",".join(input_objects_list_split)
+        else:
+            objects_selection = input_objects_list
+
+        if simplify_type not in [0, 1, 2]:
+            self.logger.error("Invalid simplify type.")
+            return False
+
+        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
+        healing_parameters = [
+            "NAME:ObjectHealingParameters",
+            "Version:=",
+            1,
+            "AutoHeal:=",
+            auto_heal,
+            "TolerantStitch:=",
+            tolerant_stitch,
+            "SimplifyGeom:=",
+            simplify_geometry,
+            "TightenGaps:=",
+            tighten_gaps,
+            "HealToSolid:=",
+            heal_to_solid,
+            "StopAfterFirstStitchError:=",
+            stop_after_first_stitch_error,
+            "MaxStitchTol:=",
+            max_stitch_tolerance,
+            "ExplodeAndStitch:=",
+            explode_and_stitch,
+            "GeomSimplificationTol:=",
+            geometry_simplification_tolerance,
+            "MaximumGeneratedRadiusForSimplification:=",
+            maximum_generated_radius,
+            "SimplifyType:=",
+            simplify_type,
+            "TightenGapsWidth:=",
+            tighten_gaps_width,
+            "RemoveSliverFaces:=",
+            remove_silver_faces,
+            "RemoveSmallEdges:=",
+            remove_small_edges,
+            "RemoveSmallFaces:=",
+            remove_small_faces,
+            "SliverFaceTol:=",
+            silver_face_tolerance,
+            "SmallEdgeTol:=",
+            small_edge_tolerance,
+            "SmallFaceAreaTol:=",
+            small_face_area_tolerance,
+            "SpikeTol:=",
+            -1,
+            "GashWidthBound:=",
+            -1,
+            "GashAspectBound:=",
+            -1,
+            "BoundingBoxScaleFactor:=",
+            bounding_box_scale_factor,
+            "RemoveHoles:=",
+            remove_holes,
+            "RemoveChamfers:=",
+            remove_chamfers,
+            "RemoveBlends:=",
+            remove_blends,
+            "HoleRadiusTol:=",
+            hole_radius_tolerance,
+            "ChamferWidthTol:=",
+            chamfer_width_tolerance,
+            "BlendRadiusTol:=",
+            blend_radius_tolerance,
+            "AllowableSurfaceAreaChange:=",
+            allowable_surface_area_change,
+            "AllowableVolumeChange:=",
+            allowable_volume_change,
+        ]
+        self.oeditor.HealObject(selections_args, healing_parameters)
+        return True
+
+    @pyaedt_function_handler()
+    def simplify_objects(
+        self,
+        input_objects_list,
+        simplify_type="Polygon Fit",
+        extrusion_axis="Auto",
+        clean_up=True,
+        allow_splitting=True,
+        separate_bodies=True,
+        clone_body=True,
+        generate_primitive_history=False,
+        interior_points_on_arc=5,
+        length_threshold_percentage=25,
+        create_group_for_new_objects=False,
+    ):
+        """Simplify command to converts complex objects into simpler primitives which are easy to mesh and solve.
+
+        Parameters
+        ----------
+        input_objects_list : str
+            List of object names to simplify.
+        simplify_type : str, optional
+            Simplify type. Default value is ``Polygon Fit``.
+            Available values are ``Polygon Fit`` ``Primitive Fit`` or ``Bounding Box``.
+        extrusion_axis : str, optional
+            Extrusion axis. Default value is ``Auto``.
+            Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
+        clean_up : bool, optional
+            Clean up. The default is ``True``.
+        allow_splitting : bool, optional
+            Allow splitting. The default is ``True``.
+        separate_bodies : bool, optional
+            Separate bodies. The default is ``True``.
+        clone_body : bool, optional
+            Clone body. The default is ``True``.
+        generate_primitive_history : bool, optional
+            Generate primitive history.
+            This option will purge the history for selected objects.
+            The default is ``False``.
+        interior_points_on_arc : float, optional
+            Number points on curve. The default is ``5``.
+        length_threshold_percentage : float, optional
+            Number points on curve. The default is ``25``.
+        create_group_for_new_objects : bool, optional
+            Create group for new objects. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not input_objects_list:
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif not isinstance(input_objects_list, str):
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif "," in input_objects_list:
+            input_objects_list = input_objects_list.strip()
+            if ", " in input_objects_list:
+                input_objects_list_split = input_objects_list.split(", ")
+            else:
+                input_objects_list_split = input_objects_list.split(",")
+            for obj in input_objects_list_split:
+                if obj not in self.modeler.object_names:
+                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
+                    return False
+            objects_selection = ",".join(input_objects_list_split)
+        else:
+            objects_selection = input_objects_list
+
+        if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
+            self.logger.error("Invalid simplify type.")
+            return False
+
+        if extrusion_axis not in ["Auto", "X", "Y", "Z"]:
+            self.logger.error("Invalid extrusion axis.")
+            return False
+
+        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
+        simplify_parameters = [
+            "NAME:SimplifyParameters",
+            "Type:=",
+            simplify_type,
+            "ExtrusionAxis:=",
+            extrusion_axis,
+            "Cleanup:=",
+            clean_up,
+            "Splitting:=",
+            allow_splitting,
+            "SeparateBodies:=",
+            separate_bodies,
+            "CloneBody:=",
+            clone_body,
+            "Generate Primitive History:=",
+            generate_primitive_history,
+            "NumberPointsCurve:=",
+            interior_points_on_arc,
+            "LengthThresholdCurve:=",
+            length_threshold_percentage,
+        ]
+        groups_for_new_object = ["CreateGroupsForNewObjects:=", create_group_for_new_objects]
+
+        try:
+            self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
+            return True
+        except:
+            self.logger.error("Simplify objects failed.")
+            return False

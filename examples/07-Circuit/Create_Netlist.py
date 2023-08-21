@@ -22,8 +22,8 @@ print(project_name)
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
-desktopVersion = "2023.1"
+# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+desktopVersion = "2023.2"
 
 ###############################################################################
 # Set non-graphical mode

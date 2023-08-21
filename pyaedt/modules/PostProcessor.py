@@ -769,9 +769,9 @@ class PostProcessorCommon(object):
         if not solution:
             solution = self._app.nominal_adaptive
         if is_siwave_dc:  # pragma: no cover
-            id = "0"
+            id_ = "0"
             if context:
-                id = str(
+                id_ = str(
                     [
                         "RL",
                         "Sources",
@@ -783,7 +783,7 @@ class PostProcessorCommon(object):
             context = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
 
         elif not context:  # pragma: no cover
@@ -1232,7 +1232,7 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        if settings.non_graphical:
+        if self._app.desktop_class.non_graphical:
             if width == 0:
                 width = 500
             if height == 0:
@@ -1853,10 +1853,12 @@ class PostProcessor(PostProcessorCommon, object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._post_osolution = self._app.osolution
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
+        app.logger.info_timer("PostProcessor class has been initialized!")
 
     @property
     def _primitives(self):  # pragma: no cover
@@ -2131,6 +2133,9 @@ class PostProcessor(PostProcessorCommon, object):
         isvector=False,
         intrinsics=None,
         phase=None,
+        object_name="AllObjects",
+        object_type="volume",
+        adjacent_side=False,
     ):
         """Use the field calculator to Compute Scalar of a Field.
 
@@ -2138,10 +2143,14 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
         quantity_name : str
             Name of the quantity to export. For example, ``"Temp"``.
+        scalar_function : str, optional
+            The name of the scalar function. For example, ``"Maximum"``, ``"Integrate"``.
+            The default is ``"Maximum"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
         variation_dict : dict, optional
             Dictionary of all variation variables with their values.
+            e.g. ``['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']]``
             The default is ``None``.
         isvector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
@@ -2150,6 +2159,15 @@ class PostProcessor(PostProcessorCommon, object):
             calculation. The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
+        object_name : str, optional
+            Name of the object. For example, ``"Box1"``.
+            The default is ``"AllObjects"``.
+        object_type : str, optional
+            Type of the object - ``"volume"``, ``"surface"``, ``"point"``.
+            The default is ``"volume"``.
+        adjacent_side : bool, optional
+            To query quantity value on adjacent side for object_type = "surface", pass ``True``.
+            The default is ``False``.
 
         Returns
         -------
@@ -2164,7 +2182,8 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.CalcOp
         >>> oModule.EnterQty
         >>> oModule.EnterVol
-        >>> oModule.CalculatorWrite
+        >>> oModule.ClcEval
+        >>> GetTopEntryValue
         """
         self.logger.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
@@ -2185,9 +2204,17 @@ class PostProcessor(PostProcessorCommon, object):
             except:
                 self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
-        obj_list = "AllObjects"
+        obj_list = object_name
         if scalar_function:
-            self.ofieldsreporter.EnterVol(obj_list)
+            if object_type == "volume":
+                self.ofieldsreporter.EnterVol(obj_list)
+            elif object_type == "surface":
+                if adjacent_side:
+                    self.ofieldsreporter.EnterAdjacentSurf(obj_list)
+                else:
+                    self.ofieldsreporter.EnterSurf(obj_list)
+            elif object_type == "point":
+                self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
         if not variation_dict:
             variation_dict = self._app.available_variations.nominal_w_values
@@ -2203,17 +2230,11 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append(phase)
                 else:
                     variation_dict.append("0deg")
-        file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
-        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
-        value = None
-        if os.path.exists(file_name) or settings.remote_rpc_session:
-            with open_file(file_name, "r") as f:
-                lines = f.readlines()
-                lines = [line.strip() for line in lines]
-                value = lines[-1]
-            os.remove(file_name)
+
+        self.ofieldsreporter.ClcEval(solution, variation_dict)
+        value = self.ofieldsreporter.GetTopEntryValue(solution, variation_dict)
         self.ofieldsreporter.CalcStack("clear")
-        return float(value)
+        return float(value[0])
 
     @pyaedt_function_handler()
     def export_field_file_on_grid(
@@ -3278,7 +3299,7 @@ class PostProcessor(PostProcessorCommon, object):
                 height = 1080
             self.oeditor.ExportImage(full_name, width, height)
         else:
-            if settings.non_graphical:
+            if self._app.desktop_class.non_graphical:
                 if width == 0:
                     width = 500
                 if height == 0:

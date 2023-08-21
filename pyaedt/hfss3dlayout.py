@@ -145,6 +145,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             aedt_process_id,
         )
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 
@@ -1801,7 +1804,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
-        if settings.non_graphical:
+        if self.desktop_class.non_graphical:
             return True
         return True if self.variable_manager["BendModel"].expression == "1" else False
 

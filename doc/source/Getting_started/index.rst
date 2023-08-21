@@ -30,6 +30,7 @@ on the Ansys website.
    :maxdepth: 2
 
    Installation
+   Troubleshooting
    ClientServer
    versioning
    Contributing
