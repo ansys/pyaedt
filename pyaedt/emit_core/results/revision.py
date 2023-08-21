@@ -374,9 +374,9 @@ class Revision:
     @property
     def n_to_1_limit(self):
         """
-        The maximum number of instances per band combination allowed to run for N to 1.
+        Maximum number of inteference combinations to run per receiver for N to 1.
         A value of 0 disables N to 1 entirely.
-        A value of -1 allows unlimited N to 1 instances.
+        A value of -1 allows unlimited N to 1 (N is set to the maximum).
 
         Examples
         ----------
