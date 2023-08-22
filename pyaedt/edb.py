@@ -55,9 +55,6 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
-# from pyaedt.generic.general_methods import property
-
-
 if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
