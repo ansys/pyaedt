@@ -9,7 +9,6 @@ from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import is_linux
 
 test_subfolder = "T41"
-# Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 test_post = "test_post_processing"

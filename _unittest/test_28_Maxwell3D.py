@@ -1,4 +1,3 @@
-# Setup paths for module imports
 import os
 import shutil
 
@@ -8,16 +7,9 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Maxwell3d
-
-# from pyaedt import is_ironpython
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
 
 try:
     from IPython.display import Image

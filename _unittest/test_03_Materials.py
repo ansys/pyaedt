@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import local_path
@@ -6,15 +5,8 @@ import pytest
 
 from pyaedt import Icepak
 from pyaedt import Maxwell3d
-
-# from pyaedt import is_ironpython
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import SurfMatProperties
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T03"
 

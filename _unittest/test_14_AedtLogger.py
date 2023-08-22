@@ -1,4 +1,3 @@
-# Setup paths for module imports
 import io
 import logging
 import os
@@ -10,8 +9,6 @@ import unittest.mock
 import pytest
 
 from pyaedt import settings
-
-# Import required modules
 from pyaedt.aedt_logger import AedtLogger
 
 settings.enable_desktop_logs = True

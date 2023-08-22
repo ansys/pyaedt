@@ -10,7 +10,6 @@ config["NonGraphical"] = False
 test_subfolder = "T44"
 test_T44_dir = os.path.join(local_path, "example_models", test_subfolder)
 
-# Input Data and version for the test
 test_project_name = "hfss_design"
 aedt_proj_name = "differential_microstrip"
 

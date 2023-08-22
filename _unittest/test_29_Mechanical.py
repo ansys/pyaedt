@@ -1,20 +1,12 @@
 import os
 import shutil
 
-from _unittest.conftest import config  # Setup paths for module imports
+from _unittest.conftest import config
 import pytest
 
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Mechanical
-
-# from _unittest.conftest import desktop_version  # Setup paths for module imports
-
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
 
 test_project_name = "coax_Mech"
 

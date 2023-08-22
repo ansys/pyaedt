@@ -28,12 +28,6 @@ def desktop():
 
 
 class TestClass:
-    # def setup_class(self):
-    #     pass
-    #
-    # def teardown_class(self):
-    #     pass
-
     def test_List2list(self):
         from pyaedt.generic.clr_module import Double
         from pyaedt.generic.clr_module import List

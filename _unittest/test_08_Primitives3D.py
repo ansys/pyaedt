@@ -1,4 +1,3 @@
-# standard imports
 import os
 import sys
 import time
@@ -9,18 +8,11 @@ import pytest
 
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
-
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
 
 test = sys.modules.keys()
 

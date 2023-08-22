@@ -1,4 +1,3 @@
-# Setup paths for module imports
 import os
 
 import pytest

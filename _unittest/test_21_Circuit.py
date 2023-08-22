@@ -5,14 +5,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import is_ironpython
-from pyaedt import Circuit  # Setup paths for module imports
+from pyaedt import Circuit
 from pyaedt import is_linux
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T21"
 

@@ -6,16 +6,7 @@ from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
 
-# Import required modules
 from pyaedt.generic.near_field_import import convert_nearfield_data
-
-# Setup paths for module imports
-
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "T20"
 

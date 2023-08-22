@@ -4,21 +4,10 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import is_ironpython
-# Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt import is_linux
 
-# Setup paths for module imports
-
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
 test_subfolder = "T40"
-
 original_project_name = "ANSYS-HSD_V1"
 
 

@@ -10,16 +10,6 @@ from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
 
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
-# from pyaedt import is_ironpython
-
-# Import required modules
-# Setup paths for module imports
-
 local_path = os.path.dirname(os.path.realpath(__file__))
 test_project_name = "dm boundary test"
 test_field_name = "Potter_Horn"

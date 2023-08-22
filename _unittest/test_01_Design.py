@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import config
@@ -6,21 +5,13 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import get_pyaedt_app
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
-
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":

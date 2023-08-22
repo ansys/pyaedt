@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import config
@@ -11,13 +10,7 @@ from pyaedt import Q3d
 from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
 test_subfloder = "T22"
-# Access the desktop
 test_project_name = "Dynamic_Link"
 src_design_name = "uUSB"
 if config["desktopVersion"] > "2022.2":

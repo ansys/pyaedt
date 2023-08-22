@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import config
