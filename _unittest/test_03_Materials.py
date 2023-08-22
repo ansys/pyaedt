@@ -156,7 +156,6 @@ class TestClass:
         assert not self.aedtapp.materials.remove_material("copper4")
 
     def test_06_surface_material(self, add_app):
-        # ipk = Icepak(specified_version=desktop_version)
         ipk = add_app(application=Icepak)
         mat2 = ipk.materials.add_surface_material("Steel")
         mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
@@ -201,7 +200,6 @@ class TestClass:
         assert len(mats) == 2
 
     def test_09_non_linear_materials(self, add_app):
-        # app = Maxwell3d(specified_version=desktop_version)
         app = add_app(application=Maxwell3d)
         mat1 = app.materials.add_material("myMat")
         assert mat1.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])

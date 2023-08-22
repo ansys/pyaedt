@@ -67,7 +67,6 @@ class TestClass:
         assert os.path.exists(netlist_file)
         netlist_file_invalid = os.path.join(self.local_scratch.path, "export_netlist.sh")
         assert not self.aedtapp.export_netlist_from_schematic(netlist_file_invalid)
-        # m2d = Maxwell2d(designname="test", specified_version=desktop_version)
         m2d = add_app(design_name="test", application=Maxwell2d)
         m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         m2d.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")

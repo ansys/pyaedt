@@ -83,12 +83,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_03_add_subcircuits_hfss_link(self, add_app):
-        # source_project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
         pin_names = self.aedtapp.get_source_pin_names(src_design_name, src_project_name, self.src_project_file, 2)
 
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
-        # hfss = Hfss(designname="uUSB", projectname=self.src_project_file, specified_version=desktop_version)
         hfss = add_app(project_name=self.src_project_file, design_name="uUSB", just_open=True)
         hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, comp_name="uUSB")
         assert hfss_comp.id == 87
@@ -210,7 +208,6 @@ class TestClass:
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_10_q2d_link(self, add_app):
         self.aedtapp.insert_design("test_link")
-        # q2d = Q2d(self.q3d, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.q3d, just_open=True)
         c1 = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
         assert c1
@@ -235,7 +232,6 @@ class TestClass:
         hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
         assert hfss_comp
         assert len(hfss_comp.pins) == 2
-        # hfss = Hfss(proj_path, specified_version=desktop_version)
         hfss2 = add_app(project_name=self.q3d, just_open=True)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             hfss2, solution_name="Setup2 : Sweep", tline_port="1"

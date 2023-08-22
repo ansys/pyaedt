@@ -1955,7 +1955,6 @@ class TestClass:
         assert via_settings.via_density == 1
         assert via_settings.via_material == "pec"
         assert via_settings.via_num_sides == 8
-        # assert via_settings.via_style == "kNum25DViaStyle"
 
         advanced_mesh_settings = setup1.advanced_mesh_settings
         advanced_mesh_settings.layer_snap_tol = "1e-6"

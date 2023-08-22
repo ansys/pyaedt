@@ -224,7 +224,6 @@ class TestClass:
 
     def test_08_merge(self, add_app):
         tol = 1e-12
-        # brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
         brd = add_app(application=Hfss3dLayout, project_name=self.flipchip.project_name, design_name="Dummy_Board")
         comp = brd.modeler.merge_design(self.flipchip, rotation=90)
         assert comp.location[0] == 0.0

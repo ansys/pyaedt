@@ -988,7 +988,6 @@ class TestClass:
     def test_33_copy_solid_bodies(self, add_app):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
-        # new_design = Hfss(projectname=project_name, designname=design_name, specified_version=desktop_version)
         new_design = add_app(project_name=project_name, design_name=design_name)
         num_orig_bodies = len(self.aedtapp.modeler.solid_names)
         assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
@@ -1286,13 +1285,6 @@ class TestClass:
         assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
 
     def test_50_set_differential_pair(self, add_app):
-        # example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
-        # test_project = self.local_scratch.copyfile(example_project)
-        # self.local_scratch.copyfolder(
-        #     os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedb"),
-        #     os.path.join(self.local_scratch.path, diff_proj_name + ".aedb"),
-        # )
-        # hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal", specified_version=desktop_version)
         hfss1 = add_app(project_name=diff_proj_name, design_name="Hfss_Terminal", subfolder=test_subfolder)
         assert hfss1.set_differential_pair(
             positive_terminal="P2_T1",
@@ -1305,7 +1297,6 @@ class TestClass:
             matched=False,
         )
         assert not hfss1.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
-        # hfss2 = Hfss(designname="Hfss_Transient", specified_version=desktop_version)
         hfss2 = add_app(design_name="Hfss_Transient")
         assert hfss2.set_differential_pair(
             positive_terminal="P2_T1",
@@ -1347,7 +1338,6 @@ class TestClass:
         assert not self.aedtapp.set_material_threshold("e")
 
     def test_52_crate_setup_hybrid_sbr(self, add_app):
-        # aedtapp = Hfss(projectname="test_52", specified_version=desktop_version)
         aedtapp = add_app(project_name="test_52")
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
@@ -1362,7 +1352,6 @@ class TestClass:
         aedtapp.close_project(save_project=False)
 
     def test_53_import_source_excitation(self, add_app):
-        # aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
         freq_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "S Parameter Table 1.csv")
         time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
@@ -1385,7 +1374,6 @@ class TestClass:
         aedtapp.close_project(save_project=False)
 
     def test_54_assign_symmetry(self, add_app):
-        # aedtapp = Hfss(projectname="test_54", specified_version=desktop_version)
         aedtapp = add_app(project_name="test_54")
         aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]

@@ -795,10 +795,6 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_45_create_circuit_from_multizone_layout(self, add_edb):
-        # source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
-        # target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
-        # self.local_scratch.copyfolder(source_path, target_path)
-        # edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
         edb = add_edb(project_name="multi_zone_project")
         common_reference_net = "gnd"
         edb_zones = edb.copy_zones()

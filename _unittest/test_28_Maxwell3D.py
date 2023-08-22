@@ -445,14 +445,12 @@ class TestClass:
         assert bound.props["Velocity"] == "1m_per_sec"
 
     def test_31_core_losses(self, add_app):
-        # m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
         m3d1 = add_app(application=Maxwell3d, project_name=core_loss_file, subfolder=test_subfolder)
         assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
         assert m3d1.set_core_losses(["PQ_Core_Bottom"], True)
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self, add_app):
-        # m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix1")
         m3d = add_app(application=Maxwell3d, design_name="Matrix1")
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
@@ -485,7 +483,6 @@ class TestClass:
         assert not L
 
     def test_32B_matrix(self, add_app):
-        # m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix2")
         m3d = add_app(application=Maxwell3d, design_name="Matrix2")
         m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
