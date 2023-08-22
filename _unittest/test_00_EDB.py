@@ -2754,3 +2754,23 @@ class TestClass:
             use_q3d=True,
         )
         assert setup.sweeps
+
+    def test_144_search_reference_pins(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_boundaries.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = edbapp.components.instances["J5"].pins["19"]
+        assert pin
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True
+        )
+        assert len(reference_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=2, component_only=True
+        )
+        assert len(reference_pins) == 2
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
+        )
+        assert len(reference_pins) == 11

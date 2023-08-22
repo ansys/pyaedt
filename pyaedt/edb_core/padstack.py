@@ -12,6 +12,7 @@ from pyaedt.generic.clr_module import Array
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EdbPadstacks(object):
@@ -1327,3 +1328,53 @@ class EdbPadstacks(object):
             if inst.net_name == net_name:
                 padstack_instances.append(inst)
         return padstack_instances
+
+    @pyaedt_function_handler()
+    def get_reference_pins(
+        self, positive_pin, reference_net="gnd", search_radius=5e-3, max_limit=0, component_only=True
+    ):
+        """
+        Parameters
+        ----------
+        positive_pin : EDBPadstackInstance
+            Pin used for evaluating the distance on reference pins found.
+        reference_net : str
+            Reference net.
+        search_radius : float
+            Give the search radius to find padstack instances.
+            Default value is 5e-3
+        max_limit : int
+            Maximum limit for padstack instances found. When zero is provided no limit will be applied.
+            Default value is zero.
+        component_only : bool
+            When ``True`` limits search on component padstack instances only. When ``False`` search will be extended
+            to the entire layout.
+            Default value is ``True``.
+        Returns
+        -------
+        list
+            List of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`.
+        """
+        pinlist = []
+        if not positive_pin:
+            search_radius = 10e-2
+            component_only = True
+        if component_only:
+            references_pins = [
+                pin for pin in list(positive_pin.component.pins.values()) if pin.net_name == reference_net
+            ]
+            if not references_pins:
+                return pinlist
+        else:
+            references_pins = self.get_padstack_instance_by_net_name(reference_net)
+            if not references_pins:
+                return pinlist
+        pinlist = [
+            p
+            for p in references_pins
+            if GeometryOperators.points_distance(positive_pin.position, p.position) <= search_radius
+        ]
+        if max_limit and len(pinlist) > max_limit:
+            pin_dict = {GeometryOperators.points_distance(positive_pin.position, p.position): p for p in pinlist}
+            pinlist = [pin[1] for pin in sorted(pin_dict.items())[:max_limit]]
+        return pinlist
