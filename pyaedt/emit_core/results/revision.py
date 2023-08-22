@@ -376,7 +376,7 @@ class Revision:
         """
         Maximum number of inteference combinations to run per receiver for N to 1.
         A value of 0 disables N to 1 entirely.
-        A value of -1 allows unlimited N to 1 (N is set to the maximum).
+        - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
 
         Examples
         ----------
