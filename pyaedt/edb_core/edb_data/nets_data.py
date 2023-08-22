@@ -142,8 +142,12 @@ class EDBNetsData(NetDotNet):
         >>> app.nets["BST_V3P3_S5"].extended_net
         """
         api_extended_net = self._api_get_extended_net
-        if api_extended_net:
-            return EDBExtendedNetData(self._app, api_extended_net)
+        obj = EDBExtendedNetData(self._app, api_extended_net)
+
+        if not obj.is_null:
+            return obj
+        else:  # pragma: no cover
+            return
 
 
 class EDBNetClassData(NetClassDotNet):
