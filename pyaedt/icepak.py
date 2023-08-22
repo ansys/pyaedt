@@ -2970,6 +2970,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.ImportIDF
         """
+        active_design_name = self.oproject.GetActiveDesign().GetName()
         if not library_path:
             if board_path.endswith(".emn"):
                 library_path = board_path[:-3] + "emp"
@@ -3060,6 +3061,8 @@ class Icepak(FieldAnalysis3D):
             ]
         )
         self.modeler.add_new_objects()
+        if active_design_name:
+            self.oproject.SetActiveDesign(active_design_name)
         return True
 
     @pyaedt_function_handler()
