@@ -1345,16 +1345,24 @@ class EdbPadstacks(object):
             Default value is 5e-3
         max_limit : int
             Maximum limit for padstack instances found. When zero is provided no limit will be applied. The maximum
-            limit value will results on nearest reference pins from the positive one found.
+            limit value will result on nearest reference pins from the positive one found.
             Default value is zero.
         component_only : bool
             When ``True`` limits search on component padstack instances only. When ``False`` search will be extended
             to the entire layout.
             Default value is ``True``.
+
         Returns
         -------
         list
             List of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`.
+
+        Examples
+        --------
+        >>> edbapp = Edb("target_path")
+        >>> pin = edbapp.components.instances["J5"].pins["19"]
+        >>> reference_pins = edbapp.padstacks.get_reference_pins(positive_pin=pin, reference_net="GND",
+        >>> search_radius=5e-3, max_limit=0, component_only=True)
         """
         pinlist = []
         if not positive_pin:
