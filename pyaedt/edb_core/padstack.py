@@ -1344,7 +1344,8 @@ class EdbPadstacks(object):
             Give the search radius to find padstack instances.
             Default value is 5e-3
         max_limit : int
-            Maximum limit for padstack instances found. When zero is provided no limit will be applied.
+            Maximum limit for padstack instances found. When zero is provided no limit will be applied. The maximum
+            limit value will results on nearest reference pins from the positive one found.
             Default value is zero.
         component_only : bool
             When ``True`` limits search on component padstack instances only. When ``False`` search will be extended
