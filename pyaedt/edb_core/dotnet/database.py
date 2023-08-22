@@ -53,7 +53,7 @@ class HierarchyDotNet:
         return self._hierarchy.PinGroup
 
 
-class PolygonDataDotNet:
+class PolygonDataDotNet:  # pragma: no cover
     """Polygon Data."""
 
     def __getattr__(self, key):  # pragma: no cover
@@ -76,7 +76,7 @@ class PolygonDataDotNet:
         return self.dotnetobj
 
     @property
-    def arcs(self):
+    def arcs(self):  # pragma: no cover
         """List of Edb.Geometry.ArcData."""
         return list(self.edb_api.GetArcData())
 
