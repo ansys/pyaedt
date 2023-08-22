@@ -1636,6 +1636,7 @@ class Design(AedtObjects):
             if a and a == beta_option_name:
                 return True
             elif a:
+                i += 1
                 limit -= 1
             else:
                 limit = 0
