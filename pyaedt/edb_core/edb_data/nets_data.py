@@ -4,8 +4,6 @@ from pyaedt.edb_core.dotnet.database import NetClassDotNet
 from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

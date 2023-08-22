@@ -7,8 +7,6 @@ from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
 from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
 from pyaedt.edb_core.dotnet.primitive import TextDotNet
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 

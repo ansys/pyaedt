@@ -9,7 +9,6 @@ from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import is_linux
 
 test_subfolder = "T41"
-# Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 test_post = "test_post_processing"
@@ -650,7 +649,6 @@ class TestClass:
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
-        # test_post2 = Hfss(projectname=test_post1.project_name)
         test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
@@ -730,7 +728,6 @@ class TestClass:
     def test_96_change_nets_visibility(self, add_app):
         project_name = "ipc_out"
         design_name = "Galileo_um"
-        # hfss3d = Hfss3dLayout(projectname=project_name, designname=design_name, specified_version=desktop_version)
         hfss3d = add_app(application=Hfss3dLayout, project_name=project_name, design_name=design_name, just_open=True)
         # hide all
         assert hfss3d.modeler.change_net_visibility(visible=False)

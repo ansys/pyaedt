@@ -1,7 +1,4 @@
 import os
-
-# Setup paths for module imports
-# Import required modules
 import sys
 
 import pytest
@@ -16,7 +13,6 @@ from pyaedt.generic.general_methods import check_numeric_equivalence
 
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
-# from _unittest.conftest import is_ironpython
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
@@ -24,11 +20,6 @@ from _unittest.conftest import settings
 
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
-
-# try:
-#     import pytest
-# except ImportError:  # pragma: no cover
-#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
 
@@ -1966,7 +1957,6 @@ class TestClass:
         assert via_settings.via_density == 1
         assert via_settings.via_material == "pec"
         assert via_settings.via_num_sides == 8
-        # assert via_settings.via_style == "kNum25DViaStyle"
 
         advanced_mesh_settings = setup1.advanced_mesh_settings
         advanced_mesh_settings.layer_snap_tol = "1e-6"

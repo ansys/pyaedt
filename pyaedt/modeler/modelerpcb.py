@@ -5,8 +5,6 @@ from warnings import warn
 from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.constants import AEDT_UNITS
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop

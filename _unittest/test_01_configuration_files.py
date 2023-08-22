@@ -10,16 +10,6 @@ from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
 
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
-# from pyaedt import is_ironpython
-
-# Import required modules
-# Setup paths for module imports
-
 local_path = os.path.dirname(os.path.realpath(__file__))
 test_project_name = "dm boundary test"
 test_field_name = "Potter_Horn"
@@ -87,9 +77,6 @@ class TestClass:
         filename = aedtapp.design_name
         file_path = os.path.join(aedtapp.working_directory, filename + ".x_b")
         aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
-        # app = Hfss(
-        #   projectname="new_proj", solution_type=self.aedtapp.solution_type, specified_version=config["desktopVersion"]
-        # )
         app = add_app(project_name="new_proj", solution_type=aedtapp.solution_type, just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -105,7 +92,6 @@ class TestClass:
         file_path = os.path.join(q3dtest.working_directory, filename + ".x_b")
         q3dtest.export_3d_model(filename, q3dtest.working_directory, ".x_b", [], [])
         time.sleep(1)
-        # app = Q3d(projectname="new_proj_Q3d", specified_version=config["desktopVersion"])
         app = add_app(application=Q3d, project_name="new_proj_Q3d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -121,7 +107,6 @@ class TestClass:
         file_path = os.path.join(q2dtest.working_directory, filename + ".x_b")
         q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_b", [], [])
         time.sleep(1)
-        # app = Q2d(projectname="new_proj_Q2d", specified_version=config["desktopVersion"])
         app = add_app(application=Q2d, project_name="new_proj_Q2d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -217,7 +202,6 @@ class TestClass:
         assert icepak_a.configurations.export_config()
         f.delete()
         file_path = os.path.join(icepak_a.working_directory, filename + ".x_b")
-        # app = Icepak(projectname="new_proj_Ipk_a", specified_version=config["desktopVersion"])
         app = add_app(application=Icepak, project_name="new_proj_Ipk_a", just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -284,7 +268,6 @@ class TestClass:
         conf_file = icepak_b.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(icepak_b.working_directory, filename + ".x_b")
-        # app = Icepak(projectname="new_proj_Ipk", specified_version=config["desktopVersion"])
         app = add_app(application=Icepak, project_name="new_proj_Ipk", just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)

@@ -1,4 +1,3 @@
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.modeler.advanced_cad.multiparts import Actor
