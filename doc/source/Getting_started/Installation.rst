@@ -74,7 +74,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 Wheelhouses for CPython 3.7, 3.8, and 3.9 are available in the releases for PyAEDT v0.4.70
-and later for both Windows and Linux. From the `Releases <https://github.com/pyansys/pyaedt/releases>`_
+and later for both Windows and Linux. From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
 
@@ -182,7 +182,7 @@ Activate virtual environment
 
 Install required packages.
 
-Download `requirements.txt <https://github.com/pyansys/pyaedt/blob/main/requirements/requirements.txt>`_
+Download `requirements.txt <https://github.com/ansys/pyaedt/blob/main/requirements/requirements.txt>`_
 
 .. code:: bash
 

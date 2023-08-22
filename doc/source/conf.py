@@ -82,7 +82,6 @@ release = version = __version__
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here as strings. They can be
@@ -92,7 +91,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
@@ -102,6 +100,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
     "numpydoc",
+    "ansys_sphinx_theme.extension.linkcode",
 ]
 
 # Intersphinx mapping
@@ -118,8 +117,7 @@ intersphinx_mapping = {
 
 toc_object_entries_show_parents = "hide"
 
-
-
+html_show_sourcelink = True
 
 # numpydoc configuration
 numpydoc_use_plots = True
@@ -265,20 +263,18 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
-html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
-
-# specify the location of your github repo
 html_context = {
-    "github_user": "pyansys",
+    "github_user": "ansys",
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
 }
 
+# specify the location of your github repo
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pyaedt",
+    "github_url": "https://github.com/ansys/pyaedt",
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
@@ -289,7 +285,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "Support",
-            "url": "https://github.com/pyansys/pyaedt/discussions",
+            "url": "https://github.com/ansys/pyaedt/discussions",
             "icon": "fa fa-comment fa-fw",
         },
     ],
@@ -299,11 +295,10 @@ html_theme_options = {
     },
     "collapse_navigation": True,
     "use_meilisearch": {
-        "host": "https://backend.search.pyansys.com/",
-        "api_key": os.getenv("MEILISEARCH_API_KEY", ""),
+        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
-            "pyansys-pyaedt-sphinx-docs": "PyAEDT",
-            "pyansys-pyedb-sphinx-docs": "EDB API",
+            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
+            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
         },
     },
 }
