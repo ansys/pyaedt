@@ -1,4 +1,3 @@
-# Setup paths for module imports
 import base64
 import filecmp
 import os

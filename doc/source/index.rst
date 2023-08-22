@@ -137,7 +137,7 @@ providing syntax rules and commands for using the PyAEDT API and PyEDB API:
   `download <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
   PyAEDT API cheat sheet.
 
-- - `View <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
+- `View <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
   `download <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
   PyAEDT API cheat sheet.
 

@@ -1,15 +1,7 @@
-# Import required modules
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 import pytest
 
 from pyaedt import Maxwell3d
-
-#
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
 @pytest.fixture(scope="class")
@@ -127,7 +119,6 @@ class TestClass:
         )
 
     def test_07_maxwell_mesh(self, add_app):
-        # m3d = Maxwell3d(specified_version=desktop_version)
         m3d = add_app(application=Maxwell3d)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
         rot = m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")

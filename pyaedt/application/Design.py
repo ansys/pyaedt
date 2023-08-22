@@ -33,19 +33,13 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-
-# from pyaedt.desktop import Desktop
 from pyaedt.desktop import _init_desktop_from_design
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
-
-# from pyaedt.desktop import release_desktop
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -1636,6 +1630,7 @@ class Design(AedtObjects):
             if a and a == beta_option_name:
                 return True
             elif a:
+                i += 1
                 limit -= 1
             else:
                 limit = 0

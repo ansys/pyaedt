@@ -1,4 +1,3 @@
-# Setup paths for module imports
 from __future__ import division  # noreorder
 
 import math
@@ -11,13 +10,6 @@ from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.geometry_operators import GeometryOperators
-
-# Import required modules
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
 @pytest.fixture(scope="class")

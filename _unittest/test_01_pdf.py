@@ -7,14 +7,6 @@ import pytest
 from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
 
-# from _unittest.conftest import scratch_path
-
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
 tol = 1e-12
 
 
@@ -24,12 +16,6 @@ def desktop():
 
 
 class TestClass(object):
-    # def setup_class(self):
-    #     pass
-    #
-    # def teardown_class(self):
-    #     pass
-
     def test_create_pdf(self, local_scratch):
         template_path = os.path.join(pyaedt_path, "dlls", "PDFReport", "AnsysTemplate.json")
         report = AnsysReport(project_name="Coaxial", design_name="Design1", tempplate_json_file=template_path)

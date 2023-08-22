@@ -15,7 +15,6 @@ import math
 import os
 import warnings
 
-# from pyaedt.generic.general_methods import property
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
@@ -5106,10 +5105,10 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Selecting outer faces.")
 
         sel = []
+        objs = []
         if type(mats) is str:
             mats = [mats]
         for mat in mats:
-            objs = list(self.oeditor.GetObjectsByMaterial(mat))
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:

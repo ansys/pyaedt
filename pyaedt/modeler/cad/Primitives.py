@@ -13,8 +13,6 @@ import time
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_number
@@ -2089,7 +2087,7 @@ class Primitives(object):
 
         """
         edgesid = self.get_object_edges(sheet)
-        id = divmod(axisdir, 3)[1]
+        id_ = divmod(axisdir, 3)[1]
         midpoint_array = []
         for ed in edgesid:
             midpoint_array.append(self.get_edge_midpoint(ed))
@@ -2099,9 +2097,9 @@ class Primitives(object):
             if not point0:
                 point0 = el
                 point1 = el
-            elif axisdir < 3 and el[id] < point0[id] or axisdir > 2 and el[id] > point0[id]:
+            elif axisdir < 3 and el[id_] < point0[id_] or axisdir > 2 and el[id_] > point0[id_]:
                 point0 = el
-            elif axisdir < 3 and el[id] > point1[id] or axisdir > 2 and el[id] < point1[id]:
+            elif axisdir < 3 and el[id_] > point1[id_] or axisdir > 2 and el[id_] < point1[id_]:
                 point1 = el
         return point0, point1
 

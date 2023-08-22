@@ -1,9 +1,7 @@
-# standard imports
 import math
 
 import pytest
 
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_linux

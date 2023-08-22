@@ -6,8 +6,6 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
