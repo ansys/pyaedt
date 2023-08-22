@@ -77,7 +77,7 @@ class PolygonDataDotNet:
 
     @property
     def arcs(self):
-        """Get list of Edb.Geometry.ArcData."""
+        ""List of Edb.Geometry.ArcData."""
         return list(self.edb_api.GetArcData())
 
     def get_bbox_of_boxes(self, points):
