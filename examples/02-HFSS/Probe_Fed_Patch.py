@@ -1,7 +1,7 @@
 """
 HFSS: Probe-fed patch antenna
 ---------------------------------------------------------
-This example demonstrates the use of the ``Stackup3D`` class
+This example shows how to use the ``Stackup3D`` class
 to create and analyze a patch antenna in HFSS 3D.
 
 Note that the HFSS 3D Layout interface may offer advantages for
@@ -24,7 +24,7 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 # Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is set to ``False``
 # to create this documentation.
 #
-# You can set ``non_graphical``  to ``True`` in order to view
+# You can set ``non_graphical``  to ``True`` to view
 # HFSS while the notebook cells are executed.
 #
 # Use the 2023R2 release of HFSS.
@@ -35,12 +35,12 @@ length_units = "mm"
 freq_units = "GHz"
 
 ########################################################
-# Temporary Working Folder
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use tempfile to create a temporary working folder.  Project data
-# will be deleted after this example is run.
+# Create temporary working folder
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use tempfile to create a temporary working folder. Project data
+# is deleted after this example is run.
 #
-# In order to save the project data in another location, change
+# To save the project data in another location, change
 # the location of the project directory.
 #
 
@@ -51,8 +51,8 @@ tmpdir = tempfile.TemporaryDirectory(suffix="_aedt")
 project_folder = tmpdir.name
 
 #####################
-# Launch Hfss.
-# -------------------
+# Launch HFSS
+# -----------
 #
 
 hfss = pyaedt.Hfss(projectname="antenna",
@@ -64,8 +64,9 @@ hfss = pyaedt.Hfss(projectname="antenna",
 hfss.modeler.model_units = length_units
 
 #####################################
+# Create patch
+# ------------
 # Create the patch.
-# --------------------------
 #
 
 stackup = Stackup3D(hfss)
