@@ -1,6 +1,5 @@
 import os
 
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 

@@ -1,6 +1,5 @@
 import re
 
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
