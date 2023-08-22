@@ -6,7 +6,6 @@ import sys
 
 import pytest
 
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d

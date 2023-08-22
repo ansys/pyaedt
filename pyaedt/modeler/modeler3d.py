@@ -6,7 +6,6 @@ import json
 import os.path
 import warnings
 
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler

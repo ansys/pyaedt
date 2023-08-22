@@ -15,7 +15,6 @@ import math
 import os
 import warnings
 
-# from pyaedt.generic.general_methods import property
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS

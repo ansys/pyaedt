@@ -10,8 +10,6 @@ from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import CSS4_COLORS
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -246,7 +244,8 @@ class EdbNets(object):
             Threshold of capacitor value. Search extended net across capacitors which has value higher than the
             threshold.
         exception_list : list, optional
-            List of components which bypass threshold check. The default is ``None``.
+            List of components to bypass when performing threshold checks. Components
+            in the list are considered as serial components. The default is ``None``.
         include_signal : str, optional
             Whether to generate extended signal nets. The default is ``True``.
         include_power : str, optional

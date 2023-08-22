@@ -1,4 +1,3 @@
-# standard imports
 import os
 import sys
 
@@ -11,20 +10,9 @@ from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import settings
-
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
-
-# Import required modules
-# Setup paths for module imports
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"

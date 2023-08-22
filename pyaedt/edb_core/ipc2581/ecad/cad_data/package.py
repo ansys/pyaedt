@@ -5,8 +5,6 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.assembly_drawing import AssemblyDrawi
 from pyaedt.edb_core.ipc2581.ecad.cad_data.outline import Outline
 from pyaedt.edb_core.ipc2581.ecad.cad_data.pin import Pin
 from pyaedt.edb_core.ipc2581.ecad.cad_data.polygon import PolyStep
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
