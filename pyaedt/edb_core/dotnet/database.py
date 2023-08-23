@@ -228,8 +228,8 @@ class NetDotNet:
 
     @property
     def _api_get_extended_net(self):
-        """The ExtendedNet this Net belongs to if it belongs to a ExtendedNet. If it does not belong to an ExtendedNet,
-        a null ExtendedNet is returned
+        """Extended net this net belongs to if it belongs to an extended net.
+        If it does not belong to an extendednet, a null extended net is returned.
         """
         return self.net_obj.GetExtendedNet()
 
