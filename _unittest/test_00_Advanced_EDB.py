@@ -8,22 +8,14 @@ import pytest
 from pyaedt import Edb
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 
-# Setup paths for module imports
-# Import required modules
-
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
-# from _unittest.conftest import is_ironpython
+
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
 from pyaedt.generic.general_methods import is_linux
-
-# try:
-#     import pytest
-# except ImportError:  # pragma: no cover
-#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
 

@@ -15,8 +15,6 @@ if not is_ironpython:
 
 from pyaedt import constants
 from pyaedt import pyaedt_path
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler

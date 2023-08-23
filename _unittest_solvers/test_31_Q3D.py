@@ -201,7 +201,6 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_13_matrix_reduction(self, add_app):
-        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         assert q3d.matrices[0].name == "Original"
         assert len(q3d.matrices[0].sources()) > 0
@@ -247,7 +246,6 @@ class TestClass:
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_edit_sources(self, add_app):
-        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         sources_cg = {"Box1": ("2V", "45deg"), "Box1_2": "4V"}
         sources_ac = {"Box1:Source1": "2A"}
@@ -280,7 +278,6 @@ class TestClass:
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_15_export_matrix_data(self, add_app):
-        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         q3d.matrices[1].name == "JointTest"
@@ -380,7 +377,6 @@ class TestClass:
             os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"),
             os.path.join(self.local_scratch.path, "test_14.aedt"),
         )
-        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d = add_app(application=Q3d, project_name=test_matrix2, just_open=True)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         assert q3d.matrices[1].name == "JointTest"
@@ -442,7 +438,6 @@ class TestClass:
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_17_export_results_q3d(self, add_app):
-        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         exported_files = q3d.export_results()
         assert len(exported_files) == 0

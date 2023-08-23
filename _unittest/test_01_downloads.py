@@ -1,4 +1,3 @@
-# Import required modules
 import os
 import tempfile
 
@@ -15,14 +14,6 @@ def desktop():
 
 
 class TestClass:
-    # def setup_class(self):
-    #     # set a scratch directory and the environment / test data
-    #     self.examples = downloads
-    #     pass
-    #
-    # def teardown_class(self):
-    #     del self.examples
-
     @pytest.fixture(autouse=True)
     def init(self):
         self.examples = downloads

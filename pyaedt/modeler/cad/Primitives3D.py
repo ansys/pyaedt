@@ -744,7 +744,6 @@ class Primitives3D(Primitives, object):
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
         MajorRadius = self._arg_with_dim(major_radius)
-        Ratio = self._arg_with_dim(ratio)
 
         vArg1 = ["NAME:EllipseParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
@@ -752,7 +751,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YCenter:="), vArg1.append(YStart)
         vArg1.append("ZCenter:="), vArg1.append(ZStart)
         vArg1.append("MajRadius:="), vArg1.append(MajorRadius)
-        vArg1.append("Ratio:="), vArg1.append(Ratio)
+        vArg1.append("Ratio:="), vArg1.append(ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
