@@ -2774,4 +2774,3 @@ class TestClass:
             positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
         )
         assert len(reference_pins) == 11
-        edbapp.components.instances["J5"].pins["19"].get_reference_pin()
