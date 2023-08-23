@@ -1337,20 +1337,18 @@ class EdbPadstacks(object):
         Parameters
         ----------
         positive_pin : EDBPadstackInstance
-            Pin used for evaluating the distance on reference pins found.
-        reference_net : str
-            Reference net.
-        search_radius : float
-            Give the search radius to find padstack instances.
-            Default value is 5e-3
-        max_limit : int
-            Maximum limit for padstack instances found. When zero is provided no limit will be applied. The maximum
-            limit value will result on nearest reference pins from the positive one found.
-            Default value is zero.
-        component_only : bool
-            When ``True`` limits search on component padstack instances only. When ``False`` search will be extended
-            to the entire layout.
-            Default value is ``True``.
+            Pin used for evaluating the distance on the reference pins found.
+        reference_net : str, optional
+            Reference net. The default is ``"gnd"``.
+        search_radius : float, optional
+            Search radius for finding padstack instances. The default is ``5e-3``.
+        max_limit : int, optional
+            Maximum limit for the padstack instances found. The default is ``0``, in which
+            case no limit is applied. The maximum limit value occurs on the nearest
+            reference pins from the positive one that is found.
+        component_only : bool, optional
+            Whether to limit the search to component padstack instances only. The
+            default is ``True``. When ``False``, the search is extended to the entire layout.
 
         Returns
         -------
