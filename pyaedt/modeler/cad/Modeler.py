@@ -5980,7 +5980,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        FacePrimitive
             Face object.
 
         """
