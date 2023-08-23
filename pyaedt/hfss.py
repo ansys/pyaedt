@@ -2481,39 +2481,8 @@ class Hfss(FieldAnalysis3D, object):
             primary_name = generate_unique_name("Primary")
         return self._create_boundary(primary_name, props, "Primary")
 
-    def _create_wave_port_from_face(self, face, name="1", pec_cap=True, deembed=0.0):
-        props = OrderedDict({})
-        props["Faces"] = face.id
-        props["IsWavePort"] = True
-        props["ReferenceConductors"] = []
-        props["RenormalizeModes"] = True
-        port = self._create_boundary(name, props, "AutoIdentify")
-        #  omodule.AutoIdentifyPorts(["NAME:Faces", face.id], True, ["NAME:ReferenceConductors"], name, True)
-
-        if pec_cap:
-            dist = 0.5 * math.sqrt(face.area)
-            omodule = self.odesign.GetModule("BoundarySetup")
-
-            omodule.AutoCreatePECCapForWavePort(
-                [
-                    "NAME:AutoCreatePECCapForWavePort",
-                    "Wave Port Name:=",
-                    name,
-                    "Face ID:=",
-                    face.id,
-                    "Thickness:=",
-                    str(dist) + self.modeler.model_units,
-                    "Flip Side:=",
-                    False,
-                    "Cover Holes:=",
-                    True,
-                ]
-            )
-        return port
-
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
-        #  Use _wave_port_from_face() for settings.aedt_version > "2022.2"
-        #
+        # TODO check method
         obj = self.modeler[sheet_name].clone()
         out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
         bounding2 = out_obj.bounding_box
@@ -5440,7 +5409,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Differential pairs can be defined only in Terminal and Transient solution types.
         The differential pair is created from an existing port definition having at least two
-        terminals and a ground conductor.
+        terminals.
 
         Parameters
         ----------
@@ -6257,14 +6226,15 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         oname = ""
-        # TODO: use imported module 'cad' to detect type of signal. Then simplify logic.
+
+        # if isinstance(reference, str):
 
         # If an object with a single face is passed as the input
         # argument 'signal', then convert it to a FacePrimitive
         # for further processing.
         if isinstance(signal, cad.object3d.Object3d):
             if len(signal.faces) == 1:
-                if signal.faces[0].is_planar and reference is None:
+                if signal.faces[0].is_planar:
                     signal = signal.faces[0]
 
         if create_port_sheet:
@@ -6288,7 +6258,7 @@ class Hfss(FieldAnalysis3D, object):
                     self.logger.warning("More than 1 face found. Getting first.")
                     signal = objs[0]
                 else:
-                    self.logger.error("No Faces found on given location.")
+                    self.logger.error("No Faces found at the given location.")
                     return False
             sheet_name = self.modeler.convert_to_selections(signal, True)[0]
             if isinstance(sheet_name, int):
@@ -6357,7 +6327,7 @@ class Hfss(FieldAnalysis3D, object):
                     impedance=impedance,
                     terminals_rename=terminals_rename,
                 )
-            elif not reference and isinstance(signal, cad.elements3d.FacePrimitive):
+            elif isinstance(signal, cad.elements3d.FacePrimitive):
                 # Terminal or transient solution type. First passed argument is a planar
                 # sheet.
                 # Use native method AutoIdentifyPorts via
