@@ -19,7 +19,8 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler import cad
+
+# from pyaedt.modeler import cad
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -6225,16 +6226,6 @@ class Hfss(FieldAnalysis3D, object):
         """
         oname = ""
 
-        # if isinstance(reference, str):
-
-        # If an object with a single face is passed as the input
-        # argument 'signal', then convert it to a FacePrimitive
-        # for further processing.
-        if isinstance(signal, cad.object3d.Object3d):
-            if len(signal.faces) == 1:
-                if signal.faces[0].is_planar:
-                    signal = signal.faces[0]
-
         if create_port_sheet:
             if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
                 self.logger.error("One or both objects do not exist. Check and retry.")
@@ -6256,7 +6247,7 @@ class Hfss(FieldAnalysis3D, object):
                     self.logger.warning("More than 1 face found. Getting first.")
                     signal = objs[0]
                 else:
-                    self.logger.error("No Faces found at the given location.")
+                    self.logger.error("No Faces found on given location.")
                     return False
             sheet_name = self.modeler.convert_to_selections(signal, True)[0]
             if isinstance(sheet_name, int):
@@ -6268,7 +6259,7 @@ class Hfss(FieldAnalysis3D, object):
                 reference = self.modeler.convert_to_selections(reference, True)
             #  TODO: integration_line == self.aedtapp.AxisDir.XNeg will be False in next line. Fix this.
             if integration_line:
-                if isinstance(integration_line, list):  # Check that integration line consists of two points.
+                if isinstance(integration_line, list):
                     if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
                         self.logger.error("List of coordinates is not set correctly")
                         return False
@@ -6286,25 +6277,23 @@ class Hfss(FieldAnalysis3D, object):
             else:
                 int_start = int_stop = None
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            # Create pec cap if needed
-            # TODO: replace with native API AutoCreatePECCapForWavePort for >= 23.2
-            if "Modal" in self.solution_type and not reference:
-                if create_pec_cap:
-                    if oname:
-                        face = oname
-                    else:
-                        face = sheet_name
-                    dist = math.sqrt(self.modeler[face].faces[0].area)
-                    if settings.aedt_version > "2022.2":
-                        self._create_pec_cap(face, signal, -dist / 10)
-                    else:
-                        self._create_pec_cap(face, signal, dist / 10)
+            if create_pec_cap:
+                if oname:
+                    face = oname
+                else:
+                    face = sheet_name
+                dist = math.sqrt(self.modeler[face].faces[0].area)
+                if settings.aedt_version > "2022.2":
+                    self._create_pec_cap(face, signal, -dist / 10)
+                else:
+                    self._create_pec_cap(face, signal, dist / 10)
+            name = self._get_unique_source_name(name, "Port")
 
-                # Create modal wave port.
+            if "Modal" in self.solution_type:
                 return self._create_waveport_driven(
                     sheet_name, int_start, int_stop, impedance, name, renormalize, num_modes, deembed
                 )
-            elif reference and isinstance(signal, cad.object3d.Object3d):
+            elif reference:
                 if isinstance(sheet_name, int):
                     faces = [sheet_name]
                 else:
@@ -6325,28 +6314,9 @@ class Hfss(FieldAnalysis3D, object):
                     impedance=impedance,
                     terminals_rename=terminals_rename,
                 )
-            elif isinstance(signal, cad.elements3d.FacePrimitive):
-                # Terminal or transient solution type. First passed argument is a planar
-                # sheet.
-                # Use native method AutoIdentifyPorts via
-                # self._create_wave_port_from_face() to automatically
-                # create a port from a face.
-                if settings.aedt_version > "2022.2":
-                    try:
-                        return self._create_wave_port_from_face(signal, name=name, pec_cap=create_pec_cap)
-                    except:
-                        self.logger.error("Unable to create port on face %s." % str(signal.id))
-                        return False
-                else:
-                    self.logger.error("Reference conductors required for version 2022.2 and lower.")
-                    return False
-                # name = self._get_unique_source_name(name, "Port")
-        # No longer throw an error if there is no reference. This is
-        # a valid use case (D. Crawford, 18-Aug-23)
-
-        #   else:
-        #       self.logger.error("Reference conductors are missing.")
-        #       return False
+            else:
+                self.logger.error("Reference conductors are missing.")
+                return False
         return False
 
     @pyaedt_function_handler()
