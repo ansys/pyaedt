@@ -2469,8 +2469,8 @@ class Components(object):
             elif pars:
                 delta_pins.append(1.5 * pars[0])
                 w = min(pars[0], w)
-            elif pad.polygon_data:
-                bbox = pad.polygon_data.GetBBox()
+            elif pad.polygon_data.edb_api:  # pragma: no cover
+                bbox = pad.polygon_data.edb_api.GetBBox()
                 lower = [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()]
                 upper = [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
                 pars = [abs(lower[0] - upper[0]), abs(lower[1] - upper[1])]
