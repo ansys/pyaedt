@@ -1772,6 +1772,34 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def get_reference_pins(self, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True):
+        """Search for reference pins using given criteria.
+
+        Parameters
+        ----------
+        reference_net : str, optional
+            Reference net. The default is ``"GND"``.
+        search_radius : float, optional
+            Search radius for finding padstack instances. The default is ``5e-3``.
+        max_limit : int, optional
+            Maximum limit for the padstack instances found. The default is ``0``, in which
+            case no limit is applied. The maximum limit value occurs on the nearest
+            reference pins from the positive one that is found.
+        component_only : bool, optional
+            Whether to limit the search to component padstack instances only. The
+            default is ``True``. When ``False``, the search is extended to the entire layout.
+
+        Returns
+        -------
+        list
+            List of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`.
+
+        Examples
+        --------
+        >>> edbapp = Edb("target_path")
+        >>> pin = edbapp.components.instances["J5"].pins["19"]
+        >>> reference_pins = pin.get_reference_pins(reference_net="GND", search_radius=5e-3, max_limit=0,
+        >>> component_only=True)
+        """
         return self._pedb.padstacks.get_reference_pins(
             positive_pin=self,
             reference_net=reference_net,
