@@ -2762,6 +2762,8 @@ class TestClass:
         edbapp = Edb(target_path, edbversion=desktop_version)
         pin = edbapp.components.instances["J5"].pins["19"]
         assert pin
+        ref_pins = pin.get_reference_pins(reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True)
+        assert len(ref_pins) == 3
         reference_pins = edbapp.padstacks.get_reference_pins(
             positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True
         )

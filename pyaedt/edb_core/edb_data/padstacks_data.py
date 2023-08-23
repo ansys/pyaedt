@@ -1769,3 +1769,13 @@ class EDBPadstackInstance(object):
         layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
         layoutObjInst = self.object_instance
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
+
+    @pyaedt_function_handler()
+    def get_reference_pins(self, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True):
+        return self._pedb.padstacks.get_reference_pins(
+            positive_pin=self,
+            reference_net=reference_net,
+            search_radius=search_radius,
+            max_limit=max_limit,
+            component_only=component_only,
+        )
