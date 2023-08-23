@@ -173,7 +173,6 @@ class TestClass:
         assert sweep.props["Sim. Setups"] == [setup.name]
 
     def test_11_add_sbr_boundaries_in_hfss_solution(self, add_app):
-        # hfss_terminal = Hfss(solution_type="Terminal", specified_version=desktop_version)
         hfss_terminal = add_app(solution_type="Terminal")
 
         # sbr file based antenna should only work for SBR+ solution.

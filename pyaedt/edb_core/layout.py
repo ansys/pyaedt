@@ -13,8 +13,6 @@ from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -1187,7 +1185,7 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
         """
         poly_data = poly.polygon_data
-        new_poly = poly_data.Defeature(tolerance)
+        new_poly = poly_data.edb_api.Defeature(tolerance)
         poly.polygon_data = new_poly
         return True
 

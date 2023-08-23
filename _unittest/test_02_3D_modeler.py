@@ -1,4 +1,3 @@
-# Setup paths for module imports
 from _unittest.conftest import config
 import pytest
 
@@ -13,9 +12,6 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-# if is_ironpython:
-#     tol = 5e-4
-# else:
 tol = 1e-12
 
 

@@ -439,6 +439,7 @@ class Desktop(object):
     _invoked_from_design = False
 
     def __new__(cls, *args, **kwargs):
+        # The following commented lines will be useful when we will need to search among multiple saved desktop.
         # specified_version = kwargs.get("specified_version") or None if not args else args[0]
         # new_desktop_session = kwargs.get("new_desktop_session") or True if (not args or len(args)<3) else args[2]
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
@@ -449,6 +450,7 @@ class Desktop(object):
         if len(_desktop_sessions.keys()) > 0:
             sessions = list(_desktop_sessions.keys())
             try:
+                # for the moment aedt supports only one desktop, which is saved in sessions[0]
                 process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
                 print("Returning found desktop with PID {}!".format(process_id))
                 cls._invoked_from_design = False
@@ -530,7 +532,7 @@ class Desktop(object):
 
         student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
 
-        # start open AEDT decision tree
+        # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "ironpython", "console_in", "console_out"
         if "oDesktop" in dir():  # pragma: no cover
             # we are inside the AEDT Ironpython console
@@ -701,8 +703,6 @@ class Desktop(object):
     def install_path(self):
         """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
-        # root = self._version_ids[version_key]
-        # return os.environ[root]
         return installed_versions()[version_key]
 
     @property
