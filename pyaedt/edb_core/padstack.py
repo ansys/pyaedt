@@ -1333,7 +1333,7 @@ class EdbPadstacks(object):
     def get_reference_pins(
         self, positive_pin, reference_net="gnd", search_radius=5e-3, max_limit=0, component_only=True
     ):
-        """Search for reference pins with several criteria.
+        """Search for reference pins using given criteria.
         Parameters
         ----------
         positive_pin : EDBPadstackInstance
