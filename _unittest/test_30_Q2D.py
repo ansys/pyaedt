@@ -84,7 +84,6 @@ class TestClass:
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
 
     def test_11_matrix_reduction(self, add_app):
-        # q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         assert q2d.matrices[0].name == "Original"
         assert len(q2d.matrices[0].sources()) > 0
@@ -105,7 +104,6 @@ class TestClass:
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 
     def test_12_edit_sources(self, add_app):
-        # q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         sources_cg = {"Circle2": ("10V", "45deg"), "Circle3": "4A"}
         assert q2d.edit_sources(sources_cg)
@@ -132,7 +130,6 @@ class TestClass:
         assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
 
     def test_14_export_matrix_data(self, add_app):
-        # q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
         q2d.matrices[1].name == "Test1"
@@ -194,7 +191,6 @@ class TestClass:
         self.aedtapp.close_project(q2d.project_name, save_project=True)
 
     def test_15_export_equivalent_circuit(self, add_app):
-        # q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
         assert q2d.matrices[4].name == "Test4"
@@ -280,7 +276,6 @@ class TestClass:
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 
     def test_16_export_results_q2d(self, add_app):
-        # q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         exported_files = q2d.export_results(analyze=True)
         assert len(exported_files) > 0

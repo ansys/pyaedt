@@ -1,5 +1,4 @@
 #!/ekm/software/anaconda3/bin/python
-# Import required modules
 import pytest
 
 from pyaedt import Maxwell2d

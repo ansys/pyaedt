@@ -1,5 +1,4 @@
 #!/ekm/software/anaconda3/bin/python
-# Standard imports
 from collections import OrderedDict
 import os
 import shutil
@@ -9,15 +8,8 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Maxwell2d
-
-# from pyaedt import is_ironpython
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "TMaxwell"
 if config["desktopVersion"] > "2022.2":
