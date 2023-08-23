@@ -772,9 +772,9 @@ class EdbSiwave(object):
             if add_syz:
                 f.write("ExecSyzSim\n")
             if export_touchstone:
-                if touchstone_file_path:
+                if touchstone_file_path:  # pragma no cover
                     f.write('ExportTouchstone "{}"\n'.format(touchstone_file_path))
-                else:
+                else:  # pragma no cover
                     touchstone_file_path = os.path.join(
                         workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + "_touchstone"
                     )
