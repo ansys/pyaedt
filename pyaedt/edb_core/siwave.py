@@ -748,15 +748,15 @@ class EdbSiwave(object):
         """Create an executable file.
         Parameters
         ----------
-        add_dc : bool
+        add_dc : bool, optional
             Add the DC option in the exec file
-        add_ac : bool
+        add_ac : bool, optional
             Add the AC option in the exec file.
-        add_syz : bool
+        add_syz : bool, optional
             Add the SYZ option in the exec file
-        export_touchstone : bool
+        export_touchstone : bool, optional
             Add the Touchstone file export option in the exec file
-        touchstone_file_path : str
+        touchstone_file_path : str, optional
             When string is empty and ``export_touchstone`` == ``True``, the default file path will be at the project
             location.
         """
