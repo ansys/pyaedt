@@ -1,5 +1,6 @@
 """Primitive."""
 from pyaedt.edb_core.dotnet.database import NetDotNet
+from pyaedt.edb_core.dotnet.database import PolygonDataDotNet
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
@@ -41,8 +42,8 @@ class PrimitiveDotNet:
                 obj = self.api
             try:
                 return getattr(obj, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
+            except AttributeError:  # pragma: no cover
+                raise AttributeError("Attribute {} not present".format(key))
 
     def __init__(self, api, prim_object=None):
         self._app = api
@@ -102,8 +103,8 @@ class PrimitiveDotNet:
 
     @property
     def polygon_data(self):
-        """:class:`PolygonData <ansys.edb.geometry.PolygonData>`: Outer contour of the Polygon object."""
-        return self.prim_obj.GetPolygonData()
+        """:class:`pyaedt.edb_core.dotnet.database.PolygonDataDotNet`: Outer contour of the Polygon object."""
+        return PolygonDataDotNet(self._app, self.prim_obj.GetPolygonData())
 
     @polygon_data.setter
     def polygon_data(self, poly):

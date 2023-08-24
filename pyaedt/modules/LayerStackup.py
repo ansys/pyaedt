@@ -9,8 +9,6 @@ from collections import OrderedDict
 
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

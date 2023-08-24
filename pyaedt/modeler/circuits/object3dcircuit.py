@@ -4,10 +4,7 @@ from __future__ import absolute_import
 from collections import OrderedDict
 import math
 
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
-
-# from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _arg2dict
