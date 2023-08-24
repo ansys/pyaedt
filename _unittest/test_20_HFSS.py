@@ -88,7 +88,7 @@ class TestClass:
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
 
-        # Wave port cannot be created if the reference conductors are missing.
+        # TODO: Consider allowing a TEM port to be created.
         assert not self.aedtapp.wave_port(o5)
 
         port = self.aedtapp.wave_port(
