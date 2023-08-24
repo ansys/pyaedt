@@ -2735,7 +2735,27 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def convert_to_selections(self, object_id, return_list=False):
-        """Convert one or more object to selections.
+        """Convert modeler objects.
+
+        This method converts modeler object or ID's to corresponding
+        items according to the following scheme:
+
+        ====================  ===========================
+          ``object_Id``          Return Value
+        ====================  ===========================
+         ``int``                 object name (str)
+          ``Object3D``           object name (str)
+          ``FacePrimitive``      int, face ID
+          ``EdgePrimitive``      int, edge ID
+          ``str``                return the same ``str``
+
+        - If ``object_id`` is a list, then a list will be returned according
+        to the table. If ``object_id`` is a single value, then a list
+        of ``length == 1`` will be returned (default).
+
+        - If the 2nd argument, ``return_list`` is set to false, a ``str``
+        ``str`` will be returned with elements separated by a semicolon ";".
+
 
         Parameters
         ----------

@@ -19,8 +19,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-# from pyaedt.modeler import cad
+from pyaedt.modeler import cad
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -2481,13 +2480,35 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(primary_name, props, "Primary")
 
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
-        # TODO check method
-        obj = self.modeler[sheet_name].clone()
+        """Create a PEC object to back a wave port.
+
+
+        Parameters
+        ----------
+        sheet_name : str
+            Name of the 3d object touching the port surface.
+        obj_name : ???
+        pecthick : float
+            Thickness of the PEC cap
+
+        Returns
+        -------
+
+        """
+        if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements3d.FacePrimitive):
+            obj = obj_name.create_object()  # Create face object of type cad.object3d.Object3d from FacePrimitive
+            oname = obj_name._object3d.name
+            bounding1 = self.modeler[oname].bounding_box
+        else:
+            obj = self.modeler[sheet_name].clone()
+            bounding1 = self.modeler[obj_name].bounding_box
         out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
         bounding2 = out_obj.bounding_box
-        bounding1 = self.modeler[obj_name].bounding_box
         tol = 1e-9
         i = 0
+
+        # Check that the pec cap is internal by comparing the bounding box
+        # of the cap with the bounding box of obj_name.
         internal = False
         for a, b in zip(bounding1, bounding2):
             if i < 3:
@@ -6230,6 +6251,9 @@ class Hfss(FieldAnalysis3D, object):
             if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
                 self.logger.error("One or both objects do not exist. Check and retry.")
                 return False
+            elif isinstance(signal, cad.elements3d.FacePrimitive):
+                port_sheet = signal.create_object()
+                oname = port_sheet.name
             if is_microstrip:
                 sheet_name, int_start, int_stop = self.modeler._create_microstrip_sheet_from_object_closest_edge(
                     signal, reference, integration_line, vfactor, hfactor
@@ -6252,6 +6276,9 @@ class Hfss(FieldAnalysis3D, object):
             sheet_name = self.modeler.convert_to_selections(signal, True)[0]
             if isinstance(sheet_name, int):
                 try:
+                    # NOte: if isinstance(sheet_name, cad.elements3d.FacePrimitive) then
+                    # the name of the 3d object is returned.
+                    # TODO: Need to improve the way a FacePrimitive is handled.
                     oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
                 except:
                     oname = ""
@@ -6279,10 +6306,14 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             if create_pec_cap:
                 if oname:
+                    #  if isinstance(signal, cad.elements3d.FacePrimitive):
+                    #      pec_face = signal.create_object()
+                    #      face = pec_face.id
+                    #  else:
                     face = oname
                 else:
                     face = sheet_name
-                dist = math.sqrt(self.modeler[face].faces[0].area)
+                dist = math.sqrt(self.modeler[face].faces[0].area)  # TODO: Move this into _create_pec_cap
                 if settings.aedt_version > "2022.2":
                     self._create_pec_cap(face, signal, -dist / 10)
                 else:

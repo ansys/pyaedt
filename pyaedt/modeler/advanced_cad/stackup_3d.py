@@ -2444,7 +2444,10 @@ class Patch(CommonObject, object):
         face_z_values = [f.center[2] for f in probe_feed_outer.faces]
         i_port = face_z_values.index(min(face_z_values))
         self.application.wave_port(
-            probe_feed_outer.faces[i_port], create_pec_cap=True, name="Probe_Port", reference="outer"
+            probe_feed_outer.faces[i_port],
+            reference=probe_feed_outer.name,
+            create_pec_cap=True,
+            name="Probe_Port",
         )
 
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
