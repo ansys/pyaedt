@@ -5980,7 +5980,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        FacePrimitive
+        modeler.cad.elements3d.FacePrimitive
             Face object.
 
         """
