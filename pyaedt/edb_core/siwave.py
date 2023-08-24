@@ -757,7 +757,7 @@ class EdbSiwave(object):
         export_touchstone : bool
             Add the Touchstone file export option in the exec file
         touchstone_file_path : str
-            When string is empty and ``export_touchstone`` == ``True``, The default file path will be at the project
+            When string is empty and ``export_touchstone`` == ``True``, the default file path will be at the project
             location.
         """
         workdir = os.path.dirname(self._pedb.edbpath)
