@@ -1185,7 +1185,7 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
         """
         poly_data = poly.polygon_data
-        new_poly = poly_data.Defeature(tolerance)
+        new_poly = poly_data.edb_api.Defeature(tolerance)
         poly.polygon_data = new_poly
         return True
 

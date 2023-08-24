@@ -1978,7 +1978,7 @@ class Edb(Database):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
         def clean_prim(prim_1):  # pragma: no cover
-            pdata = prim_1.polygon_data
+            pdata = prim_1.polygon_data.edb_api
             int_data = _poly.GetIntersectionType(pdata)
             if int_data == 2:
                 return
@@ -1995,7 +1995,7 @@ class Edb(Database):
                         # points = list(p.Points)
                         list_void = []
                         if voids:
-                            voids_data = [void.polygon_data for void in voids]
+                            voids_data = [void.polygon_data.edb_api for void in voids]
                             list_prims = subtract(p, voids_data)
                             for prim in list_prims:
                                 if not prim.IsNull():
