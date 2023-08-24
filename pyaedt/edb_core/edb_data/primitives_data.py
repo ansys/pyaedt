@@ -779,7 +779,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
              and ``"Gap"``.
         reference_layer : str, optional
             Name of the references layer. The default is ``None``. Only available for gap port.
-        horizontal_extent_factor: int, optional
+        horizontal_extent_factor : int, optional
             Horizontal extent factor of the wave port. The default is ``5``.
         vertical_extent_factor : int, optional
             Vertical extent factor of the wave port. The default is ``3``.
