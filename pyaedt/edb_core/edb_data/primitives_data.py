@@ -753,13 +753,18 @@ class EdbPath(EDBPrimitives, PathDotNet):
         if cloned_path:
             return cloned_path
 
-    #@pyaedt_function_handler
+    # @pyaedt_function_handler
     @pyaedt_function_handler
-    def create_edge_port(self, name, position="End", port_type="Wave",
-                         reference_layer=None,
-                         horizontal_extent_factor=5,
-                         vertical_extent_factor=3,
-                         pec_launch_width="0.01mm"):
+    def create_edge_port(
+        self,
+        name,
+        position="End",
+        port_type="Wave",
+        reference_layer=None,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
+    ):
         """
 
         Parameters
@@ -793,12 +798,12 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
         """
         center_line = self.get_center_line()
-        pos = center_line[-1] if position.lower()=="end" else center_line[0]
+        pos = center_line[-1] if position.lower() == "end" else center_line[0]
 
         if port_type.lower() == "wave":
-            return self._app.hfss.create_wave_port(self.id, pos, name, 50, horizontal_extent_factor,
-            vertical_extent_factor,
-            pec_launch_width)
+            return self._app.hfss.create_wave_port(
+                self.id, pos, name, 50, horizontal_extent_factor, vertical_extent_factor, pec_launch_width
+            )
         else:
             return self._app.hfss.create_edge_port_vertical(self.id, pos, name, 50, reference_layer)
 
