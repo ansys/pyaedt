@@ -5984,9 +5984,9 @@ class GeometryModeler(Modeler, object):
             Face object.
 
         """
-        obj = [o for o in self.object_list for face in o.faces if face.id == id][0]
+        obj = [o for o in self.object_list for face in o.faces if face.id == id]
         if obj:
-            face_obj = [face for face in obj.faces if face.id == id][0]
+            face_obj = [face for face in obj[0].faces if face.id == id][0]
             return face_obj
         else:
             return False

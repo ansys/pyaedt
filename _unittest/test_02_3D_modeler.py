@@ -1,9 +1,12 @@
+import random
+
 from _unittest.conftest import config
 import pytest
 
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.object3d import Object3d
 
 test_subfolder = "T02"
@@ -918,3 +921,11 @@ class TestClass:
         b = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces[0], sweep_value=200)
         assert isinstance(a, list)
         assert isinstance(b, Object3d)
+
+    def test_61_get_face_by_id(self):
+        self.aedtapp.insert_design("face_id_object")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
+        face = self.aedtapp.modeler.get_face_by_id(box1.faces[0].id)
+        assert isinstance(face, FacePrimitive)
+        face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
+        assert not face
