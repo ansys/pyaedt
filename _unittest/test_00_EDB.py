@@ -980,6 +980,7 @@ class TestClass:
         assert self.edbapp.modeler.primitives[i].center
         assert self.edbapp.modeler.primitives[i].get_closest_point((0, 0))
         assert self.edbapp.modeler.primitives[i].polygon_data
+        assert self.edbapp.modeler.paths[0].length
 
     def test_085_short_component(self):
         assert self.edbapp.components.short_component_pins("U12", width=0.2e-3)
