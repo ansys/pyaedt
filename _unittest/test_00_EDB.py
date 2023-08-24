@@ -1344,6 +1344,8 @@ class TestClass:
         assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
+        edb.layout.primitives[1].create_edge_port("new_wave_port")
+        edb.layout.primitives[1].create_edge_port("new_gap_port", "start", "gap")
         edb.close()
 
     def test_108_create_dc_simulation(self):
