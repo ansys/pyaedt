@@ -4,21 +4,10 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import is_ironpython
-# Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt import is_linux
 
-# Setup paths for module imports
-
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
 test_subfolder = "T40"
-
 original_project_name = "ANSYS-HSD_V1"
 
 
@@ -235,7 +224,6 @@ class TestClass:
 
     def test_08_merge(self, add_app):
         tol = 1e-12
-        # brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
         brd = add_app(application=Hfss3dLayout, project_name=self.flipchip.project_name, design_name="Dummy_Board")
         comp = brd.modeler.merge_design(self.flipchip, rotation=90)
         assert comp.location[0] == 0.0

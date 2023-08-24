@@ -1,8 +1,6 @@
 from collections import OrderedDict
 
 from pyaedt import settings
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Mesh import MeshOperation

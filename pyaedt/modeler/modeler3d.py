@@ -6,7 +6,6 @@ import json
 import os.path
 import warnings
 
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -156,8 +155,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         >>> oEditor.Create3DComponent
         """
-        if not variables_to_include:
-            variables_to_include = []
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
@@ -235,9 +232,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
         variables = []
-        if variables_to_include is not None:
-            dependent_variables = []
-
+        dependent_variables = []
+        if variables_to_include is not None and not variables_to_include == []:
             ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
             dep_variables = [i for i in self._app._variable_manager.dependent_variable_names]
             for param in variables_to_include:
@@ -246,7 +242,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     dependent_variables.append(param)
                 elif self._app[param] not in dep_variables:
                     variables.append(param)
-        else:
+        elif variables_to_include is None:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
 

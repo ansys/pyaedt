@@ -1,6 +1,3 @@
-# Setup paths for module imports
-
-# Import required modules
 import pytest
 
 

@@ -55,9 +55,6 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
-# from pyaedt.generic.general_methods import property
-
-
 if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
@@ -529,10 +526,7 @@ class Edb(Database):
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
-        if is_linux:
-            p = subprocess.Popen(cmd_translator)
-        else:
-            p = subprocess.Popen(" ".join(cmd_translator))
+        p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self.logger.error("Translator failed to translate.")
@@ -1984,7 +1978,7 @@ class Edb(Database):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
         def clean_prim(prim_1):  # pragma: no cover
-            pdata = prim_1.polygon_data
+            pdata = prim_1.polygon_data.edb_api
             int_data = _poly.GetIntersectionType(pdata)
             if int_data == 2:
                 return
@@ -2001,7 +1995,7 @@ class Edb(Database):
                         # points = list(p.Points)
                         list_void = []
                         if voids:
-                            voids_data = [void.polygon_data for void in voids]
+                            voids_data = [void.polygon_data.edb_api for void in voids]
                             list_prims = subtract(p, voids_data)
                             for prim in list_prims:
                                 if not prim.IsNull():

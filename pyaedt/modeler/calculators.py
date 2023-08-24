@@ -3,8 +3,6 @@ import math
 from pyaedt import constants
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SpeedOfLight
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
