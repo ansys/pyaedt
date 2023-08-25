@@ -1395,6 +1395,12 @@ class EDBPadstackInstance(object):
         self._edb_padstackinstance.SetProductProperty(self._pedb.edb_api.ProductId.Designer, 11, value)
 
     @property
+    def metal_volume(self):
+        padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
+        hole_diam = padstack_def.hole_properties[0]
+        pass
+
+    @property
     def pin_number(self):
         """Get pin number."""
         return self._edb_padstackinstance.GetName()
