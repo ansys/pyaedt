@@ -1412,44 +1412,6 @@ class EDBPadstackInstance(object):
             pass
         hole_finished_size = padstack_def.hole_finished_size
         volume = 0
-        # for layer, pad in padstack_def.pad_by_layer.items():
-        #     surface = 0
-        #     if pad.geometry_type == 0:
-        #         # no geometry
-        #         pass
-        #     elif pad.geometry_type == 1:
-        #         # circle
-        #         try:
-        #             surface = math.pi * (pad.parameters_values[0] / 2) ** 2
-        #         except:
-        #             pass
-        #     elif pad.geometry_type == 2:
-        #         # square
-        #         try:
-        #             surface = pad.parameters_values[0] ** 2
-        #         except:
-        #             pass
-        #     elif pad.geometry_type == 3:
-        #         # rectangle
-        #         try:
-        #             surface = pad.parameters_values[0] * pad.parameters_values[1]
-        #         except:
-        #             pass
-        #     elif pad.geometry_type == 4:
-        #         # oval
-        #         pass
-        #     elif pad.geometry_type == 5:
-        #         #  bullet
-        #         pass
-        #     elif pad.geometry_type == 7:
-        #         # polygon
-        #         try:
-        #             surface = pad.polygon_data.Area()
-        #         except:
-        #             pass
-        #     if not layer == "Default" and surface:
-        #         surface = surface - math.pi * (hole_diam / 2) ** 2
-        #         volume += surface * self._pedb.stackup.signal_layers[layer].thickness'
         if not self.start_layer == self.stop_layer:
             via_length = (
                 self._pedb.stackup.signal_layers[self.start_layer].upper_elevation
