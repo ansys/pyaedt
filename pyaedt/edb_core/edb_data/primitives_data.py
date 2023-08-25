@@ -716,7 +716,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
         Returns
         -------
         float
-            Path length in meter.
+            Path length in meters.
         """
         center_line = self.get_center_line()
         length = 0
