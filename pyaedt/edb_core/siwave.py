@@ -744,7 +744,7 @@ class EdbSiwave(object):
         self, add_dc=False, add_ac=False, add_syz=False, export_touchstone=False, touchstone_file_path=""
     ):
         """Create an executable file.
-        
+
         Parameters
         ----------
         add_dc : bool, optional
