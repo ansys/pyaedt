@@ -709,6 +709,22 @@ class EdbPath(EDBPrimitives, PathDotNet):
             else:
                 self.primitive_object.SetWidth(value)
 
+    @property
+    def length(self):
+        """Path length in meters.
+
+        Returns
+        -------
+        float
+            Path length in meters.
+        """
+        center_line = self.get_center_line()
+        length = 0
+        for pt_ind in range(len(center_line)):
+            if pt_ind < len(center_line) - 1:
+                length += GeometryOperators.points_distance(center_line[pt_ind], center_line[pt_ind + 1])
+        return length
+
     @pyaedt_function_handler
     def get_center_line(self, to_string=False):
         """Get the center line of the trace.
