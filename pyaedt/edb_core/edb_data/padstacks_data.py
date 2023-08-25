@@ -1396,29 +1396,35 @@ class EDBPadstackInstance(object):
 
     @property
     def metal_volume(self):
-        """Return the padstack instance metal volume in m3.
+        """Return the via hole instance metal volume in m3. Metal plating ratio is accounted.
 
         Returns
         -------
         float
-            padstack instance metal volume.
+            via hole instance metal volume.
 
         """
-        padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
-        hole_diam = 0
-        try:
-            hole_diam = padstack_def.hole_properties[0]
-        except:
-            pass
-        hole_finished_size = padstack_def.hole_finished_size
         volume = 0
         if not self.start_layer == self.stop_layer:
-            via_length = (
-                self._pedb.stackup.signal_layers[self.start_layer].upper_elevation
-                - self._pedb.stackup.signal_layers[self.stop_layer].lower_elevation
-            )
-            volume_via = (math.pi * (hole_diam / 2) ** 2 - math.pi * (hole_finished_size / 2) ** 2) * via_length
-            volume += volume_via
+            start_layer = self.start_layer
+            stop_layer = self.stop_layer
+            if self.backdrill_top:
+                start_layer = self.backdrill_top[0]
+            if self.backdrill_bottom:
+                stop_layer = self.backdrill_bottom[0]
+            padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
+            hole_diam = 0
+            try:
+                hole_diam = padstack_def.hole_properties[0]
+            except:
+                pass
+            if hole_diam:
+                hole_finished_size = padstack_def.hole_finished_size
+                via_length = (
+                    self._pedb.stackup.signal_layers[start_layer].upper_elevation
+                    - self._pedb.stackup.signal_layers[stop_layer].lower_elevation
+                )
+                volume = (math.pi * (hole_diam / 2) ** 2 - math.pi * (hole_finished_size / 2) ** 2) * via_length
         return volume
 
     @property
