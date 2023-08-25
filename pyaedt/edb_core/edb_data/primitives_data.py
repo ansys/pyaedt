@@ -711,7 +711,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
     @property
     def length(self):
-        """Return the path length.
+        """Path length in meters.
 
         Returns
         -------
