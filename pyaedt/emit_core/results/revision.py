@@ -159,6 +159,11 @@ class Revision:
                     raise ValueError("The domain must not have channels specified.")
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
+        if self.emit_project._aedt_version < "2024.1":
+            if len(domain.interferer_names) == 1:
+                engine.max_simultaneous_interferers = 1
+            if len(domain.interferer_names) > 1:
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2023 R2.")
         interaction = engine.run(domain)
         # save the revision
         self.emit_project._emit_api.save_project()
