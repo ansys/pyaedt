@@ -748,16 +748,19 @@ class EdbSiwave(object):
         Parameters
         ----------
         add_dc : bool, optional
-            Add the DC option in the exec file
+            Whether to add the DC option in the EXE file. The default is ``False``.
         add_ac : bool, optional
-            Add the AC option in the exec file.
+            Whether to add the AC option in the EXE file. The default is
+            ``False``.
         add_syz : bool, optional
-            Add the SYZ option in the exec file
+            Whether to add the SYZ option in the EXE file
         export_touchstone : bool, optional
-            Add the Touchstone file export option in the exec file
+            Add the Touchstone file export option in the EXE file.
+            The default is ``False``.
         touchstone_file_path : str, optional
-            When string is empty and ``export_touchstone`` == ``True``, the default file path will be at the project
-            location.
+            File path for the Touchstone file. The default is ``""``.  When no path is
+            specified and ``export_touchstone=True``, the path for the project is
+            used.
         """
         workdir = os.path.dirname(self._pedb.edbpath)
         file_name = os.path.join(workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + ".exec")
