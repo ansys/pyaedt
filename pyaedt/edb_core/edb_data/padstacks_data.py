@@ -1396,9 +1396,68 @@ class EDBPadstackInstance(object):
 
     @property
     def metal_volume(self):
+        """Return the padstack instance metal volume in m3.
+
+        Returns
+        -------
+        float
+            padstack instance metal volume.
+
+        """
         padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
-        hole_diam = padstack_def.hole_properties[0]
-        pass
+        hole_diam = 0
+        try:
+            hole_diam = padstack_def.hole_properties[0]
+        except:
+            pass
+        hole_finished_size = padstack_def.hole_finished_size
+        volume = 0
+        # for layer, pad in padstack_def.pad_by_layer.items():
+        #     surface = 0
+        #     if pad.geometry_type == 0:
+        #         # no geometry
+        #         pass
+        #     elif pad.geometry_type == 1:
+        #         # circle
+        #         try:
+        #             surface = math.pi * (pad.parameters_values[0] / 2) ** 2
+        #         except:
+        #             pass
+        #     elif pad.geometry_type == 2:
+        #         # square
+        #         try:
+        #             surface = pad.parameters_values[0] ** 2
+        #         except:
+        #             pass
+        #     elif pad.geometry_type == 3:
+        #         # rectangle
+        #         try:
+        #             surface = pad.parameters_values[0] * pad.parameters_values[1]
+        #         except:
+        #             pass
+        #     elif pad.geometry_type == 4:
+        #         # oval
+        #         pass
+        #     elif pad.geometry_type == 5:
+        #         #  bullet
+        #         pass
+        #     elif pad.geometry_type == 7:
+        #         # polygon
+        #         try:
+        #             surface = pad.polygon_data.Area()
+        #         except:
+        #             pass
+        #     if not layer == "Default" and surface:
+        #         surface = surface - math.pi * (hole_diam / 2) ** 2
+        #         volume += surface * self._pedb.stackup.signal_layers[layer].thickness'
+        if not self.start_layer == self.stop_layer:
+            via_length = (
+                self._pedb.stackup.signal_layers[self.start_layer].upper_elevation
+                - self._pedb.stackup.signal_layers[self.stop_layer].lower_elevation
+            )
+            volume_via = (math.pi * (hole_diam / 2) ** 2 - math.pi * (hole_finished_size / 2) ** 2) * via_length
+            volume += volume_via
+        return volume
 
     @property
     def pin_number(self):
