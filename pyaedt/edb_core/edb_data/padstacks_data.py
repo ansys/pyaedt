@@ -1414,9 +1414,9 @@ class EDBPadstackInstance(object):
                 stop_layer = self.backdrill_bottom[0]
             padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
             hole_diam = 0
-            try:
+            try:  # pragma no cover
                 hole_diam = padstack_def.hole_properties[0]
-            except:
+            except:  # pragma no cover
                 pass
             if hole_diam:  # pragma no cover
                 hole_finished_size = padstack_def.hole_finished_size
