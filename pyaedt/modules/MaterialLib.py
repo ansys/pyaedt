@@ -527,18 +527,19 @@ class Materials(object):
         new_material.update()
 
         # Parameterize material properties if these were passed.
-        for p in props:
-            if p in valid_prop_names:
-                var_name = "$" + new_name + "_" + p
-                for r in replace_characters:
-                    var_name = var_name.replace(r[0], r[1])
-                self._app[var_name] = getattr(
-                    material, p
-                ).value  # Assign default value to parameterized material parameter.
-                try:
-                    setattr(new_material, p, var_name)
-                except TypeError:
-                    print("p = {}".format(p))
+        if props:
+            for p in props:
+                if p in valid_prop_names:
+                    var_name = "$" + new_name + "_" + p
+                    for r in replace_characters:
+                        var_name = var_name.replace(r[0], r[1])
+                    self._app[var_name] = getattr(
+                        material, p
+                    ).value  # Assign default value to parameterized material parameter.
+                    try:
+                        setattr(new_material, p, var_name)
+                    except TypeError:
+                        print("p = {}".format(p))
 
             # new_material.update()  # Assign parameter to material property.
         self._mats.append(new_name)
