@@ -1,4 +1,3 @@
-# Setup paths for module imports
 import logging
 import os.path
 
@@ -9,11 +8,6 @@ from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
 
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -21,18 +15,6 @@ LOGGER = logging.getLogger(__name__)
 def aedtapp(add_app):
     app = add_app()
     return app
-
-
-# @pytest.fixture(scope="class", autouse=True)
-# def messages(local_scratch):
-#     msg = AedtLogger()
-#     msg.clear_messages()
-#     msg.add_info_message("Test desktop level - Info")
-#     msg.add_info_message("Test desktop level - Info", level="Design")
-#     msg.add_info_message("Test desktop level - Info", level="Project")
-#     msg.add_info_message("Test desktop level - Info", level="Global")
-#     msg.clear_messages(level=0)
-#     msg.clear_messages(level=3)
 
 
 class TestClass:

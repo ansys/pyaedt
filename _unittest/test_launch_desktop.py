@@ -1,4 +1,3 @@
-# Import required modules
 from _unittest.conftest import config
 import pytest
 

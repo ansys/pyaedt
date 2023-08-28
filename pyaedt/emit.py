@@ -9,8 +9,6 @@ from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS
 from pyaedt.emit_core.emit_constants import emit_unit_type_string_to_enum
 from pyaedt.emit_core.results.results import Results
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.schematic import ModelerEmit
 

@@ -24,12 +24,9 @@ class Settings(object):
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
         self._enable_error_handler = True
-        # self._non_graphical = False
         self._aedt_version = None
         self.remote_api = False
         self._use_grpc_api = None
-        # self.machine = ""
-        # self.port = 0
         self.formatter = None
         self.remote_rpc_session = None
         self.remote_rpc_session_temp_folder = ""
@@ -64,8 +61,6 @@ class Settings(object):
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         self._desktop_launch_timeout = 90
-        # self._aedt_process_id = None
-        # self._is_student = False
         self._number_of_grpc_api_retries = 6
         self._retry_n_times_time_interval = 0.1
 
@@ -86,24 +81,6 @@ class Settings(object):
     @number_of_grpc_api_retries.setter
     def number_of_grpc_api_retries(self, value):
         self._number_of_grpc_api_retries = int(value)
-
-    # @property
-    # def aedt_process_id(self):
-    #     """ID of the desktop process. The default is ``None``."""
-    #     return self._aedt_process_id
-    #
-    # @aedt_process_id.setter
-    # def aedt_process_id(self, value):
-    #     self._aedt_process_id = int(value)
-    #
-    # @property
-    # def is_student(self):
-    #     """Flag indicating whether the desktop process is set to the student version."""
-    #     return self._is_student
-    #
-    # @is_student.setter
-    # def is_student(self, value):
-    #     self._is_student = value
 
     @property
     def desktop_launch_timeout(self):
@@ -300,15 +277,6 @@ class Settings(object):
             return logging.getLogger("Global")
         except:  # pragma: no cover
             return logging.getLogger(__name__)
-
-    # @property
-    # def non_graphical(self):
-    #     """Value for the non-graphical flag."""
-    #     return self._non_graphical
-    #
-    # @non_graphical.setter
-    # def non_graphical(self, val):
-    #     self._non_graphical = val
 
     @property
     def enable_error_handler(self):

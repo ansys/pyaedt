@@ -251,7 +251,8 @@ class TestClass:
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        assert self.edbapp.nets.generate_extended_nets()
+        assert self.edbapp.extended_nets.auto_identify_signal()
+        assert self.edbapp.extended_nets.auto_identify_power()
         extended_net_name, extended_net_obj = next(iter(self.edbapp.extended_nets.items.items()))
         assert self.edbapp.extended_nets[extended_net_name]
         assert self.edbapp.extended_nets[extended_net_name].nets
@@ -263,6 +264,7 @@ class TestClass:
 
         assert self.edbapp.extended_nets.create("new_ex_net", "DDR4_A1")
 
+        self.edbapp.differential_pairs.auto_identify()
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
@@ -985,6 +987,9 @@ class TestClass:
             i += 1
         assert self.edbapp.modeler.primitives[i].bbox
         assert self.edbapp.modeler.primitives[i].center
+        assert self.edbapp.modeler.primitives[i].get_closest_point((0, 0))
+        assert self.edbapp.modeler.primitives[i].polygon_data
+        assert self.edbapp.modeler.paths[0].length
 
     def test_085_short_component(self):
         assert self.edbapp.components.short_component_pins("U12", width=0.2e-3)
@@ -1349,6 +1354,9 @@ class TestClass:
         assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
+        sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
+        assert sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+        assert sig.create_edge_port("pcb_port", "start", "gap")
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -2776,3 +2784,9 @@ class TestClass:
             positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
         )
         assert len(reference_pins) == 11
+
+    def test_145_arc_data(self):
+        assert len(self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs) > 0
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
