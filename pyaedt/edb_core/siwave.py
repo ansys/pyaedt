@@ -740,8 +740,28 @@ class EdbSiwave(object):
         return self.create_pin_group_terminal(dc_source)
 
     @pyaedt_function_handler()
-    def create_exec_file(self, add_dc=False, add_ac=False, add_syz=False):
-        """Create an executable file."""
+    def create_exec_file(
+        self, add_dc=False, add_ac=False, add_syz=False, export_touchstone=False, touchstone_file_path=""
+    ):
+        """Create an executable file.
+
+        Parameters
+        ----------
+        add_dc : bool, optional
+            Whether to add the DC option in the EXE file. The default is ``False``.
+        add_ac : bool, optional
+            Whether to add the AC option in the EXE file. The default is
+            ``False``.
+        add_syz : bool, optional
+            Whether to add the SYZ option in the EXE file
+        export_touchstone : bool, optional
+            Add the Touchstone file export option in the EXE file.
+            The default is ``False``.
+        touchstone_file_path : str, optional
+            File path for the Touchstone file. The default is ``""``.  When no path is
+            specified and ``export_touchstone=True``, the path for the project is
+            used.
+        """
         workdir = os.path.dirname(self._pedb.edbpath)
         file_name = os.path.join(workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + ".exec")
         if os.path.isfile(file_name):
@@ -753,6 +773,14 @@ class EdbSiwave(object):
                 f.write("ExecDcSim\n")
             if add_syz:
                 f.write("ExecSyzSim\n")
+            if export_touchstone:
+                if touchstone_file_path:  # pragma no cover
+                    f.write('ExportTouchstone "{}"\n'.format(touchstone_file_path))
+                else:  # pragma no cover
+                    touchstone_file_path = os.path.join(
+                        workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + "_touchstone"
+                    )
+                    f.write('ExportTouchstone "{}"\n'.format(touchstone_file_path))
             f.write("SaveSiw\n")
 
         return True if os.path.exists(file_name) else False

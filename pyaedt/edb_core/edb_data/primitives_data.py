@@ -709,6 +709,22 @@ class EdbPath(EDBPrimitives, PathDotNet):
             else:
                 self.primitive_object.SetWidth(value)
 
+    @property
+    def length(self):
+        """Path length in meters.
+
+        Returns
+        -------
+        float
+            Path length in meters.
+        """
+        center_line = self.get_center_line()
+        length = 0
+        for pt_ind in range(len(center_line)):
+            if pt_ind < len(center_line) - 1:
+                length += GeometryOperators.points_distance(center_line[pt_ind], center_line[pt_ind + 1])
+        return length
+
     @pyaedt_function_handler
     def get_center_line(self, to_string=False):
         """Get the center line of the trace.
@@ -752,6 +768,60 @@ class EdbPath(EDBPrimitives, PathDotNet):
         )
         if cloned_path:
             return cloned_path
+
+    # @pyaedt_function_handler
+    @pyaedt_function_handler
+    def create_edge_port(
+        self,
+        name,
+        position="End",
+        port_type="Wave",
+        reference_layer=None,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
+    ):
+        """
+
+        Parameters
+        ----------
+        name : str
+            Name of the port.
+        position : str, optional
+            Position of the port. The default is ``"End"``, in which case the port is created at the end of the trace.
+            Options are ``"Start"`` and ``"End"``.
+        port_type : str, optional
+            Type of the port. The default is ``"Wave"``, in which case a wave port is created. Options are ``"Wave"``
+             and ``"Gap"``.
+        reference_layer : str, optional
+            Name of the references layer. The default is ``None``. Only available for gap port.
+        horizontal_extent_factor : int, optional
+            Horizontal extent factor of the wave port. The default is ``5``.
+        vertical_extent_factor : int, optional
+            Vertical extent factor of the wave port. The default is ``3``.
+        pec_launch_width : float, str, optional
+            Perfect electrical conductor width of the wave port. The default is ``"0.01mm"``.
+
+        Returns
+        -------
+            :class:`pyaedt.edb_core.edb_data.sources.ExcitationPorts`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> sig = appedb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
+        >>> sig..create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+
+        """
+        center_line = self.get_center_line()
+        pos = center_line[-1] if position.lower() == "end" else center_line[0]
+
+        if port_type.lower() == "wave":
+            return self._app.hfss.create_wave_port(
+                self.id, pos, name, 50, horizontal_extent_factor, vertical_extent_factor, pec_launch_width
+            )
+        else:
+            return self._app.hfss.create_edge_port_vertical(self.id, pos, name, 50, reference_layer)
 
 
 class EdbRectangle(EDBPrimitives, RectangleDotNet):

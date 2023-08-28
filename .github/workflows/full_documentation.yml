@@ -78,6 +78,13 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      - name: Upload HTML documentation artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html-edb
+          path: doc/_build/html/EDBAPI
+          retention-days: 7
+
   doc-deploy-stable:
     name: Deploy stable documentation
     runs-on: ubuntu-latest
@@ -139,5 +146,5 @@ jobs:
           index-name: pyedb-v${{ env.VERSION_MEILI }}
           host-url: ${{ vars.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
-          doc-artifact-name: documentation-html/EDBAPI # Add only EDB API as page in this index.
+          doc-artifact-name: documentation-html-edb # Add only EDB API as page in this index.
 
