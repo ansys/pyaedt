@@ -53,7 +53,7 @@ class HierarchyDotNet:
         return self._hierarchy.PinGroup
 
 
-class PolygonDataDotNet:
+class PolygonDataDotNet:  # pragma: no cover
     """Polygon Data."""
 
     def __getattr__(self, key):  # pragma: no cover
@@ -65,17 +65,23 @@ class PolygonDataDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, pdata):
-        self.dotnetobj = pdata.Geometry.PolygonData
-        self.edb_api = pdata
+    def __init__(self, pedb, api_object=None):
+        self._pedb = pedb
+        self.dotnetobj = pedb.edb_api.geometry.api_class.PolygonData
+        self.edb_api = api_object
 
     @property
     def api_class(self):  # pragma: no cover
-        """Return Ansys.Ansoft.Edb class object."""
+        """:class:`Ansys.Ansoft.Edb` class object."""
         return self.dotnetobj
 
+    @property
+    def arcs(self):  # pragma: no cover
+        """List of Edb.Geometry.ArcData."""
+        return list(self.edb_api.GetArcData())
+
     def get_bbox_of_boxes(self, points):
-        """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfBoxes`.
+        """Get the EDB .NET API ``Edb.Geometry.GetBBoxOfBoxes`` database.
 
         Parameters
         ----------
@@ -105,7 +111,9 @@ class PolygonDataDotNet:
         from pyaedt.generic.clr_module import Tuple
 
         if isinstance(points, (tuple, list)):
-            points = Tuple[self.edb_api.Geometry.PointData, self.edb_api.Geometry.PointData](points[0], points[1])
+            points = Tuple[self._pedb.edb_api.Geometry.PointData, self._pedb.edb_api.Geometry.PointData](
+                points[0], points[1]
+            )
         return self.dotnetobj.CreateFromBBox(points)
 
     def create_from_arcs(self, arcs, flag):
@@ -220,8 +228,8 @@ class NetDotNet:
 
     @property
     def _api_get_extended_net(self):
-        """The ExtendedNet this Net belongs to if it belongs to a ExtendedNet. If it doesn't belong to an ExtendedNet,
-        a null ExtendedNet is returned
+        """Extended net this net belongs to if it belongs to an extended net.
+        If it does not belong to an extendednet, a null extended net is returned.
         """
         return self.net_obj.GetExtendedNet()
 
@@ -497,8 +505,8 @@ class GeometryDotNet:
         except AttributeError:
             try:
                 return getattr(self.geometry, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
+            except AttributeError:  # pragma: no cover
+                raise AttributeError("Attribute {} not present".format(key))
 
     def __init__(self, app):
         self._app = app
@@ -545,10 +553,10 @@ class GeometryDotNet:
         -------
         :class:`pyaedt.edb_core.dotnet.PolygonDataDotNet`
         """
-        return PolygonDataDotNet(self.edb_api)
+        return PolygonDataDotNet(self._app)
 
     def arc_data(self, point1, point2, rotation=None, center=None, height=None):
-        """Compute Edb ArcData.
+        """Compute EBD arc data.
 
         Parameters
         ----------

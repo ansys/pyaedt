@@ -325,7 +325,7 @@ class EDBPrimitives(EDBPrimitivesMain):
             [lower_left x, lower_left y, upper right x, upper right y]
 
         """
-        bbox = self.polygon_data.GetBBox()
+        bbox = self.polygon_data.edb_api.GetBBox()
         return [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble(), bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
 
     @property
@@ -400,14 +400,14 @@ class EDBPrimitives(EDBPrimitivesMain):
             if isinstance(prim, EDBPrimitives):
                 primi_polys.append(prim.primitive_object.GetPolygonData())
                 for void in prim.voids:
-                    voids_of_prims.append(void.polygon_data)
+                    voids_of_prims.append(void.polygon_data.edb_api)
             else:
                 try:
                     primi_polys.append(prim.GetPolygonData())
                 except:
                     primi_polys.append(prim)
         for v in self.voids[:]:
-            primi_polys.append(v.polygon_data)
+            primi_polys.append(v.polygon_data.edb_api)
         primi_polys = poly.Unite(convert_py_list_to_net_list(primi_polys))
         p_to_sub = poly.Unite(convert_py_list_to_net_list([poly] + voids_of_prims))
         list_poly = poly.Subtract(p_to_sub, primi_polys)
@@ -596,7 +596,7 @@ class EDBPrimitives(EDBPrimitivesMain):
             poly = primitive.polygon_data
         except AttributeError:
             pass
-        return int(self.polygon_data.GetIntersectionType(poly))
+        return int(self.polygon_data.edb_api.GetIntersectionType(poly.edb_api))
 
     @pyaedt_function_handler()
     def is_intersecting(self, primitive):
@@ -624,10 +624,10 @@ class EDBPrimitives(EDBPrimitivesMain):
         -------
         list of float
         """
-        if isinstance(point, list):
+        if isinstance(point, (list, tuple)):
             point = self._app.edb_api.geometry.point_data(self._app.edb_value(point[0]), self._app.edb_value(point[1]))
 
-        p0 = self.polygon_data.GetClosestPoint(point)
+        p0 = self.polygon_data.edb_api.GetClosestPoint(point)
         return [p0.X.ToDouble(), p0.Y.ToDouble()]
 
     @pyaedt_function_handler()
@@ -657,9 +657,7 @@ class EDBPrimitives(EDBPrimitivesMain):
     @property
     def arcs(self):
         """Get the Primitive Arc Data."""
-        arcs = []
-        if self.polygon_data.IsClosed():
-            arcs = [EDBArcs(self, i) for i in list(self.polygon_data.GetArcData())]
+        arcs = [EDBArcs(self, i) for i in self.polygon_data.arcs]
         return arcs
 
     @property
@@ -711,6 +709,22 @@ class EdbPath(EDBPrimitives, PathDotNet):
             else:
                 self.primitive_object.SetWidth(value)
 
+    @property
+    def length(self):
+        """Path length in meters.
+
+        Returns
+        -------
+        float
+            Path length in meters.
+        """
+        center_line = self.get_center_line()
+        length = 0
+        for pt_ind in range(len(center_line)):
+            if pt_ind < len(center_line) - 1:
+                length += GeometryOperators.points_distance(center_line[pt_ind], center_line[pt_ind + 1])
+        return length
+
     @pyaedt_function_handler
     def get_center_line(self, to_string=False):
         """Get the center line of the trace.
@@ -755,6 +769,60 @@ class EdbPath(EDBPrimitives, PathDotNet):
         if cloned_path:
             return cloned_path
 
+    # @pyaedt_function_handler
+    @pyaedt_function_handler
+    def create_edge_port(
+        self,
+        name,
+        position="End",
+        port_type="Wave",
+        reference_layer=None,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
+    ):
+        """
+
+        Parameters
+        ----------
+        name : str
+            Name of the port.
+        position : str, optional
+            Position of the port. The default is ``"End"``, in which case the port is created at the end of the trace.
+            Options are ``"Start"`` and ``"End"``.
+        port_type : str, optional
+            Type of the port. The default is ``"Wave"``, in which case a wave port is created. Options are ``"Wave"``
+             and ``"Gap"``.
+        reference_layer : str, optional
+            Name of the references layer. The default is ``None``. Only available for gap port.
+        horizontal_extent_factor : int, optional
+            Horizontal extent factor of the wave port. The default is ``5``.
+        vertical_extent_factor : int, optional
+            Vertical extent factor of the wave port. The default is ``3``.
+        pec_launch_width : float, str, optional
+            Perfect electrical conductor width of the wave port. The default is ``"0.01mm"``.
+
+        Returns
+        -------
+            :class:`pyaedt.edb_core.edb_data.sources.ExcitationPorts`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> sig = appedb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
+        >>> sig..create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+
+        """
+        center_line = self.get_center_line()
+        pos = center_line[-1] if position.lower() == "end" else center_line[0]
+
+        if port_type.lower() == "wave":
+            return self._app.hfss.create_wave_port(
+                self.id, pos, name, 50, horizontal_extent_factor, vertical_extent_factor, pec_launch_width
+            )
+        else:
+            return self._app.hfss.create_edge_port_vertical(self.id, pos, name, 50, reference_layer)
+
 
 class EdbRectangle(EDBPrimitives, RectangleDotNet):
     def __init__(self, raw_primitive, core_app):
@@ -783,12 +851,12 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
             ``True`` when successful, ``False`` when failed.
         """
         cloned_poly = self._app.edb_api.cell.primitive.polygon.create(
-            self._app.active_layout, self.layer_name, self.net, self.polygon_data
+            self._app.active_layout, self.layer_name, self.net, self.polygon_data.edb_api
         )
         if cloned_poly:
             for void in self.voids:
                 cloned_void = self._app.edb_api.cell.primitive.polygon.create(
-                    self._app.active_layout, self.layer_name, self.net, void.polygon_data
+                    self._app.active_layout, self.layer_name, self.net, void.polygon_data.edb_api
                 )
                 # cloned_void
                 cloned_poly.prim_obj.AddVoid(cloned_void.prim_obj)
@@ -818,7 +886,7 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
             point_data = self._app.edb_api.geometry.point_data(
                 self._app.edb_value(point_data[0]), self._app.edb_value(point_data[1])
             )
-        int_val = int(self.polygon_data.PointInPolygon(point_data))
+        int_val = int(self.polygon_data.edb_api.PointInPolygon(point_data))
 
         # Intersection type:
         # 0 = objects do not intersect
@@ -893,6 +961,60 @@ class EDBArcs(object):
     def __init__(self, app, arc):
         self._app = app
         self.arc_object = arc
+
+    @property
+    def start(self):
+        """Get the coordinates of the starting point.
+
+        Returns
+        -------
+        list
+            List containing the X and Y coordinates of the starting point.
+
+
+        Examples
+        --------
+        >>> appedb = Edb(fpath, edbversion="2023.2")
+        >>> start_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].start
+        >>> print(start_coordinate)
+        [x_value, y_value]
+        """
+        point = self.arc_object.Start
+        return [point.X.ToDouble(), point.Y.ToDouble()]
+
+    @property
+    def end(self):
+        """Get the coordinates of the ending point.
+
+        Returns
+        -------
+        list
+            List containing the X and Y coordinates of the ending point.
+
+        Examples
+        --------
+        >>> appedb = Edb(fpath, edbversion="2023.2")
+        >>> end_coordinate = appedb.nets["V1P0_S0"].primitives[0].arcs[0].end
+        """
+        point = self.arc_object.End
+        return [point.X.ToDouble(), point.Y.ToDouble()]
+
+    @property
+    def height(self):
+        """Get the height of the arc.
+
+        Returns
+        -------
+        float
+            Height of the arc.
+
+
+        Examples
+        --------
+        >>> appedb = Edb(fpath, edbversion="2023.2")
+        >>> arc_height = appedb.nets["V1P0_S0"].primitives[0].arcs[0].height
+        """
+        return self.arc_object.Height
 
     @property
     def center(self):
