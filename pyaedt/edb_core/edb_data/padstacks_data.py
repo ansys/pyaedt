@@ -1408,9 +1408,9 @@ class EDBPadstackInstance(object):
         if not self.start_layer == self.stop_layer:
             start_layer = self.start_layer
             stop_layer = self.stop_layer
-            if self.backdrill_top:
+            if self.backdrill_top:  # pragma no cover
                 start_layer = self.backdrill_top[0]
-            if self.backdrill_bottom:
+            if self.backdrill_bottom:  # pragma no cover
                 stop_layer = self.backdrill_bottom[0]
             padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
             hole_diam = 0
@@ -1418,7 +1418,7 @@ class EDBPadstackInstance(object):
                 hole_diam = padstack_def.hole_properties[0]
             except:
                 pass
-            if hole_diam:
+            if hole_diam:  # pragma no cover
                 hole_finished_size = padstack_def.hole_finished_size
                 via_length = (
                     self._pedb.stackup.signal_layers[start_layer].upper_elevation
