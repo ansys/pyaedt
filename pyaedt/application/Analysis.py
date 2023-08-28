@@ -177,8 +177,10 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
-        if not self._materials:  # Instantiate an instance of self._materials the first time the app tries to
-            from pyaedt.modules.MaterialLib import Materials  # access it.
+
+        # Instantiate an instance of self._materials the first time it is accessed.
+        if not self._materials:
+            from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
         return self._materials

@@ -499,24 +499,27 @@ def str_to_bool(s):
     Parameters
     ----------
     s: str
-         Input parameter to convert to a Boolean if the data type is a string
-         with a vlue of ``"True"``, ``"true"``,
-         ``"False"`` or ``"false"``.
 
     Returns
     -------
-    bool
+    bool or str
+         The method is case-insensitive.
+         - ``True`` is returned  if the input is ``"true"``, ``"1"``,
+           `"yes"`` or ``"y"``,
+         - ``False`` is returned if the input is ``"false"``, ``"no"``,
+           ``"n``,  or ``"0"``.
+         - Otherwise, the input value is returned unchanged.
 
     """
     if type(s) == str:
-        if s.lower() == "true":
+        if s.lower() in ["true", "yes", "y", "1"]:
             return True
-        elif s.lower() == "false":
+        elif s.lower() in ["false", "no", "n", "0"]:
             return False
         else:
             return s
-    else:
-        return s
+    elif type(s) == int:
+        return False if s == 0 else True
 
 
 @pyaedt_function_handler()
