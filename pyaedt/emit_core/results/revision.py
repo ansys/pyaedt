@@ -163,7 +163,7 @@ class Revision:
             if len(domain.interferer_names) == 1:
                 engine.max_simultaneous_interferers = 1
             if len(domain.interferer_names) > 1:
-                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2023 R2.")
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
         interaction = engine.run(domain)
         # save the revision
         self.emit_project._emit_api.save_project()
