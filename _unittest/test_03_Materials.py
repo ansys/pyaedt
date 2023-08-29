@@ -47,7 +47,7 @@ class TestClass:
         assert mat1.poissons_ratio.value == MatProperties.get_defaultvalue(aedtname="poissons_ratio")
         mat1.thermal_conductivity.value = MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
         assert mat1.thermal_conductivity.value == MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
-        mat1.thermal_conductivity.value = [[1, 2, 3], [2, 3, 4], [4, 5, 6]]
+        mat1.thermal_conductivity.type = "tensor"
         mat1.diffusivity.value = MatProperties.get_defaultvalue(aedtname="diffusivity")
 
         assert mat1.diffusivity.value == MatProperties.get_defaultvalue(aedtname="diffusivity")
