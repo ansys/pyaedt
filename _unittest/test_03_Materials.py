@@ -33,20 +33,23 @@ class TestClass:
         assert mat1.conductivity.value == 59000000000
         mat1.permeability.value = MatProperties.get_defaultvalue(aedtname="permeability")
         assert mat1.permeability.value == MatProperties.get_defaultvalue(aedtname="permeability")
-        mat1.permittivity.value = MatProperties.get_defaultvalue(aedtname="permittivity")
-        assert mat1.permittivity.value == MatProperties.get_defaultvalue(aedtname="permittivity")
-        mat1.dielectric_loss_tangent.value = MatProperties.get_defaultvalue(aedtname="dielectric_loss_tangent")
-        assert mat1.dielectric_loss_tangent.value == MatProperties.get_defaultvalue(aedtname="dielectric_loss_tangent")
-        mat1.magnetic_loss_tangent.value = MatProperties.get_defaultvalue(aedtname="magnetic_loss_tangent")
-        assert mat1.magnetic_loss_tangent.value == MatProperties.get_defaultvalue(aedtname="magnetic_loss_tangent")
-        mat1.mass_density.value = MatProperties.get_defaultvalue(aedtname="mass_density")
-        assert mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
-        mat1.youngs_modulus.value = MatProperties.get_defaultvalue(aedtname="youngs_modulus")
-        assert mat1.youngs_modulus.value == MatProperties.get_defaultvalue(aedtname="youngs_modulus")
-        mat1.poissons_ratio.value = MatProperties.get_defaultvalue(aedtname="poissons_ratio")
-        assert mat1.poissons_ratio.value == MatProperties.get_defaultvalue(aedtname="poissons_ratio")
-        mat1.thermal_conductivity.value = MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
-        assert mat1.thermal_conductivity.value == MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
+        mat1.permittivity.value = 5
+        assert mat1.permittivity.value == 5
+        mat1.dielectric_loss_tangent.value = 0.1
+        assert mat1.dielectric_loss_tangent.value == 0.1
+        mat1.magnetic_loss_tangent.value = 0.2
+        assert mat1.magnetic_loss_tangent.value == 0.2
+        mat1.mass_density.value = 100
+        assert mat1.mass_density.value == 100
+        mat1.youngs_modulus.value = 1000
+        assert mat1.youngs_modulus.value == 1000
+        mat1.poissons_ratio.value = [1, 2, 3]
+        assert mat1.poissons_ratio.value == [1, 2, 3]
+        assert mat1.poissons_ratio.type == "anisotropic"
+        mat1.thermal_conductivity.value = 5
+        assert mat1.thermal_conductivity.value == 5
+        mat1.thermal_conductivity = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        assert mat1.thermal_conductivity.type == "tensor"
         mat1.diffusivity.value = MatProperties.get_defaultvalue(aedtname="diffusivity")
 
         assert mat1.diffusivity.value == MatProperties.get_defaultvalue(aedtname="diffusivity")
@@ -54,22 +57,15 @@ class TestClass:
         assert "Electromagnetic" in mat1.physics_type
         mat1.molecular_mass.value = MatProperties.get_defaultvalue(aedtname="molecular_mass")
         mat1.specific_heat.value = MatProperties.get_defaultvalue(aedtname="specific_heat")
-        mat1.thermal_expansion_coefficient.value = MatProperties.get_defaultvalue(
-            aedtname="thermal_expansion_coefficient"
-        )
+        mat1.thermal_expansion_coefficient.value = 100
 
         assert mat1.coordinate_system == "Cartesian"
         assert mat1.name == "new_copper2"
         assert mat1.molecular_mass.value == MatProperties.get_defaultvalue(aedtname="molecular_mass")
         assert mat1.specific_heat.value == MatProperties.get_defaultvalue(aedtname="specific_heat")
-        assert mat1.thermal_expansion_coefficient.value == MatProperties.get_defaultvalue(
-            aedtname="thermal_expansion_coefficient"
-        )
+        assert mat1.thermal_expansion_coefficient.value == 100
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
-
-        mat1.thermal_conductivity.type = "anisotropic"
-        mat1.thermal_conductivity.type = "tensor"
 
         assert mat1.set_magnetic_coercitivity(1, 2, 3, 4)
         assert mat1.get_magnetic_coercitivity() == ("1A_per_meter", "2", "3", "4")

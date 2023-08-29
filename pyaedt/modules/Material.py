@@ -313,9 +313,15 @@ class MatProperty(object):
 
     @value.setter
     def value(self, val):
-        if self.type == "nonlinear":
+        if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
+            self.set_non_linear(val)
         elif isinstance(val, list):
+            if len(val) == 3:
+                self.type = "anisotropic"
+            elif len(val) == 9:
+                self.type = "tensor"
+
             i = 0
             for el in val:
                 if i >= len(self._property_value):
@@ -323,8 +329,11 @@ class MatProperty(object):
 
                 self._property_value[i].value = el
                 i += 1
+            self._material._update_props(self.name, val)
         else:
+            self.type = "simple"
             self._property_value[0].value = val
+            self._material._update_props(self.name, val)
 
     @property
     def unit(self):
@@ -780,7 +789,7 @@ class MatProperty(object):
             )
             return False
         self.type = "nonlinear"
-        self.value = point_list
+        # self.value = point_list
         if self.name == "permeability":
             if not x_unit:
                 x_unit = "tesla"
@@ -803,7 +812,7 @@ class MatProperty(object):
             if not y_unit:
                 y_unit = "A_per_m2"
             self._unit = [x_unit, y_unit]
-        return self._material._update_props(self.name, self.value)
+        return self._material._update_props(self.name, self._property_value[0].value)
 
     @property
     def spatialmodifier(self):
@@ -1088,7 +1097,11 @@ class CommonMaterial(object):
             i = 1
             for val in provpavlue:
                 if not self._props.get(propname, None) or not isinstance(self._props[propname], dict):
-                    self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
+                    if self.__dict__["_" + propname].type == "tensor":
+                        self._props[propname] = OrderedDict({"property_type": "TensorProperty"})
+                        self._props[propname]["Symmetric"] = False
+                    else:
+                        self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
                     self._props[propname]["unit"] = ""
                 self._props[propname]["component" + str(i)] = str(val)
                 i += 1
@@ -1301,16 +1314,7 @@ class Material(CommonMaterial, object):
 
     @permittivity.setter
     def permittivity(self, value):
-        if isinstance(value, list) and isinstance(value[0], list):
-            self._permittivity.set_non_linear(value)
-        elif isinstance(value, list):
-            self._permittivity.value = value
-            self._permittivity.type = "anisotropic"
-            self._update_props("permittivity", value)
-        else:
-            self._permittivity.value = value
-            self._permittivity.type = "simple"
-            self._update_props("permittivity", value)
+        self._permittivity.value = value
 
     @property
     def permeability(self):
@@ -1330,16 +1334,7 @@ class Material(CommonMaterial, object):
 
     @permeability.setter
     def permeability(self, value):
-        if isinstance(value, list) and isinstance(value[0], list):
-            self._permeability.set_non_linear(value)
-        elif isinstance(value, list):
-            self._permeability.value = value
-            self._permeability.type = "anisotropic"
-            self._update_props("permeability", value)
-        else:
-            self._permeability.value = value
-            self._permeability.type = "simple"
-            self._update_props("permeability", value)
+        self._permeability.value = value
 
     @property
     def conductivity(self):
@@ -1359,16 +1354,7 @@ class Material(CommonMaterial, object):
 
     @conductivity.setter
     def conductivity(self, value):
-        if isinstance(value, list) and isinstance(value[0], list):
-            self._conductivity.set_non_linear(value)
-        elif isinstance(value, list):
-            self._conductivity.value = value
-            self._conductivity.type = "anisotropic"
-            self._update_props("conductivity", value)
-        else:
-            self._conductivity.value = value
-            self._conductivity.type = "simple"
-            self._update_props("conductivity", value)
+        self._conductivity.value = value
 
     @property
     def dielectric_loss_tangent(self):
@@ -1384,7 +1370,6 @@ class Material(CommonMaterial, object):
     @dielectric_loss_tangent.setter
     def dielectric_loss_tangent(self, value):
         self._dielectric_loss_tangent.value = value
-        self._update_props("dielectric_loss_tangent", value)
 
     @property
     def magnetic_loss_tangent(self):
@@ -1405,7 +1390,6 @@ class Material(CommonMaterial, object):
     @magnetic_loss_tangent.setter
     def magnetic_loss_tangent(self, value):
         self._magnetic_loss_tangent.value = value
-        self._update_props("magnetic_loss_tangent", value)
 
     @property
     def thermal_conductivity(self):
@@ -1425,15 +1409,16 @@ class Material(CommonMaterial, object):
 
     @thermal_conductivity.setter
     def thermal_conductivity(self, value):
-        self._thermal_conductivity.value = value
-        self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
-        if isinstance(value, list):
-            self._thermal_conductivity.type = "anisotropic"
-            self._update_props("thermal_conductivity", value)
-        else:
-            self._thermal_conductivity.type = "simple"
-            self._update_props("thermal_conductivity", value)
+        self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
+        self._thermal_conductivity.value = value
+        #
+        # if isinstance(value, list):
+        #     self._thermal_conductivity.type = "anisotropic"
+        #     self._update_props("thermal_conductivity", value)
+        # else:
+        #     self._thermal_conductivity.type = "simple"
+        #     self._update_props("thermal_conductivity", value)
 
     @property
     def mass_density(self):
@@ -1454,7 +1439,6 @@ class Material(CommonMaterial, object):
     @mass_density.setter
     def mass_density(self, value):
         self._mass_density.value = value
-        self._update_props("mass_density", value)
 
     @property
     def specific_heat(self):
@@ -1475,7 +1459,6 @@ class Material(CommonMaterial, object):
     @specific_heat.setter
     def specific_heat(self, value):
         self._specific_heat.value = value
-        self._update_props("specific_heat", value)
 
     @property
     def thermal_expansion_coefficient(self):
@@ -1496,7 +1479,6 @@ class Material(CommonMaterial, object):
     @thermal_expansion_coefficient.setter
     def thermal_expansion_coefficient(self, value):
         self._thermal_expansion_coefficient.value = value
-        self._update_props("thermal_expansion_coefficient", value)
 
     @property
     def youngs_modulus(self):
@@ -1516,10 +1498,9 @@ class Material(CommonMaterial, object):
 
     @youngs_modulus.setter
     def youngs_modulus(self, value):
-        self._youngs_modulus.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
-        self._update_props("youngs_modulus", value)
+        self._youngs_modulus.value = value
 
     @property
     def poissons_ratio(self):
@@ -1539,10 +1520,9 @@ class Material(CommonMaterial, object):
 
     @poissons_ratio.setter
     def poissons_ratio(self, value):
-        self._poissons_ratio.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
-        self._update_props("poissons_ratio", value)
+        self._poissons_ratio.value = value
 
     @property
     def diffusivity(self):
@@ -1563,7 +1543,6 @@ class Material(CommonMaterial, object):
     @diffusivity.setter
     def diffusivity(self, value):
         self._diffusivity.value = value
-        self._update_props("diffusivity", value)
 
     @property
     def molecular_mass(self):
@@ -1584,7 +1563,6 @@ class Material(CommonMaterial, object):
     @molecular_mass.setter
     def molecular_mass(self, value):
         self._molecular_mass.value = value
-        self._update_props("molecular_mass", value)
 
     @property
     def viscosity(self):
@@ -1605,7 +1583,6 @@ class Material(CommonMaterial, object):
     @viscosity.setter
     def viscosity(self, value):
         self._viscosity.value = value
-        self._update_props("viscosity", value)
 
     @property
     def stacking_type(self):
