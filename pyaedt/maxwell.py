@@ -2985,3 +2985,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             self._boundaries[bound.name] = bound
             return bound
         return False
+
+    def is_skewed(self):
+        """"""
+        pass
