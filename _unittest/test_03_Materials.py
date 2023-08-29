@@ -47,7 +47,6 @@ class TestClass:
         assert mat1.poissons_ratio.value == MatProperties.get_defaultvalue(aedtname="poissons_ratio")
         mat1.thermal_conductivity.value = MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
         assert mat1.thermal_conductivity.value == MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
-        mat1.thermal_conductivity.type = "tensor"
         mat1.diffusivity.value = MatProperties.get_defaultvalue(aedtname="diffusivity")
 
         assert mat1.diffusivity.value == MatProperties.get_defaultvalue(aedtname="diffusivity")
@@ -68,6 +67,9 @@ class TestClass:
         )
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
+
+        mat1.thermal_conductivity.type = "anisotropic"
+        mat1.thermal_conductivity.type = "tensor"
 
         assert mat1.set_magnetic_coercitivity(1, 2, 3, 4)
         assert mat1.get_magnetic_coercitivity() == ("1A_per_meter", "2", "3", "4")
