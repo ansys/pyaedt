@@ -31,8 +31,12 @@ class TestClass:
         assert mat1
         mat1.conductivity = 59000000000
         assert mat1.conductivity.value == 59000000000
+        # mat1.conductivity.value = [[1, 2], [2, 3], [2, 3]]
+        # mat1.conductivity.type == "nonlinear"
         mat1.permeability.value = MatProperties.get_defaultvalue(aedtname="permeability")
         assert mat1.permeability.value == MatProperties.get_defaultvalue(aedtname="permeability")
+        mat1.permeability.value = [[0, 0], [30, 40], [50, 60]]
+        mat1.permeability.type == "nonlinear"
         mat1.permittivity.value = 5
         assert mat1.permittivity.value == 5
         mat1.dielectric_loss_tangent.value = 0.1
@@ -201,9 +205,9 @@ class TestClass:
     def test_09_non_linear_materials(self, add_app):
         app = add_app(application=Maxwell3d)
         mat1 = app.materials.add_material("myMat")
-        assert mat1.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
-        assert mat1.permittivity.set_non_linear([[0, 0], [2, 12], [10, 30]])
-        assert mat1.conductivity.set_non_linear([[0, 0], [3, 12], [10, 30]])
+        mat1.permeability = [[0, 0], [1, 12], [10, 30]]
+        mat1.permittivity = [[0, 0], [2, 12], [10, 30]]
+        mat1.conductivity.value = [[0, 0], [3, 12], [10, 30]]
         app.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "non_linear.json"))
         os.path.exists(os.path.join(self.local_scratch.path, "non_linear.json"))
         app.materials.remove_material("myMat")
@@ -216,7 +220,6 @@ class TestClass:
         assert app.materials["myMat"].permittivity.type == "nonlinear"
         assert app.materials["myMat"].permeability.bunit == "tesla"
         mat2 = app.materials.add_material("myMat2")
-        assert mat2.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
         assert app.modeler.create_box([0, 0, 0], [10, 10, 10], matname="myMat2")
 
     def test_10_add_material_sweep(self):

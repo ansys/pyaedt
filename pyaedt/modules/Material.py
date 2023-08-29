@@ -315,7 +315,7 @@ class MatProperty(object):
     def value(self, val):
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
-            self.set_non_linear(val)
+            self.set_non_linear()
         elif isinstance(val, list):
             if len(val) == 3:
                 self.type = "anisotropic"
@@ -766,13 +766,11 @@ class MatProperty(object):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def set_non_linear(self, point_list, x_unit=None, y_unit=None):
+    def set_non_linear(self, x_unit=None, y_unit=None):
         """Enable Non Linear Material.
 
         Parameters
         ----------
-        point_list : list of list
-            list of [x,y] nonlinear couple of points.
         x_unit : str, optional
             X units. Defaults will be used if `None`.
         y_unit : str, optional
@@ -789,7 +787,6 @@ class MatProperty(object):
             )
             return False
         self.type = "nonlinear"
-        # self.value = point_list
         if self.name == "permeability":
             if not x_unit:
                 x_unit = "tesla"
@@ -1089,15 +1086,18 @@ class CommonMaterial(object):
             Whether to update the property in AEDT. The default is ``True``.
 
         """
-        if (
-            isinstance(provpavlue, list)
-            and self.__dict__["_" + propname].type != "simple"
-            and self.__dict__["_" + propname].type != "nonlinear"
-        ):
+
+        try:
+            material_props = getattr(self, propname)
+            material_props_type = material_props.type
+        except:
+            material_props_type = None
+
+        if isinstance(provpavlue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
             i = 1
             for val in provpavlue:
                 if not self._props.get(propname, None) or not isinstance(self._props[propname], dict):
-                    if self.__dict__["_" + propname].type == "tensor":
+                    if material_props_type == "tensor":
                         self._props[propname] = OrderedDict({"property_type": "TensorProperty"})
                         self._props[propname]["Symmetric"] = False
                     else:
@@ -1115,7 +1115,7 @@ class CommonMaterial(object):
             self._props[propname] = provpavlue
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, list) and self.__dict__["_" + propname].type == "nonlinear":
+        elif isinstance(provpavlue, list) and material_props_type and material_props_type == "nonlinear":
             if propname == "permeability":
                 bh = OrderedDict({"DimUnits": ["", ""]})
                 for point in provpavlue:
