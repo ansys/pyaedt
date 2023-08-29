@@ -978,6 +978,9 @@ class TestClass:
             i += 1
         assert self.edbapp.modeler.primitives[i].bbox
         assert self.edbapp.modeler.primitives[i].center
+        assert self.edbapp.modeler.primitives[i].get_closest_point((0, 0))
+        assert self.edbapp.modeler.primitives[i].polygon_data
+        assert self.edbapp.modeler.paths[0].length
 
     def test_085_short_component(self):
         assert self.edbapp.components.short_component_pins("U12", width=0.2e-3)
@@ -1342,6 +1345,9 @@ class TestClass:
         assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
+        sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
+        assert sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+        assert sig.create_edge_port("pcb_port", "start", "gap")
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -2746,3 +2752,9 @@ class TestClass:
             use_q3d=True,
         )
         assert setup.sweeps
+
+    def test_144_arc_data(self):
+        assert len(self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs) > 0
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height

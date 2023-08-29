@@ -5968,3 +5968,25 @@ class GeometryModeler(Modeler, object):
         except:
             self.logger.error("Simplify objects failed.")
             return False
+
+    @pyaedt_function_handler
+    def get_face_by_id(self, id):
+        """Give the face object given its Id.
+
+        Parameters
+        ----------
+        id : int
+            Id of the face to retrieve.
+
+        Returns
+        -------
+        modeler.cad.elements3d.FacePrimitive
+            Face object.
+
+        """
+        obj = [o for o in self.object_list for face in o.faces if face.id == id]
+        if obj:
+            face_obj = [face for face in obj[0].faces if face.id == id][0]
+            return face_obj
+        else:
+            return False
