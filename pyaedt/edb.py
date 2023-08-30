@@ -3359,15 +3359,15 @@ class Edb(Database):
                 edb_zones[edb_zone_path] = (zone_ids[0], poly_data)
             else:
                 self.logger.info(
-                    "Number of zone primitives not equal to zone number, zone information will be lost, plelase"
-                    "use ANSYS Release 2014R1 or later."
+                    "Number of zone primitives is not equal to zone number. Zone information will be lost."
+                    "Use Ansys 2024 R1 or later."
                 )
                 edb_zones[edb_zone_path] = (-1, poly_data)
         return edb_zones
 
     @pyaedt_function_handler()
     def cutout_multizone_layout(self, zone_dict, common_reference_net=None):
-        """Create multizone project cutout.
+        """Create a multizone project cutout.
 
         Parameters
         ----------
