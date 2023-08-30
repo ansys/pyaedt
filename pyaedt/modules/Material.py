@@ -815,7 +815,7 @@ class MatProperty(object):
         if self._material._material_update:
             return self._material._update_props(self.name, self._property_value[0].value)
         else:
-            True
+            return True
 
     @property
     def spatialmodifier(self):
