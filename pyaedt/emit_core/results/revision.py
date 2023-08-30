@@ -4,6 +4,8 @@ from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
+from EmitApiPython import InteractionDomain
+from EmitApiPython import Interaction
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -33,7 +35,7 @@ class Revision:
 
     >>> aedtapp = Emit()
     >>> rev = Revision(results, aedtapp, "Revision 1")
-    >>> domain = aedtapp.interaction_domain()
+    >>> domain = aedtapp.results.interaction_domain()
     >>> rev.run(domain)
     """
 
@@ -91,7 +93,7 @@ class Revision:
         self.revision_loaded = True
 
     @staticmethod
-    def result_mode_error():
+    def result_mode_error() -> str:
         """
         Print the function mode error message.
 
@@ -105,7 +107,7 @@ class Revision:
         return err_msg
 
     @pyaedt_function_handler()
-    def get_interaction(self, domain):
+    def get_interaction(self, domain: InteractionDomain) -> Interaction:
         """
         Creates a new interaction for a domain.
 
@@ -133,7 +135,7 @@ class Revision:
         return interaction
 
     @pyaedt_function_handler()
-    def run(self, domain):
+    def run(self, domain: InteractionDomain) -> Interaction:
         """
         Load the revision and then analyze along the given domain.
 
@@ -167,7 +169,7 @@ class Revision:
         return interaction
 
     @pyaedt_function_handler()
-    def is_domain_valid(self, domain):
+    def is_domain_valid(self, domain: InteractionDomain) -> bool:
         """
         Return ``True`` if the given domain is valid for the current revision.
 
@@ -187,7 +189,7 @@ class Revision:
         return engine.is_domain_valid(domain)
 
     @pyaedt_function_handler()
-    def get_instance_count(self, domain):
+    def get_instance_count(self, domain: InteractionDomain) -> int:
         """
         Return the number of instances in the domain for the current revision.
 
@@ -211,7 +213,7 @@ class Revision:
         return engine.get_instance_count(domain)
 
     @pyaedt_function_handler()
-    def get_receiver_names(self):
+    def get_receiver_names(self) -> list[str]:
         """
         Get a list of all receivers in the project.
 
@@ -240,7 +242,7 @@ class Revision:
         return radios
 
     @pyaedt_function_handler()
-    def get_interferer_names(self, interferer_type=None):
+    def get_interferer_names(self, interferer_type: InterfererType = None) -> list[str]:
         """
         Get a list of all interfering transmitters/emitters in the project.
 
@@ -279,7 +281,7 @@ class Revision:
         return radios
 
     @pyaedt_function_handler()
-    def get_band_names(self, radio_name, tx_rx_mode=None):
+    def get_band_names(self, radio_name: str, tx_rx_mode: TxRxMode = None ) -> list[str]:
         """
         Get a list of all ``tx`` or ``rx`` bands (or waveforms) in
         a given radio/emitter.
@@ -315,7 +317,8 @@ class Revision:
         return bands
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
+    def get_active_frequencies(self, radio_name: str, band_name: str, tx_rx_mode: TxRxMode, units: str = "") \
+            -> list[float]:
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
@@ -353,7 +356,7 @@ class Revision:
         return freqs
 
     @property
-    def notes(self):
+    def notes(self) -> str:
         """
         Add notes to the revision.
 
@@ -367,12 +370,12 @@ class Revision:
         return design.GetResultNotes(self.name)
 
     @notes.setter
-    def notes(self, notes):
+    def notes(self, notes: str):
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project._emit_api.save_project()
 
     @property
-    def max_n_to_1_instances(self):
+    def max_n_to_1_instances(self) -> float:
         """
         The maximum number of instances per band combination allowed to run for N to 1.
         A value of 0 disables N to 1 entirely.
@@ -394,7 +397,7 @@ class Revision:
         return max_instances
 
     @max_n_to_1_instances.setter
-    def max_n_to_1_instances(self, max_instances):
+    def max_n_to_1_instances(self, max_instances: float):
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:

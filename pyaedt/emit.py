@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import warnings
 
+from EmitApiPython import EmitApi
 from pyaedt import emit_core
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
@@ -195,7 +196,7 @@ class Emit(Design, object):
         return self
 
     @pyaedt_function_handler()
-    def version(self, detailed=False):
+    def version(self, detailed: bool = False) -> str:
         """
         Get version information.
 
@@ -216,17 +217,18 @@ class Emit(Design, object):
         """
         if self.__emit_api_enabled:
             ver = self._emit_api.get_version(detailed)
+
             return ver
 
     @pyaedt_function_handler()
-    def set_units(self, unit_type, unit_value):
+    def set_units(self, unit_type: str | list[str], unit_value: str | list[str]) -> bool:
         """Set units for the component.
 
         Parameters
         ----------
-        unit_type : str
+        unit_type : list[str]
             System of units.
-        unit_value : str
+        unit_value : list[str]
             Units to use.
 
         Power : mW, W, kW, dBm, dBW
@@ -281,7 +283,7 @@ class Emit(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type=""):
+    def get_units(self, unit_type: str = "") -> dict | str:
         """Get units for the component.
 
         Parameters
@@ -306,3 +308,10 @@ class Emit(Design, object):
             )
             return None
         return self._units[unit_type]
+
+    def get_api(self) -> EmitApi:
+        return self._emit_api
+    # @pyaedt_function_handler()
+    # def get_component(self, comp_name):
+    #     comp = self._emit_api.get_component(comp_name)
+    #     return "Emit.py"

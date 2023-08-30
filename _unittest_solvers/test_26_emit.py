@@ -14,8 +14,10 @@ from pyaedt.emit_core.emit_constants import TxRxMode
 from pyaedt.generic import constants as consts
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
+from pyaedt.modeler.circuits.PrimitivesEmit import EmitRadioComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+from EmitApiPython import *
 
 # from _unittest_solvers.conftest import is_ironpython
 
@@ -76,14 +78,14 @@ class TestClass:
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
         assert radio.composed_name == "TestRadio"
-        assert isinstance(radio, EmitComponent)
+        assert isinstance(radio, EmitRadioComponent)
 
         antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitAntennaComponent)
         emitter = self.aedtapp.modeler.components.create_component("New Emitter", "TestEmitter")
         assert emitter.name == "TestEmitter"
-        assert isinstance(emitter, EmitComponent)
+        assert isinstance(emitter, EmitRadioComponent)
 
         # add each component type
         amplifier = self.aedtapp.modeler.components.create_component("Amplifier", "TestAmplifier")
@@ -143,7 +145,78 @@ class TestClass:
         assert terminator.name == "TestTerminator"
         assert isinstance(terminator, EmitComponent)
 
-    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.2", reason="Skipped on versions earlier than 2024.1"
+    )
+    def test_create_components_backend_api(self, add_app):
+        self.aedtapp = add_app(application=Emit)
+        api = self.aedtapp.get_api()
+
+        # create the first system (radio + components + antenna)
+        rad1 = api.create_radio("Radio1")
+        f1 = api.create_filter(rad1.get_property(RadioProps.name), "LPF")
+        f1.set_property(FilterProps.sub_type, "LowPass")
+        f1.set_property(FilterProps.insertion_loss, "10.0")
+        api.connect(rad1.get_property(RadioProps.name), rad1.get_property(RadioProps.antenna_side_ports),
+                    f1.get_property(FilterProps.name), f1.get_property(FilterProps.radio_side_ports))
+        a1 = api.create_amplifier(rad1.get_property(RadioProps.name), "HPA")
+        a1.set_property(AmplifierProps.saturation, "50.0")
+        a1.set_property(AmplifierProps.compression_point, "50.0")
+        a1.set_property(AmplifierProps.iip3, "60.0")
+        api.connect(f1.get_property(FilterProps.name), f1.get_property(FilterProps.antenna_side_ports),
+                    a1.get_property(AmplifierProps.name), a1.get_property(AmplifierProps.radio_side_ports))
+        c1 = api.create_cable(rad1.get_property(RadioProps.name), "LossyCable")
+        c1.set_property(CableProps.sub_type, "Constant")
+        c1.set_property(CableProps.loss_per_length, "1.0")
+        c1.set_property(CableProps.length, "10.0")
+        api.connect(a1.get_property(AmplifierProps.name), a1.get_property(AmplifierProps.antenna_side_ports),
+                    c1.get_property(CableProps.name), c1.get_property(CableProps.radio_side_ports))
+        ci1 = api.create_circulator(rad1.get_property(RadioProps.name), "LossyCirc")
+        ci1.set_property(CirculatorProps.sub_type, "Parametric")
+        ci1.set_property(CirculatorProps.insertion_loss, "1.5")
+        api.connect(c1.get_property(CableProps.name), c1.get_property(CableProps.antenna_side_ports),
+                    ci1.get_property(CirculatorProps.name), ci1.get_property(CirculatorProps.radio_side_ports))
+        iso1 = api.create_isolator(rad1.get_property(RadioProps.name), "LossyIso")
+        iso1.set_property(IsolatorProps.sub_type, "Parametric")
+        iso1.set_property(IsolatorProps.insertion_loss, "1.0")
+        circ_ant_ports = ci1.get_property(CirculatorProps.antenna_side_ports)
+        # use the top circulator port (Port 2) first
+        api.connect(ci1.get_property(CirculatorProps.name), circ_ant_ports[0],
+                    iso1.get_property(IsolatorProps.name), iso1.get_property(IsolatorProps.radio_side_ports))
+        d1 = api.create_divider(rad1.get_property(RadioProps.name), "Combiner")
+        d1.set_property(DividerProps.port1_side, "AntennaSide")
+        d1.set_property(DividerProps.sub_type, "3dB")
+        d1.set_property(DividerProps.insertion_loss, "1.0")
+        div_radio_ports = d1.get_property(DividerProps.radio_side_ports)
+        api.connect(iso1.get_property(IsolatorProps.name), iso1.get_property(IsolatorProps.antenna_side_ports),
+                    d1.get_property(DividerProps.name), div_radio_ports[0])
+        # bottom port of circulator connects to bottom port of (flipped) divider
+        api.connect(ci1.get_property(CirculatorProps.name), circ_ant_ports[1],
+                    d1.get_property(DividerProps.name), div_radio_ports[1])
+        ant1 = api.create_antenna(rad1.get_property(RadioProps.name), "Ant1")
+        ant1.set_property(AntennaProps.antenna_temp, "350.0")
+        api.connect(d1.get_property(DividerProps.name), d1.get_property(DividerProps.antenna_side_ports),
+                    ant1.get_property(AntennaProps.name), ant1.get_property(AntennaProps.radio_side_ports))
+
+        # create the first system (radio + components + antenna)
+        rad2 = api.create_radio("Radio2")
+        ant2 = api.create_antenna(rad2.get_property(RadioProps.name), "Ant2")
+        ant2.set_property(AntennaProps.antenna_temp, "350.0")
+        api.connect(rad2.get_property(RadioProps.name), rad2.get_property(RadioProps.antenna_side_ports),
+                    ant2.get_property(AntennaProps.name), ant2.get_property(AntennaProps.radio_side_ports))
+
+        # run the simulation
+        eng = api.get_engine()
+        dom = self.aedtapp.results.interaction_domain()
+        inst = eng.get_instance_count(dom)
+        print("Total Instances = {}".format(inst))
+        interaction = eng.run(dom)
+        worst = interaction.get_worst_instance(ResultType.EMI)
+        print("Worst EMI = {}".format(worst))
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2"
+    )
     def test_connect_components(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")

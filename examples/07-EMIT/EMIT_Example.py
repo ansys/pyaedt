@@ -27,7 +27,6 @@ non_graphical = False
 NewThread = True
 desktop_version = "2023.2"
 
-
 ###############################################################################
 # Launch AEDT with EMIT
 # ~~~~~~~~~~~~~~~~~~~~~
@@ -58,7 +57,29 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 # Define the coupling among the RF systems. This portion of the EMIT API is not
 # yet implemented.
 
-
+aedtapp.odesign.EditComponentNodes("CouplingNodeTree@EMIT",
+    [
+        [
+            "NAME:node",
+            "fullname:="        , "NODE-*-Couplings-*-Custom Coupling",
+            [
+                "NAME:properties",
+                "CustomCouplingTable:=" , "1e+08|-20;5e+08|-20;1e+09|-30;5e+09|-30;1e+10|-60;1e+11|-60",
+                "Enabled:="     , "true",
+                "EnabledIsReadOnly:="   , "false",
+                "Name:="        , "Custom Coupling",
+                "NodeOrder:="       , "0",
+                "Parent:="      , "NODE-*-Couplings",
+                "Port1:="       , "NODE-*-Scene-*-Antenna",
+                "Port2:="       , "NODE-*-Scene-*-Antenna 2",
+                "RefineAdaptiveEnable:=", "false",
+                "RefineSamplingEnable:=", "false",
+                "RefineStartStopStep:=" , "1 10e9 1000",
+                "RefinementFeatureVisible:=", "false",
+                "Type:="        , "CustomCouplingNode"
+            ]
+        ]
+    ], [])
 ###############################################################################
 # Run EMIT simulation
 # ~~~~~~~~~~~~~~~~~~~

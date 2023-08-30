@@ -1,5 +1,5 @@
 import warnings
-
+from EmitApiPython import InteractionDomain
 from pyaedt import emit_core
 from pyaedt.emit_core.results.revision import Revision
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -37,7 +37,7 @@ class Results:
         """Active design for the EMIT project."""
 
     @pyaedt_function_handler()
-    def _add_revision(self, name=None):
+    def _add_revision(self, name: str = None) -> Revision:
         """Add a new revision or get the current revision if it already exists.
 
         Parameters
@@ -60,7 +60,7 @@ class Results:
         return revision
 
     @pyaedt_function_handler()
-    def delete_revision(self, revision_name):
+    def delete_revision(self, revision_name: str):
         """Delete the specified revision from the results.
 
         Parameters
@@ -89,7 +89,7 @@ class Results:
                 warnings.warn("{} does not exist".format(revision_name))
 
     @staticmethod
-    def interaction_domain():
+    def interaction_domain() -> InteractionDomain:
         """
         Get an ``InteractionDomain`` object.
 
@@ -126,7 +126,7 @@ class Results:
             rev.revision_loaded = False
 
     @pyaedt_function_handler()
-    def revision_names(self):
+    def revision_names(self) -> list[str]:
         """
         Return a list of all the revision names.
 
@@ -142,7 +142,7 @@ class Results:
         return [rev.name for rev in self.revisions]
 
     @pyaedt_function_handler
-    def get_revision(self, revision_name=None):
+    def get_revision(self, revision_name: str = None) -> Revision:
         """
         Load the specified revision.
 
@@ -192,7 +192,7 @@ class Results:
         return self.current_revision
 
     @pyaedt_function_handler()
-    def analyze(self):
+    def analyze(self) -> Revision:
         """
         Analyze the current revision or create a new revision if
         the design has changed.

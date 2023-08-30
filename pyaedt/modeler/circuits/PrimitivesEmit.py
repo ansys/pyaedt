@@ -327,7 +327,11 @@ class EmitComponent(object):
         if root_node_type.endswith("Node"):
             root_node_type = root_node_type[: -len("Node")]
         if root_node_type not in cls.subclasses:
+            #comp = components._parent.get_component()
             return EmitComponent(components, component_name)
+        
+        #fullname = props["Parent"] + "-*-" + props["Name"]
+        #comp = components._parent.get_component(fullname)
         return cls.subclasses[root_node_type](components, component_name)
 
     def __init__(self, components, component_name):
@@ -348,6 +352,8 @@ class EmitComponent(object):
 
         self.units = components._parent.get_units()
         """Units for the component."""
+        
+        #self.emit_component = self._parent._emit_api.get_component(component_name)
 
     @property
     def composed_name(self):
