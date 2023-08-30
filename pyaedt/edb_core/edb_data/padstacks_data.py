@@ -1401,7 +1401,7 @@ class EDBPadstackInstance(object):
         Returns
         -------
         float
-            via hole instance metal volume.
+            Metal volume of the via hole instance.
 
         """
         volume = 0
