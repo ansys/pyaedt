@@ -181,6 +181,8 @@ class Analysis(Design, object):
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
+            for material in self._materials.material_keys:
+                self._materials.material_keys[material]._material_update = True
         return self._materials
 
     @property
