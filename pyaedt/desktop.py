@@ -833,9 +833,9 @@ class Desktop(object):
             self._run_student()
         elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
-            self._initialize(non_graphical=non_graphical, new_session=True, is_grpc=False)
+            self._initialize(non_graphical=non_graphical, new_session=True, is_grpc=False, version=version_key)
         else:
-            self._initialize(new_session=False, is_grpc=False)
+            self._initialize(new_session=False, is_grpc=False, version=version_key)
         processID2 = []
         if is_windows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
@@ -976,7 +976,9 @@ class Desktop(object):
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
                 self.launched_by_pyaedt = True
-                oApp = self._initialize(is_grpc=True, machine=self.machine, port=self.port, new_session=False)
+                oApp = self._initialize(
+                    is_grpc=True, machine=self.machine, port=self.port, new_session=False, version=version_key
+                )
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
@@ -987,7 +989,12 @@ class Desktop(object):
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
-                is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
+                is_grpc=True,
+                non_graphical=non_graphical,
+                machine=self.machine,
+                port=self.port,
+                new_session=not out,
+                version=version_key,
             )
         else:
             oApp = self._initialize(
@@ -996,6 +1003,7 @@ class Desktop(object):
                 machine=self.machine,
                 port=self.port,
                 new_session=new_aedt_session,
+                version=version_key,
             )
         if oApp:
             self._main.isoutsideDesktop = True
