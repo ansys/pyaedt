@@ -1,4 +1,7 @@
 import os
+
+# Setup paths for module imports
+# Import required modules
 import sys
 
 import pytest
@@ -13,6 +16,7 @@ from pyaedt.generic.general_methods import check_numeric_equivalence
 
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
+# from _unittest.conftest import is_ironpython
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
@@ -20,6 +24,11 @@ from _unittest.conftest import settings
 
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
+
+# try:
+#     import pytest
+# except ImportError:  # pragma: no cover
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
 
@@ -1963,6 +1972,7 @@ class TestClass:
         assert via_settings.via_density == 1
         assert via_settings.via_material == "pec"
         assert via_settings.via_num_sides == 8
+        # assert via_settings.via_style == "kNum25DViaStyle"
 
         advanced_mesh_settings = setup1.advanced_mesh_settings
         advanced_mesh_settings.layer_snap_tol = "1e-6"
@@ -2753,7 +2763,29 @@ class TestClass:
         )
         assert setup.sweeps
 
-    def test_144_arc_data(self):
+    def test_144_search_reference_pins(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_boundaries.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = edbapp.components.instances["J5"].pins["19"]
+        assert pin
+        ref_pins = pin.get_reference_pins(reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True)
+        assert len(ref_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True
+        )
+        assert len(reference_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=2, component_only=True
+        )
+        assert len(reference_pins) == 2
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
+        )
+        assert len(reference_pins) == 11
+
+    def test_145_arc_data(self):
         assert len(self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs) > 0
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
