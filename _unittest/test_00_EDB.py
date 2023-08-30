@@ -2790,3 +2790,12 @@ class TestClass:
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
+
+    def test_145_via_volume(self):
+        vias = [
+            via
+            for via in list(self.edbapp.padstacks.padstack_instances.values())
+            if not via.start_layer == via.stop_layer
+        ]
+        assert vias[0].metal_volume
+        assert vias[1].metal_volume
