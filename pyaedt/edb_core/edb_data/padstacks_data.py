@@ -1396,7 +1396,7 @@ class EDBPadstackInstance(object):
 
     @property
     def metal_volume(self):
-        """Return the via hole instance metal volume in m3. Metal plating ratio is accounted.
+        """Metal volume of the via hole instance in cubic units (m3). Metal plating ratio is accounted.
 
         Returns
         -------
