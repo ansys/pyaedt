@@ -1412,13 +1412,6 @@ class Material(CommonMaterial, object):
         self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._thermal_conductivity.value = value
-        #
-        # if isinstance(value, list):
-        #     self._thermal_conductivity.type = "anisotropic"
-        #     self._update_props("thermal_conductivity", value)
-        # else:
-        #     self._thermal_conductivity.type = "simple"
-        #     self._update_props("thermal_conductivity", value)
 
     @property
     def mass_density(self):
