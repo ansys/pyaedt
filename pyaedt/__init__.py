@@ -12,7 +12,7 @@ os.environ["ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE"] = "1"
 
 pyaedt_path = os.path.dirname(__file__)
 
-__version__ = "0.6.89"
+__version__ = "0.6.90"
 
 version = __version__
 import pyaedt.downloads as downloads
