@@ -232,6 +232,7 @@ class MatProperty(object):
         self.name = name
         self._property_value = [BasicValue()]
         self._unit = None
+
         if val is not None and isinstance(val, (str, float, int)):
             self.value = val
         elif val is not None and val["property_type"] == "AnisoProperty":
@@ -329,11 +330,13 @@ class MatProperty(object):
 
                 self._property_value[i].value = el
                 i += 1
-            self._material._update_props(self.name, val)
+            if self._material._material_update:
+                self._material._update_props(self.name, val)
         else:
             self.type = "simple"
             self._property_value[0].value = val
-            self._material._update_props(self.name, val)
+            if self._material._material_update:
+                self._material._update_props(self.name, val)
 
     @property
     def unit(self):
@@ -809,7 +812,10 @@ class MatProperty(object):
             if not y_unit:
                 y_unit = "A_per_m2"
             self._unit = [x_unit, y_unit]
-        return self._material._update_props(self.name, self._property_value[0].value)
+        if self._material._material_update:
+            return self._material._update_props(self.name, self._property_value[0].value)
+        else:
+            True
 
     @property
     def spatialmodifier(self):
@@ -1159,8 +1165,10 @@ class Material(CommonMaterial, object):
         Inherited parent object.
     name : str
         Name of the material.
-    props  :
+    props :
         The default is ``None``.
+    material_update : bool, optional
+        The default is ``True``.
 
     Examples
     --------
@@ -1169,9 +1177,10 @@ class Material(CommonMaterial, object):
     >>> material = app.materials["copper"]
     """
 
-    def __init__(self, materiallib, name, props=None):
+    def __init__(self, materiallib, name, props=None, material_update=True):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
+        self._material_update = material_update
         if "thermal_material_type" in self._props:
             self.thermal_material_type = self._props["thermal_material_type"]["Choice"]
         if "PhysicsTypes" in self._props:
@@ -1599,15 +1608,16 @@ class Material(CommonMaterial, object):
             raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
 
         self._stacking_type = value
-        self._update_props(
-            "stacking_type",
-            OrderedDict(
-                {
-                    "property_type": "ChoiceProperty",
-                    "Choice": value,
-                }
-            ),
-        )
+        if self._material_update:
+            self._update_props(
+                "stacking_type",
+                OrderedDict(
+                    {
+                        "property_type": "ChoiceProperty",
+                        "Choice": value,
+                    }
+                ),
+            )
 
     @property
     def wire_type(self):
@@ -1631,7 +1641,8 @@ class Material(CommonMaterial, object):
             raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
 
         self._wire_type = value
-        self._update_props("wire_type", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+        if self._material_update:
+            self._update_props("wire_type", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @property
     def wire_thickness_direction(self):
@@ -1655,9 +1666,10 @@ class Material(CommonMaterial, object):
             raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_thickness_direction = value
-        self._update_props(
-            "wire_thickness_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
-        )
+        if self._material_update:
+            self._update_props(
+                "wire_thickness_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
+            )
 
     @property
     def wire_width_direction(self):
@@ -1681,7 +1693,10 @@ class Material(CommonMaterial, object):
             raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_width_direction = value
-        self._update_props("wire_width_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+        if self._material_update:
+            self._update_props(
+                "wire_width_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
+            )
 
     @property
     def strand_number(self):
@@ -1702,7 +1717,8 @@ class Material(CommonMaterial, object):
     @strand_number.setter
     def strand_number(self, value):
         self._strand_number = value
-        self._update_props("strand_number", value)
+        if self._material_update:
+            self._update_props("strand_number", value)
 
     @property
     def wire_thickness(self):
@@ -1723,7 +1739,8 @@ class Material(CommonMaterial, object):
     @wire_thickness.setter
     def wire_thickness(self, value):
         self._wire_thickness = value
-        self._update_props("wire_thickness", value)
+        if self._material_update:
+            self._update_props("wire_thickness", value)
 
     @property
     def wire_diameter(self):
@@ -1744,7 +1761,8 @@ class Material(CommonMaterial, object):
     @wire_diameter.setter
     def wire_diameter(self, value):
         self._wire_diameter = value
-        self._update_props("wire_diameter", value)
+        if self._material_update:
+            self._update_props("wire_diameter", value)
 
     @property
     def wire_width(self):
@@ -1765,7 +1783,8 @@ class Material(CommonMaterial, object):
     @wire_width.setter
     def wire_width(self, value):
         self._wire_width = value
-        self._update_props("wire_width", value)
+        if self._material_update:
+            self._update_props("wire_width", value)
 
     @property
     def stacking_factor(self):
@@ -1786,7 +1805,8 @@ class Material(CommonMaterial, object):
     @stacking_factor.setter
     def stacking_factor(self, value):
         self._stacking_factor = value
-        self._update_props("stacking_factor", value)
+        if self._material_update:
+            self._update_props("stacking_factor", value)
 
     @property
     def stacking_direction(self):
@@ -1810,7 +1830,8 @@ class Material(CommonMaterial, object):
             raise ValueError("Stacking direction for the lamination either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._stacking_direction = value
-        self._update_props("stacking_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+        if self._material_update:
+            self._update_props("stacking_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @pyaedt_function_handler()
     def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
@@ -2164,11 +2185,14 @@ class SurfaceMaterial(CommonMaterial, object):
         Name of the surface material
     props :
         The default is ``None``.
+    material_update : bool, optional
+        The default is ``True``.
     """
 
-    def __init__(self, materiallib, name, props=None):
+    def __init__(self, materiallib, name, props=None, material_update=True):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.surface_clarity_type = "Opaque"
+        self._material_update = material_update
         if "surface_clarity_type" in self._props:
             self.surface_clarity_type = self._props["surface_clarity_type"]["Choice"]
         if "PhysicsTypes" in self._props:
@@ -2218,7 +2242,8 @@ class SurfaceMaterial(CommonMaterial, object):
     @emissivity.setter
     def emissivity(self, value):
         self._surface_emissivity.value = value
-        self._update_props("surface_emissivity", value)
+        if self._material_update:
+            self._update_props("surface_emissivity", value)
 
     @property
     def surface_diffuse_absorptance(self):
@@ -2239,7 +2264,8 @@ class SurfaceMaterial(CommonMaterial, object):
     @surface_diffuse_absorptance.setter
     def surface_diffuse_absorptance(self, value):
         self._surface_diffuse_absorptance.value = value
-        self._update_props("surface_diffuse_absorptance", value)
+        if self._material_update:
+            self._update_props("surface_diffuse_absorptance", value)
 
     @property
     def surface_incident_absorptance(self):
@@ -2260,7 +2286,8 @@ class SurfaceMaterial(CommonMaterial, object):
     @surface_incident_absorptance.setter
     def surface_incident_absorptance(self, value):
         self._surface_incident_absorptance.value = value
-        self._update_props("surface_incident_absorptance", value)
+        if self._material_update:
+            self._update_props("surface_incident_absorptance", value)
 
     @property
     def surface_roughness(self):
@@ -2281,7 +2308,8 @@ class SurfaceMaterial(CommonMaterial, object):
     @surface_roughness.setter
     def surface_roughness(self, value):
         self._surface_roughness.value = value
-        self._update_props("surface_roughness", value)
+        if self._material_update:
+            self._update_props("surface_roughness", value)
 
     @pyaedt_function_handler()
     def update(self):

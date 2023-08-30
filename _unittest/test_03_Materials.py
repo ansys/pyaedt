@@ -31,8 +31,6 @@ class TestClass:
         assert mat1
         mat1.conductivity = 59000000000
         assert mat1.conductivity.value == 59000000000
-        # mat1.conductivity.value = [[1, 2], [2, 3], [2, 3]]
-        # mat1.conductivity.type == "nonlinear"
         mat1.permeability.value = MatProperties.get_defaultvalue(aedtname="permeability")
         assert mat1.permeability.value == MatProperties.get_defaultvalue(aedtname="permeability")
         mat1.permeability.value = [[0, 0], [30, 40], [50, 60]]
