@@ -9,8 +9,6 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.constants import CATEGORIESQ3D
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple
@@ -1751,12 +1749,12 @@ class Matrix(object):
                 self._operations[-1], len(source_names), "', '".join(source_names)
             )
         elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
-            id = 0
+            id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
-                    id = self._app.modeler[el.props["Objects"][0]].id
+                    id_ = self._app.modeler[el.props["Objects"][0]].id
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[-1], len(source_names), "', '".join(source_names), id, new_name
+                self._operations[-1], len(source_names), "', '".join(source_names), id_, new_name
             )
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
@@ -3583,6 +3581,28 @@ class NetworkObject(BoundaryObject):
         if create:
             self.create()
 
+    def _clean_list(self, arg):
+        new_list = []
+        for item in arg:
+            if isinstance(item, list):
+                if item[0] == "NAME:PageNet":
+                    page_net_list = []
+                    for i in item:
+                        if isinstance(i, list):
+                            name = page_net_list[-1]
+                            page_net_list.pop(-1)
+                            for j in i:
+                                page_net_list.append(name)
+                                page_net_list.append(j)
+                        else:
+                            page_net_list.append(i)
+                    new_list.append(page_net_list)
+                else:
+                    new_list.append(self._clean_list(item))
+            else:
+                new_list.append(item)
+        return new_list
+
     @pyaedt_function_handler
     def create(self):
         """
@@ -3597,7 +3617,10 @@ class NetworkObject(BoundaryObject):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
         if not self.props.get("SchematicData", None):
             self.props["SchematicData"] = OrderedDict({})
-        self._app.oboundary.AssignNetworkBoundary(self._get_args())
+        args = self._get_args()
+
+        clean_args = self._clean_list(args)
+        self._app.oboundary.AssignNetworkBoundary(clean_args)
         return True
 
     @pyaedt_function_handler

@@ -8,6 +8,7 @@ on:
 env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
+  MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -44,6 +45,13 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      - name: Upload HTML documentation artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html-edb
+          path: doc/_build/html/EDBAPI
+          retention-days: 7
+
   docs_upload:
     needs: docs_build
     runs-on: ubuntu-latest
@@ -54,6 +62,36 @@ jobs:
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  doc-index-dev:
+    name: "Deploy dev docs index"
+    runs-on: ubuntu-latest
+    needs: docs_upload
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+      
+      - name: "Deploy the dev documentation index for PyAEDT API"
+        uses: ansys/actions/doc-deploy-index@v4
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev
+          index-name: pyaedt-vdev
+          host-url: ${{ vars.MEILISEARCH_HOST_URL }}
+          api-key: ${{ env.MEILISEARCH_API_KEY }}
+          pymeilisearchopts: --stop_urls \"EDBAPI\" # Add EDB API as another index to show it in dropdown button
+
+      - name: "Deploy the dev documentation index for EDB API"
+        uses: ansys/actions/doc-deploy-index@v4
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev/EDBAPI/
+          index-name: pyedb-vdev
+          host-url: ${{ vars.MEILISEARCH_HOST_URL }}
+          api-key: ${{ env.MEILISEARCH_API_KEY }}
+          doc-artifact-name: documentation-html-edb # Add only EDB API to index
 
   # docstring_testing:
   #   runs-on: Windows

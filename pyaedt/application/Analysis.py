@@ -28,8 +28,6 @@ from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -183,6 +181,8 @@ class Analysis(Design, object):
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
+            for material in self._materials.material_keys:
+                self._materials.material_keys[material]._material_update = True
         return self._materials
 
     @property
@@ -1735,7 +1735,7 @@ class Analysis(Design, object):
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-                self.logger.error("Error in Solving Setup %s", name)
+                self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
         elif name in self.existing_analysis_setups:
             try:

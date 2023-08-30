@@ -6,8 +6,6 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
@@ -1212,8 +1210,8 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
-        if settings.non_graphical:
-            self.logger.error("Method is supported only in graphical mode")
+        if self.desktop_class.non_graphical:
+            self.logger.error("Method is supported only in graphical mode.")
             return False
         layers = self.get_dxf_layers(file_path)
         for layer in layers_list:

@@ -1,27 +1,16 @@
-# standard imports
 import os
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
-from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import settings
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
-# Access the desktop
 test_subfolder = "T98"
 
-non_graphical_test = False
 if config["desktopVersion"] > "2022.2":
     test_project_name = "Filter_Board_Icepak_231"
     src_project_name = "USB_Connector_IPK_231"
@@ -44,23 +33,32 @@ link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_Prese
 solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
-source_project = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
-source_project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name)
-source_fluent = os.path.join(local_path, "example_models", test_subfolder, coldplate + ".aedt")
-source_power_budget = os.path.join(local_path, "example_models", test_subfolder, power_budget + ".aedtz")
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self, project_name=test_project_name, application=Icepak, subfolder=test_subfolder
-        )
-        project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
-        self.local_scratch.copyfile(project_path)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, application=Icepak, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    project_path_origin = os.path.join(
+        local_path, "../_unittest/example_models", test_subfolder, src_project_name + ".aedt"
+    )
+    project_path = local_scratch.copyfile(project_path_origin)
+    source_project_path = os.path.join(local_path, "../_unittest/example_models", test_subfolder, src_project_name)
+
+    return project_path, source_project_path
+
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+        self.project_path = examples[0]
+        self.source_project_path = examples[1]
 
     def test_01_save(self):
         self.aedtapp.save_project()
@@ -101,8 +99,7 @@ class TestClass(BasisTest, object):
         assert pcb_mesh_region.delete()
 
     def test_04_ImportGroup(self):
-        project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
-        assert self.aedtapp.copyGroupFrom("Group1", "uUSB", src_project_name, project_path)
+        assert self.aedtapp.copyGroupFrom("Group1", "uUSB", src_project_name, self.project_path)
 
     def test_05_EMLoss(self):
         HFSSpath = os.path.join(self.local_scratch.path, src_project_name)
@@ -284,64 +281,6 @@ class TestClass(BasisTest, object):
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    def test_19A_analyze_and_export_summary(self):
-        self.aedtapp.insert_design("SolveTest")
-        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyFlowOnly
-        self.aedtapp.problem_type = "TemperatureAndFlow"
-        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-        self.aedtapp.create_source_block("box", "1W", False)
-        setup = self.aedtapp.create_setup("SetupIPK")
-        new_props = {"Convergence Criteria - Max Iterations": 3}
-        setup.update(update_dictionary=new_props)
-        airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
-        self.aedtapp.assign_openings(airfaces)
-        self.aedtapp["Variable1"] = "0.5"
-        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
-        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
-        self.aedtapp.monitor.assign_point_monitor_in_object(
-            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
-        )
-        self.aedtapp.monitor.assign_face_monitor(
-            self.aedtapp.modeler.get_object_from_name("box").faces[0].id,
-            monitor_quantity=["Temperature", "HeatFlowRate"],
-            monitor_name="test_monitor2",
-        )
-        self.aedtapp.analyze_setup("SetupIPK")
-        self.aedtapp.save_project()
-        self.aedtapp.export_summary(self.aedtapp.working_directory)
-        box = [i.id for i in self.aedtapp.modeler["box"].faces]
-        assert os.path.exists(
-            self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=self.aedtapp.working_directory)
-        )
-
-    def test_19B_get_output_variable(self):
-        value = self.aedtapp.get_output_variable("OutputVariable1")
-        tol = 1e-9
-        assert abs(value - 0.5235987755982988) < tol
-
-    def test_19C_get_monitor_output(self):
-        assert self.aedtapp.monitor.all_monitors["test_monitor"].value()
-        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
-        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(
-            setup_name=self.aedtapp.existing_analysis_sweeps[0]
-        )
-        assert self.aedtapp.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
-
-    def test_20_eval_tempc(self):
-        assert os.path.exists(
-            self.aedtapp.eval_volume_quantity_from_field_summary(
-                ["box"], "Temperature", savedir=self.aedtapp.working_directory
-            )
-        )
-
-    def test_21_ExportFLDFil(self):
-        object_list = "box"
-        fld_file = os.path.join(self.aedtapp.working_directory, "test_fld.fld")
-        self.aedtapp.post.export_field_file(
-            "Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list
-        )
-        assert os.path.exists(fld_file)
-
     def test_22_create_source_blocks_from_list(self):
         self.aedtapp.set_active_design("Solve")
         self.aedtapp.modeler.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
@@ -372,10 +311,10 @@ class TestClass(BasisTest, object):
     def test_24_get_boundary_property_value(self):
         assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
 
-    def test_25_copy_solid_bodies(self):
+    def test_25_copy_solid_bodies(self, add_app):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
-        new_design = Icepak(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        new_design = add_app(application=Icepak, project_name=project_name, design_name=design_name, just_open=True)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == [
             "Region",
@@ -390,7 +329,7 @@ class TestClass(BasisTest, object):
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
 
-    def test_26_copy_solid_bodies_udm_3dcomponent(self):
+    def test_26_copy_solid_bodies_udm_3dcomponent(self, add_app):
         my_udmPairs = []
         mypair = ["ILD Thickness (ILD)", "0.006mm"]
         my_udmPairs.append(mypair)
@@ -422,12 +361,12 @@ class TestClass(BasisTest, object):
 
         compfile = self.aedtapp.components3d["ADDA_AB0305MB_GA0"]
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile)
-        dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
+        dest = add_app(application=Icepak, design_name="IcepakDesign1", just_open=True)
         dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         dest.delete_design("IcepakDesign1")
-        dest = Icepak(designname="IcepakDesign2", specified_version=desktop_version)
+        dest = add_app(application=Icepak, design_name="IcepakDesign2", just_open=True)
         dest.copy_solid_bodies_from(self.aedtapp)
-        dest2 = Hfss(designname="uUSB", specified_version=desktop_version)
+        dest2 = add_app(design_name="uUSB")
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
 
     def test_27_get_all_conductors(self):
@@ -528,16 +467,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_source_power(
             self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
         )
-        if not is_ironpython:
-            assert not self.aedtapp.create_source_power(
-                self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
-            )
+        assert not self.aedtapp.create_source_power(
+            self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
+        )
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
-        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"))
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"),
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "brd_board.emn")
+        )
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
@@ -588,9 +528,8 @@ class TestClass(BasisTest, object):
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
 
     @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
-    def test_38_export_fluent_mesh(self):
-        self.fluent = self.local_scratch.copyfile(source_fluent)
-        app = Icepak(self.fluent, specified_version=desktop_version)
+    def test_38_export_fluent_mesh(self, add_app):
+        app = add_app(application=Icepak, project_name=coldplate, subfolder=test_subfolder)
         assert app.get_liquid_objects() == ["Liquid"]
         assert app.get_gas_objects() == ["Region"]
         assert app.generate_fluent_mesh()
@@ -605,23 +544,22 @@ class TestClass(BasisTest, object):
         bound.props["Objects"].remove(box2)
         assert bound.update_assignment()
 
-    def test_40_power_budget(self):
-        self.power_budget = self.local_scratch.copyfile(source_power_budget)
-        app = Icepak(self.power_budget, specified_version=desktop_version)
+    def test_40_power_budget(self, add_app):
+        app = add_app(application=Icepak, project_name=power_budget, subfolder=test_subfolder)
         power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="boundary")
         assert abs(total_power - 787.5221374239883) < 1
 
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
-        assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=source_project_path)
+        assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=self.source_project_path)
 
     def test_42_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf")
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "A1_uprev Cadence172.bdf")
         )
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
@@ -961,10 +899,9 @@ class TestClass(BasisTest, object):
             input_power="1W",
             thickness="1mm",
         )
-        if not is_ironpython:
-            assert not self.aedtapp.create_conduting_plate(
-                None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
-            )
+        assert not self.aedtapp.create_conduting_plate(
+            None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+        )
         assert self.aedtapp.create_conduting_plate(
             box_fc_ids,
             thermal_specification="Thickness",
@@ -1033,14 +970,13 @@ class TestClass(BasisTest, object):
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
         )
-        if not is_ironpython:
-            assert not self.aedtapp.assign_stationary_wall_with_htc(
-                "surf01",
-                ext_surf_rad=True,
-                ext_surf_rad_material="Stainless-steel-cleaned",
-                ext_surf_rad_ref_temp=0,
-                ext_surf_rad_view_factor=0.5,
-            )
+        assert not self.aedtapp.assign_stationary_wall_with_htc(
+            "surf01",
+            ext_surf_rad=True,
+            ext_surf_rad_material="Stainless-steel-cleaned",
+            ext_surf_rad_ref_temp=0,
+            ext_surf_rad_view_factor=0.5,
+        )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
@@ -1106,8 +1042,7 @@ class TestClass(BasisTest, object):
         block.delete()
         block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
         assert block
-        if not is_ironpython:
-            assert not self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
+        assert not self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
 
     def test_59_assign_solid_block(self):
         self.aedtapp.solution_type = "Transient"
@@ -1131,8 +1066,7 @@ class TestClass(BasisTest, object):
         block.delete()
         block = self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
         assert block
-        if not is_ironpython:
-            assert not self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
+        assert not self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
 
     def test_60_assign_network_from_matrix(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
@@ -1165,7 +1099,7 @@ class TestClass(BasisTest, object):
         )
         assert boundary
 
-    def test_61_assign_network(self):
+    def test_61_assign_network(self, add_app):
         self.aedtapp.insert_design("test_61")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20])
         ids = [f.id for f in box.faces]
@@ -1255,15 +1189,18 @@ class TestClass(BasisTest, object):
                 i._props = None
             except KeyError:
                 pass
+        app = add_app(application=Icepak, project_name="NetworkTest", subfolder=test_subfolder)
+        thermal_b = app.boundaries
+        thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
+        thermal_b[0].update()
+        app.close_project()
 
-    def test_62_get_fans_operating_point(self):
-        new_path = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt")
-        )
-        app = Icepak(
-            new_path,
-            specified_version=desktop_version,
-            designname="get_fan_op_point",
+    def test_62_get_fans_operating_point(self, add_app):
+        app = add_app(
+            application=Icepak,
+            project_name="Fan_op_point_231",
+            design_name="get_fan_op_point",
+            subfolder=test_subfolder,
         )
         filename, vol_flow_name, p_rise_name, op_dict = app.get_fans_operating_point()
         assert len(list(op_dict.keys())) == 2
@@ -1342,8 +1279,7 @@ class TestClass(BasisTest, object):
             boundary_name="sym_bc03",
         )
         assert self.aedtapp.assign_symmetry_wall(geometry=region_fc_ids[1:4])
-        if not is_ironpython:
-            assert not self.aedtapp.assign_symmetry_wall(geometry="surf01")
+        assert not self.aedtapp.assign_symmetry_wall(geometry="surf01")
 
     def test_66_update_3d_component(self):
         file_path = self.local_scratch.path

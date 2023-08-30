@@ -19,8 +19,6 @@ import pyaedt.downloads as downloads
 from pyaedt.generic import constants
 import pyaedt.generic.DataHandlers as data_handler
 import pyaedt.generic.general_methods as general_methods
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_folder_name
@@ -57,3 +55,6 @@ from pyaedt.generic.design_types import Siwave
 from pyaedt.generic.design_types import TwinBuilder
 from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.design_types import launch_desktop
+from pyaedt.misc import current_student_version
+from pyaedt.misc import current_version
+from pyaedt.misc import installed_versions

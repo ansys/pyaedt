@@ -1,8 +1,8 @@
 import os
-import sys
+
+# import sys
 import warnings
 
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -65,7 +65,7 @@ class Primitives3DLayout(object):
         return None
 
     def __init__(self, app):
-        self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
+        # self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
         self._padstacks = {}
         self._components3d = {}

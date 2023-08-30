@@ -4,8 +4,6 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
@@ -127,6 +125,9 @@ class Mechanical(FieldAnalysis3D, object):
             port,
             aedt_process_id,
         )
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     def __enter__(self):
         return self

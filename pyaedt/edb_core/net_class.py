@@ -1,5 +1,7 @@
 from __future__ import absolute_import  # noreorder
 
+import re
+
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
 from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
 from pyaedt.edb_core.edb_data.nets_data import EDBNetClassData
@@ -157,15 +159,86 @@ class EdbExtendedNets(EdbCommon, object):
 
         return self.items[name]
 
+    @pyaedt_function_handler
+    def auto_identify_signal(self, resistor_below=10, inductor_below=1, capacitor_above=1e-9, exception_list=None):
+        # type: (int | float, int | float, int |float, list) -> list
+        """Get extended signal net and associated components.
 
-class EdbDifferentialPair(EdbCommon, object):
+        Parameters
+        ----------
+        resistor_below : int, float, optional
+            Threshold for the resistor value. Search the extended net across resistors that
+            have a value lower than the threshold.
+        inductor_below : int, float, optional
+            Threshold for the inductor value. Search the extended net across inductances
+            that have a value lower than the threshold.
+        capacitor_above : int, float, optional
+            Threshold for the capacitor value. Search the extended net across capacitors
+            that have a value higher than the threshold.
+        exception_list : list, optional
+            List of components to bypass when performing threshold checks. Components
+            in the list are considered as serial components. The default is ``None``.
+
+        Returns
+        -------
+        list
+            List of all extended nets.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> app = Edb()
+        >>> app.extended_nets.auto_identify_signal()
+        """
+        return self._pedb.nets.generate_extended_nets(
+            resistor_below, inductor_below, capacitor_above, exception_list, True, False
+        )
+
+    @pyaedt_function_handler
+    def auto_identify_power(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
+        # type: (int | float, int | float, int |float, list) -> list
+        """Get all extended power nets and their associated components.
+
+        Parameters
+        ----------
+        resistor_below : int, float, optional
+            Threshold for the resistor value. Search the extended net across resistors that
+            have a value lower than the threshold.
+        inductor_below : int, float, optional
+            Threshold for the inductor value. Search the extended net across inductances that
+            have a value lower than the threshold.
+        capacitor_above : int, float, optional
+            Threshold for the capacitor value. Search the extended net across capacitors that
+            have a value higher than the threshold.
+        exception_list : list, optional
+            List of components to bypass when performing threshold checks. Components
+            in the list are considered as serial components. The default is ``None``.
+
+        Returns
+        -------
+        list
+            List of all extended nets and their associated components.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> app = Edb()
+        >>> app.extended_nets.auto_identify_power()
+        """
+        return self._pedb.nets.generate_extended_nets(
+            resistor_below, inductor_below, capacitor_above, exception_list, False, True
+        )
+
+
+class EdbDifferentialPairs(EdbCommon, object):
     """Manages EDB methods for managing nets accessible from the ``Edb.differential_pairs`` property.
 
     Examples
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_nets = edbapp.differential_pairs
+    >>> edb_nets = edbapp.differential_pairs.items
+    >>> edb_nets = edbapp.differential_pairs["DQ4"]
     """
 
     def __init__(self, p_edb):
@@ -211,3 +284,50 @@ class EdbDifferentialPair(EdbCommon, object):
         diff_pair.api_create(name)._api_set_differential_pair(net_p, net_n)
 
         return self.items[name]
+
+    @pyaedt_function_handler
+    def auto_identify(self, positive_differentiator="_P", negative_differentiator="_N"):
+        """Auto identify differential pairs by naming conversion.
+
+        Parameters
+        ----------
+        positive_differentiator: str, optional
+            Differentiator of the positive net. The default is ``"_P"``.
+        negative_differentiator: str, optional
+            Differentiator of the negative net. The default is ``"_N"``.
+
+        Returns
+        -------
+        list
+            A list containing identified differential pair names.
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", edbversion="2023.1")
+        >>> edb_nets = edbapp.differential_pairs.auto_identify()
+        """
+        nets = self._pedb.nets.nets
+        pos_net = []
+        neg_net = []
+        for name, _ in nets.items():
+            if name.endswith(positive_differentiator):
+                pos_net.append(name)
+            elif name.endswith(negative_differentiator):
+                neg_net.append(name)
+            else:
+                pass
+
+        temp = []
+        for p in pos_net:
+            pattern_p = r"^(.+){}$".format(positive_differentiator)
+            match_p = re.findall(pattern_p, p)[0]
+
+            for n in neg_net:
+                pattern_n = r"^(.+){}$".format(negative_differentiator)
+                match_n = re.findall(pattern_n, n)[0]
+
+                if match_p == match_n:
+                    diff_name = "DIFF_{}".format(match_p)
+                    self.create(diff_name, p, n)
+                    temp.append(diff_name)
+        return temp

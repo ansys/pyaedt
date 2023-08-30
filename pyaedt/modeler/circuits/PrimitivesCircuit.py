@@ -6,8 +6,6 @@ import warnings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import filter_string
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -389,7 +387,7 @@ class CircuitComponents(object):
             """
             portnames = []
             line = file.readline()
-            while not line.startswith("! Port") and line.find("S11") == -1:
+            while not line.startswith("! Port") and not line.startswith("! NPort") and line.find("S11") == -1:
                 line = file.readline()
             if line.startswith("! Port"):
                 while line.startswith("! Port"):

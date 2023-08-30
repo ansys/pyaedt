@@ -4,6 +4,8 @@ import os
 # Import required modules
 import sys
 
+import pytest
+
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
@@ -14,45 +16,68 @@ from pyaedt.generic.general_methods import check_numeric_equivalence
 
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import is_ironpython
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
-try:
-    import pytest
-except ImportError:  # pragma: no cover
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:  # pragma: no cover
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
 
 
+@pytest.fixture(scope="class")
+def edbapp(add_edb):
+    app = add_edb(test_project_name, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path(local_scratch):
+    example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
+    target_path = os.path.join(local_scratch.path, "example_package.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    return target_path
+
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path2(local_scratch):
+    example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
+    target_path2 = os.path.join(local_scratch.path, "simple_00.aedb")
+    local_scratch.copyfolder(example_project2, target_path2)
+    return target_path2
+
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path4(local_scratch):
+    example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+    target_path4 = os.path.join(local_scratch.path, "Package_00.aedb")
+    local_scratch.copyfolder(example_project4, target_path4)
+    return target_path4
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
+
+
 @pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self, launch_desktop=False)
-        self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
-        self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
-        self.local_scratch.copyfolder(example_project, self.target_path)
-        example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
-        self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
-        self.local_scratch.copyfolder(example_project2, self.target_path2)
-        example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-        self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
-        self.local_scratch.copyfolder(example_project4, self.target_path4)
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, edbapp, local_scratch, target_path, target_path2, target_path4):
+        self.edbapp = edbapp
+        self.local_scratch = local_scratch
+        self.target_path = target_path
+        self.target_path2 = target_path2
+        self.target_path4 = target_path4
 
-    def teardown_class(self):
-        self.edbapp.close()
-        self.local_scratch.remove()
-        del self.edbapp
-
-    @pytest.mark.skipif(is_ironpython, reason="Method not supported anymore in Ironpython")
     def test_000_export_ipc2581(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
         target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_ipc.aedb")
@@ -185,9 +210,8 @@ class TestClass(BasisTest, object):
             padstack_instance = test_prop[padstack.id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
-            if not is_ironpython:
-                assert padstack_instance.start_layer in padstack_instance.layer_range_names
-                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
+            assert padstack_instance.start_layer in padstack_instance.layer_range_names
+            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
             padstack_instance.position = [0.001, 0.002]
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
@@ -227,20 +251,24 @@ class TestClass(BasisTest, object):
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        assert self.edbapp.nets.generate_extended_nets()
-        assert self.edbapp.extended_nets["NetD3_2"]
-        assert self.edbapp.extended_nets["NetD3_2"].nets
-        assert self.edbapp.extended_nets["NetD3_2"].components
-        assert self.edbapp.extended_nets["NetD3_2"].rlc
-        assert self.edbapp.extended_nets["NetD3_2"].serial_rlc
+        assert self.edbapp.extended_nets.auto_identify_signal()
+        assert self.edbapp.extended_nets.auto_identify_power()
+        extended_net_name, extended_net_obj = next(iter(self.edbapp.extended_nets.items.items()))
+        assert self.edbapp.extended_nets[extended_net_name]
+        assert self.edbapp.extended_nets[extended_net_name].nets
+        assert self.edbapp.extended_nets[extended_net_name].components
+        assert self.edbapp.extended_nets[extended_net_name].rlc
+        assert self.edbapp.extended_nets[extended_net_name].serial_rlc
 
         assert self.edbapp.nets["AVCC_1V3"].extended_net
 
         assert self.edbapp.extended_nets.create("new_ex_net", "DDR4_A1")
 
+        self.edbapp.differential_pairs.auto_identify()
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
+        assert self.edbapp.differential_pairs.items
 
         assert self.edbapp.net_classes.items
         assert self.edbapp.net_classes.create("DDR4_ADD", ["DDR4_A0", "DDR4_A1"])
@@ -392,12 +420,11 @@ class TestClass(BasisTest, object):
         assert "Vsource_" in self.edbapp.siwave.create_voltage_source_on_net("U1", "USB3_D_P", "U1", "GND", 3.3, 0)
         pins = self.edbapp.components.get_pin_from_component("U1")
         assert "VSource_" in self.edbapp.siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
-        if not is_ironpython:
-            assert len(self.edbapp.sources) > 0
-            assert len(self.edbapp.probes) == 0
-            assert list(self.edbapp.sources.values())[0].magnitude == 3.3
-            list(self.edbapp.sources.values())[0].phase = 1
-            assert list(self.edbapp.sources.values())[0].phase == 1
+        assert len(self.edbapp.sources) > 0
+        assert len(self.edbapp.probes) == 0
+        assert list(self.edbapp.sources.values())[0].magnitude == 3.3
+        list(self.edbapp.sources.values())[0].phase = 1
+        assert list(self.edbapp.sources.values())[0].phase == 1
 
     def test_042_create_current_source(self):
         assert self.edbapp.siwave.create_current_source_on_net("U1", "USB3_D_N", "U1", "GND", 0.1, 0) != ""
@@ -680,26 +707,18 @@ class TestClass(BasisTest, object):
         spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
         edbapp.components.instances["R8"].assign_spice_model(spice_path)
         edbapp.nets.nets
-        if is_ironpython:
-            assert not edbapp.cutout(
-                signal_list=["1V0"],
-                reference_list=["GND"],
-                extent_type="Bounding",
-                number_of_threads=4,
-            )
-        else:
-            assert edbapp.cutout(
-                signal_list=["1V0"],
-                reference_list=["GND"],
-                extent_type="Bounding",
-                number_of_threads=4,
-                extent_defeature=0.001,
-                preserve_components_with_model=True,
-            )
-            assert "A0_N" not in edbapp.nets.nets
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
+        assert edbapp.cutout(
+            signal_list=["1V0"],
+            reference_list=["GND"],
+            extent_type="Bounding",
+            number_of_threads=4,
+            extent_defeature=0.001,
+            preserve_components_with_model=True,
+        )
+        assert "A0_N" not in edbapp.nets.nets
+        assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
+        assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
+        assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
         edbapp.close()
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
@@ -968,6 +987,9 @@ class TestClass(BasisTest, object):
             i += 1
         assert self.edbapp.modeler.primitives[i].bbox
         assert self.edbapp.modeler.primitives[i].center
+        assert self.edbapp.modeler.primitives[i].get_closest_point((0, 0))
+        assert self.edbapp.modeler.primitives[i].polygon_data
+        assert self.edbapp.modeler.paths[0].length
 
     def test_085_short_component(self):
         assert self.edbapp.components.short_component_pins("U12", width=0.2e-3)
@@ -997,15 +1019,14 @@ class TestClass(BasisTest, object):
         assert self.edbapp.components["C2"].is_enabled is True
 
     def test_088_create_symmetric_stackup(self):
-        if not is_ironpython:
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.stackup.create_symmetric_stackup(9)
-            assert app_edb.stackup.create_symmetric_stackup(8)
-            app_edb.close()
+        app_edb = Edb(edbversion=desktop_version)
+        assert not app_edb.stackup.create_symmetric_stackup(9)
+        assert app_edb.stackup.create_symmetric_stackup(8)
+        app_edb.close()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close()
+        app_edb = Edb(edbversion=desktop_version)
+        assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
+        app_edb.close()
 
     def test_089_create_rectangle(self):
         rect = self.edbapp.modeler.create_rectangle("1_Top", "SIG1", ["0", "0"], ["2mm", "3mm"])
@@ -1023,7 +1044,6 @@ class TestClass(BasisTest, object):
             representation_type="CenterWidthHeight",
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="Failing Subtract")
     def test_089B_circle_boolean(self):
         poly = self.edbapp.modeler.create_polygon_from_points([[0, 0], [100, 0], [100, 100], [0, 100]], "1_Top")
         assert poly
@@ -1334,6 +1354,9 @@ class TestClass(BasisTest, object):
         assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
+        sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
+        assert sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+        assert sig.create_edge_port("pcb_port", "start", "gap")
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -1419,6 +1442,7 @@ class TestClass(BasisTest, object):
         assert edb_stats.num_inductors
         assert edb_stats.num_capacitors
         assert edb_stats.num_resistors
+        edb.close()
 
     def test_113_set_bounding_box_extent(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
@@ -1432,6 +1456,7 @@ class TestClass(BasisTest, object):
         assert edb.hfss.configure_hfss_extents(config)
         final_extent_info = edb.active_cell.GetHFSSExtentInfo()
         assert final_extent_info.ExtentType == edb.edb_api.utility.utility.HFSSExtentInfoType.BoundingBox
+        edb.close()
 
     def test_114_create_source(self):
         source = Source()
@@ -1508,6 +1533,7 @@ class TestClass(BasisTest, object):
         assert len(list(ssi.SweepDataList)) == 1
         sweep = list(ssi.SweepDataList)[0]
         assert not sweep.EnforceCausality
+        edb.close()
 
     def test_119_add_hfss_config(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -1518,21 +1544,15 @@ class TestClass(BasisTest, object):
         sim_setup.mesh_sizefactor = 1.9
         assert not sim_setup.do_lambda_refinement
         edb.hfss.configure_hfss_analysis_setup(sim_setup)
-        if is_ironpython:
-            mesh_size_factor = (
-                list(edb.active_cell.SimulationSetups)[0]
-                .GetSimSetupInfo()
-                .SimulationSettings.InitialMeshSettings.MeshSizefactor
-            )
-        else:
-            mesh_size_factor = (
-                list(edb.active_cell.SimulationSetups)[0]
-                .GetSimSetupInfo()
-                .get_SimulationSettings()
-                .get_InitialMeshSettings()
-                .get_MeshSizefactor()
-            )
+        mesh_size_factor = (
+            list(edb.active_cell.SimulationSetups)[0]
+            .GetSimSetupInfo()
+            .get_SimulationSettings()
+            .get_InitialMeshSettings()
+            .get_MeshSizefactor()
+        )
         assert mesh_size_factor == 1.9
+        edb.close()
 
     def test_120_edb_create_port(self):
         edb = Edb(
@@ -1712,7 +1732,6 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup.add_layer("new_bottom", "1_Top", "add_at_elevation", "dielectric", elevation=0.0003)
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
     def test_125_stackup(self):
         edbapp = Edb(edbversion=desktop_version)
         import_method = edbapp.stackup.load
@@ -1732,7 +1751,6 @@ class TestClass(BasisTest, object):
 
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
     def test_125b_stackup(self):
         edbapp = Edb(edbversion=desktop_version)
         import_method = edbapp.stackup.import_stackup
@@ -1779,7 +1797,6 @@ class TestClass(BasisTest, object):
         assert layer.material == "copper"
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
@@ -2057,6 +2074,7 @@ class TestClass(BasisTest, object):
         assert mop.skin_depth == "5um"
         assert mop.surface_triangle_length == "2mm"
         assert mop.number_of_layer_elements == "3"
+        edbapp.close()
 
     def test_130_siwave_dc_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_dc_setup("DC1")
@@ -2285,6 +2303,7 @@ class TestClass(BasisTest, object):
         simconfig.mesh_freq = "40.25GHz"
         edbapp.build_simulation_project(simconfig)
         assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
+        edbapp.close()
 
     def test_134_create_port_between_pin_and_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -2294,6 +2313,7 @@ class TestClass(BasisTest, object):
         edbapp.siwave.create_port_between_pin_and_layer(
             component_name="U1", pins_name="A27", layer_name="16_Bottom", reference_net="GND"
         )
+        edbapp.close()
 
     def test_134_siwave_source_setter(self):
         # test needed for the setter with sources created in Siwave prior EDB import
@@ -2308,6 +2328,7 @@ class TestClass(BasisTest, object):
         assert sources[1].magnitude == 1.45
         sources[2].magnitude = 1.45
         assert sources[2].magnitude == 1.45
+        edbapp.close()
 
     def test_135_delete_pingroup(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_pin_group.aedb")
@@ -2317,6 +2338,7 @@ class TestClass(BasisTest, object):
         for pingroup_name, pingroup in edbapp.siwave.pin_groups.items():
             assert pingroup.delete()
         assert not edbapp.siwave.pin_groups
+        edbapp.close()
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -2339,6 +2361,7 @@ class TestClass(BasisTest, object):
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 1e-12
             res.cap_value = 8e-12
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 8e-12
+        edbapp.close()
 
     def test_137_design_options(self):
         self.edbapp.design_options.suppress_pads = False
@@ -2391,6 +2414,7 @@ class TestClass(BasisTest, object):
         pad_instance3 = edb.padstacks.place(position=["-1.65mm", "-1.665mm"], definition_name="test2")
         assert pad_instance3.start_layer == "1_Top"
         assert pad_instance3.stop_layer == "1_Top"
+        edb.close()
 
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
         edb = Edb()
@@ -2434,6 +2458,7 @@ class TestClass(BasisTest, object):
         assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
         assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
         assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        edb.close()
 
     def test_132_assign_hfss_extent_multiple_with_simconfig(self):
         edb = Edb()
@@ -2471,6 +2496,7 @@ class TestClass(BasisTest, object):
         assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
         assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
         assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        edb.close()
 
     def test_133_stackup_properties(self):
         edb = Edb(edbversion=desktop_version)
@@ -2481,6 +2507,7 @@ class TestClass(BasisTest, object):
         edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
         assert edb.stackup.thickness == 0.00043
         assert edb.stackup.num_layers == 5
+        edb.close()
 
     def test_134_hfss_extent_info(self):
         from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
@@ -2637,6 +2664,7 @@ class TestClass(BasisTest, object):
         assert y.voids
         y_clone = y.clone()
         assert y_clone.voids
+        edb.close()
 
     def test_142_replace_rlc_by_gap_boundaries(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -2649,9 +2677,10 @@ class TestClass(BasisTest, object):
             term for term in list(edbapp.active_layout.Terminals) if str(term.GetBoundaryType()) == "RlcBoundary"
         ]
         assert len(rlc_list) == 944
+        edbapp.close()
 
     def test_143_backdrill_via_with_offset(self):
-        edb = Edb(edbversion="2023.2")
+        edb = Edb(edbversion=desktop_version)
         edb.stackup.add_layer(layer_name="bot")
         edb.stackup.add_layer(layer_name="diel1", base_layer="bot", layer_type="dielectric", thickness="127um")
         edb.stackup.add_layer(layer_name="signal1", base_layer="diel1")
@@ -2673,6 +2702,7 @@ class TestClass(BasisTest, object):
         assert padstack_instance2.backdrill_bottom[0] == "signal1"
         assert padstack_instance2.backdrill_bottom[1] == "200um"
         assert padstack_instance2.backdrill_bottom[2] == "100um"
+        edb.close()
 
     def test_143_add_layer_api_with_control_file(self):
         from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -2732,3 +2762,40 @@ class TestClass(BasisTest, object):
             use_q3d=True,
         )
         assert setup.sweeps
+
+    def test_144_search_reference_pins(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_boundaries.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = edbapp.components.instances["J5"].pins["19"]
+        assert pin
+        ref_pins = pin.get_reference_pins(reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True)
+        assert len(ref_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True
+        )
+        assert len(reference_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=2, component_only=True
+        )
+        assert len(reference_pins) == 2
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
+        )
+        assert len(reference_pins) == 11
+
+    def test_145_arc_data(self):
+        assert len(self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs) > 0
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
+
+    def test_145_via_volume(self):
+        vias = [
+            via
+            for via in list(self.edbapp.padstacks.padstack_instances.values())
+            if not via.start_layer == via.stop_layer
+        ]
+        assert vias[0].metal_volume
+        assert vias[1].metal_volume

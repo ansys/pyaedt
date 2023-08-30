@@ -6,7 +6,6 @@ import os
 import sys
 import warnings
 
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file

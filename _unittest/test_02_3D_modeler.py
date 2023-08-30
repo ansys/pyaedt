@@ -1,16 +1,13 @@
-# Setup paths for module imports
-from _unittest.conftest import BasisTest
+import random
+
 from _unittest.conftest import config
+import pytest
 
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
-
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.cad.object3d import Object3d
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -18,19 +15,20 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-if is_ironpython:
-    tol = 5e-4
-else:
-    tol = 1e-12
+tol = 1e-12
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def restore_model(self):
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):
@@ -86,6 +84,44 @@ class TestClass(BasisTest, object):
         split2 = box2.split(1)
         assert isinstance(split2, list)
         assert box2.name in split2[0]
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3")
+        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 20], [20, 30], name="rect1")
+        split = self.aedtapp.modeler.split(objects=box3, sides="Both", tool=rect1.id)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 14], [20, 30], name="rect2")
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=rect2.faces[0])
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 12], [20, 30], name="rect3")
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool="rect3")
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        assert not self.aedtapp.modeler.split(objects=obj_split)
+        box4 = self.aedtapp.modeler.create_box([20, 20, 20], [20, 20, 20], "box_to_split4")
+        poly2 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=box4, sides="Both", tool=poly2.name)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        poly3 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 35], [30, 25, 35], [30, 45, 35]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly3)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
+        poly4 = self.aedtapp.modeler.create_polyline(
+            position_list=[[35, 16, 37], [30, 25, 37], [30, 45, 37]], segment_type="Arc"
+        )
+        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly4.edges[0])
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
 
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
@@ -670,10 +706,9 @@ class TestClass(BasisTest, object):
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert len(objects_in_bounding_box) == 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                bounding_box = [100, 200, 100, -100, -300]
-                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        with pytest.raises(ValueError):
+            bounding_box = [100, 200, 100, -100, -300]
+            self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
@@ -857,7 +892,6 @@ class TestClass(BasisTest, object):
             ],
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="pytest.raises not available")
     def test_59b_region_property_failing(self):
         self.aedtapp.modeler.create_air_region()
         assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")
@@ -879,3 +913,19 @@ class TestClass(BasisTest, object):
                 "Absolute Position",
             ],
         )
+
+    def test_60_sweep_along_normal(self):
+        selected_faces = [face for face in self.aedtapp.modeler["Core"].faces if face.is_planar]
+        selected_faces = [selected_faces[0].id, selected_faces[1].id]
+        a = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces, sweep_value=100)
+        b = self.aedtapp.modeler.sweep_along_normal("Core", selected_faces[0], sweep_value=200)
+        assert isinstance(a, list)
+        assert isinstance(b, Object3d)
+
+    def test_61_get_face_by_id(self):
+        self.aedtapp.insert_design("face_id_object")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
+        face = self.aedtapp.modeler.get_face_by_id(box1.faces[0].id)
+        assert isinstance(face, FacePrimitive)
+        face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
+        assert not face

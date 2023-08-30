@@ -2,8 +2,6 @@
 from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -236,6 +234,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     def __enter__(self):
         return self

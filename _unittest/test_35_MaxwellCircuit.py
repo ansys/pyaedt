@@ -1,26 +1,24 @@
-# Setup paths for module imports
 import os
 
-from _unittest.conftest import BasisTest
-from _unittest.conftest import desktop_version
+import pytest
 
 from pyaedt import Maxwell2d
 from pyaedt import MaxwellCircuit
 from pyaedt.generic.constants import SOLUTIONS
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        project_name = "MaxwellCircuitProject"
-        design_name = "MaxwellCircuitDesign1"
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self, project_name=project_name, design_name=design_name, application=MaxwellCircuit
-        )
-        self.aedtapp.modeler.schematic_units = "mil"
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="MaxwellCircuitProject", design_name="MaxwellCircuitDesign1", application=MaxwellCircuit)
+    app.modeler.schematic_units = "mil"
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_create_resistor(self):
         id = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
@@ -46,7 +44,7 @@ class TestClass(BasisTest, object):
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    def test_07_export_netlist(self):
+    def test_07_export_netlist(self, add_app):
         design_name = "ExportCircuitNetlist"
         self.aedtapp.insert_design(design_name)
         self.aedtapp.modeler.schematic_units = "mil"
@@ -69,7 +67,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(netlist_file)
         netlist_file_invalid = os.path.join(self.local_scratch.path, "export_netlist.sh")
         assert not self.aedtapp.export_netlist_from_schematic(netlist_file_invalid)
-        m2d = Maxwell2d(designname="test", specified_version=desktop_version)
+        m2d = add_app(design_name="test", application=Maxwell2d)
         m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         m2d.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
         m2d.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")

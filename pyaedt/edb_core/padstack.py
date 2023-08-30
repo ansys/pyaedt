@@ -8,10 +8,9 @@ from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstack
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import Array
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EdbPadstacks(object):
@@ -1327,3 +1326,61 @@ class EdbPadstacks(object):
             if inst.net_name == net_name:
                 padstack_instances.append(inst)
         return padstack_instances
+
+    @pyaedt_function_handler()
+    def get_reference_pins(
+        self, positive_pin, reference_net="gnd", search_radius=5e-3, max_limit=0, component_only=True
+    ):
+        """Search for reference pins using given criteria.
+
+        Parameters
+        ----------
+        positive_pin : EDBPadstackInstance
+            Pin used for evaluating the distance on the reference pins found.
+        reference_net : str, optional
+            Reference net. The default is ``"gnd"``.
+        search_radius : float, optional
+            Search radius for finding padstack instances. The default is ``5e-3``.
+        max_limit : int, optional
+            Maximum limit for the padstack instances found. The default is ``0``, in which
+            case no limit is applied. The maximum limit value occurs on the nearest
+            reference pins from the positive one that is found.
+        component_only : bool, optional
+            Whether to limit the search to component padstack instances only. The
+            default is ``True``. When ``False``, the search is extended to the entire layout.
+
+        Returns
+        -------
+        list
+            List of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`.
+
+        Examples
+        --------
+        >>> edbapp = Edb("target_path")
+        >>> pin = edbapp.components.instances["J5"].pins["19"]
+        >>> reference_pins = edbapp.padstacks.get_reference_pins(positive_pin=pin, reference_net="GND",
+        >>> search_radius=5e-3, max_limit=0, component_only=True)
+        """
+        pinlist = []
+        if not positive_pin:
+            search_radius = 10e-2
+            component_only = True
+        if component_only:
+            references_pins = [
+                pin for pin in list(positive_pin.component.pins.values()) if pin.net_name == reference_net
+            ]
+            if not references_pins:
+                return pinlist
+        else:
+            references_pins = self.get_padstack_instance_by_net_name(reference_net)
+            if not references_pins:
+                return pinlist
+        pinlist = [
+            p
+            for p in references_pins
+            if GeometryOperators.points_distance(positive_pin.position, p.position) <= search_radius
+        ]
+        if max_limit and len(pinlist) > max_limit:
+            pin_dict = {GeometryOperators.points_distance(positive_pin.position, p.position): p for p in pinlist}
+            pinlist = [pin[1] for pin in sorted(pin_dict.items())[:max_limit]]
+        return pinlist

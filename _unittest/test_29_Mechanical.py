@@ -1,29 +1,27 @@
 import os
 import shutil
 
-from _unittest.conftest import BasisTest  # Setup paths for module imports
-from _unittest.conftest import config  # Setup paths for module imports
-from _unittest.conftest import desktop_version  # Setup paths for module imports
+from _unittest.conftest import config
+import pytest
 
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Mechanical
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 test_project_name = "coax_Mech"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, application=Mechanical, solution_type="Thermal")
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(application=Mechanical, solution_type="Thermal")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_save(self):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
@@ -47,8 +45,8 @@ class TestClass(BasisTest, object):
         bound = self.aedtapp.assign_uniform_temperature(face, "35deg")
         assert bound.props["Temperature"] == "35deg"
 
-    def test_05_assign_load(self):
-        hfss = Hfss(specified_version=desktop_version)
+    def test_05_assign_load(self, add_app):
+        hfss = add_app(application=Hfss)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         hfss.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
@@ -68,10 +66,8 @@ class TestClass(BasisTest, object):
         assert mysetup.update()
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
-    def test_07_assign_thermal_loss(self):
-        ipk = Icepak(
-            solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow, specified_version=desktop_version
-        )
+    def test_07_assign_thermal_loss(self, add_app):
+        ipk = add_app(application=Icepak, solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")

@@ -15,8 +15,6 @@ import os
 import re
 
 from pyaedt.generic.constants import AEDT_UNITS
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import clamp
@@ -115,7 +113,7 @@ class Object3d(object):
             self._odesign.Undo()
         if not modeled:
             self._odesign.Undo()
-        if not settings.non_graphical:
+        if not self._primitives._app.desktop_class.non_graphical:
             self._primitives._app.odesktop.ClearMessages(
                 self._primitives._app.project_name, self._primitives._app.design_name, 1
             )

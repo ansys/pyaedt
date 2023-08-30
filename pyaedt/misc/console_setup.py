@@ -15,14 +15,16 @@ import sys
 try:
     import pyaedt
 except ImportError:
-    # debug only purpose. If Ribbon is added from a github clone then we link pyaedt in personal lib.
+    # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
+    # to PyAEDT is created in the personal library.
     console_setup_dir = os.path.dirname(__file__)
     if "PersonalLib" in console_setup_dir:
         sys.path.append(os.path.join(console_setup_dir, "..", "..", ".."))
     import pyaedt
 
 
-pyaedt.settings.use_grpc_api = False
+# pyaedt.settings.use_grpc_api = False
+settings = pyaedt.settings
 from pyaedt import Desktop
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import is_windows
@@ -38,34 +40,26 @@ def release(d):
     d.release_desktop(False, False)
 
 
-sessions = active_sessions(version=version, student_version=False)
 session_found = False
 port = 0
 student_version = False
 
 
-for session in sessions:
-    if session[0] == aedt_process_id and session[1] != -1:
-        pyaedt.settings.use_grpc_api = True
-        port = session[1]
-        session_found = True
-        break
-    elif session[0] == aedt_process_id:
-        session_found = True
-        break
+sessions = active_sessions(version=version, student_version=False)
+if aedt_process_id in sessions:
+    session_found = True
+    if sessions[aedt_process_id] != -1:
+        # pyaedt.settings.use_grpc_api = True
+        port = sessions[aedt_process_id]
 if not session_found:
     sessions = active_sessions(version=version, student_version=True)
-    for session in sessions:
-        if session[0] == aedt_process_id and session[1] != -1:
-            pyaedt.settings.use_grpc_api = True
-            port = session[1]
-            session_found = True
-            student_version = True
-            break
-        elif session[0] == aedt_process_id:
-            session_found = True
-            student_version = True
-            break
+    if aedt_process_id in sessions:
+        session_found = True
+        student_version = True
+        if sessions[aedt_process_id] != -1:
+            # pyaedt.settings.use_grpc_api = True
+            port = sessions[aedt_process_id]
+
 error = False
 if port:
     desktop = Desktop(

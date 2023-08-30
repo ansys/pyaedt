@@ -17,8 +17,6 @@ from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import unit_converter
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -769,9 +767,9 @@ class PostProcessorCommon(object):
         if not solution:
             solution = self._app.nominal_adaptive
         if is_siwave_dc:  # pragma: no cover
-            id = "0"
+            id_ = "0"
             if context:
-                id = str(
+                id_ = str(
                     [
                         "RL",
                         "Sources",
@@ -783,7 +781,7 @@ class PostProcessorCommon(object):
             context = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
 
         elif not context:  # pragma: no cover
@@ -1232,7 +1230,7 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        if settings.non_graphical:
+        if self._app.desktop_class.non_graphical:
             if width == 0:
                 width = 500
             if height == 0:
@@ -3299,7 +3297,7 @@ class PostProcessor(PostProcessorCommon, object):
                 height = 1080
             self.oeditor.ExportImage(full_name, width, height)
         else:
-            if settings.non_graphical:
+            if self._app.desktop_class.non_graphical:
                 if width == 0:
                     width = 500
                 if height == 0:

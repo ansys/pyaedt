@@ -12,8 +12,6 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
@@ -1296,6 +1294,9 @@ class Q3d(QExtractor, object):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @property
     def nets(self):
         """Nets in a Q3D project.
@@ -1941,7 +1942,7 @@ class Q3d(QExtractor, object):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not is_ironpython and not settings.use_grpc_api:
+            if not is_ironpython and not self.desktop_class.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)
@@ -2113,6 +2114,9 @@ class Q2d(QExtractor, object):
             aedt_process_id,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, name="", matname=""):

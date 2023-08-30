@@ -4,8 +4,6 @@ from pyaedt.edb_core.dotnet.database import NetClassDotNet
 from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -144,8 +142,12 @@ class EDBNetsData(NetDotNet):
         >>> app.nets["BST_V3P3_S5"].extended_net
         """
         api_extended_net = self._api_get_extended_net
-        if api_extended_net:
-            return EDBExtendedNetData(self._app, api_extended_net)
+        obj = EDBExtendedNetData(self._app, api_extended_net)
+
+        if not obj.is_null:
+            return obj
+        else:  # pragma: no cover
+            return
 
 
 class EDBNetClassData(NetClassDotNet):
@@ -235,7 +237,9 @@ class EDBDifferentialPairData(DifferentialPairDotNet):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb.differential_pairs.differential_pairs
+    >>> diff_pair = edb.differential_pairs["DQ4"]
+    >>> diff_pair.positive_net
+    >>> diff_pair.negative_net
     """
 
     def __init__(self, core_app, api_object=None):

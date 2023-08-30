@@ -1,8 +1,8 @@
 import os
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Q2d
 
@@ -15,16 +15,24 @@ else:
     q2d_q3d = "q2d_q3d"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, application=Q2d)
-        self.test_matrix = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "{}.aedt".format(q2d_q3d))
-        )
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(application=Q2d)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    test_matrix = local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt"))
+    return test_matrix, None
+
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, examples, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+        self.test_matrix = examples[0]
 
     def test_01_save(self):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
@@ -75,8 +83,8 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
 
-    def test_11_matrix_reduction(self):
-        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+    def test_11_matrix_reduction(self, add_app):
+        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         assert q2d.matrices[0].name == "Original"
         assert len(q2d.matrices[0].sources()) > 0
         assert len(q2d.matrices[0].sources(False)) > 0
@@ -95,8 +103,8 @@ class TestClass(BasisTest, object):
         assert q2d.matrices[5].name == "Test5"
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 
-    def test_12_edit_sources(self):
-        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+    def test_12_edit_sources(self, add_app):
+        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         sources_cg = {"Circle2": ("10V", "45deg"), "Circle3": "4A"}
         assert q2d.edit_sources(sources_cg)
 
@@ -121,8 +129,8 @@ class TestClass(BasisTest, object):
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
         assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
 
-    def test_14_export_matrix_data(self):
-        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+    def test_14_export_matrix_data(self, add_app):
+        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
         q2d.matrices[1].name == "Test1"
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2")
@@ -182,8 +190,8 @@ class TestClass(BasisTest, object):
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
         self.aedtapp.close_project(q2d.project_name, save_project=True)
 
-    def test_15_export_equivalent_circuit(self):
-        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+    def test_15_export_equivalent_circuit(self, add_app):
+        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
         assert q2d.matrices[4].name == "Test4"
         assert len(q2d.setups[0].sweeps[0].frequencies) > 0
@@ -267,8 +275,8 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 
-    def test_16_export_results_q2d(self):
-        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+    def test_16_export_results_q2d(self, add_app):
+        q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         exported_files = q2d.export_results(analyze=True)
         assert len(exported_files) > 0
         self.aedtapp.close_project(q2d.project_name, save_project=False)

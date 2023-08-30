@@ -9,8 +9,6 @@ from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS
 from pyaedt.emit_core.emit_constants import emit_unit_type_string_to_enum
 from pyaedt.emit_core.results.results import Results
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.schematic import ModelerEmit
 
@@ -164,6 +162,9 @@ class Emit(Design, object):
             unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
             unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
             self.set_units(unit_types, unit_values)
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @property
     def modeler(self):

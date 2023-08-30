@@ -1,24 +1,15 @@
-# standard imports
 import os
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-
-from pyaedt import Desktop
-from pyaedt import get_pyaedt_app
-
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+import pytest
 
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
+from pyaedt import get_pyaedt_app
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
 
@@ -29,13 +20,17 @@ else:
     test_project_name = "Coax_HFSS"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_app(self):
         assert self.aedtapp
@@ -151,8 +146,9 @@ class TestClass(BasisTest, object):
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
 
-    def test_16_renamedesign(self):
-        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True, design_name="myname")
+    def test_16_renamedesign(self, add_app, test_project_file):
+        prj_file = test_project_file(test_project_name)
+        self.aedtapp.load_project(project_file=prj_file, close_active_proj=True, design_name="myname")
         assert "myname" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
@@ -238,7 +234,6 @@ class TestClass(BasisTest, object):
         ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
         assert ds8.name == "$dataset_csv"
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_19b_import_dataset3d_xlsx(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.xlsx")
         ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
@@ -281,28 +276,23 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.omaterial_manager
 
     def test_27_odesktop(self):
-        if is_ironpython:
-            assert str(type(self.aedtapp.odesktop)) in ["<type 'ADesktopWrapper'>", "<type 'ADispatchWrapper'>"]
-        else:
-            assert str(type(self.aedtapp.odesktop)) in [
-                "<class 'win32com.client.CDispatch'>",
-                "<class 'PyDesktopPlugin.AedtObjWrapper'>",
-                "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
-            ]
+        assert str(type(self.aedtapp.odesktop)) in [
+            "<class 'win32com.client.CDispatch'>",
+            "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+            "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
+        ]
 
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
         assert app.design_type == "HFSS"
 
-    def test_29_change_registry_key(self):
-        desktop = Desktop(desktop_version, new_desktop_session=False)
+    def test_29_change_registry_key(self, desktop):
         assert not desktop.change_registry_key("test_key_string", "test_string")
         assert not desktop.change_registry_key("test_key_int", 2)
         assert not desktop.change_registry_key("test_key", 2.0)
 
     def test_30_object_oriented(self):
         self.aedtapp["my_oo_variable"] = "15mm"
-        # self.aedtapp.set_active_design("myname")
         assert self.aedtapp.get_oo_name(self.aedtapp.oproject, "Variables")
         assert self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables")
         assert not self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables1")
@@ -329,8 +319,21 @@ class TestClass(BasisTest, object):
         aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
 
-    def test_35_get_app(self):
-        d = Desktop(desktop_version, new_desktop_session=False)
+    def test_34_force_project_path_disable(self):
+        settings.force_error_on_missing_project = True
+        assert settings.force_error_on_missing_project == True
+        e = None
+        exception_raised = False
+        try:
+            h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "Project doesn't exists. Check it and retry."
+        assert exception_raised
+        settings.force_error_on_missing_project = False
+
+    def test_35_get_app(self, desktop):
+        d = desktop
         assert d[[0, 0]]
         assert not d[[test_project_name, "myname"]]
         assert d[[0, "mydesign"]]
@@ -342,14 +345,14 @@ class TestClass(BasisTest, object):
         assert d[[1, 0]]
         assert "Test" in d[[1, 0]].project_name
 
-    def test_36_test_load(self):
+    def test_36_test_load(self, add_app):
         file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
-        hfss = Hfss(projectname=file_name, specified_version=desktop_version)
+        hfss = add_app(project_name=file_name, just_open=True)
         hfss.save_project()
         assert hfss
-        h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
+        h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
-        h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
+        h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
         file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
         file_name2_lock = os.path.join(self.local_scratch.path, "test_36_2.aedt.lock")
@@ -370,30 +373,22 @@ class TestClass(BasisTest, object):
         except:
             assert True
 
-    def test_37_add_custom_toolkit(self):
-        desktop = Desktop(desktop_version, new_desktop_session=False)
+    def test_37_add_custom_toolkit(self, desktop):
         assert desktop.get_available_toolkits()
 
-    @pytest.mark.skipif(is_ironpython, reason="not supported.")
-    def test_38_toolkit(self):
+    def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import pyaedt\n")
-        desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.add_script_to_menu(
             "test_toolkit",
             file,
         )
         assert desktop.remove_script_from_menu("test_toolkit")
 
-    def test_99_force_project_path_disable(self):
-        settings.force_error_on_missing_project = True
-        assert settings.force_error_on_missing_project == True
-        e = None
-        try:
-            h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
-        except Exception as e:
-            exception_raised = True
-            assert e.args[0] == "Project doesn't exists. Check it and retry."
-        assert exception_raised
-        settings.force_error_on_missing_project = False
+    def test_39_load_project(self, desktop):
+        new_project = os.path.join(self.local_scratch.path, "new.aedt")
+        self.aedtapp.save_project(project_file=new_project)
+        self.aedtapp.close_project(name="new")
+        aedtapp = desktop.load_project(new_project)
+        assert aedtapp

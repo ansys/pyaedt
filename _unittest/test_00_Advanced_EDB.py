@@ -3,52 +3,76 @@ import math
 import os
 import time
 
+import pytest
+
 from pyaedt import Edb
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 
-# Setup paths for module imports
-# Import required modules
-
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
-from _unittest.conftest import BasisTest
+
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
 from pyaedt.generic.general_methods import is_linux
 
-try:
-    import pytest
-except ImportError:  # pragma: no cover
-    import _unittest_ironpython.conf_unittest as pytest
-
 test_subfolder = "TEDB"
 
 
-@pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self, launch_desktop=False)
-        self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
-        self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
-        self.local_scratch.copyfolder(example_project, self.target_path)
-        example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
-        self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
-        self.local_scratch.copyfolder(example_project2, self.target_path2)
-        example_project3 = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
-        self.target_path3 = os.path.join(self.local_scratch.path, "test_plot.aedb")
-        self.local_scratch.copyfolder(example_project3, self.target_path3)
-        example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-        self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
-        self.local_scratch.copyfolder(example_project4, self.target_path4)
+@pytest.fixture(scope="class")
+def edbapp(add_edb):
+    app = add_edb(test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        self.edbapp.close()
-        self.local_scratch.remove()
-        del self.edbapp
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path(local_scratch):
+    example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
+    target_path = os.path.join(local_scratch.path, "example_package.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    return target_path
+
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path2(local_scratch):
+    example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
+    target_path2 = os.path.join(local_scratch.path, "simple_00.aedb")
+    local_scratch.copyfolder(example_project2, target_path2)
+    return target_path2
+
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path3(local_scratch):
+    example_project3 = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
+    target_path3 = os.path.join(local_scratch.path, "test_plot.aedb")
+    local_scratch.copyfolder(example_project3, target_path3)
+    return target_path3
+
+
+@pytest.fixture(scope="class", autouse=True)
+def target_path4(local_scratch):
+    example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+    target_path4 = os.path.join(local_scratch.path, "Package_00.aedb")
+    local_scratch.copyfolder(example_project4, target_path4)
+    return target_path4
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
+
+
+@pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, edbapp, local_scratch, target_path, target_path2, target_path3, target_path4):
+        self.edbapp = edbapp
+        self.local_scratch = local_scratch
+        self.target_path = target_path
+        self.target_path2 = target_path2
+        self.target_path3 = target_path3
+        self.target_path4 = target_path4
 
     def test_01_flip_layer_stackup(self):
         edb_path = os.path.join(self.target_path2, "edb.def")
@@ -748,7 +772,7 @@ class TestClass(BasisTest, object):
         sim_config = SimulationConfiguration(cfg_file)
         assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
+    @pytest.mark.skipif(is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
         target_path = os.path.join(local_path, "example_models", "T40", "ANSYS-HSD_V1_DCIR.aedb")
         out_edb = os.path.join(self.local_scratch.path, "to_be_solved.aedb")
@@ -762,7 +786,6 @@ class TestClass(BasisTest, object):
             assert os.path.exists(i)
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
     def test_17_component(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_17.aedb")
@@ -800,7 +823,6 @@ class TestClass(BasisTest, object):
         assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Failing")
     def test_18_stackup(self):
         def validate_material(pedb_materials, material, delta):
             pedb_mat = pedb_materials[material["name"]]
@@ -964,7 +986,6 @@ class TestClass(BasisTest, object):
     def test_22_eligible_power_nets(self):
         assert "GND" in [i.name for i in self.edbapp.nets.eligible_power_nets()]
 
-    @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_023_plot_on_matplotlib(self):
         edb_plot = Edb(self.target_path3, edbversion=desktop_version)
 
