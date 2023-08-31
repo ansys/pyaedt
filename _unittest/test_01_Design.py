@@ -9,8 +9,8 @@ import pytest
 # from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
-from pyaedt import get_pyaedt_app
 from pyaedt import Icepak
+from pyaedt import get_pyaedt_app
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 
@@ -35,10 +35,14 @@ def aedtapp(add_app):
     app = add_app(test_project_name, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def icepak_design(add_app):
-    app = add_app(project_name="icepak_proj", design_name="ipk_test_design", application=Icepak, subfolder=test_subfolder)
+    app = add_app(
+        project_name="icepak_proj", design_name="ipk_test_design", application=Icepak, subfolder=test_subfolder
+    )
     return app
+
 
 class TestClass:
     @pytest.fixture(autouse=True)
