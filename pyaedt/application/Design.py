@@ -3935,6 +3935,6 @@ class Design(AedtObjects):
             try:
                 design_settings_dict[prop] = design_settings.GetPropValue(prop)
             except Exception as e:
-                design_settings_dict[prop] = 'Could not retrive the value of this property'
+                design_settings_dict[prop] = 'Could not retrive the value'
 
         return design_settings_dict
