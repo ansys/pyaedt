@@ -57,18 +57,24 @@ def process_arguments(args, parser):
 
 def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False):
     from pyaedt import Desktop
+    from pyaedt import settings
     from pyaedt.generic.general_methods import grpc_active_sessions
 
     sessions = grpc_active_sessions(aedt_version, is_student_version)
+    close_on_exit = True
     if not sessions:
         if not new_desktop_session:
             print("Launching a new AEDT desktop session.")
         new_desktop_session = True
+    else:
+        close_on_exit = False
+    settings.use_grpc_api = True
     with Desktop(
         specified_version=aedt_version,
         non_graphical=new_desktop_session,
         new_desktop_session=new_desktop_session,
         student_version=is_student_version,
+        close_on_exit=close_on_exit,
     ) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
