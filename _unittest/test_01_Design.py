@@ -417,5 +417,4 @@ class TestClass:
         assert aedtapp
 
     def test_40_get_design_settings(self):
-        self.icepak_design
-        x = 0
+        assert self.icepak_design.get_design_settings()

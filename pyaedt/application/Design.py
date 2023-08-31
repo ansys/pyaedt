@@ -3926,7 +3926,15 @@ class Design(AedtObjects):
         References
         ----------
 
-        >>> oDesign.
+        >>> oDesign.GetChildObject("Design Settings")
         """
-        design_settings_dict = {"This is test dict": "no value"}
+        design_settings = self._odesign.GetChildObject("Design Settings")
+        prop_name_list = design_settings.GetPropNames()
+        design_settings_dict = {}
+        for prop in prop_name_list:
+            try:
+                design_settings_dict[prop] = design_settings.GetPropValue(prop)
+            except Exception as e:
+                design_settings_dict[prop] = 'Could not retrive the value of this property'
+
         return design_settings_dict
