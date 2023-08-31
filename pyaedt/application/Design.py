@@ -3917,7 +3917,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def get_design_settings(self):
-        """Get design settings for current aedt application
+        """Get design settings for current AEDT application
 
         Returns
         -------
