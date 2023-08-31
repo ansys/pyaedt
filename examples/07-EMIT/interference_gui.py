@@ -489,3 +489,5 @@ if __name__ == '__main__' and  os.getenv("PYAEDT_DOC_GENERATION", "False") != "1
     window = MainWindow()
     window.show()
     app.exec()
+else:
+    emitapp.release_desktop(True,True)
