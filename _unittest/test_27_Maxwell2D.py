@@ -151,6 +151,17 @@ class TestClass:
         self.aedtapp.model_depth = 2.0
         assert self.aedtapp.change_design_settings({"ModelDepth": "3mm"})
 
+    def test_14b_skew_model(self):
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        assert self.aedtapp.apply_skew()
+        assert not self.aedtapp.apply_skew(skew_type="Invalid")
+        assert not self.aedtapp.apply_skew(skew_part="Invalid")
+        assert not self.aedtapp.apply_skew(skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid")
+        assert not self.aedtapp.apply_skew(skew_type="User Defined", number_of_slices="4",
+                                       custom_slices_skew_angles=["1", "2", "3"])
+        assert self.aedtapp.apply_skew(skew_type="User Defined", number_of_slices="4",
+                                       custom_slices_skew_angles=["1", "2", "3", "4"])
+
     def test_15_assign_movement(self):
         self.aedtapp.set_active_design("Y_Connections")
         self.aedtapp.insert_design("Motion")

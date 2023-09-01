@@ -9,6 +9,7 @@ import os
 import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -103,6 +104,85 @@ class Maxwell(object):
         return self.change_design_settings(
             {"ComputeTransientInductance": compute_transient_inductance, "ComputeIncrementalMatrix": incremental_matrix}
         )
+
+    @pyaedt_function_handler
+    def apply_skew(self,
+                   skew_type="Continuous",
+                   skew_part="Rotor",
+                   skew_angle="1",
+                   skew_angle_unit="deg",
+                   number_of_slices=2,
+                   custom_slices_skew_angles=None):
+        """Apply skew to 2D model.
+
+        Parameters
+        ----------
+        skew_type : str, optional
+            Skew type.
+            Possible choices are ``Continuous``, ``Step``, ``V-Shape``, ``User Defined``.
+            The default value is ``Continuous``.
+        skew_part : str, optional
+            Part to skew.
+            Possible choices are ``Rotor`` or ``Stator``.
+            The default value is ``Rotor``.
+        skew_angle : str, optional
+            Skew angle.
+            The default value is ``1``.
+        skew_angle_unit : str, optional
+            Skew angle unit.
+            Possible choices are ``deg``, ``rad``, ``degsec``, ``degmin``.
+            The default value is ``deg``.
+        number_of_slices : str, optional
+            Number of slices to split the selected part into.
+            The default value is ``2``.
+        custom_slices_skew_angles : list, optional
+            List of custom angles to apply to slices.
+            Only available if skew_type is ``User Defined``.
+            The length of this list must be equal to number_of_slices.
+            The default value is ``None``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if skew_type not in ["Continuous", "Step", "V-Shape", "User Defined"]:
+            self.logger.error("Invalid skew type.")
+            return False
+        if skew_part not in ["Rotor", "Stator"]:
+            self.logger.error("Invalid skew part.")
+            return False
+        if skew_angle_unit not in ["deg", "rad", "degsec", "degmin"]:
+            self.logger.error("Invalid skew angle unit.")
+            return False
+        if skew_type != "User Defined":
+            arg = {"UseSkewModel": True,
+                   "SkewType": skew_type,
+                   "SkewPart": skew_part,
+                   "SkewAngle": "{}{}".format(skew_angle, skew_angle_unit),
+                   "NumberOfSlices": number_of_slices}
+            return self.change_design_settings(arg)
+        else:
+            if not custom_slices_skew_angles or len(custom_slices_skew_angles) != int(number_of_slices):
+                self.logger.error("Please provide skew angles for each slice.")
+                return False
+            arg_slice_table = {"NAME:SkewSliceTable": []}
+            slice_length = decompose_variable_value(self.design_properties["ModelDepth"])[0] / int(number_of_slices)
+            for i in range(int(number_of_slices)):
+                arg_slice_info = []
+                arg_slice_info.append("NAME:OneSliceInfo")
+                arg_slice_info.append("SkewAngle:=")
+                arg_slice_info.append(str(custom_slices_skew_angles[i]))
+                arg_slice_info.append("SliceLength:=")
+                arg_slice_info.append(str(slice_length))
+                arg_slice_table["NAME:SkewSliceTable"].append(arg_slice_info)
+            props = {
+                "UseSkewModel": True,
+                "SkewType": skew_type,
+                "SkewPart": skew_part,
+                "SkewAngleUnit": skew_angle_unit,
+                "NumberOfSlices": number_of_slices}
+            props.update(arg_slice_table)
+            return self.change_design_settings(props)
 
     @pyaedt_function_handler()
     def set_core_losses(self, objects, value=False):

@@ -2828,9 +2828,16 @@ class Design(AedtObjects):
         bool
         """
         arg = ["NAME:Design Settings Data"]
-        for k, v in settings.items():
-            arg.append(k + ":=")
-            arg.append(v)
+        for key, value in settings.items():
+            if "SkewSliceTable" not in key:
+                arg.append(key + ":=")
+                arg.append(value)
+            else:
+                arg_skew = [key]
+                if isinstance(value, list):
+                    for v in value:
+                        arg_skew.append(v)
+                arg.append(arg_skew)
         self.odesign.SetDesignSettings(arg)
         return True
 
