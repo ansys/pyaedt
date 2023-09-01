@@ -3911,7 +3911,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def get_design_settings(self):
+    def design_settings(self):
         """Get design settings for the current AEDT app.
 
         Returns
