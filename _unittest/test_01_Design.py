@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import config
@@ -6,22 +5,14 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import get_pyaedt_app
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
-
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -306,14 +297,12 @@ class TestClass:
         assert app.design_type == "HFSS"
 
     def test_29_change_registry_key(self, desktop):
-        # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert not desktop.change_registry_key("test_key_string", "test_string")
         assert not desktop.change_registry_key("test_key_int", 2)
         assert not desktop.change_registry_key("test_key", 2.0)
 
     def test_30_object_oriented(self):
         self.aedtapp["my_oo_variable"] = "15mm"
-        # self.aedtapp.set_active_design("myname")
         assert self.aedtapp.get_oo_name(self.aedtapp.oproject, "Variables")
         assert self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables")
         assert not self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables1")
@@ -354,7 +343,6 @@ class TestClass:
         settings.force_error_on_missing_project = False
 
     def test_35_get_app(self, desktop):
-        # d = Desktop(desktop_version, new_desktop_session=False)
         d = desktop
         assert d[[0, 0]]
         assert not d[[test_project_name, "myname"]]
@@ -369,14 +357,11 @@ class TestClass:
 
     def test_36_test_load(self, add_app):
         file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
-        # hfss = Hfss(projectname=file_name, specified_version=desktop_version)
         hfss = add_app(project_name=file_name, just_open=True)
         hfss.save_project()
         assert hfss
-        # h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
         h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
-        # h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
         h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
         file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
@@ -399,14 +384,12 @@ class TestClass:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):
-        # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.get_available_toolkits()
 
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import pyaedt\n")
-        # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.add_script_to_menu(
             "test_toolkit",
             file,

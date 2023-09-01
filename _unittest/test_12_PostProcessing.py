@@ -1,4 +1,3 @@
-# standard imports
 import os
 import sys
 
@@ -11,20 +10,9 @@ from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import settings
-
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
-
-# Import required modules
-# Setup paths for module imports
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
@@ -820,12 +808,21 @@ class TestClass:
         plot.surfaces_indexes.append(8)
         assert not plot.update()
 
+    def test_98_get_variations(self, field_test):
+        vars = field_test.available_variations.get_variation_strings()
+        assert vars
+        variations = field_test.available_variations.variations()
+        assert type(variations) is list
+        assert type(variations[0]) is list
+        vars_dict = field_test.available_variations.variations(output_as_dict=True)
+        assert type(vars_dict) is list
+        assert type(vars_dict[0]) is dict
+
     def test_z99_delete_variations(self, q3dtest):
         assert q3dtest.cleanup_solution()
 
     def test_z99_delete_variations_B(self, field_test):
         vars = field_test.available_variations.get_variation_strings()
-        assert field_test.available_variations.variations()
         assert field_test.cleanup_solution(vars, entire_solution=False)
         assert field_test.cleanup_solution(vars, entire_solution=True)
 

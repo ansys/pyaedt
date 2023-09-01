@@ -6,7 +6,6 @@ import random
 import re
 import warnings
 
-# from pyaedt import property
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
