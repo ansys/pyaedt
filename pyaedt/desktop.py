@@ -474,6 +474,8 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
+        if aedt_process_id:
+            aedt_process_id = int(aedt_process_id)
         if getattr(self, "_initialized", None) is not None and self._initialized:
             return
         else:
@@ -551,6 +553,7 @@ class Desktop(object):
             sessions = active_sessions(
                 version=specified_version, student_version=student_version_flag, non_graphical=non_graphical
             )
+            self.logger.info(sessions)
             if aedt_process_id in sessions:
                 if sessions[aedt_process_id] != -1:
                     self.port = sessions[aedt_process_id]
