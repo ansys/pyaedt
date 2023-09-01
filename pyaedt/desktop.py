@@ -439,6 +439,7 @@ class Desktop(object):
     _invoked_from_design = False
 
     def __new__(cls, *args, **kwargs):
+        # The following commented lines will be useful when we will need to search among multiple saved desktop.
         # specified_version = kwargs.get("specified_version") or None if not args else args[0]
         # new_desktop_session = kwargs.get("new_desktop_session") or True if (not args or len(args)<3) else args[2]
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
@@ -449,6 +450,7 @@ class Desktop(object):
         if len(_desktop_sessions.keys()) > 0:
             sessions = list(_desktop_sessions.keys())
             try:
+                # for the moment aedt supports only one desktop, which is saved in sessions[0]
                 process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
                 print("Returning found desktop with PID {}!".format(process_id))
                 cls._invoked_from_design = False
@@ -530,7 +532,7 @@ class Desktop(object):
 
         student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
 
-        # start open AEDT decision tree
+        # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "ironpython", "console_in", "console_out"
         if "oDesktop" in dir():  # pragma: no cover
             # we are inside the AEDT Ironpython console
@@ -701,8 +703,6 @@ class Desktop(object):
     def install_path(self):
         """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
-        # root = self._version_ids[version_key]
-        # return os.environ[root]
         return installed_versions()[version_key]
 
     @property
@@ -833,9 +833,9 @@ class Desktop(object):
             self._run_student()
         elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
-            self._initialize(non_graphical=non_graphical, new_session=True, is_grpc=False)
+            self._initialize(non_graphical=non_graphical, new_session=True, is_grpc=False, version=version_key)
         else:
-            self._initialize(new_session=False, is_grpc=False)
+            self._initialize(new_session=False, is_grpc=False, version=version_key)
         processID2 = []
         if is_windows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
@@ -976,7 +976,9 @@ class Desktop(object):
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
                 self.launched_by_pyaedt = True
-                oApp = self._initialize(is_grpc=True, machine=self.machine, port=self.port, new_session=False)
+                oApp = self._initialize(
+                    is_grpc=True, machine=self.machine, port=self.port, new_session=False, version=version_key
+                )
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
@@ -987,7 +989,12 @@ class Desktop(object):
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
-                is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
+                is_grpc=True,
+                non_graphical=non_graphical,
+                machine=self.machine,
+                port=self.port,
+                new_session=not out,
+                version=version_key,
             )
         else:
             oApp = self._initialize(
@@ -996,6 +1003,7 @@ class Desktop(object):
                 machine=self.machine,
                 port=self.port,
                 new_session=new_aedt_session,
+                version=version_key,
             )
         if oApp:
             self._main.isoutsideDesktop = True

@@ -17,8 +17,6 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -2471,8 +2469,8 @@ class Components(object):
             elif pars:
                 delta_pins.append(1.5 * pars[0])
                 w = min(pars[0], w)
-            elif pad.polygon_data:
-                bbox = pad.polygon_data.GetBBox()
+            elif pad.polygon_data.edb_api:  # pragma: no cover
+                bbox = pad.polygon_data.edb_api.GetBBox()
                 lower = [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()]
                 upper = [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
                 pars = [abs(lower[0] - upper[0]), abs(lower[1] - upper[1])]

@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import local_path
@@ -6,15 +5,8 @@ import pytest
 
 from pyaedt import Icepak
 from pyaedt import Maxwell3d
-
-# from pyaedt import is_ironpython
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import SurfMatProperties
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T03"
 
@@ -41,20 +33,25 @@ class TestClass:
         assert mat1.conductivity.value == 59000000000
         mat1.permeability.value = MatProperties.get_defaultvalue(aedtname="permeability")
         assert mat1.permeability.value == MatProperties.get_defaultvalue(aedtname="permeability")
-        mat1.permittivity.value = MatProperties.get_defaultvalue(aedtname="permittivity")
-        assert mat1.permittivity.value == MatProperties.get_defaultvalue(aedtname="permittivity")
-        mat1.dielectric_loss_tangent.value = MatProperties.get_defaultvalue(aedtname="dielectric_loss_tangent")
-        assert mat1.dielectric_loss_tangent.value == MatProperties.get_defaultvalue(aedtname="dielectric_loss_tangent")
-        mat1.magnetic_loss_tangent.value = MatProperties.get_defaultvalue(aedtname="magnetic_loss_tangent")
-        assert mat1.magnetic_loss_tangent.value == MatProperties.get_defaultvalue(aedtname="magnetic_loss_tangent")
-        mat1.mass_density.value = MatProperties.get_defaultvalue(aedtname="mass_density")
-        assert mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
-        mat1.youngs_modulus.value = MatProperties.get_defaultvalue(aedtname="youngs_modulus")
-        assert mat1.youngs_modulus.value == MatProperties.get_defaultvalue(aedtname="youngs_modulus")
-        mat1.poissons_ratio.value = MatProperties.get_defaultvalue(aedtname="poissons_ratio")
-        assert mat1.poissons_ratio.value == MatProperties.get_defaultvalue(aedtname="poissons_ratio")
-        mat1.thermal_conductivity.value = MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
-        assert mat1.thermal_conductivity.value == MatProperties.get_defaultvalue(aedtname="thermal_conductivity")
+        mat1.permeability.value = [[0, 0], [30, 40], [50, 60]]
+        mat1.permeability.type == "nonlinear"
+        mat1.permittivity.value = 5
+        assert mat1.permittivity.value == 5
+        mat1.dielectric_loss_tangent.value = 0.1
+        assert mat1.dielectric_loss_tangent.value == 0.1
+        mat1.magnetic_loss_tangent.value = 0.2
+        assert mat1.magnetic_loss_tangent.value == 0.2
+        mat1.mass_density.value = 100
+        assert mat1.mass_density.value == 100
+        mat1.youngs_modulus.value = 1000
+        assert mat1.youngs_modulus.value == 1000
+        mat1.poissons_ratio.value = [1, 2, 3]
+        assert mat1.poissons_ratio.value == [1, 2, 3]
+        assert mat1.poissons_ratio.type == "anisotropic"
+        mat1.thermal_conductivity.value = 5
+        assert mat1.thermal_conductivity.value == 5
+        mat1.thermal_conductivity = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        assert mat1.thermal_conductivity.type == "tensor"
         mat1.diffusivity.value = MatProperties.get_defaultvalue(aedtname="diffusivity")
 
         assert mat1.diffusivity.value == MatProperties.get_defaultvalue(aedtname="diffusivity")
@@ -62,17 +59,13 @@ class TestClass:
         assert "Electromagnetic" in mat1.physics_type
         mat1.molecular_mass.value = MatProperties.get_defaultvalue(aedtname="molecular_mass")
         mat1.specific_heat.value = MatProperties.get_defaultvalue(aedtname="specific_heat")
-        mat1.thermal_expansion_coefficient.value = MatProperties.get_defaultvalue(
-            aedtname="thermal_expansion_coefficient"
-        )
+        mat1.thermal_expansion_coefficient.value = 100
 
         assert mat1.coordinate_system == "Cartesian"
         assert mat1.name == "new_copper2"
         assert mat1.molecular_mass.value == MatProperties.get_defaultvalue(aedtname="molecular_mass")
         assert mat1.specific_heat.value == MatProperties.get_defaultvalue(aedtname="specific_heat")
-        assert mat1.thermal_expansion_coefficient.value == MatProperties.get_defaultvalue(
-            aedtname="thermal_expansion_coefficient"
-        )
+        assert mat1.thermal_expansion_coefficient.value == 100
         assert self.aedtapp.change_validation_settings()
         assert self.aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
 
@@ -164,7 +157,6 @@ class TestClass:
         assert not self.aedtapp.materials.remove_material("copper4")
 
     def test_06_surface_material(self, add_app):
-        # ipk = Icepak(specified_version=desktop_version)
         ipk = add_app(application=Icepak)
         mat2 = ipk.materials.add_surface_material("Steel")
         mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
@@ -209,12 +201,11 @@ class TestClass:
         assert len(mats) == 2
 
     def test_09_non_linear_materials(self, add_app):
-        # app = Maxwell3d(specified_version=desktop_version)
         app = add_app(application=Maxwell3d)
         mat1 = app.materials.add_material("myMat")
-        assert mat1.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
-        assert mat1.permittivity.set_non_linear([[0, 0], [2, 12], [10, 30]])
-        assert mat1.conductivity.set_non_linear([[0, 0], [3, 12], [10, 30]])
+        mat1.permeability = [[0, 0], [1, 12], [10, 30]]
+        mat1.permittivity = [[0, 0], [2, 12], [10, 30]]
+        mat1.conductivity.value = [[0, 0], [3, 12], [10, 30]]
         app.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "non_linear.json"))
         os.path.exists(os.path.join(self.local_scratch.path, "non_linear.json"))
         app.materials.remove_material("myMat")
@@ -227,7 +218,6 @@ class TestClass:
         assert app.materials["myMat"].permittivity.type == "nonlinear"
         assert app.materials["myMat"].permeability.bunit == "tesla"
         mat2 = app.materials.add_material("myMat2")
-        assert mat2.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
         assert app.modeler.create_box([0, 0, 0], [10, 10, 10], matname="myMat2")
 
     def test_10_add_material_sweep(self):

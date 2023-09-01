@@ -10,8 +10,6 @@ import shutil
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import MethodNotSupportedError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler

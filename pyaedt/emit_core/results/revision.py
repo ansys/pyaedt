@@ -4,8 +4,6 @@ from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -161,6 +159,11 @@ class Revision:
                     raise ValueError("The domain must not have channels specified.")
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
+        if self.emit_project._aedt_version < "2024.1":
+            if len(domain.interferer_names) == 1:
+                engine.max_simultaneous_interferers = 1
+            if len(domain.interferer_names) > 1:
+                raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
         interaction = engine.run(domain)
         # save the revision
         self.emit_project._emit_api.save_project()

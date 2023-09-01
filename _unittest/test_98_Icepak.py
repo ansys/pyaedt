@@ -1,4 +1,3 @@
-# standard imports
 import os
 
 from _unittest.conftest import config
@@ -100,7 +99,6 @@ class TestClass:
         assert pcb_mesh_region.delete()
 
     def test_04_ImportGroup(self):
-        # project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
         assert self.aedtapp.copyGroupFrom("Group1", "uUSB", src_project_name, self.project_path)
 
     def test_05_EMLoss(self):
@@ -316,7 +314,6 @@ class TestClass:
     def test_25_copy_solid_bodies(self, add_app):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
-        # new_design = Icepak(projectname=project_name, designname=design_name, specified_version=desktop_version)
         new_design = add_app(application=Icepak, project_name=project_name, design_name=design_name, just_open=True)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == [
@@ -364,14 +361,11 @@ class TestClass:
 
         compfile = self.aedtapp.components3d["ADDA_AB0305MB_GA0"]
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile)
-        # dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
         dest = add_app(application=Icepak, design_name="IcepakDesign1", just_open=True)
         dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         dest.delete_design("IcepakDesign1")
-        # dest = Icepak(designname="IcepakDesign2", specified_version=desktop_version)
         dest = add_app(application=Icepak, design_name="IcepakDesign2", just_open=True)
         dest.copy_solid_bodies_from(self.aedtapp)
-        # dest2 = Hfss(designname="uUSB", specified_version=desktop_version)
         dest2 = add_app(design_name="uUSB")
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
 
@@ -535,9 +529,6 @@ class TestClass:
 
     @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
     def test_38_export_fluent_mesh(self, add_app):
-        # self.fluent = self.local_scratch.copyfile(source_fluent)
-        # # app = Icepak(self.fluent, specified_version=desktop_version)
-        # app = add_app(application=Icepak, project_name=self.fluent, just_open=True)
         app = add_app(application=Icepak, project_name=coldplate, subfolder=test_subfolder)
         assert app.get_liquid_objects() == ["Liquid"]
         assert app.get_gas_objects() == ["Region"]
@@ -554,9 +545,6 @@ class TestClass:
         assert bound.update_assignment()
 
     def test_40_power_budget(self, add_app):
-        # self.power_budget = self.local_scratch.copyfile(source_power_budget)
-        # app = Icepak(self.power_budget, specified_version=desktop_version)
-        # app = add_app(application=Icepak, project_name=self.power_budget, just_open=True)
         app = add_app(application=Icepak, project_name=power_budget, subfolder=test_subfolder)
         power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="boundary")
         assert abs(total_power - 787.5221374239883) < 1
@@ -1208,14 +1196,6 @@ class TestClass:
         app.close_project()
 
     def test_62_get_fans_operating_point(self, add_app):
-        # new_path = self.local_scratch.copyfile(
-        #     os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt")
-        # )
-        # app = Icepak(
-        #     new_path,
-        #     specified_version=desktop_version,
-        #     designname="get_fan_op_point",
-        # )
         app = add_app(
             application=Icepak,
             project_name="Fan_op_point_231",

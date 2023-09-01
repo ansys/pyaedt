@@ -15,8 +15,6 @@ import sys
 from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -645,7 +643,8 @@ class Materials(object):
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
-        newmat = Material(self, matname, first_value)
+        newmat = Material(self, matname, first_value, material_update=False)
+        newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
 

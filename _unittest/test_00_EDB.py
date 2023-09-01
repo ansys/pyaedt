@@ -251,7 +251,8 @@ class TestClass:
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        assert self.edbapp.nets.generate_extended_nets()
+        assert self.edbapp.extended_nets.auto_identify_signal()
+        assert self.edbapp.extended_nets.auto_identify_power()
         extended_net_name, extended_net_obj = next(iter(self.edbapp.extended_nets.items.items()))
         assert self.edbapp.extended_nets[extended_net_name]
         assert self.edbapp.extended_nets[extended_net_name].nets
@@ -263,6 +264,7 @@ class TestClass:
 
         assert self.edbapp.extended_nets.create("new_ex_net", "DDR4_A1")
 
+        self.edbapp.differential_pairs.auto_identify()
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
@@ -985,6 +987,9 @@ class TestClass:
             i += 1
         assert self.edbapp.modeler.primitives[i].bbox
         assert self.edbapp.modeler.primitives[i].center
+        assert self.edbapp.modeler.primitives[i].get_closest_point((0, 0))
+        assert self.edbapp.modeler.primitives[i].polygon_data
+        assert self.edbapp.modeler.paths[0].length
 
     def test_085_short_component(self):
         assert self.edbapp.components.short_component_pins("U12", width=0.2e-3)
@@ -1349,6 +1354,9 @@ class TestClass:
         assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
+        sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
+        assert sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+        assert sig.create_edge_port("pcb_port", "start", "gap")
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -2754,3 +2762,40 @@ class TestClass:
             use_q3d=True,
         )
         assert setup.sweeps
+
+    def test_144_search_reference_pins(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_boundaries.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = edbapp.components.instances["J5"].pins["19"]
+        assert pin
+        ref_pins = pin.get_reference_pins(reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True)
+        assert len(ref_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True
+        )
+        assert len(reference_pins) == 3
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=2, component_only=True
+        )
+        assert len(reference_pins) == 2
+        reference_pins = edbapp.padstacks.get_reference_pins(
+            positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
+        )
+        assert len(reference_pins) == 11
+
+    def test_145_arc_data(self):
+        assert len(self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs) > 0
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].start
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].end
+        assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
+
+    def test_145_via_volume(self):
+        vias = [
+            via
+            for via in list(self.edbapp.padstacks.padstack_instances.values())
+            if not via.start_layer == via.stop_layer
+        ]
+        assert vias[0].metal_volume
+        assert vias[1].metal_volume

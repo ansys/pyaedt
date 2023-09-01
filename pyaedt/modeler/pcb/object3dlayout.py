@@ -9,7 +9,6 @@ from __future__ import absolute_import  # noreorder
 import math
 import re
 
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _dim_arg
@@ -1957,15 +1956,15 @@ class Padstack(object):
         ]
         arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
         arg3 = ["NAME:pds"]
-        id = 0
+        id_ = 0
         for el in self.layers:
             arg4 = []
-            id += 1
+            id_ += 1
             arg4.append("NAME:lgm")
             arg4.append("lay:=")
             arg4.append(self.layers[el].layername)
             arg4.append("id:=")
-            arg4.append(id)
+            arg4.append(id_)
             arg4.append("pad:=")
             arg4.append(
                 [

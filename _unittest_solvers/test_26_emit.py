@@ -16,13 +16,6 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-# from _unittest_solvers.conftest import is_ironpython
-
-
-# try:
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "T26"
 

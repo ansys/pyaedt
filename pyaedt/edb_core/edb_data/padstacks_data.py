@@ -8,8 +8,6 @@ from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -1397,6 +1395,39 @@ class EDBPadstackInstance(object):
         self._edb_padstackinstance.SetProductProperty(self._pedb.edb_api.ProductId.Designer, 11, value)
 
     @property
+    def metal_volume(self):
+        """Metal volume of the via hole instance in cubic units (m3). Metal plating ratio is accounted.
+
+        Returns
+        -------
+        float
+            Metal volume of the via hole instance.
+
+        """
+        volume = 0
+        if not self.start_layer == self.stop_layer:
+            start_layer = self.start_layer
+            stop_layer = self.stop_layer
+            if self.backdrill_top:  # pragma no cover
+                start_layer = self.backdrill_top[0]
+            if self.backdrill_bottom:  # pragma no cover
+                stop_layer = self.backdrill_bottom[0]
+            padstack_def = self._pedb.padstacks.definitions[self.padstack_definition]
+            hole_diam = 0
+            try:  # pragma no cover
+                hole_diam = padstack_def.hole_properties[0]
+            except:  # pragma no cover
+                pass
+            if hole_diam:  # pragma no cover
+                hole_finished_size = padstack_def.hole_finished_size
+                via_length = (
+                    self._pedb.stackup.signal_layers[start_layer].upper_elevation
+                    - self._pedb.stackup.signal_layers[stop_layer].lower_elevation
+                )
+                volume = (math.pi * (hole_diam / 2) ** 2 - math.pi * (hole_finished_size / 2) ** 2) * via_length
+        return volume
+
+    @property
     def pin_number(self):
         """Get pin number."""
         return self._edb_padstackinstance.GetName()
@@ -1769,3 +1800,41 @@ class EDBPadstackInstance(object):
         layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
         layoutObjInst = self.object_instance
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
+
+    @pyaedt_function_handler()
+    def get_reference_pins(self, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True):
+        """Search for reference pins using given criteria.
+
+        Parameters
+        ----------
+        reference_net : str, optional
+            Reference net. The default is ``"GND"``.
+        search_radius : float, optional
+            Search radius for finding padstack instances. The default is ``5e-3``.
+        max_limit : int, optional
+            Maximum limit for the padstack instances found. The default is ``0``, in which
+            case no limit is applied. The maximum limit value occurs on the nearest
+            reference pins from the positive one that is found.
+        component_only : bool, optional
+            Whether to limit the search to component padstack instances only. The
+            default is ``True``. When ``False``, the search is extended to the entire layout.
+
+        Returns
+        -------
+        list
+            List of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`.
+
+        Examples
+        --------
+        >>> edbapp = Edb("target_path")
+        >>> pin = edbapp.components.instances["J5"].pins["19"]
+        >>> reference_pins = pin.get_reference_pins(reference_net="GND", search_radius=5e-3, max_limit=0,
+        >>> component_only=True)
+        """
+        return self._pedb.padstacks.get_reference_pins(
+            positive_pin=self,
+            reference_net=reference_net,
+            search_radius=search_radius,
+            max_limit=max_limit,
+            component_only=component_only,
+        )
