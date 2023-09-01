@@ -55,70 +55,84 @@ def process_arguments(args, parser):
     return args
 
 
-def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False):
-    from pyaedt import Desktop
-    from pyaedt.generic.general_methods import grpc_active_sessions
+def add_pyaedt_to_aedt(
+    aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False, sys_dir="", pers_dir=""
+):
+    if not (sys_dir or pers_dir):
+        from pyaedt import Desktop
+        from pyaedt import settings
+        from pyaedt.generic.general_methods import grpc_active_sessions
 
-    sessions = grpc_active_sessions(aedt_version, is_student_version)
-    if not sessions:
-        if not new_desktop_session:
-            print("Launching a new AEDT desktop session.")
-        new_desktop_session = True
-    with Desktop(
-        specified_version=aedt_version,
-        non_graphical=new_desktop_session,
-        new_desktop_session=new_desktop_session,
-        student_version=is_student_version,
-    ) as d:
-        desktop = sys.modules["__main__"].oDesktop
-        pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
-        pid = desktop.GetProcessID()
-        # Linking pyaedt in PersonalLib for IronPython compatibility.
-        if os.path.exists(pers1):
-            d.logger.info("PersonalLib already mapped.")
+        sessions = grpc_active_sessions(aedt_version, is_student_version)
+        close_on_exit = True
+        if not sessions:
+            if not new_desktop_session:
+                print("Launching a new AEDT desktop session.")
+            new_desktop_session = True
         else:
-            if is_windows:
-                os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            close_on_exit = False
+        settings.use_grpc_api = True
+        with Desktop(
+            specified_version=aedt_version,
+            non_graphical=new_desktop_session,
+            new_desktop_session=new_desktop_session,
+            student_version=is_student_version,
+            close_on_exit=close_on_exit,
+        ) as d:
+            desktop = sys.modules["__main__"].oDesktop
+            pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
+            pid = desktop.GetProcessID()
+            # Linking pyaedt in PersonalLib for IronPython compatibility.
+            if os.path.exists(pers1):
+                d.logger.info("PersonalLib already mapped.")
             else:
-                os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
+                if is_windows:
+                    os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+                else:
+                    os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
+            sys_dir = d.syslib
+            pers_dir = d.personallib
+        if pid and new_desktop_session:
+            try:
+                os.kill(pid, 9)
+            except:
+                pass
 
-        toolkits = ["Project"]
-        # Bug on Linux 23.1 and before where Project level toolkits don't show up. Thus copying to individual design
-        # toolkits.
-        if is_linux and aedt_version <= "2023.1":
-            toolkits = [
-                "2DExtractor",
-                "CircuitDesign",
-                "HFSS",
-                "HFSS-IE",
-                "HFSS3DLayoutDesign",
-                "Icepak",
-                "Maxwell2D",
-                "Maxwell3D",
-                "Q3DExtractor",
-                "Mechanical",
-            ]
+    toolkits = ["Project"]
+    # Bug on Linux 23.1 and before where Project level toolkits don't show up. Thus copying to individual design
+    # toolkits.
+    if is_linux and aedt_version <= "2023.1":
+        toolkits = [
+            "2DExtractor",
+            "CircuitDesign",
+            "HFSS",
+            "HFSS-IE",
+            "HFSS3DLayoutDesign",
+            "Icepak",
+            "Maxwell2D",
+            "Maxwell3D",
+            "Q3DExtractor",
+            "Mechanical",
+        ]
 
-        for product in toolkits:
-            if use_sys_lib:
-                try:
-                    sys_dir = os.path.join(d.syslib, "Toolkits")
-                    install_toolkit(sys_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in sys lib.".format(product))
+    for product in toolkits:
+        if use_sys_lib:
+            try:
+                sys_dir = os.path.join(sys_dir, "Toolkits")
+                install_toolkit(sys_dir, product, aedt_version)
+                print("Installed toolkit for {} in sys lib.".format(product))
+                # d.logger.info("Installed toolkit for {} in sys lib.".format(product))
 
-                except IOError:
-                    pers_dir = os.path.join(d.personallib, "Toolkits")
-                    install_toolkit(pers_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in personal lib.".format(product))
-            else:
-                pers_dir = os.path.join(d.personallib, "Toolkits")
+            except IOError:
+                pers_dir = os.path.join(pers_dir, "Toolkits")
                 install_toolkit(pers_dir, product, aedt_version)
-                d.logger.info("Installed toolkit for {} in personal lib.".format(product))
-    if pid and new_desktop_session:
-        try:
-            os.kill(pid, 9)
-        except:
-            pass
+                print("Installed toolkit for {} in sys lib.".format(product))
+                # d.logger.info("Installed toolkit for {} in personal lib.".format(product))
+        else:
+            pers_dir = os.path.join(pers_dir, "Toolkits")
+            install_toolkit(pers_dir, product, aedt_version)
+            print("Installed toolkit for {} in sys lib.".format(product))
+            # d.logger.info("Installed toolkit for {} in personal lib.".format(product))
 
 
 def install_toolkit(toolkit_dir, product, aedt_version):

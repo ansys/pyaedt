@@ -48,10 +48,11 @@ class Circuit(FieldAnalysisCircuit, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -104,15 +105,15 @@ class Circuit(FieldAnalysisCircuit, object):
 
     >>> aedtapp = Circuit("myfile.aedt")
 
-    Create an instance of Circuit using the 2021 R1 version and
+    Create an instance of Circuit using the 2023 R2 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Circuit(specified_version=2023.2, projectname="myfile.aedt")
 
-    Create an instance of Circuit using the 2021 R2 student version and open
+    Create an instance of Circuit using the 2023 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Circuit(specified_version="2021.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Circuit(specified_version="2023.2", projectname="myfile.aedt", student_version=True)
 
     """
 
