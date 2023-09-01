@@ -25,7 +25,7 @@ class Siwave(object):
 
     Parameters
     ----------
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is used.
 

@@ -47,6 +47,7 @@ from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import get_string_version
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
@@ -79,8 +80,9 @@ class Edb(Database):
     isreadonly : bool, optional
         Whether to open EBD in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
-    edbversion : str, optional
-        Version of EDB to use. The default is ``"2021.2"``.
+    edbversion : str, int, float, optional
+        Version of EDB to use. The default is ``None``.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     isaedtowned : bool, optional
         Whether to launch EDB from HFSS 3D Layout. The
         default is ``False``.
@@ -138,6 +140,8 @@ class Edb(Database):
         use_ppe=False,
         technology_file=None,
     ):
+        edbversion = get_string_version(edbversion)
+
         self._clean_variables()
         Database.__init__(self, edbversion=edbversion, student_version=student_version)
         self.standalone = True
