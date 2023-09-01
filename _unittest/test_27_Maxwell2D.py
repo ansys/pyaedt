@@ -156,11 +156,15 @@ class TestClass:
         assert self.aedtapp.apply_skew()
         assert not self.aedtapp.apply_skew(skew_type="Invalid")
         assert not self.aedtapp.apply_skew(skew_part="Invalid")
-        assert not self.aedtapp.apply_skew(skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid")
-        assert not self.aedtapp.apply_skew(skew_type="User Defined", number_of_slices="4",
-                                       custom_slices_skew_angles=["1", "2", "3"])
-        assert self.aedtapp.apply_skew(skew_type="User Defined", number_of_slices="4",
-                                       custom_slices_skew_angles=["1", "2", "3", "4"])
+        assert not self.aedtapp.apply_skew(
+            skew_type="Continuous", skew_part="Stator", skew_angle="0.5", skew_angle_unit="Invalid"
+        )
+        assert not self.aedtapp.apply_skew(
+            skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3"]
+        )
+        assert self.aedtapp.apply_skew(
+            skew_type="User Defined", number_of_slices="4", custom_slices_skew_angles=["1", "2", "3", "4"]
+        )
 
     def test_15_assign_movement(self):
         self.aedtapp.set_active_design("Y_Connections")

@@ -106,13 +106,15 @@ class Maxwell(object):
         )
 
     @pyaedt_function_handler
-    def apply_skew(self,
-                   skew_type="Continuous",
-                   skew_part="Rotor",
-                   skew_angle="1",
-                   skew_angle_unit="deg",
-                   number_of_slices=2,
-                   custom_slices_skew_angles=None):
+    def apply_skew(
+        self,
+        skew_type="Continuous",
+        skew_part="Rotor",
+        skew_angle="1",
+        skew_angle_unit="deg",
+        number_of_slices=2,
+        custom_slices_skew_angles=None,
+    ):
         """Apply skew to 2D model.
 
         Parameters
@@ -155,11 +157,13 @@ class Maxwell(object):
             self.logger.error("Invalid skew angle unit.")
             return False
         if skew_type != "User Defined":
-            arg = {"UseSkewModel": True,
-                   "SkewType": skew_type,
-                   "SkewPart": skew_part,
-                   "SkewAngle": "{}{}".format(skew_angle, skew_angle_unit),
-                   "NumberOfSlices": number_of_slices}
+            arg = {
+                "UseSkewModel": True,
+                "SkewType": skew_type,
+                "SkewPart": skew_part,
+                "SkewAngle": "{}{}".format(skew_angle, skew_angle_unit),
+                "NumberOfSlices": number_of_slices,
+            }
             return self.change_design_settings(arg)
         else:
             if not custom_slices_skew_angles or len(custom_slices_skew_angles) != int(number_of_slices):
@@ -180,7 +184,8 @@ class Maxwell(object):
                 "SkewType": skew_type,
                 "SkewPart": skew_part,
                 "SkewAngleUnit": skew_angle_unit,
-                "NumberOfSlices": number_of_slices}
+                "NumberOfSlices": number_of_slices,
+            }
             props.update(arg_slice_table)
             return self.change_design_settings(props)
 
