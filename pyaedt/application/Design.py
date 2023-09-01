@@ -3921,7 +3921,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of valid design settings
+        dict
+            Dictionary of valid design settings.
 
         References
         ----------
