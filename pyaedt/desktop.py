@@ -476,7 +476,7 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
-        if aedt_process_id:
+        if aedt_process_id:  # pragma no cover
             aedt_process_id = int(aedt_process_id)
         if getattr(self, "_initialized", None) is not None and self._initialized:
             return
