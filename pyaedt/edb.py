@@ -25,10 +25,10 @@ from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSe
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
-from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
-from pyaedt.edb_core.edb_data.sources import ExcitationPorts
-from pyaedt.edb_core.edb_data.sources import ExcitationProbes
-from pyaedt.edb_core.edb_data.sources import ExcitationSources
+from pyaedt.edb_core.edb_data.terminals import ExcitationDifferential
+from pyaedt.edb_core.edb_data.terminals import ExcitationPorts
+from pyaedt.edb_core.edb_data.terminals import ExcitationProbes
+from pyaedt.edb_core.edb_data.terminals import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
 import pyaedt.edb_core.general
