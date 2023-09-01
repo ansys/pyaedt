@@ -42,6 +42,7 @@ from pyaedt import settings
 from pyaedt.generic.desktop_sessions import _desktop_sessions
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
+from pyaedt.generic.general_methods import get_string_version
 from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
@@ -383,9 +384,10 @@ class Desktop(object):
 
     Parameters
     ----------
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -416,19 +418,19 @@ class Desktop(object):
 
     Examples
     --------
-    Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
+    Launch AEDT 2023 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop(specified_version="2021.2", non_graphical=True)
+    >>> desktop = pyaedt.Desktop(specified_version="2023.2", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
-    Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
+    Launch AEDT 2023 R2 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop("2021.2")
+    >>> desktop = Desktop(232)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
@@ -480,7 +482,6 @@ class Desktop(object):
             return
         else:
             self._initialized = True
-
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
 
@@ -752,6 +753,7 @@ class Desktop(object):
                     self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
         elif student_version:
             specified_version += "SV"
+        specified_version = get_string_version(specified_version)
 
         if float(specified_version[0:6]) < 2019:
             raise ValueError("PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later.")
