@@ -3930,7 +3930,7 @@ class Design(AedtObjects):
         for prop in prop_name_list:
             try:
                 design_settings_dict[prop] = design_settings.GetPropValue(prop)
-            except Exception as e:
+            except Exception:
                 design_settings_dict[prop] = "Could not retrieve the value."
 
         return design_settings_dict
