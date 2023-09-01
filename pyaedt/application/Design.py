@@ -82,7 +82,7 @@ class Design(AedtObjects):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
