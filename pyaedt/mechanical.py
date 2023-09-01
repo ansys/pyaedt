@@ -31,10 +31,11 @@ class Mechanical(FieldAnalysis3D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -86,11 +87,11 @@ class Mechanical(FieldAnalysis3D, object):
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2021R2`` object and then create an
+    Create a ``Desktop on 2023 R2`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Mechanical(specified_version=23.2, projectname="myfile.aedt")
 
     """
 
