@@ -20,11 +20,15 @@ class Terminal(Connectable):
     @property
     def do_renormalize(self):
         """Determine whether port renormalization is enabled."""
-        return self._edb_object.DoRenormalize
+        return self._port_post_processing_prop.DoRenormalize
 
     @do_renormalize.setter
     def do_renormalize(self, value):
-        self._edb_object.DoRenormalize = value
+        self._port_post_processing_prop.DoRenormalize = value
+
+    @property
+    def do_deembed_parasitic_port_inductance(self):
+        return
 
     @property
     def name(self):
