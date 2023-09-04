@@ -321,6 +321,7 @@ class IcepakMesh(object):
             else:
                 self.meshmodule.AssignMeshRegion(args)
             self._app.mesh.meshregions.append(self)
+            self._app.modeler.refresh_all_ids()
             return True
 
         @pyaedt_function_handler()
