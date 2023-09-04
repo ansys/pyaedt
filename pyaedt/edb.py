@@ -25,10 +25,11 @@ from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSe
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
-from pyaedt.edb_core.edb_data.terminals import ExcitationDifferential
-from pyaedt.edb_core.edb_data.terminals import ExcitationPorts
-from pyaedt.edb_core.edb_data.terminals import ExcitationProbes
-from pyaedt.edb_core.edb_data.terminals import ExcitationSources
+from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
+from pyaedt.edb_core.edb_data.ports import GapPort
+from pyaedt.edb_core.edb_data.ports import WavePort
+from pyaedt.edb_core.edb_data.ports import ExcitationProbes
+from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
 import pyaedt.edb_core.general
@@ -342,7 +343,7 @@ class Edb(Database):
     @property
     def terminals(self):
         """Get terminals belonging to active layout."""
-        return {i.GetName(): ExcitationPorts(self, i) for i in self.layout.terminals}
+        return {i.GetName(): GapPort(self, i) for i in self.layout.terminals}
 
     @property
     def excitations(self):
@@ -354,7 +355,7 @@ class Edb(Database):
             if "BundleTerminal" in ter.GetType().ToString():
                 temp[ter.GetName()] = ExcitationDifferential(self, ter)
             else:
-                temp[ter.GetName()] = ExcitationPorts(self, ter)
+                temp[ter.GetName()] = GapPort(self, ter)
         return temp
 
     @property
@@ -3080,7 +3081,7 @@ class Edb(Database):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
-        all_sources = [i for i in self.excitations.values() if not isinstance(i, ExcitationPorts)]
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort))]
         all_sources.extend([i for i in self.sources.values()])
         if not all_sources:
             return True
