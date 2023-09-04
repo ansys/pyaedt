@@ -1,7 +1,6 @@
 import re
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
-from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
 
@@ -38,7 +37,7 @@ class Terminal(Connectable):
         -------
         str
         """
-        return self._edb_terminal.GetName()
+        return self._edb_object.GetName()
 
     @name.setter
     def name(self, value):
@@ -57,16 +56,6 @@ class Terminal(Connectable):
         str
         """
         return self.net.name
-
-    @property
-    def net(self):
-        """Net Object.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
-        """
-        return EDBNetsData(self._edb_object.GetNet(), self._pedb)
 
     @property
     def terminal_type(self):

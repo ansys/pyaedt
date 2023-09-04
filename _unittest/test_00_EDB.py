@@ -1355,8 +1355,9 @@ class TestClass:
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
         sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
-        assert sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
-        assert sig.create_edge_port("pcb_port", "start", "gap")
+        assert sig.create_edge_port("pcb_port_1", "end", "Wave", None, 8, 8)
+        assert sig.create_edge_port("pcb_port_2", "start", "gap")
+        assert edb.excitations["pcb_port_2"].component is None
         edb.close()
 
     def test_108_create_dc_simulation(self):
