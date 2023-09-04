@@ -196,7 +196,7 @@ class Terminal(Connectable):
                 return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
             else:
                 try:
-                    _, refTermPSI, layer = refTerm.GetParameters()
+                    _, refTermPSI, _ = refTerm.GetParameters()
                     return EDBPadstackInstance(refTermPSI, self._pedb)
                 except AttributeError:
                     return None
