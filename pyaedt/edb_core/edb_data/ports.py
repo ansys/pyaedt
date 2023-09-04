@@ -4,6 +4,7 @@ from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 
+
 class GapPort(EdgeTerminal):
     """Manages gap port properties.
 
@@ -80,9 +81,9 @@ class WavePort(EdgeTerminal):
     >>> exc = edb.excitations
     >>> print(exc["Port1"].name)
     """
+
     def __init__(self, pedb, edb_terminal):
         super().__init__(pedb, edb_terminal)
-
 
     @property
     def _edb_properties(self):

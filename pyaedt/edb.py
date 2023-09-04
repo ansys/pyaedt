@@ -22,14 +22,14 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
+from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
+from pyaedt.edb_core.edb_data.ports import ExcitationProbes
+from pyaedt.edb_core.edb_data.ports import ExcitationSources
+from pyaedt.edb_core.edb_data.ports import GapPort
+from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
-from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
-from pyaedt.edb_core.edb_data.ports import GapPort
-from pyaedt.edb_core.edb_data.ports import WavePort
-from pyaedt.edb_core.edb_data.ports import ExcitationProbes
-from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
 import pyaedt.edb_core.general

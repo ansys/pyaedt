@@ -1,7 +1,6 @@
 from pyaedt import pyaedt_function_handler
-
-from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.components_data import EDBComponent
+from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 
 
 class LayoutObj(object):
@@ -33,7 +32,6 @@ class Connectable(LayoutObj):
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
 
-
     @property
     def net(self):
         """Net Object.
@@ -43,7 +41,7 @@ class Connectable(LayoutObj):
         :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
         """
         return EDBNetsData(self._edb_object.GetNet(), self._pedb)
-    
+
     @property
     def component(self):
         """Component connected to this object.
@@ -57,4 +55,4 @@ class Connectable(LayoutObj):
         if edb_comp.IsNull():
             return None
         else:
-            return  EDBComponent(self._pedb, edb_comp)
+            return EDBComponent(self._pedb, edb_comp)

@@ -4,10 +4,10 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
-from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.ports import ExcitationBundle
 from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.constants import RadiationBoxType

@@ -1,4 +1,5 @@
 import re
+
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
@@ -6,7 +7,6 @@ from pyaedt.edb_core.edb_data.primitives_data import cast
 
 
 class Terminal(Connectable):
-
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
         self._reference_object = None
@@ -176,8 +176,7 @@ class Terminal(Connectable):
             refPinList = pingroup.GetPins()
             return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
         elif (
-            self._edb_object.GetTerminalType()
-            == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal
+            self._edb_object.GetTerminalType() == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal
         ):
             _, padStackInstance, layer = self._edb_object.GetParameters()
             if refTerm.GetTerminalType() == self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal:
@@ -302,7 +301,5 @@ class Terminal(Connectable):
 
 
 class EdgeTerminal(Terminal):
-
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
-
