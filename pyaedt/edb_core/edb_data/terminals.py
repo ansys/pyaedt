@@ -127,9 +127,7 @@ class Terminal(Connectable):
             elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal:
                 self._reference_object = self.get_padstack_terminal_reference_pin()
             else:
-                self._pedb.logger.warning(
-                    "Invalid Terminal Type={}".format(term.GetTerminalType())
-                )
+                self._pedb.logger.warning("Invalid Terminal Type={}".format(term.GetTerminalType()))
 
         return self._reference_object
 
