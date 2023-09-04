@@ -350,7 +350,6 @@ class Edb(Database):
     def excitations(self):
         """Get all layout excitations."""
         terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) == 0]
-        terms = [i for i in terms if not i.IsReferenceTerminal()]
         temp = {}
         for ter in terms:
             if "BundleTerminal" in ter.GetType().ToString():

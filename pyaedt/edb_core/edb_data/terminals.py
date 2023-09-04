@@ -4,6 +4,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
+from pyaedt.edb_core.general import TerminalType
 
 
 class Terminal(Connectable):
@@ -120,11 +121,11 @@ class Terminal(Connectable):
                     self._reference_object = self.get_pad_edge_terminal_reference_pin()
                 else:
                     self._reference_object = self.get_edge_terminal_reference_primitive()
-            elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal:
+            elif self.terminal_type == TerminalType.PinGroupTerminal.name:
                 self._reference_object = self.get_pin_group_terminal_reference_pin()
-            elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PointTerminal:
+            elif self.terminal_type == TerminalType.PointTerminal.name:
                 self._reference_object = self.get_point_terminal_reference_primitive()
-            elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal:
+            elif self.terminal_type == TerminalType.PadstackInstanceTerminal.name:
                 self._reference_object = self.get_padstack_terminal_reference_pin()
             else:
                 self._pedb.logger.warning(
