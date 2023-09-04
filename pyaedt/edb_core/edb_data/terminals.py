@@ -1,5 +1,3 @@
-import re
-
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
@@ -115,8 +113,8 @@ class Terminal(Connectable):
                 else:
                     self._pedb.logger.warning(
                         "Invalid Terminal Type={}".format(term.GetTerminalType())
-                    )  # pragma: no cover
-            except:
+                    )
+            except:  # pragma: no cover
                 pass
         return self._reference_object
 
@@ -148,7 +146,7 @@ class Terminal(Connectable):
 
         if self._edb_object.GetIsCircuitPort():
             return self.get_pin_group_terminal_reference_pin()
-        _, padStackInstance, layer = self._edb_object.GetParameters()
+        _, padStackInstance, _ = self._edb_object.GetParameters()
 
         # Get the pastack instance of the terminal
         compInst = self._edb_object.GetComponent()
@@ -185,7 +183,7 @@ class Terminal(Connectable):
                 return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
             else:
                 try:
-                    returnOK, refTermPSI, layer = refTerm.GetParameters()
+                    _, refTermPSI, layer = refTerm.GetParameters()
                     return EDBPadstackInstance(refTermPSI, self._pedb)
                 except AttributeError:
                     return None
@@ -203,7 +201,7 @@ class Terminal(Connectable):
 
         ref_layer = self._edb_object.GetReferenceLayer()
         edges = self._edb_object.GetEdges()
-        _, prim_value, point_data = edges[0].GetParameters()
+        _, _, point_data = edges[0].GetParameters()
         X = point_data.X
         Y = point_data.Y
         shape_pd = self._pedb.edb_api.geometry.point_data(X, Y)
@@ -265,12 +263,12 @@ class Terminal(Connectable):
             edges = self._edb_object.GetEdges()
         except AttributeError:
             return None
-        _, pad_edge_pstack_inst, pad_edge_layer, pad_edge_polygon_data = edges[0].GetParameters()
+        _, pad_edge_pstack_inst, _, pad_edge_polygon_data = edges[0].GetParameters()
         return self._get_closest_pin(pad_edge_pstack_inst, pins, gnd_net_name_preference)
 
     @pyaedt_function_handler()
     def _get_closest_pin(self, ref_pin, pin_list, gnd_net=None):
-        _, pad_stack_inst_point, rotation = ref_pin.GetPositionAndRotation()  # get the xy of the padstack
+        _, pad_stack_inst_point, _ = ref_pin.GetPositionAndRotation()  # get the xy of the padstack
         if gnd_net is not None:
             power_ground_net_names = [gnd_net]
         else:
