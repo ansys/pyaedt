@@ -360,6 +360,14 @@ class Edb(Database):
 
     @property
     def ports(self):
+        """Get all ports.
+
+        Returns
+        -------
+        Dict[str, [:class:`pyaedt.edb_core.edb_data.ports.GapPort`,
+                   :class:`pyaedt.edb_core.edb_data.ports.WavePort`,]]
+
+        """
         temp = [term for term in self.layout.terminals if not term.IsReferenceTerminal()]
 
         ports = {}

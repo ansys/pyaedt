@@ -1,6 +1,6 @@
-Sources and excitations
-=======================
-These classes are the containers of sources methods of the EDB for both HFSS and Siwave.
+Ports
+=====
+These classes are the containers of ports methods of the EDB for both HFSS and Siwave.
 
 
 .. code:: python
@@ -9,12 +9,15 @@ These classes are the containers of sources methods of the EDB for both HFSS and
     edb = Edb(myedb, edbversion="2023.1")
 
     # this call returns the EDB excitations dictionary
-    edb.excitations
+    edb.ports
     ...
 
 
-.. currentmodule:: pyaedt.edb_core.edb_data.sources
+.. currentmodule:: pyaedt.edb_core.edb_data.ports
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
+
+   GapPort
+   WavePort
