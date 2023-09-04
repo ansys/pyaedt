@@ -10,11 +10,6 @@ class LayoutObj(object):
         self._pedb = pedb
         self._edb_object = edb_object
 
-    @pyaedt_function_handler
-    def is_null(self):
-        """Determine if this object is null."""
-        return self._edb_object.IsNull()
-
     @property
     def _edb(self):
         """EDB object.
@@ -24,6 +19,20 @@ class LayoutObj(object):
         Ansys.Ansoft.Edb
         """
         return self._pedb.edb_api
+
+    @property
+    def _edb_properties(self):
+        p = self._edb_object.GetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS")
+        return p
+
+    @_edb_properties.setter
+    def _edb_properties(self, value):
+        self._edb_object.SetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS", value)
+
+    @pyaedt_function_handler
+    def is_null(self):
+        """Determine if this object is null."""
+        return self._edb_object.IsNull()
 
 
 class Connectable(LayoutObj):

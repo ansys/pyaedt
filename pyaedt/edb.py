@@ -31,8 +31,9 @@ from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfigur
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
-import pyaedt.edb_core.general
+from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
@@ -357,6 +358,22 @@ class Edb(Database):
             else:
                 temp[ter.GetName()] = GapPort(self, ter)
         return temp
+
+    @property
+    def ports(self):
+        temp = [term for term in self.layout.terminals if not term.IsReferenceTerminal()]
+
+        ports = {}
+        for t in temp:
+            t2 = Terminal(self, t)
+            if t2.hfss_type == "Wave":
+                if t2.terminal_type == TerminalType.BundleTerminal.name:
+                    ports[t2.name] = ExcitationDifferential(self, t)
+                else:
+                    ports[t2.name] = WavePort(self, t)
+            else:
+                ports[t2.name] = GapPort(self, t)
+        return ports
 
     @property
     def excitations_nets(self):

@@ -535,7 +535,7 @@ class EdbHfss(object):
             pec_launch_width=pec_launch_width,
         )
         edb_list = convert_py_list_to_net_list(
-            [pos_term._edb_terminal, neg_term._edb_terminal], self._edb.cell.terminal.Terminal
+            [pos_term._edb_object, neg_term._edb_object], self._edb.cell.terminal.Terminal
         )
         _edb_boundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
         return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
@@ -598,7 +598,7 @@ class EdbHfss(object):
             _port_name = None
             terminals.append(term)
 
-        edb_list = convert_py_list_to_net_list([i._edb_terminal for i in terminals], self._edb.cell.terminal.Terminal)
+        edb_list = convert_py_list_to_net_list([i._edb_object for i in terminals], self._edb.cell.terminal.Terminal)
         _edb_bundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
         return port_name, ExcitationBundle(self._pedb, _edb_bundle_terminal)
 

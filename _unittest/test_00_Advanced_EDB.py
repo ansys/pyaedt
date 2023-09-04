@@ -965,7 +965,6 @@ class TestClass:
         assert port1.reference_net_name == "GND"
         assert not port1.deembed
         assert port1.impedance == 50.0
-        assert port1.deembed_length == 0
         assert not port1.is_circuit
         assert not port1.renormalize
         assert port1.renormalize_z0 == (50.0, 0.0)

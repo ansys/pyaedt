@@ -1,3 +1,5 @@
+import re
+
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
@@ -8,6 +10,20 @@ class Terminal(Connectable):
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
         self._reference_object = None
+
+    @property
+    def hfss_type(self):
+        """HFSS port type."""
+        temp = re.search(r"'HFSS Type'='.*?'", self._edb_properties)
+        if temp:
+            txt = temp.group()
+            return txt.split("=")[1].replace("'", "")
+        else:  # pragma: no cover
+            return None
+
+    @property
+    def is_circuit_port(self):
+        return self._edb_object.GetIsCircuitPort()
 
     @property
     def _port_post_processing_prop(self):
@@ -63,7 +79,7 @@ class Terminal(Connectable):
         -------
         int
         """
-        return self._edb_object.GetTerminalType()
+        return self._edb_object.GetTerminalType().ToString()
 
     @property
     def boundary_type(self):

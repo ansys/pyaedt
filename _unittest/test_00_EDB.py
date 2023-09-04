@@ -1568,11 +1568,9 @@ class TestClass:
             prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
         )
         assert edb.hfss.get_ports_number() == 2
-        port_ver = edb.hfss.excitations["port_ver"]
+        port_ver = edb.ports["port_ver"]
         assert port_ver.hfss_type == "Gap"
-        assert isinstance(port_ver.horizontal_extent_factor, float)
-        assert isinstance(port_ver.vertical_extent_factor, float)
-        assert port_ver.pec_launch_width
+
         args = {
             "layer_name": "1_Top",
             "net_name": "SIGP",
@@ -1591,7 +1589,10 @@ class TestClass:
             traces.append(t)
 
         assert edb.hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
-
+        wave_port = edb.ports["wave_port"]
+        assert isinstance(wave_port.horizontal_extent_factor, float)
+        assert isinstance(wave_port.vertical_extent_factor, float)
+        assert wave_port.pec_launch_width
         assert edb.hfss.create_differential_wave_port(
             traces[0].id,
             trace_paths[0][0],

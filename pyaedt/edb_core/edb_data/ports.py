@@ -75,7 +75,7 @@ class WavePort(EdgeTerminal):
     Examples
     --------
     This example shows how to access the ``WavePort`` class.
-    todo
+
     >>> from pyaedt import Edb
     >>> edb = Edb("myaedb.aedb")
     >>> exc = edb.excitations
@@ -84,25 +84,6 @@ class WavePort(EdgeTerminal):
 
     def __init__(self, pedb, edb_terminal):
         super().__init__(pedb, edb_terminal)
-
-    @property
-    def _edb_properties(self):
-        p = self._edb_object.GetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS")
-        return p
-
-    @_edb_properties.setter
-    def _edb_properties(self, value):
-        self._edb_object.SetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS", value)
-
-    @property
-    def hfss_type(self):
-        """HFSS port type."""
-        temp = re.search(r"'HFSS Type'='.*?'", self._edb_properties)
-        if temp:
-            txt = temp.group()
-            return txt.split("=")[1].replace("'", "")
-        else:  # pragma: no cover
-            return None
 
     @property
     def horizontal_extent_factor(self):
