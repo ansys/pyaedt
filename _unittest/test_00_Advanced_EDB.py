@@ -965,7 +965,7 @@ class TestClass:
         assert port1.reference_net_name == "GND"
         assert not port1.deembed
         assert port1.impedance == 50.0
-        assert not port1.is_circuit
+        assert not port1.is_circuit_port
         assert not port1.renormalize
         assert port1.renormalize_z0 == (50.0, 0.0)
         assert not port1.get_pin_group_terminal_reference_pin()
