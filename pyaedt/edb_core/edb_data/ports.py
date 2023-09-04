@@ -17,21 +17,14 @@ class GapPort(EdgeTerminal):
 
     Examples
     --------
-    todo
     This example shows how to access the ``GapPort`` class.
     >>> from pyaedt import Edb
     >>> edb = Edb("myaedb.aedb")
-    >>> exc = edb.excitations
-    >>> print(exc["Port1"].name)
+    >>> gap_port = edb.ports["gap_port"]
     """
 
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
-
-    @property
-    def is_circuit(self):
-        """Whether it is a circuit port."""
-        return self._edb_object.GetIsCircuitPort()
 
     @property
     def magnitude(self):

@@ -24,6 +24,7 @@ class Terminal(Connectable):
 
     @property
     def is_circuit_port(self):
+        """Whether it is a circuit port."""
         return self._edb_object.GetIsCircuitPort()
 
     @property
@@ -39,10 +40,6 @@ class Terminal(Connectable):
     @do_renormalize.setter
     def do_renormalize(self, value):
         self._port_post_processing_prop.DoRenormalize = value
-
-    @property
-    def do_deembed_parasitic_port_inductance(self):
-        return
 
     @property
     def name(self):
