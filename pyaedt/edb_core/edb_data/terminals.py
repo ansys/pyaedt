@@ -112,37 +112,34 @@ class Terminal(Connectable):
         """
         if not self._reference_object:
             term = self._edb_object
-            try:
-                if self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.EdgeTerminal:
-                    edges = self._edb_object.GetEdges()
-                    edgeType = edges[0].GetEdgeType()
-                    if edgeType == self._pedb.edb_api.cell.terminal.EdgeType.PadEdge:
-                        self._reference_object = self.get_pad_edge_terminal_reference_pin()
-                    else:
-                        self._reference_object = self.get_edge_terminal_reference_primitive()
-                elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal:
-                    self._reference_object = self.get_pin_group_terminal_reference_pin()
-                elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PointTerminal:
-                    self._reference_object = self.get_point_terminal_reference_primitive()
-                elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal:
-                    self._reference_object = self.get_padstack_terminal_reference_pin()
+
+            if self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.EdgeTerminal:
+                edges = self._edb_object.GetEdges()
+                edgeType = edges[0].GetEdgeType()
+                if edgeType == self._pedb.edb_api.cell.terminal.EdgeType.PadEdge:
+                    self._reference_object = self.get_pad_edge_terminal_reference_pin()
                 else:
-                    self._pedb.logger.warning(
-                        "Invalid Terminal Type={}".format(term.GetTerminalType())
-                    )
-            except:  # pragma: no cover
-                pass
+                    self._reference_object = self.get_edge_terminal_reference_primitive()
+            elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal:
+                self._reference_object = self.get_pin_group_terminal_reference_pin()
+            elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PointTerminal:
+                self._reference_object = self.get_point_terminal_reference_primitive()
+            elif self.terminal_type == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal:
+                self._reference_object = self.get_padstack_terminal_reference_pin()
+            else:
+                self._pedb.logger.warning(
+                    "Invalid Terminal Type={}".format(term.GetTerminalType())
+                )
+
         return self._reference_object
 
     @property
     def reference_net_name(self):
         """Net name to which reference_object belongs."""
-        try:
-            ref_obj = self._reference_object if self._reference_object else self.reference_object
-            if ref_obj:
-                return ref_obj.net_name
-        except:
-            pass
+        ref_obj = self._reference_object if self._reference_object else self.reference_object
+        if ref_obj:
+            return ref_obj.net_name
+
         return ""
 
     @pyaedt_function_handler()
@@ -192,7 +189,7 @@ class Terminal(Connectable):
         elif (
             self._edb_object.GetTerminalType() == self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal
         ):
-            _, padStackInstance, layer = self._edb_object.GetParameters()
+            _, padStackInstance, _ = self._edb_object.GetParameters()
             if refTerm.GetTerminalType() == self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal:
                 pingroup = refTerm.GetPinGroup()
                 refPinList = pingroup.GetPins()
@@ -279,7 +276,7 @@ class Terminal(Connectable):
             edges = self._edb_object.GetEdges()
         except AttributeError:
             return None
-        _, pad_edge_pstack_inst, _, pad_edge_polygon_data = edges[0].GetParameters()
+        _, pad_edge_pstack_inst, _, _ = edges[0].GetParameters()
         return self._get_closest_pin(pad_edge_pstack_inst, pins, gnd_net_name_preference)
 
     @pyaedt_function_handler()
@@ -300,7 +297,7 @@ class Terminal(Connectable):
         for pin in comp_ref_pins:  # find the distance to all the pins to the terminal pin
             if pin.GetName() == ref_pin.GetName():  # skip the reference psi
                 continue  # pragma: no cover
-            _, pin_point, rotation = pin.GetPositionAndRotation()
+            _, pin_point, _ = pin.GetPositionAndRotation()
             distance = pad_stack_inst_point.Distance(pin_point)
             if closest_pin_distance is None:
                 closest_pin_distance = distance
