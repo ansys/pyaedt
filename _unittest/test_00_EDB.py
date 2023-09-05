@@ -1602,7 +1602,7 @@ class TestClass:
             traces[1].id,
             trace_paths[1][0],
             horizontal_extent_factor=8,
-            port_name = "df_port"
+            port_name="df_port",
         )
         assert edb.ports["df_port"]
         assert not edb.are_port_reference_terminals_connected()
