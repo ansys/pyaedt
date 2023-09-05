@@ -919,6 +919,56 @@ class GlobalService(rpyc.Service):
         print("Service has started on port {}".format(port))
         return port
 
+    @property
+    def aedt_port(self):
+        """Aedt active port.
+
+        Returns
+        -------
+        int
+        """
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+        if _desktop_sessions:
+            return list(_desktop_sessions.values())[0].port
+        return 0
+
+    @property
+    def aedt_version(self):
+        """Aedt Version.
+
+        Returns
+        -------
+        str
+        """
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+        if _desktop_sessions:
+            return list(_desktop_sessions.values())[0].aedt_version_id
+        return ""
+
+    @property
+    def student_version(self):
+        """Student version flag.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+        if _desktop_sessions:
+            return list(_desktop_sessions.values())[0].student_version
+        return False
+
+    @property
+    def machine(self):
+        """Machine name,
+
+        Returns
+        -------
+        str
+        """
+        import socket
+        return socket.getfqdn()
+
     @staticmethod
     def edb(edbpath=None,
             cellname=None,

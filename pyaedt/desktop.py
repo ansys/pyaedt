@@ -532,7 +532,6 @@ class Desktop(object):
             self._logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
             self._logger.info("Debug logger is disabled. PyAEDT methods will not be logged.")
-
         student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
 
         # start the AEDT opening decision tree
@@ -546,6 +545,8 @@ class Desktop(object):
         elif is_linux:
             starting_mode = "grpc"
         elif is_windows and "pythonnet" not in modules:
+            starting_mode = "grpc"
+        elif settings.remote_rpc_session:
             starting_mode = "grpc"
         elif is_ironpython:
             starting_mode = "ironpython"
@@ -734,6 +735,9 @@ class Desktop(object):
 
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times
+        if settings.remote_rpc_session:
+            version = "Ansoft.ElectronicsDesktop." + settings.aedt_version[0:6]
+            return settings.remote_rpc_session.student_version, settings.aedt_version, version
         self_current_version = self.current_version
         self_current_student_version = self.current_student_version
 
@@ -922,6 +926,10 @@ class Desktop(object):
 
     def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT using the gRPC plugin.")
+        if settings.remote_rpc_session:  # pragma: no cover
+            if not self.machine:
+                self.machine = settings.remote_rpc_session.machine
+                self.port = settings.remote_rpc_session.port
         if not self.machine or self.machine in [
             "localhost",
             "127.0.0.1",
