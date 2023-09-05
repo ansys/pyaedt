@@ -522,7 +522,6 @@ class EdbHfss(object):
         _, pos_term = self.create_wave_port(
             positive_primitive_id,
             positive_points_on_edge,
-            port_name=port_name,
             horizontal_extent_factor=horizontal_extent_factor,
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
@@ -538,6 +537,7 @@ class EdbHfss(object):
             [pos_term._edb_object, neg_term._edb_object], self._edb.cell.terminal.Terminal
         )
         _edb_boundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
+        _edb_boundle_terminal.SetName(port_name)
         return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
 
     @pyaedt_function_handler

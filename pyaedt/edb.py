@@ -373,11 +373,10 @@ class Edb(Database):
         ports = {}
         for t in temp:
             t2 = Terminal(self, t)
-            if t2.hfss_type == "Wave":
-                if t2.terminal_type == TerminalType.BundleTerminal.name:
-                    ports[t2.name] = ExcitationDifferential(self, t)
-                else:
-                    ports[t2.name] = WavePort(self, t)
+            if t2.terminal_type == TerminalType.BundleTerminal.name:
+                ports[t2.name] = ExcitationDifferential(self, t)
+            elif t2.hfss_type == "Wave":
+                ports[t2.name] = WavePort(self, t)
             else:
                 ports[t2.name] = GapPort(self, t)
         return ports
