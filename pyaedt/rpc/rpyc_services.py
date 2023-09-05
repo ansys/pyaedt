@@ -843,6 +843,9 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def exposed_stop():
+        from pyaedt import settings
+        settings.remote_rpc_session = None
+
         pid = os.getpid()
         os.kill(pid, signal.SIGTERM)
 
