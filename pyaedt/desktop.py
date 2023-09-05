@@ -927,8 +927,10 @@ class Desktop(object):
     def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT using the gRPC plugin.")
         if settings.remote_rpc_session:  # pragma: no cover
+            settings.remote_api = True
             if not self.machine:
                 self.machine = settings.remote_rpc_session.machine
+            if not self.port:
                 self.port = settings.remote_rpc_session.port
         if not self.machine or self.machine in [
             "localhost",
