@@ -260,7 +260,7 @@ class Materials(object):
             return self.material_keys[mat.lower()]
         elif mat.lower() in self.mat_names_aedt_lower:
             return self._aedmattolibrary(mat)
-        elif settings.remote_api:
+        elif settings.remote_api or settings.remote_rpc_session:
             return self._aedmattolibrary(mat)
         return False
 
@@ -636,7 +636,9 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
         """
-        if matname not in self.odefinition_manager.GetProjectMaterialNames() and not settings.remote_api:
+        if matname not in self.odefinition_manager.GetProjectMaterialNames() and not (
+            settings.remote_api or settings.remote_rpc_session
+        ):
             matname = self._get_aedt_case_name(matname)
         props = {}
         _arg2dict(list(self.omaterial_manager.GetData(matname)), props)

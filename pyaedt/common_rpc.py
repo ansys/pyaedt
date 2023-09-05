@@ -283,14 +283,17 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         time.sleep(1)
         cl = connect(server_name, port)
         logger.info("Created new session on port %s", port)
-        # cl.server_name = server_name
-        # cl.aedt_port = None
+        if "server_name" not in dir(cl):
+            cl.server_name = server_name
+        if "aedt_port" not in dir(cl):
+            cl.aedt_port = None
         if launch_aedt_on_server:
             if not aedt_port:
                 aedt_port = client.root.check_port()
             cl.aedt(port=aedt_port, non_graphical=non_graphical)
             logger.info("Aedt started on port %s", aedt_port)
-            # cl.aedt_port = aedt_port
+            if cl.aedt_port is None:
+                cl.aedt_port = aedt_port
         return cl
     except:
         msg = "Error. No connection exists."

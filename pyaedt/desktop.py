@@ -1049,7 +1049,7 @@ class Desktop(object):
         if settings.logger_file_path:
             self.logfile = settings.logger_file_path
         else:
-            if settings.remote_api:
+            if settings.remote_api or settings.remote_rpc_session:
                 project_dir = tempfile.gettempdir()
             elif "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
