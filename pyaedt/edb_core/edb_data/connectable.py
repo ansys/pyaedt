@@ -52,7 +52,7 @@ class Connectable(LayoutObj):
         return EDBNetsData(self._edb_object.GetNet(), self._pedb)
 
     @property
-    def component(self):
+    def component(self):  # pragma: no cover
         """Component connected to this object.
 
         Returns

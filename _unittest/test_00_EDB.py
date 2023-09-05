@@ -1569,6 +1569,7 @@ class TestClass:
         )
         assert edb.hfss.get_ports_number() == 2
         port_ver = edb.ports["port_ver"]
+        assert not port_ver.is_null()
         assert port_ver.hfss_type == "Gap"
 
         args = {
@@ -1590,8 +1591,10 @@ class TestClass:
 
         assert edb.hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
         wave_port = edb.ports["wave_port"]
-        assert isinstance(wave_port.horizontal_extent_factor, float)
-        assert isinstance(wave_port.vertical_extent_factor, float)
+        wave_port.horizontal_extent_factor = 10
+        wave_port.vertical_extent_factor = 10
+        assert wave_port.horizontal_extent_factor == 10
+        assert wave_port.vertical_extent_factor == 10
         assert wave_port.pec_launch_width
         assert edb.hfss.create_differential_wave_port(
             traces[0].id,
@@ -1599,7 +1602,9 @@ class TestClass:
             traces[1].id,
             trace_paths[1][0],
             horizontal_extent_factor=8,
+            port_name = "df_port"
         )
+        assert edb.ports["df_port"]
         assert not edb.are_port_reference_terminals_connected()
 
         traces_id = [i.id for i in traces]
