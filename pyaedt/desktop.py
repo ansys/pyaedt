@@ -736,8 +736,8 @@ class Desktop(object):
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times
         if settings.remote_rpc_session:
-            version = "Ansoft.ElectronicsDesktop." + settings.aedt_version[0:6]
-            return settings.remote_rpc_session.student_version, settings.aedt_version, version
+            version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
+            return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
         self_current_version = self.current_version
         self_current_student_version = self.current_student_version
 
