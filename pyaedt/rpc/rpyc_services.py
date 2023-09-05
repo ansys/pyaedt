@@ -962,7 +962,7 @@ class GlobalService(rpyc.Service):
         return False
 
     @property
-    def machine(self):
+    def server_name(self):
         """Machine name,
 
         Returns

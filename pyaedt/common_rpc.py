@@ -283,7 +283,7 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         time.sleep(1)
         cl = connect(server_name, port)
         logger.info("Created new session on port %s", port)
-        cl.server_name = server_name
+        # cl.server_name = server_name
         # cl.aedt_port = None
         if launch_aedt_on_server:
             if not aedt_port:
@@ -332,7 +332,7 @@ def connect(server_name, aedt_client_port):
             client.aedt_port = client.root.aedt_port
             client.aedt_version = client.root.aedt_version
             client.student_version = client.root.student_version
-            client.machine_name = client.root.machine_name
+            client.server_name = client.root.server_name
         except AttributeError:
             pass
         settings.remote_rpc_session = client
