@@ -170,7 +170,7 @@ class Edb(Database):
                 os.path.dirname(edbpath), "pyaedt_" + os.path.splitext(os.path.split(edbpath)[-1])[0] + ".log"
             )
 
-        if isaedtowned and (inside_desktop or settings.remote_api):
+        if isaedtowned and (inside_desktop or settings.remote_api or settings.remote_rpc_session):
             self.open_edb_inside_aedt()
         elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
             self.edbpath = edbpath[:-4] + ".aedb"
@@ -1386,7 +1386,7 @@ class Edb(Database):
         for net in net_signals:
             names.append(net.GetName())
         for prim in self.modeler.primitives:
-            if prim.net_name in names:
+            if prim is not None and prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
                     expansion_size, tolerance, round_corner, round_extension
                 )
@@ -1457,7 +1457,7 @@ class Edb(Database):
         for net in net_signals:
             names.append(net.GetName())
         for prim in self.modeler.primitives:
-            if prim.net_name in names:
+            if prim is not None and prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
         if smart_cut:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
