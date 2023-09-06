@@ -100,7 +100,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
-        if settings.remote_api:
+        if settings.remote_api or settings.remote_rpc_session:
             return self._edb
         if not self._edb:
             self._edb = None
