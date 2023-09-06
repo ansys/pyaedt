@@ -1489,6 +1489,7 @@ class Edb(Database):
         expansion_factor=0,
         maximum_iterations=10,
         preserve_components_with_model=False,
+        simple_pad_check=True,
     ):
         """Create a cutout using an approach entirely based on PyAEDT.
         This method replaces all legacy cutout methods in PyAEDT.
@@ -1644,6 +1645,8 @@ class Edb(Database):
                         check_terminals=check_terminals,
                         include_pingroups=include_pingroups,
                         preserve_components_with_model=preserve_components_with_model,
+                        include_partial=include_partial_instances,
+                        simple_pad_check=simple_pad_ckeck,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1681,6 +1684,8 @@ class Edb(Database):
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
                     preserve_components_with_model=preserve_components_with_model,
+                    include_partial=include_partial_instances,
+                    simple_pad_check=simple_pad_ckeck,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -1884,6 +1889,8 @@ class Edb(Database):
         check_terminals=False,
         include_pingroups=True,
         preserve_components_with_model=False,
+        include_partial=False,
+        simple_pad_check=True,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -2011,7 +2018,7 @@ class Edb(Database):
                 prims_to_delete.append(prim_1)
 
         def pins_clean(pinst):
-            if not pinst.in_polygon(_poly, simple_check=True):
+            if not pinst.in_polygon(_poly, include_partial=include_partial, simple_check=simple_pad_check):
                 pins_to_delete.append(pinst)
 
         with ThreadPoolExecutor(number_of_threads) as pool:
