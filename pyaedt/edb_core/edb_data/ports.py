@@ -81,80 +81,46 @@ class WavePort(EdgeTerminal):
     @property
     def horizontal_extent_factor(self):
         """Horizontal extent factor."""
-        temp = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties)
-        if temp:
-            txt = temp.group()
-            return float(txt.split("=")[1].replace("'", ""))
-        else:  # pragma: no cover
-            return None
+        return self._hfss_port_property["Horizontal Extent Factor"]
 
     @horizontal_extent_factor.setter
     def horizontal_extent_factor(self, value):
-        new_arg = r"'Horizontal Extent Factor'='{}'".format(value)
-        if self.horizontal_extent_factor:
-            p = re.sub(r"'Horizontal Extent Factor'='.*?'", new_arg, self._edb_properties)
-        else:
-            match = re.search(r"(.*\))$", self._edb_properties)
-            p = match.group(1)[:-1] + ", " + new_arg + ")"
-        self._edb_properties = p
+        p = self._hfss_port_property
+        p["Horizontal Extent Factor"] = value
+        self._hfss_port_property = p
 
     @property
     def vertical_extent_factor(self):
         """Vertical extent factor."""
-        temp = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties)
-        if temp:
-            txt = temp.group()
-            return float(txt.split("=")[1].replace("'", ""))
-        return None  # pragma: no cover
+        return self._hfss_port_property["Vertical Extent Factor"]
 
     @vertical_extent_factor.setter
     def vertical_extent_factor(self, value):
-        new_arg = r"'Vertical Extent Factor'='{}'".format(value)
-        if self.vertical_extent_factor:
-            p = re.sub(r"'Vertical Extent Factor'='.*?'", new_arg, self._edb_properties)
-        else:
-            match = re.search(r"(.*\))$", self._edb_properties)
-            p = match.group(1)[:-1] + ", " + new_arg + ")"
-        self._edb_properties = p
+        p = self._hfss_port_property
+        p["Vertical Extent Factor"] = value
+        self._hfss_port_property = p
 
     @property
     def radial_extent_factor(self):
         """Radial extent factor."""
-        temp = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties)
-        if temp:
-            txt = temp.group()
-            return float(txt.split("=")[1].replace("'", ""))
-        return None  # pragma: no cover
+        return self._hfss_port_property["Radial Extent Factor"]
 
     @radial_extent_factor.setter
     def radial_extent_factor(self, value):
-        new_arg = r"'Radial Extent Factor'='{}'".format(value)
-        if self.radial_extent_factor:
-            p = re.sub(r"'Radial Extent Factor'='.*?'", new_arg, self._edb_properties)
-        else:
-            match = re.search(r"(.*\))$", self._edb_properties)
-            p = match.group(1)[:-1] + ", " + new_arg + ")"
-        self._edb_properties = p
+        p = self._hfss_port_property
+        p["Radial Extent Factor"] = value
+        self._hfss_port_property = p
 
     @property
     def pec_launch_width(self):
         """Launch width for the printed electronic component (PEC)."""
-        temp = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties)
-        if temp:
-            txt = temp.group()
-            return txt.split("=")[1].replace("'", "")
-        else:  # pragma: no cover
-            return None
+        return self._hfss_port_property["PEC Launch Width"]
 
     @pec_launch_width.setter
     def pec_launch_width(self, value):
-        new_arg = r"'PEC Launch Width'='{}'".format(value)
-        if self.pec_launch_width:
-            p = re.sub(r"'PEC Launch Width'='.*?'", new_arg, self._edb_properties)
-        else:
-            match = re.search(r"(.*\))$", self._edb_properties)
-            p = match.group(1)[:-1] + ", " + new_arg + ")"
-        self._edb_properties = p
+        p = self._hfss_port_property
+        p["PEC Launch Width"] = value
+        self._hfss_port_property = p
 
     @property
     def deembed(self):

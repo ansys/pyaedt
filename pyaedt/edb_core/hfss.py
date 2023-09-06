@@ -6,6 +6,7 @@ import math
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
 from pyaedt.edb_core.edb_data.ports import ExcitationBundle
 from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
+from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -791,21 +792,13 @@ class EdbHfss(object):
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
 
-        prop = ", ".join(
-            [
-                "HFSS('HFSS Type'='Wave'",
-                " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
-                " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
-                " 'PEC Launch Width'='{}')".format(pec_launch_width),
-            ]
-        )
-        pos_edge_term.SetProductSolverOption(
-            self._pedb.edb_api.ProductId.Designer,
-            "HFSS",
-            prop,
-        )
+        wave_port = WavePort(self._pedb, pos_edge_term)
+        wave_port.horizontal_extent_factor = horizontal_extent_factor
+        wave_port.vertical_extent_factor = vertical_extent_factor
+        wave_port.pec_launch_width = pec_launch_width
+        wave_port.hfss_type = "Wave"
         if pos_edge_term:
-            return port_name, self._pedb.hfss.excitations[port_name]
+            return port_name, wave_port
         else:
             return False
 

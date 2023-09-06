@@ -13,14 +13,50 @@ class Terminal(Connectable):
         self._reference_object = None
 
     @property
+    def _hfss_port_property(self):
+        hfss_prop = re.search(r"HFSS\(.*?\)", self._edb_properties)
+        p = {}
+        if hfss_prop:
+            hfss_type = re.search(r"'HFSS Type'='([^']+)'", hfss_prop.group())
+            orientation = re.search(r"'Orientation'='([^']+)'", hfss_prop.group())
+            horizontal_ef = re.search(r"'Horizontal Extent Factor'='([^']+)'", hfss_prop.group())
+            vertical_ef = re.search(r"'Vertical Extent Factor'='([^']+)'", hfss_prop.group())
+            radial_ef = re.search(r"'Radial Extent Factor'='([^']+)'", hfss_prop.group())
+            pec_w = re.search(r"'PEC Launch Width'='([^']+)'", hfss_prop.group())
+
+            p["HFSS Type"] = hfss_type.group(1) if hfss_type else ""
+            p["Orientation"] = orientation.group(1) if orientation else ""
+            p["Horizontal Extent Factor"] = float(horizontal_ef.group(1)) if horizontal_ef else ""
+            p["Vertical Extent Factor"] = float(vertical_ef.group(1)) if vertical_ef else ""
+            p["Radial Extent Factor"] = float(radial_ef.group(1)) if radial_ef else ""
+            p["PEC Launch Width"] = pec_w.group(1) if pec_w else ""
+        else:
+            p["HFSS Type"] = ""
+            p["Orientation"] = ""
+            p["Horizontal Extent Factor"] = ""
+            p["Vertical Extent Factor"] = ""
+            p["Radial Extent Factor"] = ""
+            p["PEC Launch Width"] = ""
+        return p
+
+    @_hfss_port_property.setter
+    def _hfss_port_property(self, value):
+        txt = []
+        for k, v in value.items():
+            txt.append("'{}'='{}'".format(k, v))
+        txt = ",".join(txt)
+        self._edb_properties = "HFSS({})".format(txt)
+
+    @property
     def hfss_type(self):
         """HFSS port type."""
-        temp = re.search(r"'HFSS Type'='.*?'", self._edb_properties)
-        if temp:
-            txt = temp.group()
-            return txt.split("=")[1].replace("'", "")
-        else:  # pragma: no cover
-            return None
+        return self._hfss_port_property["HFSS Type"]
+
+    @hfss_type.setter
+    def hfss_type(self, value):
+        p = self._hfss_port_property
+        p["HFSS Type"] = value
+        self._hfss_port_property = p
 
     @property
     def is_circuit_port(self):
