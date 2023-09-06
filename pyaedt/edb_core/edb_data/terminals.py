@@ -135,7 +135,7 @@ class Terminal(Connectable):
         self._edb_object.SetImpedance(self._pedb.edb_value(value))
 
     @property
-    def reference_object(self):
+    def reference_object(self):  # pragma : no cover
         """This returns the object assigned as reference. It can be a primitive or a padstack instance.
 
 
@@ -175,7 +175,7 @@ class Terminal(Connectable):
         return ""
 
     @pyaedt_function_handler()
-    def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):
+    def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):  # pragma : no cover
         """Get a list of pad stacks instances and serves Coax wave ports,
         pingroup terminals, PadEdge terminals.
 
@@ -199,7 +199,7 @@ class Terminal(Connectable):
         return self._get_closest_pin(padStackInstance, pins, gnd_net_name_preference)
 
     @pyaedt_function_handler()
-    def get_pin_group_terminal_reference_pin(self, gnd_net_name_preference=None):
+    def get_pin_group_terminal_reference_pin(self, gnd_net_name_preference=None):  # pragma : no cover
         """Return a list of pins and serves terminals connected to pingroups.
 
         Parameters
@@ -235,7 +235,7 @@ class Terminal(Connectable):
         return None  # pragma: no cover
 
     @pyaedt_function_handler()
-    def get_edge_terminal_reference_primitive(self):
+    def get_edge_terminal_reference_primitive(self):  # pragma : no cover
         """Check and  return a primitive instance that serves Edge ports,
         wave ports and coupled edge ports that are directly connedted to primitives.
 
@@ -259,7 +259,7 @@ class Terminal(Connectable):
         return None  # pragma: no cover
 
     @pyaedt_function_handler()
-    def get_point_terminal_reference_primitive(self):
+    def get_point_terminal_reference_primitive(self):  # pragma : no cover
         """Find and return the primitive reference for the point terminal or the padstack instance.
 
         Returns

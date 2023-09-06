@@ -1362,7 +1362,10 @@ class TestClass:
         assert gap_port.component is None
         assert gap_port.magnitude == 0.0
         assert gap_port.phase == 0.0
+        assert gap_port.impedance
         assert not gap_port.deembed
+        gap_port.name = "gap_port"
+        assert gap_port.name == "gap_port"
         assert isinstance(gap_port.renormalize_z0, tuple)
         edb.close()
 
