@@ -22,7 +22,7 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
+from pyaedt.edb_core.edb_data.ports import ExcitationBundle
 from pyaedt.edb_core.edb_data.ports import ExcitationProbes
 from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.ports import GapPort
@@ -353,7 +353,7 @@ class Edb(Database):
         temp = {}
         for ter in terms:
             if "BundleTerminal" in ter.GetType().ToString():
-                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+                temp[ter.GetName()] = ExcitationBundle(self, ter)
             else:
                 temp[ter.GetName()] = GapPort(self, ter)
         return temp
@@ -374,7 +374,7 @@ class Edb(Database):
         for t in temp:
             t2 = Terminal(self, t)
             if t2.terminal_type == TerminalType.BundleTerminal.name:
-                ports[t2.name] = ExcitationDifferential(self, t)
+                ports[t2.name] = ExcitationBundle(self, t)
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
             else:

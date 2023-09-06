@@ -225,31 +225,3 @@ class ExcitationBundle:
     def reference_net_name(self):
         """Reference Name. Not applicable to Differential pairs."""
         return
-
-
-class ExcitationDifferential(ExcitationBundle):
-    """Manages differential excitation properties."""
-
-    def __init__(self, pedb, edb_boundle_terminal):
-        ExcitationBundle.__init__(self, pedb, edb_boundle_terminal)
-
-    @property
-    def net_name(self):
-        """Net name.
-
-        Returns
-        -------
-        str
-             Name of the net.
-        """
-        return self._edb_bundle_terminal.GetNet().GetName()
-
-    @property
-    def net(self):
-        """Net object.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
-        """
-        return EDBNetsData(self._edb_bundle_terminal.GetNet(), self._pedb)

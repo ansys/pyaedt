@@ -445,6 +445,7 @@ class TestClass:
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A27", "A28"], group_name="vp_pos")
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A14", "A15"], group_name="vp_neg")
         assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
+        assert self.edbapp.probes["vprobe"]
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"
@@ -1357,7 +1358,12 @@ class TestClass:
         sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
         assert sig.create_edge_port("pcb_port_1", "end", "Wave", None, 8, 8)
         assert sig.create_edge_port("pcb_port_2", "start", "gap")
-        assert edb.excitations["pcb_port_2"].component is None
+        gap_port = edb.ports["pcb_port_2"]
+        assert gap_port.component is None
+        assert gap_port.magnitude == 0.0
+        assert gap_port.phase == 0.0
+        assert not gap_port.deembed
+        assert isinstance(gap_port.renormalize_z0, tuple)
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -1595,7 +1601,11 @@ class TestClass:
         wave_port.vertical_extent_factor = 10
         assert wave_port.horizontal_extent_factor == 10
         assert wave_port.vertical_extent_factor == 10
+        wave_port.radial_extent_factor = 1
+        assert wave_port.radial_extent_factor == 1
         assert wave_port.pec_launch_width
+        assert not wave_port.deembed
+        assert wave_port.deembed_length == 0.0
         assert edb.hfss.create_differential_wave_port(
             traces[0].id,
             trace_paths[0][0],
@@ -1609,7 +1619,9 @@ class TestClass:
 
         traces_id = [i.id for i in traces]
         paths = [i[1] for i in trace_paths]
-        assert edb.hfss.create_bundle_wave_port(traces_id, paths)
+        _,df_port = edb.hfss.create_bundle_wave_port(traces_id, paths)
+        assert df_port.name
+        assert df_port.terminals
         edb.close()
 
     def test_120b_edb_create_port(self):

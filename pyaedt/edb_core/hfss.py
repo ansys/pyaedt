@@ -5,7 +5,6 @@ import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
 from pyaedt.edb_core.edb_data.ports import ExcitationBundle
-from pyaedt.edb_core.edb_data.ports import ExcitationDifferential
 from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
@@ -539,7 +538,7 @@ class EdbHfss(object):
         )
         _edb_boundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
         _edb_boundle_terminal.SetName(port_name)
-        return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
+        return port_name, ExcitationBundle(self._pedb, _edb_boundle_terminal)
 
     @pyaedt_function_handler
     def create_bundle_wave_port(
