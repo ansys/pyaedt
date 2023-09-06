@@ -11,9 +11,9 @@ available_toolkits = {
     "AntennaWizard": {
         "pip": "git+https://github.com/ansys/pyaedt-antenna-toolkit.git",
         "image": "pyansys.png",
-        "toolkit_script": "ansys/aedt/toolkits/antennas/run_toolkit.py",
+        "toolkit_script": "ansys/aedt/toolkits/antenna/run_toolkit.py",
         "installation_path": "HFSS",
-        "package_name": "ansys.aedt.toolkits.antennas",
+        "package_name": "ansys.aedt.toolkits.antenna",
     },
     "ChokeWizard": {
         "pip": "git+https://github.com/ansys/pyaedt-choke-toolkit.git",

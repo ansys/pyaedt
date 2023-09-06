@@ -643,7 +643,8 @@ class Materials(object):
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
-        newmat = Material(self, matname, first_value)
+        newmat = Material(self, matname, first_value, material_update=False)
+        newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
 

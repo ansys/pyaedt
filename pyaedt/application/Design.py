@@ -82,7 +82,7 @@ class Design(AedtObjects):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
@@ -2828,9 +2828,16 @@ class Design(AedtObjects):
         bool
         """
         arg = ["NAME:Design Settings Data"]
-        for k, v in settings.items():
-            arg.append(k + ":=")
-            arg.append(v)
+        for key, value in settings.items():
+            if "SkewSliceTable" not in key:
+                arg.append(key + ":=")
+                arg.append(value)
+            else:
+                arg_skew = [key]
+                if isinstance(value, list):
+                    for v in value:
+                        arg_skew.append(v)
+                arg.append(arg_skew)
         self.odesign.SetDesignSettings(arg)
         return True
 
