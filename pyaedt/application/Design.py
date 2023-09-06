@@ -3931,7 +3931,11 @@ class Design(AedtObjects):
 
         >>> oDesign.GetChildObject("Design Settings")
         """
-        design_settings = self._odesign.GetChildObject("Design Settings")
+        try:
+            design_settings = self._odesign.GetChildObject("Design Settings")
+        except Exception:
+            raise Exception("Could not use GetChildObject('Design Settings')")
+        
         prop_name_list = design_settings.GetPropNames()
         design_settings_dict = {}
         for prop in prop_name_list:
