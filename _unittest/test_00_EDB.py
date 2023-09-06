@@ -1622,7 +1622,7 @@ class TestClass:
 
         traces_id = [i.id for i in traces]
         paths = [i[1] for i in trace_paths]
-        _,df_port = edb.hfss.create_bundle_wave_port(traces_id, paths)
+        _, df_port = edb.hfss.create_bundle_wave_port(traces_id, paths)
         assert df_port.name
         assert df_port.terminals
         edb.close()
