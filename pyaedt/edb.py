@@ -1386,7 +1386,7 @@ class Edb(Database):
         for net in net_signals:
             names.append(net.GetName())
         for prim in self.modeler.primitives:
-            if prim.net_name in names:
+            if prim is not None and prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
                     expansion_size, tolerance, round_corner, round_extension
                 )
@@ -1457,7 +1457,7 @@ class Edb(Database):
         for net in net_signals:
             names.append(net.GetName())
         for prim in self.modeler.primitives:
-            if prim.net_name in names:
+            if prim is not None and prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
         if smart_cut:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
