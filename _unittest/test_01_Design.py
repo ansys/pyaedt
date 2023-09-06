@@ -396,4 +396,11 @@ class TestClass:
 
     def test_40_get_design_settings(self, add_app):
         ipk = add_app(application=Icepak)
-        assert ipk.design_settings()
+        design_settings_dict = ipk.design_settings()
+        assert design_settings_dict
+        assert "AmbTemp" in design_settings_dict
+        assert 'AmbRadTemp'in design_settings_dict
+        assert 'GravityVec'in design_settings_dict
+        assert 'GravityDir'in design_settings_dict
+
+        
