@@ -668,7 +668,7 @@ class FieldAnalysis3D(Analysis, object):
 
         if mat.lower() in self.materials.material_keys:
             matobj = self.materials.material_keys[mat.lower()]
-        elif self.materials._get_aedt_case_name(mat) or settings.remote_api:
+        elif self.materials._get_aedt_case_name(mat) or settings.remote_api or settings.remote_rpc_session:
             matobj = self.materials._aedmattolibrary(mat)
         if matobj:
             if self.design_type == "HFSS":
