@@ -1557,7 +1557,10 @@ class Edb(Database):
         preserve_components_with_model : bool, optional
             Whether to preserve all pins of components that have associated models (Spice or NPort).
             This parameter is applicable only for a PyAEDT cutout (except point list).
-
+        simple_pad_check : bool, optional
+            Whether to use the center of the pad to find the intersection with extent or use the bounding box.
+            Second method is much slower and requires to disable multithread on padstack removal.
+            Default is `True`.
 
         Returns
         -------
@@ -1646,7 +1649,7 @@ class Edb(Database):
                         include_pingroups=include_pingroups,
                         preserve_components_with_model=preserve_components_with_model,
                         include_partial=include_partial_instances,
-                        simple_pad_check=simple_pad_ckeck,
+                        simple_pad_check=simple_pad_check,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1685,7 +1688,7 @@ class Edb(Database):
                     include_pingroups=include_pingroups,
                     preserve_components_with_model=preserve_components_with_model,
                     include_partial=include_partial_instances,
-                    simple_pad_check=simple_pad_ckeck,
+                    simple_pad_check=simple_pad_check,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -2021,7 +2024,11 @@ class Edb(Database):
             if not pinst.in_polygon(_poly, include_partial=include_partial, simple_check=simple_pad_check):
                 pins_to_delete.append(pinst)
 
-        with ThreadPoolExecutor(number_of_threads) as pool:
+        if not simple_pad_check:
+            pad_cores = 1
+        else:
+            pad_cores = number_of_threads
+        with ThreadPoolExecutor(pad_cores) as pool:
             pool.map(lambda item: pins_clean(item), reference_pinsts)
 
         for pin in pins_to_delete:
