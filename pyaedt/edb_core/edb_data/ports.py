@@ -1,4 +1,3 @@
-from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 
