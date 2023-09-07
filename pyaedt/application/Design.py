@@ -3949,6 +3949,6 @@ class Design(AedtObjects):
                 design_settings_dict[prop] = design_settings.GetPropValue(prop)
             except Exception:  # pragma: no cover
                 self.logger.warning("Could not retrieve property value in design settings")
-                design_settings_dict[prop] = "Could not retrieve the value."
+                design_settings_dict[prop] = None
 
         return design_settings_dict
