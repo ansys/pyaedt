@@ -9,7 +9,6 @@ from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.Variables import generate_validation_errors
-from pyaedt.application.Variables import get_value_from_string
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
@@ -581,7 +580,7 @@ class TestClass:
 
         assert len(validation_errors) == 1
 
-    def test_24_test_validator_invalidate_offset_value(self, validation_input):
+    def test_24_test_validator_invalidate_value(self, validation_input):
         property_names, expected_settings, actual_settings = validation_input
 
         # Above tolerance
@@ -591,7 +590,16 @@ class TestClass:
 
         assert len(validation_errors) == 1
 
-    def test_25_test_validator_invalidate_multiple(self, validation_input):
+    def test_25_test_validator_invalidate_unit(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+
+        actual_settings[1] = "10in"
+
+        validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
+
+        assert len(validation_errors) == 1
+
+    def test_26_test_validator_invalidate_multiple(self, validation_input):
         property_names, expected_settings, actual_settings = validation_input
 
         actual_settings[0] = "Percentage Offset"
@@ -602,7 +610,7 @@ class TestClass:
 
         assert len(validation_errors) == 3
 
-    def test_26_test_validator_invalidate_wrong_type(self, validation_input):
+    def test_27_test_validator_invalidate_wrong_type(self, validation_input):
         property_names, expected_settings, actual_settings = validation_input
 
         actual_settings[1] = "nonnumeric"
@@ -611,14 +619,14 @@ class TestClass:
 
         assert len(validation_errors) == 1
 
-    def test_27_test_validator_float_type(self, validation_float_input):
+    def test_28_test_validator_float_type(self, validation_float_input):
         property_names, expected_settings, actual_settings = validation_float_input
 
         validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
         assert len(validation_errors) == 0
 
-    def test_28_test_validator_float_type_tolerance(self, validation_float_input):
+    def test_29_test_validator_float_type_tolerance(self, validation_float_input):
         property_names, expected_settings, actual_settings = validation_float_input
 
         # Set just below the tolerance to pass the check
@@ -630,7 +638,7 @@ class TestClass:
 
         assert len(validation_errors) == 0
 
-    def test_29_test_validator_float_type_invalidate(self, validation_float_input):
+    def test_30_test_validator_float_type_invalidate(self, validation_float_input):
         property_names, expected_settings, actual_settings = validation_float_input
 
         # Set just above the tolerance to fail the check
@@ -642,7 +650,7 @@ class TestClass:
 
         assert len(validation_errors) == 3
 
-    def test_30_test_validator_float_type_invalidate(self, validation_float_input):
+    def test_31_test_validator_float_type_invalidate(self, validation_float_input):
         property_names, expected_settings, actual_settings = validation_float_input
 
         actual_settings[0] *= 2
@@ -650,20 +658,3 @@ class TestClass:
         validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
         assert len(validation_errors) == 1
-
-    def test_31_test_checknumber_valid_input(self):
-        is_number, value = get_value_from_string("10.1mm")
-
-        assert is_number
-        assert value == 10.1
-
-    def test_32_test_checknumber_valid_input(self):
-        is_number, value = get_value_from_string("10mm")
-
-        assert is_number
-        assert value == 10.0
-
-    def test_33_test_checknumber_invalid_input(self):
-        is_number, _ = get_value_from_string("test_mm")
-
-        assert not is_number

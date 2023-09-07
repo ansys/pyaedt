@@ -252,28 +252,6 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
 
 
 @pyaedt_function_handler()
-def get_value_from_string(input_string: str):
-    """Return a tuple with a Boolean indicating whether the given string contains a number, and
-    a float value with the value. If the input string does not contains a string the value will be 0.
-
-    Parameters
-    ----------
-    input_string : str
-
-    Returns
-    -------
-    tuples
-        A tuple with a Boolean indicating whether the given string contains a number,
-        and the float value of the input string, if available
-    """
-    match = re.search(r"[-+]?(?:\d*\.*\d+)", input_string)
-    if match:
-        return True, float(match.group())
-    else:
-        return False, 0.0
-
-
-@pyaedt_function_handler()
 def decompose_variable_value(variable_value, full_variables={}):
     """Decompose a variable value.
 
@@ -318,20 +296,14 @@ def decompose_variable_value(variable_value, full_variables={}):
 
 @pyaedt_function_handler()
 def generate_property_validation_errors(property_name, expected, actual):
-    if isinstance(expected, (float, int)) and isinstance(actual, (float, int)):
-        if not math.isclose(expected, actual):
-            yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
-    elif isinstance(expected, str) and isinstance(actual, str):
-        expected_is_numeric, expected_value = get_value_from_string(expected)
-        actual_is_numeric, actual_value = get_value_from_string(actual)
-        if expected_is_numeric != actual_is_numeric:
-            yield "Error {0}: Cannot match '{1}', with '{2}'".format(property_name, expected, actual)
-        elif expected_is_numeric:
-            if not math.isclose(expected_value, actual_value):
-                yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
-        else:
-            if expected != actual:
-                yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
+    expected_value, expected_unit = decompose_variable_value(expected) 
+    actual_value, actual_unit = decompose_variable_value(actual) 
+
+    if isinstance(expected_value, (float, int)) and isinstance(actual_value, (float, int)):
+        if not math.isclose(expected_value, actual_value):
+            yield "Value Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
+        if expected_unit != actual_unit:
+            yield "Unit Error {0}: Expected {1}, got {2}".format(property_name, expected_unit, actual_unit)
     else:
         if expected != actual:
             yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
