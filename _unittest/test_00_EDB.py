@@ -742,6 +742,7 @@ class TestClass:
             number_of_threads=4,
             extent_type="ConvexHull",
             custom_extent=points,
+            simple_pad_check=False,
         )
         edbapp.close()
 
