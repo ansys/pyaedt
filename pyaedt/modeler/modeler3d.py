@@ -1432,7 +1432,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 return True, float(m.group())
             else:
                 return False, 0.0
-        
+
         def _generate_validation_errors(property_name, expected, actual):
             if isinstance(expected, float) and isinstance(actual, float):
                 if not math.isclose(expected, actual):
@@ -1440,7 +1440,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             elif isinstance(expected, str) and isinstance(actual, str):
                 expected_is_numeric, expected_value = _check_value_from_string(expected)
                 actual_is_numeric, actual_value = _check_value_from_string(actual)
-                
+
                 if expected_is_numeric != actual_is_numeric:
                     yield f"Error {property_name}: Cannot match {expected} with {actual}"
                 elif expected_is_numeric:
@@ -1478,10 +1478,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             property_names = [lst[0].strip("NAME:") for lst in modify_props]
             actual_settings = [create_region.GetPropValue(property_name) for property_name in property_names]
             expected_settings = [lst[-1] for lst in modify_props]
-            validation_errors = [error for property_name, expected, actual in zip(property_names, expected_settings, actual_settings) for error in _generate_validation_errors(property_name, expected, actual)]
+            validation_errors = [
+                error
+                for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
+                for error in _generate_validation_errors(property_name, expected, actual)
+            ]
 
             if validation_errors:
-                message = ','.join(validation_errors)
+                message = ",".join(validation_errors)
                 self.logger.error(f"Settings update failed. {message}")
                 return False
             return True
