@@ -309,6 +309,7 @@ def generate_property_validation_errors(property_name, expected, actual):
             yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
 
 
+@pyaedt_function_handler()
 def generate_validation_errors(property_names, expected_settings, actual_settings):
     validation_errors = [
         error
