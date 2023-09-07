@@ -26,7 +26,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.generic.general_methods import GrpcApiError, check_numeric_equivalence
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
@@ -300,7 +300,7 @@ def generate_property_validation_errors(property_name, expected, actual):
     actual_value, actual_unit = decompose_variable_value(actual)
 
     if isinstance(expected_value, (float, int)) and isinstance(actual_value, (float, int)):
-        if not math.isclose(expected_value, actual_value):
+        if not check_numeric_equivalence(expected_value, actual_value, 1e-9):
             yield "Value Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
         if expected_unit != actual_unit:
             yield "Unit Error {0}: Expected {1}, got {2}".format(property_name, expected_unit, actual_unit)
