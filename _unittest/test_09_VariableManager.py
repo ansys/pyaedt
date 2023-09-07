@@ -6,8 +6,10 @@ from _unittest.conftest import desktop_version
 import pytest
 
 from pyaedt import MaxwellCircuit
-from pyaedt.application.Variables import Variable, generate_validation_errors, get_value_from_string
+from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.application.Variables import generate_validation_errors
+from pyaedt.application.Variables import get_value_from_string
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.geometry_operators import GeometryOperators
 

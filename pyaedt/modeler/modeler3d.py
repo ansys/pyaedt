@@ -5,8 +5,8 @@ import datetime
 import json
 import os.path
 import warnings
-from pyaedt.application.Variables import generate_validation_errors
 
+from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1447,9 +1447,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             property_names = [lst[0].strip("NAME:") for lst in modify_props]
             actual_settings = [create_region.GetPropValue(property_name) for property_name in property_names]
             expected_settings = [lst[-1] for lst in modify_props]
-            validation_errors = generate_validation_errors(
-                property_names, expected_settings, actual_settings
-            )
+            validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
             if validation_errors:
                 message = ",".join(validation_errors)
