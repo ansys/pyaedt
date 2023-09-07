@@ -8,7 +8,6 @@ from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.object3d import Object3d
-from pyaedt.modeler.modeler3d import Modeler3D
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
