@@ -8,6 +8,7 @@ from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.modeler3d import Modeler3D
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -22,6 +23,22 @@ tol = 1e-12
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     return app
+
+
+@pytest.fixture()
+def validation_input():
+    property_names = ['+X Padding Type', '+X Padding Data', '-X Padding Type', '-X Padding Data', '+Y Padding Type', '+Y Padding Data', '-Y Padding Type', '-Y Padding Data', '+Z Padding Type', '+Z Padding Data', '-Z Padding Type', '-Z Padding Data']
+    expected_settings = ['Absolute Offset', '10mm', 'Percentage Offset', '100', 'Transverse Percentage Offset', '100', 'Percentage Offset', '10', 'Absolute Offset', '50mm', 'Absolute Position', '-600mm']
+    actual_settings = list(expected_settings)
+    return property_names, expected_settings, actual_settings
+
+
+@pytest.fixture()
+def validation_float_input():
+    property_names = ['+X Padding Data', '-X Padding Data', '+Y Padding Data']
+    expected_settings = [100, 200.1, 300]
+    actual_settings = list(expected_settings)
+    return property_names, expected_settings, actual_settings
 
 
 class TestClass:
@@ -930,3 +947,99 @@ class TestClass:
         assert isinstance(face, FacePrimitive)
         face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
         assert not face
+
+    def test_62_test_validator_exact_match(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        assert len(validation_errors) == 0
+
+    def test_63_test_validator_tolerance(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+        
+        # Small difference should produce no validation errors
+        actual_settings[1] = '10.0000000001mm'
+        actual_settings[3] = '100.0000000001mm'
+        actual_settings[5] = '100.0000000001'
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 0
+
+    def test_64_test_validator_invalidate_offset_type(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+        
+        # Are expected to be "Absolute Offset"
+        actual_settings[0] = "Percentage Offset"
+        
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 1
+
+    def test_65_test_validator_invalidate_offset_value(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+
+        # Above tolerance
+        actual_settings[1] = "10.000002mm"
+        
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 1
+
+    def test_66_test_validator_invalidate_multiple(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+        
+        actual_settings[0] = "Percentage Offset"
+        actual_settings[1] = "22mm"
+        actual_settings[2] = "Transverse Percentage Offset"
+        
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 3
+
+    def test_67_test_validator_invalidate_wrong_type(self, validation_input):
+        property_names, expected_settings, actual_settings = validation_input
+        
+        actual_settings[1] = "nonnumeric"
+        
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 1
+
+    def test_68_test_validator_float_type(self, validation_float_input):
+        property_names, expected_settings, actual_settings = validation_float_input
+        
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 0
+
+    def test_69_test_validator_float_type_tolerance(self, validation_float_input):
+        property_names, expected_settings, actual_settings = validation_float_input
+
+        # Set just below the tolerance to pass the check
+        actual_settings[0] *= (1 + 0.99*1e-9)
+        actual_settings[1] *= (1 - 0.99*1e-9)
+        actual_settings[2] *= (1 + 0.99*1e-9)
+
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 0
+
+    def test_70_test_validator_float_type_invalidate(self, validation_float_input):
+        property_names, expected_settings, actual_settings = validation_float_input
+
+        # Set just above the tolerance to fail the check
+        actual_settings[0] *= (1 + 1.01*1e-9)
+        actual_settings[1] *= (1 + 1.01*1e-9)
+        actual_settings[2] *= (1 + 1.01*1e-9)
+
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 3
+
+    def test_71_test_validator_float_type_invalidate(self, validation_float_input):
+        property_names, expected_settings, actual_settings = validation_float_input
+
+        actual_settings[0] *= 2
+
+        validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+        
+        assert len(validation_errors) == 1

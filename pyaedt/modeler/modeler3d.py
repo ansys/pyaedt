@@ -1366,6 +1366,45 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         else:
             return segment_objects
 
+    def _check_value_from_string(input_string):
+        """Return a tuple with a Boolean indicating whether the given string contains a number, and
+        a float value with the value. If the input string does not contains a string the value will be 0.
+        """
+        match = re.search(r"[-+]?(?:\d*\.*\d+)", input_string)
+        if match:
+            return True, float(match.group())
+        else:
+            return False, 0.0
+    
+    def _generate_property_validation_errors(property_name, expected, actual):
+        if isinstance(expected, (float, int)) and isinstance(actual, (float, int)):
+            if not math.isclose(expected, actual):
+                yield f"Error {property_name}: Expected {expected}, got {actual}"
+        elif isinstance(expected, str) and isinstance(actual, str):
+            expected_is_numeric, expected_value = Modeler3D._check_value_from_string(expected)
+            actual_is_numeric, actual_value = Modeler3D._check_value_from_string(actual)
+    
+            if expected_is_numeric != actual_is_numeric:
+                yield f"Error {property_name}: Cannot match '{expected}' with '{actual}'"
+            elif expected_is_numeric:
+                if not math.isclose(expected_value, actual_value):
+                    yield f"Error {property_name}: Expected {expected_value}, got {actual_value}"
+            else:
+                if expected != actual:
+                    yield f"Error {property_name}: Expected {expected}, got {actual}"
+        else:
+            if expected != actual:
+                yield f"Error {property_name}: Expected {expected}, got {actual}"
+
+    def _generate_validation_errors(property_names, expected_settings, actual_settings):
+        validation_errors = [
+                error
+                for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
+                for error in Modeler3D._generate_property_validation_errors(property_name, expected, actual)
+            ]
+        
+        return validation_errors
+
     @pyaedt_function_handler
     def change_region_padding(self, padding_data, padding_type, direction=None, region_name="Region"):
         """
@@ -1423,36 +1462,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             modify_props.append(["NAME:" + direction[i] + " Padding Type", "Value:=", padding_type[i]])
             modify_props.append(["NAME:" + direction[i] + " Padding Data", "Value:=", padding_data[i]])
 
-        def _check_value_from_string(input_string):
-            """Return a tuple with a Boolean indicating whether the given string contains a number, and
-            a float value with the value. If the input string does not contains a string the value will be 0.
-            """
-            match = re.search(r"[-+]?(?:\d*\.*\d+)", input_string)
-            if match:
-                return True, float(m.group())
-            else:
-                return False, 0.0
-
-        def _generate_validation_errors(property_name, expected, actual):
-            if isinstance(expected, float) and isinstance(actual, float):
-                if not math.isclose(expected, actual):
-                    yield f"Error {property_name}: Expected {expected}, got {actual}"
-            elif isinstance(expected, str) and isinstance(actual, str):
-                expected_is_numeric, expected_value = _check_value_from_string(expected)
-                actual_is_numeric, actual_value = _check_value_from_string(actual)
-
-                if expected_is_numeric != actual_is_numeric:
-                    yield f"Error {property_name}: Cannot match {expected} with {actual}"
-                elif expected_is_numeric:
-                    if not math.isclose(expected_value, actual_value):
-                        yield f"Error {property_name}: Expected {expected_value}, got {actual_value}"
-                else:
-                    if expected != actual:
-                        yield f"Error {property_name}: Expected {expected}, got {actual}"
-            else:
-                if expected != actual:
-                    yield f"Error {property_name}: Expected {expected}, got {actual}"
-
         try:
             region = self._app.get_oo_object(self._app.oeditor, region_name)
             if not region:
@@ -1478,11 +1487,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             property_names = [lst[0].strip("NAME:") for lst in modify_props]
             actual_settings = [create_region.GetPropValue(property_name) for property_name in property_names]
             expected_settings = [lst[-1] for lst in modify_props]
-            validation_errors = [
-                error
-                for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
-                for error in _generate_validation_errors(property_name, expected, actual)
-            ]
+            validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
 
             if validation_errors:
                 message = ",".join(validation_errors)
