@@ -296,8 +296,8 @@ def decompose_variable_value(variable_value, full_variables={}):
 
 @pyaedt_function_handler()
 def generate_property_validation_errors(property_name, expected, actual):
-    expected_value, expected_unit = decompose_variable_value(expected) 
-    actual_value, actual_unit = decompose_variable_value(actual) 
+    expected_value, expected_unit = decompose_variable_value(expected)
+    actual_value, actual_unit = decompose_variable_value(actual)
 
     if isinstance(expected_value, (float, int)) and isinstance(actual_value, (float, int)):
         if not math.isclose(expected_value, actual_value):
