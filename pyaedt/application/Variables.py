@@ -15,8 +15,8 @@ Examples
 
 from __future__ import absolute_import  # noreorder
 from __future__ import division
-import math
 
+import math
 import os
 import re
 import types
@@ -252,7 +252,7 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
 
 
 @pyaedt_function_handler()
-def get_value_from_string(input_string : str):
+def get_value_from_string(input_string: str):
     """Return a tuple with a Boolean indicating whether the given string contains a number, and
     a float value with the value. If the input string does not contains a string the value will be 0.
 
@@ -263,7 +263,7 @@ def get_value_from_string(input_string : str):
     Returns
     -------
     tuples
-        A tuple with a Boolean indicating whether the given string contains a number, 
+        A tuple with a Boolean indicating whether the given string contains a number,
         and the float value of the input string, if available
     """
     match = re.search(r"[-+]?(?:\d*\.*\d+)", input_string)
