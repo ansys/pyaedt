@@ -229,6 +229,7 @@ class Primitives3D(Primitives, object):
         """
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
+        assert len(center_position) == 3, "Position Argument must be a valid 3 Element List"
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
