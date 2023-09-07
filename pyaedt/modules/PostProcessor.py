@@ -756,9 +756,14 @@ class PostProcessorCommon(object):
             Report Category. Default is `""` which will take first default context.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
+
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAllCategories
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -823,6 +828,10 @@ class PostProcessorCommon(object):
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAllQuantities
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -877,6 +886,10 @@ class PostProcessorCommon(object):
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAvailableSolutions
         """
         if not report_category:
             report_category = self.available_report_types[0]
