@@ -153,6 +153,8 @@ class Primitives3D(Primitives, object):
         if isinstance(radius, (int, float)) and radius < 0:
             raise ValueError("Radius must be greater than 0.")
 
+        assert len(position) == 3, "Position Argument must be a valid 3 Element List"
+
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
@@ -255,7 +257,7 @@ class Primitives3D(Primitives, object):
         cs_axis : str
             Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
-        center_position : list, optional
+        position : list, optional
             List of ``[x, y, z]`` coordinates for the center position
             of the bottom of the cone.
         bottom_radius : float
