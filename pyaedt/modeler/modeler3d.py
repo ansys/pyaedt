@@ -3,7 +3,9 @@ from __future__ import absolute_import  # noreorder
 import copy
 import datetime
 import json
+import math
 import os.path
+import re
 import warnings
 
 from pyaedt.generic.general_methods import GrpcApiError
@@ -1421,6 +1423,37 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             modify_props.append(["NAME:" + direction[i] + " Padding Type", "Value:=", padding_type[i]])
             modify_props.append(["NAME:" + direction[i] + " Padding Data", "Value:=", padding_data[i]])
 
+        def _check_value_from_string(input_string):
+            """Return a tuple with a Boolean indicating whether the given string contains a number, and
+            a float value with the value. If the input string does not contains a string the value will be 0.
+            """
+            match = re.search(r"[-+]?(?:\d*\.*\d+)", input_string)
+            if match:
+                return True, float(m.group())
+            else:
+                return False, 0.0
+        
+        def _generate_validation_errors(property_name, expected, actual):
+            if isinstance(expected, float) and isinstance(actual, float):
+                if not math.isclose(expected, actual):
+                    yield f"Error {property_name}: Expected {expected}, got {actual}"
+            elif isinstance(expected, str) and isinstance(actual, str):
+                expected_is_numeric, expected_value = _check_value_from_string(expected)
+                actual_is_numeric, actual_value = _check_value_from_string(actual)
+                
+                if expected_is_numeric != actual_is_numeric:
+                    yield f"Error {property_name}: Cannot match {expected} with {actual}"
+                elif expected_is_numeric:
+                    expected_value
+                    if not math.isclose(expected_value, actual_value):
+                        yield f"Error {property_name}: Expected {expected_value}, got {actual_value}"
+                else:
+                    if expected != actual:
+                        yield f"Error {property_name}: Expected {expected}, got {actual}"
+            else:
+                if expected != actual:
+                    yield f"Error {property_name}: Expected {expected}, got {actual}"
+
         try:
             region = self._app.get_oo_object(self._app.oeditor, region_name)
             if not region:
@@ -1442,9 +1475,15 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 )
             )
             create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
-            success = all(create_region.GetPropValue(lst[0].strip("NAME:")) == lst[-1] for lst in modify_props)
-            if not success:
-                self.logger.error("Settings update failed.")
+
+            property_names = [lst[0].strip("NAME:") for lst in modify_props]
+            actual_settings = [create_region.GetPropValue(property_name) for property_name in property_names]
+            expected_settings = [lst[-1] for lst in modify_props]
+            validation_errors = [error for property_name, expected, actual in zip(property_names, expected_settings, actual_settings) for error in _generate_validation_errors(property_name, expected, actual)]
+
+            if validation_errors:
+                message = ','.join(validation_errors)
+                self.logger.error(f"Settings update failed. {message}")
                 return False
             return True
         except (GrpcApiError, SystemExit):
