@@ -864,6 +864,27 @@ class PostProcessorCommon(object):
         return None
 
     @pyaedt_function_handler()
+    def available_report_solutions(self, report_category=None):
+        """Get the list of available solutions that can be used for the reports.
+        This list differs from the one obtained with ``app.existing_analysis_sweeps``,
+        because it includes additional elements like "AdaptivePass".
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is ``None`` which will take first default category.
+
+        Returns
+        -------
+        list
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if report_category:
+            return list(self.oreportsetup.GetAvailableSolutions(report_category))
+        return None
+
+    @pyaedt_function_handler()
     def _get_plot_inputs(self):
         names = self._app.get_oo_name(self.oreportsetup)
         plots = []
