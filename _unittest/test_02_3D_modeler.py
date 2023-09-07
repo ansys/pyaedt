@@ -1072,17 +1072,17 @@ class TestClass:
 
     def test_72_test_checknumber_valid_input(self):
         is_number, value = Modeler3D._check_value_from_string("10.1mm")
-        
+
         assert is_number
         assert value == 10.1
 
     def test_73_test_checknumber_valid_input(self):
         is_number, value = Modeler3D._check_value_from_string("10mm")
-        
+
         assert is_number
         assert value == 10.0
 
     def test_74_test_checknumber_invalid_input(self):
         is_number, _ = Modeler3D._check_value_from_string("test_mm")
-        
+
         assert not is_number
