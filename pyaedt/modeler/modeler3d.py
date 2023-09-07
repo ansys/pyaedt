@@ -1444,7 +1444,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 if expected_is_numeric != actual_is_numeric:
                     yield f"Error {property_name}: Cannot match {expected} with {actual}"
                 elif expected_is_numeric:
-                    expected_value
                     if not math.isclose(expected_value, actual_value):
                         yield f"Error {property_name}: Expected {expected_value}, got {actual_value}"
                 else:
