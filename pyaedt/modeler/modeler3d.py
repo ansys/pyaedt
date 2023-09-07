@@ -1493,7 +1493,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
             if validation_errors:
                 message = ",".join(validation_errors)
-                self.logger.error(f"Settings update failed. {message}")
+                self.logger.error("Settings update failed. {0}".format(message))
                 return False
             return True
         except (GrpcApiError, SystemExit):
