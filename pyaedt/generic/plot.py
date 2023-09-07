@@ -1377,7 +1377,7 @@ class ModelPlotter(CommonPlotter):
         startpos = self.pv.window_size[1] - 2 * size
         endpos = 100
         color = self.pv.background_color
-        axes_color = [0 if i >= 0.5 else 1 for i in color]
+        axes_color = [0 if i >= 0.5 else 255 for i in color]
         buttons = []
         texts = []
         max_elements = (startpos - endpos) // (size + (size // 10))
@@ -1495,7 +1495,7 @@ class ModelPlotter(CommonPlotter):
         else:
             self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
-        axes_color = [0 if i >= 128 else 1 for i in self.background_color]
+        axes_color = [0 if i >= 128 else 255 for i in self.background_color]
         if self.color_bar:
             sargs = dict(
                 title_font_size=10,
@@ -1555,8 +1555,8 @@ class ModelPlotter(CommonPlotter):
 
         if self.show_axes:
             self.pv.show_axes()
-        if self.show_grid and not self.is_notebook:
-            self.pv.show_grid(color=tuple(axes_color))
+        if not self.is_notebook:
+            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid)
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.set_focus(self.pv.mesh.center)

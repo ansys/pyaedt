@@ -227,7 +227,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if included_cs:
             allcs = included_cs
         else:
-            allcs = [reference_cs]
+            allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
