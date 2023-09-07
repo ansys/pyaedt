@@ -3939,7 +3939,7 @@ class Design(AedtObjects):
         try:
             design_settings = self._odesign.GetChildObject("Design Settings")
         except Exception:  # pragma: no cover
-            self.logger.error("Could not execute GetChildObject('Design Settings').") 
+            self.logger.error("Could not execute GetChildObject('Design Settings').")
             return False
 
         prop_name_list = design_settings.GetPropNames()
@@ -3948,7 +3948,7 @@ class Design(AedtObjects):
             try:
                 design_settings_dict[prop] = design_settings.GetPropValue(prop)
             except Exception:  # pragma: no cover
-                self.logger.warning("Could not retrieve property value in design settings") 
+                self.logger.warning("Could not retrieve property value in design settings")
                 design_settings_dict[prop] = "Could not retrieve the value."
 
         return design_settings_dict
