@@ -1379,22 +1379,22 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     def _generate_property_validation_errors(property_name, expected, actual):
         if isinstance(expected, (float, int)) and isinstance(actual, (float, int)):
             if not math.isclose(expected, actual):
-                yield f"Error {property_name}: Expected {expected}, got {actual}"
+                yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
         elif isinstance(expected, str) and isinstance(actual, str):
             expected_is_numeric, expected_value = Modeler3D._check_value_from_string(expected)
             actual_is_numeric, actual_value = Modeler3D._check_value_from_string(actual)
 
             if expected_is_numeric != actual_is_numeric:
-                yield f"Error {property_name}: Cannot match '{expected}' with '{actual}'"
+                yield "Error {0}: Cannot match '{1}', with '{2}'".format(property_name, expected, actual)
             elif expected_is_numeric:
                 if not math.isclose(expected_value, actual_value):
-                    yield f"Error {property_name}: Expected {expected_value}, got {actual_value}"
+                    yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
             else:
                 if expected != actual:
-                    yield f"Error {property_name}: Expected {expected}, got {actual}"
+                    yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
         else:
             if expected != actual:
-                yield f"Error {property_name}: Expected {expected}, got {actual}"
+                yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
 
     def _generate_validation_errors(property_names, expected_settings, actual_settings):
         validation_errors = [
