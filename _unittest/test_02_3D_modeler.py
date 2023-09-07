@@ -26,7 +26,7 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    @pytest.fixture(autouse=False)
+    @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch

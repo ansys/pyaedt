@@ -1365,7 +1365,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         else:
             return segment_objects
 
-
     @pyaedt_function_handler
     def change_region_padding(self, padding_data, padding_type, direction=None, region_name="Region"):
         """
