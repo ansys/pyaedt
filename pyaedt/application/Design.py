@@ -3939,7 +3939,7 @@ class Design(AedtObjects):
         try:
             design_settings = self._odesign.GetChildObject("Design Settings")
         except Exception:  # pragma: no cover
-            self.logger.error("Could not execute GetChildObject('Design Settings').")  # pragma: no cover
+            self.logger.error("Could not execute GetChildObject('Design Settings').") 
             return False  # pragma: no cover
 
         prop_name_list = design_settings.GetPropNames()
