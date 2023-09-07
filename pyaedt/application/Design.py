@@ -3921,3 +3921,34 @@ class Design(AedtObjects):
         """
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
+
+    @pyaedt_function_handler()
+    def design_settings(self):
+        """Get design settings for the current AEDT app.
+
+        Returns
+        -------
+        dict
+            Dictionary of valid design settings.
+
+        References
+        ----------
+
+        >>> oDesign.GetChildObject("Design Settings")
+        """
+        try:
+            design_settings = self._odesign.GetChildObject("Design Settings")
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to retrieve design settings.")
+            return False
+
+        prop_name_list = design_settings.GetPropNames()
+        design_settings_dict = {}
+        for prop in prop_name_list:
+            try:
+                design_settings_dict[prop] = design_settings.GetPropValue(prop)
+            except Exception:  # pragma: no cover
+                self.logger.warning('Could not retrieve "{}" property value in design settings.'.format(prop))
+                design_settings_dict[prop] = None
+
+        return design_settings_dict
