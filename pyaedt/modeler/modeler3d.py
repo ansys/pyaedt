@@ -1375,7 +1375,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             return True, float(match.group())
         else:
             return False, 0.0
-    
+
     def _generate_property_validation_errors(property_name, expected, actual):
         if isinstance(expected, (float, int)) and isinstance(actual, (float, int)):
             if not math.isclose(expected, actual):
@@ -1383,7 +1383,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         elif isinstance(expected, str) and isinstance(actual, str):
             expected_is_numeric, expected_value = Modeler3D._check_value_from_string(expected)
             actual_is_numeric, actual_value = Modeler3D._check_value_from_string(actual)
-    
+
             if expected_is_numeric != actual_is_numeric:
                 yield f"Error {property_name}: Cannot match '{expected}' with '{actual}'"
             elif expected_is_numeric:
@@ -1398,11 +1398,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
     def _generate_validation_errors(property_names, expected_settings, actual_settings):
         validation_errors = [
-                error
-                for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
-                for error in Modeler3D._generate_property_validation_errors(property_name, expected, actual)
-            ]
-        
+            error
+            for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
+            for error in Modeler3D._generate_property_validation_errors(property_name, expected, actual)
+        ]
+
         return validation_errors
 
     @pyaedt_function_handler
@@ -1487,7 +1487,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             property_names = [lst[0].strip("NAME:") for lst in modify_props]
             actual_settings = [create_region.GetPropValue(property_name) for property_name in property_names]
             expected_settings = [lst[-1] for lst in modify_props]
-            validation_errors = Modeler3D._generate_validation_errors(property_names, expected_settings, actual_settings)
+            validation_errors = Modeler3D._generate_validation_errors(
+                property_names, expected_settings, actual_settings
+            )
 
             if validation_errors:
                 message = ",".join(validation_errors)
