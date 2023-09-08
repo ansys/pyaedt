@@ -325,6 +325,7 @@ class TestClass:
         assert len(diff_test.post.available_display_types()) > 0
         assert len(diff_test.post.available_report_types) > 0
         assert len(diff_test.post.available_report_quantities()) > 0
+        assert len(diff_test.post.available_report_solutions()) > 0
         diff_test.analyze_setup("LinearFrequency")
         assert diff_test.setups[0].is_solved
         variations = diff_test.available_variations.nominal_w_values_dict

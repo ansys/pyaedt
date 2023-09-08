@@ -64,6 +64,7 @@ class TestClass:
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
         assert len(self.aedtapp.post.available_report_quantities()) > 0
+        assert len(self.aedtapp.post.available_report_solutions()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
         assert self.aedtapp.setups[0].is_solved
