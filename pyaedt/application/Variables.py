@@ -25,7 +25,8 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import GrpcApiError, check_numeric_equivalence
+from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.generic.general_methods import check_numeric_equivalence
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
