@@ -16,7 +16,6 @@ Examples
 from __future__ import absolute_import  # noreorder
 from __future__ import division
 
-import math
 import os
 import re
 import types
@@ -295,7 +294,7 @@ def decompose_variable_value(variable_value, full_variables={}):
 
 
 @pyaedt_function_handler()
-def generate_property_validation_errors(property_name, expected, actual):
+def _generate_property_validation_errors(property_name, expected, actual):
     expected_value, expected_unit = decompose_variable_value(expected)
     actual_value, actual_unit = decompose_variable_value(actual)
 
@@ -311,10 +310,30 @@ def generate_property_validation_errors(property_name, expected, actual):
 
 @pyaedt_function_handler()
 def generate_validation_errors(property_names, expected_settings, actual_settings):
+    """From the given property names, expected settings and actual settings, return a list of validation errors.
+    If no errors are found, an empty list is returned. The validation of values such as "10mm" 
+    ensures that they are close to within a relative tolerance. 
+    For example an expected setting of "10mm", and actual of "10.000000001mm" will not yield a validation error.
+    For values with no numerical value, an equivalence check is made.
+
+    Parameters
+    ----------
+    property_names : List[str]
+        List of property names
+    expected_settings : List[str]
+        List of the expected settings.
+    actual_settings: List[str]
+        List of actual settings.
+
+    Returns
+    -------
+    List[str]
+        A list of validation errors for the given ettings
+    """
     validation_errors = [
         error
         for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
-        for error in generate_property_validation_errors(property_name, expected, actual)
+        for error in _generate_property_validation_errors(property_name, expected, actual)
     ]
     return validation_errors
 
