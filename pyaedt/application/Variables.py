@@ -320,7 +320,7 @@ def generate_validation_errors(property_names, expected_settings, actual_setting
     Parameters
     ----------
     property_names : List[str]
-        List of property names
+        List of property names.
     expected_settings : List[str]
         List of the expected settings.
     actual_settings: List[str]
@@ -329,7 +329,7 @@ def generate_validation_errors(property_names, expected_settings, actual_setting
     Returns
     -------
     List[str]
-        A list of validation errors for the given ettings
+        A list of validation errors for the given settings.
     """
     validation_errors = [
         error
