@@ -2495,13 +2495,15 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         sheet_name : str
-            Name of the 3d object touching the port surface.
-        obj_name : ???
+            Name of the sheet object touching the port surface.
+        obj_name : str
+            Name of the 3D object touching the port surface.
         pecthick : float
             Thickness of the PEC cap
 
         Returns
         -------
+            Boolean ``True`` if successful.
 
         """
         if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements3d.FacePrimitive):
@@ -6194,7 +6196,7 @@ class Hfss(FieldAnalysis3D, object):
         reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             The ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
-            Whether to create a port sheet or use given ``start_object`` as the surface
+            Whether to create a port sheet or use the start object as the surface
             to create the port. Default is ``False``.
         create_pec_cap : bool, False
             Whether to create a port cap or not. Default is ``False``.

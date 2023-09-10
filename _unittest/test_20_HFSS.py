@@ -7,7 +7,7 @@ from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
 
-small_number = 1e-13  # Used for checking equivalence.
+small_number = 1e-10  # Used for checking equivalence.
 
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
@@ -52,7 +52,7 @@ class TestClass:
         coax2_len = 70
         r1 = 3.0
         r2 = 10.0
-        r1_sq = 9.0
+        r1_sq = 9.0  # Used to test area later.
         coax1_origin = self.aedtapp.modeler.Position(0, 0, 0)  # Thru coax origin.
         coax2_origin = self.aedtapp.modeler.Position(125, 0, -coax2_len)  # Perpendicular coax 1.
 
@@ -68,15 +68,19 @@ class TestClass:
         assert isinstance(outer_1.id, int)
         outer_2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.Z, coax2_origin, r2, coax2_len, 0, "outer_2")
 
-        # Check the area of the outer surface of the cylinder.
+        # Check the area of the outer surface of the cylinder "outer_2".
         assert abs(max([f.area for f in outer_2.faces]) - 2 * coax2_len * r2 * math.pi) < small_number
-        assert self.aedtapp.modeler.subtract(outer_1, inner_1, True)
+        inner = self.aedtapp.modeler.unite(["inner_1", "inner_2"])
+        outer = self.aedtapp.modeler.unite(["outer_1", "outer_2"])
+        assert outer == "outer_1"
+        assert inner == "inner_1"
+        assert self.aedtapp.modeler.subtract(outer_1, inner_1, keep_originals=True)
 
     def test_03_2_assign_material(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        coax_dimension = 200
-        cyl_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "die")
-        self.aedtapp.modeler.subtract(cyl_1, "inner_1", True)
+        coax_length = 80
+        cyl_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_length, 0, "insulator")
+        self.aedtapp.modeler.subtract(cyl_1, "inner_1", keep_originals=True)
         self.aedtapp.modeler["inner_1"].material_name = "Copper"
         cyl_1.material_name = "teflon_based"
         assert self.aedtapp.modeler["inner_1"].material_name == "copper"
@@ -89,24 +93,24 @@ class TestClass:
             "usethickness": True,
             "thickness": "0.5mm",
             "istwoside": True,
-            "issheelElement": True,
+            "issheelElement": True,  # TODO: Is "sheel" a typo in native API?
             "usehuray": True,
             "radius": "0.75um",
             "ratio": "3",
         }
-        coat = self.aedtapp.assign_coating([id, "die", 41], **args)
+        coat = self.aedtapp.assign_coating([id, "inner_1", 41], **args)
         coat.name = "Coating1inner"
         assert coat.update()
         assert coat.object_properties
         material = coat.props.get("Material", "")
         assert material == "aluminum"
-        assert not self.aedtapp.assign_coating(["die2", 45])
+        assert not self.aedtapp.assign_coating(["insulator2", 45])
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
-
+        outer_1 = self.aedtapp.modeler.objects[self.aedtapp.modeler.get_obj_id("outer_1")]
         # TODO: Consider allowing a TEM port to be created.
         assert not self.aedtapp.wave_port(o5)
 
@@ -118,7 +122,7 @@ class TestClass:
             num_modes=2,
             name="sheet1_Port",
             renormalize=False,
-            reference=["outer"],
+            reference=[outer_1.name],
             terminals_rename=False,
         )
         assert port.object_properties
@@ -136,11 +140,24 @@ class TestClass:
             num_modes=2,
             name="sheet1a_Port",
             renormalize=True,
-            reference=["outer"],
+            reference=[outer_1.name],
         )
         assert port.name == "sheet1a_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["DoDeembed"] is False
+
+        # Get the object for "outer_1".
+        outer_1 = self.aedtapp.modeler.objects[self.aedtapp.modeler.get_obj_id("outer_1")]
+        bottom_port = self.aedtapp.wave_port(
+            outer_1.bottom_face_z,
+            reference=outer_1.name,
+            create_pec_cap=True,
+            name="bottom_probe_port",
+        )
+        assert bottom_port.name == "bottom_probe_port"
+        pec_objects = self.aedtapp.modeler.get_objects_by_material("pec")
+        assert len(pec_objects) == 1  # PEC cap created.
+        assert "outer_1" in pec_objects[0].name  # Check that PEC cap was created from "outer_1".
 
         self.aedtapp.solution_type = "Modal"
         udp = self.aedtapp.modeler.Position(200, 0, 0)

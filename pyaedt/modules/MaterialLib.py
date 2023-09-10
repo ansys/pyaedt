@@ -471,7 +471,8 @@ class Materials(object):
         material_name : str
             Name of the material.
         new_name : str
-            Name for the copy of the material.
+            Name for the copy of the material. If a new name is not specified,
+            the new material name will be ``material_name + "_clone"``.
         props : list
             List of properties that will be parameterized when the material is duplicated.
             Parameterized properties will have project scope. Allowed items are:
