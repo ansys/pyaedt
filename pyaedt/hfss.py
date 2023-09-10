@@ -2499,7 +2499,7 @@ class Hfss(FieldAnalysis3D, object):
         obj_name : str
             Name of the 3D object touching the port surface.
         pecthick : float
-            Thickness of the PEC cap
+            Thickness of the PEC cap.
 
         Returns
         -------
@@ -6286,7 +6286,7 @@ class Hfss(FieldAnalysis3D, object):
             sheet_name = self.modeler.convert_to_selections(signal, True)[0]
             if isinstance(sheet_name, int):
                 try:
-                    # NOte: if isinstance(sheet_name, cad.elements3d.FacePrimitive) then
+                    # Note: if isinstance(sheet_name, cad.elements3d.FacePrimitive) then
                     # the name of the 3d object is returned.
                     # TODO: Need to improve the way a FacePrimitive is handled.
                     oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
