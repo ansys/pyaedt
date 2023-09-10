@@ -494,7 +494,7 @@ def str_to_bool(s):
 
     If the passed arguments are not relevant in the context of conversion, the argument
     itself is returned. This method can be called using the ``map()`` function to
-    ensure conversion of Boolean strings in a list.
+    ensure conversion of strings representing true or false conditions in a list.
 
     Parameters
     ----------

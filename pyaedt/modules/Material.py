@@ -297,7 +297,7 @@ class MatProperty(object):
 
     @property
     def evaluated_value(self):
-        """Evaluated value
+        """Evaluated value.
 
         Returns
         -------

@@ -2736,15 +2736,15 @@ class Primitives(object):
         matname : str
             Name of the material.
         defaultmatname : str
-            Name of the default material to assign if ``metname`` does not exist.
+            Name of the default material to assign if the given material name does not exist.
         threshold : float
-            Threshold conductivity to distinguish dielectric from conductor.
-            Default value is 100000 S/m.
+            Threshold conductivity in seconds per meter to distinguish dielectric from
+            conductor. The default is ``100000``.
 
         Returns
         -------
         (str, bool)
-            Material name, Boolean True if the material is a dielectric, otherwise False.
+            Material name, Boolean ``True`` if the material is a dielectric, ``False`` otherwise.
 
         """
 
