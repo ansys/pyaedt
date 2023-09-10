@@ -436,6 +436,24 @@ def get_version_and_release(input_version):
 
 
 @pyaedt_function_handler()
+def get_string_version(input_version):
+    output_version = input_version
+    if isinstance(input_version, float):
+        output_version = str(input_version)
+        if len(output_version) == 4:
+            output_version = "20" + output_version
+    elif isinstance(input_version, int):
+        output_version = str(input_version)
+        output_version = "20{}.{}".format(output_version[:2], output_version[-1])
+    elif isinstance(input_version, str):
+        if len(input_version) == 3:
+            output_version = "20{}.{}".format(input_version[:2], input_version[-1])
+        elif len(input_version) == 4:
+            output_version = "20" + input_version
+    return output_version
+
+
+@pyaedt_function_handler()
 def env_path(input_version):
     """Get the path of the version environment variable for an AEDT version.
 
@@ -1192,7 +1210,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
-    if version and version < "222":
+    if version and version < "221":
         version = version[:2] + "." + version[2]
     for p in psutil.process_iter():
         try:
@@ -1209,6 +1227,10 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
                                     return_dict[p.pid] = 50051
                         else:
                             return_dict[p.pid] = -1
+                            for i in psutil.net_connections():
+                                if i.pid == p.pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
+                                    return_dict[p.pid] = i.laddr.port
+                                    break
         except:
             pass
     return return_dict

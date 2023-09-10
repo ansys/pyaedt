@@ -2666,8 +2666,15 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.ChangeProperty
         """
         selections = self.convert_to_selections(obj_list, True)
-        for obj in selections:
-            self[obj].model = model
+        arguments = [
+            "NAME:AllTabs",
+            [
+                "NAME:Geometry3DAttributeTab",
+                ["NAME:PropServers"] + selections,
+                ["NAME:ChangedProps", ["NAME:Model", "Value:=", model]],
+            ],
+        ]
+        self._modeler.oeditor.ChangeProperty(arguments)
         return True
 
     @pyaedt_function_handler()

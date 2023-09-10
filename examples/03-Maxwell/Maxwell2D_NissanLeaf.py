@@ -177,7 +177,7 @@ mat_coils.permeability = "1"
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the material ``"Arnold_Magnetics_N30UH_80C"``.
 # The BH curve is read from a tabbed CSV file, and a list (``BH_List_PM``)
-# is created. This list is passed to the ``mat_PM.permeability.set_non_linear``
+# is created. This list is passed to the ``mat_PM.permeability.value``
 # method.
 
 mat_PM = M2D.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
@@ -191,7 +191,7 @@ with open(filename_PM) as f:
     next(reader)
     for row in reader:
         BH_List_PM.append([float(row[0]), float(row[1])])
-mat_PM.permeability.set_non_linear(point_list=BH_List_PM)
+mat_PM.permeability.value = BH_List_PM
 
 ##########################################################
 # Create third material
@@ -216,7 +216,7 @@ with open(filename_lam) as f:
     next(reader)
     for row in reader:
         BH_List_lam.append([float(row[0]), float(row[1])])
-mat_lam.permeability.set_non_linear(BH_List_lam)
+mat_lam.permeability.value = BH_List_lam
 
 ##########################################################
 # Create geometry for stator

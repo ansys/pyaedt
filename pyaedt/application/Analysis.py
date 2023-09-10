@@ -9,6 +9,7 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import os
+import re
 import shutil
 import tempfile
 import time
@@ -183,6 +184,8 @@ class Analysis(Design, object):
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
+            for material in self._materials.material_keys:
+                self._materials.material_keys[material]._material_update = True
         return self._materials
 
     @property
@@ -919,20 +922,22 @@ class Analysis(Design, object):
             list of str
                 List of names of independent variables.
             """
-            return [i for i in self._app.variable_manager.independent_variables]
+            return self._app.variable_manager.independent_variable_names
 
         @pyaedt_function_handler()
-        def variations(self, setup_sweep=None):
+        def variations(self, setup_sweep=None, output_as_dict=False):
             """Variations.
 
             Parameters
             ----------
             setup_sweep : str, optional
                 Setup name with the sweep to search for variations on. The default is ``None``.
+            output_as_dict : bool, optional
+                Whether to output the variations as a dict. The default is ``False``.
 
             Returns
             -------
-            list of lists
+            list of lists, List of dicts
                 List of variation families.
 
             References
@@ -940,20 +945,36 @@ class Analysis(Design, object):
 
             >>> oModule.GetAvailableVariations
             """
-            vs = self.get_variation_strings(setup_sweep)
+            variations_string = self.get_variation_strings(setup_sweep)
+            variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
             families = []
-            if vs:
-                for v in vs:
-                    variations = v.split(" ")
-                    family = []
-                    for el in self.variables:
-                        family.append(el + ":=")
-                        i = 0
-                        while i < len(variations):
-                            if variations[i][0 : len(el)] == el:
-                                family.append([variations[i][len(el) + 2 : -1]])
-                            i += 1
-                    families.append(family)
+            if variations_string:
+                for vs in variations_string:
+                    vsplit = vs.split(" ")
+                    variation = []
+                    for v in vsplit:
+                        m = re.search(r"(.+?)='(.+?)'", v)
+                        if m and len(m.groups()) == 2:
+                            variation.append([m.group(1), m.group(2)])
+                        else:  # pragma: no cover
+                            raise Exception("Error in splitting the variation variable.")
+                    family_list = []
+                    family_dict = {}
+                    count = 0
+                    for var in variables:
+                        family_list.append(var + ":=")
+                        for v in variation:
+                            if var == v[0]:
+                                family_list.append([v[1]])
+                                family_dict[v[0]] = v[1]
+                                count += 1
+                                break
+                    if count != len(variation):  # pragma: no cover
+                        raise IndexError("Not all variations were found in variables.")
+                    if output_as_dict:
+                        families.append(family_dict)
+                    else:
+                        families.append(family_list)
             return families
 
         @pyaedt_function_handler()

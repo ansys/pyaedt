@@ -82,7 +82,7 @@ class Design(AedtObjects):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
@@ -890,7 +890,7 @@ class Design(AedtObjects):
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
                 toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
-        elif settings.remote_api:
+        elif settings.remote_api or settings.remote_rpc_session:
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
@@ -1139,7 +1139,12 @@ class Design(AedtObjects):
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
     def _add_handler(self):
-        if not self._oproject or not settings.enable_local_log_file or settings.remote_api:
+        if (
+            not self._oproject
+            or not settings.enable_local_log_file
+            or settings.remote_api
+            or settings.remote_rpc_session
+        ):
             return
         for handler in self._global_logger._files_handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
@@ -2828,9 +2833,16 @@ class Design(AedtObjects):
         bool
         """
         arg = ["NAME:Design Settings Data"]
-        for k, v in settings.items():
-            arg.append(k + ":=")
-            arg.append(v)
+        for key, value in settings.items():
+            if "SkewSliceTable" not in key:
+                arg.append(key + ":=")
+                arg.append(value)
+            else:
+                arg_skew = [key]
+                if isinstance(value, list):
+                    for v in value:
+                        arg_skew.append(v)
+                arg.append(arg_skew)
         self.odesign.SetDesignSettings(arg)
         return True
 
@@ -3909,3 +3921,34 @@ class Design(AedtObjects):
         """
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
+
+    @pyaedt_function_handler()
+    def design_settings(self):
+        """Get design settings for the current AEDT app.
+
+        Returns
+        -------
+        dict
+            Dictionary of valid design settings.
+
+        References
+        ----------
+
+        >>> oDesign.GetChildObject("Design Settings")
+        """
+        try:
+            design_settings = self._odesign.GetChildObject("Design Settings")
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to retrieve design settings.")
+            return False
+
+        prop_name_list = design_settings.GetPropNames()
+        design_settings_dict = {}
+        for prop in prop_name_list:
+            try:
+                design_settings_dict[prop] = design_settings.GetPropValue(prop)
+            except Exception:  # pragma: no cover
+                self.logger.warning('Could not retrieve "{}" property value in design settings.'.format(prop))
+                design_settings_dict[prop] = None
+
+        return design_settings_dict

@@ -61,10 +61,11 @@ class Hfss(FieldAnalysis3D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -130,19 +131,19 @@ class Hfss(FieldAnalysis3D, object):
     PyAEDT INFO: Added design...
 
 
-    Create an instance of HFSS using the 2021 R1 release and open
+    Create an instance of HFSS using the 2023 R2 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile2.aedt")
+    >>> hfss = Hfss(specified_version=232, projectname="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
 
 
-    Create an instance of HFSS using the 2021 R2 student version and open
+    Create an instance of HFSS using the 2023 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(specified_version="2023.2", projectname="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...

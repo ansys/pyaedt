@@ -42,15 +42,37 @@ def run_pyinstaller_from_c_python(oDesktop):
         return_code = run_command(" ".join(command))
         err_msg = "There was an error while installing PyAEDT. Refer to the Terminal window where AEDT was launched " \
                   "from."
-
-    if version >= "232":
-        oDesktop.RefreshToolkitUI()
-
+    if is_windows:
+        venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "v" + version)
+        python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
+    else:
+        venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "v" + version)
+        python_exe = os.path.join(venv_dir, "bin", "python")
     if str(return_code) != "0":
         oDesktop.AddMessage("", "", 2, err_msg)
         return
+    else:
+        oDesktop.AddMessage("", "", 0, "PyAEDT setup complete.")
 
-    msg = "PyAEDT setup complete."
+
+    import tempfile
+    python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
+    with open(python_script, "w") as f:
+        # enable in debu mode
+        #f.write("import sys\n")
+        #f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
+        f.write("from pyaedt.misc.aedtlib_personalib_install import add_pyaedt_to_aedt\n")
+        f.write('add_pyaedt_to_aedt(aedt_version="{}", is_student_version={}, use_sys_lib=False, new_desktop_session=False, pers_dir=r"{}")\n'.format(oDesktop.GetVersion()[:6], is_student_version(oDesktop), oDesktop.GetPersonalLibDirectory()))
+
+    command = r'"{}" "{}"'.format(python_exe, python_script)
+    oDesktop.AddMessage("", "", 0, command)
+    ret_code = os.system(command)
+    if ret_code != 0:
+        oDesktop.AddMessage("", "", 2, "Error configuring the configuration Tab.")
+        return
+    if version >= "232":
+        oDesktop.RefreshToolkitUI()
+    msg = "PyAEDT configuration complete."
     if is_linux:
         msg += " Please ensure Ansys Electronics Desktop is launched in gRPC mode (i.e. launch ansysedt with -grpcsrv" \
                " argument) to take advantage of the new toolkits."
@@ -152,19 +174,19 @@ def install_pyaedt():
         else:
             run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
 
-    if is_windows:
-        pyaedt_setup_script = "{}/Lib/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(venv_dir)
-    else:
-        pyaedt_setup_script = "{}/lib/python{}/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(
-            venv_dir, args.python_version)
-
-    if not os.path.isfile(pyaedt_setup_script):
-        sys.exit("[ERROR] PyAEDT was not setup properly since {} file does not exist.".format(pyaedt_setup_script))
-
-    command = '"{}" "{}" --version={}'.format(python_exe, pyaedt_setup_script, args.version)
-    if args.student:
-        command += " --student"
-    run_command(command)
+    # if is_windows:
+    #     pyaedt_setup_script = "{}/Lib/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(venv_dir)
+    # else:
+    #     pyaedt_setup_script = "{}/lib/python{}/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(
+    #         venv_dir, args.python_version)
+    #
+    # if not os.path.isfile(pyaedt_setup_script):
+    #     sys.exit("[ERROR] PyAEDT was not setup properly since {} file does not exist.".format(pyaedt_setup_script))
+    #
+    # command = '"{}" "{}" --version={}'.format(python_exe, pyaedt_setup_script, args.version)
+    # if args.student:
+    #     command += " --student"
+    # run_command(command)
     sys.exit(0)
 
 

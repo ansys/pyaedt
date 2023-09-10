@@ -321,6 +321,7 @@ class IcepakMesh(object):
             else:
                 self.meshmodule.AssignMeshRegion(args)
             self._app.mesh.meshregions.append(self)
+            self._app.modeler.refresh_all_ids()
             return True
 
         @pyaedt_function_handler()
@@ -589,7 +590,7 @@ class IcepakMesh(object):
             non_user_defined_component_parts = self._app.modeler.oeditor.GetChildNames()
             new_obj_list = []
             for comp in obj_list:
-                if comp != "Region" and comp in non_user_defined_component_parts and self._app.modeler[comp].is3d:
+                if comp != "Region" and comp in non_user_defined_component_parts:
                     new_obj_list.append(comp)
 
             objects = ", ".join(new_obj_list)
