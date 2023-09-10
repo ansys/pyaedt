@@ -2,7 +2,7 @@
 HFSS: Probe-fed patch antenna
 ---------------------------------------------------------
 This example shows how to use the ``Stackup3D`` class
-to create and analyze a patch antenna in HFSS 3D.
+to create and analyze a patch antenna in HFSS.
 
 Note that the HFSS 3D Layout interface may offer advantages for
 laminate structures such as the patch antenna.
@@ -49,13 +49,14 @@ freq_units = "GHz"
 
 tmpdir = tempfile.TemporaryDirectory(suffix="_aedt")
 project_folder = tmpdir.name
+proj_name = os.path.join(project_folder, "antenna")
 
 #####################
 # Launch HFSS
 # -----------
 #
 
-hfss = pyaedt.Hfss(projectname="antenna",
+hfss = pyaedt.Hfss(projectname=proj_name,
                    solution_type="Terminal",
                    designname="patch",
                    non_graphical=non_graphical,

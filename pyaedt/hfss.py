@@ -49,7 +49,14 @@ class Hfss(FieldAnalysis3D, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, in which case the default type is applied.
+        ``None``, in which case the user-defined
+        default type is applied.
+        Options are:
+        - "Terminal"
+        - "Modal"
+        - "SBR+"
+        - "Transient"
+        - "Eigenmode"
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
@@ -142,6 +149,7 @@ class Hfss(FieldAnalysis3D, object):
 
     """
 
+    # TODO: Update solution types.
     # def __repr__(self):
     #     try:
     #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
@@ -6183,40 +6191,39 @@ class Hfss(FieldAnalysis3D, object):
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
         reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
+            The ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
-            Whether to create a port sheet or use given start_object as the surface to create
-            the port.
+            Whether to create a port sheet or use given ``start_object`` as the surface
+            to create the port. Default is ``False``.
         create_pec_cap : bool, False
-            Whether to create a port cap or not.
+            Whether to create a port cap or not. Default is ``False``.
         integration_line : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
-            The default is ``Application.AxisDir.XNeg``.
+            Default is ``Application.AxisDir.XNeg``.
             It can also be a list of 2 points.
         port_on_plane : bool, optional
             Whether to create the source on the plane orthogonal to ``AxisDir``.
             The default is ``True``.
         impedance : float, optional
-            Port impedance. The default is ``50``.
+            Port impedance. Default is ``50``.
         num_modes : int, optional
-            Number of modes. The default is ``1``.
+            Number of modes. Default is ``1``.
         name : str, optional
             name of the port. The default is ``None``.
         renormalize : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
+            Whether to renormalize the mode. Default is ``True``.
         deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
+            Deembed distance in millimeters. The default is ``0``.
         is_microstrip : bool, optional
             Whether if the wave port will be created and is a microstrip port.
-            The default is ``False``.
+            Default is ``False``.
         vfactor : int, optional
-            Port vertical factor. Only valid if ``is_microstrip`` is enabled. The default is ``3``.
+            Port vertical factor. Only valid if ``is_microstrip`` is enabled. Default is ``3``.
         hfactor : int, optional
-            Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
+            Port horizontal factor. Only valid if ``is_microstrip`` is enabled. Default is ``5``.
         terminals_rename : bool, optional
-            Modify terminals name with the port name plus the terminal number. The default value is ``True``.
+            Modify terminals name with the port name plus the terminal number. Default is ``True``.
 
         Returns
         -------

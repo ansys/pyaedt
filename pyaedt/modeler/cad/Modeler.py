@@ -2737,8 +2737,8 @@ class GeometryModeler(Modeler, object):
     def convert_to_selections(self, object_id, return_list=False):
         """Convert modeler objects.
 
-        This method converts modeler object or ID's to corresponding
-        items according to the following scheme:
+        This method converts modeler object or ID's to the corresponding
+        output according to the following scheme:
 
         ====================  ===========================
           ``object_Id``          Return Value
@@ -2753,8 +2753,8 @@ class GeometryModeler(Modeler, object):
         to the table. If ``object_id`` is a single value, then a list
         of ``length == 1`` will be returned (default).
 
-        - If the 2nd argument, ``return_list`` is set to false, a ``str``
-        ``str`` will be returned with elements separated by a semicolon ";".
+        - If the 2nd argument, ``return_list`` is set to `False` (Default), a ``str``
+        ``str`` will be returned with elements separated by a comma ",".
 
 
         Parameters
@@ -3831,12 +3831,54 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-        szSelections = self.convert_to_selections(objid)
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        self.oeditor.Copy(vArg1)
+        self.copy(selections)
+        new_objects = self.paste()
+        return True, new_objects
+
+    @pyaedt_function_handler()
+    def copy(self, object_list):
+        """Copy objects to the clipboard
+
+            Parameters
+            ----------
+            object_list : list of objects (ID or names)
+
+            Returns
+            -------
+            List
+                List of names of objects cloned when successful.
+
+        References
+        ----------
+
+        >>> oEditor.Copy
+        """
+        # convert to string
+
+        try:
+            selections = self.convert_to_selections(object_list)
+            vArg1 = ["NAME:Selections", "Selections:=", selections]
+            self.oeditor.Copy(vArg1)
+            return selections
+        finally:
+            self.logger.error("Unable to copy objects to clipboard.")
+
+    @pyaedt_function_handler()
+    def paste(self):
+        """Paste objects from the clipboard.
+
+        Returns
+        -------
+            List of passed objects
+
+        References
+        ----------
+
+        >>> oEditor.Paste
+        """
         self.oeditor.Paste()
         new_objects = self.add_new_objects()
-        return True, new_objects
+        return new_objects
 
     @pyaedt_function_handler()
     def intersect(self, theList, keep_originals=False, **kwargs):

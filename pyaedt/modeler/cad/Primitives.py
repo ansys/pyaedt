@@ -1449,6 +1449,7 @@ class Primitives(object):
             List of added objects.
 
         """
+        # TODO: Need to improve documentation for this method.
         added_objects = []
 
         for obj_name in self.object_names:

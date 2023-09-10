@@ -2441,10 +2441,8 @@ class Patch(CommonObject, object):
         self.application.assign_perfecte_to_sheets(outer_sheet_id, "Probe_PEC")
 
         # Assign port. Find the face with the minimum z-position.
-        face_z_values = [f.center[2] for f in probe_feed_outer.faces]
-        i_port = face_z_values.index(min(face_z_values))
         self.application.wave_port(
-            probe_feed_outer.faces[i_port],
+            probe_feed_outer.bottom_face_z,
             reference=probe_feed_outer.name,
             create_pec_cap=True,
             name="Probe_Port",

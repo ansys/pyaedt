@@ -1,3 +1,4 @@
+import math
 import os
 import shutil
 
@@ -5,6 +6,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
+
+small_number = 1e-13  # Used for checking equivalence.
 
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
@@ -45,26 +48,42 @@ class TestClass:
         assert self.aedtapp.active_setup is None
 
     def test_02_create_primitive(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        coax_dimension = 200
-        o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
-        assert isinstance(o1.id, int)
-        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
-        assert isinstance(o2.id, int)
-        assert self.aedtapp.modeler.subtract(o2, o1, True)
+        coax1_len = 200
+        coax2_len = 70
+        r1 = 3.0
+        r2 = 10.0
+        r1_sq = 9.0
+        coax1_origin = self.aedtapp.modeler.Position(0, 0, 0)  # Thru coax origin.
+        coax2_origin = self.aedtapp.modeler.Position(125, 0, -coax2_len)  # Perpendicular coax 1.
+
+        inner_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, coax1_origin, r1, coax1_len, 0, "inner_1")
+        assert isinstance(inner_1.id, int)
+        inner_2 = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.AXIS.Z, coax2_origin, r1, coax2_len, 0, "inner_2", matname="copper"
+        )
+        assert len(inner_2.faces) == 3  # Cylinder has 3 faces.
+        # Check area of circular face.
+        assert abs(min([f.area for f in inner_2.faces]) - math.pi * r1_sq) < small_number
+        outer_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, coax1_origin, r2, coax1_len, 0, "outer_1")
+        assert isinstance(outer_1.id, int)
+        outer_2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.Z, coax2_origin, r2, coax2_len, 0, "outer_2")
+
+        # Check the area of the outer surface of the cylinder.
+        assert abs(max([f.area for f in outer_2.faces]) - 2 * coax2_len * r2 * math.pi) < small_number
+        assert self.aedtapp.modeler.subtract(outer_1, inner_1, True)
 
     def test_03_2_assign_material(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         cyl_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "die")
-        self.aedtapp.modeler.subtract(cyl_1, "inner", True)
-        self.aedtapp.modeler["inner"].material_name = "Copper"
+        self.aedtapp.modeler.subtract(cyl_1, "inner_1", True)
+        self.aedtapp.modeler["inner_1"].material_name = "Copper"
         cyl_1.material_name = "teflon_based"
-        assert self.aedtapp.modeler["inner"].material_name == "copper"
+        assert self.aedtapp.modeler["inner_1"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
     def test_04_assign_coating(self):
-        id = self.aedtapp.modeler.get_obj_id("inner")
+        id = self.aedtapp.modeler.get_obj_id("inner_1")
         args = {
             "mat": "aluminum",
             "usethickness": True,

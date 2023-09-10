@@ -503,12 +503,12 @@ def str_to_bool(s):
     Returns
     -------
     bool or str
-         The method is case-insensitive.
+         The method is not case-sensitive.
          - ``True`` is returned  if the input is ``"true"``, ``"1"``,
            `"yes"`` or ``"y"``,
          - ``False`` is returned if the input is ``"false"``, ``"no"``,
            ``"n``,  or ``"0"``.
-         - Otherwise, the input value is returned unchanged.
+         - Otherwise, the input value is passed through the method unchanged.
 
     """
     if type(s) == str:
