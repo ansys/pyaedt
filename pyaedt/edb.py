@@ -22,16 +22,18 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
+from pyaedt.edb_core.edb_data.ports import ExcitationBundle
+from pyaedt.edb_core.edb_data.ports import ExcitationProbes
+from pyaedt.edb_core.edb_data.ports import ExcitationSources
+from pyaedt.edb_core.edb_data.ports import GapPort
+from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
-from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
-from pyaedt.edb_core.edb_data.sources import ExcitationPorts
-from pyaedt.edb_core.edb_data.sources import ExcitationProbes
-from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
-import pyaedt.edb_core.general
+from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
@@ -342,20 +344,42 @@ class Edb(Database):
     @property
     def terminals(self):
         """Get terminals belonging to active layout."""
-        return {i.GetName(): ExcitationPorts(self, i) for i in self.layout.terminals}
+        return {i.GetName(): GapPort(self, i) for i in self.layout.terminals}
 
     @property
     def excitations(self):
         """Get all layout excitations."""
         terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) == 0]
-        terms = [i for i in terms if not i.IsReferenceTerminal()]
         temp = {}
         for ter in terms:
             if "BundleTerminal" in ter.GetType().ToString():
-                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+                temp[ter.GetName()] = ExcitationBundle(self, ter)
             else:
-                temp[ter.GetName()] = ExcitationPorts(self, ter)
+                temp[ter.GetName()] = GapPort(self, ter)
         return temp
+
+    @property
+    def ports(self):
+        """Get all ports.
+
+        Returns
+        -------
+        Dict[str, [:class:`pyaedt.edb_core.edb_data.ports.GapPort`,
+                   :class:`pyaedt.edb_core.edb_data.ports.WavePort`,]]
+
+        """
+        temp = [term for term in self.layout.terminals if not term.IsReferenceTerminal()]
+
+        ports = {}
+        for t in temp:
+            t2 = Terminal(self, t)
+            if t2.terminal_type == TerminalType.BundleTerminal.name:
+                ports[t2.name] = ExcitationBundle(self, t)
+            elif t2.hfss_type == "Wave":
+                ports[t2.name] = WavePort(self, t)
+            else:
+                ports[t2.name] = GapPort(self, t)
+        return ports
 
     @property
     def excitations_nets(self):
@@ -3094,7 +3118,7 @@ class Edb(Database):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
-        all_sources = [i for i in self.excitations.values() if not isinstance(i, ExcitationPorts)]
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort))]
         all_sources.extend([i for i in self.sources.values()])
         if not all_sources:
             return True

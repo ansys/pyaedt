@@ -445,6 +445,7 @@ class TestClass:
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A27", "A28"], group_name="vp_pos")
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A14", "A15"], group_name="vp_neg")
         assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
+        assert self.edbapp.probes["vprobe"]
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"
@@ -1356,8 +1357,17 @@ class TestClass:
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
         sig = edb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
-        assert sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
-        assert sig.create_edge_port("pcb_port", "start", "gap")
+        assert sig.create_edge_port("pcb_port_1", "end", "Wave", None, 8, 8)
+        assert sig.create_edge_port("pcb_port_2", "start", "gap")
+        gap_port = edb.ports["pcb_port_2"]
+        assert gap_port.component is None
+        assert gap_port.magnitude == 0.0
+        assert gap_port.phase == 0.0
+        assert gap_port.impedance
+        assert not gap_port.deembed
+        gap_port.name = "gap_port"
+        assert gap_port.name == "gap_port"
+        assert isinstance(gap_port.renormalize_z0, tuple)
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -1568,11 +1578,10 @@ class TestClass:
             prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
         )
         assert edb.hfss.get_ports_number() == 2
-        port_ver = edb.hfss.excitations["port_ver"]
+        port_ver = edb.ports["port_ver"]
+        assert not port_ver.is_null()
         assert port_ver.hfss_type == "Gap"
-        assert isinstance(port_ver.horizontal_extent_factor, float)
-        assert isinstance(port_ver.vertical_extent_factor, float)
-        assert port_ver.pec_launch_width
+
         args = {
             "layer_name": "1_Top",
             "net_name": "SIGP",
@@ -1591,19 +1600,32 @@ class TestClass:
             traces.append(t)
 
         assert edb.hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
-
+        wave_port = edb.ports["wave_port"]
+        wave_port.horizontal_extent_factor = 10
+        wave_port.vertical_extent_factor = 10
+        assert wave_port.horizontal_extent_factor == 10
+        assert wave_port.vertical_extent_factor == 10
+        wave_port.radial_extent_factor = 1
+        assert wave_port.radial_extent_factor == 1
+        assert wave_port.pec_launch_width
+        assert not wave_port.deembed
+        assert wave_port.deembed_length == 0.0
         assert edb.hfss.create_differential_wave_port(
             traces[0].id,
             trace_paths[0][0],
             traces[1].id,
             trace_paths[1][0],
             horizontal_extent_factor=8,
+            port_name="df_port",
         )
+        assert edb.ports["df_port"]
         assert not edb.are_port_reference_terminals_connected()
 
         traces_id = [i.id for i in traces]
         paths = [i[1] for i in trace_paths]
-        assert edb.hfss.create_bundle_wave_port(traces_id, paths)
+        _, df_port = edb.hfss.create_bundle_wave_port(traces_id, paths)
+        assert df_port.name
+        assert df_port.terminals
         edb.close()
 
     def test_120b_edb_create_port(self):
