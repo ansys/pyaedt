@@ -197,4 +197,4 @@ h3d.post.create_report("dB(S(port_1, port_1))")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 h3d.save_project()
 print("Project is saved to {}".format(h3d.project_path))
-h3d.release_desktop(False, False)
+h3d.release_desktop(True, True)
