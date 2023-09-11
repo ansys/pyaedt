@@ -26,6 +26,7 @@ from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.generic.general_methods import check_numeric_equivalence
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
@@ -291,6 +292,51 @@ def decompose_variable_value(variable_value, full_variables={}):
                     float_value = variable_value
 
     return float_value, units
+
+
+@pyaedt_function_handler()
+def _generate_property_validation_errors(property_name, expected, actual):
+    expected_value, expected_unit = decompose_variable_value(expected)
+    actual_value, actual_unit = decompose_variable_value(actual)
+
+    if isinstance(expected_value, (float, int)) and isinstance(actual_value, (float, int)):
+        if not check_numeric_equivalence(expected_value, actual_value, 1e-9):
+            yield "Value Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
+        if expected_unit != actual_unit:
+            yield "Unit Error {0}: Expected {1}, got {2}".format(property_name, expected_unit, actual_unit)
+    else:
+        if expected != actual:
+            yield "Error {0}: Expected {1}, got {2}".format(property_name, expected, actual)
+
+
+@pyaedt_function_handler()
+def generate_validation_errors(property_names, expected_settings, actual_settings):
+    """From the given property names, expected settings and actual settings, return a list of validation errors.
+    If no errors are found, an empty list is returned. The validation of values such as "10mm"
+    ensures that they are close to within a relative tolerance.
+    For example an expected setting of "10mm", and actual of "10.000000001mm" will not yield a validation error.
+    For values with no numerical value, an equivalence check is made.
+
+    Parameters
+    ----------
+    property_names : List[str]
+        List of property names.
+    expected_settings : List[str]
+        List of the expected settings.
+    actual_settings: List[str]
+        List of actual settings.
+
+    Returns
+    -------
+    List[str]
+        A list of validation errors for the given settings.
+    """
+    validation_errors = [
+        error
+        for property_name, expected, actual in zip(property_names, expected_settings, actual_settings)
+        for error in _generate_property_validation_errors(property_name, expected, actual)
+    ]
+    return validation_errors
 
 
 class VariableManager(object):
