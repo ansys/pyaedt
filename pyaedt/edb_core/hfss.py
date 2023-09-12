@@ -537,7 +537,7 @@ class EdbHfss(object):
             [pos_term._edb_object, neg_term._edb_object], self._edb.cell.terminal.Terminal
         )
         _edb_boundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
-        _edb_boundle_terminal.SetName(port_name)
+        pos_term._edb_object.SetName(port_name)
         return port_name, ExcitationBundle(self._pedb, _edb_boundle_terminal)
 
     @pyaedt_function_handler
