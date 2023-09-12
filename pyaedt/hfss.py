@@ -5842,7 +5842,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         coordinate_system : list
-            List of coordinate system per port. The default is ``None``, in which case the
+            List of the coordinate system per port. The default is ``None``, in which case the
             default port location is assigned.
 
         Returns
