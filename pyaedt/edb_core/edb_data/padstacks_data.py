@@ -1039,15 +1039,23 @@ class EDBPadstackInstance(object):
         polygon_data : PolygonData Object
         include_partial : bool, optional
             Whether to include partial intersecting instances. The default is ``True``.
+        simple_check : bool, optional
+            Whether to perform a single check based on the padstack center or check the padstack bounding box.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        pos = [i for i in self.position]
+        int_val = 1 if polygon_data.PointInPolygon(self._pedb.point_data(*pos)) else 0
+        if int_val == 0:
+            return False
+
         if simple_check:
-            pos = [i for i in self.position]
-            int_val = 1 if polygon_data.PointInPolygon(self._pedb.point_data(*pos)) else 0
+            # pos = [i for i in self.position]
+            # int_val = 1 if polygon_data.PointInPolygon(self._pedb.point_data(*pos)) else 0
+            return True
         else:
             plane = self._pedb.modeler.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
             rectangle_data = self._pedb.modeler.shape_to_polygon_data(plane)
