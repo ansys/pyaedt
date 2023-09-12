@@ -794,7 +794,6 @@ class BoundaryObject(BoundaryCommon, object):
         else:
             return False  # pragma: no cover
 
-        self._app._boundaries[self.name] = self._app._boundaries.pop(self._boundary_name)
         self._boundary_name = self.name
 
         return True

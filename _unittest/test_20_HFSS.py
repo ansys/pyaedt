@@ -124,6 +124,7 @@ class TestClass:
         assert port.props["DoDeembed"] is False
 
         self.aedtapp.solution_type = "Modal"
+        assert len(self.aedtapp.boundaries) == 3
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
         port = self.aedtapp.wave_port(
@@ -1492,7 +1493,38 @@ class TestClass:
         assert term.props["TerminalResistance"] == "1ohm"
         assert not self.aedtapp.set_impedance_multiplier(2)
 
-    def test_61_set_power_calc(self):
+    def test_62_set_power_calc(self):
         assert self.aedtapp.set_radiated_power_calc_method()
         assert self.aedtapp.set_radiated_power_calc_method("Radiation Surface Integral")
         assert self.aedtapp.set_radiated_power_calc_method("Far Field Integral")
+
+    def test_63_set_phase_center_per_port(self):
+        self.aedtapp.insert_design("PhaseCenter")
+        self.aedtapp.solution_type = "Modal"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
+        box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "BoxWG2", "copper")
+        box2.material_name = "Copper"
+        port = self.aedtapp.wave_port(
+            signal="BoxWG1",
+            reference="BoxWG2",
+            integration_line=self.aedtapp.AxisDir.XNeg,
+            create_port_sheet=True,
+            impedance=50,
+            num_modes=1,
+            name="Wave1",
+            renormalize=False,
+        )
+        port2 = self.aedtapp.wave_port(
+            signal="BoxWG1",
+            reference="BoxWG2",
+            integration_line=self.aedtapp.AxisDir.XNeg,
+            create_port_sheet=True,
+            impedance=50,
+            num_modes=1,
+            name="Wave2",
+            renormalize=False,
+        )
+        assert self.aedtapp.set_phase_center_per_port()
+        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        assert not self.aedtapp.set_phase_center_per_port(["Global"])
+        assert not self.aedtapp.set_phase_center_per_port("Global")

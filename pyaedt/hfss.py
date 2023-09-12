@@ -328,7 +328,7 @@ class Hfss(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self._boundaries[bound.name] = bound
+            # self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
@@ -458,7 +458,7 @@ class Hfss(FieldAnalysis3D, object):
                     except:  # pragma: no cover
                         self.logger.warning("Failed to rename terminal {}.".format(terminal))
                 bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                self._boundaries[terminal_name] = bound
+                # self._boundaries[terminal_name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -5833,6 +5833,66 @@ class Hfss(FieldAnalysis3D, object):
             return True
         except:
             return False
+
+    @pyaedt_function_handler()
+    def set_phase_center_per_port(self, coordinate_system=None):
+        # type: (list) -> bool
+        """Set phase center per port.
+
+        Parameters
+        ----------
+        coordinate_system : list
+            List of coordinate system per port. The default is ``None``, in which case the
+            default port location is assigned.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetPhaseCenterPerPort
+
+        Examples
+        --------
+
+        Set phase center of an antenna with two ports.
+
+        >>> hfss.set_phase_center_per_port(["Global", "Global"])
+
+        """
+
+        if not self.desktop_class.is_grpc_api:  # pragma: no cover
+            self.hfss.logger.warning("Set phase center not working with COM, user must do it manually")
+            return False
+
+        port_names = []
+        for exc in self.design_excitations:
+            port_names.append(exc.name)
+
+        if not port_names:  # pragma: no cover
+            return False
+
+        if not coordinate_system:
+            coordinate_system = ["<-Port Location->"] * len(port_names)
+        elif not isinstance(coordinate_system, list):
+            return False
+        elif len(coordinate_system) != len(port_names):
+            return False
+
+        cont = 0
+        arg = []
+        for port in port_names:
+            arg.append(["NAME:" + port, "Coordinate System:=", coordinate_system[cont]])
+            cont += 1
+
+        try:
+            self.oboundary.SetPhaseCenterPerPort(arg)
+        except:
+            return False
+        return True
 
     @pyaedt_function_handler()
     def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
