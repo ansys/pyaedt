@@ -102,6 +102,7 @@ class TestClass:
             reference=["outer"],
             terminals_rename=False,
         )
+
         assert port.object_properties
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]

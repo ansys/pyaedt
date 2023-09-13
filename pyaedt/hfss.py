@@ -328,7 +328,7 @@ class Hfss(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            # self._boundaries[bound.name] = bound
+            self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
@@ -458,7 +458,7 @@ class Hfss(FieldAnalysis3D, object):
                     except:  # pragma: no cover
                         self.logger.warning("Failed to rename terminal {}.".format(terminal))
                 bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
-                # self._boundaries[terminal_name] = bound
+                self._boundaries[terminal_name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
