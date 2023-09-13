@@ -407,7 +407,7 @@ class Design(AedtObjects):
                 if (
                     design_excitations[boundary].object_properties
                     and design_excitations[boundary].object_properties.props["Type"] == "Terminal"
-                ):
+                ):  # pragma: no cover
                     props_terminal = OrderedDict()
                     props_terminal["TerminalResistance"] = design_excitations[boundary].object_properties.props[
                         "Terminal Renormalizing Impedance"
@@ -769,13 +769,16 @@ class Design(AedtObjects):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        if self.design_solutions:
-            if self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal":
-                boundaries = self.boundaries
-                for exc in boundaries:
-                    if exc.type == "Terminal":
-                        del self._boundaries[exc.name]
-
+        if (
+            self.design_solutions
+            and self.design_type == "HFSS"
+            and self.design_solutions.solution_type == "Terminal"
+            and soltype == "Modal"
+        ):
+            boundaries = self.boundaries
+            for exc in boundaries:
+                if exc.type == "Terminal":
+                    del self._boundaries[exc.name]
             self.design_solutions.solution_type = soltype
 
     @property
