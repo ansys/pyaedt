@@ -1005,25 +1005,27 @@ class EDBPadstackInstance(object):
     @property
     def _em_properties(self):
         """Get EM properties."""
-        default = (r"$begin 'EM properties'\n"
-                   r"\tType('Mesh')\n"
-                   r"\tDataId='EM properties1'\n"
-                   r"\t$begin 'Properties'\n"
-                   r"\t\tGeneral=''\n"
-                   r"\t\tModeled='true'\n"
-                   r"\t\tUnion='true'\n"
-                   r"\t\t'Use Precedence'='false'\n"
-                   r"\t\t'Precedence Value'='1'\n"
-                   r"\t\tPlanarEM=''\n"
-                   r"\t\tRefined='true'\n"
-                   r"\t\tRefineFactor='1'\n"
-                   r"\t\tNoEdgeMesh='false'\n"
-                   r"\t\tHFSS=''\n"
-                   r"\t\t'Solve Inside'='false'\n"
-                   r"\t\tSIwave=''\n"
-                   r"\t\t'DCIR Equipotential Region'='false'\n"
-                   r"\t$end 'Properties'\n"
-                   r"$end 'EM properties'\n")
+        default = (
+            r"$begin 'EM properties'\n"
+            r"\tType('Mesh')\n"
+            r"\tDataId='EM properties1'\n"
+            r"\t$begin 'Properties'\n"
+            r"\t\tGeneral=''\n"
+            r"\t\tModeled='true'\n"
+            r"\t\tUnion='true'\n"
+            r"\t\t'Use Precedence'='false'\n"
+            r"\t\t'Precedence Value'='1'\n"
+            r"\t\tPlanarEM=''\n"
+            r"\t\tRefined='true'\n"
+            r"\t\tRefineFactor='1'\n"
+            r"\t\tNoEdgeMesh='false'\n"
+            r"\t\tHFSS=''\n"
+            r"\t\t'Solve Inside'='false'\n"
+            r"\t\tSIwave=''\n"
+            r"\t\t'DCIR Equipotential Region'='false'\n"
+            r"\t$end 'Properties'\n"
+            r"$end 'EM properties'\n"
+        )
 
         pid = self._pedb.edb_api.ProductId.Designer
         _, p = self._edb_padstackinstance.GetProductProperty(pid, 18, "")
