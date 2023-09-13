@@ -374,7 +374,8 @@ class Edb(Database):
         for t in temp:
             t2 = Terminal(self, t)
             if t2.terminal_type == TerminalType.BundleTerminal.name:
-                ports[t2.name] = ExcitationBundle(self, t)
+                bundle_ter = ExcitationBundle(self, t)
+                ports[bundle_ter.name] = bundle_ter
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
             else:
