@@ -67,10 +67,15 @@ jobs:
           echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      - name: Create Documentations
+      - name: Create HTML Documentations
         run: |
           testenv\Scripts\Activate.ps1
           sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+
+      - name: Create PDF Documentations
+        run: |
+            testenv\Scripts\Activate.ps1
+            sphinx-build -j auto --color -b pdf -a doc/source doc/_build/pdf
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v3
@@ -84,6 +89,13 @@ jobs:
         with:
           name: documentation-html-edb
           path: doc/_build/html/EDBAPI
+          retention-days: 7
+
+      - name: Upload PDF documentation artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-pdf
+          path: doc/_build/pdf
           retention-days: 7
 
   doc-deploy-stable:
