@@ -62,7 +62,7 @@ tests = [
 doc = [
     "ansys-sphinx-theme==0.11.1",
     "imageio==2.31.3",
-    "imageio-ffmpeg==0.4.8",
+    "imageio-ffmpeg==0.4.9",
     "ipython==8.13.0; python_version < '3.9'",
     "ipython==8.15.0; python_version >= '3.9'",
     "ipywidgets==8.1.0",
