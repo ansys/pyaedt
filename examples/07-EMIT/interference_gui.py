@@ -261,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.design_name_dropdown.clear()
             self.populating_dropdown = False
             for d in designs:
-                design_type = get_pyaedt_app(desktop_proj.project_name, d).design_type
+                design_type = desktop.design_type(desktop_proj.project_name, d)
                 if design_type == "EMIT":
                     emit_designs.append(d)
 
@@ -580,4 +580,4 @@ if __name__ == '__main__' and  os.getenv("PYAEDT_DOC_GENERATION", "False") != "1
     window.show()
     app.exec()
 else:
-    emitapp.release_desktop(True,True)
+    desktop.release_desktop(True, True)
