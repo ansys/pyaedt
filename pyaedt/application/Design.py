@@ -341,7 +341,9 @@ class Design(AedtObjects):
 
         excitations = self.design_excitations
         for exc in excitations:
-            if self._boundaries and exc.name not in list(self._boundaries.keys()):
+            if not self._boundaries:
+                self._boundaries[exc.name] = exc
+            elif exc.name not in list(self._boundaries.keys()):
                 self._boundaries[exc.name] = exc
 
         return list(self._boundaries.values())
