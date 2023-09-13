@@ -321,7 +321,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     # Enable radio specific protection levels
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Activate radio selection dropdown and initialize dictionary to store protection levels
-    # when the radio specific level dropdown is checked.
+    # when the radio-specific level dropdown is checked.
 
     def radio_specific(self):
         self.radio_dropdown.setEnabled(self.radio_specific_levels.isChecked())
