@@ -1958,7 +1958,8 @@ class Patch(CommonObject, object):
     application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
-        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        Patch frequency which is used in prediction formulas. If it is None, the patch
+        frequency will be that of the
         layer or of the stackup.
     dx : float
         The patch width.
@@ -1968,7 +1969,8 @@ class Patch(CommonObject, object):
         The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
         prediction formulas.
     dy : float, None, optional
-        The patch length. By default, it is None and so the length is calculated by prediction formulas.
+        The patch length. The default is ``None`` and so the length is calculated using
+        the prediction formulas.
     patch_position_x : float, optional
         Patch x position, by default it is 0.
     patch_position_y : float, optional

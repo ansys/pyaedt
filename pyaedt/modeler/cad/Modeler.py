@@ -2748,7 +2748,7 @@ class GeometryModeler(Modeler, object):
         output according to the following scheme:
 
         ====================  ===========================
-          ``object_Id``          Return Value
+          ``object_id``          Return Value
         ====================  ===========================
          ``int``                 object name (str)
           ``Object3D``           object name (str)
@@ -2756,12 +2756,12 @@ class GeometryModeler(Modeler, object):
           ``EdgePrimitive``      int, edge ID
           ``str``                return the same ``str``
 
-        - If ``object_id`` is a list, then a list will be returned according
-        to the table. If ``object_id`` is a single value, then a list
-        of ``length == 1`` will be returned (default).
+        - If ``object_id`` is a list, then a list is returned according
+        to the table. If ``object_id`` is a single value, a list
+        of ``length == 1`` is returned (default).
 
-        - If the 2nd argument, ``return_list`` is set to `False` (Default), a ``str``
-        ``str`` will be returned with elements separated by a comma ",".
+        - If the 2nd argument, ``return_list`` is set to ``False`` (default), a string
+        is returned with elements separated by a comma ",".
 
 
         Parameters

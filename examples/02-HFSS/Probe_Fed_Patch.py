@@ -5,7 +5,7 @@ This example shows how to use the ``Stackup3D`` class
 to create and analyze a patch antenna in HFSS.
 
 Note that the HFSS 3D Layout interface may offer advantages for
-laminate structures such as the patch antenna.
+laminate structures such as patch antennas.
 """
 
 ###########################
