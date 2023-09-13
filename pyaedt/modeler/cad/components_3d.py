@@ -869,7 +869,8 @@ class UserDefinedComponent(object):
         # TODO: Edit documentation to include all supported returned classes.
 
         from pyaedt.generic.design_types import get_pyaedt_app
-        from pyaedt.generic.general_methods import is_linux
+
+        # from pyaedt.generic.general_methods import is_linux
 
         project_list = [i for i in self._primitives._app.project_list]
 
@@ -883,13 +884,15 @@ class UserDefinedComponent(object):
         new_project = [i for i in self._primitives._app.project_list if i not in project_list]
 
         if new_project:
-            self._primitives._app.odesktop.SetActiveProject(new_project[0])
-            project = self._primitives._app.odesktop.GetActiveProject()
+            project = self._primitives._app.odesktop.SetActiveProject(new_project[0])
+            # project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()
-            if is_linux:
-                design_name = project.GetDesigns()[0].GetName()
-            else:
-                design_name = project.GetActiveDesign().GetName()
+            project.GetDesigns()[0].GetName()
+            design_name = project.GetDesigns()[0].GetName()
+            # if is_linux:
+            #     design_name = project.GetDesigns()[0].GetName()
+            # else:
+            #     design_name = project.GetActiveDesign().GetName()
             return get_pyaedt_app(project_name, design_name)
         return False
 

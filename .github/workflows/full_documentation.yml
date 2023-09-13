@@ -8,6 +8,7 @@ env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
   MEILISEARCH_HOST_URL: https://backend.search.pyansys.com
+  MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -147,4 +148,5 @@ jobs:
           host-url: ${{ vars.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
           doc-artifact-name: documentation-html-edb # Add only EDB API as page in this index.
+          pymeilisearchopts: --port \"8001\" #serve in another port
 

@@ -568,16 +568,16 @@ class Desktop(object):
                         specified_version, aedt_process_id
                     )
                 )
-        elif float(version_key) < 2022.2:
+        elif float(version_key[0:6]) < 2022.2:
             starting_mode = "com"
-        elif float(version_key) == 2022.2:
+        elif float(version_key[0:6]) == 2022.2:
             if self.machine and self.port:
                 starting_mode = "grpc"  # if the machine and port is specified, user wants to use gRPC
             elif settings.use_grpc_api is None:
                 starting_mode = "com"  # default if user doesn't specify use_grpc_api
             else:
                 starting_mode = "grpc" if settings.use_grpc_api else "com"
-        elif float(version_key) > 2022.2:
+        elif float(version_key[0:6]) > 2022.2:
             if settings.use_grpc_api is None:
                 starting_mode = "grpc"  # default if user doesn't specify use_grpc_api
             else:
