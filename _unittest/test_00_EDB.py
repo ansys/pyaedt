@@ -2437,6 +2437,10 @@ class TestClass:
         pad_instance3 = edb.padstacks.place(position=["-1.65mm", "-1.665mm"], definition_name="test2")
         assert pad_instance3.start_layer == "1_Top"
         assert pad_instance3.stop_layer == "1_Top"
+        pad_instance3.dcir_equipotential_region = True
+        assert pad_instance3.dcir_equipotential_region
+        pad_instance3.dcir_equipotential_region = False
+        assert not pad_instance3.dcir_equipotential_region
         edb.close()
 
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
