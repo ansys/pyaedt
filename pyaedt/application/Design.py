@@ -769,16 +769,14 @@ class Design(AedtObjects):
 
     @solution_type.setter
     def solution_type(self, soltype):
-        if (
-            self.design_solutions
-            and self.design_type == "HFSS"
-            and self.design_solutions.solution_type == "Terminal"
-            and soltype == "Modal"
-        ):
-            boundaries = self.boundaries
-            for exc in boundaries:
-                if exc.type == "Terminal":
-                    del self._boundaries[exc.name]
+        if self.design_solutions:
+            if (
+                self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
+            ):  # pragma: no cover
+                boundaries = self.boundaries
+                for exc in boundaries:
+                    if exc.type == "Terminal":
+                        del self._boundaries[exc.name]
             self.design_solutions.solution_type = soltype
 
     @property
