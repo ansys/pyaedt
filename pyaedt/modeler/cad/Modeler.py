@@ -3848,7 +3848,8 @@ class GeometryModeler(Modeler, object):
 
             Parameters
             ----------
-            object_list : list of objects (ID or names)
+            object_list : list
+                List of objects (IDs or names)
 
             Returns
             -------
