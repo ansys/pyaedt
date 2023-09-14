@@ -66,7 +66,11 @@ class Terminal(Connectable):
     @property
     def _port_post_processing_prop(self):
         """Get port post processing properties."""
-        return self._edb_object.GetPortPostProcessingProp
+        return self._edb_object.GetPortPostProcessingProp()
+
+    @_port_post_processing_prop.setter
+    def _port_post_processing_prop(self, value):
+        self._edb_object.SetPortPostProcessingProp(value)
 
     @property
     def do_renormalize(self):
@@ -75,7 +79,9 @@ class Terminal(Connectable):
 
     @do_renormalize.setter
     def do_renormalize(self, value):
-        self._port_post_processing_prop.DoRenormalize = value
+        ppp = self._port_post_processing_prop
+        ppp.DoRenormalize = value
+        self._port_post_processing_prop = ppp
 
     @property
     def name(self):

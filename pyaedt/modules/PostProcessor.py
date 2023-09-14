@@ -3416,7 +3416,8 @@ class PostProcessor(PostProcessorCommon, object):
             export_path = self._app.working_directory
         if not obj_list:
             self._app.modeler.refresh_all_ids()
-            obj_list = self._app.modeler.object_names
+            non_model = self._app.modeler.non_model_names[:]
+            obj_list = [i for i in self._app.modeler.object_names if i not in non_model]
             if not air_objects:
                 obj_list = [
                     i

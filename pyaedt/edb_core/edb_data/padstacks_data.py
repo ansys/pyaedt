@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import math
+import re
 import warnings
 
 from pyaedt import is_ironpython
@@ -1000,6 +1001,69 @@ class EDBPadstackInstance(object):
         self._object_instance = None
         self._position = []
         self._pdef = None
+
+    @property
+    def _em_properties(self):
+        """Get EM properties."""
+        default = (
+            r"$begin 'EM properties'\n"
+            r"\tType('Mesh')\n"
+            r"\tDataId='EM properties1'\n"
+            r"\t$begin 'Properties'\n"
+            r"\t\tGeneral=''\n"
+            r"\t\tModeled='true'\n"
+            r"\t\tUnion='true'\n"
+            r"\t\t'Use Precedence'='false'\n"
+            r"\t\t'Precedence Value'='1'\n"
+            r"\t\tPlanarEM=''\n"
+            r"\t\tRefined='true'\n"
+            r"\t\tRefineFactor='1'\n"
+            r"\t\tNoEdgeMesh='false'\n"
+            r"\t\tHFSS=''\n"
+            r"\t\t'Solve Inside'='false'\n"
+            r"\t\tSIwave=''\n"
+            r"\t\t'DCIR Equipotential Region'='false'\n"
+            r"\t$end 'Properties'\n"
+            r"$end 'EM properties'\n"
+        )
+
+        pid = self._pedb.edb_api.ProductId.Designer
+        _, p = self._edb_padstackinstance.GetProductProperty(pid, 18, "")
+        if p:
+            return p
+        else:
+            return default
+
+    @_em_properties.setter
+    def _em_properties(self, em_prop):
+        """Set EM properties"""
+        pid = self._pedb.edb_api.ProductId.Designer
+        self._edb_padstackinstance.SetProductProperty(pid, 18, em_prop)
+
+    @property
+    def dcir_equipotential_region(self):
+        """Check whether dcir equipotential region is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        pattern = r"'DCIR Equipotential Region'='([^']+)'"
+        em_pp = self._em_properties
+        result = re.search(pattern, em_pp).group(1)
+        if result == "true":
+            return True
+        else:
+            return False
+
+    @dcir_equipotential_region.setter
+    def dcir_equipotential_region(self, value):
+        """Set dcir equipotential region."""
+        pp = r"'DCIR Equipotential Region'='true'" if value else r"'DCIR Equipotential Region'='false'"
+        em_pp = self._em_properties
+        pattern = r"'DCIR Equipotential Region'='([^']+)'"
+        new_em_pp = re.sub(pattern, pp, em_pp)
+        self._em_properties = new_em_pp
 
     @property
     def object_instance(self):
