@@ -67,10 +67,15 @@ jobs:
           echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      - name: Create Documentations
+      - name: Create HTML Documentations
         run: |
           testenv\Scripts\Activate.ps1
           sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+
+      - name: Create PDF Documentations
+        run: |
+            testenv\Scripts\Activate.ps1
+            sphinx-build -j auto --color -b pdf -a doc/source doc/_build/pdf
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v3
@@ -85,6 +90,21 @@ jobs:
           name: documentation-html-edb
           path: doc/_build/html/EDBAPI
           retention-days: 7
+
+      - name: Upload PDF documentation artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-pdf
+          path: doc/_build/pdf
+          retention-days: 7
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        with:
+          generate_release_notes: true
+          files: |
+            doc/_build/pdf
 
   doc-deploy-stable:
     name: Deploy stable documentation
@@ -148,5 +168,4 @@ jobs:
           host-url: ${{ vars.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
           doc-artifact-name: documentation-html-edb # Add only EDB API as page in this index.
-          pymeilisearchopts: --port \"8001\" #serve in another port
-
+          pymeilisearchopts: --port 8001 #serve in another port
