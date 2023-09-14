@@ -70,11 +70,12 @@ jobs:
         run: |
           testenv_s\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=pyaedt --cov-report=xml:coverage_solvers.xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.10'
-        name: 'Upload coverage to Codecov'
+        with:
+          name: 'Upload coverage to Codecov'
+          files: ./coverage_solvers.xml
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
@@ -127,11 +128,12 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+          pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml:coverage_tests.xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.10'
-        name: 'Upload coverage to Codecov'
+        with:
+          name: 'Upload coverage to Codecov'
+          files: ./coverage_tests.xml
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
