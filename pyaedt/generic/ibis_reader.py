@@ -1,10 +1,15 @@
+import json
+import logging
 import os
+import re
+import traceback
 
 import pyaedt
 from pyaedt import settings
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_if_path_exists
-from pyaedt.generic.general_methods import open_file
+
+logger = logging.getLogger(__name__)
 
 
 class Component:
@@ -39,7 +44,7 @@ class Component:
 
         Examples
         --------
-        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, 'u26a_800_modified.ibs'), circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].manufacturer
         'Micron Technology, Inc.'
 
@@ -69,7 +74,7 @@ class Component:
         self._pins = value
 
 
-class Pin(Component):
+class Pin:
     """Pin from a component with all its data feature.
 
     Parameters
@@ -80,8 +85,9 @@ class Pin(Component):
         Circuit in which the pin will be added to.
     """
 
-    def __init__(self, name, circuit):
+    def __init__(self, name, buffername, circuit):
         self._name = name
+        self._buffer_name = buffername
         self._circuit = circuit
         self._short_name = None
         self._signal = None
@@ -102,6 +108,11 @@ class Pin(Component):
 
         """
         return self._name
+
+    @property
+    def buffer_name(self):
+        """Full name of the buffer including the component name and the ibis filename."""
+        return self._buffer_name
 
     @property
     def short_name(self):
@@ -208,24 +219,28 @@ class Pin(Component):
 
     def add(self):
         """Add a pin to the list of components in the Project Manager."""
-        self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
-            self.name,
-            [
-                "NAME:CosimDefinition",
-                "CosimulatorType:=",
-                7,
-                "CosimDefName:=",
-                "DefaultIBISNetlist",
-                "IsDefinition:=",
-                True,
-                "Connect:=",
-                True,
-                "Data:=",
-                [],
-                "GRef:=",
-                [],
-            ],
-        )
+        try:
+            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+                self.buffer_name,
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    7,
+                    "CosimDefName:=",
+                    "DefaultIBISNetlist",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "Data:=",
+                    [],
+                    "GRef:=",
+                    [],
+                ],
+            )
+        except:
+            logger.error("Error adding {} pin component.".format(self.short_name))
+            return False
 
     def insert(self, x, y, angle=0.0):
         """Insert a pin at a defined location inside the graphical window.
@@ -248,7 +263,7 @@ class Pin(Component):
 
         return self._circuit.modeler.schematic.create_component(
             component_library=None,
-            component_name=self.name,
+            component_name=self.buffer_name,
             location=[x, y],
             angle=angle,
         )
@@ -372,6 +387,8 @@ class Model:
         self._name = None
         self._clamp = None
         self._enable = None
+        self._ami = None
+        self._c_comp = None
 
     @property
     def name(self):
@@ -409,9 +426,88 @@ class Model:
     def enable(self, value):
         self._enable = value
 
+    @property
+    def ami(self):
+        """Is model enabled or not."""
+        return self._ami
+
+    @ami.setter
+    def ami(self, value):
+        self._ami = value
+
+    @property
+    def c_comp(self):
+        """Is model enabled or not."""
+        return self._c_comp
+
+    @c_comp.setter
+    def c_comp(self, value):
+        self._c_comp = value
+
 
 class Ibis:
     """Ibis model with all data extracted: name, components, models.
+
+    Parameters
+    ----------
+    name : str
+        Name of ibis model.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit in which the ibis components will be used.
+    """
+
+    # Ibis reader must work independently or in Circuit.
+    def __init__(self, name, circuit):
+        self.circuit = circuit
+        self._name = name
+        self._components = {}
+        self._model_selectors = []
+        self._models = []
+
+    @property
+    def name(self):
+        """Name of the ibis model."""
+        return self._name
+
+    @property
+    def components(self):
+        """List of all components included in the ibis file."""
+        return self._components
+
+    @components.setter
+    def components(self, value):
+        self._components = value
+
+    @property
+    def model_selectors(self):
+        """List of all model selectors included in the ibis file."""
+        return self._model_selectors
+
+    @model_selectors.setter
+    def model_selectors(self, value):
+        self._model_selectors = value
+
+    @property
+    def models(self):
+        """List of all models included in the ibis file."""
+        return self._models
+
+    @models.setter
+    def models(self, value):
+        self._models = value
+
+    @property
+    def buffers(self):
+        """Buffers included into the ibis model."""
+        return self._buffers
+
+    @buffers.setter
+    def buffers(self, value):
+        self._buffers = value
+
+
+class AMI:
+    """Ibis-AMI model with all data extracted: name, components, models.
 
     Parameters
     ----------
@@ -531,19 +627,20 @@ class IbisReader(object):
             file_to_open = check_and_download_file(local_path, self._filename)
         else:
             file_to_open = self._filename
-        # Read *.ibis file.
-        with open_file(file_to_open, "r") as ibis_file:
-            while True:
-                current_line = ibis_file.readline()
-                if not current_line:
-                    break
 
-                if is_started_with(current_line, "[Component] "):
-                    self.read_component(ibis, current_line, ibis_file)
-                elif is_started_with(current_line, "[Model] "):
-                    self.read_model(ibis, current_line, ibis_file)
-                elif is_started_with(current_line, "[Model Selector] "):
-                    self.read_model_selector(ibis, current_line, ibis_file)
+        # Read *.ibis file.
+        ibis_info = ibis_parsing(self._filename)
+        component_selector = [ibis_info[item] for item in ibis_info if "component" in item]
+
+        self.read_component(ibis, component_selector)
+
+        model_selector = [ibis_info[item] for item in ibis_info if "model selector" in item]
+        self.read_model_selector(ibis, model_selector)
+
+        # model = [ibis_info[item] for item in ibis_info if 'selector' not in item and 'model' in item]
+        model = [ibis_info[item] for item in ibis_info if re.match(r"^model\d*$", item) is not None]
+
+        self.read_model(ibis, model)
 
         buffers = {}
         for model_selector in ibis.model_selectors:
@@ -569,16 +666,16 @@ class IbisReader(object):
                 False,
             ]
             arg_buffers = ["NAME:Buffers"]
-            for buffer in buffers:
-                arg_buffers.append("{}:=".format(buffers[buffer].short_name))
+            for buffer_item in buffers.values():
+                arg_buffers.append("{}:=".format(buffer_item.short_name))
                 arg_buffers.append([True, "IbisSingleEnded"])
-            model_names = [i.name for i in ibis.models]
+            model_selector_names = [i.name for i in ibis.model_selectors]
             arg_components = ["NAME:Components"]
-            for component in ibis.components:
-                arg_component = ["NAME:{}".format(ibis.components[component].name)]
-                for pin in ibis.components[component].pins:
-                    arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
-                    if ibis.components[component].pins[pin].model not in model_names:
+            for comp_value in ibis.components.values():
+                arg_component = ["NAME:{}".format(comp_value.name)]
+                for pin in comp_value.pins.values():
+                    arg_component.append("{}:=".format(pin.short_name))
+                    if pin.model not in model_selector_names:
                         arg_component.append([False, False])
                     else:
                         arg_component.append([True, False])
@@ -590,9 +687,10 @@ class IbisReader(object):
             self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
 
         self._ibis_model = ibis
+        return ibis_info
 
     # Model
-    def read_model(self, ibis, current_line, ibis_file):
+    def read_model(self, ibis, model_list):
         """Extracts model's info.
 
         Parameters
@@ -605,43 +703,41 @@ class IbisReader(object):
             File's stream.
 
         """
+        for model_info in model_list:
+            model_spec_info = model_info["model"].strip().split("\n")
+            for idx, model_spec in enumerate(model_spec_info):
+                if not idx:
+                    model = Model()
+                    model.name = model_spec
+                else:
+                    if is_started_with(model_spec.lower(), "model_type"):
+                        # model.model_type = model_spec.split()[-1].strip()
+                        model.model_type = model_spec.split()[-1].strip()
+                        # iStart = model_spec.index(" ", 1)
+                        # if iStart > 0:
+                        #     model.ModelType = model_spec[iStart:].strip()
+                    elif is_started_with(model_spec.lower(), "c_comp"):
+                        model.c_comp = model_spec.split()[1:]
 
-        if not is_started_with(current_line, "[Model] "):
-            return
+                    elif is_started_with(model_spec.lower(), "enable ", True):
+                        model.enable = model_spec.split()[-1].strip()
 
-        model = Model()
-        model.name = current_line.split("]")[1].strip()
-        current_line = ibis_file.readline().replace("\t", "").strip()
+            model_info_lower = {key.lower(): value for key, value in model_info.items()}
 
-        while not is_started_with(current_line, "Model_type"):
-            current_line = ibis_file.readline().replace("\t", "").strip()
+            if "gnd clamp" in [key.lower() for key in model_info.keys()]:
+                model.clamp = True
+            if "algorithmic model" in [key.lower() for key in model_info.keys()]:
+                matching_key = next((key for key in model_info.keys() if "algorithmic model" in key.lower()), None)
+                ami_info = model_info[matching_key][matching_key].split()
+                model.ami = model_info[matching_key][matching_key].split()
+                ibis.AMI = True
+            else:
+                ibis.AMI = False
 
-        iStart = current_line.index(" ", 1)
-
-        if iStart > 0:
-            model.ModelType = current_line[iStart:].strip()
-
-        # Clamp
-        while not current_line:
-            current_line = ibis_file.readline().strip.replace("clamp", "Clamp")
-
-            if is_started_with(current_line, "[GND Clamp]"):
-                model.Clamp = True
-                break
-            elif is_started_with(current_line, "[GND_Clamp]"):
-                model.Clamp = True
-                break
-            elif is_started_with(current_line, "Enable ", True):
-                model.Enable = current_line[len("Enable") + 1 :].strip()
-            elif is_started_with(current_line, "[Rising Waveform]"):
-                break
-            elif is_started_with(current_line, "[Ramp]"):
-                break
-
-        ibis.models.append(model)
+            ibis.models.append(model)
 
     # Model Selector
-    def read_model_selector(self, ibis, current_line, ibis_file):
+    def read_model_selector(self, ibis, model_selector_list):
         """Extracts model selector's info.
 
         Parameters
@@ -655,22 +751,18 @@ class IbisReader(object):
 
         """
 
-        if not is_started_with(current_line, "[Model Selector] "):
-            return
+        for model_selector_info in model_selector_list:
+            model_selector_info = model_selector_info["model selector"].strip().split("\n")
+            for idx, model in enumerate(model_selector_info):
+                if not idx:
+                    model_selector = ModelSelector()
+                    model_selector.model_selector_items = []
+                    model_selector.name = model
+                else:
+                    model_selector.model_selector_items.append(self.make_model(model.strip()))
 
-        model_selector = ModelSelector()
-        model_selector.model_selector_items = []
-        model_selector.name = current_line.split("]")[1].strip()
-
-        current_line = ibis_file.readline()
-
-        # Model Selector
-        while not is_started_with(current_line, "|") and current_line.strip() != "":
-            model_selector.model_selector_items.append(self.make_model(current_line.strip()))
-            current_line = ibis_file.readline()
-
-        # ModelSelectorItem
-        ibis.model_selectors.append(model_selector)
+            # ModelSelectorItem
+            ibis.model_selectors.append(model_selector)
 
     @classmethod
     def make_model(cls, current_line):
@@ -692,65 +784,38 @@ class IbisReader(object):
         i_start = current_line.index(" ", 1)
 
         if i_start > 0:
-            item.name = current_line[i_start:].strip()
+            item.name = current_line[:i_start].strip()
             item.description = current_line[i_start:].strip()
 
         return item
 
     # Component
-    def read_component(self, ibis, current_line, ibis_file):
+    def read_component(self, ibis, comp_infos):
         """Extracts component's info.
 
         Parameters
         ----------
         ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
             ibis object containing all info.
-        current_line : str
-            Current line content.
-        ibis_file : TextIO
-            File's stream.
+        comp_infos : list
 
         """
+        if not isinstance(comp_infos, list):
+            comp_infos = [comp_infos]
+        for comp_info in comp_infos:
+            component = Component()
+            component.name = comp_info["component"]
+            component.manufacturer = comp_info["manufacturer"]["manufacturer"]
+            self.fill_package_info(component, comp_info["package"]["package"])
+            pin_list = comp_info["pin"]["pin"].strip().split("\n")[1:]
+            for pin_info in pin_list:
+                pin = self.make_pin_object(pin_info, component.name, ibis)
+                component.pins[pin.name] = pin
 
-        if not is_started_with(current_line, "[Component] "):
-            return
-
-        component = Component()
-        component.name = self.get_component_name(current_line)
-        current_line = ibis_file.readline()
-
-        if is_started_with(current_line, "[Manufacturer]"):
-            component.manufacturer = current_line.replace("[Manufacturer]", "").strip()
-
-        while True:
-            current_line = ibis_file.readline()
-            if is_started_with(current_line, "[Package]"):
-                break
-
-        self.fill_package_info(component, current_line, ibis_file)
-
-        # [pin]
-        while not is_started_with(current_line, "[Pin] "):
-            current_line = ibis_file.readline()
-
-        while True:
-            current_line = ibis_file.readline()
-            if is_started_with(current_line, "|"):
-                break
-
-        current_line = ibis_file.readline()
-
-        while not is_started_with(current_line, "|"):
-            pin = self.make_pin_object(current_line, component.name, ibis)
-            component.pins[pin.name] = pin
-            current_line = ibis_file.readline()
-            if current_line == "":
-                break
-
-        ibis.components[component.name] = component
+            ibis.components[component.name] = component
 
     @classmethod
-    def fill_package_info(cls, component, current_line, ibis_file):
+    def fill_package_info(cls, component, pkg_info):
         """Extracts model's info.
 
         Parameters
@@ -763,17 +828,14 @@ class IbisReader(object):
             File's stream.
 
         """
-        while is_started_with(current_line, "|") or is_started_with(current_line, "["):
-            current_line = ibis_file.readline()
-
-        if is_started_with(current_line, "R_pkg"):
-            component.R_pkg = current_line.strip()
-            current_line = ibis_file.readline()
-        elif is_started_with(current_line, "L_pkg"):
-            component.L_pkg = current_line.strip()
-            current_line = ibis_file.readline()
-        elif is_started_with(current_line, "C_pkg"):
-            component.C_pkg = current_line.strip()
+        pkg_info = pkg_info.strip().split("\n")
+        for rlc in pkg_info:
+            if is_started_with(rlc, "R_pkg"):
+                component.R_pkg = rlc.strip()
+            elif is_started_with(rlc, "L_pkg"):
+                component.L_pkg = rlc.strip()
+            elif is_started_with(rlc, "C_pkg"):
+                component.C_pkg = rlc.strip()
 
     @classmethod
     def get_component_name(cls, line):
@@ -792,7 +854,6 @@ class IbisReader(object):
         """
         return line.replace("[Component]", "").strip()
 
-    # Pin
     def make_pin_object(self, line, component_name, ibis):
         """Extracts model's info.
 
@@ -815,23 +876,35 @@ class IbisReader(object):
         current_string = ""
 
         current_string = line.strip().replace("\t", " ")
+
         pin_name = self.get_first_parameter(current_string)
-        pin = Pin(pin_name + "_" + component_name + "_" + ibis.name, ibis.circuit)
+        current_string = current_string[len(pin_name) + 1 :].strip()
+
+        signal = self.get_first_parameter(current_string)
+        current_string = current_string[len(signal) + 1 :].strip()
+
+        model = self.get_first_parameter(current_string)
+        current_string = current_string[len(model) + 1 :].strip()
+
+        r_value = self.get_first_parameter(current_string)
+        current_string = current_string[len(r_value) + 1 :].strip()
+
+        l_value = self.get_first_parameter(current_string)
+        current_string = current_string[len(l_value) + 1 :].strip()
+
+        c_value = self.get_first_parameter(current_string)
+
+        pin = Pin(
+            pin_name + "_" + component_name + "_" + ibis.name,
+            signal + "_" + component_name + "_" + ibis.name,
+            ibis.circuit,
+        )
         pin.short_name = pin_name
-        current_string = current_string[len(pin.short_name) + 1 :].strip()
-        pin.signal = self.get_first_parameter(current_string)
-
-        current_string = current_string[len(pin.signal) + 1 :].strip()
-        pin.model = self.get_first_parameter(current_string)
-
-        current_string = current_string[len(pin.model) + 1 :].strip()
-        pin.r_value = self.get_first_parameter(current_string)
-
-        current_string = current_string[len(pin.r_value) + 1 :].strip()
-        pin.l_value = self.get_first_parameter(current_string)
-
-        current_string = current_string[len(pin.l_value) + 1 :].strip()
-        pin.c_value = self.get_first_parameter(current_string)
+        pin.signal = signal
+        pin.model = model
+        pin.r_value = r_value
+        pin.l_value = l_value
+        pin.c_value = c_value
 
         return pin
 
@@ -856,6 +929,128 @@ class IbisReader(object):
 
         data = line.split(" ")
         return data[0].strip()
+
+
+class AMIReader(IbisReader):
+    """Reads *.ibis file content.
+    Setup an Ibis object exposing all the extracted data.
+
+    Parameters
+    ----------
+    filename : str
+        Name of ibis model.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit in which the ibis components will be used.
+    """
+
+    def __init__(self, filename, circuit):
+        self._filename = filename
+        self._circuit = circuit
+        self._ami_model = None
+
+    @property
+    def ami_model(self):
+        "Ibis-AMI model gathering the entire set of data extracted from the \\*.ami file."
+        return self._ami_model
+
+    def parse_ibis_file(self):
+        """Reads \\*.ami file content.
+
+        Parameters
+        ----------
+        filename : str
+            Name of ibis model.
+        circuit : class:`pyaedt.circuit.Circuit`
+            Circuit in which the ibis components will be used.
+
+        Returns
+        ----------
+        :class:`pyaedt.generic.ibis_reader.Ibis`
+            Ibis object exposing all data from the ibis file.
+
+        Examples
+        --------
+        Read u26a_800.ibs file provided in the AEDT suit installation.
+        >>> import os
+        >>> from pyaedt import Desktop
+        >>> from pyaedt.circuit import Circuit
+        >>> from pyaedt.generic import ibis_reader
+        >>> desktop = Desktop()
+        >>> circuit = Circuit()
+        >>> ibis = ibis_reader.IbisReader(os.path.join(desktop.install_path, "buflib", "IBIS", "u26a_800.ibs"), circuit)
+        """
+
+        if not check_if_path_exists(self._filename):
+            raise Exception("{} does not exist.".format(self._filename))
+
+        ami_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
+        ibis = AMI(ami_name, self._circuit)
+        if settings.remote_rpc_session_temp_folder:
+            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
+            file_to_open = check_and_download_file(local_path, self._filename)
+        else:
+            file_to_open = self._filename
+
+        # Read *.ibis file.
+        ibis_info = ibis_parsing(self._filename)
+        component_selector = [ibis_info[item] for item in ibis_info if "component" in item]
+
+        self.read_component(ibis, component_selector)
+
+        model_selector = [ibis_info[item] for item in ibis_info if "model selector" in item]
+        self.read_model_selector(ibis, model_selector)
+
+        # model = [ibis_info[item] for item in ibis_info if 'selector' not in item and 'model' in item]
+        model = [ibis_info[item] for item in ibis_info if item.startswith("model")]
+
+        self.read_model(ibis, model)
+
+        buffers = {}
+        for model_selector in ibis.model_selectors:
+            buffer = Buffer(ami_name, model_selector.name, self._circuit)
+            buffers[buffer.name] = buffer
+
+        for model in ibis.models:
+            buffer = Buffer(ami_name, model.name, self._circuit)
+            buffers[buffer.name] = buffer
+
+        ibis.buffers = buffers
+
+        if self._circuit:
+            args = [
+                "NAME:Options",
+                "Mode:=",
+                4,
+                "Overwrite:=",
+                False,
+                "SupportsSimModels:=",
+                False,
+                "LoadOnly:=",
+                False,
+            ]
+            arg_buffers = ["NAME:Buffers"]
+            for buffer in buffers:
+                arg_buffers.append("{}:=".format(buffers[buffer].short_name))
+                arg_buffers.append([True, "IbisSingleEnded"])
+            model_selector_names = [i.name for i in ibis.model_selectors]
+            arg_components = ["NAME:Components"]
+            for component in ibis.components:
+                arg_component = ["NAME:{}".format(ibis.components[component].name)]
+                for pin in ibis.components[component].pins:
+                    arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
+                    if ibis.components[component].pins[pin].model not in model_selector_names:
+                        arg_component.append([False, False])
+                    else:
+                        arg_component.append([True, False])
+                arg_components.append(arg_component)
+
+            args.append(arg_buffers)
+            args.append(arg_components)
+
+            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
+
+        self._ibis_model = ibis
+        return ibis_info
 
 
 def is_started_with(src, find, ignore_case=True):
@@ -883,3 +1078,279 @@ def is_started_with(src, find, ignore_case=True):
     if ignore_case:
         return src.lower().startswith(find.lower())
     return src.startswith(find)
+
+
+def lowercase_json(json_data):
+    if isinstance(json_data, str):  # 문자열인 경우 소문자로 변환
+        return json_data.lower()
+    elif isinstance(json_data, dict):  # 사전인 경우 키와 값 모두 재귀적으로 변환
+        return {lowercase_json(k): lowercase_json(v) for k, v in json_data.items()}
+    elif isinstance(json_data, list):  # 리스트인 경우 모든 요소 재귀적으로 변환
+        return [lowercase_json(item) for item in json_data]
+    else:
+        return json_data
+
+
+def get_files_by_extension(path, extension):
+    files = []
+    for file in os.listdir(path):
+        if file.endswith(extension):
+            files.append(os.path.join(path, file))
+    return files
+
+
+def ibis_parsing(file: str):
+    """Open and parse ibis file using json Ibis template."""
+    ibis = {}
+    # OPEN AND READ IBIS FILE
+    with open(file, "r") as fp:
+        ibis_data = list(enumerate(fp))
+
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
+        ibis_ref: dict = json.load(f)
+    ibis_ref = lowercase_json(ibis_ref)
+
+    # FOR EACH LINE
+    try:
+        level = -1
+        key_iter = [0, 0, 0, 0]
+        pre_key_ref = ["", "", "", ""]
+        pre_key_save = ["", "", "", ""]
+        for idx, line in ibis_data:
+            # COMMENT
+            if line[0] == "|":
+                pass
+
+            # KEYWORD START
+            elif line[0] == "[":
+                # FIND IBIS KEYWORD : [keyword]
+                key = line.split("[")[-1].split("]")[0].replace("_", " ")
+                key_ref = key.lower()
+                # if key == 'End':
+                #     print("JH")
+                val = line.split("]")[-1].strip()
+                if key_ref == "model":
+                    pass
+
+                if "end" in key_ref:
+                    pass
+
+                # FOR TOP LEVEL KEYWORD
+                elif key_ref in ibis_ref.keys():
+                    level = 0
+                    if key_ref in ibis.keys():
+                        key_iter[0] += 1
+                        key_save = key_ref + str(key_iter[0])
+                    else:
+                        key_save = key_ref
+
+                    ibis[key_save] = {}
+                    ibis[key_save][key_ref] = val
+                    pre_key_ref[0] = key_ref
+                    pre_key_save[0] = key_save
+
+                # FOR 2ND LEVEL KEYWORD
+                elif key_ref in ibis_ref[pre_key_ref[0]].keys():
+                    level = 1
+                    if key_ref in ibis[pre_key_save[0]].keys():
+                        key_iter[1] += 1
+                        key_save = key_ref + str(key_iter[1])
+                    else:
+                        key_save = key_ref
+                    ibis[pre_key_save[0]][key_save] = {}
+                    ibis[pre_key_save[0]][key_save][key_ref] = val
+                    pre_key_ref[1] = key_ref
+                    pre_key_save[1] = key_save
+
+                # FOR third LEVEL KEYWORD
+                elif key_ref in ibis_ref[pre_key_ref[0]][pre_key_ref[1]].keys():
+                    level = 2
+                    if key_ref in ibis[pre_key_save[0]][pre_key_save[1]].keys():
+                        key_iter[2] += 1
+                        key_save = key_ref + str(key_iter[2])
+                    else:
+                        key_save = key_ref
+                    ibis[pre_key_save[0]][pre_key_save[1]][key_save] = {}
+                    ibis[pre_key_save[0]][pre_key_save[1]][key_save][key_ref] = val
+                    pre_key_ref[2] = key_ref
+                    pre_key_save[2] = key_save
+
+                # FOR 4TH LEVEL KEYWORD
+                elif key_ref in ibis_ref[pre_key_ref[0]][pre_key_ref[1]][pre_key_ref[2]].keys():
+                    level = 3
+                    if key_ref in ibis[pre_key_save[0]][pre_key_save[1]][pre_key_save[2]].keys():
+                        key_iter[3] += 1
+                        key_save = key_ref + str(key_iter[3])
+                    else:
+                        key_save = key_ref
+                    ibis[pre_key_save[0]][pre_key_save[1]][pre_key_save[2]][key_save] = {}
+                    ibis[pre_key_save[0]][pre_key_save[1]][pre_key_save[2]][key_save][key_ref] = val
+                    pre_key_ref[3] = key_ref
+                    pre_key_save[3] = key_save
+
+                else:
+                    print("")
+                    print(f"Invalid IBIS Keyword : {key}")
+                    return False
+
+            # ALREADY FIND OUT KEYWORD
+            else:
+                # IF NOT BLANK LINE
+                if not line.strip() == "":
+                    # FOR TOP LEVEL KEYWORD
+                    if level == 0:
+                        ibis[pre_key_save[0]][key_ref] += "\n" + line.strip()
+
+                    elif level == 1:
+                        ibis[pre_key_save[0]][pre_key_save[1]][key_ref] += "\n" + line.strip()
+
+                    elif level == 2:
+                        ibis[pre_key_save[0]][pre_key_save[1]][pre_key_save[2]][key_ref] += "\n" + line.strip()
+
+                    elif level == 3:
+                        ibis[pre_key_save[0]][pre_key_save[1]][pre_key_save[2]][pre_key_save[3]][key_ref] += (
+                            "\n" + line.strip()
+                        )
+    except Exception:
+        print(traceback.format_exc())
+        print("False")
+        return False
+
+    # RETURN IBIS PARSING RESULT
+    return ibis
+
+
+def ami_parsing(file: str):
+    ami = {}
+    # OPEN AND READ AMI FILE
+    with open(file, "r") as fp:
+        ami_data = list(enumerate(fp))
+
+    # MAKE ONE SENTENCE FOR THE LOADED AMI FILE
+    ami_text = ""
+    for idx, text in ami_data:
+        ami_text += text.strip()
+
+    try:
+        level = -1  # LEVEL FOR AMI LEAVES
+        key = ""  # AMI KEYWORD
+        init_flag = True  # FOR INITIAL SAVING
+        description_flag = False  # FOR DESCRIPTION
+
+        # FOR EACH CHARACTERS IN THE ONE SENTENCE
+        for char in ami_text:
+            # IF 'description' IN KEY
+            if "description" in key.lower():
+                if char == '"' and description_flag:
+                    description_flag = False
+                    if not init_flag:
+                        if not key.strip() == "":
+                            if level == 0:
+                                ami[key.strip()] = {}
+                                ami_name = key.strip()
+                            elif level == 1:
+                                ami[ami_name][key.strip()] = {}
+                                ami_1st_leaf = key.strip()
+                            elif level == 2:
+                                ami[ami_name][ami_1st_leaf][key.strip()] = {}
+                                ami_2nd_leaf = key.strip()
+                            elif level == 3:
+                                if len(key.split()) > 1:
+                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = key.replace(
+                                        key.split()[0], ""
+                                    ).strip()
+                                else:
+                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = {}
+                                    ami_3rd_leaf = key.split()[0]
+                            elif level == 4:
+                                ami[ami_name][ami_1st_leaf][ami_2nd_leaf][ami_3rd_leaf][key.split()[0]] = key.replace(
+                                    key.split()[0], ""
+                                ).strip()
+                                # ami_4th_leaf = key.split()[0]
+                    key = ""
+                    continue
+
+                elif char == '"':
+                    description_flag = True
+
+                elif char == "|":
+                    comment_flag = True
+
+                if not comment_flag:
+                    key += char
+            else:
+                if char == "(":
+                    if not init_flag:
+                        if not key.strip() == "":
+                            if level == 0:
+                                ami[key.strip()] = {}
+                                ami_name = key.strip()
+                            elif level == 1:
+                                ami[ami_name][key.strip()] = {}
+                                ami_1st_leaf = key.strip()
+                            elif level == 2:
+                                ami[ami_name][ami_1st_leaf][key.strip()] = {}
+                                ami_2nd_leaf = key.strip()
+                            elif level == 3:
+                                if len(key.split()) > 1:
+                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = key.replace(
+                                        key.split()[0], ""
+                                    ).strip()
+                                else:
+                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = {}
+                                    ami_3rd_leaf = key.split()[0]
+                            elif level == 4:
+                                ami[ami_name][ami_1st_leaf][ami_2nd_leaf][ami_3rd_leaf][key.split()[0]] = key.replace(
+                                    key.split()[0], ""
+                                ).strip()
+                                # ami_4th_leaf = key.split()[0]
+                            # print('')
+                            # print(key, level)
+                    init_flag = False
+                    comment_flag = False
+                    level += 1
+                    key = ""
+                    continue
+
+                elif char == ")":
+                    if not init_flag:
+                        if not key.strip() == "":
+                            if level == 0:
+                                ami[key.strip()] = {}
+                                ami_name = key.strip()
+                            elif level == 1:
+                                ami[ami_name][key.strip()] = {}
+                                ami_1st_leaf = key.strip()
+                            elif level == 2:
+                                ami[ami_name][ami_1st_leaf][key.strip()] = {}
+                                ami_2nd_leaf = key.strip()
+                            elif level == 3:
+                                if len(key.split()) > 1:
+                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = key.replace(
+                                        key.split()[0], ""
+                                    ).strip()
+                                else:
+                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = {}
+                                    ami_3rd_leaf = key.split()[0]
+                            elif level == 4:
+                                ami[ami_name][ami_1st_leaf][ami_2nd_leaf][ami_3rd_leaf][key.split()[0]] = key.replace(
+                                    key.split()[0], ""
+                                ).strip()
+                                # ami_4th_leaf = key.split()[0]
+                            # print('')
+                            # print(key, level)
+                    level -= 1
+                    init_flag = True
+
+                elif char == "|":
+                    comment_flag = True
+
+                if not comment_flag:
+                    key += char
+
+    except Exception:
+        print(traceback.format_exc())
+        print("False")
+        return False
+
+    return ami
