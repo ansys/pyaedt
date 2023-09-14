@@ -1081,11 +1081,11 @@ def is_started_with(src, find, ignore_case=True):
 
 
 def lowercase_json(json_data):
-    if isinstance(json_data, str):  # 문자열인 경우 소문자로 변환
+    if isinstance(json_data, str):
         return json_data.lower()
-    elif isinstance(json_data, dict):  # 사전인 경우 키와 값 모두 재귀적으로 변환
+    elif isinstance(json_data, dict):
         return {lowercase_json(k): lowercase_json(v) for k, v in json_data.items()}
-    elif isinstance(json_data, list):  # 리스트인 경우 모든 요소 재귀적으로 변환
+    elif isinstance(json_data, list):
         return [lowercase_json(item) for item in json_data]
     else:
         return json_data
