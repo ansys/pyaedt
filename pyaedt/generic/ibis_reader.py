@@ -1099,8 +1099,14 @@ def get_files_by_extension(path, extension):
     return files
 
 
-def ibis_parsing(file: str):
-    """Open and parse ibis file using json Ibis template."""
+def ibis_parsing(file):
+    """Open and parse ibis file using json Ibis template.
+
+    Parameters
+    ----------
+    file : str
+        File name to parse.
+    """
     ibis = {}
     # OPEN AND READ IBIS FILE
     with open(file, "r") as fp:
@@ -1220,7 +1226,14 @@ def ibis_parsing(file: str):
     return ibis
 
 
-def ami_parsing(file: str):
+def ami_parsing(file):
+    """Open and parse ibis ami file using json Ibis template.
+
+    Parameters
+    ----------
+    file : str
+        File name to parse.
+    """
     ami = {}
     # OPEN AND READ AMI FILE
     with open(file, "r") as fp:
