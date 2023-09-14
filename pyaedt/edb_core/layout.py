@@ -267,7 +267,7 @@ class EdbLayout(object):
             List of tuples. Each tuple provides x, y point coordinate. If the length of two consecutives tuples
              from the list equals 2, a segment is defined. The first tuple defines the starting point while the second
              tuple the ending one. If the length of one tuple equals one, that means a polyline is defined and the value
-             is giving the arc height. Therefore to polyline definition is defined as starting point for the tuple
+             is giving the arc height. Therefore to polyline is defined as starting point for the tuple
              before in the list, the current one the arc height and the tuple after the polyline ending point.
 
         Examples
