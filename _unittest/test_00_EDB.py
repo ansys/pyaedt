@@ -1610,6 +1610,9 @@ class TestClass:
         assert wave_port.pec_launch_width
         assert not wave_port.deembed
         assert wave_port.deembed_length == 0.0
+        assert wave_port.do_renormalize
+        wave_port.do_renormalize = False
+        assert not wave_port.do_renormalize
         assert edb.hfss.create_differential_wave_port(
             traces[0].id,
             trace_paths[0][0],
