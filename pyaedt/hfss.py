@@ -5872,6 +5872,66 @@ class Hfss(FieldAnalysis3D, object):
             return False
 
     @pyaedt_function_handler()
+    def set_phase_center_per_port(self, coordinate_system=None):
+        # type: (list) -> bool
+        """Set phase center per port.
+
+        Parameters
+        ----------
+        coordinate_system : list
+            List of the coordinate system per port. The default is ``None``, in which case the
+            default port location is assigned.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetPhaseCenterPerPort
+
+        Examples
+        --------
+
+        Set phase center of an antenna with two ports.
+
+        >>> hfss.set_phase_center_per_port(["Global", "Global"])
+
+        """
+
+        if not self.desktop_class.is_grpc_api:  # pragma: no cover
+            self.hfss.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually")
+            return False
+
+        port_names = []
+        for exc in self.design_excitations:
+            port_names.append(exc.name)
+
+        if not port_names:  # pragma: no cover
+            return False
+
+        if not coordinate_system:
+            coordinate_system = ["<-Port Location->"] * len(port_names)
+        elif not isinstance(coordinate_system, list):
+            return False
+        elif len(coordinate_system) != len(port_names):
+            return False
+
+        cont = 0
+        arg = []
+        for port in port_names:
+            arg.append(["NAME:" + port, "Coordinate System:=", coordinate_system[cont]])
+            cont += 1
+
+        try:
+            self.oboundary.SetPhaseCenterPerPort(arg)
+        except:
+            return False
+        return True
+
+    @pyaedt_function_handler()
     def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
         """
         Return a Touchstone data plot.

@@ -750,7 +750,7 @@ class TestClass:
             domain2 = self.aedtapp.results.interaction_domain()
             domain2.set_receiver("MD400C")
             if config["desktopVersion"] >= "2024.1":
-                rev2.max_n_to_1_instances = 0
+                rev2.n_to_1_limit = 0
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
@@ -797,11 +797,11 @@ class TestClass:
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
 
-        # check max_n_to_1_instances can be set to different values
-        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 1
-        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 1
-        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 0
-        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 0
+        # check n_to_1_limit can be set to different values
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 1
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 1
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 0
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 0
 
         # get number of 1-1 instances
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 105702
@@ -810,8 +810,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
         # rerun with N-1
-        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 2**25
-        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 2**25
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 2**20
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2**20
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 23305632
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
