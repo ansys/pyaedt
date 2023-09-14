@@ -45,17 +45,17 @@ edb.materials.add_dielectric_material("ANSYS_FR4", 3.5, 0.005)
 # A stackup can be created by importing from a csv/xml file or adding layer by layer.
 #
 
-edb.add_design_variable("DIEL_T", "0.15mm")
+edb.add_design_variable("$DIEL_T", "0.15mm")
 edb.stackup.add_layer("BOT")
-edb.stackup.add_layer("D5", "GND", layer_type="dielectric", thickness="DIEL_T", material="ANSYS_FR4")
+edb.stackup.add_layer("D5", "GND", layer_type="dielectric", thickness="$DIEL_T", material="ANSYS_FR4")
 edb.stackup.add_layer("L5", "Diel", thickness="0.05mm")
-edb.stackup.add_layer("D4", "GND", layer_type="dielectric", thickness="DIEL_T", material="ANSYS_FR4")
+edb.stackup.add_layer("D4", "GND", layer_type="dielectric", thickness="$DIEL_T", material="ANSYS_FR4")
 edb.stackup.add_layer("L4", "Diel", thickness="0.05mm")
-edb.stackup.add_layer("D3", "GND", layer_type="dielectric", thickness="DIEL_T", material="ANSYS_FR4")
+edb.stackup.add_layer("D3", "GND", layer_type="dielectric", thickness="$DIEL_T", material="ANSYS_FR4")
 edb.stackup.add_layer("L3", "Diel", thickness="0.05mm")
-edb.stackup.add_layer("D2", "GND", layer_type="dielectric", thickness="DIEL_T", material="ANSYS_FR4")
+edb.stackup.add_layer("D2", "GND", layer_type="dielectric", thickness="$DIEL_T", material="ANSYS_FR4")
 edb.stackup.add_layer("L2", "Diel", thickness="0.05mm")
-edb.stackup.add_layer("D1", "GND", layer_type="dielectric", thickness="DIEL_T", material="ANSYS_FR4")
+edb.stackup.add_layer("D1", "GND", layer_type="dielectric", thickness="$DIEL_T", material="ANSYS_FR4")
 edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
 ######################
@@ -136,9 +136,7 @@ edb.hfss.hfss_extent_info.air_box_negative_vertical_extent = 2
 # ~~~~~~~~~~~~
 
 setup = edb.create_hfss_setup("Setup1")
-setup.set_solution_single_frequency("5GHz", max_delta_s="0.01")
-
-setup.hfss_solver_settings.enhanced_low_freq_accuracy = True
+setup.set_solution_single_frequency("5GHz", max_num_passes=2, max_delta_s="0.01")
 setup.hfss_solver_settings.order_basis = "first"
 
 #############################
@@ -155,7 +153,7 @@ setup.add_frequency_sweep(
     frequency_sweep=[
         ["linear count", "0", "1KHz", 1],
         ["log scale", "1KHz", "0.1GHz", 10],
-        ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ["linear scale", "0.1GHz", "5GHz", "0.1GHz"],
     ],
 )
 
