@@ -93,7 +93,7 @@ class TestClass:
             "usethickness": True,
             "thickness": "0.5mm",
             "istwoside": True,
-            "issheelElement": True,  # TODO: Is "sheel" a typo in native API?
+            "issheelElement": True,  # TODO: Is "sheelElement" a typo in native API?
             "usehuray": True,
             "radius": "0.75um",
             "ratio": "3",
@@ -131,7 +131,7 @@ class TestClass:
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
 
-        udp = self.aedtapp.modeler.Position(100, 0, 0)
+        udp = self.aedtapp.modeler.Position(80, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
         port = self.aedtapp.wave_port(
             signal=o6,
@@ -161,7 +161,7 @@ class TestClass:
         assert "outer_1" in pec_objects[0].name  # Check that PEC cap was created from "outer_1".
 
         self.aedtapp.solution_type = "Modal"
-        assert len(self.aedtapp.boundaries) == 3
+        assert len(self.aedtapp.boundaries) == 4
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
         port = self.aedtapp.wave_port(
@@ -180,7 +180,7 @@ class TestClass:
         id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
-        ports = self.aedtapp.wave_port(
+        port3 = self.aedtapp.wave_port(
             signal=rect,
             deembed=5,
             integration_line=self.aedtapp.AxisDir.ZNeg,
@@ -189,7 +189,7 @@ class TestClass:
             name="sheet3_Port",
             renormalize=False,
         )
-        assert ports.name in [i.name for i in self.aedtapp.boundaries]
+        assert port3.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
         setup = self.aedtapp.create_setup("MySetup")

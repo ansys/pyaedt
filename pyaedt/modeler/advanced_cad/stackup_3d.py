@@ -1958,7 +1958,7 @@ class Patch(CommonObject, object):
     application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
-        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        The target resonant frequency for the patch antenna. If it is None, the patch frequency will be that of the
         layer or of the stackup.
     dx : float
         The patch width.
@@ -1984,14 +1984,18 @@ class Patch(CommonObject, object):
     --------
 
     >>> from pyaedt import Hfss
-    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
-    >>> my_stackup = Stackup3D(hfss, 2.5e9)
-    >>> gnd = my_stackup.add_ground_layer("gnd")
-    >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
-    >>> top = my_stackup.add_signal_layer("top")
-    >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
-    >>> my_stackup.resize_around_element(my_patch)
+    >>> stackup = Stackup3D(hfss)
+    >>> gnd = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
+    >>> dielectric = stackup.add_dielectric_layer("dielectric", thickness="0.5" + length_units, material="Duroid (tm)")
+    >>> signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
+    >>> patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch")
+    >>> stackup.resize_around_element(patch)
+    >>> pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
+    >>> region = hfss.modeler.create_region(pad_length, is_percentage=False)
+    >>> hfss.assign_radiation_boundary_to_objects(region)
+    >>> patch.create_probe_port(gnd, rel_x_offset=0.485)
 
     """
 
