@@ -802,8 +802,8 @@ class TestClass:
         # check n_to_1_limit can be set to different values
         self.aedtapp.results.revisions[-1].n_to_1_limit = 1
         assert self.aedtapp.results.revisions[-1].n_to_1_limit == 1
-        self.aedtapp.results.revisions[-1].n_to_1_limit = 4
-        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 4
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 0
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 0
 
         # get number of 1-1 instances
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 52851
