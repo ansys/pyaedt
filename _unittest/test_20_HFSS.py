@@ -133,6 +133,8 @@ class TestClass:
 
         udp = self.aedtapp.modeler.Position(80, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
+        self.aedtapp.modeler.subtract(o6, "inner_1", keep_originals=True)
+
         port = self.aedtapp.wave_port(
             signal=o6,
             deembed=0,
