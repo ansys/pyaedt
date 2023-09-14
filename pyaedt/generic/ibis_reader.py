@@ -1081,6 +1081,7 @@ def is_started_with(src, find, ignore_case=True):
 
 
 def lowercase_json(json_data):
+    """Convert a json structure to lower case."""
     if isinstance(json_data, str):
         return json_data.lower()
     elif isinstance(json_data, dict):
@@ -1089,14 +1090,6 @@ def lowercase_json(json_data):
         return [lowercase_json(item) for item in json_data]
     else:
         return json_data
-
-
-def get_files_by_extension(path, extension):
-    files = []
-    for file in os.listdir(path):
-        if file.endswith(extension):
-            files.append(os.path.join(path, file))
-    return files
 
 
 def ibis_parsing(file):
@@ -1224,146 +1217,3 @@ def ibis_parsing(file):
 
     # RETURN IBIS PARSING RESULT
     return ibis
-
-
-def ami_parsing(file):
-    """Open and parse ibis ami file using json Ibis template.
-
-    Parameters
-    ----------
-    file : str
-        File name to parse.
-    """
-    ami = {}
-    # OPEN AND READ AMI FILE
-    with open(file, "r") as fp:
-        ami_data = list(enumerate(fp))
-
-    # MAKE ONE SENTENCE FOR THE LOADED AMI FILE
-    ami_text = ""
-    for idx, text in ami_data:
-        ami_text += text.strip()
-
-    try:
-        level = -1  # LEVEL FOR AMI LEAVES
-        key = ""  # AMI KEYWORD
-        init_flag = True  # FOR INITIAL SAVING
-        description_flag = False  # FOR DESCRIPTION
-
-        # FOR EACH CHARACTERS IN THE ONE SENTENCE
-        for char in ami_text:
-            # IF 'description' IN KEY
-            if "description" in key.lower():
-                if char == '"' and description_flag:
-                    description_flag = False
-                    if not init_flag:
-                        if not key.strip() == "":
-                            if level == 0:
-                                ami[key.strip()] = {}
-                                ami_name = key.strip()
-                            elif level == 1:
-                                ami[ami_name][key.strip()] = {}
-                                ami_1st_leaf = key.strip()
-                            elif level == 2:
-                                ami[ami_name][ami_1st_leaf][key.strip()] = {}
-                                ami_2nd_leaf = key.strip()
-                            elif level == 3:
-                                if len(key.split()) > 1:
-                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = key.replace(
-                                        key.split()[0], ""
-                                    ).strip()
-                                else:
-                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = {}
-                                    ami_3rd_leaf = key.split()[0]
-                            elif level == 4:
-                                ami[ami_name][ami_1st_leaf][ami_2nd_leaf][ami_3rd_leaf][key.split()[0]] = key.replace(
-                                    key.split()[0], ""
-                                ).strip()
-                                # ami_4th_leaf = key.split()[0]
-                    key = ""
-                    continue
-
-                elif char == '"':
-                    description_flag = True
-
-                elif char == "|":
-                    comment_flag = True
-
-                if not comment_flag:
-                    key += char
-            else:
-                if char == "(":
-                    if not init_flag:
-                        if not key.strip() == "":
-                            if level == 0:
-                                ami[key.strip()] = {}
-                                ami_name = key.strip()
-                            elif level == 1:
-                                ami[ami_name][key.strip()] = {}
-                                ami_1st_leaf = key.strip()
-                            elif level == 2:
-                                ami[ami_name][ami_1st_leaf][key.strip()] = {}
-                                ami_2nd_leaf = key.strip()
-                            elif level == 3:
-                                if len(key.split()) > 1:
-                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = key.replace(
-                                        key.split()[0], ""
-                                    ).strip()
-                                else:
-                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = {}
-                                    ami_3rd_leaf = key.split()[0]
-                            elif level == 4:
-                                ami[ami_name][ami_1st_leaf][ami_2nd_leaf][ami_3rd_leaf][key.split()[0]] = key.replace(
-                                    key.split()[0], ""
-                                ).strip()
-                                # ami_4th_leaf = key.split()[0]
-                            # print('')
-                            # print(key, level)
-                    init_flag = False
-                    comment_flag = False
-                    level += 1
-                    key = ""
-                    continue
-
-                elif char == ")":
-                    if not init_flag:
-                        if not key.strip() == "":
-                            if level == 0:
-                                ami[key.strip()] = {}
-                                ami_name = key.strip()
-                            elif level == 1:
-                                ami[ami_name][key.strip()] = {}
-                                ami_1st_leaf = key.strip()
-                            elif level == 2:
-                                ami[ami_name][ami_1st_leaf][key.strip()] = {}
-                                ami_2nd_leaf = key.strip()
-                            elif level == 3:
-                                if len(key.split()) > 1:
-                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = key.replace(
-                                        key.split()[0], ""
-                                    ).strip()
-                                else:
-                                    ami[ami_name][ami_1st_leaf][ami_2nd_leaf][key.split()[0]] = {}
-                                    ami_3rd_leaf = key.split()[0]
-                            elif level == 4:
-                                ami[ami_name][ami_1st_leaf][ami_2nd_leaf][ami_3rd_leaf][key.split()[0]] = key.replace(
-                                    key.split()[0], ""
-                                ).strip()
-                                # ami_4th_leaf = key.split()[0]
-                            # print('')
-                            # print(key, level)
-                    level -= 1
-                    init_flag = True
-
-                elif char == "|":
-                    comment_flag = True
-
-                if not comment_flag:
-                    key += char
-
-    except Exception:
-        print(traceback.format_exc())
-        print("False")
-        return False
-
-    return ami
