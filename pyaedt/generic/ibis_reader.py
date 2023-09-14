@@ -1188,8 +1188,7 @@ def ibis_parsing(file):
                     pre_key_save[3] = key_save
 
                 else:
-                    print("")
-                    print(f"Invalid IBIS Keyword : {key}")
+                    logger.error("Invalid IBIS Keyword : {}".format(key))
                     return False
 
             # ALREADY FIND OUT KEYWORD
@@ -1211,8 +1210,7 @@ def ibis_parsing(file):
                             "\n" + line.strip()
                         )
     except Exception:
-        print(traceback.format_exc())
-        print("False")
+        logger.error(traceback.format_exc())
         return False
 
     # RETURN IBIS PARSING RESULT
