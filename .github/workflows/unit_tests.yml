@@ -28,7 +28,7 @@ concurrency:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  build_solvers:
     # The type of runner that the job will run on
     runs-on: [ windows-latest, pyaedt ]
     strategy:
@@ -70,12 +70,11 @@ jobs:
         run: |
           testenv_s\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml:coverage_solvers.xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v3
         with:
           name: 'Upload coverage to Codecov'
-          files: ./coverage_solvers.xml
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
@@ -86,7 +85,7 @@ jobs:
         if: ${{ always() }}
 
 
-  build_tests_2:
+  build:
     # The type of runner that the job will run on
     runs-on: [windows-latest, pyaedt]
     strategy:
@@ -128,12 +127,11 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml:coverage_tests.xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+          pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v3
         with:
           name: 'Upload coverage to Codecov'
-          files: ./coverage_tests.xml
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
