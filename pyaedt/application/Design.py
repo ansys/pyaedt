@@ -279,7 +279,6 @@ class Design(AedtObjects):
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
         bb = []
-
         if "GetBoundaries" in self.oboundary.__dir__():
             bb = list(self.oboundary.GetBoundaries())
         elif "Boundaries" in self.get_oo_name(self.odesign):
@@ -340,7 +339,12 @@ class Design(AedtObjects):
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
-        return list(self._boundaries.values()) + self.design_excitations
+        excitations = self.design_excitations
+        for exc in excitations:
+            if not self._boundaries or exc.name not in list(self._boundaries.keys()):
+                self._boundaries[exc.name] = exc
+
+        return list(self._boundaries.values())
 
     @property
     def boundaries_by_type(self):
@@ -397,10 +401,21 @@ class Design(AedtObjects):
                 if new_port:
                     current_boundaries = current_boundaries + new_port
                     current_types = current_types + [i] * len(new_port)
+
             for boundary, boundarytype in zip(current_boundaries, current_types):
-                if boundary in self._boundaries:
-                    continue
                 design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+                if (
+                    design_excitations[boundary].object_properties
+                    and design_excitations[boundary].object_properties.props["Type"] == "Terminal"
+                ):  # pragma: no cover
+                    props_terminal = OrderedDict()
+                    props_terminal["TerminalResistance"] = design_excitations[boundary].object_properties.props[
+                        "Terminal Renormalizing Impedance"
+                    ]
+                    props_terminal["ParentBndID"] = design_excitations[boundary].object_properties.props["Port Name"]
+                    design_excitations[boundary] = BoundaryObject(
+                        self, boundary, props=props_terminal, boundarytype="Terminal"
+                    )
 
         elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
@@ -755,6 +770,13 @@ class Design(AedtObjects):
     @solution_type.setter
     def solution_type(self, soltype):
         if self.design_solutions:
+            if (
+                self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
+            ):  # pragma: no cover
+                boundaries = self.boundaries
+                for exc in boundaries:
+                    if exc.type == "Terminal":
+                        del self._boundaries[exc.name]
             self.design_solutions.solution_type = soltype
 
     @property
@@ -890,7 +912,7 @@ class Design(AedtObjects):
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
                 toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
-        elif settings.remote_api:
+        elif settings.remote_api or settings.remote_rpc_session:
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
@@ -1139,7 +1161,12 @@ class Design(AedtObjects):
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
     def _add_handler(self):
-        if not self._oproject or not settings.enable_local_log_file or settings.remote_api:
+        if (
+            not self._oproject
+            or not settings.enable_local_log_file
+            or settings.remote_api
+            or settings.remote_rpc_session
+        ):
             return
         for handler in self._global_logger._files_handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
@@ -3916,3 +3943,34 @@ class Design(AedtObjects):
         """
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
+
+    @pyaedt_function_handler()
+    def design_settings(self):
+        """Get design settings for the current AEDT app.
+
+        Returns
+        -------
+        dict
+            Dictionary of valid design settings.
+
+        References
+        ----------
+
+        >>> oDesign.GetChildObject("Design Settings")
+        """
+        try:
+            design_settings = self._odesign.GetChildObject("Design Settings")
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to retrieve design settings.")
+            return False
+
+        prop_name_list = design_settings.GetPropNames()
+        design_settings_dict = {}
+        for prop in prop_name_list:
+            try:
+                design_settings_dict[prop] = design_settings.GetPropValue(prop)
+            except Exception:  # pragma: no cover
+                self.logger.warning('Could not retrieve "{}" property value in design settings.'.format(prop))
+                design_settings_dict[prop] = None
+
+        return design_settings_dict

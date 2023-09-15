@@ -199,6 +199,9 @@ class FieldAnalysis3D(Analysis, object):
         clean_files=False,
         view="isometric",
         show_legend=True,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Plot the model or a subset of objects.
 
@@ -229,6 +232,12 @@ class FieldAnalysis3D(Analysis, object):
            The default is ``"isometric"``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -250,6 +259,9 @@ class FieldAnalysis3D(Analysis, object):
                 clean_files=clean_files,
                 view=view,
                 show_legend=show_legend,
+                dark_mode=dark_mode,
+                show_bounding=show_bounding,
+                show_grid=show_grid,
             )
 
     @pyaedt_function_handler()
@@ -668,7 +680,7 @@ class FieldAnalysis3D(Analysis, object):
 
         if mat.lower() in self.materials.material_keys:
             matobj = self.materials.material_keys[mat.lower()]
-        elif self.materials._get_aedt_case_name(mat) or settings.remote_api:
+        elif self.materials._get_aedt_case_name(mat) or settings.remote_api or settings.remote_rpc_session:
             matobj = self.materials._aedmattolibrary(mat)
         if matobj:
             if self.design_type == "HFSS":

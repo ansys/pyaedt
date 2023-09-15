@@ -22,16 +22,18 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
+from pyaedt.edb_core.edb_data.ports import ExcitationBundle
+from pyaedt.edb_core.edb_data.ports import ExcitationProbes
+from pyaedt.edb_core.edb_data.ports import ExcitationSources
+from pyaedt.edb_core.edb_data.ports import GapPort
+from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
-from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
-from pyaedt.edb_core.edb_data.sources import ExcitationPorts
-from pyaedt.edb_core.edb_data.sources import ExcitationProbes
-from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
-import pyaedt.edb_core.general
+from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
@@ -170,7 +172,7 @@ class Edb(Database):
                 os.path.dirname(edbpath), "pyaedt_" + os.path.splitext(os.path.split(edbpath)[-1])[0] + ".log"
             )
 
-        if isaedtowned and (inside_desktop or settings.remote_api):
+        if isaedtowned and (inside_desktop or settings.remote_api or settings.remote_rpc_session):
             self.open_edb_inside_aedt()
         elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
             self.edbpath = edbpath[:-4] + ".aedb"
@@ -342,20 +344,43 @@ class Edb(Database):
     @property
     def terminals(self):
         """Get terminals belonging to active layout."""
-        return {i.GetName(): ExcitationPorts(self, i) for i in self.layout.terminals}
+        return {i.GetName(): GapPort(self, i) for i in self.layout.terminals}
 
     @property
     def excitations(self):
         """Get all layout excitations."""
         terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) == 0]
-        terms = [i for i in terms if not i.IsReferenceTerminal()]
         temp = {}
         for ter in terms:
             if "BundleTerminal" in ter.GetType().ToString():
-                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+                temp[ter.GetName()] = ExcitationBundle(self, ter)
             else:
-                temp[ter.GetName()] = ExcitationPorts(self, ter)
+                temp[ter.GetName()] = GapPort(self, ter)
         return temp
+
+    @property
+    def ports(self):
+        """Get all ports.
+
+        Returns
+        -------
+        Dict[str, [:class:`pyaedt.edb_core.edb_data.ports.GapPort`,
+                   :class:`pyaedt.edb_core.edb_data.ports.WavePort`,]]
+
+        """
+        temp = [term for term in self.layout.terminals if not term.IsReferenceTerminal()]
+
+        ports = {}
+        for t in temp:
+            t2 = Terminal(self, t)
+            if t2.terminal_type == TerminalType.BundleTerminal.name:
+                bundle_ter = ExcitationBundle(self, t)
+                ports[bundle_ter.name] = bundle_ter
+            elif t2.hfss_type == "Wave":
+                ports[t2.name] = WavePort(self, t)
+            else:
+                ports[t2.name] = GapPort(self, t)
+        return ports
 
     @property
     def excitations_nets(self):
@@ -1386,7 +1411,7 @@ class Edb(Database):
         for net in net_signals:
             names.append(net.GetName())
         for prim in self.modeler.primitives:
-            if prim.net_name in names:
+            if prim is not None and prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
                     expansion_size, tolerance, round_corner, round_extension
                 )
@@ -1457,7 +1482,7 @@ class Edb(Database):
         for net in net_signals:
             names.append(net.GetName())
         for prim in self.modeler.primitives:
-            if prim.net_name in names:
+            if prim is not None and prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
         if smart_cut:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
@@ -1489,6 +1514,7 @@ class Edb(Database):
         expansion_factor=0,
         maximum_iterations=10,
         preserve_components_with_model=False,
+        simple_pad_check=True,
     ):
         """Create a cutout using an approach entirely based on PyAEDT.
         This method replaces all legacy cutout methods in PyAEDT.
@@ -1556,7 +1582,10 @@ class Edb(Database):
         preserve_components_with_model : bool, optional
             Whether to preserve all pins of components that have associated models (Spice or NPort).
             This parameter is applicable only for a PyAEDT cutout (except point list).
-
+        simple_pad_check : bool, optional
+            Whether to use the center of the pad to find the intersection with extent or use the bounding box.
+            Second method is much slower and requires to disable multithread on padstack removal.
+            Default is `True`.
 
         Returns
         -------
@@ -1644,6 +1673,8 @@ class Edb(Database):
                         check_terminals=check_terminals,
                         include_pingroups=include_pingroups,
                         preserve_components_with_model=preserve_components_with_model,
+                        include_partial=include_partial_instances,
+                        simple_pad_check=simple_pad_check,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1681,6 +1712,8 @@ class Edb(Database):
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
                     preserve_components_with_model=preserve_components_with_model,
+                    include_partial=include_partial_instances,
+                    simple_pad_check=simple_pad_check,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -1884,6 +1917,8 @@ class Edb(Database):
         check_terminals=False,
         include_pingroups=True,
         preserve_components_with_model=False,
+        include_partial=False,
+        simple_pad_check=True,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -2011,10 +2046,14 @@ class Edb(Database):
                 prims_to_delete.append(prim_1)
 
         def pins_clean(pinst):
-            if not pinst.in_polygon(_poly, simple_check=True):
+            if not pinst.in_polygon(_poly, include_partial=include_partial, simple_check=simple_pad_check):
                 pins_to_delete.append(pinst)
 
-        with ThreadPoolExecutor(number_of_threads) as pool:
+        if not simple_pad_check:
+            pad_cores = 1
+        else:
+            pad_cores = number_of_threads
+        with ThreadPoolExecutor(pad_cores) as pool:
             pool.map(lambda item: pins_clean(item), reference_pinsts)
 
         for pin in pins_to_delete:
@@ -3080,7 +3119,7 @@ class Edb(Database):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
-        all_sources = [i for i in self.excitations.values() if not isinstance(i, ExcitationPorts)]
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort))]
         all_sources.extend([i for i in self.sources.values()])
         if not all_sources:
             return True

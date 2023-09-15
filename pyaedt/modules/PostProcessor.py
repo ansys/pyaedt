@@ -756,9 +756,14 @@ class PostProcessorCommon(object):
             Report Category. Default is `""` which will take first default context.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
+
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAllCategories
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -823,6 +828,10 @@ class PostProcessorCommon(object):
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAllQuantities
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -861,6 +870,31 @@ class PostProcessorCommon(object):
                     report_category, display_type, solution, context, quantities_category
                 )
             )
+        return None
+
+    @pyaedt_function_handler()
+    def available_report_solutions(self, report_category=None):
+        """Get the list of available solutions that can be used for the reports.
+        This list differs from the one obtained with ``app.existing_analysis_sweeps``,
+        because it includes additional elements like "AdaptivePass".
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is ``None`` which will take first default category.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+        >>> oModule.GetAvailableSolutions
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if report_category:
+            return list(self.oreportsetup.GetAvailableSolutions(report_category))
         return None
 
     @pyaedt_function_handler()
@@ -3382,7 +3416,8 @@ class PostProcessor(PostProcessorCommon, object):
             export_path = self._app.working_directory
         if not obj_list:
             self._app.modeler.refresh_all_ids()
-            obj_list = self._app.modeler.object_names
+            non_model = self._app.modeler.non_model_names[:]
+            obj_list = [i for i in self._app.modeler.object_names if i not in non_model]
             if not air_objects:
                 obj_list = [
                     i
