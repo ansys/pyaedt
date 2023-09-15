@@ -2503,7 +2503,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-            Boolean ``True`` if successful.
+       bool
+           ``True`` when successful, ``False`` when failed.
 
         """
         if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements3d.FacePrimitive):
@@ -6254,22 +6255,22 @@ class Hfss(FieldAnalysis3D, object):
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
         reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
-            The ending object for the integration line or reference for Terminal solution. Can be multiple objects.
+            Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use the start object as the surface
-            to create the port. Default is ``False``.
+            to create the port. The default is ``False``.
         create_pec_cap : bool, False
             Whether to create a port cap or not. Default is ``False``.
         integration_line : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
-            Default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.AxisDir.XNeg``.
             It can also be a list of 2 points.
         port_on_plane : bool, optional
             Whether to create the source on the plane orthogonal to ``AxisDir``.
             The default is ``True``.
         impedance : float, optional
-            Port impedance. Default is ``50``.
+            Port impedance. The default is ``50``.
         num_modes : int, optional
             Number of modes. The default is ``1``.
         name : str, optional
@@ -6282,11 +6283,11 @@ class Hfss(FieldAnalysis3D, object):
             Whether if the wave port will be created and is a microstrip port.
             The default is ``False``.
         vfactor : int, optional
-            Port vertical factor. Only valid if ``is_microstrip`` is enabled. Default is ``3``.
+            Port vertical factor. Only valid if ``is_microstrip`` is enabled. The default is ``3``.
         hfactor : int, optional
-            Port horizontal factor. Only valid if ``is_microstrip`` is enabled. Default is ``5``.
+            Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
         terminals_rename : bool, optional
-            Modify terminals name with the port name plus the terminal number. Default is ``True``.
+            Modify terminals name with the port name plus the terminal number. The default is ``True``.
 
         Returns
         -------

@@ -2739,8 +2739,8 @@ class Primitives(object):
         defaultmatname : str
             Name of the default material to assign if ``metname`` does not exist.
         threshold : float
-            Threshold conductivity to distinguish dielectric from conductor.
-            Default value is 100000 S/m.
+            Threshold conductivity in S/m to distinguish dielectric from conductor.
+            The default value is ``100000``.
 
         Returns
         -------

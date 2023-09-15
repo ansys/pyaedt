@@ -2744,7 +2744,7 @@ class GeometryModeler(Modeler, object):
     def convert_to_selections(self, object_id, return_list=False):
         """Convert modeler objects.
 
-        This method converts modeler object or ID's to the corresponding
+        This method converts modeler object or IDs to the corresponding
         output according to the following scheme:
 
         ====================  ===========================
@@ -2756,12 +2756,12 @@ class GeometryModeler(Modeler, object):
           ``EdgePrimitive``      int, edge ID
           ``str``                return the same ``str``
 
-        - If ``object_id`` is a list, then a list will be returned according
-        to the table. If ``object_id`` is a single value, then a list
-        of ``length == 1`` will be returned (default).
+        - If ``object_id`` is a list, a list is returned according
+        to the table. If ``object_id`` is a single value, a list
+        of ``length == 1`` is returned (default).
 
-        - If the 2nd argument, ``return_list`` is set to `False` (Default), a ``str``
-        ``str`` will be returned with elements separated by a comma ",".
+        - If the second argument, ``return_list``, is set to `False` (default), a
+        string is returned with elements separated by a comma (,)".
 
 
         Parameters
@@ -3848,12 +3848,13 @@ class GeometryModeler(Modeler, object):
 
             Parameters
             ----------
-            object_list : list of objects (ID or names)
+            object_list : list
+                List of objects (IDs or names).
 
             Returns
             -------
-            List
-                List of names of objects cloned when successful.
+            list
+                List of names of the objects cloned when successful.
 
         References
         ----------
@@ -3876,7 +3877,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-            List of passed objects
+        list
+            List of passed objects.
 
         References
         ----------

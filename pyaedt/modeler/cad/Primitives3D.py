@@ -92,7 +92,7 @@ class Primitives3D(Primitives, object):
 
         """
         if len(position) != 3:
-            raise ValueError("Position Argument must be a valid 3 Element List")
+            raise ValueError("Position argument must be a valid three-element list.")
         if len(dimensions_list) != 3:
             raise ValueError("Dimension Argument must be a valid 3 Element List")
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)

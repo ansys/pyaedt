@@ -665,7 +665,7 @@ class Layer3D(object):
                     below_layer = self._stackup.stackup_layers[layer_names[i - 1]]
                     break
                 else:
-                    self._app.logger.error("The layer below the selected one must be of dielectric type")
+                    self._app.logger.error("The layer below the selected one must be of dielectric type.")
                     return False
         created_patch = Patch(
             self._app,
@@ -1524,13 +1524,14 @@ class Stackup3D(object):
         name : str
             Layer name.
         layer_type : str, optional
-            Layer type. Options are
-            - ``"S"`` for "signal" layer
-            - ``"D"`` for "dielectric" layer
-            - ``"G"`` for "ground" layer
-            The default is ``"S"``.
+            Layer type. The default is ``"S"``. Options are:
+            
+             - ``"D"`` for "dielectric" layer
+             - ``"G"`` for "ground" layer
+             - ``"S"`` for "signal" layer
+
         material_name : str, optional
-            Material name. The default is ``"copper"``. The material will be parametrized.
+            Material name. The default is ``"copper"``. The material is parametrized.
         thickness : float, optional
             Thickness value. The default is ``0.035``. The thickness will be parametrized.
         fill_material : str, optional
@@ -1958,7 +1959,8 @@ class Patch(CommonObject, object):
     application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
-        The target resonant frequency for the patch antenna. If it is None, the patch frequency will be that of the
+        Target resonant frequency for the patch antenna. The default is ``None``,
+        in which case the patch frequency is that of the
         layer or of the stackup.
     dx : float
         The patch width.
@@ -2365,9 +2367,11 @@ class Patch(CommonObject, object):
         Parameters
         ----------
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
-            Reference layer (Ground).
+            Reference layer (ground).
 
-        rel_x_offset : float, value between 0 and 1
+        rel_x_offset : float, 
+            Relative x-offset for probe feed. 
+            Provide a value between 0.0 and 1.0.
             Offset in the x-direction relative to the center of the patch.
             `0` places the probe at the center of the patch.
             `1` places the probe at the edge of the patch.
@@ -2387,6 +2391,7 @@ class Patch(CommonObject, object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------

@@ -306,7 +306,7 @@ class MatProperty(object):
 
     @property
     def evaluated_value(self):
-        """Evaluated value"""
+        """Evaluated value."""
         return self._material._materials._app.evaluate_expression(self.value)
 
     @property
