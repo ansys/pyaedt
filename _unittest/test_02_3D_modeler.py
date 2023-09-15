@@ -401,7 +401,7 @@ class TestClass:
         assert cs5.delete()
 
     def test_40a_create_face_coordinate_system(self):
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        box = self.aedtapp.modeler.create_box(position=[0, 0, 0], dimensions_list=[2, 2, 2], name="box_cs")
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
         assert fcs
@@ -460,6 +460,18 @@ class TestClass:
         assert fcs._get_type_from_object(face) == "Face"
         assert fcs._get_type_from_object(face.edges[0]) == "Edge"
         assert fcs._get_type_from_object(face.edges[0].vertices[0]) == "Vertex"
+
+    def test_40b_create_object_coordinate_system(self):
+        box = self.aedtapp.modeler.objects_by_name["box_cs"]
+        face = box.faces[0]
+        cs = self.aedtapp.modeler.create_object_coordinate_system(cs_type="Offset", name="offset_cs", entity=face)
+        assert cs
+        assert cs.name == "offset_cs"
+        assert cs.entity_id == face.id
+        cs.props["MoveToEnd"] = False
+        cs.props["xAxis"]["xDirection"] = 2
+        cs.props["Origin"]["xPosition"] = 2
+
 
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")

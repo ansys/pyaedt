@@ -318,36 +318,6 @@ class BaseCoordinateSystem(PropsManager, object):
         return val
 
     @pyaedt_function_handler()
-    def delete(self):
-        """Delete the coordinate system.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        Clean all coordinate systems of the design.
-
-        >>> from pyaedt import Maxwell2d
-        >>> app = Maxwell2d()
-        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
-        >>> [i.delete() for i in cs_copy]
-        """
-        try:
-            self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-            self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
-            coordinate_systems = self._modeler._app.oeditor.GetRelativeCoordinateSystems()
-            for cs in self._modeler.coordinate_systems[:]:
-                if cs.name not in coordinate_systems:
-                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
-            self._modeler.cleanup_objects()
-        except:
-            self._modeler._app.logger.warning("Coordinate system does not exist")
-        return True
-
-    @pyaedt_function_handler()
     def set_as_working_cs(self):
         """Set the coordinate system as the working coordinate system.
 
@@ -400,6 +370,36 @@ class BaseCoordinateSystem(PropsManager, object):
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
         self.name = newname
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Clean all coordinate systems of the design.
+
+        >>> from pyaedt import Maxwell2d
+        >>> app = Maxwell2d()
+        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
+        >>> [i.delete() for i in cs_copy]
+        """
+        try:
+            self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+            self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            coordinate_systems = self._modeler._app.oeditor.GetCoordinateSystems()
+            for cs in self._modeler.coordinate_systems[:]:
+                if cs.name not in coordinate_systems:
+                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
+            self._modeler.cleanup_objects()
+        except:
+            self._modeler._app.logger.warning("Coordinate system does not exist")
         return True
 
 
@@ -1317,9 +1317,6 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         move_to_end=True,
         reverse_x_axis=False,
         reverse_y_axis=False,
-        # y_axis_x_direction=0,
-        # y_axis_y_direction=0,
-        # y_axis_z_direction=0
     ):
         """Create an object coordinate system.
 
@@ -1345,18 +1342,6 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         reverse_y_axis : bool, optional
             Whether the y-axis is in the reverse direction.
             The default is ``False``.
-        # y_axis_x_direction : float, optional
-        #     X direction of the y axis.
-        #     This option can be provided if the coordinate system type is either ``Rotated`` or ``Both``.
-        #     The default is ``0``.
-        # y_axis_y_direction : float, optional
-        #     Y direction of the y axis.
-        #     This option can be provided if the coordinate system type is either ``Rotated`` or ``Both``.
-        #     The default is ``0``.
-        # y_axis_z_direction : float, optional
-        #     Z direction of the y axis.
-        #     This option can be provided if the coordinate system type is either ``Rotated`` or ``Both``.
-        #     The default is ``0``.
 
         Returns
         -------
@@ -1519,29 +1504,56 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
         try:
             self._change_property(
+                self.name, ["NAME:ChangedProps", ["NAME:Reverse X Axis", "Value:=", self.props["ReverseXAxis"]]]
+            )
+        except:  # pragma: no cover
+            raise ValueError("Update property reverse x axis failed.")
+
+        try:
+            self._change_property(
+                self.name, ["NAME:ChangedProps", ["NAME:Reverse Y Axis", "Value:=", self.props["ReverseYAxis"]]]
+            )
+        except:  # pragma: no cover
+            raise ValueError("Update property reverse y axis failed.")
+
+        if self.props["Origin"]["PositionType"] == "AbsolutePosition":
+            try:
+                self._change_property(
+                    self.name,
+                    [
+                        "NAME:ChangedProps",
+                        [
+                            "NAME:Origin",
+                            "X:=",
+                            self.props["Origin"]["xPosition"],
+                            "Y:=",
+                            self.props["Origin"]["yPosition"],
+                            "Z:=",
+                            self.props["Origin"]["zPosition"],
+                        ],
+                    ],
+                )
+            except:  # pragma: no cover
+                raise ValueError("Update origin properties failed.")
+
+        try:
+            self._change_property(
                 self.name,
                 [
                     "NAME:ChangedProps",
                     [
                         "NAME:X Axis",
                         "X:=",
-                        self.props["xAxisPos"]["XPosition"],
+                        self.props["xAxis"]["xDirection"],
                         "Y:=",
-                        self.props["xAxisPos"]["YPosition"],
+                        self.props["xAxis"]["yDirection"],
                         "Z:=",
-                        self.props["xAxisPos"]["ZPosition"],
+                        self.props["xAxis"]["zDirection"],
                     ],
                 ],
             )
         except:  # pragma: no cover
             raise ValueError("Update x axis properties failed.")
-
-        try:
-            self._change_property(
-                self.name, ["NAME:ChangedProps", ["NAME:Reverse X Axis", "Value:=", self.props["ReverseXAxis"]]]
-            )
-        except:  # pragma: no cover
-            raise ValueError("Update property reverse x axis failed.")
 
         try:
             self._change_property(
@@ -1561,13 +1573,6 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             )
         except:  # pragma: no cover
             raise ValueError("Update y axis properties failed.")
-
-        try:
-            self._change_property(
-                self.name, ["NAME:ChangedProps", ["NAME:Reverse Y Axis", "Value:=", self.props["ReverseYAxis"]]]
-            )
-        except:  # pragma: no cover
-            raise ValueError("Update property reverse y axis failed.")
 
         return True
 
