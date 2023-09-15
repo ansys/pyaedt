@@ -44,7 +44,7 @@ jobs:
 
       - name: 'Create virtual env'
         run: |
-          Remove-Item D:\Temp\* -Recurse -Force
+          Remove-Item D:\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
           python -m venv testenv_s
           testenv_s\Scripts\Activate.ps1
           python -m pip install pip -U
