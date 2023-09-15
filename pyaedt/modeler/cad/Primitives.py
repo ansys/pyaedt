@@ -112,7 +112,7 @@ class Primitives(object):
             3D object.
         """
         self._refresh_points()
-        return [self[name] for name in self.point_names if self[name]]
+        return [self.points[name] for name in self._points]
 
     @property
     def unclassified_objects(self):
