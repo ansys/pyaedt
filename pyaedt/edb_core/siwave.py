@@ -216,16 +216,18 @@ class EdbSiwave(object):
         port_name : str, optional
             Port Name
 
-        >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins = edbapp.components.get_pin_from_component("U2A5")
-        >>> edbapp.siwave.create_circuit_port_on_pin(pins[0], pins[1], 50, "port_name")
-
         Returns
         -------
         str
             Port Name.
 
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+        >>> pins = edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.siwave.create_circuit_port_on_pin(pins[0], pins[1], 50, "port_name")
         """
         circuit_port = CircuitPort()
         circuit_port.positive_node.net = pos_pin.GetNet().GetName()
@@ -991,7 +993,7 @@ class EdbSiwave(object):
 
         Returns
         -------
-            bool
+        bool
             ``True`` when successful, ``False`` when failed.
         """
 
@@ -1365,7 +1367,9 @@ class EdbSiwave(object):
         neg_pin_group_name : str
             Name of the negative pin group.
         impedance : int, float, optional
-            Impedance of the source.
+            Impedance of the port. Default is ``50``.
+        name : str, optional
+            Port name.
 
         Returns
         -------

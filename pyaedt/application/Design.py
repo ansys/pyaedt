@@ -279,7 +279,6 @@ class Design(AedtObjects):
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
         bb = []
-
         if "GetBoundaries" in self.oboundary.__dir__():
             bb = list(self.oboundary.GetBoundaries())
         elif "Boundaries" in self.get_oo_name(self.odesign):
@@ -340,7 +339,12 @@ class Design(AedtObjects):
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
-        return list(self._boundaries.values()) + self.design_excitations
+        excitations = self.design_excitations
+        for exc in excitations:
+            if not self._boundaries or exc.name not in list(self._boundaries.keys()):
+                self._boundaries[exc.name] = exc
+
+        return list(self._boundaries.values())
 
     @property
     def boundaries_by_type(self):
@@ -397,10 +401,21 @@ class Design(AedtObjects):
                 if new_port:
                     current_boundaries = current_boundaries + new_port
                     current_types = current_types + [i] * len(new_port)
+
             for boundary, boundarytype in zip(current_boundaries, current_types):
-                if boundary in self._boundaries:
-                    continue
                 design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+                if (
+                    design_excitations[boundary].object_properties
+                    and design_excitations[boundary].object_properties.props["Type"] == "Terminal"
+                ):  # pragma: no cover
+                    props_terminal = OrderedDict()
+                    props_terminal["TerminalResistance"] = design_excitations[boundary].object_properties.props[
+                        "Terminal Renormalizing Impedance"
+                    ]
+                    props_terminal["ParentBndID"] = design_excitations[boundary].object_properties.props["Port Name"]
+                    design_excitations[boundary] = BoundaryObject(
+                        self, boundary, props=props_terminal, boundarytype="Terminal"
+                    )
 
         elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
@@ -755,6 +770,13 @@ class Design(AedtObjects):
     @solution_type.setter
     def solution_type(self, soltype):
         if self.design_solutions:
+            if (
+                self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
+            ):  # pragma: no cover
+                boundaries = self.boundaries
+                for exc in boundaries:
+                    if exc.type == "Terminal":
+                        del self._boundaries[exc.name]
             self.design_solutions.solution_type = soltype
 
     @property

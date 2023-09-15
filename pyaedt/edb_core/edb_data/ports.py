@@ -208,7 +208,7 @@ class ExcitationBundle:
     @property
     def name(self):
         """Port Name."""
-        return self._edb_bundle_terminal.GetName()
+        return list(self.terminals.values())[0].name
 
     @property
     def edb(self):  # pragma: no cover
