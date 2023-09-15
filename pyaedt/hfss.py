@@ -6280,7 +6280,7 @@ class Hfss(FieldAnalysis3D, object):
             Deembed distance in millimeters. The default is ``0``.
         is_microstrip : bool, optional
             Whether if the wave port will be created and is a microstrip port.
-            Default is ``False``.
+            The default is ``False``.
         vfactor : int, optional
             Port vertical factor. Only valid if ``is_microstrip`` is enabled. Default is ``3``.
         hfactor : int, optional
