@@ -53,13 +53,13 @@ class TestClass:
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].c_value == "0.59pF"
 
         # Add pin
-        ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].add()
+        ibis.components["MT47H32M8BP-3_25"].pins["A8_MT47H32M8BP-3_25_u26a_800_modified"].add()
         pin = (
             ibis.components["MT47H32M8BP-3_25"]
-            .pins["A7_MT47H32M8BP-3_25_u26a_800_modified"]
+            .pins["A8_MT47H32M8BP-3_25_u26a_800_modified"]
             .insert(0.1016, 0.05334, 0.0)
         )
-        assert pin.name == "CompInst@A7_MT47H32M8BP-3_25_u26a_800_modified"
+        assert pin.name == "CompInst@DQS#_MT47H32M8BP-3_25_u26a_800_modified"
 
         # Add buffer
         ibis.buffers["RDQS#_u26a_800_modified"].add()
@@ -72,3 +72,9 @@ class TestClass:
         )
         assert len(ibis_model.components) == 6
         assert len(ibis_model.models) == 17
+
+    def test_03_read_ibis_ami(self):
+        ibis_model = self.aedtapp.get_ibis_model_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "ibis_ami_example_tx.ibs"), is_ami=True
+        )
+        assert ibis_model.buffers["example_model_tx_ibis_ami_example_tx"].insert(0, 0)
