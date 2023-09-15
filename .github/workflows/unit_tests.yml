@@ -44,7 +44,7 @@ jobs:
 
       - name: 'Create virtual env'
         run: |
-          Remove-Item D:\Temp\* -Recurse -Force
+          Remove-Item D:\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
           python -m venv testenv_s
           testenv_s\Scripts\Activate.ps1
           python -m pip install pip -U
@@ -73,6 +73,8 @@ jobs:
           pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           name: 'Upload coverage to Codecov'
 
@@ -101,7 +103,7 @@ jobs:
 
       - name: 'Create virtual env'
         run: |
-          Remove-Item D:\Temp\* -Recurse -Force
+          Remove-Item D:\Temp\* -Recurse -Force -ErrorAction SilentlyContinue
           python -m venv testenv
           testenv\Scripts\Activate.ps1
           python -m pip install pip -U
@@ -130,6 +132,8 @@ jobs:
           pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           name: 'Upload coverage to Codecov'
 
