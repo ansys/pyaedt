@@ -6271,7 +6271,7 @@ class Hfss(FieldAnalysis3D, object):
         impedance : float, optional
             Port impedance. Default is ``50``.
         num_modes : int, optional
-            Number of modes. Default is ``1``.
+            Number of modes. The default is ``1``.
         name : str, optional
             name of the port. The default is ``None``.
         renormalize : bool, optional
