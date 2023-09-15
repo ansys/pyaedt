@@ -1525,7 +1525,7 @@ class Stackup3D(object):
             Layer name.
         layer_type : str, optional
             Layer type. The default is ``"S"``. Options are:
-            
+
              - ``"D"`` for "dielectric" layer
              - ``"G"`` for "ground" layer
              - ``"S"`` for "signal" layer
@@ -2369,8 +2369,8 @@ class Patch(CommonObject, object):
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
             Reference layer (ground).
 
-        rel_x_offset : float, 
-            Relative x-offset for probe feed. 
+        rel_x_offset : float,
+            Relative x-offset for probe feed.
             Provide a value between 0.0 and 1.0.
             Offset in the x-direction relative to the center of the patch.
             `0` places the probe at the center of the patch.
