@@ -1876,7 +1876,7 @@ class Desktop(object):
                 elif "\\	$end" == line[:6]:
                     lin = "\\	$end \\'{}\\'\\\n".format(clustername)
                     f1.write(lin)
-                elif "NumCores" in line:
+                elif "NumCores=" in line:
                     lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
                     f1.write(lin)
                 elif "NumNodes=1" in line:
