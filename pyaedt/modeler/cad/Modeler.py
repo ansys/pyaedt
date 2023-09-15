@@ -2748,7 +2748,7 @@ class GeometryModeler(Modeler, object):
         output according to the following scheme:
 
         ====================  ===========================
-          ``object_Id``          Return Value
+          ``object_id``          Return value
         ====================  ===========================
          ``int``                 object name (str)
           ``Object3D``           object name (str)
