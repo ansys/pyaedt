@@ -3844,7 +3844,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def copy(self, object_list):
-        """Copy objects to the clipboard
+        """Copy objects to the clipboard.
 
             Parameters
             ----------
