@@ -797,6 +797,7 @@ class EdbHfss(object):
         wave_port.vertical_extent_factor = vertical_extent_factor
         wave_port.pec_launch_width = pec_launch_width
         wave_port.hfss_type = "Wave"
+        wave_port.do_renormalize = True
         if pos_edge_term:
             return port_name, wave_port
         else:
