@@ -6275,7 +6275,7 @@ class Hfss(FieldAnalysis3D, object):
         name : str, optional
             name of the port. The default is ``None``.
         renormalize : bool, optional
-            Whether to renormalize the mode. Default is ``True``.
+            Whether to renormalize the mode. The default is ``True``.
         deembed : float, optional
             Deembed distance in millimeters. The default is ``0``.
         is_microstrip : bool, optional
