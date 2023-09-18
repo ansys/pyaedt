@@ -2911,6 +2911,57 @@ class GeometryModeler(Modeler, object):
                 )
                 if result:
                     return face_cs
+        elif isinstance(coordinate_system, ObjectCoordinateSystem):
+            name = cs.name + "_RefToGlobal"
+            if name in cs_names:
+                name = cs.name + generate_unique_name("_RefToGlobal")
+            obj_cs = ObjectCoordinateSystem(self, props=cs.props, name=name, entity_id=cs.entity_id)
+            obj = self.objects[cs.entity_id]
+            if cs.props["Origin"]["PositionType"] != "AbsolutePosition":
+                if cs.props["Origin"]["PositionType"] == "FaceCenter":
+                    origin = [f for f in obj.faces if f.id == cs.props["Origin"]["EntityID"]][0]
+                elif cs.props["Origin"]["PositionType"] == "EdgeCenter":
+                    origin = [e for e in obj.edges if e.id == cs.props["Origin"]["EntityID"]][0]
+                elif cs.props["Origin"]["PositionType"] == "OnVertex":
+                    origin = [v for v in obj.vertices if v.id == cs.props["Origin"]["EntityID"]][0]
+            else:
+                origin = [cs.props["Origin"]["XPosition"],
+                          cs.props["Origin"]["YPosition"],
+                          cs.props["Origin"]["ZPosition"]]
+            if "xAxisPos" in cs.props:
+                if cs.props["xAxisPos"]["PositionType"] == "FaceCenter":
+                    x_axis = [f for f in obj.faces if f.id == cs.props["xAxisPos"]["EntityID"]][0]
+                elif cs.props["xAxisPos"]["PositionType"] == "EdgeCenter":
+                    x_axis = [e for e in obj.edges if e.id == cs.props["xAxisPos"]["EntityID"]][0]
+                elif cs.props["xAxisPos"]["PositionType"] == "OnVertex":
+                    x_axis = [v for v in obj.vertices if v.id == cs.props["xAxisPos"]["EntityID"]][0]
+            elif "xAxis" in cs.props:
+                x_axis = [cs.props["xAxis"]["xDirection"],
+                          cs.props["xAxis"]["yDirection"],
+                          cs.props["xAxis"]["zDirection"]]
+            if "yAxisPos" in cs.props:
+                if cs.props["yAxisPos"]["PositionType"] == "FaceCenter":
+                    y_axis = [f for f in obj.faces if f.id == cs.props["yAxisPos"]["EntityID"]][0]
+                elif cs.props["yAxisPos"]["PositionType"] == "EdgeCenter":
+                    y_axis = [e for e in obj.edges if e.id == cs.props["yAxisPos"]["EntityID"]][0]
+                elif cs.props["yAxisPos"]["PositionType"] == "OnVertex":
+                    y_axis = [v for v in obj.vertices if v.id == cs.props["yAxisPos"]["EntityID"]][0]
+            elif "yAxis" in cs.props:
+                y_axis = [cs.props["yAxis"]["xDirection"],
+                          cs.props["yAxis"]["yDirection"],
+                          cs.props["yAxis"]["zDirection"]]
+            if obj_cs:
+                result = obj_cs.create(
+                                        obj=obj,
+                                        origin=origin,
+                                        x_axis=x_axis,
+                                        y_axis=y_axis,
+                                        move_to_end = cs.props["MoveToEnd"],
+                                        reverse_x_axis = cs.props["ReverseXAxis"],
+                                        reverse_y_axis = cs.props["ReverseYAxis"]
+                                    )
+                if result:
+                    return obj_cs
         return False
 
     @pyaedt_function_handler()
