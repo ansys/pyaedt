@@ -3838,7 +3838,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-        self.copy(selections)
+        self.copy(objid)
         new_objects = self.paste()
         return True, new_objects
 
@@ -3868,8 +3868,9 @@ class GeometryModeler(Modeler, object):
             vArg1 = ["NAME:Selections", "Selections:=", selections]
             self.oeditor.Copy(vArg1)
             return selections
-        finally:
-            self.logger.error("Unable to copy objects to clipboard.")
+        except AttributeError:
+            self.logger.error(f"Unable to copy selections to clipboard.")
+            return None
 
     @pyaedt_function_handler()
     def paste(self):
