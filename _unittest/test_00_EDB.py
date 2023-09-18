@@ -2829,3 +2829,26 @@ class TestClass:
         ]
         assert vias[0].metal_volume
         assert vias[1].metal_volume
+
+    def test_146_export_ipc(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_boundaries.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        xml_file = os.path.join(target_path, "test.xml")
+        edbapp.export_to_ipc2581(xml_file)
+        assert os.path.isfile(xml_file)
+        ipc_edb = Edb(xml_file, edbversion=desktop_version)
+        ipc_stats = ipc_edb.get_statistics()
+        assert ipc_stats.layout_size == (0.1492, 0.0837)
+        assert ipc_stats.num_capacitors == 380
+        assert ipc_stats.num_discrete_components == 31
+        assert ipc_stats.num_inductors == 10
+        assert ipc_stats.num_layers == 15
+        assert ipc_stats.num_nets == 348
+        assert ipc_stats.num_polygons == 138
+        assert ipc_stats.num_resistors == 82
+        assert ipc_stats.num_traces == 1565
+        assert ipc_stats.num_traces == 1565
+        assert ipc_stats.num_vias == 4730
+        assert ipc_stats.stackup_thickness == 0.001748
