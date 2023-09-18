@@ -535,13 +535,25 @@ class TestClass:
         assert cs.delete()
 
     def test_41a_rename_face_coordinate(self):
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        box = self.aedtapp.modeler.objects_by_name["box_cs"]
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="oldname")
         assert fcs.name == "oldname"
         assert fcs.rename("newname")
         assert fcs.name == "newname"
         assert fcs.delete()
+
+    def test_41b_rename_object_coordinate(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        cs = self.aedtapp.modeler.create_object_coordinate_system(obj=box,
+                                                                  origin=box.faces[0],
+                                                                  x_axis=box.edges[0],
+                                                                  y_axis=[0, 0, 0],
+                                                                  name="obj_cs")
+        assert cs.name == "obj_cs"
+        assert cs.rename("new_obj_cs")
+        assert cs.name == "new_obj_cs"
+        assert cs.delete()
 
     def test_42A_update_coordinate_system(self):
         CS_list = self.aedtapp.modeler.coordinate_systems
