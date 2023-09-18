@@ -537,11 +537,9 @@ class TestClass:
 
     def test_41b_rename_object_coordinate(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
-        cs = self.aedtapp.modeler.create_object_coordinate_system(obj=box,
-                                                                  origin=box.faces[0],
-                                                                  x_axis=box.edges[0],
-                                                                  y_axis=[0, 0, 0],
-                                                                  name="obj_cs")
+        cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+        )
         assert cs.name == "obj_cs"
         assert cs.rename("new_obj_cs")
         assert cs.name == "new_obj_cs"
