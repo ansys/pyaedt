@@ -34,50 +34,7 @@ jobs:
           level: error
           filter_mode: nofilter
           fail_on_error: true
-          vale_flags: "--config=doc/.vale.ini"
-
-  test_documentation:
-    # The type of runner that the job will run on
-    name: full_documentation
-    runs-on: [windows-latest, pyaedt]
-    strategy:
-      matrix:
-        python-version: ['3.10']
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: 'Create virtual env'
-        run: |
-          python -m venv testenv
-          testenv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: 'Install pyaedt'
-        run: |
-          testenv\Scripts\Activate.ps1
-          pip install .[doc]
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
-
-      - name: Retrieve PyAEDT version
-        id: version
-        run: |
-          testenv\Scripts\Activate.ps1
-          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
-
-      - name: Create PDF Documentations
-        run: |
-            testenv\Scripts\Activate.ps1
-            .\doc\make.bat pdf
-            
+          vale_flags: "--config=doc/.vale.ini"            
     
   docs_build:
     runs-on: ubuntu-20.04
