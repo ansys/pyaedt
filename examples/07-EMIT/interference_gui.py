@@ -386,9 +386,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             table = self.interference_matrix
 
         fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Scenario Matrix", "png (*.png)")
-        image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
-        table.render(image)
-        image.save(fname[0])
+        if fname[0]:
+            image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
+            table.render(image)
+            image.save(fname[0])
 
     ###############################################################################
     # Save scenario matrix to Excel file 
@@ -406,7 +407,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", defaultName, "xlsx (*.xlsx)")
 
-        if fname:
+        if fname[0]:
             workbook = openpyxl.Workbook()
             worksheet = workbook.active
             header = self.tx_radios[:]
