@@ -76,7 +76,8 @@ jobs:
       - name: Create PDF Documentations
         run: |
             testenv\Scripts\Activate.ps1
-            sphinx-build -j auto --color -b pdf -a doc/source doc/_build/pdf
+            .\doc\make.bat pdf
+            
     
   docs_build:
     runs-on: ubuntu-20.04
