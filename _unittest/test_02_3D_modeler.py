@@ -683,22 +683,22 @@ class TestClass:
         assert first_line.insert_segment(position_list=first_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of curves"
-                )
-                == "2"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "2"
         )
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of segments"
-                )
-                == "0"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
         )
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of points"
-                )
-                == "4"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "4"
         )
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
@@ -711,56 +711,54 @@ class TestClass:
         )
 
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of curves"
-                )
-                == "3"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "3"
         )
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of segments"
-                )
-                == "0"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
         )
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of points"
-                )
-                == "8"
-        )
-
-        assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Segment Type"
-                )
-                == "Spline"
-        )
-        assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment1", "Segment Type"
-                )
-                == "Line"
-        )
-        assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Segment Type"
-                )
-                == "Spline"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "8"
         )
 
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0",
-                    "Number of segments"
-                )
-                == "0"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Segment Type"
+            )
+            == "Spline"
         )
         assert (
-                self.aedtapp.get_oo_property_value(
-                    self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2",
-                    "Number of segments"
-                )
-                == "0"
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment1", "Segment Type"
+            )
+            == "Line"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Segment Type"
+            )
+            == "Spline"
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
+            )
+            == "0"
         )
 
     def test_50_move_edge(self):
@@ -873,8 +871,8 @@ class TestClass:
             decompose_variable_value(fcs.props["ZRotationAngle"])[0]
         )
         assert (
-                decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
-                == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
         )
         assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
         assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
@@ -891,8 +889,8 @@ class TestClass:
             decompose_variable_value(fcs.props["ZRotationAngle"])[0]
         )
         assert (
-                decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
-                == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
         )
         assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
         assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
@@ -909,8 +907,8 @@ class TestClass:
             decompose_variable_value(fcs.props["ZRotationAngle"])[0]
         )
         assert (
-                decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
-                == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
         )
         assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
         assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
@@ -927,8 +925,8 @@ class TestClass:
             decompose_variable_value(fcs.props["ZRotationAngle"])[0]
         )
         assert (
-                decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
-                == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
         )
         assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
         assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
