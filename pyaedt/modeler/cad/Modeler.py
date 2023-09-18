@@ -1368,7 +1368,12 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             raise ValueError("Object provided is invalid.")
 
         # Origin
-        if isinstance(origin, int) or isinstance(origin, VertexPrimitive) or isinstance(origin, EdgePrimitive) or isinstance(origin, FacePrimitive):
+        if (
+            isinstance(origin, int)
+            or isinstance(origin, VertexPrimitive)
+            or isinstance(origin, EdgePrimitive)
+            or isinstance(origin, FacePrimitive)
+        ):
             if isinstance(origin, int):
                 id = origin
             else:
@@ -1420,7 +1425,12 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         originParameters["ZPosition"] = origin_z_position
 
         # X-Axis
-        if isinstance(x_axis, int) or isinstance(x_axis, VertexPrimitive) or isinstance(x_axis, EdgePrimitive) or isinstance(x_axis, FacePrimitive):
+        if (
+            isinstance(x_axis, int)
+            or isinstance(x_axis, VertexPrimitive)
+            or isinstance(x_axis, EdgePrimitive)
+            or isinstance(x_axis, FacePrimitive)
+        ):
             if isinstance(x_axis, int):
                 id = x_axis
             else:
@@ -1476,7 +1486,12 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             x_axis_dict_name = "xAxis"
 
         # Y-Axis
-        if isinstance(y_axis, int) or isinstance(y_axis, VertexPrimitive) or isinstance(y_axis,EdgePrimitive) or isinstance(y_axis, FacePrimitive):
+        if (
+            isinstance(y_axis, int)
+            or isinstance(y_axis, VertexPrimitive)
+            or isinstance(y_axis, EdgePrimitive)
+            or isinstance(y_axis, FacePrimitive)
+        ):
             if isinstance(y_axis, int):
                 id = y_axis
             else:
@@ -2561,15 +2576,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def create_object_coordinate_system(
-        self,
-        obj,
-        origin,
-        x_axis,
-        y_axis,
-        move_to_end=True,
-        reverse_x_axis=False,
-        reverse_y_axis=False,
-        name=None
+        self, obj, origin, x_axis, y_axis, move_to_end=True, reverse_x_axis=False, reverse_y_axis=False, name=None
     ):
         """Create an object coordinate system.
 
