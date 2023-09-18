@@ -111,7 +111,8 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        return [v for v in list(self.points.values())]
+        self._refresh_points()
+        return [self.points[name] for name in self._points]
 
     @property
     def unclassified_objects(self):
@@ -135,7 +136,7 @@ class Primitives(object):
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names if name is not None]
+        return [self[name] for name in self._all_object_names if name is not None and name not in self.point_names]
 
     @property
     def solid_names(self):
