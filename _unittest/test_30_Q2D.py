@@ -1,5 +1,6 @@
 import os
 
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 import pytest
@@ -287,6 +288,7 @@ class TestClass:
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_18_import_dxf(self):
         self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")

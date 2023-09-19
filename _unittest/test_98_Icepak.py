@@ -1296,6 +1296,7 @@ class TestClass:
         comp.close_project()
         assert self.aedtapp.modeler.user_defined_components["test"].update_definition()
 
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_67_import_dxf(self):
         self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")

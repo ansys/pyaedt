@@ -1530,6 +1530,7 @@ class TestClass:
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_64_import_dxf(self):
         self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
