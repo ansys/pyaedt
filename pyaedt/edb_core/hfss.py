@@ -1113,7 +1113,7 @@ class EdbHfss(object):
                                 ref_prim = [
                                     prim
                                     for prim in reference_net.primitives
-                                    if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                    if prim.polygon_data.edb_api.PointInPolygon(mid_pt_data)
                                 ]
                                 if not ref_prim:
                                     self._logger.warning("no reference primitive found, trying to extend scanning area")
@@ -1130,7 +1130,7 @@ class EdbHfss(object):
                                         ref_prim = [
                                             prim
                                             for prim in reference_net.primitives
-                                            if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                            if prim.polygon_data.edb_api.PointInPolygon(mid_pt_data)
                                         ]
                                         if ref_prim:
                                             self._logger.info("Reference primitive found")

@@ -3444,7 +3444,6 @@ class Edb(Database):
                 for layer in layers_to_remove:
                     edb.stackup.remove_layer(layer)
             edb.stackup.stackup_mode = "Laminate"
-            edb.cutout(use_pyaedt_cutout=True, custom_extent=zone_info[1], open_cutout_at_end=True)
             edb.active_cell.SetName(os.path.splitext(os.path.basename(edb_path))[0])
             if common_reference_net:
                 signal_nets = list(self.nets.signal.keys())
