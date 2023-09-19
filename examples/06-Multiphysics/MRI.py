@@ -19,7 +19,7 @@ Link HFSS to transient thermal solver to find temperature rise in tissue near im
 # Perform required imports.
 import os.path
 
-from pyaedt import Hfss, Mechanical, Icepak
+from pyaedt import Hfss, Mechanical, Icepak, downloads
 
 
 
@@ -32,8 +32,7 @@ from pyaedt import Hfss, Mechanical, Icepak
 # Phantom consists of two objects: phantom and implant_box
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain #electrical and thermal properties.
-
-project_path = r'C:\ansysdev\Jupyter_Examples\Workshop\Workshops\MRI\Expert Content\MRI HB Modeling\MRI HB Workshop Input Files\2 Files for heating'
+project_path = downloads.download_file(directory="mri")
 hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version="2023.2")
 ###############################################################################
 # Insert 3D component
@@ -121,8 +120,6 @@ hfss["input_scale"] = 1 / sol_data.data_real()[0]
 # Subtract rod from implant_box.
 # Assign titanium to the imported object rod.
 # Analyze the project.
-
-project_path = r'C:\ansysdev\Jupyter_Examples\Workshop\Workshops\MRI\Expert Content\MRI HB Modeling\MRI HB Workshop Input Files\3 Sim Files Linked Fields'
 
 hfss.modeler.import_3d_cad(os.path.join(project_path, "implant_rod.sat"))
 
