@@ -2760,7 +2760,7 @@ class Primitives(object):
     def _refresh_solids(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Solids")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Solids is failing"
@@ -2774,7 +2774,7 @@ class Primitives(object):
     def _refresh_sheets(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Sheets")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Sheets is failing"
@@ -2788,7 +2788,7 @@ class Primitives(object):
     def _refresh_lines(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Lines")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Lines is failing"
@@ -2802,7 +2802,7 @@ class Primitives(object):
     def _refresh_points(self):
         try:
             test = self.oeditor.GetPoints()
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Points is failing"
@@ -2820,7 +2820,7 @@ class Primitives(object):
                 plane_name: self.oeditor.GetChildObject(plane_name)
                 for plane_name in self.oeditor.GetChildNames("Planes")
             }
-        except TypeError:
+        except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
@@ -2828,7 +2828,7 @@ class Primitives(object):
     def _refresh_unclassified(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Unclassified")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is None or test is False:
             self._unclassified = []
