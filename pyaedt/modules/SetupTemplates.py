@@ -813,7 +813,7 @@ TransientTemperatureAndFlow = OrderedDict(
         "Import Start Time": False,
         "Copy Fields From Source": False,
         "SaveFieldsType": "Every N Steps",
-        "N Steps:=": "10s",
+        "N Steps": "10",
         "Enable Control Program": False,
         "Control Program Name": "",
     }
@@ -903,7 +903,7 @@ TransientTemperatureOnly = OrderedDict(
         "Import Start Time": False,
         "Copy Fields From Source": False,
         "SaveFieldsType": "Every N Steps",
-        "N Steps:=": "10s",
+        "N Steps": "10",
         "Enable Control Program": False,
         "Control Program Name": "",
     }
@@ -993,7 +993,7 @@ TransientFlowOnly = OrderedDict(
         "Import Start Time": False,
         "Copy Fields From Source": False,
         "SaveFieldsType": "Every N Steps",
-        "N Steps:=": "10s",
+        "N Steps": "10",
         "Enable Control Program": False,
         "Control Program Name": "",
     }
