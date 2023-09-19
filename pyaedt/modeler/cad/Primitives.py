@@ -292,12 +292,7 @@ class Primitives(object):
     @property
     def non_model_objects(self):
         """List of objects of all non-model objects."""
-        return self._get_model_objects(model=False)
-
-    @property
-    def non_model_names(self):
-        """List of names of all non-model objects."""
-        return self.oeditor.GetObjectsInGroup("Non Model")
+        return list(self.oeditor.GetObjectsInGroup("Non Model"))
 
     @property
     def model_consistency_report(self):
@@ -2172,7 +2167,7 @@ class Primitives(object):
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
         if not include_non_model:
-            non_models = [i for i in self.non_model_names]
+            non_models = [i for i in self.non_model_objects]
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
