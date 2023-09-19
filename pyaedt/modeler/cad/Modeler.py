@@ -1219,7 +1219,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
     name : optional
         The default is ``None``.
     entity_id : int
-        Id of the entity object where the Object Coordinate System is anchored.
+        ID of the entity object where the object coordinate system is anchored.
 
     """
 
@@ -1238,7 +1238,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def ref_cs(self):
-        """Reference coordinate system getter and setter.
+        """Reference coordinate system.
 
         Returns
         -------
@@ -1277,7 +1277,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def _part_name(self):
-        """Internally get the part name of the object where the coordinate system lays"""
+        """Internally named part name of the object where the coordinate system lays."""
         if not self.entity_id:
             # face_id has not been defined yet
             return None
@@ -1304,7 +1304,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def _attributes(self):
-        """Internal named array for attributes of the object coordinate system."""
+        """Internally named array for attributes of the object coordinate system."""
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
@@ -1391,7 +1391,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                 elif o_type == "Vertex":
                     origin_position_type = "OnVertex"
                 else:  # pragma: no cover
-                    raise ValueError("origin must identify either Face or Edge or Vertex.")
+                    raise ValueError("Origin must identify either `Face`, 'Edge', or 'Vertex'.")
             origin_x_position = "0"
             origin_y_position = "0"
             origin_z_position = "0"
@@ -1553,28 +1553,28 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                 ],
             )
         except:  # pragma: no cover
-            raise ValueError("Update property reference coordinate system failed.")
+            raise ValueError("Update of property reference coordinate system failed.")
 
         try:
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Always Move CS To End", "Value:=", self.props["MoveToEnd"]]]
             )
         except:  # pragma: no cover
-            raise ValueError("Update property move to end failed.")
+            raise ValueError("Update of property move to end failed.")
 
         try:
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Reverse X Axis", "Value:=", self.props["ReverseXAxis"]]]
             )
         except:  # pragma: no cover
-            raise ValueError("Update property reverse x axis failed.")
+            raise ValueError("Update of property reverse x axis failed.")
 
         try:
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Reverse Y Axis", "Value:=", self.props["ReverseYAxis"]]]
             )
         except:  # pragma: no cover
-            raise ValueError("Update property reverse y axis failed.")
+            raise ValueError("Update of property reverse y axis failed.")
 
         if self.props["Origin"]["PositionType"] == "AbsolutePosition":
             origin_x_position = self._position_parser(self.props["Origin"]["XPosition"])
@@ -1672,7 +1672,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
 
 class Lists(PropsManager, object):
-    """Manages Lists data and execution.
+    """Manages list data and execution.
 
     Parameters
     ----------
@@ -2576,7 +2576,7 @@ class GeometryModeler(Modeler, object):
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
             if name in cs_names:  # pragma: no cover
-                raise AttributeError("A coordinate system with the specified name already exists!")
+                raise AttributeError("A coordinate system with the specified name already exists.")
 
         cs = ObjectCoordinateSystem(self, name=name)
         if cs:
