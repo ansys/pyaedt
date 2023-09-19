@@ -1327,23 +1327,29 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         obj : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
-            Refer to the origin where the object coordinate system is anchored.
-            It can be:
-             - int in which case it refers to the entity Id.
-             - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
-             - list in which case it refers to the origin coordinate system ``[x, y, z]``.
+            Origin where the object coordinate system is anchored.
+            The value can be:
+
+             - An integer, in which case it refers to the entity ID.
+             - A VertexPrimitive, EdgePrimitive, or FacePrimitive object, in which case it refers to the entity type.
+             - A list, in which case it refers to the origin coordinate system ``[x, y, z]``.
+
         x_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Entity that the x axis of the object coordinate system points to.
-            It can be:
-             - int in which case it refers to the entity Id.
-             - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
-             - list in which case it refers to the point coordinate system ``[x, y, z]`` that the x axis points to.
+            The value can be:
+
+             - An integer, in which case it refers to the entity IDd.
+             - A VertexPrimitive, EdgePrimitive, or FacePrimitive object, in which case it refers to the entity type.
+             - A list, in which case it refers to the point coordinate system ``[x, y, z]`` that the x axis points to.
+
         y_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Entity that the y axis of the object coordinate system points to.
-            It can be:
-             - int in which case it refers to the entity Id.
-             - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
-             - list in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
+            The value can be:
+
+             - An integer, in which case it refers to the entity ID.
+             - A VertexPrimitive, EdgePrimitive, FacePrimitive object, in which case it refers to the entity type.
+             - A list, in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
+
         move_to_end : bool, optional
             If ``True`` the Coordinate System creation operation will always be moved to the end of subsequent
             objects operation. The default is ``True``.
