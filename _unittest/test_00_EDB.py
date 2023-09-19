@@ -2814,6 +2814,7 @@ class TestClass:
             positive_pin=pin, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=False
         )
         assert len(reference_pins) == 11
+        edbapp.close()
 
     def test_145_arc_data(self):
         assert len(self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs) > 0
@@ -2852,3 +2853,5 @@ class TestClass:
         assert ipc_stats.num_traces == 1565
         assert ipc_stats.num_vias == 4730
         assert ipc_stats.stackup_thickness == 0.001748
+        edbapp.close()
+        ipc_edb.close()
