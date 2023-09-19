@@ -1399,18 +1399,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             is_attached_to_entity = False
             origin_entity_id = -1
             origin_position_type = "AbsolutePosition"
-            try:
-                origin_x_position = self._dim_arg(float(origin[0]), self.model_units)
-            except:
-                origin_x_position = origin[0]
-            try:
-                origin_y_position = self._dim_arg(float(origin[1]), self.model_units)
-            except:
-                origin_y_position = origin[1]
-            try:
-                origin_z_position = self._dim_arg(float(origin[2]), self.model_units)
-            except:
-                origin_z_position = origin[2]
+            origin_x_position = self._position_parser(origin[0])
+            origin_y_position = self._position_parser(origin[1])
+            origin_z_position = self._position_parser(origin[2])
 
         originParameters = OrderedDict()
         originParameters["IsAttachedToEntity"] = is_attached_to_entity
@@ -1462,18 +1453,10 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             xAxisParameters["ZPosition"] = "0"
             x_axis_dict_name = "xAxisPos"
         elif isinstance(x_axis, list):
-            try:
-                x_axis_x_direction = self._dim_arg(float(x_axis[0]), self.model_units)
-            except:
-                x_axis_x_direction = x_axis[0]
-            try:
-                x_axis_y_direction = self._dim_arg(float(x_axis[1]), self.model_units)
-            except:
-                x_axis_y_direction = x_axis[1]
-            try:
-                x_axis_z_direction = self._dim_arg(float(x_axis[2]), self.model_units)
-            except:
-                x_axis_z_direction = x_axis[2]
+            x_axis_x_direction = self._position_parser(x_axis[0])
+            x_axis_y_direction = self._position_parser(x_axis[1])
+            x_axis_z_direction = self._position_parser(x_axis[2])
+
             xAxisParameters = OrderedDict()
             xAxisParameters["DirectionType"] = "AbsoluteDirection"
             xAxisParameters["EdgeID"] = -1
@@ -1523,18 +1506,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             yAxisParameters["ZPosition"] = "0"
             y_axis_dict_name = "yAxisPos"
         elif isinstance(y_axis, list):
-            try:
-                y_axis_x_direction = self._dim_arg(float(y_axis[0]), self.model_units)
-            except:
-                y_axis_x_direction = y_axis[0]
-            try:
-                y_axis_y_direction = self._dim_arg(float(y_axis[1]), self.model_units)
-            except:
-                y_axis_y_direction = y_axis[1]
-            try:
-                y_axis_z_direction = self._dim_arg(float(y_axis[2]), self.model_units)
-            except:
-                y_axis_z_direction = y_axis[2]
+            y_axis_x_direction = self._position_parser(y_axis[0])
+            y_axis_y_direction = self._position_parser(y_axis[1])
+            y_axis_z_direction = self._position_parser(y_axis[2])
 
             yAxisParameters = OrderedDict()
             yAxisParameters["DirectionType"] = "AbsoluteDirection"
@@ -1603,18 +1577,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             raise ValueError("Update property reverse y axis failed.")
 
         if self.props["Origin"]["PositionType"] == "AbsolutePosition":
-            try:
-                origin_x_position = self._dim_arg(float(self.props["Origin"]["XPosition"]), self.model_units)
-            except:
-                origin_x_position = self.props["Origin"]["XPosition"]
-            try:
-                origin_y_position = self._dim_arg(float(self.props["Origin"]["YPosition"]), self.model_units)
-            except:
-                origin_y_position = self.props["Origin"]["YPosition"]
-            try:
-                origin_z_position = self._dim_arg(float(self.props["Origin"]["ZPosition"]), self.model_units)
-            except:
-                origin_z_position = self.props["Origin"]["ZPosition"]
+            origin_x_position = self._position_parser(self.props["Origin"]["XPosition"])
+            origin_y_position = self._position_parser(self.props["Origin"]["YPosition"])
+            origin_z_position = self._position_parser(self.props["Origin"]["ZPosition"])
             try:
                 self._change_property(
                     self.name,
@@ -1635,18 +1600,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                 raise ValueError("Update origin properties failed.")
 
         if "xAxis" in self.props:
-            try:
-                x_axis_x_direction = self._dim_arg(float(self.props["xAxis"]["xDirection"]), self.model_units)
-            except:
-                x_axis_x_direction = self.props["xAxis"]["xDirection"]
-            try:
-                x_axis_y_direction = self._dim_arg(float(self.props["xAxis"]["yDirection"]), self.model_units)
-            except:
-                x_axis_y_direction = self.props["xAxis"]["yDirection"]
-            try:
-                x_axis_z_direction = self._dim_arg(float(self.props["xAxis"]["zDirection"]), self.model_units)
-            except:
-                x_axis_z_direction = self.props["xAxis"]["zDirection"]
+            x_axis_x_direction = self._position_parser(self.props["xAxis"]["xDirection"])
+            x_axis_y_direction = self._position_parser(self.props["xAxis"]["yDirection"])
+            x_axis_z_direction = self._position_parser(self.props["xAxis"]["zDirection"])
             try:
                 self._change_property(
                     self.name,
@@ -1667,18 +1623,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                 raise ValueError("Update x axis properties failed.")
 
         if "yAxis" in self.props:
-            try:
-                y_axis_x_direction = self._dim_arg(float(self.props["yAxis"]["xDirection"]), self.model_units)
-            except:
-                y_axis_x_direction = self.props["yAxis"]["xDirection"]
-            try:
-                y_axis_y_direction = self._dim_arg(float(self.props["yAxis"]["yDirection"]), self.model_units)
-            except:
-                y_axis_y_direction = self.props["yAxis"]["yDirection"]
-            try:
-                y_axis_z_direction = self._dim_arg(float(self.props["yAxis"]["zDirection"]), self.model_units)
-            except:
-                y_axis_z_direction = self.props["yAxis"]["zDirection"]
+            y_axis_x_direction = self._position_parser(self.props["yAxis"]["xDirection"])
+            y_axis_y_direction = self._position_parser(self.props["yAxis"]["yDirection"])
+            y_axis_z_direction = self._position_parser(self.props["yAxis"]["zDirection"])
             try:
                 self._change_property(
                     self.name,
@@ -1716,6 +1663,12 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                         if vertex.id == obj_id:
                             return "Vertex"
         raise ValueError("Cannot find entity id {}".format(obj_id))
+
+    def _position_parser(self, pos):
+        try:
+            return self._dim_arg(float(pos), self.model_units)
+        except:
+            return pos
 
 
 class Lists(PropsManager, object):
