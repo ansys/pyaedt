@@ -777,7 +777,7 @@ class Layer3D(object):
         line_width : float
             Line width. It can be the physical width or the line impedance.
         line_length : float
-            Line length. It can be the physical length or the electrical length.
+            Line length. It can be the physical length or the electrical length in degrees.
         is_electrical_length : bool, optional
             Whether the line length is an electrical length or a physical length. The default
             is ``False``, which means it is a physical length.
@@ -2691,9 +2691,9 @@ class Trace(CommonObject, object):
         self._effective_permittivity_h_w = None
         self._effective_permittivity_w_h = None
         self._axis = axis
-        self._permittivity = NamedVariable(
-            application, line_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
-        )
+        #  self._permittivity = NamedVariable(
+        #      application, line_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
+        #  )
         if isinstance(line_width, float) or isinstance(line_width, int):
             self._width = NamedVariable(
                 application, line_name + "_width", application.modeler._arg_with_dim(line_width)
@@ -2867,7 +2867,7 @@ class Trace(CommonObject, object):
         # w/h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
         h = self._substrate_thickness.name
         z = self._charac_impedance.name
-        er = self._permittivity.name
+        er = self._permittivity.value
         a_formula = (
             "("
             + z
@@ -2943,14 +2943,19 @@ class Trace(CommonObject, object):
         return self._permittivity
 
     @property
-    def _permittivity_calcul(self):
-        """Permittivity Calculation.
+    def _permittivity(self):
+        """Permittivity"""
+        return self.application.materials[self._dielectric_material].permittivity
 
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+    @property
+    def _permittivity_calcul(self):
+        """Permittivity.
+
+        (Obsolete)
+
         """
+        # TODO: This property is superfluous and causes inconsistencies. Remove it later.
+
         self._permittivity = self.application.materials[self._dielectric_material].permittivity
         return self._permittivity
 
@@ -3101,7 +3106,7 @@ class Trace(CommonObject, object):
         # "(substrat_permittivity + 1)/2 +
         # (substrat_permittivity - 1)/(2 * sqrt(1 + 12 * substrate_thickness/patch_width))"
         #
-        er = self._permittivity.name
+        er = self._permittivity.value
         h = self._substrate_thickness.name
         w = self.width.name
         patch_eff_permittivity_formula_w_h = (
