@@ -55,7 +55,7 @@ hfss.modeler.insert_3d_component(os.path.join(project_path, "coil.a3dcomp"))
 # For this demo number of passes is limited to 2 to reduce simulation time.
 
 im_traces = hfss.get_traces_for_plot(get_mutual_terms=False, category="im(Z", first_element_filter="Coil1_p*")
-im_traces
+
 hfss.setups[0].enable_expression_cache(
     report_type="Modal Solution Data",
     expressions=im_traces,
@@ -64,6 +64,7 @@ hfss.setups[0].enable_expression_cache(
     conv_criteria=2.5,
     use_cache_for_freq=False)
 hfss.setups[0].props["MaximumPasses"] = 2
+im_traces
 
 ###############################################################################
 # Edit Sources
@@ -199,10 +200,28 @@ mech.save_project()
 data = mech.post.get_solution_data("Temperature", primary_sweep_variable="Time", context="Point1", report_category="Fields")
 data.plot()
 
+###############################################################################
+# Thermal Simulation
+# ~~~~~~~~~~~~~~~~~~
+# Initialize a new Icepak Transient Thermal analysis.
+
 ipk = Icepak(solution_type="Transient", specified_version="2023.2")
 ipk.design_solutions.problem_type = "TemperatureOnly"
+
+###############################################################################
+# Copy geometries
+# ~~~~~~~~~~~~~~~
+# Copy bodies from the HFSS project. 3D Component will not be copied.
+
 ipk.modeler.delete("Region")
 ipk.copy_solid_bodies_from(hfss)
+
+################################################################################
+# Link sources to EM losses
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Link sources to the EM losses.
+# Assign external convection.
+
 exc = ipk.assign_em_losses(
     designname=hfss.design_name,
     setupname=hfss.setups[0].name,
@@ -210,10 +229,26 @@ exc = ipk.assign_em_losses(
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=ipk.get_all_conductors_names(),
 )
+
+################################################################################
+# Create Setup
+# ~~~~~~~~~~~~
+# Create a new setup and edit properties.
+# Simuation will be for 60 seconds.
+
 setup = ipk.create_setup()
-# setup.add_mesh_link("backgroundSAR")
-#mech.create_dataset1d_design("PowerMap", [0, 239, 240, 360], [1, 1, 0, 0])
-#exc.props["LossMultiplier"] = "pwl(PowerMap,Time)"
+
+setup.props["Stop Time"] = 60
+setup.props["N Steps"] = 2
+setup.props["Time Step"] = 5
+setup.props['Convergence Criteria - Energy']= 1e-12
+
+################################################################################
+# Mesh Region
+# ~~~~~~~~~~~
+# Create a new mesh region and change accuracy level to 4.
+
+
 bound = ipk.modeler["implant_box"].bounding_box
 mesh_box = ipk.modeler.create_box(bound[:3], [bound[3]-bound[0], bound[4]-bound[1], bound[5]-bound[2]])
 mesh_box.model = False
@@ -221,13 +256,25 @@ mesh_region = ipk.mesh.assign_mesh_region([mesh_box.name])
 mesh_region.UserSpecifiedSettings = False
 mesh_region.Level = 4
 mesh_region.update()
+
+
+################################################################################
+# Point Monitor
+# ~~~~~~~~~~~~~
+# Create a new point monitor.
+
 ipk.modeler.set_working_coordinate_system("implant")
 ipk.monitor.assign_point_monitor([0,0,0], monitor_name="Point1")
-setup.props["Stop Time"] = 60
-setup.props["N Steps"] = 2
-setup.props["Time Step"] = 5
-setup.props['Convergence Criteria - Energy']= 1e-12
 ipk.assign_openings(ipk.modeler["Region"].top_face_z)
+
+
+###############################################################################
+# Analyze and plot fields
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Analyze the project.
+# Plot Temperature on cut plane.
+# Plot Temperature on monitor point.
+
 ipk.analyze(num_cores=6)
 ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"], intrinsincDict={"Time":"0s"})
 ipk.save_project()
