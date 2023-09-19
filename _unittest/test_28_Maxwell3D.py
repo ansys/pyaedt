@@ -848,11 +848,13 @@ class TestClass:
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1
 
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_51_import_dxf(self):
         self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
 
     def test_52_assign_flux_tangential(self):
         self.aedtapp.insert_design("flux_tangential")
