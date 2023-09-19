@@ -6,6 +6,7 @@ from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
+
 class Revision:
     """
     Provides the ``Revision`` object.
@@ -499,7 +500,11 @@ class Revision:
                                 in_filters = True
 
                             # Save the worst case interference values
-                            if instance.has_valid_values() and instance.get_value(ResultType.EMI) > max_power and in_filters:
+                            if (
+                                instance.has_valid_values()
+                                and instance.get_value(ResultType.EMI) > max_power
+                                and in_filters
+                            ):
                                 prob = instance.get_largest_problem_type(ResultType.EMI)
                                 max_power = instance.get_value(ResultType.EMI)
                                 largest_rx_prob = rx_prob
