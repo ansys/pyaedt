@@ -237,9 +237,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     # with all EMIT designs in the project. 
 
     def open_file_dialog(self):
-        fname = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "Ansys Electronics Desktop Files (*.aedt)", )
+        fname, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "Ansys Electronics Desktop Files (*.aedt)", )
         if fname: 
-            self.file_path_box.setText(fname[0])
+            self.file_path_box.setText(fname)
 
             # Close previous project and open specified one
             if self.emitapp is not None:
@@ -385,10 +385,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             table = self.interference_matrix
 
-        fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Scenario Matrix", "png (*.png)")
-        image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
-        table.render(image)
-        image.save(fname[0])
+        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Scenario Matrix", "png (*.png)")
+        if fname:
+            image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
+            table.render(image)
+            image.save(fname)
 
     ###############################################################################
     # Save scenario matrix to Excel file 
@@ -404,7 +405,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             table = self.interference_matrix
             defaultName = "Interference Type Classification"
 
-        fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", defaultName, "xlsx (*.xlsx)")
+        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", defaultName, "xlsx (*.xlsx)")
 
         if fname:
             workbook = openpyxl.Workbook()
@@ -421,7 +422,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     cell.fill = PatternFill(start_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:], 
                                             end_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:], 
                                             fill_type = "solid")
-            workbook.save(fname[0])
+            workbook.save(fname)
 
     ###############################################################################
     # Run interference type simulation 
