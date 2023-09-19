@@ -463,6 +463,13 @@ solutions_types = {
             "default_setup": 32,
             "default_adaptive": None,
         },
+        "Transient Thermal": {
+            "name": "Transient Thermal",
+            "options": None,
+            "report_type": None,
+            "default_setup": 57,
+            "default_adaptive": None,
+        },
         "Modal": {"name": "Modal", "options": None, "report_type": None, "default_setup": 33, "default_adaptive": None},
         "Structural": {
             "name": "Structural",

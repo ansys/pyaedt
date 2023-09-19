@@ -2647,7 +2647,9 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
+    def _create_fieldplot(
+        self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None, filter_boxes=[]
+    ):
         if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
@@ -2710,7 +2712,7 @@ class PostProcessor(PostProcessorCommon, object):
             )
         plot.name = plot_name
         plot.plotFolder = plot_name
-
+        plot.filter_boxes = filter_boxes
         plt = plot.create()
         if "Maxwell" in self._app.design_type and "Transient" in self.post_solution_type:
             self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
@@ -3021,7 +3023,9 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @pyaedt_function_handler()
-    def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
+    def create_fieldplot_cutplane(
+        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, filter_objects=[]
+    ):
         """Create a field plot of cut planes.
 
         Parameters
@@ -3039,6 +3043,8 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``{}``.
         plot_name : str, optional
             Name of the fieldplot to create.
+        filter_objects : list, optional
+            Objects list on which filter the plot.
 
         Returns
         -------
@@ -3055,7 +3061,11 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name)
+        if filter_objects:
+            filter_objects = self._app.modeler.convert_to_selections(filter_objects, True)
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name, filter_boxes=filter_objects
+        )
 
     @pyaedt_function_handler()
     def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
