@@ -1217,6 +1217,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
     props : dict, optional
         Dictionary of properties. The default is ``None``.
     name : optional
+        Name of the coordinate system.
         The default is ``None``.
     entity_id : int
         ID of the entity object where the object coordinate system is anchored.
@@ -1345,8 +1346,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
              - list in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
         move_to_end : bool, optional
             If ``True`` the Coordinate System creation operation will always be moved to the end of subsequent
-            objects operation. This will guarantee that the coordinate system will remain solidal with the object
-            face. If ``False`` the option "Always Move CS to End" is set to off. The default is ``True``.
+            objects operation. The default is ``True``.
         reverse_x_axis : bool, optional
             Whether the x-axis is in the reverse direction.
             The default is ``False``.
