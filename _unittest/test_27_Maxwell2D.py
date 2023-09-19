@@ -452,6 +452,7 @@ class TestClass:
 
     def test_33_import_dxf(self):
         self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)

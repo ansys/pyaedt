@@ -1231,7 +1231,9 @@ class FieldAnalysis3D(Analysis, object):
                 self.logger.error("{} does not exist in specified dxf.".format(layer))
                 return False
 
-        if self.is3d:
+        if self.design_type not in ["Maxwell3d", "Q3d"]:
+            sheet_bodies_2d = True
+        else:
             sheet_bodies_2d = False
 
         vArg1 = ["NAME:options"]
