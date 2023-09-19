@@ -1370,7 +1370,6 @@ class TestClass:
             x_scale=1e-6,
             y_scale=1e-3,
         )
-        assert aedtapp.ed
         aedtapp.close_project(save_project=False)
 
     def test_54_assign_symmetry(self, add_app):
