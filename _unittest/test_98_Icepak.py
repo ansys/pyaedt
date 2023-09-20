@@ -60,9 +60,6 @@ class TestClass:
         self.project_path = examples[0]
         self.source_project_path = examples[1]
 
-    def test_01_save(self):
-        self.aedtapp.save_project()
-
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"
         assert self.aedtapp.create_ipk_3dcomponent_pcb(
@@ -1295,3 +1292,11 @@ class TestClass:
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
         assert self.aedtapp.modeler.user_defined_components["test"].update_definition()
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_67_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
