@@ -1351,8 +1351,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
              - A list, in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
 
         move_to_end : bool, optional
-            If ``True`` the Coordinate System creation operation will always be moved to the end of subsequent
-            objects operation. The default is ``True``.
+            Whether to always move the operation for creating the coordinate system to the
+            end of subsequent objects operation. The default is ``True``.
         reverse_x_axis : bool, optional
             Whether the x-axis is in the reverse direction.
             The default is ``False``.
