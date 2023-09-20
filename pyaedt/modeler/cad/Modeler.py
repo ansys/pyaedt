@@ -159,6 +159,41 @@ class BaseCoordinateSystem(PropsManager, object):
                                                 props = iop["FaceCSParameters"]
                                                 self._props = CsProps(self, props)
                                                 break
+                        elif cs[ds]["OperationType"] == "CreateObjectCoordinateSystem":
+                            name = cs[ds]["Attributes"]["Name"]
+                            if name != self.name:
+                                continue
+                            cs_id = cs[ds]["ID"]
+                            id2name[cs_id] = name
+                            op_id = cs[ds]["PlaceHolderOperationID"]
+                            geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
+                                "GeometryOperations"
+                            ]["ToplevelParts"]["GeometryPart"]
+                            if isinstance(geometry_part, (OrderedDict, dict)):
+                                op = geometry_part["Operations"]["ObjectCSHolderOperation"]
+                                if isinstance(op, (OrderedDict, dict)):
+                                    if op["ID"] == op_id:
+                                        props = op["ObjectCSParameters"]
+                                        self._props = CsProps(self, props)
+                                elif isinstance(op, list):
+                                    for iop in op:
+                                        if iop["ID"] == op_id:
+                                            props = iop["ObjectCSParameters"]
+                                            self._props = CsProps(self, props)
+                                            break
+                            elif isinstance(geometry_part, list):
+                                for gp in geometry_part:
+                                    op = gp["Operations"]["ObjectCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["ObjectCSParameters"]
+                                            self._props = CsProps(self, props)
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["ObjectCSParameters"]
+                                                self._props = CsProps(self, props)
+                                                break
                     elif isinstance(cs[ds], list):
                         for el in cs[ds]:
                             if el["OperationType"] == "CreateRelativeCoordinateSystem":
@@ -214,6 +249,44 @@ class BaseCoordinateSystem(PropsManager, object):
                                                     props = iop["FaceCSParameters"]
                                                     self._props = CsProps(self, props)
                                                     break
+                            elif el["OperationType"] == "CreateObjectCoordinateSystem":
+                                name = el["Attributes"]["Name"]
+                                if name != self.name:
+                                    continue
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                op_id = el["PlaceHolderOperationID"]
+                                geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
+                                    "GeometryOperations"
+                                ]["ToplevelParts"]["GeometryPart"]
+                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                    op = geometry_part["Operations"]["ObjectCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["ObjectCSParameters"]
+                                            self._props = CsProps(self, props)
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["ObjectCSParameters"]
+                                                self._props = CsProps(self, props)
+                                                break
+                                elif isinstance(geometry_part, list):
+                                    for gp in geometry_part:
+                                        try:
+                                            op = gp["Operations"]["ObjectCSHolderOperation"]
+                                        except KeyError:
+                                            continue
+                                        if isinstance(op, (OrderedDict, dict)):
+                                            if op["ID"] == op_id:
+                                                props = op["ObjectCSParameters"]
+                                                self._props = CsProps(self, props)
+                                        elif isinstance(op, list):
+                                            for iop in op:
+                                                if iop["ID"] == op_id:
+                                                    props = iop["ObjectCSParameters"]
+                                                    self._props = CsProps(self, props)
+                                                    break
                 except:
                     pass
 
@@ -243,36 +316,6 @@ class BaseCoordinateSystem(PropsManager, object):
         else:
             val = "{0}{1}".format(value, units)
         return val
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete the coordinate system.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        Clean all coordinate systems of the design.
-
-        >>> from pyaedt import Maxwell2d
-        >>> app = Maxwell2d()
-        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
-        >>> [i.delete() for i in cs_copy]
-        """
-        try:
-            self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-            self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
-            coordinate_systems = self._modeler._app.oeditor.GetRelativeCoordinateSystems()
-            for cs in self._modeler.coordinate_systems[:]:
-                if cs.name not in coordinate_systems:
-                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
-            self._modeler.cleanup_objects()
-        except:
-            self._modeler._app.logger.warning("Coordinate system does not exist")
-        return True
 
     @pyaedt_function_handler()
     def set_as_working_cs(self):
@@ -327,6 +370,36 @@ class BaseCoordinateSystem(PropsManager, object):
         """
         self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
         self.name = newname
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Delete all coordinate systems in the design.
+
+        >>> from pyaedt import Maxwell2d
+        >>> app = Maxwell2d()
+        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
+        >>> [i.delete() for i in cs_copy]
+        """
+        try:
+            self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+            self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            coordinate_systems = self._modeler._app.oeditor.GetCoordinateSystems()
+            for cs in self._modeler.coordinate_systems[:]:
+                if cs.name not in coordinate_systems:
+                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
+            self._modeler.cleanup_objects()
+        except:
+            self._modeler._app.logger.warning("Coordinate system does not exist")
         return True
 
 
@@ -1134,8 +1207,478 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
 
+class ObjectCoordinateSystem(BaseCoordinateSystem, object):
+    """Manages object coordinate system data and execution.
+
+    Parameters
+    ----------
+    modeler :
+        Inherited parent object.
+    props : dict, optional
+        Dictionary of properties. The default is ``None``.
+    name : optional
+        Name of the coordinate system.
+        The default is ``None``.
+    entity_id : int
+        ID of the entity object where the object coordinate system is anchored.
+
+    """
+
+    def __init__(self, modeler, props=None, name=None, entity_id=None):
+        BaseCoordinateSystem.__init__(self, modeler, name)
+        self.entity_id = entity_id
+        self._props = None
+        if props:
+            self._props = CsProps(self, props)
+            try:  # pragma: no cover
+                if "KernelVersion" in self.props:
+                    del self.props["KernelVersion"]
+            except:
+                pass
+        self._ref_cs = None
+
+    @property
+    def ref_cs(self):
+        """Reference coordinate system.
+
+        Returns
+        -------
+        str
+        """
+        if self._ref_cs or settings.aedt_version <= "2022.2":
+            return self._ref_cs
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        self._ref_cs = obj1.GetPropValue("Reference CS")
+        return self._ref_cs
+
+    @ref_cs.setter
+    def ref_cs(self, value):
+        if settings.aedt_version <= "2022.2":
+            self._ref_cs = value
+            self.update()
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        try:
+            obj1.SetPropValue("Reference CS", value)
+            self._ref_cs = value
+        except:
+            self._modeler.logger.error("Failed to set Coordinate CS Reference.")
+
+    @property
+    def props(self):
+        """Properties of the coordinate system.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CSProps`
+        """
+        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+            return self._props
+        self._get_coordinates_data()
+        return self._props
+
+    @property
+    def _part_name(self):
+        """Internally named part name of the object where the coordinate system lays."""
+        if not self.entity_id:
+            # face_id has not been defined yet
+            return None
+        for obj in self._modeler.objects.values():
+            if obj.id == self.entity_id:
+                return obj.name
+            for face in obj.faces:
+                if face.id == self.entity_id:
+                    return obj.name
+                for edge in face.edges:
+                    if edge.id == self.entity_id:
+                        return obj.name
+                    for vertex in edge.vertices:
+                        if vertex.id == self.entity_id:
+                            return obj.name
+        return None  # part has not been found
+
+    @property
+    def _object_parameters(self):
+        """Internally named array with parameters of the object coordinate system."""
+        arg = ["Name:ObjectCSParameters"]
+        _dict2arg(self.props, arg)
+        return arg
+
+    @property
+    def _attributes(self):
+        """Internally named array for attributes of the object coordinate system."""
+        coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
+        return coordinateSystemAttributes
+
+    @pyaedt_function_handler()
+    def create(
+        self,
+        obj,
+        origin,
+        x_axis,
+        y_axis,
+        move_to_end=True,
+        reverse_x_axis=False,
+        reverse_y_axis=False,
+    ):
+        """Create an object coordinate system.
+
+        Parameters
+        ----------
+        obj : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Object to attach the object coordinate system to.
+        origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
+            Origin where the object coordinate system is anchored.
+            The value can be:
+
+             - An integer, in which case it refers to the entity ID.
+             - A VertexPrimitive, EdgePrimitive, or FacePrimitive object, in which case it refers to the entity type.
+             - A list, in which case it refers to the origin coordinate system ``[x, y, z]``.
+
+        x_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
+            Entity that the x axis of the object coordinate system points to.
+            The value can be:
+
+             - An integer, in which case it refers to the entity IDd.
+             - A VertexPrimitive, EdgePrimitive, or FacePrimitive object, in which case it refers to the entity type.
+             - A list, in which case it refers to the point coordinate system ``[x, y, z]`` that the x axis points to.
+
+        y_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
+            Entity that the y axis of the object coordinate system points to.
+            The value can be:
+
+             - An integer, in which case it refers to the entity ID.
+             - A VertexPrimitive, EdgePrimitive, FacePrimitive object, in which case it refers to the entity type.
+             - A list, in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
+
+        move_to_end : bool, optional
+            Whether to always move the operation for creating the coordinate system to the
+            end of subsequent objects operation. The default is ``True``.
+        reverse_x_axis : bool, optional
+            Whether the x-axis is in the reverse direction.
+            The default is ``False``.
+        reverse_y_axis : bool, optional
+            Whether the y-axis is in the reverse direction.
+            The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if isinstance(obj, str):
+            self.entity_id = self._modeler.objects_by_name[obj].id
+        elif isinstance(obj, Object3d):
+            self.entity_id = obj.id
+        else:
+            raise ValueError("Object provided is invalid.")
+
+        # Origin
+        if (
+            isinstance(origin, int)
+            or isinstance(origin, VertexPrimitive)
+            or isinstance(origin, EdgePrimitive)
+            or isinstance(origin, FacePrimitive)
+        ):
+            if isinstance(origin, int):
+                id = origin
+            else:
+                id = origin.id
+            is_attached_to_entity = True
+            origin_entity_id = self._modeler.convert_to_selections(id, True)[0]
+            if not isinstance(origin_entity_id, int):  # pragma: no cover
+                raise ValueError("Unable to find reference entity.")
+            else:
+                o_type = self._get_type_from_id(origin_entity_id)
+                if o_type == "Face":
+                    origin_position_type = "FaceCenter"
+                elif o_type == "Edge":
+                    origin_position_type = "EdgeCenter"
+                elif o_type == "Vertex":
+                    origin_position_type = "OnVertex"
+                else:  # pragma: no cover
+                    raise ValueError("Origin must identify either `Face`, 'Edge', or 'Vertex'.")
+            origin_x_position = "0"
+            origin_y_position = "0"
+            origin_z_position = "0"
+        elif isinstance(origin, list):
+            is_attached_to_entity = False
+            origin_entity_id = -1
+            origin_position_type = "AbsolutePosition"
+            origin_x_position = self._position_parser(origin[0])
+            origin_y_position = self._position_parser(origin[1])
+            origin_z_position = self._position_parser(origin[2])
+
+        originParameters = OrderedDict()
+        originParameters["IsAttachedToEntity"] = is_attached_to_entity
+        originParameters["EntityID"] = origin_entity_id
+        originParameters["FacetedBodyTriangleIndex"] = -1
+        originParameters["TriangleVertexIndex"] = -1
+        originParameters["PositionType"] = origin_position_type
+        originParameters["UParam"] = 0
+        originParameters["VParam"] = 0
+        originParameters["XPosition"] = origin_x_position
+        originParameters["YPosition"] = origin_y_position
+        originParameters["ZPosition"] = origin_z_position
+
+        # X-Axis
+        if (
+            isinstance(x_axis, int)
+            or isinstance(x_axis, VertexPrimitive)
+            or isinstance(x_axis, EdgePrimitive)
+            or isinstance(x_axis, FacePrimitive)
+        ):
+            if isinstance(x_axis, int):
+                id = x_axis
+            else:
+                id = x_axis.id
+            is_attached_to_entity = True
+            x_axis_entity_id = self._modeler.convert_to_selections(id, True)[0]
+            if not isinstance(x_axis_entity_id, int):  # pragma: no cover
+                raise ValueError("Unable to find reference entity.")
+            else:
+                o_type = self._get_type_from_id(x_axis_entity_id)
+                if o_type == "Face":
+                    x_axis_position_type = "FaceCenter"
+                elif o_type == "Edge":
+                    x_axis_position_type = "EdgeCenter"
+                elif o_type == "Vertex":
+                    x_axis_position_type = "OnVertex"
+                else:  # pragma: no cover
+                    raise ValueError("x axis must identify either Face or Edge or Vertex.")
+            xAxisParameters = OrderedDict()
+            xAxisParameters["IsAttachedToEntity"] = True
+            xAxisParameters["EntityID"] = x_axis_entity_id
+            xAxisParameters["FacetedBodyTriangleIndex"] = -1
+            xAxisParameters["TriangleVertexIndex"] = -1
+            xAxisParameters["PositionType"] = x_axis_position_type
+            xAxisParameters["UParam"] = 0
+            xAxisParameters["VParam"] = 0
+            xAxisParameters["XPosition"] = "0"
+            xAxisParameters["YPosition"] = "0"
+            xAxisParameters["ZPosition"] = "0"
+            x_axis_dict_name = "xAxisPos"
+        elif isinstance(x_axis, list):
+            x_axis_x_direction = self._position_parser(x_axis[0])
+            x_axis_y_direction = self._position_parser(x_axis[1])
+            x_axis_z_direction = self._position_parser(x_axis[2])
+
+            xAxisParameters = OrderedDict()
+            xAxisParameters["DirectionType"] = "AbsoluteDirection"
+            xAxisParameters["EdgeID"] = -1
+            xAxisParameters["FaceID"] = -1
+            xAxisParameters["xDirection"] = x_axis_x_direction
+            xAxisParameters["yDirection"] = x_axis_y_direction
+            xAxisParameters["zDirection"] = x_axis_z_direction
+            xAxisParameters["UParam"] = 0
+            xAxisParameters["VParam"] = 0
+            x_axis_dict_name = "xAxis"
+
+        # Y-Axis
+        if (
+            isinstance(y_axis, int)
+            or isinstance(y_axis, VertexPrimitive)
+            or isinstance(y_axis, EdgePrimitive)
+            or isinstance(y_axis, FacePrimitive)
+        ):
+            if isinstance(y_axis, int):
+                id = y_axis
+            else:
+                id = y_axis.id
+            is_attached_to_entity = True
+            y_axis_entity_id = self._modeler.convert_to_selections(id, True)[0]
+            if not isinstance(y_axis_entity_id, int):  # pragma: no cover
+                raise ValueError("Unable to find reference entity.")
+            else:
+                o_type = self._get_type_from_id(y_axis_entity_id)
+                if o_type == "Face":
+                    y_axis_position_type = "FaceCenter"
+                elif o_type == "Edge":
+                    y_axis_position_type = "EdgeCenter"
+                elif o_type == "Vertex":
+                    y_axis_position_type = "OnVertex"
+                else:  # pragma: no cover
+                    raise ValueError("x axis must identify either Face or Edge or Vertex.")
+            yAxisParameters = OrderedDict()
+            yAxisParameters["IsAttachedToEntity"] = True
+            yAxisParameters["EntityID"] = y_axis_entity_id
+            yAxisParameters["FacetedBodyTriangleIndex"] = -1
+            yAxisParameters["TriangleVertexIndex"] = -1
+            yAxisParameters["PositionType"] = y_axis_position_type
+            yAxisParameters["UParam"] = 0
+            yAxisParameters["VParam"] = 0
+            yAxisParameters["XPosition"] = "0"
+            yAxisParameters["YPosition"] = "0"
+            yAxisParameters["ZPosition"] = "0"
+            y_axis_dict_name = "yAxisPos"
+        elif isinstance(y_axis, list):
+            y_axis_x_direction = self._position_parser(y_axis[0])
+            y_axis_y_direction = self._position_parser(y_axis[1])
+            y_axis_z_direction = self._position_parser(y_axis[2])
+
+            yAxisParameters = OrderedDict()
+            yAxisParameters["DirectionType"] = "AbsoluteDirection"
+            yAxisParameters["EdgeID"] = -1
+            yAxisParameters["FaceID"] = -1
+            yAxisParameters["xDirection"] = y_axis_x_direction
+            yAxisParameters["yDirection"] = y_axis_y_direction
+            yAxisParameters["zDirection"] = y_axis_z_direction
+            yAxisParameters["UParam"] = 0
+            yAxisParameters["VParam"] = 0
+            y_axis_dict_name = "yAxis"
+
+        parameters = OrderedDict()
+        parameters["Origin"] = originParameters
+        parameters["MoveToEnd"] = move_to_end
+        parameters["ReverseXAxis"] = reverse_x_axis
+        parameters["ReverseYAxis"] = reverse_y_axis
+        parameters[x_axis_dict_name] = xAxisParameters
+        parameters[y_axis_dict_name] = yAxisParameters
+
+        self._props = CsProps(self, parameters)
+        self._modeler.oeditor.CreateObjectCS(self._object_parameters, self._attributes)
+        self._modeler._coordinate_systems.insert(0, self)
+        return True
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        try:
+            self._change_property(
+                self.name,
+                [
+                    "NAME:ChangedProps",
+                    ["NAME:Reference CS", "Value:=", self.ref_cs],
+                ],
+            )
+        except:  # pragma: no cover
+            raise ValueError("Update of property reference coordinate system failed.")
+
+        try:
+            self._change_property(
+                self.name, ["NAME:ChangedProps", ["NAME:Always Move CS To End", "Value:=", self.props["MoveToEnd"]]]
+            )
+        except:  # pragma: no cover
+            raise ValueError("Update of property move to end failed.")
+
+        try:
+            self._change_property(
+                self.name, ["NAME:ChangedProps", ["NAME:Reverse X Axis", "Value:=", self.props["ReverseXAxis"]]]
+            )
+        except:  # pragma: no cover
+            raise ValueError("Update of property reverse x axis failed.")
+
+        try:
+            self._change_property(
+                self.name, ["NAME:ChangedProps", ["NAME:Reverse Y Axis", "Value:=", self.props["ReverseYAxis"]]]
+            )
+        except:  # pragma: no cover
+            raise ValueError("Update of property reverse y axis failed.")
+
+        if self.props["Origin"]["PositionType"] == "AbsolutePosition":
+            origin_x_position = self._position_parser(self.props["Origin"]["XPosition"])
+            origin_y_position = self._position_parser(self.props["Origin"]["YPosition"])
+            origin_z_position = self._position_parser(self.props["Origin"]["ZPosition"])
+            try:
+                self._change_property(
+                    self.name,
+                    [
+                        "NAME:ChangedProps",
+                        [
+                            "NAME:Origin",
+                            "X:=",
+                            origin_x_position,
+                            "Y:=",
+                            origin_y_position,
+                            "Z:=",
+                            origin_z_position,
+                        ],
+                    ],
+                )
+            except:  # pragma: no cover
+                raise ValueError("Update origin properties failed.")
+
+        if "xAxis" in self.props:
+            x_axis_x_direction = self._position_parser(self.props["xAxis"]["xDirection"])
+            x_axis_y_direction = self._position_parser(self.props["xAxis"]["yDirection"])
+            x_axis_z_direction = self._position_parser(self.props["xAxis"]["zDirection"])
+            try:
+                self._change_property(
+                    self.name,
+                    [
+                        "NAME:ChangedProps",
+                        [
+                            "NAME:X Axis",
+                            "X:=",
+                            x_axis_x_direction,
+                            "Y:=",
+                            x_axis_y_direction,
+                            "Z:=",
+                            x_axis_z_direction,
+                        ],
+                    ],
+                )
+            except:  # pragma: no cover
+                raise ValueError("Update x axis properties failed.")
+
+        if "yAxis" in self.props:
+            y_axis_x_direction = self._position_parser(self.props["yAxis"]["xDirection"])
+            y_axis_y_direction = self._position_parser(self.props["yAxis"]["yDirection"])
+            y_axis_z_direction = self._position_parser(self.props["yAxis"]["zDirection"])
+            try:
+                self._change_property(
+                    self.name,
+                    [
+                        "NAME:ChangedProps",
+                        [
+                            "NAME:Y Axis",
+                            "X:=",
+                            y_axis_x_direction,
+                            "Y:=",
+                            y_axis_y_direction,
+                            "Z:=",
+                            y_axis_z_direction,
+                        ],
+                    ],
+                )
+            except:  # pragma: no cover
+                raise ValueError("Update y axis properties failed.")
+
+        return True
+
+    @pyaedt_function_handler()
+    def _get_type_from_id(self, obj_id):
+        """Get the entity type from the id"""
+        for obj in self._modeler.objects.values():
+            if obj.id == obj_id:
+                return "3dObject"
+            for face in obj.faces:
+                if face.id == obj_id:
+                    return "Face"
+                for edge in face.edges:
+                    if edge.id == obj_id:
+                        return "Edge"
+                    for vertex in edge.vertices:
+                        if vertex.id == obj_id:
+                            return "Vertex"
+        raise ValueError("Cannot find entity id {}".format(obj_id))
+
+    def _position_parser(self, pos):
+        try:
+            return self._dim_arg(float(pos), self.model_units)
+        except:
+            return pos
+
+
 class Lists(PropsManager, object):
-    """Manages Lists data and execution.
+    """Manages list data and execution.
 
     Parameters
     ----------
@@ -1406,6 +1949,8 @@ class GeometryModeler(Modeler, object):
                         self._coordinate_systems.append(CoordinateSystem(self, props, cs_name))
                     elif self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Face":
                         self._coordinate_systems.append(FaceCoordinateSystem(self, props, cs_name))
+                    elif self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Object":
+                        self._coordinate_systems.append(ObjectCoordinateSystem(self, props, cs_name))
             return self._coordinate_systems
         if not self._coordinate_systems:
             self._coordinate_systems = self._get_coordinates_data()
@@ -1989,6 +2534,79 @@ class GeometryModeler(Modeler, object):
         return False
 
     @pyaedt_function_handler()
+    def create_object_coordinate_system(
+        self, obj, origin, x_axis, y_axis, move_to_end=True, reverse_x_axis=False, reverse_y_axis=False, name=None
+    ):
+        """Create an object coordinate system.
+
+        Parameters
+        ----------
+        obj : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Object to attach the object coordinate system to.
+        origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
+            Refer to the origin where the object coordinate system is anchored.
+            It can be:
+
+             - int in which case it refers to the entity Id.
+             - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
+             - list in which case it refers to the origin coordinate system ``[x, y, z]``.
+
+        x_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
+            Entity that the x axis of the object coordinate system points to.
+            It can be:
+
+             - int in which case it refers to the entity Id.
+             - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
+             - list in which case it refers to the point coordinate system ``[x, y, z]`` that the x axis points to.
+
+        y_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
+            Entity that the y axis of the object coordinate system points to.
+            It can be:
+
+             - int in which case it refers to the entity Id.
+             - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
+             - list in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
+
+        move_to_end : bool, optional
+            If ``True`` the Coordinate System creation operation will always be moved to the end of subsequent
+            objects operation. This will guarantee that the coordinate system will remain solidal with the object
+            face. If ``False`` the option "Always Move CS to End" is set to off. The default is ``True``.
+        reverse_x_axis : bool, optional
+            Whether the x-axis is in the reverse direction.
+            The default is ``False``.
+        reverse_y_axis : bool, optional
+            Whether the y-axis is in the reverse direction.
+            The default is ``False``.
+        name : str, optional
+            Name of the coordinate system. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if name:
+            cs_names = [i.name for i in self.coordinate_systems]
+            if name in cs_names:  # pragma: no cover
+                raise AttributeError("A coordinate system with the specified name already exists.")
+
+        cs = ObjectCoordinateSystem(self, name=name)
+        if cs:
+            result = cs.create(
+                obj=obj,
+                origin=origin,
+                x_axis=x_axis,
+                y_axis=y_axis,
+                move_to_end=move_to_end,
+                reverse_x_axis=reverse_x_axis,
+                reverse_y_axis=reverse_y_axis,
+            )
+
+            if result:
+                return cs
+        return False
+
+    @pyaedt_function_handler()
     def global_to_cs(self, point, ref_cs):
         """Transform a point from the global coordinate system to another coordinate system.
 
@@ -2258,6 +2876,63 @@ class GeometryModeler(Modeler, object):
                 )
                 if result:
                     return face_cs
+        elif isinstance(coordinate_system, ObjectCoordinateSystem):
+            name = cs.name + "_RefToGlobal"
+            if name in cs_names:
+                name = cs.name + generate_unique_name("_RefToGlobal")
+            obj_cs = ObjectCoordinateSystem(self, props=cs.props, name=name, entity_id=cs.entity_id)
+            obj = self.objects[cs.entity_id]
+            if cs.props["Origin"]["PositionType"] != "AbsolutePosition":
+                if cs.props["Origin"]["PositionType"] == "FaceCenter":
+                    origin = [f for f in obj.faces if f.id == cs.props["Origin"]["EntityID"]][0]
+                elif cs.props["Origin"]["PositionType"] == "EdgeCenter":
+                    origin = [e for e in obj.edges if e.id == cs.props["Origin"]["EntityID"]][0]
+                elif cs.props["Origin"]["PositionType"] == "OnVertex":
+                    origin = [v for v in obj.vertices if v.id == cs.props["Origin"]["EntityID"]][0]
+            else:
+                origin = [
+                    cs.props["Origin"]["XPosition"],
+                    cs.props["Origin"]["YPosition"],
+                    cs.props["Origin"]["ZPosition"],
+                ]
+            if "xAxisPos" in cs.props:
+                if cs.props["xAxisPos"]["PositionType"] == "FaceCenter":
+                    x_axis = [f for f in obj.faces if f.id == cs.props["xAxisPos"]["EntityID"]][0]
+                elif cs.props["xAxisPos"]["PositionType"] == "EdgeCenter":
+                    x_axis = [e for e in obj.edges if e.id == cs.props["xAxisPos"]["EntityID"]][0]
+                elif cs.props["xAxisPos"]["PositionType"] == "OnVertex":
+                    x_axis = [v for v in obj.vertices if v.id == cs.props["xAxisPos"]["EntityID"]][0]
+            elif "xAxis" in cs.props:
+                x_axis = [
+                    cs.props["xAxis"]["xDirection"],
+                    cs.props["xAxis"]["yDirection"],
+                    cs.props["xAxis"]["zDirection"],
+                ]
+            if "yAxisPos" in cs.props:
+                if cs.props["yAxisPos"]["PositionType"] == "FaceCenter":
+                    y_axis = [f for f in obj.faces if f.id == cs.props["yAxisPos"]["EntityID"]][0]
+                elif cs.props["yAxisPos"]["PositionType"] == "EdgeCenter":
+                    y_axis = [e for e in obj.edges if e.id == cs.props["yAxisPos"]["EntityID"]][0]
+                elif cs.props["yAxisPos"]["PositionType"] == "OnVertex":
+                    y_axis = [v for v in obj.vertices if v.id == cs.props["yAxisPos"]["EntityID"]][0]
+            elif "yAxis" in cs.props:
+                y_axis = [
+                    cs.props["yAxis"]["xDirection"],
+                    cs.props["yAxis"]["yDirection"],
+                    cs.props["yAxis"]["zDirection"],
+                ]
+            if obj_cs:
+                result = obj_cs.create(
+                    obj=obj,
+                    origin=origin,
+                    x_axis=x_axis,
+                    y_axis=y_axis,
+                    move_to_end=cs.props["MoveToEnd"],
+                    reverse_x_axis=cs.props["ReverseXAxis"],
+                    reverse_y_axis=cs.props["ReverseYAxis"],
+                )
+                if result:
+                    return obj_cs
         return False
 
     @pyaedt_function_handler()
@@ -2639,9 +3314,7 @@ class GeometryModeler(Modeler, object):
         if self._app.design_type == "Icepak":
             return list(self._app.odesign.GetChildObject("Thermal").GetChildNames())
         else:
-            list_names = list(self._app.oboundary.GetBoundaries())
-            del list_names[1::2]
-            return list_names
+            return list(self._app.odesign.GetChildObject("Boundaries").GetChildNames())
 
     @pyaedt_function_handler()
     def set_object_model_state(self, obj_list, model=True):
@@ -2825,43 +3498,62 @@ class GeometryModeler(Modeler, object):
         if not plane and not tool or plane and tool:
             self.logger.info("One method to split the objects has to be defined.")
             return False
+        objects = self.convert_to_selections(objects)
+        all_objs = [i for i in self.object_names]
         if self._is3d:
-            objects = self.convert_to_selections(objects)
-            all_objs = [i for i in self.object_names]
             if plane and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif tool and not plane:
-                objs_selection = self.convert_to_selections(tool, False)
-                if isinstance(tool, str) or isinstance(tool, int):
-                    obj_name = objs_selection
-                    obj = [f for f in self.object_list if f.name == objs_selection][0]
-                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                if isinstance(tool, str):
+                    obj = [f for f in self.object_list if f.name == tool][0]
+                    obj_name = obj.name
+                    if isinstance(obj, Object3d) and obj.object_type != "Line":
                         obj = obj.faces[0]
                         tool_type = "FaceTool"
                     elif obj.object_type == "Line":
                         obj = obj.edges[0]
                         tool_type = "EdgeTool"
+                elif isinstance(tool, int):
+                    # check whether tool it's an object Id
+                    if tool in self.objects.keys():
+                        obj = self.objects[tool]
+                    else:
+                        # check whether tool is an Id of an object face
+                        objs = [o for o in self.object_list for f in o.faces if f.id == tool]
+                        if objs:
+                            obj = objs[0]
+                        else:
+                            self.logger.info("Tool must be a sheet object or a face of an object.")
+                            return False
+                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                        obj_name = obj.name
+                        obj = obj.faces[0]
+                        tool_type = "FaceTool"
+                    elif obj.object_type == "Line":
+                        obj_name = obj.name
+                        obj = obj.edges[0]
+                        tool_type = "EdgeTool"
                 elif isinstance(tool, FacePrimitive):
                     for o in self.object_list:
                         for f in o.faces:
-                            if f.id == int(objs_selection):
+                            if f.id == tool.id:
                                 obj_name = o.name
                                 obj = f
                     tool_type = "FaceTool"
                 elif isinstance(tool, EdgePrimitive):
                     for o in self.object_list:
                         for e in o.edges:
-                            if e.id == int(objs_selection):
+                            if e.id == tool.id:
                                 obj_name = o.name
                                 obj = e
                     tool_type = "EdgeTool"
                 elif isinstance(tool, Polyline) or tool.object_type != "Line":
                     for o in self.object_list:
-                        if o.name == objs_selection:
-                            obj_name = objs_selection
+                        if o.name == tool.name:
+                            obj_name = tool.name
                             obj = o.edges[0]
                     tool_type = "EdgeTool"
                 else:
@@ -2880,8 +3572,6 @@ class GeometryModeler(Modeler, object):
                     obj_name,
                 ]
         else:
-            objects = self.convert_to_selections(objects)
-            all_objs = [i for i in self.object_names]
             if not plane and tool or not plane:
                 self.logger.info("For 2D design types only planes can be defined.")
                 return False
