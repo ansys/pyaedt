@@ -292,12 +292,7 @@ class Primitives(object):
     @property
     def non_model_objects(self):
         """List of objects of all non-model objects."""
-        return self._get_model_objects(model=False)
-
-    @property
-    def non_model_names(self):
-        """List of names of all non-model objects."""
-        return self.oeditor.GetObjectsInGroup("Non Model")
+        return list(self.oeditor.GetObjectsInGroup("Non Model"))
 
     @property
     def model_consistency_report(self):
@@ -2172,7 +2167,7 @@ class Primitives(object):
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
         if not include_non_model:
-            non_models = [i for i in self.non_model_names]
+            non_models = [i for i in self.non_model_objects]
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
@@ -2765,7 +2760,7 @@ class Primitives(object):
     def _refresh_solids(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Solids")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Solids is failing"
@@ -2779,7 +2774,7 @@ class Primitives(object):
     def _refresh_sheets(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Sheets")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Sheets is failing"
@@ -2793,7 +2788,7 @@ class Primitives(object):
     def _refresh_lines(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Lines")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Lines is failing"
@@ -2807,7 +2802,7 @@ class Primitives(object):
     def _refresh_points(self):
         try:
             test = self.oeditor.GetPoints()
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Points is failing"
@@ -2825,7 +2820,7 @@ class Primitives(object):
                 plane_name: self.oeditor.GetChildObject(plane_name)
                 for plane_name in self.oeditor.GetChildNames("Planes")
             }
-        except TypeError:
+        except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
@@ -2833,7 +2828,7 @@ class Primitives(object):
     def _refresh_unclassified(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Unclassified")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is None or test is False:
             self._unclassified = []
