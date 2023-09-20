@@ -3297,7 +3297,7 @@ class PostProcessor(PostProcessorCommon, object):
             full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        if not settings.non_graphical:
+        if not self._app.desktop_class.non_graphical:  # pragma: no cover
             if self._app.design_type not in [
                 "HFSS 3D Layout Design",
                 "Circuit Design",
