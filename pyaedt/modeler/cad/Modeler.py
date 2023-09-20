@@ -3500,43 +3500,62 @@ class GeometryModeler(Modeler, object):
         if not plane and not tool or plane and tool:
             self.logger.info("One method to split the objects has to be defined.")
             return False
+        objects = self.convert_to_selections(objects)
+        all_objs = [i for i in self.object_names]
         if self._is3d:
-            objects = self.convert_to_selections(objects)
-            all_objs = [i for i in self.object_names]
             if plane and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif tool and not plane:
-                objs_selection = self.convert_to_selections(tool, False)
-                if isinstance(tool, str) or isinstance(tool, int):
-                    obj_name = objs_selection
-                    obj = [f for f in self.object_list if f.name == objs_selection][0]
-                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                if isinstance(tool, str):
+                    obj = [f for f in self.object_list if f.name == tool][0]
+                    obj_name = obj.name
+                    if isinstance(obj, Object3d) and obj.object_type != "Line":
                         obj = obj.faces[0]
                         tool_type = "FaceTool"
                     elif obj.object_type == "Line":
                         obj = obj.edges[0]
                         tool_type = "EdgeTool"
+                elif isinstance(tool, int):
+                    # check whether tool it's an object Id
+                    if tool in self.objects.keys():
+                        obj = self.objects[tool]
+                    else:
+                        # check whether tool is an Id of an object face
+                        objs = [o for o in self.object_list for f in o.faces if f.id == tool]
+                        if objs:
+                            obj = objs[0]
+                        else:
+                            self.logger.info("Tool must be a sheet object or a face of an object.")
+                            return False
+                    if isinstance(obj, FacePrimitive) or isinstance(obj, Object3d) and obj.object_type != "Line":
+                        obj_name = obj.name
+                        obj = obj.faces[0]
+                        tool_type = "FaceTool"
+                    elif obj.object_type == "Line":
+                        obj_name = obj.name
+                        obj = obj.edges[0]
+                        tool_type = "EdgeTool"
                 elif isinstance(tool, FacePrimitive):
                     for o in self.object_list:
                         for f in o.faces:
-                            if f.id == int(objs_selection):
+                            if f.id == tool.id:
                                 obj_name = o.name
                                 obj = f
                     tool_type = "FaceTool"
                 elif isinstance(tool, EdgePrimitive):
                     for o in self.object_list:
                         for e in o.edges:
-                            if e.id == int(objs_selection):
+                            if e.id == tool.id:
                                 obj_name = o.name
                                 obj = e
                     tool_type = "EdgeTool"
                 elif isinstance(tool, Polyline) or tool.object_type != "Line":
                     for o in self.object_list:
-                        if o.name == objs_selection:
-                            obj_name = objs_selection
+                        if o.name == tool.name:
+                            obj_name = tool.name
                             obj = o.edges[0]
                     tool_type = "EdgeTool"
                 else:
@@ -3555,8 +3574,6 @@ class GeometryModeler(Modeler, object):
                     obj_name,
                 ]
         else:
-            objects = self.convert_to_selections(objects)
-            all_objs = [i for i in self.object_names]
             if not plane and tool or not plane:
                 self.logger.info("For 2D design types only planes can be defined.")
                 return False
