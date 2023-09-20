@@ -76,6 +76,7 @@ class TestClass:
         assert type(self.aedtapp.modeler.convert_to_selections("inner", False)) is str
 
     def test_05_split(self):
+        self.aedtapp.insert_design("split_test")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split2")
         split = self.aedtapp.modeler.split(box1.name, 2)
