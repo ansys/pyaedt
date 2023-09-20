@@ -3854,7 +3854,7 @@ class GeometryModeler(Modeler, object):
             Returns
             -------
             list
-                List of names of the objects cloned when successful.
+                List of names of the objects copied when successful.
 
         References
         ----------
