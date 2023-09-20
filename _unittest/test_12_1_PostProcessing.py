@@ -522,7 +522,9 @@ class TestClass:
         quantity_name = "Vector_E"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         self.aedtapp.logger.info("Generating the plot")
-        plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1 = self.aedtapp.post.create_fieldplot_cutplane(
+            cutlist, quantity_name, setup_name, intrinsic, filter_objects=self.aedtapp.modeler.object_names
+        )
         plot1.IsoVal = "Tone"
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")

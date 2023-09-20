@@ -2722,13 +2722,13 @@ class Hfss(FieldAnalysis3D, object):
         return None
 
     @pyaedt_function_handler()
-    def sar_setup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
+    def sar_setup(self, Tissue_object_List_ID=-1, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Define SAR settings.
 
         Parameters
         ----------
-        Tissue_object_List_ID : int
-
+        Tissue_object_List_ID : int, optional
+           The default is ``-1`` to not specify the object.
         TissueMass : float, optional
             The default is ``1``.
         MaterialDensity : optional
@@ -3938,6 +3938,22 @@ class Hfss(FieldAnalysis3D, object):
             ]
         )
         self.logger.info("Source Excitation updated with Dataset.")
+        return True
+
+    @pyaedt_function_handler()
+    def edit_sources_from_file(self, file_name):
+        """Update all sources from a csv.
+
+        Parameters
+        ----------
+        file_name : str
+            Filen name.
+
+        Returns
+        -------
+        bool
+        """
+        self.osolution.LoadSourceWeights(file_name)
         return True
 
     @pyaedt_function_handler()

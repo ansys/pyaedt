@@ -75,7 +75,7 @@ jobs:
       - name: Create PDF Documentations
         run: |
             testenv\Scripts\Activate.ps1
-            sphinx-build -j auto --color -b pdf -a doc/source doc/_build/pdf
+            .\doc\make.bat pdf
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v3
