@@ -2750,11 +2750,13 @@ class GeometryModeler(Modeler, object):
         ====================  ===========================
           ``object_id``          Return value
         ====================  ===========================
+
          ``int``                 object name (str)
           ``Object3D``           object name (str)
           ``FacePrimitive``      int, face ID
           ``EdgePrimitive``      int, edge ID
           ``str``                return the same ``str``
+
 
         - If ``object_id`` is a list, a list is returned according
         to the table. If ``object_id`` is a single value, a list
@@ -3869,7 +3871,7 @@ class GeometryModeler(Modeler, object):
             self.oeditor.Copy(vArg1)
             return selections
         except AttributeError:
-            self.logger.error(f"Unable to copy selections to clipboard.")
+            self.logger.error("Unable to copy selections to clipboard.")
             return None
 
     @pyaedt_function_handler()

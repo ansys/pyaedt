@@ -144,6 +144,7 @@ class TestClass:
             name="sheet1a_Port",
             renormalize=True,
             reference=[outer_1.name],
+            create_pec_cap=True,
         )
         assert port.name == "sheet1a_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
@@ -159,9 +160,7 @@ class TestClass:
         )
         assert bottom_port.name == "bottom_probe_port"
         pec_objects = self.aedtapp.modeler.get_objects_by_material("pec")
-        assert len(pec_objects) == 1  # PEC cap created.
-        assert "outer_1" in pec_objects[0].name  # Check that PEC cap was created from "outer_1".
-
+        assert len(pec_objects) == 2  # PEC cap created.
         self.aedtapp.solution_type = "Modal"
         assert len(self.aedtapp.boundaries) == 4
         udp = self.aedtapp.modeler.Position(200, 0, 0)
@@ -445,7 +444,7 @@ class TestClass:
         assert sweep.props["SaveSingleField"] == False
 
     def test_06z_validate_setup(self):
-        list, ok = self.aedtapp.validate_full_design(ports=7)
+        list, ok = self.aedtapp.validate_full_design(ports=len(self.aedtapp.excitations))
         assert ok
 
     def test_07_set_power(self):

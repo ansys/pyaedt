@@ -4220,12 +4220,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "Eigenmode":
             detected_excitations = self.excitations
             if ports:
-                if "Terminal" in self.solution_type:
-                    # For each port, there is terminal and reference excitations.
-                    ports_t = ports * 2
-                else:
-                    ports_t = ports
-                if ports_t != len(detected_excitations):
+                if ports != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
                     self.logger.error(msg)
                     val_list.append(msg)
