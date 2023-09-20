@@ -175,7 +175,7 @@ class TestClass:
         try:
             invalid_entry = "Frank"
             self.aedtapp.modeler.create_box([0, 0, 0], invalid_entry, "MyCreatedBox", "Copper")
-        except AssertionError:
+        except ValueError:
             pass
         else:
             assert False

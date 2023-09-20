@@ -94,7 +94,7 @@ class Primitives3D(Primitives, object):
         if len(position) != 3:
             raise ValueError("Position argument must be a valid three-element list.")
         if len(dimensions_list) != 3:
-            raise ValueError("Dimension Argument must be a valid 3 Element List")
+            raise ValueError("Dimension argument must be a valid 3 element List")
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)
         XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
         vArg1 = ["NAME:BoxParameters"]
@@ -2182,8 +2182,7 @@ class Primitives3D(Primitives, object):
             values = json.load(read_file)
         self.logger.info("CHOKE INFO: " + str(values))
 
-        security_factor = 1.1
-        sr = security_factor
+        sr = 1.1  # security factor
         segment_number = 0
         if values["Wire Section"]["Hexagon"]:
             segment_number = 6
@@ -2744,8 +2743,7 @@ class Primitives3D(Primitives, object):
             "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
         }
         are_inequations_checkable = True
-        security_factor = 1.1
-        sr = security_factor
+        sr = 1.1  # Security factor
         with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
 
@@ -3121,8 +3119,7 @@ class Primitives3D(Primitives, object):
         return [are_inequations_checkable, values]
 
     @pyaedt_function_handler()
-    def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, layer_number):
-        sr = security_factor
+    def _make_winding_follow_chamfer(self, chamfer, sr, wire_diameter, layer_number):
         w_rad_inc = layer_number * sr * wire_diameter / 2
         distance = sqrt(2 * w_rad_inc**2) - w_rad_inc + sqrt(2 * chamfer**2) / 2
         return sqrt(2) * distance
