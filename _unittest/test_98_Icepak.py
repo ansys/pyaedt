@@ -60,9 +60,6 @@ class TestClass:
         self.project_path = examples[0]
         self.source_project_path = examples[1]
 
-    def test_01_save(self):
-        self.aedtapp.save_project()
-
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"
         assert self.aedtapp.create_ipk_3dcomponent_pcb(

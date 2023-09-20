@@ -813,7 +813,7 @@ TransientTemperatureAndFlow = OrderedDict(
         "Import Start Time": False,
         "Copy Fields From Source": False,
         "SaveFieldsType": "Every N Steps",
-        "N Steps:=": "10s",
+        "N Steps": "10",
         "Enable Control Program": False,
         "Control Program Name": "",
     }
@@ -903,7 +903,7 @@ TransientTemperatureOnly = OrderedDict(
         "Import Start Time": False,
         "Copy Fields From Source": False,
         "SaveFieldsType": "Every N Steps",
-        "N Steps:=": "10s",
+        "N Steps": "10",
         "Enable Control Program": False,
         "Control Program Name": "",
     }
@@ -993,7 +993,7 @@ TransientFlowOnly = OrderedDict(
         "Import Start Time": False,
         "Copy Fields From Source": False,
         "SaveFieldsType": "Every N Steps",
-        "N Steps:=": "10s",
+        "N Steps": "10",
         "Enable Control Program": False,
         "Control Program Name": "",
     }
@@ -1338,6 +1338,28 @@ MechTerm = OrderedDict(
 )
 """Mechanical thermal setup properties and default values."""
 
+MechTransientThermal = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "Solver": "Program Controlled",
+        "Stepping": "Program Controlled",
+        "Stepping Define By": "Time",
+        "TemperatureConvergenceCondition": "Program Controlled",
+        "TemperatureConvergenceTolerance": "0.5",
+        "TemperatureConvergenceMinRef": "0cel",
+        "HeatConvergenceCondition": "Program Controlled",
+        "HeatConvergenceTolerance": "0.5",
+        "HeatConvergenceMinRef": "1e-06W",
+        "Initial Temperature": "AmbientTemp",
+        "Start Time": "0s",
+        "Stop Time": "20s",
+        "Time Step": "1s",
+        "SaveFieldsType": "None",
+    }
+)
+
+
 MechModal = OrderedDict(
     {
         "Enabled": True,
@@ -1650,6 +1672,7 @@ class SetupKeys:
         "CPSM",
         "NSSM",
         "TransientAPhiFormulation",
+        "MechTransientThermal",
     ]
 
     SetupTemplates = {
@@ -1710,6 +1733,7 @@ class SetupKeys:
         54: CPSM,
         55: NSSM,
         56: MaxwellTransient,
+        57: MechTransientThermal,
     }
 
     SetupTemplates_231 = {
