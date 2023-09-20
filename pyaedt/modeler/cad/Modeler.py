@@ -383,7 +383,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         Examples
         --------
-        Clean all coordinate systems of the design.
+        Delete all coordinate systems in the design.
 
         >>> from pyaedt import Maxwell2d
         >>> app = Maxwell2d()
@@ -2546,21 +2546,27 @@ class GeometryModeler(Modeler, object):
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Refer to the origin where the object coordinate system is anchored.
             It can be:
+
              - int in which case it refers to the entity Id.
              - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
              - list in which case it refers to the origin coordinate system ``[x, y, z]``.
+
         x_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Entity that the x axis of the object coordinate system points to.
             It can be:
+
              - int in which case it refers to the entity Id.
              - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
              - list in which case it refers to the point coordinate system ``[x, y, z]`` that the x axis points to.
+
         y_axis : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Entity that the y axis of the object coordinate system points to.
             It can be:
+
              - int in which case it refers to the entity Id.
              - VertexPrimitive, EdgePrimitive, FacePrimitive in which case it refers to the entity type.
              - list in which case it refers to the point coordinate system ``[x, y, z]`` that the y axis points to.
+
         move_to_end : bool, optional
             If ``True`` the Coordinate System creation operation will always be moved to the end of subsequent
             objects operation. This will guarantee that the coordinate system will remain solidal with the object
