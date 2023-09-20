@@ -401,7 +401,7 @@ class TestClass:
         assert cs5.delete()
 
     def test_40a_create_face_coordinate_system(self):
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        box = self.aedtapp.modeler.create_box(position=[0, 0, 0], dimensions_list=[2, 2, 2], name="box_cs")
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
         assert fcs
@@ -461,6 +461,64 @@ class TestClass:
         assert fcs._get_type_from_object(face.edges[0]) == "Edge"
         assert fcs._get_type_from_object(face.edges[0].vertices[0]) == "Vertex"
 
+    def test_40b_create_object_coordinate_system(self):
+        box = self.aedtapp.modeler.objects_by_name["box_cs"]
+        cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+        )
+        assert cs
+        assert cs.name == "obj_cs"
+        assert cs.entity_id == box.id
+        assert cs.ref_cs == "Global"
+        cs.props["MoveToEnd"] = False
+        assert not cs.props["MoveToEnd"]
+        cs.props["yAxis"]["xDirection"] = 1
+        cs.props["yAxis"]["xDirection"] = "1"
+        cs.props["yAxis"]["xDirection"] = "1cm"
+        assert cs.update()
+        cs.delete()
+        cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+        )
+        assert cs
+        assert cs.name == "obj_cs"
+        assert cs.entity_id == box.id
+        assert cs.ref_cs == "Global"
+        cs.props["MoveToEnd"] = False
+        assert not cs.props["MoveToEnd"]
+        cs.props["xAxis"]["xDirection"] = 1
+        cs.props["xAxis"]["xDirection"] = "1"
+        cs.props["xAxis"]["xDirection"] = "1cm"
+        cs.props["yAxis"]["xDirection"] = 1
+        cs.props["yAxis"]["xDirection"] = "1"
+        cs.props["yAxis"]["xDirection"] = "1cm"
+        assert cs.update()
+        cs.delete()
+        cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+        )
+        cs.props["Origin"]["XPosition"] = 1
+        cs.props["Origin"]["XPosition"] = "1"
+        cs.props["Origin"]["XPosition"] = "1cm"
+        cs.props["ReverseXAxis"] = True
+        cs.props["ReverseYAxis"] = True
+        assert cs.props["ReverseXAxis"]
+        assert cs.props["ReverseYAxis"]
+        assert cs.update()
+        cs.delete()
+        cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs"
+        )
+        cs.props["Origin"]["XPosition"] = 1
+        cs.props["Origin"]["XPosition"] = "1"
+        cs.props["Origin"]["XPosition"] = "1cm"
+        cs.props["ReverseXAxis"] = True
+        cs.props["ReverseYAxis"] = True
+        assert cs.props["ReverseXAxis"]
+        assert cs.props["ReverseYAxis"]
+        assert cs.update()
+        cs.delete()
+
     def test_41_rename_coordinate(self):
         cs = self.aedtapp.modeler.create_coordinate_system(name="oldname")
         assert cs.name == "oldname"
@@ -469,7 +527,7 @@ class TestClass:
         assert cs.delete()
 
     def test_41a_rename_face_coordinate(self):
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        box = self.aedtapp.modeler.objects_by_name["box_cs"]
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="oldname")
         assert fcs.name == "oldname"
@@ -477,9 +535,19 @@ class TestClass:
         assert fcs.name == "newname"
         assert fcs.delete()
 
-    def test_42A_update_coordinate_system(self):
-        CS_list = self.aedtapp.modeler.coordinate_systems
-        [l.delete() for l in CS_list]
+    def test_41b_rename_object_coordinate(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+        )
+        assert cs.name == "obj_cs"
+        assert cs.rename("new_obj_cs")
+        assert cs.name == "new_obj_cs"
+        assert cs.delete()
+
+    def test_42a_update_coordinate_system(self):
+        cs_list = self.aedtapp.modeler.coordinate_systems
+        [l.delete() for l in cs_list]
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2", mode="view", view="iso")
         cs2.ref_cs = "CS1"
@@ -499,7 +567,7 @@ class TestClass:
         assert len(self.aedtapp.modeler.coordinate_systems) == 2
         assert cs2.delete()
 
-    def test_42A_update_face_coordinate_system(self):
+    def test_42b_update_face_coordinate_system(self):
         CS_list = self.aedtapp.modeler.coordinate_systems
         [l.delete() for l in CS_list]
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
@@ -524,7 +592,7 @@ class TestClass:
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
         assert fcs.delete()
 
-    def test_42B_set_as_working_cs(self):
+    def test_43_set_as_working_cs(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
             cs.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="first")
@@ -532,15 +600,30 @@ class TestClass:
         assert cs1.set_as_working_cs()
         assert cs2.set_as_working_cs()
 
-    def test_42C_set_as_working_face_cs(self):
+    def test_43b_set_as_working_face_cs(self):
         for cs in self.aedtapp.modeler.coordinate_systems:
             cs.delete()
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        box = self.aedtapp.modeler.objects_by_name["box_cs"]
         face = box.faces[0]
         fcs1 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
         fcs2 = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1])
         assert fcs1.set_as_working_cs()
         assert fcs2.set_as_working_cs()
+
+    def test_43c_set_as_working_object_cs(self):
+        for cs in self.aedtapp.modeler.coordinate_systems:
+            cs.delete()
+        box = self.aedtapp.modeler.objects_by_name["box_cs"]
+        obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+        )
+        obj_cs_1 = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_1"
+        )
+        assert obj_cs.set_as_working_cs()
+        assert obj_cs_1.set_as_working_cs()
+        obj_cs.delete()
+        obj_cs_1.delete()
 
     def test_43_set_working_coordinate_system(self):
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="new1")
@@ -848,6 +931,33 @@ class TestClass:
         assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
         assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
         assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+        )
+        new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
+        assert new_obj_cs.props == obj_cs.props
+        assert new_obj_cs.entity_id == obj_cs.entity_id
+        obj_cs.delete()
+        obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+        )
+        new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
+        assert new_obj_cs.props == obj_cs.props
+        assert new_obj_cs.entity_id == obj_cs.entity_id
+        obj_cs.delete()
+        obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+        )
+        new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
+        assert new_obj_cs.props == obj_cs.props
+        assert new_obj_cs.entity_id == obj_cs.entity_id
+        obj_cs.delete()
+        obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
+            obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs"
+        )
+        new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
+        assert new_obj_cs.props == obj_cs.props
+        assert new_obj_cs.entity_id == obj_cs.entity_id
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(
