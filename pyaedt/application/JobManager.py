@@ -62,9 +62,12 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
                 break
 
     data[line_number] = new_line
-
-    with open(filnename, "w") as file:
-        file.writelines(data)
+    try:
+        with open(filnename, "w") as file:
+            file.writelines(data)
+        return True
+    except IOError:
+        return False
 
 
 def update_simulation_cores(name, nc):

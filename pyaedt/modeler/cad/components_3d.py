@@ -866,6 +866,8 @@ class UserDefinedComponent(object):
         :class:`pyaedt.hfss.Hfss` or :class:`pyaedt.Icepak.Icepak`
             Pyaedt object.
         """
+        # TODO: Edit documentation to include all supported returned classes.
+
         from pyaedt.generic.design_types import get_pyaedt_app
 
         # from pyaedt.generic.general_methods import is_linux
