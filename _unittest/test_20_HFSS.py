@@ -110,7 +110,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
-        outer_1 = self.aedtapp.modeler.objects[self.aedtapp.modeler.get_obj_id("outer_1")]
+        outer_1 = self.aedtapp.modeler["outer_1"]
         # TODO: Consider allowing a TEM port to be created.
         assert not self.aedtapp.wave_port(o5)
 
