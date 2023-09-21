@@ -22,7 +22,7 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.ports import ExcitationBundle
+from pyaedt.edb_core.edb_data.ports import BundleWavePort
 from pyaedt.edb_core.edb_data.ports import ExcitationProbes
 from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.ports import GapPort
@@ -32,6 +32,8 @@ from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimula
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.terminals import Terminal
+from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
+from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -344,7 +346,18 @@ class Edb(Database):
     @property
     def terminals(self):
         """Get terminals belonging to active layout."""
-        return {i.GetName(): GapPort(self, i) for i in self.layout.terminals}
+        temp = {}
+        for i in self.layout.terminals:
+            terminal_type = i.ToString().split(".")[-1]
+            if terminal_type == TerminalType.EdgeTerminal.name:
+                ter = EdgeTerminal(self, i)
+            elif terminal_type == TerminalType.BundleTerminal.name:
+                ter =BundleTerminal(self, i)
+            else:
+                ter = Terminal(self, i)
+            temp[ter.name] = ter
+
+        return temp
 
     @property
     def excitations(self):
@@ -353,7 +366,7 @@ class Edb(Database):
         temp = {}
         for ter in terms:
             if "BundleTerminal" in ter.GetType().ToString():
-                temp[ter.GetName()] = ExcitationBundle(self, ter)
+                temp[ter.GetName()] = BundleWavePort(self, ter)
             else:
                 temp[ter.GetName()] = GapPort(self, ter)
         return temp
@@ -374,7 +387,7 @@ class Edb(Database):
         for t in temp:
             t2 = Terminal(self, t)
             if t2.terminal_type == TerminalType.BundleTerminal.name:
-                bundle_ter = ExcitationBundle(self, t)
+                bundle_ter = BundleWavePort(self, t)
                 ports[bundle_ter.name] = bundle_ter
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
@@ -3119,7 +3132,7 @@ class Edb(Database):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
-        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort))]
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort, BundleWavePort))]
         all_sources.extend([i for i in self.sources.values()])
         if not all_sources:
             return True

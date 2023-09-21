@@ -4,6 +4,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import TerminalType
 
 
@@ -352,3 +353,53 @@ class Terminal(Connectable):
 class EdgeTerminal(Terminal):
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
+
+    @pyaedt_function_handler
+    def couple_ports(self, port):
+        """Create a bundle wave port.
+
+        Parameters
+        ----------
+        port: :class:`pyaedt.edb_core.ports.WavePort`, :class:`pyaedt.edb_core.ports.GapPort`, list ,optional
+            Ports to be added.
+        Returns
+        -------
+        :class:`pyaedt.edb_core.ports.BundleWavePort`
+
+        """
+        if not isinstance(port, (list, tuple)):
+            port = [port]
+        temp = [self._edb_object]
+        temp.extend([i._edb_object for i in port])
+        edb_list = convert_py_list_to_net_list(temp, self._edb.cell.terminal.Terminal)
+        _edb_bundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
+        return self._pedb.ports[self.name]
+
+
+class BundleTerminal(Terminal):
+    """Manages bundle terminal properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_object : Ansys.Ansoft.Edb.Cell.Terminal.BundleTerminal
+        BundleTerminal instance from EDB.
+    """
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
+
+    @property
+    def terminals(self):
+        """Get terminals belonging to this excitation."""
+        return [EdgeTerminal(self._pedb, i) for i in list(self._edb_object.GetTerminals())]
+
+    @property
+    def name(self):
+        return self.terminals[0].name
+
+    @pyaedt_function_handler
+    def decouple(self):
+        """Ungroup a bundle of terminals."""
+        return self._edb_object.Ungroup()

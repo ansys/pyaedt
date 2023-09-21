@@ -1,3 +1,4 @@
+from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 
@@ -124,10 +125,22 @@ class WavePort(EdgeTerminal):
         """Whether deembed is active."""
         return self._edb_object.GetPortPostProcessingProp().DoDeembed
 
+    @deembed.setter
+    def deembed(self, value):
+        p = self._edb_object.GetPortPostProcessingProp()
+        p.DoDeembed = value
+        self._edb_object.SetPortPostProcessingProp(p)
+
     @property
     def deembed_length(self):
         """Deembed Length."""
         return self._edb_object.GetPortPostProcessingProp().DeembedLength.ToDouble()
+
+    @deembed_length.setter
+    def deembed_length(self, value):
+        p = self._edb_object.GetPortPostProcessingProp()
+        p.DeembedLength = self._pedb.edb_value(value)
+        self._edb_object.SetPortPostProcessingProp(p)
 
 
 class ExcitationSources(Terminal):
@@ -198,29 +211,72 @@ class ExcitationProbes(Terminal):
         Terminal.__init__(self, pedb, edb_terminal)
 
 
-class ExcitationBundle:
-    """Manages multi terminal excitation properties."""
+class BundleWavePort(BundleTerminal):
+    """Manages bundle wave port properties.
 
-    def __init__(self, pedb, edb_bundle_terminal):
-        self._pedb = pedb
-        self._edb_bundle_terminal = edb_bundle_terminal
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_object : Ansys.Ansoft.Edb.Cell.Terminal.BundleTerminal
+        BundleTerminal instance from EDB.
 
-    @property
-    def name(self):
-        """Port Name."""
-        return list(self.terminals.values())[0].name
+    """
 
-    @property
-    def edb(self):  # pragma: no cover
-        """Get edb."""
-        return self._pedb.edb_api
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
 
-    @property
-    def terminals(self):
-        """Get terminals belonging to this excitation."""
-        return {i.GetName(): GapPort(self._pedb, i) for i in list(self._edb_bundle_terminal.GetTerminals())}
 
     @property
-    def reference_net_name(self):
-        """Reference Name. Not applicable to Differential pairs."""
-        return
+    def _wave_port(self):
+        return WavePort(self._pedb, self.terminals[0]._edb_object)
+
+    @property
+    def horizontal_extent_factor(self):
+        """Horizontal extent factor."""
+        return self._wave_port.horizontal_extent_factor
+
+    @horizontal_extent_factor.setter
+    def horizontal_extent_factor(self, value):
+        self._wave_port.horizontal_extent_factor = value
+
+    @property
+    def vertical_extent_factor(self):
+        """Vertical extent factor."""
+        return self._wave_port.vertical_extent_factor
+
+    @vertical_extent_factor.setter
+    def vertical_extent_factor(self, value):
+        self._wave_port.vertical_extent_factor = value
+
+    @property
+    def radial_extent_factor(self):
+        """Radial extent factor."""
+        return self._wave_port.radial_extent_factor
+
+    @property
+    def pec_launch_width(self):
+        """Launch width for the printed electronic component (PEC)."""
+        return self._wave_port.pec_launch_width
+
+    @pec_launch_width.setter
+    def pec_launch_width(self, value):
+        self._wave_port.pec_launch_width = value
+
+    @property
+    def deembed(self):
+        """Whether deembed is active."""
+        return self._wave_port.deembed
+
+    @deembed.setter
+    def deembed(self, value):
+        self._wave_port.deembed = value
+
+    @property
+    def deembed_length(self):
+        """Deembed Length."""
+        return self._wave_port.deembed_length
+
+    @deembed_length.setter
+    def deembed_length(self, value):
+        self._wave_port.deembed_length = value
