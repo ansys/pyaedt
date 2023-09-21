@@ -9,6 +9,7 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import os
+import re
 import shutil
 import tempfile
 import time
@@ -122,14 +123,11 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
         )
-        self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
-        self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
-
         if self.design_type != "Maxwell Circuit":
             self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
 
@@ -184,6 +182,8 @@ class Analysis(Design, object):
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
+            for material in self._materials.material_keys:
+                self._materials.material_keys[material]._material_update = True
         return self._materials
 
     @property
@@ -435,7 +435,9 @@ class Analysis(Design, object):
         first_element_filter=None,
         second_element_filter=None,
         category="dB(S",
+        differential_pairs=[],
     ):
+        # type: (bool, bool, str, str, str, list) -> list
         """Retrieve a list of traces of specified designs ready to use in plot reports.
 
         Parameters
@@ -450,9 +452,11 @@ class Analysis(Design, object):
         second_element_filter : str, optional
             Filter to apply to the second element of the equation.
             This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
-        category : str
+        category : str, optional
             Plot category name as in the report (including operator).
             The default is ``"dB(S"``,  which is the plot category name for capacitance.
+        differential_pairs : list, optional
+            Differential pairs defined. The default is ``[]``.
 
         Returns
         -------
@@ -461,10 +465,13 @@ class Analysis(Design, object):
 
         Examples
         --------
-        >>> from pyaedt import Q3d
-        >>> hfss = hfss(project_path)
+        >>> from pyaedt import Hfss3dLayout
+        >>> hfss = Hfss3dLayout(project_path)
         >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                           second_element_filter="GND*", category="dB(S")
+        ...                          second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
+        ...                          first_element_filter="*_U1_data?",
+        ...                          second_element_filter="*_U0_*", category="dB(S")
         """
         if not first_element_filter:
             first_element_filter = "*"
@@ -472,14 +479,18 @@ class Analysis(Design, object):
             second_element_filter = "*"
         list_output = []
         end_str = ")" * (category.count("(") + 1)
+        if differential_pairs:
+            excitations = differential_pairs
+        else:
+            excitations = self.excitations
         if get_self_terms:
-            for el in self.excitations:
+            for el in excitations:
                 value = "{}({},{}{}".format(category, el, el, end_str)
                 if filter_tuple(value, first_element_filter, second_element_filter):
                     list_output.append(value)
         if get_mutual_terms:
-            for el1 in self.excitations:
-                for el2 in self.excitations:
+            for el1 in excitations:
+                for el2 in excitations:
                     if el1 != el2:
                         value = "{}({},{}{}".format(category, el1, el2, end_str)
                         if filter_tuple(value, first_element_filter, second_element_filter):
@@ -909,20 +920,22 @@ class Analysis(Design, object):
             list of str
                 List of names of independent variables.
             """
-            return [i for i in self._app.variable_manager.independent_variables]
+            return self._app.variable_manager.independent_variable_names
 
         @pyaedt_function_handler()
-        def variations(self, setup_sweep=None):
+        def variations(self, setup_sweep=None, output_as_dict=False):
             """Variations.
 
             Parameters
             ----------
             setup_sweep : str, optional
                 Setup name with the sweep to search for variations on. The default is ``None``.
+            output_as_dict : bool, optional
+                Whether to output the variations as a dict. The default is ``False``.
 
             Returns
             -------
-            list of lists
+            list of lists, List of dicts
                 List of variation families.
 
             References
@@ -930,20 +943,36 @@ class Analysis(Design, object):
 
             >>> oModule.GetAvailableVariations
             """
-            vs = self.get_variation_strings(setup_sweep)
+            variations_string = self.get_variation_strings(setup_sweep)
+            variables = [k for k, v in self._app.variable_manager.variables.items() if not v.post_processing]
             families = []
-            if vs:
-                for v in vs:
-                    variations = v.split(" ")
-                    family = []
-                    for el in self.variables:
-                        family.append(el + ":=")
-                        i = 0
-                        while i < len(variations):
-                            if variations[i][0 : len(el)] == el:
-                                family.append([variations[i][len(el) + 2 : -1]])
-                            i += 1
-                    families.append(family)
+            if variations_string:
+                for vs in variations_string:
+                    vsplit = vs.split(" ")
+                    variation = []
+                    for v in vsplit:
+                        m = re.search(r"(.+?)='(.+?)'", v)
+                        if m and len(m.groups()) == 2:
+                            variation.append([m.group(1), m.group(2)])
+                        else:  # pragma: no cover
+                            raise Exception("Error in splitting the variation variable.")
+                    family_list = []
+                    family_dict = {}
+                    count = 0
+                    for var in variables:
+                        family_list.append(var + ":=")
+                        for v in variation:
+                            if var == v[0]:
+                                family_list.append([v[1]])
+                                family_dict[v[0]] = v[1]
+                                count += 1
+                                break
+                    if count != len(variation):  # pragma: no cover
+                        raise IndexError("Not all variations were found in variables.")
+                    if output_as_dict:
+                        families.append(family_dict)
+                    else:
+                        families.append(family_list)
             return families
 
         @pyaedt_function_handler()
@@ -1258,7 +1287,7 @@ class Analysis(Design, object):
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
-        pyaedt INFO: Sweep was deleted correctly.
+        PyAEDT INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])
@@ -1513,7 +1542,7 @@ class Analysis(Design, object):
     def analyze(
         self,
         setup_name=None,
-        num_cores=1,
+        num_cores=4,
         num_tasks=1,
         num_gpu=1,
         acf_file=None,
@@ -1522,6 +1551,7 @@ class Analysis(Design, object):
         machine="localhost",
         run_in_thread=False,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Solve the active design.
 
@@ -1530,7 +1560,7 @@ class Analysis(Design, object):
         setup_name : str, optional
             Setup to analyze. Default is ``None`` which solves all the setups.
         num_cores : int, optional
-            Number of simulation cores. Default is ``1``.
+            Number of simulation cores. Default is ``4`` which is the number of cores available in license.
         num_tasks : int, optional
             Number of simulation tasks. Default is ``1``.
             In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
@@ -1551,6 +1581,9 @@ class Analysis(Design, object):
             ``False``.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1580,13 +1613,14 @@ class Analysis(Design, object):
                 acf_file,
                 use_auto_settings,
                 revert_to_initial_mesh=revert_to_initial_mesh,
+                blocking=blocking,
             )
 
     @pyaedt_function_handler()
     def analyze_setup(
         self,
         name,
-        num_cores=1,
+        num_cores=4,
         num_tasks=1,
         num_gpu=0,
         acf_file=None,
@@ -1594,6 +1628,7 @@ class Analysis(Design, object):
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Analyze a design setup.
 
@@ -1619,6 +1654,9 @@ class Analysis(Design, object):
             An empty list ``[]`` disables all types.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1659,6 +1697,7 @@ class Analysis(Design, object):
                     if self.working_directory[0] != "\\"
                     else os.path.join(self.working_directory, config_name + ".acf")
                 )
+            skip_files = False
             try:
                 shutil.copy2(source_name, target_name)
 
@@ -1668,28 +1707,34 @@ class Analysis(Design, object):
             # If there is any permission issue
             except PermissionError:
                 self.logger.error("Permission denied.")
+                skip_files = True
             # For other errors
             except:
                 self.logger.error("Error occurred while copying file.")
-
-            if num_cores:
-                update_hpc_option(target_name, "NumCores", num_cores, False)
-            if num_gpu:
-                update_hpc_option(target_name, "NumGPUs", num_gpu, False)
-            if num_tasks:
-                update_hpc_option(target_name, "NumEngines", num_tasks, False)
-            update_hpc_option(target_name, "ConfigName", config_name, True)
-            update_hpc_option(target_name, "DesignType", self.design_type, True)
-            if self.design_type == "Icepak":
-                use_auto_settings = False
-            update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
-            if num_variations_to_distribute:
-                update_hpc_option(target_name, "NumVariationsToDistribute", num_variations_to_distribute, False)
-            if isinstance(allowed_distribution_types, list):
-                num_adt = len(allowed_distribution_types)
-                adt_string = "', '".join(allowed_distribution_types)
-                adt_string = "[{}: '{}']".format(num_adt, adt_string)
-                update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, separator="")
+                skip_files = True
+            if not skip_files:
+                if num_cores:
+                    skip_files = update_hpc_option(target_name, "NumCores", num_cores, False)
+                if num_gpu:
+                    skip_files = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                if num_tasks:
+                    skip_files = update_hpc_option(target_name, "NumEngines", num_tasks, False)
+                skip_files = update_hpc_option(target_name, "ConfigName", config_name, True)
+                skip_files = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                if self.design_type == "Icepak":
+                    use_auto_settings = False
+                skip_files = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                if num_variations_to_distribute:
+                    skip_files = update_hpc_option(
+                        target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
+                    )
+                if isinstance(allowed_distribution_types, list):
+                    num_adt = len(allowed_distribution_types)
+                    adt_string = "', '".join(allowed_distribution_types)
+                    adt_string = "[{}: '{}']".format(num_adt, adt_string)
+                    skip_files = update_hpc_option(
+                        target_name, "AllowedDistributionTypes", adt_string, False, separator=""
+                    )
 
             if settings.remote_rpc_session:
                 remote_name = (
@@ -1699,28 +1744,34 @@ class Analysis(Design, object):
                 )
                 settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
                 target_name = remote_name
-
-            try:
-                self._desktop.SetRegistryFromFile(target_name)
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
-                set_custom_dso = True
-            except:
-                pass
+            if not skip_files:
+                try:
+                    self._desktop.SetRegistryFromFile(target_name)
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
+                    set_custom_dso = True
+                except:
+                    pass
         if not name:
             try:
                 self.logger.info("Solving all design setups")
-                self.odesign.AnalyzeAll()
+                if self.desktop_class.aedt_version_id > "2023.1":
+                    self.odesign.AnalyzeAll(blocking)
+                else:
+                    self.odesign.AnalyzeAll()
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-                self.logger.error("Error in Solving Setup %s", name)
+                self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
         elif name in self.existing_analysis_setups:
             try:
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
                 self.logger.info("Solving design setup %s", name)
-                self.odesign.Analyze(name)
+                if self.desktop_class.aedt_version_id > "2023.1":
+                    self.odesign.Analyze(name, blocking)
+                else:
+                    self.odesign.Analyze(name)
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -1743,6 +1794,48 @@ class Analysis(Design, object):
             "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
         )
         return True
+
+    @property
+    def are_there_simulations_running(self):
+        """Check if there are simulation running.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        float
+
+        """
+        return self.desktop_class.are_there_simulations_running
+
+    @pyaedt_function_handler()
+    def get_monitor_data(self):
+        """Check and get monitor data of an existing analysis.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        dict
+
+        """
+        return self.desktop_class.get_monitor_data()
+
+    @pyaedt_function_handler()
+    def stop_simulations(self, clean_stop=True):
+        """Check if there are simulation running and stops them.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        str
+
+        """
+        return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
     @pyaedt_function_handler()
     def solve_in_batch(
@@ -1892,7 +1985,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def submit_job(
         self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
-    ):
+    ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
@@ -1921,64 +2014,9 @@ class Analysis(Design, object):
 
         >>> oDesktop.SubmitJob
         """
-        project_file = self.project_file
-        project_path = self.project_path
-        if not aedt_full_exe_path:
-            version = self.odesktop.GetVersion()[2:6]
-            if version >= "22.2":
-                version_name = "v" + version.replace(".", "")
-            else:
-                version_name = "AnsysEM" + version
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
-                aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
-                )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
-                aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
-                )
-            else:
-                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
-                return False
-        else:
-            if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("AEDT shared path does not exist. Provide a full path.")
-                return False
-            aedt_full_exe_path.replace("\\", "\\\\")
-
-        self.close_project()
-        path_file = os.path.dirname(__file__)
-        destination_reg = os.path.join(project_path, "Job_settings.areg")
-        if not setting_file:
-            setting_file = os.path.join(path_file, "..", "misc", "Job_Settings.areg")
-        shutil.copy(setting_file, destination_reg)
-
-        f1 = open_file(destination_reg, "w")
-        with open_file(setting_file) as f:
-            lines = f.readlines()
-            for line in lines:
-                if "\\	$begin" == line[:8]:
-                    lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "\\	$end" == line[:6]:
-                    lin = "\\	$end \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "NumCores" in line:
-                    lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
-                    f1.write(lin)
-                elif "NumNodes=1" in line:
-                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
-                    f1.write(lin)
-                elif "ProductPath" in line:
-                    lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
-                    f1.write(lin)
-                elif "WaitForLicense" in line:
-                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
-                    f1.write(lin)
-                else:
-                    f1.write(line)
-        f1.close()
-        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+        return self.desktop_class.submit_job(
+            self.project_file, clustername, aedt_full_exe_path, numnodes, numcores, wait_for_license, setting_file
+        )
 
     @pyaedt_function_handler()
     def _export_touchstone(
@@ -2049,7 +2087,7 @@ class Analysis(Design, object):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containing the frequencies to export, use ["all"] for all frequencies
         FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization

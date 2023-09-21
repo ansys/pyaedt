@@ -141,10 +141,11 @@ class Rmxprt(FieldAnalysisRMxprt):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -235,6 +236,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 
@@ -244,7 +248,6 @@ class Rmxprt(FieldAnalysisRMxprt):
         return self.design_solutions.design_type
 
     @design_type.setter
-    @pyaedt_function_handler()
     def design_type(self, value):
         self.design_solutions.design_type = value
 

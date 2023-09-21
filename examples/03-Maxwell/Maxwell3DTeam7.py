@@ -18,8 +18,7 @@ import os
 ###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -33,7 +32,7 @@ non_graphical = False
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2023.1"
+DesktopVersion = "2023.2"
 
 M3D = Maxwell3d(
     projectname=generate_unique_project_name(),

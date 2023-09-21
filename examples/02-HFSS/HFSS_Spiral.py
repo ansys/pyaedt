@@ -17,8 +17,7 @@ project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 #############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -26,10 +25,10 @@ non_graphical = False
 #############################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launch HFSS 2023 R1 in non-graphical mode and change the
+# Launch HFSS 2023 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(specified_version="2023.1", non_graphical=non_graphical, designname="A1", new_desktop_session=True)
+hfss = pyaedt.Hfss(specified_version="2023.2", non_graphical=non_graphical, designname="A1", new_desktop_session=True)
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 

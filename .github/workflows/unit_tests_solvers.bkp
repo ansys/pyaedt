@@ -1,0 +1,103 @@
+name: CI_Solvers
+
+env:
+  python.version: '3.10'
+  python.venv: 'testvenv'
+  # Following env vars when changed will "reset" the mentioned cache,
+  # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
+  # You should go up in number, if you go down (or repeat a previous value)
+  # you might end up reusing a previous cache if it hasn't been deleted already.
+  # It applies 7 days retention policy by default.
+  RESET_PIP_CACHE: 0
+  PACKAGE_NAME: PyAEDT
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    tags:
+     - 'v*'
+    branches:
+      - main
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: [windows-latest, pyaedt]
+    strategy:
+      matrix:
+        python-version: ['3.10']
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 'Create virtual env'
+        run: |
+          Remove-Item D:\Temp\* -Recurse -Force
+          python -m venv testenv_s
+          testenv_s\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          testenv_s\Scripts\Activate.ps1
+          pip install .
+          pip install .[tests]
+          pip install pytest-azurepipelines
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv_s\Lib\site-packages\vtkmodules" -Force
+          mkdir tmp
+          cd tmp
+          python -c "import pyaedt; print('Imported pyaedt')"
+
+      # - name: "Check licences of packages"
+      #   uses: pyansys/pydpf-actions/check-licenses@v2.0
+
+      - name: 'Unit testing'
+        timeout-minutes: 40
+        run: |
+          testenv_s\Scripts\Activate.ps1
+          Set-Item -Path env:PYTHONMALLOC -Value "malloc"
+          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+
+      - uses: codecov/codecov-action@v3
+        if: matrix.python-version == '3.10'
+        name: 'Upload coverage to Codecov'
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-results
+          path: junit/test-results.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+
+      - name: 'Build and validate source distribution'
+        run: |
+          testenv_s\Scripts\Activate.ps1
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*
+
+      - name: "Builds and uploads to PyPI"
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        run: |
+          testenv_s\Scripts\Activate.ps1
+          python setup.py sdist
+          python -m pip install twine
+          python -m twine upload --skip-existing dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}

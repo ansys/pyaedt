@@ -22,7 +22,7 @@ jobs:
     name: Documentation Style Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
   
       - name: Running Vale
         uses: errata-ai/vale-action@reviewdog
@@ -35,12 +35,11 @@ jobs:
           filter_mode: nofilter
           fail_on_error: true
           vale_flags: "--config=doc/.vale.ini"
-
   docs_build:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -49,7 +48,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
-          pip install .
+          pip install .[doc]
 
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
@@ -77,7 +76,6 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          pip install .[doc]
           sudo apt install graphviz
 
       # run doc build, without creating the examples directory
@@ -85,6 +83,7 @@ jobs:
       # be created as gallery is disabled on linux.
       - name: Documentation Build
         run: |
+          make -C doc clean
           mkdir doc/source/examples -p
           echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"

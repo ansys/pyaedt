@@ -15,8 +15,7 @@ import pyaedt
 ##################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -31,7 +30,7 @@ non_graphical = False
 project_name = "COMPUMAG"
 design_name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 
 m3d = pyaedt.Maxwell3d(
     projectname=pyaedt.generate_unique_project_name(),

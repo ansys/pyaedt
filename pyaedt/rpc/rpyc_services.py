@@ -359,7 +359,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -414,7 +414,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -469,7 +469,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -524,7 +524,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -579,7 +579,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -634,7 +634,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -689,7 +689,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -744,7 +744,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -799,7 +799,7 @@ class PyaedtServiceWindows(rpyc.Service):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, optional
+        specified_version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -843,6 +843,9 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def exposed_stop():
+        from pyaedt import settings
+        settings.remote_rpc_session = None
+
         pid = os.getpid()
         os.kill(pid, signal.SIGTERM)
 
@@ -918,6 +921,56 @@ class GlobalService(rpyc.Service):
                 timeout = 0
         print("Service has started on port {}".format(port))
         return port
+
+    @property
+    def aedt_port(self):
+        """Aedt active port.
+
+        Returns
+        -------
+        int
+        """
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+        if _desktop_sessions:
+            return list(_desktop_sessions.values())[0].port
+        return 0
+
+    @property
+    def aedt_version(self):
+        """Aedt Version.
+
+        Returns
+        -------
+        str
+        """
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+        if _desktop_sessions:
+            return list(_desktop_sessions.values())[0].aedt_version_id
+        return ""
+
+    @property
+    def student_version(self):
+        """Student version flag.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+        if _desktop_sessions:
+            return list(_desktop_sessions.values())[0].student_version
+        return False
+
+    @property
+    def server_name(self):
+        """Machine name,
+
+        Returns
+        -------
+        str
+        """
+        import socket
+        return socket.getfqdn()
 
     @staticmethod
     def edb(edbpath=None,

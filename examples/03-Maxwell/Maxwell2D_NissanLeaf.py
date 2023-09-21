@@ -21,7 +21,7 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = "2023.1"
+desktopVersion = "2023.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
@@ -177,7 +177,7 @@ mat_coils.permeability = "1"
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the material ``"Arnold_Magnetics_N30UH_80C"``.
 # The BH curve is read from a tabbed CSV file, and a list (``BH_List_PM``)
-# is created. This list is passed to the ``mat_PM.permeability.set_non_linear``
+# is created. This list is passed to the ``mat_PM.permeability.value``
 # method.
 
 mat_PM = M2D.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
@@ -191,7 +191,7 @@ with open(filename_PM) as f:
     next(reader)
     for row in reader:
         BH_List_PM.append([float(row[0]), float(row[1])])
-mat_PM.permeability.set_non_linear(point_list=BH_List_PM)
+mat_PM.permeability.value = BH_List_PM
 
 ##########################################################
 # Create third material
@@ -216,7 +216,7 @@ with open(filename_lam) as f:
     next(reader)
     for row in reader:
         BH_List_lam.append([float(row[0]), float(row[1])])
-mat_lam.permeability.set_non_linear(BH_List_lam)
+mat_lam.permeability.value = BH_List_lam
 
 ##########################################################
 # Create geometry for stator
@@ -701,11 +701,11 @@ for k, v in post_params.items():
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Create a multiplot report.
 
-for k, v in post_params_multiplot.items():
-    M2D.post.create_report(expressions=list(k), setup_sweep_name="", domain="Sweep", variations=None,
-                           primary_sweep_variable="Time", secondary_sweep_variable=None,
-                           report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
-                           polyline_points=1001, plotname=v)
+# for k, v in post_params_multiplot.items():
+#     M2D.post.create_report(expressions=list(k), setup_sweep_name="", domain="Sweep", variations=None,
+#                            primary_sweep_variable="Time", secondary_sweep_variable=None,
+#                            report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
+#                            polyline_points=1001, plotname=v)
 
 ##########################################################
 # Create flux lines plot on region
@@ -725,7 +725,7 @@ M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', 
 # Analyze and save the project.
 
 M2D.save_project()
-M2D.analyze_setup(sName)
+M2D.analyze_setup(sName, use_auto_settings=False)
 
 ###############################################
 # Close AEDT

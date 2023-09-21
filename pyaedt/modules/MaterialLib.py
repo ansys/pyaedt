@@ -16,7 +16,6 @@ from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -42,20 +41,29 @@ class Materials(object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._color_id = 0
-        self.odefinition_manager = self._app.odefinition_manager
-        self.omaterial_manager = self._app.omaterial_manager
         self._mats = []
         self._mats_lower = []
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
-        self.logger.info("Successfully loaded project materials !")
         # self.material_keys = self._get_materials()
         self.material_keys = {}
         self._surface_material_keys = {}
         self._load_from_project()
+        app.logger.info_timer("Material library initialized and project materials loaded successfully!")
+
+    @property
+    def odefinition_manager(self):
+        """Definition Manager from AEDT."""
+        return self._app.odefinition_manager
+
+    @property
+    def omaterial_manager(self):
+        """Material Manager from AEDT."""
+        return self._app.omaterial_manager
 
     def __len__(self):
         return len(self.material_keys)
@@ -252,7 +260,7 @@ class Materials(object):
             return self.material_keys[mat.lower()]
         elif mat.lower() in self.mat_names_aedt_lower:
             return self._aedmattolibrary(mat)
-        elif settings.remote_api:
+        elif settings.remote_api or settings.remote_rpc_session:
             return self._aedmattolibrary(mat)
         return False
 
@@ -455,15 +463,26 @@ class Materials(object):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material, new_name):
+    def duplicate_material(self, material_name, new_name=None, props=None):
         """Duplicate a material.
 
         Parameters
         ----------
-        material : str
+        material_name : str
             Name of the material.
         new_name : str
-            Name for the copy of the material.
+            Name for the copy of the material. If a new name is not specified,
+            the new material name is ``material_name`` plusa  "_clone"`` suffix.
+        props : list
+            List of properties to parameterize when the material is duplicated.
+            Parameterized properties have project scope. Options are:
+
+            - `'permittivity'`
+            - `'permeability'`
+            - `'conductivity'`
+            - '`dielectric_loss_tan'`
+            - '`magnetic_loss_tan'`
+
 
         Returns
         -------
@@ -483,19 +502,52 @@ class Materials(object):
         >>> hfss.materials.duplicate_material("MyMaterial", "MyMaterial2")
 
         """
-        if material.lower() not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
-            return False
-        if material.lower() not in list(self.material_keys.keys()):
-            matobj = self._aedmattolibrary(material)
-        else:
-            matobj = self.material_keys[material.lower()]
+        # Special characters must be removed from material names to make
+        # valid strings for parameter names.
+        replace_characters = [(" ", "_"), ("(", ""), (")", ""), ("/", "_"), ("-", "_"), (".", "_"), (",", "_")]
+        valid_prop_names = (
+            "permittivity",
+            "permeability",
+            "conductivity",
+            "dielectric_loss_tangent",
+            "magnetic_loss_tangent",
+        )
 
-        newmat = Material(self, new_name, matobj._props)
-        newmat.update()
+        # Get the material definition.
+        material_in_aedt = material_name.lower() in list(self.mat_names_aedt_lower)
+        material_in_project = material_name.lower() in list(self.material_keys.keys())
+        if not (material_in_aedt or material_in_project):  # Check for material definition
+            self.logger.error("Material {} is not present".format(material_name))
+            return False
+        if not material_in_project:
+            material = self._aedmattolibrary(material_name)
+        else:
+            material = self.material_keys[material_name.lower()]
+
+        if not new_name:
+            new_name = material_name + "_clone"
+        new_material = Material(self, new_name, material._props)
+        new_material.update()
+
+        # Parameterize material properties if these were passed.
+        if props:
+            for p in props:
+                if p in valid_prop_names:
+                    var_name = "$" + new_name + "_" + p
+                    for r in replace_characters:
+                        var_name = var_name.replace(r[0], r[1])
+                    self._app[var_name] = getattr(
+                        material, p
+                    ).value  # Assign default value to parameterized material parameter.
+                    try:
+                        setattr(new_material, p, var_name)
+                    except TypeError:
+                        print("p = {}".format(p))
+
+            # new_material.update()  # Assign parameter to material property.
         self._mats.append(new_name)
-        self.material_keys[new_name.lower()] = newmat
-        return newmat
+        self.material_keys[new_name.lower()] = new_material
+        return new_material
 
     @pyaedt_function_handler()
     def duplicate_surface_material(self, material, new_name):
@@ -628,14 +680,17 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
         """
-        if matname not in self.odefinition_manager.GetProjectMaterialNames() and not settings.remote_api:
+        if matname not in self.odefinition_manager.GetProjectMaterialNames() and not (
+            settings.remote_api or settings.remote_rpc_session
+        ):
             matname = self._get_aedt_case_name(matname)
         props = {}
-        _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
+        _arg2dict(list(self.omaterial_manager.GetData(matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
-        newmat = Material(self, matname, first_value)
+        newmat = Material(self, matname, first_value, material_update=False)
+        newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
 

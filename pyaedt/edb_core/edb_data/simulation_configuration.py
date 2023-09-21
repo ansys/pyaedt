@@ -29,7 +29,10 @@ class SimulationConfigurationBatch(object):
         self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
         self._cutout_subdesign_expansion = 0.001
         self._cutout_subdesign_round_corner = True
-        self._use_default_cutout = True
+        self._use_default_cutout = False
+        self._generate_excitations = True
+        self._add_frequency_sweep = True
+        self._include_only_selected_nets = False
         self._generate_solder_balls = True
         self._coax_solder_ball_diameter = []
         self._use_default_coax_port_radial_extension = True
@@ -241,13 +244,29 @@ class SimulationConfigurationBatch(object):
             self._use_airbox_positive_vertical_extent_multiple = value
 
     @property
-    def use_default_cutout(self):  # pragma: no cover
+    def use_pyaedt_cutout(self):
         """Whether the default EDB cutout or a new PyAEDT cutout is used.
 
         Returns
         -------
         bool
         """
+        return not self._use_default_cutout
+
+    @use_pyaedt_cutout.setter
+    def use_pyaedt_cutout(self, value):
+        self._use_default_cutout = not value
+
+    @property
+    def use_default_cutout(self):  # pragma: no cover
+        """Whether to use the default EDB cutout. The default is ``False``, in which case
+        a new PyAEDT cutout is used.
+
+        Returns
+        -------
+        bool
+        """
+
         return self._use_default_cutout
 
     @use_default_cutout.setter
@@ -558,6 +577,58 @@ class SimulationConfigurationBatch(object):
     def signal_layers_properties(self, value):  # pragma: no cover
         if isinstance(value, dict):
             self._signal_layers_properties = value
+
+    @property
+    def generate_excitations(self):
+        """Activate ports and sources for DC generation when build project with the class.
+
+        Returns
+        -------
+        bool
+            ``True`` ports are created, ``False`` skip port generation. Default value is ``True``.
+
+        """
+        return self._generate_excitations
+
+    @generate_excitations.setter
+    def generate_excitations(self, value):
+        if isinstance(value, bool):
+            self._generate_excitations = value
+
+    @property
+    def add_frequency_sweep(self):
+        """Activate the frequency sweep creation when build project with the class.
+
+        Returns
+        -------
+        bool
+            ``True`` frequency sweep is created, ``False`` skip sweep adding. Default value is ``True``.
+
+        """
+        return self._add_frequency_sweep
+
+    @add_frequency_sweep.setter
+    def add_frequency_sweep(self, value):
+        if isinstance(value, bool):
+            self._add_frequency_sweep = value
+
+    @property
+    def include_only_selected_nets(self):
+        """Include only net selection in the project. It is only used when ``do_cutout`` is set to ``False``.
+        Will also be ignored if signal_nets and power_nets are ``None``, resulting project will have all nets included.
+
+        Returns
+        -------
+        bool
+            ``True`` or ``False``. Default value is ``False``.
+
+        """
+        return self._include_only_selected_nets
+
+    @include_only_selected_nets.setter
+    def include_only_selected_nets(self, value):
+        if isinstance(value, bool):
+            self._include_only_selected_nets = value
 
 
 class SimulationConfigurationDc(object):
@@ -1119,7 +1190,7 @@ class SimulationConfigurationAc(object):
     def __init__(self):
         self._sweep_interpolating = True
         self._use_q3d_for_dc = False
-        self._relative_error = 0.5
+        self._relative_error = 0.005
         self._use_error_z0 = False
         self._percentage_error_z0 = 1
         self._enforce_causality = True
@@ -1830,8 +1901,6 @@ class SimulationConfiguration(object):
     >>> from pyaedt import Edb
     >>> edb = Edb()
     >>> sim_setup = edb.new_simulation_configuration()
-    >>> edb = Edb()
-    >>> sim_setup = edb.new_simulation_configuration()
 
     The returned object sim_setup is a SimulationConfiguration object.
     From this class you can assign a lot of parameters related the project configuration but also solver options.
@@ -2185,38 +2254,45 @@ class SimulationConfiguration(object):
 
     @property
     def dc_settings(self):
+        # type: () -> SimulationConfigurationDc
         """DC Settings class.
 
         Returns
         -------
-        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationDc`
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfigurationDc`
         """
         return self._dc_settings
 
     @property
     def ac_settings(self):
+        # type: () -> SimulationConfigurationAc
         """AC Settings class.
 
         Returns
         -------
-        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationAc`
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfigurationAc`
         """
         return self._ac_settings
 
     @property
     def batch_solve_settings(self):
+        # type: () -> SimulationConfigurationBatch
         """Cutout and Batch Settings class.
 
         Returns
         -------
-        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationBatch`
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfigurationBatch`
         """
         return self._batch_solve_settings
 
+    @pyaedt_function_handler()
     def build_simulation_project(self):
-        """Build active simulation project. This method requires to be run inside Edb Class."""
-        if self._pedb:
-            return self._pedb.build_simulation_project(self)
+        """Build active simulation project. This method requires to be run inside Edb Class.
+
+        Returns
+        -------
+        bool"""
+        return self._pedb.build_simulation_project(self)
 
     @property
     def solver_type(self):  # pragma: no cover
@@ -2224,7 +2300,7 @@ class SimulationConfiguration(object):
 
         Returns
         -------
-            SolverType
+        :class:`pyaedt.generic.constants.SolverType`
             selections are supported, Hfss3dLayout and Siwave.
         """
         return self._solver_type
@@ -2306,16 +2382,11 @@ class SimulationConfiguration(object):
             if node_to_ground in [0, 1, 2]:
                 self._dc_source_terms_to_ground[source_name] = node_to_ground
 
-    def _parse_signal_layer_properties(self, signal_properties):  # pragma: no cover
-        for lay in signal_properties:
-            lp = lay.split(":")
-            try:
-                self.signal_layers_properties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
-            except:
-                print("Missing parameter for layer {0}".format(lp[0]))
-
     def _read_cfg(self):  # pragma: no cover
         """Configuration file reader.
+
+        .. deprecated:: 0.6.78
+           Use :func:`import_json` instead.
 
         Examples
         --------

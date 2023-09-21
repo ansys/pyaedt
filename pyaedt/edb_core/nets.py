@@ -46,21 +46,24 @@ class EdbNets(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-
-    @property
-    def _builder(self):
-        """ """
-        return self._pedb.builder
+        self._nets = {}
+        self._nets_by_comp_dict = {}
+        self._comps_by_nets_dict = {}
 
     @property
     def _edb(self):
         """ """
-        return self._pedb.edb
+        return self._pedb.edb_api
 
     @property
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
+
+    @property
+    def _layout(self):
+        """ """
+        return self._pedb.layout
 
     @property
     def _cell(self):
@@ -70,7 +73,7 @@ class EdbNets(object):
     @property
     def db(self):
         """Db object."""
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def _logger(self):
@@ -86,10 +89,10 @@ class EdbNets(object):
         dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`]
             Dictionary of nets.
         """
-        nets = {}
-        for net in self._active_layout.Nets:
-            nets[net.GetName()] = EDBNetsData(net, self._pedb)
-        return nets
+
+        for net in self._layout.nets:
+            self._nets[net.name] = EDBNetsData(net.api_object, self._pedb)
+        return self._nets
 
     @property
     def netlist(self):
@@ -177,26 +180,155 @@ class EdbNets(object):
         list of  :class:`pyaedt.edb_core.edb_data.EDBNetsData`
         """
         pwr_gnd_nets = []
-        nets = list(self._active_layout.Nets)
-        for net in nets:
+        for net in self._layout.nets[:]:
             total_plane_area = 0.0
             total_trace_area = 0.0
             for primitive in net.Primitives:
-                if primitive.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Bondwire:
+                if primitive.GetPrimitiveType() == self._edb.cell.primitive.PrimitiveType.Bondwire:
                     continue
-                if primitive.GetPrimitiveType() != self._edb.Cell.Primitive.PrimitiveType.Path:
+                if primitive.GetPrimitiveType() != self._edb.cell.primitive.PrimitiveType.Path:
                     total_plane_area += float(primitive.GetPolygonData().Area())
                 else:
                     total_trace_area += float(primitive.GetPolygonData().Area())
             if total_plane_area == 0.0:
                 continue
             if total_trace_area == 0.0:
-                pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
                 continue
             if total_plane_area > 0.0 and total_trace_area > 0.0:
                 if total_plane_area / (total_plane_area + total_trace_area) > threshold:
-                    pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                    pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
         return pwr_gnd_nets
+
+    @property
+    def nets_by_components(self):
+        # type: () -> dict
+        """Get all nets for each component instance."""
+        for comp, i in self._pedb.components.instances.items():
+            self._nets_by_comp_dict[comp] = i.nets
+        return self._nets_by_comp_dict
+
+    @property
+    def components_by_nets(self):
+        # type: () -> dict
+        """Get all component instances grouped by nets."""
+        for comp, i in self._pedb.components.instances.items():
+            for n in i.nets:
+                if n in self._comps_by_nets_dict:
+                    self._comps_by_nets_dict[n].append(comp)
+                else:
+                    self._comps_by_nets_dict[n] = [comp]
+        return self._comps_by_nets_dict
+
+    @pyaedt_function_handler()
+    def generate_extended_nets(
+        self,
+        resistor_below=10,
+        inductor_below=1,
+        capacitor_above=1,
+        exception_list=None,
+        include_signal=True,
+        include_power=True,
+    ):
+        # type: (int | float, int | float, int |float, list, bool, bool) -> list
+        """Get extended net and associated components.
+
+        Parameters
+        ----------
+        resistor_below : int, float, optional
+            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
+        inductor_below : int, float, optional
+            Threshold of inductor value. Search extended net across inductances which has value lower than the
+            threshold.
+        capacitor_above : int, float, optional
+            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
+            threshold.
+        exception_list : list, optional
+            List of components to bypass when performing threshold checks. Components
+            in the list are considered as serial components. The default is ``None``.
+        include_signal : str, optional
+            Whether to generate extended signal nets. The default is ``True``.
+        include_power : str, optional
+            Whether to generate extended power nets. The default is ``True``.
+        Returns
+        -------
+        list
+            List of all extended nets.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> app = Edb()
+        >>> app.nets.get_extended_nets()
+        """
+        if exception_list is None:
+            exception_list = []
+        _extended_nets = []
+        _nets = self.nets
+        all_nets = list(_nets.keys())[:]
+        net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
+        comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
+
+        def get_net_list(net_name, _net_list):
+            comps = []
+            if net_name in net_dicts:
+                comps = net_dicts[net_name]
+
+            for vals in comps:
+                refdes = vals
+                cmp = self._pedb.components.instances[refdes]
+                is_enabled = cmp.is_enabled
+                if not is_enabled:
+                    continue
+                val_type = cmp.type
+                if val_type not in ["Inductor", "Resistor", "Capacitor"]:
+                    continue
+
+                val_value = cmp.rlc_values
+                if refdes in exception_list:
+                    pass
+                elif val_type == "Inductor" and val_value[1] < inductor_below:
+                    pass
+                elif val_type == "Resistor" and val_value[0] < resistor_below:
+                    pass
+                elif val_type == "Capacitor" and val_value[2] > capacitor_above:
+                    pass
+                else:
+                    continue
+
+                for net in comp_dict[refdes]:
+                    if net not in _net_list:
+                        _net_list.append(net)
+                        get_net_list(net, _net_list)
+
+        while len(all_nets) > 0:
+            new_ext = [all_nets[0]]
+            get_net_list(new_ext[0], new_ext)
+            all_nets = [i for i in all_nets if i not in new_ext]
+            _extended_nets.append(new_ext)
+
+            if len(new_ext) > 1:
+                i = new_ext[0]
+                for i in new_ext:
+                    if not i.lower().startswith("unnamed"):
+                        break
+
+                is_power = False
+                for i in new_ext:
+                    is_power = is_power or _nets[i].is_power_ground
+
+                if is_power:
+                    if include_power:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+                else:
+                    if include_signal:
+                        self._pedb.extended_nets.create(i, new_ext)
+                    else:  # pragma: no cover
+                        pass
+
+        return _extended_nets
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
@@ -672,7 +804,7 @@ class EdbNets(object):
             If a file path is specified the plot will be saved to such file.
         outline : list, optional
             List of points of the outline to plot.
-        size : tuple, optional
+        size : tuple, int, optional
             Image size in pixel (width, height). Default value is ``(2000, 1000)``
         plot_components_on_top : bool, optional
             If ``True``  the components placed on top layer are plotted.
@@ -696,6 +828,13 @@ class EdbNets(object):
             plot_components_on_top,
             plot_components_on_bottom,
         )
+
+        if isinstance(size, int):  # pragma: no cover
+            board_size_x, board_size_y = self._pedb.get_statistics().layout_size
+            fig_size_x = size
+            fig_size_y = board_size_y * fig_size_x / board_size_x
+            size = (fig_size_x, fig_size_y)
+
         plot_matplotlib(
             object_lists,
             size,
@@ -842,7 +981,7 @@ class EdbNets(object):
     @pyaedt_function_handler()
     def get_net_by_name(self, net_name):
         """Find a net by name."""
-        edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
+        edb_net = self._edb.cell.net.find_by_name(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
 
@@ -929,13 +1068,13 @@ class EdbNets(object):
         """
         if not net_name and not start_with and not contain and not end_with:
             net_name = generate_unique_name("NET_")
-            net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+            net = self._edb.cell.net.create(self._active_layout, net_name)
             return net
         else:
             if not start_with and not contain and not end_with:
-                net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
+                net = self._edb.cell.net.find_by_name(self._active_layout, net_name)
                 if net.IsNull():
-                    net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+                    net = self._edb.cell.net.create(self._active_layout, net_name)
                 return net
             elif start_with:
                 nets_found = [
@@ -1163,11 +1302,11 @@ class EdbNets(object):
                     layer = list(poly_list)[0].Obj.GetLayer().GetName()
                     net = list(poly_list)[0].Obj.GetNet()
                     _poly_list = convert_py_list_to_net_list([obj.Poly for obj in list(poly_list)])
-                    merged_polygon = list(self._edb.Geometry.PolygonData.Unite(_poly_list))
+                    merged_polygon = list(self._edb.geometry.polygon_data.unite(_poly_list))
                     for poly in merged_polygon:
                         for void in void_list:
                             poly.AddHole(void.GetPolygonData())
-                        _new_poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer, net, poly)
+                        _new_poly = self._edb.cell.primitive.polygon.create(self._active_layout, layer, net, poly)
                         returned_poly.append(_new_poly)
                 for init_poly in list(list(connected_polygons)):
                     for _pp in list(init_poly):

@@ -344,8 +344,15 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# virtual environment
+# Environments
+.env
+.venv
+env/
+venv/
 /venv/
+ENV/
+env.bak/
+venv.bak/
 
 # sphinx build
 doc/_build/
@@ -366,6 +373,8 @@ dist/
 /coverage.xml
 /_unittest/coverage.xml
 /_unittest/local_config.json
+/_unittest_solvers/coverage.xml
+/_unittest_solvers/local_config.json
 test-results.xml
 test-output.xml
 
@@ -386,3 +395,4 @@ model.index\+
 
 # local environment settings used by e.g. Visual Studio Code
 /.env
+/doc/source/local_config.json

@@ -1219,10 +1219,11 @@ class Q3d(QExtractor, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or nothing
         is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -1293,6 +1294,9 @@ class Q3d(QExtractor, object):
             aedt_process_id,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @property
     def nets(self):
@@ -1446,7 +1450,7 @@ class Q3d(QExtractor, object):
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
@@ -1499,7 +1503,7 @@ class Q3d(QExtractor, object):
             type_bound = "FloatingNet"
         bound = BoundaryObject(self, net_name, props, type_bound)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1511,7 +1515,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -1543,7 +1547,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -1601,7 +1605,7 @@ class Q3d(QExtractor, object):
             props["Net"] = net_name
         bound = BoundaryObject(self, name, props, exc_type)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1718,7 +1722,7 @@ class Q3d(QExtractor, object):
             )
             bound = BoundaryObject(self, sink_name, props, "Sink")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         return False
 
@@ -1771,7 +1775,7 @@ class Q3d(QExtractor, object):
 
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1939,7 +1943,7 @@ class Q3d(QExtractor, object):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not is_ironpython and not settings.use_grpc_api:
+            if not is_ironpython and not self.desktop_class.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)
@@ -2022,10 +2026,11 @@ class Q2d(QExtractor, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
         parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -2112,6 +2117,9 @@ class Q2d(QExtractor, object):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """Create a rectangle.
@@ -2131,7 +2139,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -2239,7 +2247,7 @@ class Q2d(QExtractor, object):
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2282,7 +2290,7 @@ class Q2d(QExtractor, object):
 
         bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2305,7 +2313,7 @@ class Q2d(QExtractor, object):
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             i += 2
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))

@@ -2,6 +2,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import shutil
 import sys
 import tempfile
 import time
@@ -122,6 +123,8 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+        self._std_out_handler = None
+        self._files_handlers = []
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
@@ -131,45 +134,45 @@ class AedtLogger(object):
             self._global.addHandler(logging.NullHandler())
             return
 
-        self._files_handlers = []
         self._projects = {}
 
         self._global.setLevel(level)
         self._global.addFilter(AppFilter())
 
-        self._std_out_handler = None
         if settings.formatter:
             self.formatter = settings.formatter
         else:
             self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
         global_handler = False
-        for handler in self._global.handlers:
-            if settings.global_log_file_name in str(handler):
-                global_handler = True
-                break
-        log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
-        my_handler = RotatingFileHandler(
-            log_file,
-            mode="a",
-            maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
-            backupCount=2,
-            encoding=None,
-            delay=0,
-        )
-        my_handler.setFormatter(self.formatter)
-        my_handler.setLevel(self.level)
-        if not global_handler and settings.global_log_file_name:
-            self._global.addHandler(my_handler)
-        self._files_handlers.append(my_handler)
+        if settings.enable_global_log_file:
+            for handler in self._global.handlers:
+                if settings.global_log_file_name in str(handler):
+                    global_handler = True
+                    break
+            log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
+            my_handler = RotatingFileHandler(
+                log_file,
+                mode="a",
+                maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
+                backupCount=2,
+                encoding=None,
+                delay=0,
+            )
+            my_handler.setFormatter(self.formatter)
+            my_handler.setLevel(self.level)
+            if not global_handler and settings.global_log_file_name:
+                self._global.addHandler(my_handler)
+            self._files_handlers.append(my_handler)
         if self.filename and os.path.exists(self.filename):
-            os.remove(self.filename)
+            shutil.rmtree(self.filename, ignore_errors=True)
         if self.filename and settings.enable_local_log_file:
             self.add_file_logger(self.filename, "Global", level)
 
         if to_stdout:
+            settings.enable_screen_logs = True
             self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(level)
-            _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
+            _logger_stdout_formatter = logging.Formatter("PyAEDT %(levelname)s: %(message)s")
 
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
@@ -226,9 +229,12 @@ class AedtLogger(object):
 
     @property
     def _log_on_desktop(self):
-        if self._desktop and settings.enable_desktop_logs:
-            return True
-        else:
+        try:
+            if self._desktop and not self._desktop.GetIsNonGraphical() and settings.enable_desktop_logs:
+                return True
+            else:
+                return False
+        except:  # pragma: no cover
             return False
 
     @_log_on_desktop.setter
@@ -283,7 +289,6 @@ class AedtLogger(object):
         -------
 
         """
-        """Reset actual timer from now."""
         if time_val:
             self._timer = time_val
         else:
@@ -317,6 +322,10 @@ class AedtLogger(object):
         design_name = design_name or self._design_name
         if self._log_on_desktop or aedt_messages:
             global_message_data = self._desktop.GetMessages("", "", level)
+            # if a 3d component is open, GetMessages without the project name argument returns messages with
+            # "(3D Component)" appended to project name
+            if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
+                project_name = project_name + " (3D Component)"
             return MessageList(global_message_data, project_name, design_name)
         return MessageList([], project_name, design_name)
 
@@ -462,7 +471,7 @@ class AedtLogger(object):
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
-                print("pyaedt INFO: Failed in Adding Desktop Message")
+                print("PyAEDT INFO: Failed in Adding Desktop Message")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         if not (self._log_on_file or self._log_on_screen) or not self._global:
@@ -581,16 +590,18 @@ class AedtLogger(object):
     def disable_desktop_log(self):
         """Disable the log in AEDT."""
         self._log_on_desktop = False
+        self.info("Log on Desktop Message Manager is disabled")
 
     def enable_desktop_log(self):
         """Enable the log in AEDT."""
         self._log_on_desktop = True
+        self.info("Log on Desktop Message Manager is enabled")
 
     def disable_stdout_log(self):
         """Disable printing log messages to stdout."""
         self._log_on_screen = False
         self._global.removeHandler(self._std_out_handler)
-        self.info("StdOut has been disabled")
+        self.info("StdOut is disabled")
 
     def enable_stdout_log(self):
         """Enable printing log messages to stdout."""
@@ -603,7 +614,7 @@ class AedtLogger(object):
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
         self._global.addHandler(self._std_out_handler)
-        self.info("StdOut has been enabled")
+        self.info("StdOut is enabled")
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
@@ -611,17 +622,19 @@ class AedtLogger(object):
         for _file_handler in self._files_handlers:
             _file_handler.close()
             self._global.removeHandler(_file_handler)
-        self.info("Log on file has been disabled")
+        self.info("Log on file is disabled")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
         self._log_on_file = True
         for _file_handler in self._files_handlers:
             self._global.addHandler(_file_handler)
-        self.info("Log on file has been enabled")
+        self.info("Log on file is enabled")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
+        if not settings.enable_logger:
+            return
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
@@ -635,6 +648,8 @@ class AedtLogger(object):
     def info_timer(self, msg, start_time=None, *args, **kwargs):
         """Write an info message to the global logger with elapsed time.
         Message will have an appendix of type Elapsed time: time."""
+        if not settings.enable_logger:
+            return
         if not start_time:
             start_time = self._timer
         td = time.time() - start_time
@@ -659,6 +674,8 @@ class AedtLogger(object):
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
+        if not settings.enable_logger:
+            return
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
@@ -683,6 +700,8 @@ class AedtLogger(object):
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
+        if not settings.enable_debug_logger or not settings.enable_logger:
+            return
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)

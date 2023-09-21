@@ -14,7 +14,7 @@ class TransmissionLine(object):
     frequency : float, optional
         Center frequency. The default is ``10.0``.
     frequency_unit : str, optional
-        Frequency units. The default is ``GHz``.
+        Frequency units. The default is ``"GHz"``.
 
     Returns
     -------
@@ -226,7 +226,7 @@ class StandardWaveguide(object):
     frequency : float, optional
         Center frequency. The default is ``10.0``.
     frequency_unit : str, optional
-        Frequency units. The default is ``GHz``.
+        Frequency units. The default is ``"GHz"``.
 
     Returns
     -------
@@ -317,8 +317,8 @@ class StandardWaveguide(object):
         ----------
         freq : float
             Operational frequency.
-        units : str
-           Input frequency units. The default is ``GHz``.
+        units : str, optional
+           Input frequency units. The default is ``"GHz"``.
 
         Returns
         -------

@@ -14,7 +14,6 @@ import time
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import _dim_arg
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -73,7 +72,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_solids()
@@ -85,7 +84,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_sheets()
@@ -97,7 +96,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_lines()
@@ -109,10 +108,11 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        return [v for v in list(self.points.values())]
+        self._refresh_points()
+        return [self.points[name] for name in self._points]
 
     @property
     def unclassified_objects(self):
@@ -120,11 +120,11 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_unclassified()
-        return [self[name] for name in self._unclassified]
+        return [self[name] for name in self._unclassified if name is not None]
 
     @property
     def object_list(self):
@@ -132,11 +132,11 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names]
+        return [self[name] for name in self._all_object_names if name is not None and name not in self.point_names]
 
     @property
     def solid_names(self):
@@ -144,7 +144,7 @@ class Primitives(object):
 
         Returns
         -------
-        str
+        List
         """
         self._refresh_solids()
         return self._solids
@@ -292,12 +292,7 @@ class Primitives(object):
     @property
     def non_model_objects(self):
         """List of objects of all non-model objects."""
-        return self._get_model_objects(model=False)
-
-    @property
-    def non_model_names(self):
-        """List of names of all non-model objects."""
-        return self.oeditor.GetObjectsInGroup("Non Model")
+        return list(self.oeditor.GetObjectsInGroup("Non Model"))
 
     @property
     def model_consistency_report(self):
@@ -367,7 +362,7 @@ class Primitives(object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        self.oeditor.CreatePoint(parameters, attributes)
         self._refresh_points()
         return self._create_object(name)
 
@@ -442,7 +437,7 @@ class Primitives(object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        _retry_ntimes(10, self.oeditor.CreateCutplane, parameters, attributes)
+        self.oeditor.CreateCutplane(parameters, attributes)
         # self._refresh_planes()
         self.planes[name] = None
         plane = self._create_object(name)
@@ -458,7 +453,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:General", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         return True
 
     @pyaedt_function_handler()
@@ -470,7 +465,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -484,7 +479,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -498,7 +493,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPlaneTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -515,7 +510,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
            Updated 3D object.
 
         """
@@ -607,7 +602,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Region object.
 
         References
@@ -621,6 +616,8 @@ class Primitives(object):
             pad_percent = [pad_percent] * 6
 
         arg = ["NAME:RegionParameters"]
+
+        # TODO: Can the order be updated to match the UI?
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
         for pval in p:
@@ -1060,7 +1057,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        src_object : :class:`pyaedt.modeler.object3d.Object3d`
+        src_object : :class:`pyaedt.modeler.cad.object3d.Object3d`
             An existing polyline object in the 3D Modeler.
 
         Returns
@@ -1087,7 +1084,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             UDP object created.
 
         References
@@ -1320,7 +1317,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object returned.
 
         """
@@ -1448,6 +1445,7 @@ class Primitives(object):
             List of added objects.
 
         """
+        # TODO: Need to improve documentation for this method.
         added_objects = []
 
         for obj_name in self.object_names:
@@ -1505,12 +1503,13 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        list of class:`pyaedt.modeler.cad.object3d.Object3d`
             If a material name is not provided, the method returns
-            a list of dictionaries where keys are the material names
-            and values are objects assigned to this material.
+            a list of dictionaries where keys are material names
+            of conductors, dielectrics, gases and liquids respectively
+            in the design and values are objects assigned to these materials.
             If a material name is provided, the method returns a list
-            of objects assigned to this material.
+            of objects assigned to the material.
 
         References
         ----------
@@ -1518,12 +1517,20 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
+        obj_lst = []
         if materialname is not None:
-            obj_lst = [
-                x
-                for x in self.object_list
-                if x.material_name == materialname or x.material_name == materialname.lower()
-            ]
+            for obj in self.object_list:
+                if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
+                    material = (
+                        self._app.odesign.GetChildObject("3D Modeler")
+                        .GetChildObject(obj.name)
+                        .GetPropEvaluatedValue("Material")
+                        .lower()
+                    )
+                    if materialname.lower() == material:
+                        obj_lst.append(obj)
+                elif obj and (obj.material_name == materialname or obj.material_name == materialname.lower()):
+                    obj_lst.append(obj)
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),
@@ -2079,7 +2086,7 @@ class Primitives(object):
 
         """
         edgesid = self.get_object_edges(sheet)
-        id = divmod(axisdir, 3)[1]
+        id_ = divmod(axisdir, 3)[1]
         midpoint_array = []
         for ed in edgesid:
             midpoint_array.append(self.get_edge_midpoint(ed))
@@ -2089,9 +2096,9 @@ class Primitives(object):
             if not point0:
                 point0 = el
                 point1 = el
-            elif axisdir < 3 and el[id] < point0[id] or axisdir > 2 and el[id] > point0[id]:
+            elif axisdir < 3 and el[id_] < point0[id_] or axisdir > 2 and el[id_] > point0[id_]:
                 point0 = el
-            elif axisdir < 3 and el[id] > point1[id] or axisdir > 2 and el[id] < point1[id]:
+            elif axisdir < 3 and el[id_] > point1[id_] or axisdir > 2 and el[id_] < point1[id_]:
                 point1 = el
         return point0, point1
 
@@ -2163,7 +2170,7 @@ class Primitives(object):
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
         if not include_non_model:
-            non_models = [i for i in self.non_model_names]
+            non_models = [i for i in self.non_model_objects]
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
@@ -2715,7 +2722,7 @@ class Primitives(object):
         return list_objs
 
     @pyaedt_function_handler()
-    def _check_material(self, matname, defaultmatname):
+    def _check_material(self, matname, defaultmatname, threshold=100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -2727,37 +2734,46 @@ class Primitives(object):
             Name of the material.
         defaultmatname : str
             Name of the default material to assign if ``metname`` does not exist.
+        threshold : float
+            Threshold conductivity in S/m to distinguish dielectric from conductor.
+            The default value is ``100000``.
 
         Returns
         -------
-        str or bool
-            String if a material name, Boolean if the material is a dielectric.
+        (str, bool)
+            Material name, Boolean True if the material is a dielectric, otherwise False.
 
         """
+
+        # Note: Material.is_dielectric() does not work if the conductivity
+        # value is an expression.
         if isinstance(matname, Material):
             if self._app._design_type == "HFSS":
-                return matname.name, matname.is_dielectric()
+                return matname.name, matname.is_dielectric(threshold)
             else:
                 return matname.name, True
         if matname:
             if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
-                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric()
+                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric(threshold)
                 else:
                     return self._app.materials[matname].name, True
             else:
                 self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
-            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
+            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric(threshold)
         else:
             return defaultmatname, True
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
-        test = list(self.oeditor.GetObjectsInGroup("Solids"))
-        if test is None or test is False:
+        try:
+            test = self.oeditor.GetObjectsInGroup("Solids")
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
             assert False, "Get Solids is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._solids = []  # In IronPython True is returned when no sheets are present
         else:
             self._solids = list(test)
@@ -2765,10 +2781,13 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_sheets(self):
-        test = list(self.oeditor.GetObjectsInGroup("Sheets"))
-        if test is None or test is False:
+        try:
+            test = self.oeditor.GetObjectsInGroup("Sheets")
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
             assert False, "Get Sheets is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._sheets = []  # In IronPython True is returned when no sheets are present
         else:
             self._sheets = list(test)
@@ -2776,10 +2795,13 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_lines(self):
-        test = list(self.oeditor.GetObjectsInGroup("Lines"))
-        if test is None or test is False:
+        try:
+            test = self.oeditor.GetObjectsInGroup("Lines")
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
             assert False, "Get Lines is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._lines = []  # In IronPython True is returned when no lines are present
         else:
             self._lines = list(test)
@@ -2787,10 +2809,13 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_points(self):
-        test = list(self.oeditor.GetPoints())
-        if test is None or test is False:
+        try:
+            test = self.oeditor.GetPoints()
+        except (TypeError, AttributeError):
+            test = []
+        if test is False:
             assert False, "Get Points is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._points = []  # In IronPython True is returned when no points are present
         else:
             self._points = list(test)
@@ -2804,13 +2829,16 @@ class Primitives(object):
                 plane_name: self.oeditor.GetChildObject(plane_name)
                 for plane_name in self.oeditor.GetChildNames("Planes")
             }
-        except TypeError:
+        except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):
-        test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+        try:
+            test = self.oeditor.GetObjectsInGroup("Unclassified")
+        except (TypeError, AttributeError):
+            test = []
         if test is None or test is False:
             self._unclassified = []
             self.logger.debug("Unclassified is failing")
@@ -2966,9 +2994,7 @@ class Primitives(object):
 
         material, is_dielectric = self._check_material(matname, self.defaultmaterial)
 
-        solve_inside = False
-        if is_dielectric:
-            solve_inside = True
+        solve_inside = True if is_dielectric else False
 
         if not name:
             name = _uname()
@@ -3108,7 +3134,7 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = _retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            val = self.oeditor.GetEdgeIDsFromObject(obj)
             if not (isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None
@@ -3160,16 +3186,28 @@ class Primitives(object):
                             native_comp_properties = data
                             break
             except:
-                self.logger.info("Native component properties were not retrieved from the AEDT file.")
+                return native_comp_properties
 
         return native_comp_properties
 
     @pyaedt_function_handler
-    def _get_object_dict_by_material(self, material_type):
+    def _get_object_dict_by_material(self, material):
         obj_dict = {}
-        for cond in material_type:
-            obj = [x for x in self.object_list if x.material_name == cond]
-            obj_dict[cond] = obj
+        for mat in material:
+            objs = []
+            for obj in self.object_list:
+                if obj and ("[" in obj.material_name or "(" in obj.material_name):
+                    if (
+                        mat
+                        == self._app.odesign.GetChildObject("3D Modeler")
+                        .GetChildObject(obj.name)
+                        .GetPropEvaluatedValue("Material")
+                        .lower()
+                    ):
+                        objs.append(obj)
+                elif obj and (obj.material_name == mat or obj.material_name == mat.lower()):
+                    objs.append(obj)
+            obj_dict[mat] = objs
         return obj_dict
 
     @pyaedt_function_handler()
@@ -3183,7 +3221,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Returns None if the part ID or the object name is not found.
 
         """

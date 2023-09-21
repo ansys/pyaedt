@@ -19,10 +19,10 @@ import pyaedt
 
 
 temp_folder = pyaedt.generate_unique_folder_name()
+targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
 
-targetfile = os.path.dirname(pyaedt.downloads.download_aedb(temp_folder))
 
-ipc2581_file = os.path.join(temp_folder, "Galileo.xml")
+ipc2581_file = os.path.join(temp_folder, "Ansys_Hsd.xml")
 
 print(targetfile)
 
@@ -30,9 +30,9 @@ print(targetfile)
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.1")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
 
 
 ###############################################################################
@@ -50,7 +50,7 @@ edb.modeler.parametrize_trace_width(
 # Create a cutout.
 signal_list = []
 for net in edb.nets.netlist:
-    if "PCIE" in net:
+    if "PCIe" in net:
         signal_list.append(net)
 power_list = ["GND"]
 edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",

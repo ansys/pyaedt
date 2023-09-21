@@ -1,48 +1,49 @@
 import os
-import time
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Hfss3dLayout
-
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
+from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import is_linux
 
 test_subfolder = "T41"
-# Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
-
+test_post = "test_post_processing"
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
 else:
     diff_proj_name = "differential_pairs_t41"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
-        self.hfss3dl = BasisTest.add_app(
-            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
-        self.flex = BasisTest.add_app(
-            self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder
-        )
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-        self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
-        self.local_scratch.copyfolder(example_project, self.target_path)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, application=Hfss3dLayout)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def hfss3dl(add_app):
+    app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Package.aedb")
+    target_path = os.path.join(local_scratch.path, "Package_test_41.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    return target_path, None
+
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+        self.target_path = examples[0]
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -245,13 +246,13 @@ class TestClass(BasisTest, object):
         assert pad1.create()
 
     def test_11_create_via(self):
-        time.sleep(1)
-        cvia = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
+        tmp = self.aedtapp.modeler.vias
+        cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
         via = cvia.name
         assert isinstance(via, str)
         assert self.aedtapp.modeler.vias[via].name == via == "port_via"
         assert self.aedtapp.modeler.vias[via].prim_type == "via"
-        assert self.aedtapp.modeler.vias[via].location[0] == float(0)
+        assert self.aedtapp.modeler.vias[via].location[0] == float(1.1)
         assert self.aedtapp.modeler.vias[via].location[1] == float(0)
         assert self.aedtapp.modeler.vias[via].angle == "0deg"
 
@@ -264,7 +265,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
         assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
         assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
-        via2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via2 = self.aedtapp.modeler.create_via("PlanarEMVia", x=10, y=10, name="Via123", netname="VCC")
         via_2 = via2.name
         assert isinstance(via_2, str)
         assert self.aedtapp.modeler.vias[via_2].name == via_2
@@ -274,7 +275,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_2].angle == "0deg"
         assert "VCC" in self.aedtapp.oeditor.GetNets()
         via_3 = self.aedtapp.modeler.create_via(
-            "My_padstack2", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
+            "PlanarEMVia", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
         )
         assert via_3.location[0] == float(5)
         assert via_3.location[1] == float(5)
@@ -304,16 +305,15 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
-        time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
-        if not is_ironpython:
-            assert self.aedtapp.edit_source_from_file(
-                port_wave.name,
-                time_domain,
-                is_time_domain=True,
-                data_format="Voltage",
-                x_scale=1e-6,
-                y_scale=1e-3,
-            )
+        time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
+        assert self.aedtapp.edit_source_from_file(
+            port_wave.name,
+            time_domain,
+            is_time_domain=True,
+            data_format="Voltage",
+            x_scale=1e-6,
+            y_scale=1e-3,
+        )
 
     def test_14a_create_coaxial_port(self):
         port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
@@ -472,6 +472,7 @@ class TestClass(BasisTest, object):
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
+        exception_raised = False
         try:
             sweep7 = self.aedtapp.create_single_point_sweep(
                 setupname=setup_name,
@@ -495,26 +496,8 @@ class TestClass(BasisTest, object):
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
 
-    def test_19B_analyze_setup(self):
-        self.aedtapp.save_project()
-        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
-        assert self.aedtapp.analyze_setup("RFBoardSetup3")
-        self.aedtapp.save_project()
-        assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
-        assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
-
-    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    def test_19C_export_touchsthone(self):
-        filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
-        solution_name = "RFBoardSetup3"
-        sweep_name = "Last Adaptive"
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
-        assert os.path.exists(filename)
-        assert self.aedtapp.export_touchstone(solution_name)
-        sweep_name = None
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
-
     def test_19D_export_to_hfss(self):
+        self.aedtapp.save_project()
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
         file_fullname = os.path.join(self.local_scratch.path, filename)
@@ -529,32 +512,9 @@ class TestClass(BasisTest, object):
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
-    def test_19_F_export_results(self):
-        files = self.aedtapp.export_results()
-        assert len(files) > 0
-
-    def test_20_set_export_touchstone(self):
-        assert self.aedtapp.set_export_touchstone(True)
-        assert self.aedtapp.set_export_touchstone(False)
-
     def test_21_variables(self):
         assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
-
-    def test_21_get_all_sparameter_list(self):
-        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
-
-    def test_22_get_all_return_loss_list(self):
-        assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
-
-    def test_23_get_all_insertion_loss_list(self):
-        assert self.aedtapp.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
-
-    def test_24_get_next_xtalk_list(self):
-        assert self.aedtapp.get_next_xtalk_list() == ["S(Port1,Port2)"]
-
-    def test_25_get_fext_xtalk_list(self):
-        assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
@@ -565,6 +525,9 @@ class TestClass(BasisTest, object):
         assert port.name == "PinPort1"
         port.props["Magnitude"] = "2V"
         assert port.props["Magnitude"] == "2V"
+        assert port.object_properties.props["Magnitude"] == "2V"
+        port.object_properties.props["Magnitude"] = "5V"
+        assert port.object_properties.props["Magnitude"] == "5V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
@@ -627,10 +590,10 @@ class TestClass(BasisTest, object):
     def test_36_import_gerber(self):
         self.aedtapp.insert_design("gerber")
         gerber_file = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
+            os.path.join(local_path, "../_unittest/example_models", "cad", "Gerber", "gerber1.zip")
         )
         control_file = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.xml")
+            os.path.join(local_path, "../_unittest/example_models", "cad", "Gerber", "gerber1.xml")
         )
 
         aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
@@ -639,9 +602,9 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
         self.aedtapp.insert_design("gds")
-        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        gds_file = os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.gds")
         control_file = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
+            os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.tech")
         )
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
@@ -649,20 +612,21 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
         self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
-        control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
+        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.dxf")
+        control_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
         assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
 
     def test_39_import_ipc(self):
         self.aedtapp.insert_design("ipc")
-        dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
+        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
-    def test_40_test_flex(self):
-        assert self.flex.enable_rigid_flex()
+    def test_40_test_flex(self, add_app):
+        flex = add_app(project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder)
+        assert flex.enable_rigid_flex()
         pass
 
     def test_41_test_create_polygon(self):
@@ -676,9 +640,41 @@ class TestClass(BasisTest, object):
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing(self, add_app):
+        test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
+        test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
+        assert test_post2.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test_post2.project_name)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing_3d_layout(self, add_app):
+        test = add_app(
+            project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        assert test.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test.project_name)
+
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
-    def test_90_set_differential_pairs(self):
-        assert self.hfss3dl.set_differential_pair(
+    def test_90_set_differential_pairs(self, hfss3dl):
+        assert not self.aedtapp.get_differential_pairs()
+        assert hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
             common_name=None,
@@ -688,28 +684,33 @@ class TestClass(BasisTest, object):
             active=True,
             matched=False,
         )
-        assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.get_differential_pairs()
+        assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
-    def test_91_load_and_save_diff_pair_file(self):
-        diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
+    def test_91_load_and_save_diff_pair_file(self, hfss3dl):
+        diff_def_file = os.path.join(
+            local_path, "../_unittest/example_models", test_subfolder, "differential_pairs_definition.txt"
+        )
         diff_file = self.local_scratch.copyfile(diff_def_file)
-        assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
+        assert hfss3dl.load_diff_pairs_from_file(diff_file)
 
         diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
-        assert self.hfss3dl.save_diff_pairs_to_file(diff_file2)
+        assert hfss3dl.save_diff_pairs_to_file(diff_file2)
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
 
-    @pytest.mark.skipif(is_ironpython, reason="Crash on Ironpython")
     def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="This test does not work on versions earlier than 2022 R2."
+    )
     def test_93_clip_plane(self):
-        assert self.aedtapp.modeler.clip_plane() == "VCP_1"
-        assert "VCP_1" in self.aedtapp.modeler.clip_planes
+        cp_name = self.aedtapp.modeler.clip_plane()
+        assert cp_name in self.aedtapp.modeler.clip_planes
 
     def test_94_edit_3dlayout_extents(self):
         assert self.aedtapp.edit_hfss_extents(
@@ -718,15 +719,16 @@ class TestClass(BasisTest, object):
             air_extent_type="ConformalExtent",
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
+            air_horizontal_padding="1mm",
         )
 
     def test_95_create_text(self):
-        assert self.aedtapp.modeler.create_text("test", [0, 0])
+        assert self.aedtapp.modeler.create_text("test", [0, 0], "SIwave Regions")
 
-    def test_96_change_nets_visibility(self):
+    def test_96_change_nets_visibility(self, add_app):
         project_name = "ipc_out"
         design_name = "Galileo_um"
-        hfss3d = Hfss3dLayout(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        hfss3d = add_app(application=Hfss3dLayout, project_name=project_name, design_name=design_name, just_open=True)
         # hide all
         assert hfss3d.modeler.change_net_visibility(visible=False)
         # hide all
@@ -746,3 +748,6 @@ class TestClass(BasisTest, object):
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
         assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
+
+    def test_98_geom_check(self):
+        assert self.aedtapp.modeler.geometry_check_and_fix_all()

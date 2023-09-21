@@ -30,10 +30,11 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -117,6 +118,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             port,
             aedt_process_id,
         )
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):

@@ -2521,6 +2521,8 @@ class FieldPlot:
         quantityName="",
         intrinsincList={},
         seedingFaces=[],
+        layers_nets=[],
+        layers_plot_type="LayerNetsExtFace",
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2528,6 +2530,8 @@ class FieldPlot:
         self.surfaces_indexes = surfacelist
         self.line_indexes = linelist
         self.cutplane_indexes = cutplanelist
+        self.layers_nets = layers_nets
+        self.layers_plot_type = layers_plot_type
         self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
@@ -2561,6 +2565,18 @@ class FieldPlot:
         self.SeedingSamplingOption = True
         self.SeedingPointsNumber = 15
         self.FractionOfMaximum = 0.8
+        self._filter_boxes = []
+
+    @property
+    def filter_boxes(self):
+        """Volumes on which filter the plot."""
+        return self._filter_boxes
+
+    @filter_boxes.setter
+    def filter_boxes(self, val):
+        if isinstance(val, str):
+            val = [val]
+        self._filter_boxes = val
 
     @property
     def plotGeomInfo(self):
@@ -2574,6 +2590,9 @@ class FieldPlot:
             idx += 1
         if self.line_indexes:
             idx += 1
+        if self.layers_nets:
+            idx += 1
+
         info = [idx]
         if self.volume_indexes:
             info.append("Volume")
@@ -2584,18 +2603,21 @@ class FieldPlot:
         if self.surfaces_indexes:
             model_faces = []
             nonmodel_faces = []
-            models = self._postprocessor.modeler.model_objects
-            for index in self.surfaces_indexes:
-                try:
-                    if isinstance(index, FacePrimitive):
-                        index = index.id
-                    oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
-                    if oname in models:
-                        model_faces.append(str(index))
-                    else:
-                        nonmodel_faces.append(str(index))
-                except:
-                    pass
+            if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
+                model_faces = [str(i) for i in self.surfaces_indexes]
+            else:
+                models = self._postprocessor.modeler.model_objects
+                for index in self.surfaces_indexes:
+                    try:
+                        if isinstance(index, FacePrimitive):
+                            index = index.id
+                        oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                        if oname in models:
+                            model_faces.append(str(index))
+                        else:
+                            nonmodel_faces.append(str(index))
+                    except:
+                        pass
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")
@@ -2618,6 +2640,18 @@ class FieldPlot:
             info.append(len(self.line_indexes))
             for index in self.line_indexes:
                 info.append(str(index))
+        if self.layers_nets:
+            if self.layers_plot_type == "LayerNets":
+                info.append("Volume")
+                info.append("LayerNets")
+            else:
+                info.append("Surface")
+                info.append("LayerNetsExtFace")
+            info.append(len(self.layers_nets))
+            for index in self.layers_nets:
+                info.append(index[0])
+                info.append(len(index[1:]))
+                info.extend(index[1:])
         return info
 
     @property
@@ -2653,7 +2687,11 @@ class FieldPlot:
         list
             List of plot settings.
         """
-        if self.surfaces_indexes or self.cutplane_indexes:
+        if (
+            self.surfaces_indexes
+            or self.cutplane_indexes
+            or (self.layers_nets and self.layers_plot_type == "LayerNetsExtFace")
+        ):
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",
@@ -2761,7 +2799,7 @@ class FieldPlot:
             "PlotGeomInfo:=",
             self.plotGeomInfo,
             "FilterBoxes:=",
-            [0],
+            [len(self.filter_boxes)] + self.filter_boxes,
             self.plotsettings,
             "EnableGaussianSmoothing:=",
             False,

@@ -11,12 +11,23 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+from ansys_sphinx_theme import (
+    ansys_favicon,
+    ansys_logo_white,
+    ansys_logo_white_cropped,
+    get_version_match,
+    latex,
+    pyansys_logo_black,
+    watermark,
+)
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+from sphinx.builders.latex import LaTeXBuilder
+
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -52,14 +63,17 @@ def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip_member)
 
 
-
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent.parent
-sys.path.append(os.path.abspath(os.path.join(local_path)))
-sys.path.append(os.path.join(root_path))
+try:
+    from pyaedt import __version__
+except ImportError:
 
-from pyaedt import __version__
+    sys.path.append(os.path.abspath(os.path.join(local_path)))
+    sys.path.append(os.path.join(root_path))
+    from pyaedt import __version__
+
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -79,7 +93,6 @@ release = version = __version__
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here as strings. They can be
@@ -89,7 +102,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
@@ -99,6 +111,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
     "numpydoc",
+    "ansys_sphinx_theme.extension.linkcode",
 ]
 
 # Intersphinx mapping
@@ -115,8 +128,7 @@ intersphinx_mapping = {
 
 toc_object_entries_show_parents = "hide"
 
-
-
+html_show_sourcelink = True
 
 # numpydoc configuration
 numpydoc_use_plots = True
@@ -212,7 +224,7 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 
 # must be less than or equal to the XVFB window size
-pyvista.rcParams["window_size"] = np.array([1024, 768])
+pyvista.global_theme["window_size"] = np.array([1024, 768])
 
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
@@ -262,21 +274,18 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
-html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
-html_facivon = ansys_favicon
-
-# specify the location of your github repo
 html_context = {
-    "github_user": "pyansys",
+    "github_user": "ansys",
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
 }
 
+# specify the location of your github repo
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/pyaedt",
+    "github_url": "https://github.com/ansys/pyaedt",
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
@@ -287,7 +296,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "Support",
-            "url": "https://github.com/pyansys/pyaedt/discussions",
+            "url": "https://github.com/ansys/pyaedt/discussions",
             "icon": "fa fa-comment fa-fw",
         },
     ],
@@ -297,11 +306,10 @@ html_theme_options = {
     },
     "collapse_navigation": True,
     "use_meilisearch": {
-        "host": "https://backend.search.pyansys.com/",
-        "api_key": os.getenv("MEILISEARCH_API_KEY", ""),
+        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
-            "pyansys-pyaedt-sphinx-docs": "PyAEDT",
-            "pyansys-pyedb-sphinx-docs": "EDB API",
+            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
+            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
         },
     },
 }
@@ -319,3 +327,26 @@ html_css_files = [
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "pyaedtdoc"
+
+# -- Options for LaTeX output ------------------------------------------------
+latex_elements = {}
+
+# Grouping the document tree into LaTeX files. List of tuples
+# (source start file, target name, title,
+#  author, documentclass [howto, manual, or own class]).
+latex_documents = [
+    (
+        master_doc,
+        f"{project}-Documentation-{__version__}.tex",
+        f"{project} Documentation",
+        author,
+        "manual",
+    ),
+]
+
+# additional logos for the latex coverpage
+latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
+
+# change the preamble of latex with customized title page
+# variables are the title of pdf, watermark
+latex_elements = {"preamble": latex.generate_preamble(html_title)}

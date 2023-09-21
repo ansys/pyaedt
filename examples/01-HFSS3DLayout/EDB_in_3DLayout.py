@@ -28,8 +28,7 @@ aedt_file = targetfile[:-12] + "aedt"
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -40,7 +39,7 @@ NewThread = True
 # ~~~~~~~~~~~
 # Launch AEDT 2022R2 in graphical mode using SI units.
 
-desktopVersion = "2023.1"
+desktopVersion = "2023.2"
 
 ###############################################################################
 # Initialize AEDT and launch HFSS 3D Layout

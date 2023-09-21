@@ -16,8 +16,7 @@ from pyaedt import Hfss
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -31,7 +30,7 @@ non_graphical = False
 app = Hfss(
     designname="Ansys",
     solution_type="SBR+",
-    specified_version="2023.1",
+    specified_version="2023.2",
     new_desktop_session=True,
     non_graphical=non_graphical
 )

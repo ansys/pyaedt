@@ -21,7 +21,7 @@ import threading
 import time
 import warnings
 
-from pyaedt import pyaedt_logger
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
 from pyaedt.application.Variables import decompose_variable_value
@@ -33,15 +33,13 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-from pyaedt.desktop import Desktop
+from pyaedt.desktop import _init_desktop_from_design
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
-from pyaedt.desktop import release_desktop
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -56,6 +54,7 @@ from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
+from pyaedt.modules.Boundary import NetworkObject
 
 if sys.version_info.major > 2:
     import base64
@@ -83,7 +82,7 @@ class Design(AedtObjects):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
@@ -106,17 +105,20 @@ class Design(AedtObjects):
 
     def __str__(self):
         pyaedt_details = "      pyaedt API\n"
-        pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
+        pyaedt_details += "pyaedt running AEDT Version {} \n".format(settings.aedt_version)
         pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
         pyaedt_details += "Solution Type: {} \n".format(self.solution_type)
         pyaedt_details += "Project Name: {} Design Name {} \n".format(self.project_name, self.design_name)
-        pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
+        if self._oproject:
+            pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
         return pyaedt_details
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
-        if self.release_on_exit:
+        if self._desktop_class._connected_designs > 1:
+            self._desktop_class._connected_designs -= 1
+        elif self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
@@ -132,18 +134,18 @@ class Design(AedtObjects):
         return True
 
     def _init_design(self, project_name, design_name, solution_type=None):
-        self.__init__(
+        # calls the method from the application class
+        self._init_from_design(
             projectname=project_name,
             designname=design_name,
-            # solution_type=solution_type if solution_type else self.solution_type,
             solution_type=solution_type,
             specified_version=settings.aedt_version,
-            non_graphical=settings.non_graphical,
+            non_graphical=self._desktop_class.non_graphical,
             new_desktop_session=False,
             close_on_exit=self.close_on_exit,
             student_version=self.student_version,
-            machine=settings.machine,
-            port=settings.port,
+            machine=self._desktop_class.machine,
+            port=self._desktop_class.port,
         )
 
     def __init__(
@@ -177,45 +179,41 @@ class Design(AedtObjects):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
+        self._design_type = design_type
         self.last_run_log = ""
         self.last_run_job = ""
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
-        self._boundaries = []
+        self._boundaries = {}
         self._project_datasets = {}
         self._design_datasets = {}
         main_module = sys.modules["__main__"]
         self.close_on_exit = close_on_exit
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
+        self._desktop_class = None
+        self._desktop_class = _init_desktop_from_design(
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+            aedt_process_id,
+        )
+        self._desktop_class._connected_designs += 1
 
-        if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-                machine,
-                port,
-                aedt_process_id,
-            )
-            self.release_on_exit = True
-        else:
-            self.release_on_exit = False
-
-        self.student_version = main_module.student_version
+        self.student_version = self._desktop_class.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
         self._mttime = None
-        self._design_type = design_type
         self._desktop = main_module.oDesktop
 
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._odesign = None
         self._oproject = None
-        self._design_type = design_type
         if design_type == "HFSS":
             self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
         elif design_type == "Icepak":
@@ -231,20 +229,26 @@ class Design(AedtObjects):
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
-        self.logger.info("Aedt Objects initialized")
-
+        self.logger.info("Aedt Objects correctly read")
         if t:
             t.join()
-
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        # _mtime = self.project_time_stamp
-        self.logger.info("Variable Manager initialized")
+
+    @property
+    def desktop_class(self):
+        """``Desktop`` class.
+
+        Returns
+        -------
+        :class:`pyaedt.desktop.Desktop`
+        """
+        return self._desktop_class
 
     @property
     def project_datasets(self):
-        """Dictionary of Project Datasets.
+        """Dictionary of project datasets.
 
         Returns
         -------
@@ -274,9 +278,157 @@ class Design(AedtObjects):
         -------
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
-        if not self._boundaries:
-            self._boundaries = self._get_boundaries_data()
-        return self._boundaries
+        bb = []
+        if "GetBoundaries" in self.oboundary.__dir__():
+            bb = list(self.oboundary.GetBoundaries())
+        elif "Boundaries" in self.get_oo_name(self.odesign):
+            bb = self.get_oo_name(self.odesign, "Boundaries")
+
+        # Parameters and Motion definitions
+        if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
+            maxwell_parameters = list(self.get_oo_name(self.odesign, "Parameters"))
+            for parameter in maxwell_parameters:
+                bb.append(parameter)
+                bb.append("MaxwellParameters")
+            if "Model" in list(self.get_oo_name(self.odesign)):
+                maxwell_model = list(self.get_oo_name(self.odesign, "Model"))
+                for parameter in maxwell_model:
+                    if self.get_oo_property_value(self.odesign, "Model\\{}".format(parameter), "Type") == "Band":
+                        bb.append(parameter)
+                        bb.append("MotionSetup")
+
+        # Icepak definition
+        elif self.design_type == "Icepak":
+            othermal = self.get_oo_object(self.odesign, "Thermal")
+            thermal_definitions = list(self.get_oo_name(othermal))
+            for thermal in thermal_definitions:
+                bb.append(thermal)
+                bb.append(self.get_oo_property_value(othermal, thermal, "Type"))
+
+            if self.modeler.user_defined_components:
+                for component in self.modeler.user_defined_components:
+                    thermal_properties = self.get_oo_properties(self.oeditor, component)
+                    if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
+                        thermal_boundaries = self.design_properties["BoundarySetup"]["Boundaries"]
+                        for component_boundary in thermal_boundaries:
+                            if component_boundary not in bb and isinstance(
+                                thermal_boundaries[component_boundary], dict
+                            ):
+                                boundarytype = thermal_boundaries[component_boundary]["BoundType"]
+                                bb.append(component_boundary)
+                                bb.append(boundarytype)
+
+        current_boundaries = bb[::2]
+        current_types = bb[1::2]
+
+        for boundary, boundarytype in zip(current_boundaries, current_types):
+            if boundary in self._boundaries:
+                continue
+            if boundarytype == "MaxwellParameters":
+                maxwell_parameter_type = self.get_oo_property_value(
+                    self.odesign, "Parameters\\{}".format(boundary), "Type"
+                )
+
+                self._boundaries[boundary] = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type)
+            elif boundarytype == "MotionSetup":
+                maxwell_motion_type = self.get_oo_property_value(self.odesign, "Model\\{}".format(boundary), "Type")
+
+                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=maxwell_motion_type)
+            elif boundarytype == "Network":
+                self._boundaries[boundary] = NetworkObject(self, boundary)
+            else:
+                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
+        excitations = self.design_excitations
+        for exc in excitations:
+            if not self._boundaries or exc.name not in list(self._boundaries.keys()):
+                self._boundaries[exc.name] = exc
+
+        return list(self._boundaries.values())
+
+    @property
+    def boundaries_by_type(self):
+        """Design boundaries by type.
+
+        Returns
+        -------
+        Dictionary of boundaries.
+        """
+        _dict_out = {}
+        for bound in self.boundaries:
+            if bound.type in _dict_out:
+                _dict_out[bound.type].append(bound)
+            else:
+                _dict_out[bound.type] = [bound]
+        return _dict_out
+
+    @property
+    def excitations_by_type(self):
+        """Design excitations by tupe.
+
+        Returns
+        -------
+        dict
+            Dictionary of excitations.
+        """
+        _dict_out = {}
+        for bound in self._excitations:
+            if bound.type in _dict_out:
+                _dict_out[bound.type].append(bound)
+            else:
+                _dict_out[bound.type] = [bound]
+        return _dict_out
+
+    @property
+    def design_excitations(self):
+        """Design excitations.
+
+        Returns
+        -------
+        list
+            List of :class:`pyaedt.modules.Boundary.BoundaryObject`.
+        """
+        design_excitations = {}
+
+        if "GetExcitations" in self.oboundary.__dir__():
+            ee = list(self.oboundary.GetExcitations())
+            current_boundaries = [i.split(":")[0] for i in ee[::2]]
+            current_types = ee[1::2]
+            for i in set(current_types):
+                new_port = []
+                if "GetExcitationsOfType" in self.oboundary.__dir__():
+                    new_port = list(self.oboundary.GetExcitationsOfType(i))
+                if new_port:
+                    current_boundaries = current_boundaries + new_port
+                    current_types = current_types + [i] * len(new_port)
+
+            for boundary, boundarytype in zip(current_boundaries, current_types):
+                design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+                if (
+                    design_excitations[boundary].object_properties
+                    and design_excitations[boundary].object_properties.props["Type"] == "Terminal"
+                ):  # pragma: no cover
+                    props_terminal = OrderedDict()
+                    props_terminal["TerminalResistance"] = design_excitations[boundary].object_properties.props[
+                        "Terminal Renormalizing Impedance"
+                    ]
+                    props_terminal["ParentBndID"] = design_excitations[boundary].object_properties.props["Port Name"]
+                    design_excitations[boundary] = BoundaryObject(
+                        self, boundary, props=props_terminal, boundarytype="Terminal"
+                    )
+
+        elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
+            for port in self.oboundary.GetAllPortsList():
+                if port in self._boundaries:
+                    continue
+                bound = self._update_port_info(port)
+                if bound:
+                    design_excitations[port] = bound
+
+        if design_excitations:
+            return list(design_excitations.values())
+
+        return []
 
     @property
     def odesktop(self):
@@ -299,6 +451,7 @@ class Design(AedtObjects):
         del self._variable_manager[key]
 
     def _init_variables(self):
+        self.__aedt_version = ""
         self._modeler = None
         self._post = None
         self._materials = None
@@ -393,15 +546,11 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        version = self.odesktop.GetVersion()
-        return get_version_env_variable(version)
+        return get_version_env_variable(self.desktop_class.aedt_version_id)
 
     @property
     def _aedt_version(self):
-        v = self.odesktop.GetVersion()
-        if v:
-            return v[0:6]
-        return ""
+        return self.desktop_class.aedt_version_id
 
     @property
     def design_name(self):
@@ -435,7 +584,6 @@ class Design(AedtObjects):
             return name
 
     @design_name.setter
-    @pyaedt_function_handler()
     def design_name(self, new_name):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
@@ -504,9 +652,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetName
         """
-        if self._oproject:
+        if self.oproject:
             try:
-                return self._oproject.GetName()
+                return self.oproject.GetName()
             except:
                 return None
         else:
@@ -542,7 +690,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetPath
         """
-        return self.oproject.GetPath()
+        if self.oproject:
+            return self.oproject.GetPath()
+        return None
 
     @property
     def project_time_stamp(self):
@@ -569,7 +719,8 @@ class Design(AedtObjects):
             Full absolute name and path for the project.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedt")
 
     @property
     def lock_file(self):
@@ -581,7 +732,8 @@ class Design(AedtObjects):
             Full absolute name and path for the project's lock file.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt.lock")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedt.lock")
 
     @property
     def results_directory(self):
@@ -593,7 +745,8 @@ class Design(AedtObjects):
             Full absolute path for the ``aedtresults`` directory.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedtresults")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedtresults")
 
     @property
     def solution_type(self):
@@ -610,12 +763,21 @@ class Design(AedtObjects):
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
         """
-        return self.design_solutions.solution_type
+        if self.design_solutions:
+            return self.design_solutions.solution_type
+        return None
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, soltype):
-        self.design_solutions.solution_type = soltype
+        if self.design_solutions:
+            if (
+                self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
+            ):  # pragma: no cover
+                boundaries = self.boundaries
+                for exc in boundaries:
+                    if exc.type == "Terminal":
+                        del self._boundaries[exc.name]
+            self.design_solutions.solution_type = soltype
 
     @property
     def valid_design(self):
@@ -646,7 +808,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return self.odesktop.GetPersonalLibDirectory()
+        return self.desktop_class.personallib
 
     @property
     def userlib(self):
@@ -662,7 +824,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetUserLibDirectory
         """
-        return self.odesktop.GetUserLibDirectory()
+        return self.desktop_class.userlib
 
     @property
     def syslib(self):
@@ -678,7 +840,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetLibraryDirectory
         """
-        return self.odesktop.GetLibraryDirectory()
+        return self.desktop_class.syslib
 
     @property
     def src_dir(self):
@@ -750,7 +912,7 @@ class Design(AedtObjects):
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
                 toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
-        elif settings.remote_api:
+        elif settings.remote_api or settings.remote_rpc_session:
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
@@ -864,7 +1026,6 @@ class Design(AedtObjects):
         return self._odesign
 
     @odesign.setter
-    @pyaedt_function_handler()
     def odesign(self, des_name):
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
@@ -904,7 +1065,6 @@ class Design(AedtObjects):
         return self._oproject
 
     @oproject.setter
-    @pyaedt_function_handler()
     def oproject(self, proj_name=None):
         if not proj_name:
             self._oproject = self.odesktop.GetActiveProject()
@@ -978,20 +1138,35 @@ class Design(AedtObjects):
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exists. Check it and retry.")
             else:
+                project_list = self.odesktop.GetProjectList()
                 self._oproject = self.odesktop.NewProject()
-                if ".aedt" in proj_name:
+                if not self._oproject:
+                    new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                    if new_project_list:
+                        self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
+                if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
-                else:
+                elif not proj_name.endswith(".aedtz"):
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
+            project_list = self.odesktop.GetProjectList()
             self._oproject = self.odesktop.NewProject()
+            if not self._oproject:
+                new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                if new_project_list:
+                    self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
     def _add_handler(self):
-        if not self._oproject or not settings.enable_local_log_file or settings.remote_api:
+        if (
+            not self._oproject
+            or not settings.enable_local_log_file
+            or settings.remote_api
+            or settings.remote_rpc_session
+        ):
             return
         for handler in self._global_logger._files_handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
@@ -1047,7 +1222,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesginName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -1068,7 +1243,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesginName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -1482,6 +1657,7 @@ class Design(AedtObjects):
             if a and a == beta_option_name:
                 return True
             elif a:
+                i += 1
                 limit -= 1
             else:
                 limit = 0
@@ -1987,14 +2163,22 @@ class Design(AedtObjects):
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
                     if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
-                        boundaries.append(
-                            BoundaryObject(
-                                self,
-                                ds,
-                                self.design_properties["BoundarySetup"]["Boundaries"][ds],
-                                self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                        if (
+                            self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
+                            and self.design_type == "Icepak"
+                        ):
+                            boundaries.append(
+                                NetworkObject(self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds])
                             )
-                        )
+                        else:
+                            boundaries.append(
+                                BoundaryObject(
+                                    self,
+                                    ds,
+                                    self.design_properties["BoundarySetup"]["Boundaries"][ds],
+                                    self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                                )
+                            )
                 except:
                     pass
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
@@ -2038,6 +2222,22 @@ class Design(AedtObjects):
                 bound = self._update_port_info(port)
                 if bound:
                     boundaries.append(bound)
+        return boundaries
+
+    @pyaedt_function_handler()
+    def _get_boundaries_object(self):
+        """Retrieve boundary objects.
+
+        Returns
+        -------
+        list
+            Boundary objects.
+        """
+        boundaries = []
+        boundaries_names = list(self.get_oo_name(self.odesign, "Boundaries"))
+        if boundaries_names:
+            boundaries = self.get_oo_object(self.odesign, "Boundaries")
+
         return boundaries
 
     @pyaedt_function_handler()
@@ -2120,7 +2320,7 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        release_desktop()
+        self.release_desktop()
         return True
 
     @pyaedt_function_handler()
@@ -2174,10 +2374,23 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        release_desktop(close_projects, close_desktop)
+        self.desktop_class.release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
+
+        dicts = [self, sys.modules["__main__"]]
+        for dict_to_clean in dicts:
+            props = [
+                a
+                for a in dir(dict_to_clean)
+                if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))
+                or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
+            ]
+            for a in props:
+                dict_to_clean.__dict__[a] = None
+
+        self._desktop_class = None
         gc.collect()
         return True
 
@@ -2642,9 +2855,16 @@ class Design(AedtObjects):
         bool
         """
         arg = ["NAME:Design Settings Data"]
-        for k, v in settings.items():
-            arg.append(k + ":=")
-            arg.append(v)
+        for key, value in settings.items():
+            if "SkewSliceTable" not in key:
+                arg.append(key + ":=")
+                arg.append(value)
+            else:
+                arg_skew = [key]
+                if isinstance(value, list):
+                    for v in value:
+                        arg_skew.append(v)
+                arg.append(arg_skew)
         self.odesign.SetDesignSettings(arg)
         return True
 
@@ -3036,7 +3256,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = _retry_ntimes(5, new_design.GetName)
+        name = new_design.GetName()
         self._odesign = new_design
         return name
 
@@ -3107,7 +3327,7 @@ class Design(AedtObjects):
 
         >>> oDesign.RenameDesignInstance
         """
-        _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        self._odesign.RenameDesignInstance(self.design_name, new_name)
         if save_after_duplicate:
             self.oproject.Save()
             self._project_dictionary = None
@@ -3203,8 +3423,8 @@ class Design(AedtObjects):
 
         active_design = self.design_name
         design_list = self.design_list
-        _retry_ntimes(10, self._oproject.CopyDesign, active_design)
-        _retry_ntimes(10, self._oproject.Paste)
+        self._oproject.CopyDesign(active_design)
+        self._oproject.Paste()
         newname = label
         ind = 1
         while newname in self.design_list:
@@ -3507,7 +3727,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            val = _retry_ntimes(10, var_obj.GetPropValue, "SIValue")
+            val = var_obj.GetPropValue("SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
@@ -3554,22 +3774,35 @@ class Design(AedtObjects):
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
             return self._variable_manager.variables[expression_string].value
-        else:
-            try:
-                self._variable_manager.set_variable(
-                    "pyaedt_evaluator",
-                    expression=expression_string,
-                    readonly=True,
-                    hidden=True,
-                    description="Internal_Evaluator",
-                )
-            except:
-                raise ("Invalid string expression {}".expression_string)
-
+        elif "pwl" in str(expression_string):
+            for ds in self.project_datasets:
+                if ds in expression_string:
+                    return expression_string
+            for ds in self.design_datasets:
+                if ds in expression_string:
+                    return expression_string
+        try:
+            return float(expression_string)
+        except ValueError:
+            pass
+        try:
+            variable_name = "pyaedt_evaluator"
+            if "$" in expression_string:
+                variable_name = "$pyaedt_evaluator"
+            self._variable_manager.set_variable(
+                variable_name,
+                expression=expression_string,
+                readonly=True,
+                hidden=True,
+                description="Internal_Evaluator",
+            )
+            eval_value = self._variable_manager.variables[variable_name].value
             # Extract the numeric value of the expression (in SI units!)
-            eval_value = self._variable_manager.variables["pyaedt_evaluator"].value
-            self._variable_manager.delete_variable("pyaedt_evaluator")
+            self._variable_manager.delete_variable(variable_name)
             return eval_value
+        except:
+            self.logger.warning("Invalid string expression {}".format(expression_string))
+            return expression_string
 
     @pyaedt_function_handler()
     def design_variation(self, variation_string=None):
@@ -3697,3 +3930,51 @@ class Design(AedtObjects):
             if os.path.normpath(os.path.join(p.GetPath(), p.GetName()) + ".aedt") == os.path.normpath(project_path):
                 return p.GetName()
         return False
+
+    @pyaedt_function_handler
+    def set_temporary_directory(self, temp_dir_path):
+        """Set temporary directory path.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.SetTempDirectory()
+        """
+        self.odesktop.SetTempDirectory(temp_dir_path)
+        return True
+
+    @pyaedt_function_handler()
+    def design_settings(self):
+        """Get design settings for the current AEDT app.
+
+        Returns
+        -------
+        dict
+            Dictionary of valid design settings.
+
+        References
+        ----------
+
+        >>> oDesign.GetChildObject("Design Settings")
+        """
+        try:
+            design_settings = self._odesign.GetChildObject("Design Settings")
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to retrieve design settings.")
+            return False
+
+        prop_name_list = design_settings.GetPropNames()
+        design_settings_dict = {}
+        for prop in prop_name_list:
+            try:
+                design_settings_dict[prop] = design_settings.GetPropValue(prop)
+            except Exception:  # pragma: no cover
+                self.logger.warning('Could not retrieve "{}" property value in design settings.'.format(prop))
+                design_settings_dict[prop] = None
+
+        return design_settings_dict

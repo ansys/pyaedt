@@ -6,8 +6,8 @@ import tempfile
 import time
 
 from pyaedt import is_ironpython
-from pyaedt import pyaedt_logger as logger
 from pyaedt import settings
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.misc import list_installed_ansysem
 
 # import sys
@@ -141,10 +141,10 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     """
     port1 = check_port(port)
     if port == 0:
-        print("Error. No ports are available.")
+        logger.error("Error. No ports are available.")
         return False
     if port1 != port:
-        print("Port {} is already in use. Starting the server on port {}.".format(port, port1))
+        logger.info("Port {} is already in use. Starting the server on port {}.".format(port, port1))
     aa = list_installed_ansysem()
     if aedt_version:
         if student_version:
@@ -157,9 +157,11 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
         if aa:
             valid_version = aa[0]
         else:
-            raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
+            raise Exception("No ANSYSEM_ROOTXXX environment variable defined.")
 
-    os.environ["PYAEDT_SERVER_AEDT_PATH"] = os.environ[valid_version]
+    ansysem_path = os.environ[valid_version]
+    logger.info("AEDT located at {} will be used.".format(ansysem_path))
+    os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
     os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
     os.environ["ANS_NODEPCHECK"] = str(1)
 
@@ -208,16 +210,17 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     """
     port1 = check_port(port)
     if port == 0:
-        print("Error. No ports are available.")
+        logger.error("Error. No ports are available.")
         return False
     if port1 != port:
-        print("Port {} is already in use. Starting the server on port {}.".format(port, port1))
+        logger.info("Port {} is already in use. Starting the server on port {}.".format(port, port1))
     if not ansysem_path:
         aa = list_installed_ansysem()
         if aa:
             ansysem_path = os.environ[aa[0]]
         else:
-            raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
+            raise Exception("No ANSYSEM_ROOTXXX environment variable defined.")
+    logger.info("AEDT located at {} will be used.".format(ansysem_path))
     os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
     os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
     os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
@@ -241,7 +244,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
             "logger": logger,
         },
     )
-    print("Starting the server on port {} on {}.".format(port, hostname))
+    logger.info("Starting the server on port {} on {}.".format(port, hostname))
     signal.signal(signal.SIGINT, lambda signum, frame: t.close())
     signal.signal(signal.SIGTERM, lambda signum, frame: t.close())
 
@@ -280,14 +283,17 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         time.sleep(1)
         cl = connect(server_name, port)
         logger.info("Created new session on port %s", port)
-        cl.server_name = server_name
-        cl.aedt_port = None
+        if "server_name" not in dir(cl):
+            cl.server_name = server_name
+        if "aedt_port" not in dir(cl):
+            cl.aedt_port = None
         if launch_aedt_on_server:
             if not aedt_port:
                 aedt_port = client.root.check_port()
             cl.aedt(port=aedt_port, non_graphical=non_graphical)
             logger.info("Aedt started on port %s", aedt_port)
-            cl.aedt_port = aedt_port
+            if cl.aedt_port is None:
+                cl.aedt_port = aedt_port
         return cl
     except:
         msg = "Error. No connection exists."
@@ -326,6 +332,10 @@ def connect(server_name, aedt_client_port):
             client.makedirs = client.root.makedirs
             client.pathexists = client.root.pathexists
             client.close_session = client.root.stop
+            client.aedt_port = client.root.aedt_port
+            client.aedt_version = client.root.aedt_version
+            client.student_version = client.root.student_version
+            client.server_name = client.root.server_name
         except AttributeError:
             pass
         settings.remote_rpc_session = client

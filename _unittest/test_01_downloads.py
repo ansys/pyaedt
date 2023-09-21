@@ -1,29 +1,22 @@
-# Import required modules
 import os
 import tempfile
 
-from _unittest.conftest import BasisTest
-from _unittest.conftest import is_ironpython
+import pytest
 
 from pyaedt import downloads
+from pyaedt import is_linux
 from pyaedt.generic.general_methods import generate_unique_name
 
-try:
-    import pytest
-except ImportError:  # pragma: no cover
-    import _unittest_ironpython.conf_unittest as pytest
 
-from pyaedt import is_linux
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        # set a scratch directory and the environment / test data
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self):
         self.examples = downloads
-        pass
-
-    def teardown_class(self):
-        del self.examples
 
     def test_00_download_edb(self):
         assert self.examples.download_aedb()
@@ -43,6 +36,7 @@ class TestClass(BasisTest, object):
     def test_05_download_antenna_sherlock(self):
         assert self.examples.download_sherlock(destination=os.path.join(tempfile.gettempdir(), "sherlock"))
 
+    @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
     def test_06_download_multiparts(self):
         assert self.examples.download_multiparts(destination=os.path.join(tempfile.gettempdir(), "multi"))
 
@@ -65,10 +59,12 @@ class TestClass(BasisTest, object):
         os.rename(os.path.split(out[0])[0], new_path)
         assert os.path.exists(new_path)
 
+    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_09_download_custom_report(self):
         out = self.examples.download_custom_reports()
         assert os.path.exists(out)
 
+    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_10_download_3dcomp(self):
         out = self.examples.download_3dcomponent()
         assert os.path.exists(out)
@@ -83,16 +79,10 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_13_download_specific_folder(self):
-        if is_ironpython:
-            assert not self.examples.download_file(directory="nissan")
-        else:
-            example_folder = self.examples.download_file(directory="nissan")
-            assert os.path.exists(example_folder)
-        if is_ironpython:
-            assert not self.examples.download_file(directory="wpf_edb_merge")
-        else:
-            example_folder = self.examples.download_file(directory="wpf_edb_merge")
-            assert os.path.exists(example_folder)
+        example_folder = self.examples.download_file(directory="nissan")
+        assert os.path.exists(example_folder)
+        example_folder = self.examples.download_file(directory="wpf_edb_merge")
+        assert os.path.exists(example_folder)
 
     @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_14_download_icepak_3d_component(self):

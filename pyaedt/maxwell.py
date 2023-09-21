@@ -9,6 +9,7 @@ import os
 import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -104,8 +105,92 @@ class Maxwell(object):
             {"ComputeTransientInductance": compute_transient_inductance, "ComputeIncrementalMatrix": incremental_matrix}
         )
 
+    @pyaedt_function_handler
+    def apply_skew(
+        self,
+        skew_type="Continuous",
+        skew_part="Rotor",
+        skew_angle="1",
+        skew_angle_unit="deg",
+        number_of_slices=2,
+        custom_slices_skew_angles=None,
+    ):
+        """Apply skew to 2D model.
+
+        Parameters
+        ----------
+        skew_type : str, optional
+            Skew type.
+            Possible choices are ``Continuous``, ``Step``, ``V-Shape``, ``User Defined``.
+            The default value is ``Continuous``.
+        skew_part : str, optional
+            Part to skew.
+            Possible choices are ``Rotor`` or ``Stator``.
+            The default value is ``Rotor``.
+        skew_angle : str, optional
+            Skew angle.
+            The default value is ``1``.
+        skew_angle_unit : str, optional
+            Skew angle unit.
+            Possible choices are ``deg``, ``rad``, ``degsec``, ``degmin``.
+            The default value is ``deg``.
+        number_of_slices : str, optional
+            Number of slices to split the selected part into.
+            The default value is ``2``.
+        custom_slices_skew_angles : list, optional
+            List of custom angles to apply to slices.
+            Only available if skew_type is ``User Defined``.
+            The length of this list must be equal to number_of_slices.
+            The default value is ``None``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if skew_type not in ["Continuous", "Step", "V-Shape", "User Defined"]:
+            self.logger.error("Invalid skew type.")
+            return False
+        if skew_part not in ["Rotor", "Stator"]:
+            self.logger.error("Invalid skew part.")
+            return False
+        if skew_angle_unit not in ["deg", "rad", "degsec", "degmin"]:
+            self.logger.error("Invalid skew angle unit.")
+            return False
+        if skew_type != "User Defined":
+            arg = {
+                "UseSkewModel": True,
+                "SkewType": skew_type,
+                "SkewPart": skew_part,
+                "SkewAngle": "{}{}".format(skew_angle, skew_angle_unit),
+                "NumberOfSlices": number_of_slices,
+            }
+            return self.change_design_settings(arg)
+        else:
+            if not custom_slices_skew_angles or len(custom_slices_skew_angles) != int(number_of_slices):
+                self.logger.error("Please provide skew angles for each slice.")
+                return False
+            arg_slice_table = {"NAME:SkewSliceTable": []}
+            slice_length = decompose_variable_value(self.design_properties["ModelDepth"])[0] / int(number_of_slices)
+            for i in range(int(number_of_slices)):
+                arg_slice_info = []
+                arg_slice_info.append("NAME:OneSliceInfo")
+                arg_slice_info.append("SkewAngle:=")
+                arg_slice_info.append(str(custom_slices_skew_angles[i]))
+                arg_slice_info.append("SliceLength:=")
+                arg_slice_info.append(str(slice_length))
+                arg_slice_table["NAME:SkewSliceTable"].append(arg_slice_info)
+            props = {
+                "UseSkewModel": True,
+                "SkewType": skew_type,
+                "SkewPart": skew_part,
+                "SkewAngleUnit": skew_angle_unit,
+                "NumberOfSlices": number_of_slices,
+            }
+            props.update(arg_slice_table)
+            return self.change_design_settings(props)
+
     @pyaedt_function_handler()
-    def set_core_losses(self, objects, value=True):
+    def set_core_losses(self, objects, value=False):
         """Whether to enable core losses for a set of objects.
 
         For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
@@ -117,8 +202,8 @@ class Maxwell(object):
         objects : list, str
             List of object to apply core losses to.
         value : bool, optional
-            Whether to enable core losses for the given list. The default is
-            ``True``.
+            Whether to enable ``Consider core loss effect on field`` for the given list. The default is
+            ``False``.
 
         Returns
         -------
@@ -324,7 +409,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, matrix_name, props, "Matrix")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution type does not have matrix parameters")
@@ -642,7 +727,7 @@ class Maxwell(object):
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -742,7 +827,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -840,7 +925,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -881,7 +966,7 @@ class Maxwell(object):
             props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -923,7 +1008,7 @@ class Maxwell(object):
         props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -994,7 +1079,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, name, props, "Winding")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             if coil_terminals is None:
                 coil_terminals = []
             if type(coil_terminals) is not list:
@@ -1100,7 +1185,7 @@ class Maxwell(object):
                 self.logger.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1160,7 +1245,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, force_name, prop, "Force")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution Type has not Matrix Parameter")
@@ -1233,7 +1318,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, torque_name, prop, "Torque")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution Type has not Matrix Parameter")
@@ -1368,7 +1453,7 @@ class Maxwell(object):
 
             bound = BoundaryObject(self, symmetry_name, prop, "Symmetry")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             return True
         except:
@@ -1500,7 +1585,7 @@ class Maxwell(object):
                         bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
 
                 if bound.create():
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     return bound
                 return True
             except:
@@ -1580,6 +1665,105 @@ class Maxwell(object):
         return True
 
     @pyaedt_function_handler()
+    def enable_harmonic_force_on_layout_component(
+        self,
+        layout_component_name,
+        nets,
+        force_type=0,
+        window_function="Rectangular",
+        use_number_of_last_cycles=True,
+        last_cycles_number=1,
+        calculate_force="Harmonic",
+        start_time="0s",
+        stop_time="2ms",
+        use_number_of_cycles_for_stop_time=True,
+        number_of_cycles_for_stop_time=1,
+        include_no_layer=True,
+    ):
+        # type: (str, dict, int, str,bool, int, str, str, str, bool, int, bool) -> bool
+        """Enable the harmonic force calculation for the transient analysis.
+
+        Parameters
+        ----------
+        layout_component_name : str
+            Name of layout component to apply harmonic forces.
+        nets : dict
+            Dictionary containing nets and layers on which enable harmonic forces.
+        force_type : int, optional
+            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
+        window_function : str, optional
+            Windowing function. Default is ``"Rectangular"``.
+            Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
+            ``"Blackman"``, ``"Lanczos"``, ``"Welch"``.
+        use_number_of_last_cycles : bool, optional
+            Use number Of last cycles for force calculations. Default is ``True``.
+        last_cycles_number : int, optional
+            Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
+        calculate_force : str, optional
+            How to calculate force. The default is ``"Harmonic"``.
+            Options are ``"Harmonic"`` and ``"Transient"``.
+        start_time : str, optional
+            Harmonic Force Start Time. Default is ``"0s"``.
+        stop_time : str, optional
+            Harmonic Force Stop Time. Default is ``"2ms"``.
+        use_number_of_cycles_for_stop_time : bool, optional
+            Use number of cycles for force stop time calculations. Default is ``True``.
+        number_of_cycles_for_stop_time : int, optional
+            Number of cycles for force stop time calculations. Default is ``1``.
+        include_no_layer : bool, optional
+            Whether to include ``"<no-layer>"`` layer or not (used for vias). Default is ``True``.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
+            return False
+        args = [
+            "ForceType:=",
+            force_type,
+            "WindowFunctionType:=",
+            window_function,
+            "UseNumberOfLastCycles:=",
+            use_number_of_last_cycles,
+            "NumberOfLastCycles:=",
+            last_cycles_number,
+            "StartTime:=",
+            start_time,
+            "UseNumberOfCyclesForStopTime:=",
+            use_number_of_cycles_for_stop_time,
+            "NumberOfCyclesForStopTime:=",
+            number_of_cycles_for_stop_time,
+            "StopTime:=",
+            stop_time,
+            "OutputFreqRangeType:=",
+            "Use All",
+            "CaculateForceType:=",
+            calculate_force + " Force",
+        ]
+        args2 = [
+            "NAME:NetsAndLayersChoices",
+            [
+                "NAME:" + layout_component_name,
+                [
+                    "NAME:NetLayerSetMap",
+                ],
+            ],
+        ]
+        for net, layers in nets.items():
+            if include_no_layer:
+                args2[1][1].append(["Name:" + net, "LayerSet:=", ["<no-layer>"] + layers])
+            else:
+                args2[1][1].append(["Name:" + net, "LayerSet:=", layers])
+        args.append(args2)
+        self.odesign.EnableHarmonicForceCalculation(args)
+        return True
+
+    @pyaedt_function_handler()
     def export_element_based_harmonic_force(
         self,
         output_directory=None,
@@ -1608,7 +1792,7 @@ class Maxwell(object):
         str
             Path to the export directory.
         """
-        if self.solution_type != "Transient":
+        if self.solution_type != "Transient" and self.solution_type != "TransientAPhiFormulation":
             self.logger.error("This methods work only with Maxwell Transient Analysis.")
             return False
         if not output_directory:
@@ -1627,308 +1811,6 @@ class Maxwell(object):
             f1 = number_of_frequency
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup_name, freq_option, f1, f2)
         return output_directory
-
-    @pyaedt_function_handler()
-    def heal_objects(
-        self,
-        input_objects_list,
-        auto_heal=True,
-        tolerant_stitch=True,
-        simplify_geometry=True,
-        tighten_gaps=True,
-        heal_to_solid=False,
-        stop_after_first_stitch_error=False,
-        max_stitch_tolerance=0.001,
-        explode_and_stitch=True,
-        geometry_simplification_tolerance=1,
-        maximum_generated_radius=1,
-        simplify_type=0,
-        tighten_gaps_width=0.00001,
-        remove_silver_faces=True,
-        remove_small_edges=True,
-        remove_small_faces=True,
-        silver_face_tolerance=1,
-        small_edge_tolerance=1,
-        small_face_area_tolerance=1,
-        bounding_box_scale_factor=0,
-        remove_holes=True,
-        remove_chamfers=True,
-        remove_blends=True,
-        hole_radius_tolerance=1,
-        chamfer_width_tolerance=1,
-        blend_radius_tolerance=1,
-        allowable_surface_area_change=5,
-        allowable_volume_change=5,
-    ):
-        """Repair invalid geometry entities for the selected objects within the specified tolerance settings.
-
-        Parameters
-        ----------
-        input_objects_list : str
-            List of object names to analyze.
-        auto_heal : bool, optional
-            Auto heal option. Default value is ``True``.
-        tolerant_stitch : bool, optional
-            Tolerant stitch for manual healing. Default value is ``True``.
-        simplify_geometry : bool, optional
-            Simplify geometry for manual healing. Default value is ``True``.
-        tighten_gaps : bool, optional
-            Tighten gaps for manual healing. Default value is ``True``.
-        heal_to_solid : bool, optional
-            Heal to solid for manual healing. Default value is ``False``.
-        stop_after_first_stitch_error : bool, optional
-            Stop after first stitch error for manual healing. Default value is ``False``.
-        max_stitch_tolerance : float, str, optional
-            Max stitch tolerance for manual healing. Default value is ``0.001``.
-        explode_and_stitch : bool, optional
-            Explode and stitch for manual healing. Default value is ``True``.
-        geometry_simplification_tolerance : float, str, optional
-            Geometry simplification tolerance for manual healing in mm. Default value is ``1``.
-        maximum_generated_radius : float, str, optional
-            Maximum generated radius for manual healing in mm. Default value is ``1``.
-        simplify_type : int, optional
-            Simplify type for manual healing. Default value is ``0`` which refers to ``Curves``.
-            Other available values are ``1`` for ``Surfaces`` and ``2`` for ``Both``.
-        tighten_gaps_width : float, str, optional
-            Tighten gaps width for manual healing in mm. Default value is ``0.00001``.
-        remove_silver_faces : bool, optional
-            Remove silver faces for manual healing. Default value is ``True``.
-        remove_small_edges : bool, optional
-            Remove small edges faces for manual healing. Default value is ``True``.
-        remove_small_faces : bool, optional
-            Remove small faces for manual healing. Default value is ``True``.
-        silver_face_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm. Default value is ``1``.
-        small_edge_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm. Default value is ``1``.
-        small_face_area_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm^2. Default value is ``1``.
-        bounding_box_scale_factor : int, optional
-            Bounding box scaling factor for manual healing. Default value is ``0``.
-        remove_holes : bool, optional
-            Remove holes for manual healing. Default value is ``True``.
-        remove_chamfers : bool, optional
-            Remove chamfers for manual healing. Default value is ``True``.
-        remove_blends : bool, optional
-            Remove blends for manual healing. Default value is ``True``.
-        hole_radius_tolerance : float, str, optional
-            Hole radius tolerance for manual healing in mm. Default value is ``1``.
-        chamfer_width_tolerance : float, str, optional
-            Chamfer width tolerance for manual healing in mm. Default value is ``1``.
-        blend_radius_tolerance : float, str, optional
-            Blend radius tolerance for manual healing in mm. Default value is ``1``.
-        allowable_surface_area_change : float, str, optional
-            Allowable surface area for manual healing in mm. Default value is ``1``.
-        allowable_volume_change : float, str, optional
-            Allowable volume change for manual healing in mm. Default value is ``1``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not input_objects_list:
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif not isinstance(input_objects_list, str):
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif "," in input_objects_list:
-            input_objects_list = input_objects_list.strip()
-            if ", " in input_objects_list:
-                input_objects_list_split = input_objects_list.split(", ")
-            else:
-                input_objects_list_split = input_objects_list.split(",")
-            for obj in input_objects_list_split:
-                if obj not in self.modeler.object_names:
-                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
-                    return False
-            objects_selection = ",".join(input_objects_list_split)
-        else:
-            objects_selection = input_objects_list
-
-        if simplify_type not in [0, 1, 2]:
-            self.logger.error("Invalid simplify type.")
-            return False
-
-        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
-        healing_parameters = [
-            "NAME:ObjectHealingParameters",
-            "Version:=",
-            1,
-            "AutoHeal:=",
-            auto_heal,
-            "TolerantStitch:=",
-            tolerant_stitch,
-            "SimplifyGeom:=",
-            simplify_geometry,
-            "TightenGaps:=",
-            tighten_gaps,
-            "HealToSolid:=",
-            heal_to_solid,
-            "StopAfterFirstStitchError:=",
-            stop_after_first_stitch_error,
-            "MaxStitchTol:=",
-            max_stitch_tolerance,
-            "ExplodeAndStitch:=",
-            explode_and_stitch,
-            "GeomSimplificationTol:=",
-            geometry_simplification_tolerance,
-            "MaximumGeneratedRadiusForSimplification:=",
-            maximum_generated_radius,
-            "SimplifyType:=",
-            simplify_type,
-            "TightenGapsWidth:=",
-            tighten_gaps_width,
-            "RemoveSliverFaces:=",
-            remove_silver_faces,
-            "RemoveSmallEdges:=",
-            remove_small_edges,
-            "RemoveSmallFaces:=",
-            remove_small_faces,
-            "SliverFaceTol:=",
-            silver_face_tolerance,
-            "SmallEdgeTol:=",
-            small_edge_tolerance,
-            "SmallFaceAreaTol:=",
-            small_face_area_tolerance,
-            "SpikeTol:=",
-            -1,
-            "GashWidthBound:=",
-            -1,
-            "GashAspectBound:=",
-            -1,
-            "BoundingBoxScaleFactor:=",
-            bounding_box_scale_factor,
-            "RemoveHoles:=",
-            remove_holes,
-            "RemoveChamfers:=",
-            remove_chamfers,
-            "RemoveBlends:=",
-            remove_blends,
-            "HoleRadiusTol:=",
-            hole_radius_tolerance,
-            "ChamferWidthTol:=",
-            chamfer_width_tolerance,
-            "BlendRadiusTol:=",
-            blend_radius_tolerance,
-            "AllowableSurfaceAreaChange:=",
-            allowable_surface_area_change,
-            "AllowableVolumeChange:=",
-            allowable_volume_change,
-        ]
-        self.oeditor.HealObject(selections_args, healing_parameters)
-        return True
-
-    @pyaedt_function_handler()
-    def simplify_objects(
-        self,
-        input_objects_list,
-        simplify_type="Polygon Fit",
-        extrusion_axis="Auto",
-        clean_up=True,
-        allow_splitting=True,
-        separate_bodies=True,
-        clone_body=True,
-        generate_primitive_history=False,
-        interior_points_on_arc=5,
-        length_threshold_percentage=25,
-        create_group_for_new_objects=False,
-    ):
-        """Simplify command to converts complex objects into simpler primitives which are easy to mesh and solve.
-
-        Parameters
-        ----------
-        input_objects_list : str
-            List of object names to simplify.
-        simplify_type : str, optional
-            Simplify type. Default value is ``Polygon Fit``.
-            Available values are ``Polygon Fit`` ``Primitive Fit`` or ``Bounding Box``.
-        extrusion_axis : str, optional
-            Extrusion axis. Default value is ``Auto``.
-            Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
-        clean_up : bool, optional
-            Clean up. Default value is ``True``.
-        allow_splitting : bool, optional
-            Allow splitting. Default value is ``True``.
-        separate_bodies : bool, optional
-            Separate bodies. Default value is ``True``.
-        clone_body : bool, optional
-            Clone body. Default value is ``True``.
-        generate_primitive_history : bool, optional
-            Generate primitive history.
-            This option will purge the history for selected objects.
-            Default value is ``False``.
-        interior_points_on_arc : float, optional
-            Number points on curve. Default value is ``5``.
-        length_threshold_percentage : float, optional
-            Number points on curve. Default value is ``25``.
-        create_group_for_new_objects : bool, optional
-            Create group for new objects. Default value is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not input_objects_list:
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif not isinstance(input_objects_list, str):
-            self.logger.error("Provide an object name or a list of object names as a string.")
-            return False
-        elif "," in input_objects_list:
-            input_objects_list = input_objects_list.strip()
-            if ", " in input_objects_list:
-                input_objects_list_split = input_objects_list.split(", ")
-            else:
-                input_objects_list_split = input_objects_list.split(",")
-            for obj in input_objects_list_split:
-                if obj not in self.modeler.object_names:
-                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
-                    return False
-            objects_selection = ",".join(input_objects_list_split)
-        else:
-            objects_selection = input_objects_list
-
-        if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
-            self.logger.error("Invalid simplify type.")
-            return False
-
-        if extrusion_axis not in ["Auto", "X", "Y", "Z"]:
-            self.logger.error("Invalid extrusion axis.")
-            return False
-
-        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
-        simplify_parameters = [
-            "NAME:SimplifyParameters",
-            "Type:=",
-            simplify_type,
-            "ExtrusionAxis:=",
-            extrusion_axis,
-            "Cleanup:=",
-            clean_up,
-            "Splitting:=",
-            allow_splitting,
-            "SeparateBodies:=",
-            separate_bodies,
-            "CloneBody:=",
-            clone_body,
-            "Generate Primitive History:=",
-            generate_primitive_history,
-            "NumberPointsCurve:=",
-            interior_points_on_arc,
-            "LengthThresholdCurve:=",
-            length_threshold_percentage,
-        ]
-        groups_for_new_object = ["CreateGroupsForNewObjects:=", create_group_for_new_objects]
-
-        try:
-            self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
-            return True
-        except:
-            self.logger.error("Simplify objects failed.")
-            return False
 
     @pyaedt_function_handler
     def edit_external_circuit(self, netlist_file_path, schematic_design_name):
@@ -2060,10 +1942,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
         parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical
@@ -2100,13 +1983,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     >>> from pyaedt import Maxwell3d
     >>> aedtapp = Maxwell3d("mymaxwell.aedt")
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Added design ...
 
-    Create an instance of Maxwell 3D using the 2021 R1 release and open
+    Create an instance of Maxwell 3D using the 2023 R2 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> aedtapp = Maxwell3d(specified_version="2021.2", projectname="mymaxwell2.aedt")
-    pyaedt INFO: Added design ...
+    >>> aedtapp = Maxwell3d(specified_version="2023.2", projectname="mymaxwell2.aedt")
+    PyAEDT INFO: Added design ...
 
     """
 
@@ -2151,6 +2034,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             aedt_process_id,
         )
         Maxwell.__init__(self)
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     def assign_insulating(self, geometry_selection, insulation_name=None):
@@ -2331,11 +2217,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
 
                 if bound.create():
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     return bound
-                return True
+                return False
             except:
-                pass
+                return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
             return False
@@ -2363,7 +2249,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
 
@@ -2485,7 +2371,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             )
             bound = BoundaryObject(self, bound_name_m, props2, "Independent")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
 
                 u_slave_vector_coordinates = OrderedDict(
                     {
@@ -2506,16 +2392,273 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 )
                 bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
                 if bound2.create():
-                    self.boundaries.append(bound2)
+                    self._boundaries[bound2.name] = bound2
                     return bound, bound2
                 else:
                     return bound, False
         except:
             return False, False
 
+    @pyaedt_function_handler
+    def assign_flux_tangential(self, objects_list, flux_name=None):
+        # type : (list, str = None) -> pyaedt.modules.Boundary.BoundaryObject
+        """Assign a flux tangential boundary for a transient A-Phi solver.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to assign the flux tangential boundary condition to.
+        flux_name : str, optional
+            Name of the flux tangential boundary. The default is ``None``,
+            in which case a random name is automatically generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignFluxTangential
+
+        Examples
+        --------
+
+        Create a box and assign a flux tangential boundary to one of its faces.
+
+        >>> box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        >>> flux_tangential = maxwell3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("Flux tangential boundary can only be assigned to a transient APhi solution type.")
+            return False
+
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
+
+        if not flux_name:
+            flux_name = generate_unique_name("FluxTangential")
+        elif flux_name in self.modeler.get_boundaries_name():
+            flux_name = generate_unique_name(flux_name)
+
+        props = {"NAME": flux_name, "Faces": []}
+        for sel in objects_list:
+            props["Faces"].append(sel)
+
+        return self._create_boundary(flux_name, props, "FluxTangential")
+
+    @pyaedt_function_handler
+    def assign_layout_force(
+        self, nets_layers_mapping, component_name, reference_cs="Global", force_name=None, include_no_layer=True
+    ):
+        # type: (dict, str, str, str, bool) -> bool
+        """Assign the layout force to a component in a Transient A-Phi solver.
+        To access layout component features the Beta option has to be enabled first.
+
+        Parameters
+        ----------
+        nets_layers_mapping : dict
+            Each <layer, net> pair represents the object(s) in the intersection of corresponding layer and net.
+            Net name is dictionary's key, layers name is the list of layer names.
+        component_name : str
+            Name of the 3d component to assign the layout force to.
+        reference_cs : str, optional
+            Reference coordinate system.
+            If not provided the global one will be set.
+        force_name : str, optional
+            Name of the layout force.
+            If not provided a random name will be generated.
+        include_no_layer : bool, optional
+            Whether to include ``"<no-layer>"`` layer or not (used for vias). Default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignLayoutForce
+
+        Examples
+        --------
+
+        Create a dictionary to give as an input to assign_layout_force method.
+        >>> nets_layers = {}
+        >>> nets_layers["<no-net>"] = ["PWR","TOP","UNNAMED_000","UNNAMED_002"]
+        >>> nets_layers["GND"] = ["LYR_1","LYR_2","UNNAMED_006"]
+
+        Assign layout force to a component.
+        >>> m3d = Maxwell3d()
+        >>> m3d.assign_layout_force(nets_layers_mapping=nets_layers, component_name="LC1_1")
+        """
+
+        for key in nets_layers_mapping.keys():
+            if not isinstance(nets_layers_mapping[key], list):
+                nets_layers_mapping[key] = list(nets_layers_mapping[key])
+
+        if component_name not in self.modeler.user_defined_component_names:
+            self.logger.error("Provided component name doesn't exist in current design.")
+            return False
+
+        if not force_name:
+            force_name = generate_unique_name("Layout_Force")
+
+        nets_layers_props = None
+        for key, valy in nets_layers_mapping.items():
+            layers = valy[:]
+            if include_no_layer:
+                layers = layers[:] + ["<no-layer>"]
+            if nets_layers_props:
+                nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": layers})}))
+            else:
+                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": layers})})]
+
+        props = OrderedDict(
+            {
+                "Reference CS": reference_cs,
+                "NetsAndLayersChoices": OrderedDict(
+                    {component_name: OrderedDict({"NetLayerSetMap": nets_layers_props})}
+                ),
+            }
+        )
+        bound = MaxwellParameters(self, force_name, props, "LayoutForce")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+
+    @pyaedt_function_handler()
+    def assign_tangential_h_field(
+        self,
+        faces,
+        x_component_real=0,
+        x_component_imag=0,
+        y_component_real=0,
+        y_component_imag=0,
+        coordinate_system="Global",
+        origin=None,
+        u_pos=None,
+        reverse=False,
+        bound_name=None,
+    ):
+        """Assign a tangential H field boundary to a list of faces.
+
+        Parameters
+        ----------
+        faces : list of int  or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            List of objects to assign an end connection to.
+        x_component_real : float, str, optional
+            X component value real part. The default is ``0``.
+        x_component_imag : float, str, optional
+            X component value imaginary part. The default is ``0``.
+        y_component_real : float, str, optional
+            Y component value real part. The default is ``0``.
+        y_component_imag : float, str, optional
+            Y component value imaginary part. The default is ``0``.
+        coordinate_system : str, optional
+            Coordinate system to use for the UV vector.
+        origin : list, optional
+            Origin of the UV vector.
+            The default is ``None`, in which case the bottom left vertex is used.
+        u_pos : list, optional
+            Direction of the U vector.
+            The default is ``None``, in which case the top left vertex is used.
+        reverse : bool, optional
+            Whether the vector is reversed. The default is ``False``.
+        bound_name : str, optional
+            Name of the end connection boundary.
+            The default is ``None``, in which case the default name is used.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Newly created object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignTangentialHField
+        """
+        if self.solution_type not in ["EddyCurrent", "Magnetostatic"]:
+            self.logger.error("Tangential H Field is applicable only to Eddy current.")
+            return False
+        objects = self.modeler.convert_to_selections(faces, True)
+        if not bound_name:
+            bound_name = generate_unique_name("TangentialHField")
+        props = OrderedDict(
+            {
+                "Faces": objects,
+            }
+        )
+        if isinstance(objects[0], str):
+            props = OrderedDict(
+                {
+                    "Objects": objects,
+                }
+            )
+        props["ComponentXReal"] = x_component_real
+        if self.solution_type == "EddyCurrent":
+            props["ComponentXImag"] = x_component_imag
+        props["ComponentYReal"] = y_component_real
+        if self.solution_type == "EddyCurrent":
+            props["ComponentYImag"] = y_component_imag
+        if not origin and isinstance(objects[0], int):
+            edges = self.modeler.get_face_edges(objects[0])
+            origin = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 0)
+            if not u_pos:
+                u_pos = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 1)
+
+        props["CoordSysVector"] = OrderedDict({"Coordinate System": coordinate_system, "Origin": origin, "UPos": u_pos})
+        props["ReverseV"] = reverse
+        bound = BoundaryObject(self, bound_name, props, "Tangential H Field")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def assign_zero_tangential_h_field(self, faces, bound_name=None):
+        """Assign a zero tangential H field boundary to a list of faces.
+
+        Parameters
+        ----------
+        faces : list of int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            List of objects to assign an end connection to.
+        bound_name : str, optional
+            Name of the end connection boundary. The default is ``None``, in which case the
+            default name is used.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Newly created object. ``False`` if it fails.
+
+        References
+        ----------
+
+        >>> oModule.AssignZeroTangentialHField
+        """
+        if self.solution_type not in ["EddyCurrent"]:
+            self.logger.error("Tangential H Field is applicable only to Eddy current.")
+            return False
+        objects = self.modeler.convert_to_selections(faces, True)
+        if not bound_name:
+            bound_name = generate_unique_name("ZeroTangentialHField")
+        props = OrderedDict(
+            {
+                "Faces": objects,
+            }
+        )
+        bound = BoundaryObject(self, bound_name, props, "Zero Tangential H Field")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 2D application interface.
+    """Provides the Maxwell 2D app interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.
@@ -2538,10 +2681,11 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -2640,13 +2784,15 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         )
         Maxwell.__init__(self)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @property
     def xy_plane(self):
         """Maxwell 2D plane between ``True`` and ``False``."""
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
-    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
@@ -2770,7 +2916,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, bound_name, props2, "Balloon")
 
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2811,7 +2957,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, bound_name, props2, "Vector Potential")
 
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2858,7 +3004,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
         bound = BoundaryObject(self, bound_name_m, props2, "Independent")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
 
             props2 = OrderedDict(
                 {
@@ -2870,7 +3016,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             )
             bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
             if bound2.create():
-                self.boundaries.append(bound2)
+                self._boundaries[bound2.name] = bound2
                 return bound, bound2
             else:
                 return bound, False
@@ -2882,7 +3028,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        objects : list of int or str or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : list of int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of objects to assign an end connection to.
         resistance : float or str, optional
             Resistance value. If float is provided, the units are assumed to be ohms.
@@ -2923,6 +3069,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         )
         bound = BoundaryObject(self, bound_name, props, "EndConnection")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False

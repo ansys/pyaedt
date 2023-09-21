@@ -1,7 +1,7 @@
 import os
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Circuit
 from pyaedt.generic import ibis_reader
@@ -9,13 +9,17 @@ from pyaedt.generic import ibis_reader
 test_subfolder = "T15"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, application=Circuit)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(application=Circuit)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader(
@@ -49,13 +53,13 @@ class TestClass(BasisTest, object):
         assert ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].c_value == "0.59pF"
 
         # Add pin
-        ibis.components["MT47H32M8BP-3_25"].pins["A7_MT47H32M8BP-3_25_u26a_800_modified"].add()
+        ibis.components["MT47H32M8BP-3_25"].pins["A8_MT47H32M8BP-3_25_u26a_800_modified"].add()
         pin = (
             ibis.components["MT47H32M8BP-3_25"]
-            .pins["A7_MT47H32M8BP-3_25_u26a_800_modified"]
+            .pins["A8_MT47H32M8BP-3_25_u26a_800_modified"]
             .insert(0.1016, 0.05334, 0.0)
         )
-        assert pin.name == "CompInst@A7_MT47H32M8BP-3_25_u26a_800_modified"
+        assert pin.name == "CompInst@DQS#_MT47H32M8BP-3_25_u26a_800_modified"
 
         # Add buffer
         ibis.buffers["RDQS#_u26a_800_modified"].add()
@@ -68,3 +72,9 @@ class TestClass(BasisTest, object):
         )
         assert len(ibis_model.components) == 6
         assert len(ibis_model.models) == 17
+
+    def test_03_read_ibis_ami(self):
+        ibis_model = self.aedtapp.get_ibis_model_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "ibis_ami_example_tx.ibs"), is_ami=True
+        )
+        assert ibis_model.buffers["example_model_tx_ibis_ami_example_tx"].insert(0, 0)

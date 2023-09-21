@@ -232,6 +232,9 @@ class PostProcessor(Post):
         array_coordinates=None,
         view="isometric",
         show_legend=True,
+        dark_mode=False,
+        show_bounding=False,
+        show_grid=False,
     ):
         """Plot the model or a substet of objects.
 
@@ -261,6 +264,12 @@ class PostProcessor(Post):
             The default is ``"isometric"``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -278,6 +287,10 @@ class PostProcessor(Post):
 
         model.show_legend = show_legend
         model.off_screen = not show
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
         elif view != "isometric":
@@ -305,6 +318,9 @@ class PostProcessor(Post):
         scale_max=None,
         plot_cad_objs=True,
         log_scale=True,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -342,6 +358,12 @@ class PostProcessor(Post):
             Whether to include objects in the plot. The default is ``True``.
         log_scale : bool, optional
             Whether to plot fields in log scale. The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -358,6 +380,10 @@ class PostProcessor(Post):
         model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
 
         model.off_screen = not show
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if file_to_add:
             model.add_field_from_file(
                 file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
@@ -398,6 +424,9 @@ class PostProcessor(Post):
         export_path="",
         imageformat="jpg",
         keep_plot_after_generation=False,
+        dark_mode=False,
+        show_bounding=False,
+        show_grid=False,
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -408,8 +437,8 @@ class PostProcessor(Post):
         ----------
         quantity : str
             Quantity to plot (e.g. ``"Mag_E"``).
-        object_list : str
-            List of objects or faces to which apply the Field Plot.
+        object_list : str, list
+            Objects or faces to which apply the Field Plot.
         plot_type  : str, optional
             Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
         setup_name : str, optional
@@ -442,6 +471,12 @@ class PostProcessor(Post):
             ``"jpg"``.
         keep_plot_after_generation : bool, optional
             Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -478,9 +513,146 @@ class PostProcessor(Post):
             scale_max,
             plot_cad_objs,
             log_scale,
+            dark_mode=dark_mode,
+            show_grid=show_grid,
+            show_bounding=show_bounding,
         )
         if not keep_plot_after_generation:
             plotf.delete()
+        return model
+
+    @pyaedt_function_handler()
+    def plot_animated_field(
+        self,
+        quantity,
+        object_list,
+        plot_type="Surface",
+        setup_name=None,
+        intrinsics=None,
+        variation_variable="Phi",
+        variation_list=["0deg"],
+        view="isometric",
+        plot_label=None,
+        show=True,
+        scale_min=None,
+        scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
+        zoom=None,
+        export_gif=False,
+        export_path="",
+        force_opacity_value=0.1,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
+    ):
+        """Create an animated field plot using Python PyVista and export to a gif file.
+
+        .. note::
+           The PyVista module rebuilds the mesh and the overlap fields on the mesh.
+
+        Parameters
+        ----------
+        quantity : str
+            Quantity to plot (e.g. ``"Mag_E"``).
+        object_list : list, str
+            List of objects or faces to which apply the Field Plot.
+        plot_type  : str, optional
+            Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
+        setup_name : str, optional
+            Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
+        intrinsics : dict, optional.
+            Intrinsic dictionary that is needed for the export.
+            The default is ``None`` which try to retrieve intrinsics from setup.
+        variation_variable : str, optional
+            Variable to vary. The default is ``"Phi"``.
+        variation_list : list, optional
+            List of variation values with units. The default is
+            ``["0deg"]``.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+        show : bool, optional
+            Export Image without plotting on UI.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
+        plot_cad_objs : bool, optional
+            Whether to include objects in the plot. The default is ``True``.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
+        zoom : float, optional
+            Zoom factor.
+        export_gif : bool, optional
+             Whether to export an animated gif or not. The default is ``False``.
+        export_path : str, optional
+            Image export path. Default is ``None`` to not ``working_directory`` will be used to save the image.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
+        """
+        if intrinsics is None:
+            intrinsics = {}
+        if not export_path:
+            export_path = self._app.working_directory
+
+        v = 0
+        fields_to_add = []
+        is_intrinsics = True
+        if variation_variable in self._app.variable_manager.independent_variables:
+            is_intrinsics = False
+        for el in variation_list:
+            if is_intrinsics:
+                intrinsics[variation_variable] = el
+            else:
+                self._app[variation_variable] = el
+            if plot_type == "Surface":
+                plotf = self.create_fieldplot_surface(object_list, quantity, setup_name, intrinsics)
+            elif plot_type == "Volume":
+                plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
+            else:
+                plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+            if plotf:
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                if file_to_add:
+                    fields_to_add.append(file_to_add)
+                plotf.delete()
+            v += 1
+        model = self.get_model_plotter_geometries(
+            generate_mesh=False, get_objects_from_aedt=plot_cad_objs, force_opacity_value=force_opacity_value
+        )
+        model.off_screen = not show
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
+        if fields_to_add:
+            model.add_frames_from_file(fields_to_add, log_scale=log_scale)
+        if export_gif:
+            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        elif view != "isometric":
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
+
+        if scale_min and scale_max:
+            model.range_min = scale_min
+            model.range_max = scale_max
+        if zoom:
+            model.zoom = zoom
+        if show or export_gif:
+            model.animate()
         return model
 
     @pyaedt_function_handler()
@@ -489,11 +661,14 @@ class PostProcessor(Post):
         plotname,
         plot_folder=None,
         meshplot=False,
-        variation_variable="Phi",
+        variation_variable="Phase",
         variation_list=["0deg"],
         project_path="",
         export_gif=False,
         show=True,
+        dark_mode=False,
+        show_bounding=False,
+        show_grid=False,
     ):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
 
@@ -508,7 +683,7 @@ class PostProcessor(Post):
             Name of the folder in which the plot resides. The default
             is ``None``.
         variation_variable : str, optional
-            Variable to vary. The default is ``"Phi"``.
+            Variable to vary. The default is ``"Phase"``.
         variation_list : list, optional
             List of variation values with units. The default is
             ``["0deg"]``.
@@ -521,6 +696,12 @@ class PostProcessor(Post):
                 show=False,
         show : bool, optional
              Generate the animation without showing an interactive plot.  The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -536,23 +717,30 @@ class PostProcessor(Post):
         if not project_path:
             project_path = self._app.working_directory
         for el in variation_list:
-            self._app._odesign.ChangeProperty(
-                [
-                    "NAME:AllTabs",
+            if plotname in self.field_plots and variation_variable in self.field_plots[plotname].intrinsincList:
+                self.field_plots[plotname].intrinsincList[variation_variable] = el
+                self.field_plots[plotname].update()
+            else:
+                self._app._odesign.ChangeProperty(
                     [
-                        "NAME:FieldsPostProcessorTab",
-                        ["NAME:PropServers", "FieldsReporter:" + plotname],
-                        ["NAME:ChangedProps", ["NAME:" + variation_variable, "Value:=", el]],
-                    ],
-                ]
-            )
+                        "NAME:AllTabs",
+                        [
+                            "NAME:FieldsPostProcessorTab",
+                            ["NAME:PropServers", "FieldsReporter:" + plotname],
+                            ["NAME:ChangedProps", ["NAME:" + variation_variable, "Value:=", el]],
+                        ],
+                    ]
+                )
             fields_to_add.append(
                 self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
             )
 
         model = self.get_model_plotter_geometries(generate_mesh=False)
         model.off_screen = not show
-
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
@@ -578,8 +766,14 @@ class PostProcessor(Post):
         show=True,
         zoom=None,
         log_scale=False,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Generate a field plot to an animated gif file using PyVista.
+
+        .. deprecated:: 0.6.83
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
 
          .. note::
             The PyVista module rebuilds the mesh and the overlap fields on the mesh.
@@ -627,37 +821,28 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
-        if not project_path:
-            project_path = self._app.working_directory
+        warnings.warn(
+            "`animate_fields_from_aedtplt_2` is deprecated. Use `plot_animated_field` property instead.",
+            DeprecationWarning,
+        )
 
-        v = 0
-        fields_to_add = []
-        for el in variation_list:
-            intrinsic_dict[variation_variable] = el
-            if plottype == "Surface":
-                plotf = self.create_fieldplot_surface(object_list, quantityname, setup_name, intrinsic_dict)
-            elif plottype == "Volume":
-                plotf = self.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
-            else:
-                plotf = self.create_fieldplot_cutplane(object_list, quantityname, setup_name, intrinsic_dict)
-            if plotf:
-                file_to_add = self.export_field_plot(plotf.name, project_path, plotf.name + str(v))
-                if file_to_add:
-                    fields_to_add.append(file_to_add)
-                plotf.delete()
-            v += 1
-        model = self.get_model_plotter_geometries(generate_mesh=False)
-        model.off_screen = not show
-
-        if fields_to_add:
-            model.add_frames_from_file(fields_to_add, log_scale=log_scale)
-        if export_gif:
-            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
-        if zoom:
-            model.zoom = zoom
-        if show or export_gif:
-            model.animate()
-        return model
+        return self.plot_animated_field(
+            quantity=quantityname,
+            object_list=object_list,
+            plot_type=plottype,
+            setup_name=setup_name,
+            intrinsics=intrinsic_dict,
+            variation_variable=variation_variable,
+            variation_list=variation_list,
+            export_path=project_path,
+            log_scale=log_scale,
+            show=show,
+            export_gif=export_gif,
+            zoom=zoom,
+            show_bounding=show_bounding,
+            show_grid=show_grid,
+            dark_mode=dark_mode,
+        )
 
     @pyaedt_function_handler()
     def create_3d_plot(

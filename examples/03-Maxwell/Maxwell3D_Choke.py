@@ -15,17 +15,16 @@ import pyaedt
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-version = "2023.1"
+version = "2023.2"
 
 ###############################################################################
 # Launch Maxwell3D
 # ~~~~~~~~~~~~~~~~
-# Launch Maxwell 3D 2023 R1 in graphical mode.
+# Launch Maxwell 3D 2023 R2 in graphical mode.
 
 m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",

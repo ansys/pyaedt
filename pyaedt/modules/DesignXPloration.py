@@ -533,7 +533,7 @@ class CommonOptimetrics(PropsManager, object):
 
         >>> oDesign.Analyze
         """
-        self._app.analyze(
+        return self._app.analyze(
             setup_name=self.name,
             num_cores=num_cores,
             num_tasks=num_tasks,

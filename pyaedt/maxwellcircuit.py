@@ -23,10 +23,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non-graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -107,6 +108,9 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             port,
             aedt_process_id,
         )
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):

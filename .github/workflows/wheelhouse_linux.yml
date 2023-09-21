@@ -34,7 +34,7 @@ jobs:
         python-version: [ 3.7, 3.8, 3.9, '3.10']
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -43,6 +43,7 @@ jobs:
       - name: Install pyaedt
         run: |
           pip install .[all]
+          pip install jupyterlab
 
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
@@ -56,7 +57,15 @@ jobs:
       - name: Generate wheelhouse
         run: |
           pip install wheel setuptools -U
+          pip install --upgrade pip
           pip wheel . -w wheelhouse
+          export wheellist=$(pip freeze)
+          for file in $wheellist; do
+              if [[ $file != *"@"* ]] && [[ $file != *"pyaedt"* ]]; then
+                pip wheel $file -w wheelhouse
+              fi
+          done
+        continue-on-error: true
 
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1

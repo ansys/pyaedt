@@ -129,6 +129,7 @@ class Mesh3d(object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
 
         self.logger = self._app.logger
@@ -138,7 +139,7 @@ class Mesh3d(object):
 
         self.meshoperations = self._get_design_mesh_operations()
 
-        pass
+        app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
     def generate_mesh(self, name):

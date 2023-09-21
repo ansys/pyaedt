@@ -1,5 +1,5 @@
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
-from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -17,14 +17,14 @@ class HfssExtentInfo:
         self._pedb = pedb
 
         self._hfss_extent_info_type = {
-            "BoundingBox": self._pedb.edb.Utility.HFSSExtentInfoType.BoundingBox,
-            "Conforming": self._pedb.edb.Utility.HFSSExtentInfoType.Conforming,
-            "ConvexHull": self._pedb.edb.Utility.HFSSExtentInfoType.ConvexHull,
-            "Polygon": self._pedb.edb.Utility.HFSSExtentInfoType.Polygon,
+            "BoundingBox": self._pedb.edb_api.utility.utility.HFSSExtentInfoType.BoundingBox,
+            "Conforming": self._pedb.edb_api.utility.utility.HFSSExtentInfoType.Conforming,
+            "ConvexHull": self._pedb.edb_api.utility.utility.HFSSExtentInfoType.ConvexHull,
+            "Polygon": self._pedb.edb_api.utility.utility.HFSSExtentInfoType.Polygon,
         }
         self._open_region_type = {
-            "Radiation": self._pedb.edb.Utility.OpenRegionType.Radiation,
-            "PML": self._pedb.edb.Utility.OpenRegionType.PML,
+            "Radiation": self._pedb.edb_api.utility.utility.OpenRegionType.Radiation,
+            "PML": self._pedb.edb_api.utility.utility.OpenRegionType.PML,
         }
 
     @pyaedt_function_handler
@@ -124,7 +124,7 @@ class HfssExtentInfo:
         -------
         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitive`
         """
-        return EDBPrimitives(self._edb_hfss_extent_info.BasePolygon, self._pedb)
+        return cast(self._edb_hfss_extent_info.BasePolygon, self._pedb)
 
     @base_polygon.setter
     def base_polygon(self, value):
@@ -140,7 +140,7 @@ class HfssExtentInfo:
         -------
         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitive`
         """
-        return EDBPrimitives(self._edb_hfss_extent_info.DielectricBasePolygon, self._pedb)
+        return cast(self._edb_hfss_extent_info.DielectricBasePolygon, self._pedb)
 
     @dielectric_base_polygon.setter
     def dielectric_base_polygon(self, value):

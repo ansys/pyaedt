@@ -5,9 +5,8 @@ import re
 import warnings
 
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -52,7 +51,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         if type(partname) is int:
@@ -105,7 +104,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object when successful or ``False`` when failed.
 
         Examples
@@ -194,7 +193,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        components_to_connect : list of :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        components_to_connect : list of :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
         use_wire : bool, optional
             Whether to use wires or a page port to connect the pins.
@@ -237,7 +236,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        components_to_connect : list of :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        components_to_connect : list of :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
 
         Returns
@@ -280,7 +279,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -289,10 +288,8 @@ class NexximComponents(CircuitComponents):
         >>> oProject.CopyDesign
         >>> oEditor.PasteDesign
         """
-        _retry_ntimes(10, self._app._oproject.CopyDesign, sourcename)
-        _retry_ntimes(
-            10,
-            self.oeditor.PasteDesign,
+        self._app._oproject.CopyDesign(sourcename)
+        self.oeditor.PasteDesign(
             0,
             ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False],
         )
@@ -574,7 +571,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -609,7 +606,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -650,7 +647,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -694,7 +691,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -735,7 +732,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -780,7 +777,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -834,7 +831,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -888,7 +885,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -933,7 +930,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -978,7 +975,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1018,7 +1015,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1058,7 +1055,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1334,7 +1331,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1420,7 +1417,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1789,7 +1786,15 @@ class NexximComponents(CircuitComponents):
         return models
 
     @pyaedt_function_handler()
-    def create_component_from_spicemodel(self, model_path, model_name=None, create_component=True, location=None):
+    def create_component_from_spicemodel(
+        self,
+        model_path,
+        model_name=None,
+        create_component=True,
+        location=None,
+        symbol_path="Nexxim Circuit Elements\\Nexxim_symbols:",
+        symbol_name="",
+    ):
         """Create and place a new component based on a spice .lib file.
 
         Parameters
@@ -1802,11 +1807,27 @@ class NexximComponents(CircuitComponents):
             If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
+        symbol_path : str, optional
+            Path to the symbol library.
+            Default value is ``"Nexxim Circuit Elements\\Nexxim_symbols:"``.
+        symbol_name : str, optional
+            Symbol name to replace the spice model with.
+            Default value is an empty string which means the default symbol for spice is used.
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(specified_version="2023.2")
+        >>> model = os.path.join("Your path", "test.lib")
+        >>> cir.modeler.schematic.create_component_from_spicemodel(model_path=model,
+        >>>                                                        model_name="GRM1234",
+        >>>                                                        symbol_name="nexx_cap")
+        >>> cir.release_desktop(False, False)
         """
         models = self._parse_spice_model(model_path)
         if not model_name and models:
@@ -1818,7 +1839,10 @@ class NexximComponents(CircuitComponents):
         for el in models:
             arg2.append(el + ":=")
             if el == model_name:
-                arg2.append([True, "", "", False])
+                if symbol_path and symbol_name:
+                    arg2.append([True, symbol_path + symbol_name, "", False])
+                else:
+                    arg2.append([True, "", "", False])
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)
@@ -1849,14 +1873,15 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         assert os.path.exists(model_path), "Project file doesn't exist"
         comp_name = os.path.splitext(os.path.basename(model_path))[0]
         results_path = model_path + "averesults"
         solution = os.path.join(results_path, comp_name + ".asol")
-        out = load_entire_aedt_file(solution)
+        # out = load_entire_aedt_file(solution)
+        out = load_keyword_in_aedt_file(solution, "Solutions")
         if not solution_name:
             solution_name = list(out["Solutions"]["SYZSolutions"].keys())[0]
         results_folder = os.path.join(

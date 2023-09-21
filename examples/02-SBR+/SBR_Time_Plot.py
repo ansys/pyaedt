@@ -16,8 +16,7 @@ from pyaedt import Hfss, downloads
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -29,7 +28,7 @@ non_graphical = False
 
 project_file = downloads.download_sbr_time()
 
-hfss = Hfss(projectname=project_file, specified_version="2023.1", non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(projectname=project_file, specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze()
 

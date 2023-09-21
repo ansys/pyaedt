@@ -48,7 +48,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -98,7 +98,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -141,7 +141,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -183,7 +183,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -232,7 +232,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -281,7 +281,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -319,7 +319,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -357,7 +357,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -421,7 +421,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References

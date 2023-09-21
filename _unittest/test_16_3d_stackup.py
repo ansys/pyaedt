@@ -1,23 +1,31 @@
-# Setup paths for module imports
-from _unittest.conftest import BasisTest
-
-# Import required modules
+import pytest
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_16")
-        self.st = self.aedtapp.add_stackup_3d()
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test_16")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def st(aedtapp):
+    stckp3d = aedtapp.add_stackup_3d()
+    return stckp3d
+
+
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, st, local_scratch):
+        self.aedtapp = aedtapp
+        self.st = st
+        self.local_scratch = local_scratch
 
     def test_01_create_stackup(self):
         self.st.dielectic_x_postion = "10mm"
         gnd = self.st.add_ground_layer("gnd1")
         self.st.add_dielectric_layer("diel1", thickness=1)
-        assert self.st.thickness.value == 1.035e-3
+        assert self.st.thickness.numeric_value == 1.035
+        assert self.st.thickness.units == "mm"
         lay1 = self.st.add_signal_layer("lay1", thickness=0.07)
         self.st.add_dielectric_layer("diel2", thickness=1.2)
         top = self.st.add_signal_layer("top")
@@ -32,7 +40,7 @@ class TestClass(BasisTest, object):
         assert len(self.st.dielectrics) == 3
         assert len(self.st.grounds) == 2
         assert len(self.st.signals) == 3
-        assert self.st.start_position.value == 0.0
+        assert self.st.start_position.numeric_value == 0.0
 
     def test_02_line(self):
         top = self.st.stackup_layers["top"]
@@ -54,8 +62,8 @@ class TestClass(BasisTest, object):
         assert line2.frequency.numeric_value == 1e9
         assert line2.substrate_thickness.numeric_value == 1.2
         assert abs(line1.width.numeric_value - 3.0) < 1e-9
-        assert line2.permittivity.numeric_value == 4.4
-        assert line2._permittivity_calcul
+        assert line2.permittivity.evaluated_value == 4.4
+        assert line2._permittivity
 
     def test_03_padstackline(self):
         p1 = self.st.add_padstack("Massimo", material="aluminum")

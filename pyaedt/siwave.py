@@ -25,7 +25,7 @@ class Siwave(object):
 
     Parameters
     ----------
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is used.
 
@@ -58,7 +58,7 @@ class Siwave(object):
         """Current version of AEDT."""
         return self.version_keys[0]
 
-    def __init__(self, specified_version=None):  # pragma: no cover
+    def __init__(self, specified_version=None):
         if is_ironpython:
             _com = "pythonnet"
             import System

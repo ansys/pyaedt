@@ -37,7 +37,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -74,7 +74,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -117,7 +117,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -159,7 +159,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -196,7 +196,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -234,7 +234,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References

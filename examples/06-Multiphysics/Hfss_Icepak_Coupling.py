@@ -21,12 +21,11 @@ from pyaedt.generic.pdf import AnsysReport
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktopVersion = "2023.1"
+desktopVersion = "2023.2"
 
 ###############################################################################
 # Open project
@@ -273,14 +272,14 @@ import time
 start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
-animated = aedtapp.post.animate_fields_from_aedtplt_2(
-    quantityname="Mag_E",
+
+animated = aedtapp.post.plot_animated_field(
+    quantity="Mag_E",
     object_list=cutlist,
-    plottype="CutPlane",
-    meshplot=False,
+    plot_type="CutPlane",
     setup_name=aedtapp.nominal_adaptive,
-    intrinsic_dict={"Freq": "1GHz", "Phase": "0deg"},
-    project_path=results_folder,
+    intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+    export_path=results_folder,
     variation_variable="Phase",
     variation_list=phases,
     show=False,
@@ -308,15 +307,6 @@ setup_name = ipkapp.existing_analysis_sweeps[0]
 intrinsic = ""
 surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
-
-ipkapp.post.plot_field_from_fieldplot(
-    plot5.name,
-    project_path=results_folder,
-    meshplot=False,
-    imageformat="jpg",
-    view="isometric",
-    show=False,
-)
 
 aedtapp.save_project()
 
@@ -357,7 +347,7 @@ report.add_chapter("Icepak Results")
 report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
 
-report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
+#report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
 report.add_toc()
 report.save_pdf(results_folder, "AEDT_Results.pdf")
 

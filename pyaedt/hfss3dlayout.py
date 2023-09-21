@@ -16,6 +16,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
+from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
@@ -44,9 +45,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False```, in which case AEDT is launched in graphical mode.
@@ -94,7 +96,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     >>> aedtapp = Hfss3dLayout("myfile.aedt")
 
-    Create an AEDT 2021 R1 object and then create a
+    Create an AEDT 2023 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
     >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
@@ -103,12 +105,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     >>> import pyaedt
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> specified_version = "2023.1"
-    >>> edb = pyaedt.Edb(edb_path)
+    >>> edb = pyaedt.Edb(edb_path, edbversion=231)
     >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version="2021.2", projectname=edb_path)
+    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
 
     """
 
@@ -144,6 +145,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             aedt_process_id,
         )
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 
@@ -160,11 +164,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ref_primitive_name=None,
         ref_edge_number=0,
     ):
+        # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
         """Create an edge port.
 
         Parameters
         ----------
-        primivitivename : str or :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
+        primivitivename : str or :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edgenumber :
             Edge number to create the edge port on.
@@ -249,8 +254,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(a[0])
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -401,7 +406,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for port in a:
                 bound = self._update_port_info(port)
                 if bound:
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     ports.append(bound)
         return ports
 
@@ -500,8 +505,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(a[0])
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -568,8 +573,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         bound = self._update_port_info(name)
         if bound:
-            self.boundaries.append(bound)
-            return self.boundaries[-1]
+            self._boundaries[bound.name] = bound
+            return bound
         else:
             return False
 
@@ -1654,7 +1659,47 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return True
 
     @pyaedt_function_handler()
+    def get_differential_pairs(self):
+        # type: () -> list
+        """Get the list defined differential pairs.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        list
+            List of differential pairs.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> hfss.get_defined_diff_pairs()
+        """
+
+        list_output = []
+        if len(self.excitations) != 0:
+            tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+            file_flag = self.save_diff_pairs_to_file(tmpfile1)
+            if file_flag and os.stat(tmpfile1).st_size != 0:
+                with open_file(tmpfile1, "r") as fi:
+                    fi_lst = fi.readlines()
+                list_output = [line.split(",")[4] for line in fi_lst]
+            else:
+                self.logger.warning("ERROR: No differential pairs defined under Excitations > Differential Pairs...")
+
+            try:
+                os.remove(tmpfile1)
+            except:  # pragma: no cover
+                self.logger.warning("ERROR: Cannot remove temp files.")
+
+        return list_output
+
+    @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
+        # type: (str) -> bool
         """Load differtential pairs definition from file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
@@ -1694,9 +1739,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, filename):
+        # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
-        If a filee with the specified name already exists, it is overwritten.
+        If a file with the specified name already exists, it is overwritten.
 
         Parameters
         ----------
@@ -1758,7 +1804,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
-        if settings.non_graphical:
+        if self.desktop_class.non_graphical:
             return True
         return True if self.variable_manager["BendModel"].expression == "1" else False
 
@@ -1773,6 +1819,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
         airbox_values_as_dim=True,
+        air_horizontal_padding=None,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1796,6 +1843,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical negative padding. The default is ``None``.
         airbox_values_as_dim : bool, optional
             Either if inputs are dims or not. Default is `True`.
+        air_horizontal_padding : float, optional
+            Airbox horizontal padding. The default is ``None``.
+
 
         Returns
         -------
@@ -1818,6 +1868,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not air_truncate_model_at_ground_layer == "keep":
             arg.append("TruncAtGnd:=")
             arg.append(air_truncate_model_at_ground_layer)
+        if air_horizontal_padding:
+            arg.append("AirHorExt:=")
+            arg.append(["Ext:=", str(air_horizontal_padding), "Dim:=", airbox_values_as_dim])
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
             arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])

@@ -31,10 +31,11 @@ class Mechanical(FieldAnalysis3D, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, optional
+    specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
+        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -86,11 +87,11 @@ class Mechanical(FieldAnalysis3D, object):
 
     >>> aedtapp = Mechanical("myfile.aedt")
 
-    Create a ``Desktop on 2021R2`` object and then create an
+    Create a ``Desktop on 2023 R2`` object and then create an
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Mechanical(specified_version=23.2, projectname="myfile.aedt")
 
     """
 
@@ -125,6 +126,9 @@ class Mechanical(FieldAnalysis3D, object):
             port,
             aedt_process_id,
         )
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     def __enter__(self):
         return self
@@ -229,7 +233,7 @@ class Mechanical(FieldAnalysis3D, object):
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("EM losses mapped from design %s.", designname)
             return bound
         return False
@@ -319,7 +323,7 @@ class Mechanical(FieldAnalysis3D, object):
         name = generate_unique_name("ThermalLink")
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
@@ -327,7 +331,12 @@ class Mechanical(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_uniform_convection(
-        self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
+        self,
+        objects_list,
+        convection_value=1.0,
+        convection_unit="w_per_m2kel",
+        temperature="AmbientTemp",
+        boundary_name="",
     ):
         """Assign a uniform convection to the face list.
 
@@ -335,8 +344,8 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         objects_list : list
             List of objects, faces, or both.
-        convection_value : float
-            Convection value.
+        convection_value : float, optional
+            Convection value. The default is ``"1.0"``.
         convection_unit : str, optional
             Units for the convection value. The default is ``"w_per_m2kel"``.
         temperature : str, optional
@@ -374,7 +383,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Convection")
         bound = BoundaryObject(self, boundary_name, props, "Convection")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -421,7 +430,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "Temperature")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -467,7 +476,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "Frictionless")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -509,7 +518,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "FixedSupport")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -579,7 +588,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         bound = BoundaryObject(self, boundary_name, props, "HeatFlux")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -621,7 +630,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         bound = BoundaryObject(self, boundary_name, props, "HeatGeneration")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
