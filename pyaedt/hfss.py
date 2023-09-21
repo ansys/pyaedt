@@ -152,7 +152,6 @@ class Hfss(FieldAnalysis3D, object):
 
     """
 
-    # TODO: Update solution types.
     # def __repr__(self):
     #     try:
     #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
