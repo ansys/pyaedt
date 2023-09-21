@@ -2565,6 +2565,18 @@ class FieldPlot:
         self.SeedingSamplingOption = True
         self.SeedingPointsNumber = 15
         self.FractionOfMaximum = 0.8
+        self._filter_boxes = []
+
+    @property
+    def filter_boxes(self):
+        """Volumes on which filter the plot."""
+        return self._filter_boxes
+
+    @filter_boxes.setter
+    def filter_boxes(self, val):
+        if isinstance(val, str):
+            val = [val]
+        self._filter_boxes = val
 
     @property
     def plotGeomInfo(self):
@@ -2787,7 +2799,7 @@ class FieldPlot:
             "PlotGeomInfo:=",
             self.plotGeomInfo,
             "FilterBoxes:=",
-            [0],
+            [len(self.filter_boxes)] + self.filter_boxes,
             self.plotsettings,
             "EnableGaussianSmoothing:=",
             False,
