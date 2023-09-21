@@ -500,9 +500,13 @@ class Revision:
                                 in_filters = True
 
                             # Save the worst case interference values
-                            if instance.get_value(mode_power) > max_power and in_filters:
+                            if (
+                                instance.has_valid_values()
+                                and instance.get_value(ResultType.EMI) > max_power
+                                and in_filters
+                            ):
                                 prob = instance.get_largest_problem_type(ResultType.EMI)
-                                max_power = instance.get_value(mode_power)
+                                max_power = instance.get_value(ResultType.EMI)
                                 largest_rx_prob = rx_prob
                                 largest_tx_prob = prob.replace(" ", "").split(":")
 

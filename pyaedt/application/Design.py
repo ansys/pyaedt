@@ -3782,6 +3782,10 @@ class Design(AedtObjects):
                 if ds in expression_string:
                     return expression_string
         try:
+            return float(expression_string)
+        except ValueError:
+            pass
+        try:
             variable_name = "pyaedt_evaluator"
             if "$" in expression_string:
                 variable_name = "$pyaedt_evaluator"

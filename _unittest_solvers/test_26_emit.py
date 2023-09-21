@@ -911,7 +911,7 @@ class TestClass:
 
         # Test with no filtering
         expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
-        expected_interference_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
+        expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
@@ -976,10 +976,10 @@ class TestClass:
             [["white", "white", "yellow"], ["red", "white", "white"]],
         ]
         all_interference_power = [
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", "<= -200", -20.0], [-20.0, "<= -200", "N/A"]],
+            [["N/A", 16.64, 56.0], [-3.96, 16.64, "N/A"]],
+            [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
+            [["N/A", 16.64, 2.45], [60.0, 16.64, "N/A"]],
+            [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
         ]
         interference_filters = [
             "TxFundamental:In-band",
