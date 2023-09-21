@@ -4,8 +4,8 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
-from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import TerminalType
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 
 class Terminal(Connectable):

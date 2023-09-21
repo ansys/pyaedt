@@ -226,7 +226,6 @@ class BundleWavePort(BundleTerminal):
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
 
-
     @property
     def _wave_port(self):
         return WavePort(self._pedb, self.terminals[0]._edb_object)
