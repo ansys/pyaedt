@@ -52,7 +52,7 @@ class Hfss(FieldAnalysis3D, object):
         ``None``, in which case the user-defined
         default type is applied.
         Options are:
-        
+
         - "Terminal"
         - "Modal"
         - "SBR+"
@@ -2494,19 +2494,19 @@ class Hfss(FieldAnalysis3D, object):
         """Create a PEC object to back a wave port.
 
 
-         Parameters
-         ----------
-         sheet_name : str
-             Name of the sheet object touching the port surface.
-         obj_name : str
-             Name of the 3D object touching the port surface.
-         pecthick : float
-             Thickness of the PEC cap
+        Parameters
+        ----------
+        sheet_name : str
+            Name of the sheet object touching the port surface.
+        obj_name : str
+            Name of the 3D object touching the port surface.
+        pecthick : float
+            Thickness of the PEC cap
 
-         Returns
-         -------
-         bool
-            ``True`` when successful, ``False`` when failed.
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
 
         """
         if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements3d.FacePrimitive):
