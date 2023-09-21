@@ -477,11 +477,11 @@ class Materials(object):
             List of properties to parameterize when the material is duplicated.
             Parameterized properties have project scope. Options are:
 
-            - 'permittivity'
-            - 'permeability'
-            - 'conductivity'
-            - 'dielectric_loss_tan'
-            - 'magnetic_loss_tan'
+            - `'permittivity'`
+            - `'permeability'`
+            - `'conductivity'`
+            - '`dielectric_loss_tan'`
+            - '`magnetic_loss_tan'`
 
 
         Returns
