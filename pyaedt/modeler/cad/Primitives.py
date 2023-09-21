@@ -292,12 +292,7 @@ class Primitives(object):
     @property
     def non_model_objects(self):
         """List of objects of all non-model objects."""
-        return self._get_model_objects(model=False)
-
-    @property
-    def non_model_names(self):
-        """List of names of all non-model objects."""
-        return self.oeditor.GetObjectsInGroup("Non Model")
+        return list(self.oeditor.GetObjectsInGroup("Non Model"))
 
     @property
     def model_consistency_report(self):
@@ -621,6 +616,8 @@ class Primitives(object):
             pad_percent = [pad_percent] * 6
 
         arg = ["NAME:RegionParameters"]
+
+        # TODO: Can the order be updated to match the UI?
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
         for pval in p:
@@ -1448,6 +1445,7 @@ class Primitives(object):
             List of added objects.
 
         """
+        # TODO: Need to improve documentation for this method.
         added_objects = []
 
         for obj_name in self.object_names:
@@ -2172,7 +2170,7 @@ class Primitives(object):
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
         if not include_non_model:
-            non_models = [i for i in self.non_model_names]
+            non_models = [i for i in self.non_model_objects]
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
@@ -2724,7 +2722,7 @@ class Primitives(object):
         return list_objs
 
     @pyaedt_function_handler()
-    def _check_material(self, matname, defaultmatname):
+    def _check_material(self, matname, defaultmatname, threshold=100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -2736,28 +2734,34 @@ class Primitives(object):
             Name of the material.
         defaultmatname : str
             Name of the default material to assign if ``metname`` does not exist.
+        threshold : float
+            Threshold conductivity in S/m to distinguish dielectric from conductor.
+            The default value is ``100000``.
 
         Returns
         -------
-        str or bool
-            String if a material name, Boolean if the material is a dielectric.
+        (str, bool)
+            Material name, Boolean True if the material is a dielectric, otherwise False.
 
         """
+
+        # Note: Material.is_dielectric() does not work if the conductivity
+        # value is an expression.
         if isinstance(matname, Material):
             if self._app._design_type == "HFSS":
-                return matname.name, matname.is_dielectric()
+                return matname.name, matname.is_dielectric(threshold)
             else:
                 return matname.name, True
         if matname:
             if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
-                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric()
+                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric(threshold)
                 else:
                     return self._app.materials[matname].name, True
             else:
                 self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
-            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
+            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric(threshold)
         else:
             return defaultmatname, True
 
@@ -2765,7 +2769,7 @@ class Primitives(object):
     def _refresh_solids(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Solids")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Solids is failing"
@@ -2779,7 +2783,7 @@ class Primitives(object):
     def _refresh_sheets(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Sheets")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Sheets is failing"
@@ -2793,7 +2797,7 @@ class Primitives(object):
     def _refresh_lines(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Lines")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Lines is failing"
@@ -2807,7 +2811,7 @@ class Primitives(object):
     def _refresh_points(self):
         try:
             test = self.oeditor.GetPoints()
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is False:
             assert False, "Get Points is failing"
@@ -2825,7 +2829,7 @@ class Primitives(object):
                 plane_name: self.oeditor.GetChildObject(plane_name)
                 for plane_name in self.oeditor.GetChildNames("Planes")
             }
-        except TypeError:
+        except (TypeError, AttributeError):
             self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
@@ -2833,7 +2837,7 @@ class Primitives(object):
     def _refresh_unclassified(self):
         try:
             test = self.oeditor.GetObjectsInGroup("Unclassified")
-        except TypeError:
+        except (TypeError, AttributeError):
             test = []
         if test is None or test is False:
             self._unclassified = []
@@ -2990,9 +2994,7 @@ class Primitives(object):
 
         material, is_dielectric = self._check_material(matname, self.defaultmaterial)
 
-        solve_inside = False
-        if is_dielectric:
-            solve_inside = True
+        solve_inside = True if is_dielectric else False
 
         if not name:
             name = _uname()

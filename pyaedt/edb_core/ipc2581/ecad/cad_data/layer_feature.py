@@ -46,7 +46,7 @@ class LayerFeature(object):
         if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
             def_name = padstackdef.name
-            position = padstack_inst._position if padstack_inst._position else padstack_inst.position
+            position = padstack_inst.position if padstack_inst.position else padstack_inst.position
             feature.padstack_instance.net = padstack_inst.net_name
             feature.padstack_instance.isvia = True
             feature.padstack_instance.padstack_def = def_name
@@ -61,7 +61,7 @@ class LayerFeature(object):
             feature.padstack_instance.hole_name = def_name
             feature.padstack_instance.name = padstack_inst.name
             try:
-                if padstackdef.pad_by_layer[layer_name]._parameters_values is None:
+                if padstackdef.pad_by_layer[layer_name].parameters_values is None:
                     feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
                         self._ipc.from_meter_to_units(
                             padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
@@ -70,7 +70,7 @@ class LayerFeature(object):
                 else:
                     feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
                         self._ipc.from_meter_to_units(
-                            padstackdef.pad_by_layer[layer_name]._parameters_values[0], self._ipc.units
+                            padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
                         )
                     )
                 self.features.append(feature)

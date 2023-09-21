@@ -2216,8 +2216,6 @@ class Desktop(object):
         """
         if self.aedt_version_id > "2023.1":
             return self.odesktop.AreThereSimulationsRunning()
-        else:
-            self.logger.error("It works only for AEDT >= `2023.2`.")
         return False
 
     @pyaedt_function_handler()
