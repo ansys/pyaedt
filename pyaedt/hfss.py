@@ -2503,7 +2503,7 @@ class Hfss(FieldAnalysis3D, object):
 
          Returns
          -------
-        bool
+         bool
             ``True`` when successful, ``False`` when failed.
 
         """
