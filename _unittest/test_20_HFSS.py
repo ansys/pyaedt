@@ -2,11 +2,10 @@ import math
 import os
 import shutil
 
-import pytest
-
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
+import pytest
 
 small_number = 1e-10  # Used for checking equivalence.
 

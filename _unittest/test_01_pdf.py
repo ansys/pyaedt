@@ -1,9 +1,9 @@
 import os
 
-import pytest
-
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
+
 from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
 

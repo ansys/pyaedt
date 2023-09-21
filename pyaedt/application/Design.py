@@ -8,6 +8,7 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import gc
 import json
 import os
@@ -19,9 +20,11 @@ import sys
 import threading
 import time
 import warnings
-from collections import OrderedDict
 
 from pyaedt.aedt_logger import pyaedt_logger
+from pyaedt.application.Variables import DataSet
+from pyaedt.application.Variables import VariableManager
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
@@ -30,15 +33,13 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-from pyaedt.application.Variables import DataSet
-from pyaedt.application.Variables import VariableManager
-from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.desktop import _init_desktop_from_design
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
+from pyaedt.generic.DataHandlers import variation_string_to_dict
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -51,7 +52,6 @@ from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NetworkObject
@@ -2241,21 +2241,21 @@ class Design(AedtObjects):
         return boundaries
 
     @pyaedt_function_handler()
-    def _get_ds_data(self, name, datas):
+    def _get_ds_data(self, name, data):
         """
 
         Parameters
         ----------
         name :
 
-        datas :
+        data :
 
 
         Returns
         -------
 
         """
-        units = datas["DimUnits"]
+        units = data["DimUnits"]
         numcol = len(units)
         x = []
         y = []
@@ -2264,15 +2264,15 @@ class Design(AedtObjects):
         if numcol > 2:
             z = []
             v = []
-        if "Coordinate" in datas:
-            for el in datas["Coordinate"]:
+        if "Coordinate" in data:
+            for el in data["Coordinate"]:
                 x.append(el["CoordPoint"][0])
                 y.append(el["CoordPoint"][1])
                 if numcol > 2:
                     z.append(el["CoordPoint"][2])
                     v.append(el["CoordPoint"][3])
         else:
-            new_list = [datas["Points"][i : i + numcol] for i in range(0, len(datas["Points"]), numcol)]
+            new_list = [data["Points"][i : i + numcol] for i in range(0, len(data["Points"]), numcol)]
             for el in new_list:
                 x.append(el[0])
                 y.append(el[1])
@@ -2290,10 +2290,10 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
+                data = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
                     "Coordinates"
                 ]
-                datasets[ds] = self._get_ds_data(ds, datas)
+                datasets[ds] = self._get_ds_data(ds, data)
         except:
             pass
         return datasets
@@ -2304,8 +2304,8 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
-                datasets[ds] = self._get_ds_data(ds, datas)
+                data = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datasets[ds] = self._get_ds_data(ds, data)
         except:
             pass
         return datasets

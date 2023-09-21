@@ -1,10 +1,10 @@
 import os
 import time
 
-import pytest
-
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
+
 from pyaedt import Circuit
 from pyaedt import is_linux
 

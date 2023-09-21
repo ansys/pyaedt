@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
+from collections import OrderedDict
 import os
 import random
 import re
 import warnings
-from collections import OrderedDict
 
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler

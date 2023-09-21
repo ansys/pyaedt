@@ -1,6 +1,6 @@
+from collections import OrderedDict
 import copy
 import csv
-from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg

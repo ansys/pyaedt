@@ -2,9 +2,9 @@ from __future__ import division  # noreorder
 
 import math
 
+from _unittest.conftest import desktop_version
 import pytest
 
-from _unittest.conftest import desktop_version
 from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value

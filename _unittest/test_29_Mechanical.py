@@ -1,9 +1,9 @@
 import os
 import shutil
 
+from _unittest.conftest import config
 import pytest
 
-from _unittest.conftest import config
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Mechanical

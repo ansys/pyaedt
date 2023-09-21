@@ -1,8 +1,8 @@
+from collections import OrderedDict
 import copy
+from datetime import datetime
 import json
 import os
-from collections import OrderedDict
-from datetime import datetime
 
 from pyaedt import Icepak
 from pyaedt import __version__
@@ -10,12 +10,12 @@ from pyaedt import generate_unique_folder_name
 from pyaedt import get_pyaedt_app
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.Modeler import CoordinateSystem
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import BoundaryProps

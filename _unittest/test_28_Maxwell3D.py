@@ -1,11 +1,11 @@
 import os
 import shutil
 
-import pytest
-
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
+
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name

@@ -1,12 +1,12 @@
 import ast
+from collections import defaultdict
 import csv
+from datetime import datetime
 import math
 import os
 import tempfile
 import time
 import warnings
-from collections import defaultdict
-from datetime import datetime
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
@@ -34,9 +34,9 @@ if not is_ironpython:
         )
 
     try:
-        import matplotlib.pyplot as plt
         from matplotlib.patches import PathPatch
         from matplotlib.path import Path
+        import matplotlib.pyplot as plt
 
     except ImportError:
         warnings.warn(

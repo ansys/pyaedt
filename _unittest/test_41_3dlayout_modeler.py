@@ -1,9 +1,9 @@
 import os
 
-import pytest
-
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
+
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import is_linux

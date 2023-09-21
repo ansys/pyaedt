@@ -5,14 +5,14 @@ import re
 import warnings
 
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modeler.circuits.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.circuits.PrimitivesCircuit import ComponentCatalog
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modules.Boundary import Excitations
 
 

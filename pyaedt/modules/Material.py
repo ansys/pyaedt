@@ -12,11 +12,11 @@ This module contains these data classes for creating a material library:
 * `SufaceMaterial`
 
 """
-import copy
 from collections import OrderedDict
+import copy
 
-from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

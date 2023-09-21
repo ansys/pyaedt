@@ -1,6 +1,6 @@
+from _unittest.conftest import config
 import pytest
 
-from _unittest.conftest import config
 from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout

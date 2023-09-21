@@ -2,16 +2,16 @@ import os
 import sys
 import time
 
-import pytest
-
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
+
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
+from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.cad.polylines import Polyline
-from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 test = sys.modules.keys()

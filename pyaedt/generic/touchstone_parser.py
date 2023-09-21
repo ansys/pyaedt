@@ -1,7 +1,7 @@
+from copy import deepcopy as copy
 import itertools
 import os
 import re
-from copy import deepcopy as copy
 
 from pyaedt import is_ironpython
 

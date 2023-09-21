@@ -1,9 +1,9 @@
+from collections import OrderedDict
 import itertools
 import math
 import os
 import sys
 import time
-from collections import OrderedDict
 
 from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
