@@ -13,11 +13,13 @@ from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.DataHandlers import str_to_bool
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler import cad
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -47,7 +49,16 @@ class Hfss(FieldAnalysis3D, object):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, in which case the default type is applied.
+        ``None``, in which case the user-defined
+        default type is applied.
+        Options are:
+
+        - "Terminal"
+        - "Modal"
+        - "SBR+"
+        - "Transient"
+        - "Eigenmode"
+
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
@@ -2479,13 +2490,38 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(primary_name, props, "Primary")
 
     def _create_pec_cap(self, sheet_name, obj_name, pecthick):
-        # TODO check method
-        obj = self.modeler[sheet_name].clone()
+        """Create a PEC object to back a wave port.
+
+
+        Parameters
+        ----------
+        sheet_name : str
+            Name of the sheet object touching the port surface.
+        obj_name : str
+            Name of the 3D object touching the port surface.
+        pecthick : float
+            Thickness of the PEC cap
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        """
+        if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements3d.FacePrimitive):
+            obj = obj_name.create_object()  # Create face object of type cad.object3d.Object3d from FacePrimitive
+            oname = obj_name._object3d.name
+            bounding1 = self.modeler[oname].bounding_box
+        else:
+            obj = self.modeler[sheet_name].clone()
+            bounding1 = self.modeler[obj_name].bounding_box
         out_obj = self.modeler.thicken_sheet(obj, pecthick, False)
         bounding2 = out_obj.bounding_box
-        bounding1 = self.modeler[obj_name].bounding_box
         tol = 1e-9
         i = 0
+
+        # Check that the pec cap is internal by comparing the bounding box
+        # of the cap with the bounding box of obj_name.
         internal = False
         for a, b in zip(bounding1, bounding2):
             if i < 3:
@@ -4201,12 +4237,7 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "Eigenmode":
             detected_excitations = self.excitations
             if ports:
-                if "Terminal" in self.solution_type:
-                    # For each port, there is terminal and reference excitations.
-                    ports_t = ports * 2
-                else:
-                    ports_t = ports
-                if ports_t != len(detected_excitations):
+                if ports != len(detected_excitations):
                     msg = "** Port number error. Check the model. **"
                     self.logger.error(msg)
                     val_list.append(msg)
@@ -5421,6 +5452,8 @@ class Hfss(FieldAnalysis3D, object):
         """Add a differential pair definition.
 
         Differential pairs can be defined only in Terminal and Transient solution types.
+        The differential pair is created from an existing port definition having at least two
+        terminals.
 
         Parameters
         ----------
@@ -5473,10 +5506,11 @@ class Hfss(FieldAnalysis3D, object):
         arg2 = ["NAME:EditDiffPairs", arg]
 
         existing_pairs = self.oboundary.GetDiffPairs()
+        # Native API returns Boolean values as strings. Therefore, map to Boolean.
         num_old_pairs = len(existing_pairs)
         if existing_pairs:
             for i, p in enumerate(existing_pairs):
-                tmp_p = list(p)
+                tmp_p = list(map(str_to_bool, p))
                 tmp_p.insert(0, "NAME:Pair_" + str(i))
                 arg2.append(tmp_p)
 
@@ -6235,9 +6269,10 @@ class Hfss(FieldAnalysis3D, object):
         reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
-            Whether to create a port sheet or use given start_object as port shee.
+            Whether to create a port sheet or use the start object as the surface
+            to create the port. The default is ``False``.
         create_pec_cap : bool, False
-            Whether to create a port cap or not.
+            Whether to create a port cap. The default is ``False``.
         integration_line : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
@@ -6255,8 +6290,7 @@ class Hfss(FieldAnalysis3D, object):
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
+            Deembed distance in millimeters. The default is ``0``.
         is_microstrip : bool, optional
             Whether if the wave port will be created and is a microstrip port.
             The default is ``False``.
@@ -6265,7 +6299,7 @@ class Hfss(FieldAnalysis3D, object):
         hfactor : int, optional
             Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
         terminals_rename : bool, optional
-            Modify terminals name with the port name plus the terminal number. The default value is ``True``.
+            Modify terminals name with the port name plus the terminal number. The default is ``True``.
 
         Returns
         -------
@@ -6300,6 +6334,9 @@ class Hfss(FieldAnalysis3D, object):
             if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
                 self.logger.error("One or both objects do not exist. Check and retry.")
                 return False
+            elif isinstance(signal, cad.elements3d.FacePrimitive):
+                port_sheet = signal.create_object()
+                oname = port_sheet.name
             if is_microstrip:
                 sheet_name, int_start, int_stop = self.modeler._create_microstrip_sheet_from_object_closest_edge(
                     signal, reference, integration_line, vfactor, hfactor
@@ -6322,11 +6359,15 @@ class Hfss(FieldAnalysis3D, object):
             sheet_name = self.modeler.convert_to_selections(signal, True)[0]
             if isinstance(sheet_name, int):
                 try:
+                    # NOte: if isinstance(sheet_name, cad.elements3d.FacePrimitive) then
+                    # the name of the 3d object is returned.
+                    # TODO: Need to improve the way a FacePrimitive is handled.
                     oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
                 except:
                     oname = ""
             if reference:
                 reference = self.modeler.convert_to_selections(reference, True)
+            #  TODO: integration_line == self.aedtapp.AxisDir.XNeg will be False in next line. Fix this.
             if integration_line:
                 if isinstance(integration_line, list):
                     if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
@@ -6335,6 +6376,8 @@ class Hfss(FieldAnalysis3D, object):
                     int_start = integration_line[0]
                     int_stop = integration_line[1]
                 else:
+                    # Get two points on the port surface: if only the direction is given.
+                    # int_start and int_stop.
                     try:
                         _, int_start, int_stop = self._get_reference_and_integration_points(
                             sheet_name, integration_line, oname
@@ -6346,10 +6389,14 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             if create_pec_cap:
                 if oname:
+                    #  if isinstance(signal, cad.elements3d.FacePrimitive):
+                    #      pec_face = signal.create_object()
+                    #      face = pec_face.id
+                    #  else:
                     face = oname
                 else:
                     face = sheet_name
-                dist = math.sqrt(self.modeler[face].faces[0].area)
+                dist = math.sqrt(self.modeler[face].faces[0].area)  # TODO: Move this into _create_pec_cap
                 if settings.aedt_version > "2022.2":
                     self._create_pec_cap(face, signal, -dist / 10)
                 else:
@@ -6369,6 +6416,8 @@ class Hfss(FieldAnalysis3D, object):
                     deembed = None
                 else:
                     deembed = deembed
+
+                # Draw terminal lumped port between two objects.
                 return self._create_port_terminal(
                     faces[0],
                     reference,
