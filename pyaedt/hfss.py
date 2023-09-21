@@ -52,6 +52,7 @@ class Hfss(FieldAnalysis3D, object):
         ``None``, in which case the user-defined
         default type is applied.
         Options are:
+        
         - "Terminal"
         - "Modal"
         - "SBR+"
