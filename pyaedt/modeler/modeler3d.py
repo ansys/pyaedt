@@ -262,12 +262,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg.append("VendorComponentIdentifier:="), arg.append("")
         arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        if boundaries_list:
+        if boundaries_list is not None:
             boundaries = boundaries_list
         else:
             boundaries = self.get_boundaries_name()
-        if boundaries:
-            arg2.append("Boundaries:="), arg2.append(boundaries)
+        arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
