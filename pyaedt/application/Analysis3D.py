@@ -1231,8 +1231,10 @@ class FieldAnalysis3D(Analysis, object):
                 self.logger.error("{} does not exist in specified dxf.".format(layer))
                 return False
 
-        if self.is3d:
+        if hasattr(self, "is3d") and self.is3d:
             sheet_bodies_2d = False
+        else:
+            sheet_bodies_2d = True
 
         vArg1 = ["NAME:options"]
         vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
