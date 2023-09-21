@@ -1008,8 +1008,14 @@ class Desktop(object):
                 return
         elif new_aedt_session:
             installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
+            if student_version and settings.aedt_version[:6] >= "2023.2":
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv")
             if not is_linux:
-                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
+                if student_version and settings.aedt_version[:6] >= "2023.2":
+                    installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")
+                else:
+                    installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
+
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
