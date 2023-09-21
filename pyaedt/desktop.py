@@ -1008,7 +1008,7 @@ class Desktop(object):
                 return
         elif new_aedt_session:
             installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
-            if student_version and settings.aedt_version[:6] >= "2023.2":  # pragma: no cover
+            if student_version:  # pragma: no cover
                 installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv")
             if not is_linux:
                 if student_version:  # pragma: no cover
