@@ -57,6 +57,7 @@ class Hfss(FieldAnalysis3D, object):
         - "SBR+"
         - "Transient"
         - "Eigenmode"
+
     setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
