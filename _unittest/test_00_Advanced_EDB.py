@@ -14,7 +14,6 @@ bom_example = "bom_example.csv"
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-
 from pyaedt.generic.general_methods import is_linux
 
 test_subfolder = "TEDB"

@@ -1,8 +1,8 @@
 import os
 
-from _unittest.conftest import local_path
 import pytest
 
+from _unittest.conftest import local_path
 from pyaedt import Hfss3dLayout
 
 test_subfolder = "T44"

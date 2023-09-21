@@ -1,11 +1,11 @@
 import os
 
+import pytest
+
 from _unittest.conftest import NONGRAPHICAL
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from _unittest.conftest import new_thread
-import pytest
-
 from pyaedt import Desktop
 from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import is_linux

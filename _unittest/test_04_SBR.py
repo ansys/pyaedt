@@ -9,7 +9,6 @@ except ImportError:
 
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-
 from pyaedt import is_linux
 
 if desktop_version > "2022.2":

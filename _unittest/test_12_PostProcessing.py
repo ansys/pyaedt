@@ -1,9 +1,9 @@
 import os
 import sys
 
-from _unittest.conftest import config
 import pytest
 
+from _unittest.conftest import config
 from pyaedt import Circuit
 from pyaedt import Icepak
 from pyaedt import Maxwell2d

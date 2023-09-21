@@ -2,9 +2,9 @@ import os
 import sys
 import uuid
 
-from _unittest.conftest import config
 import pytest
 
+from _unittest.conftest import config
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_linux

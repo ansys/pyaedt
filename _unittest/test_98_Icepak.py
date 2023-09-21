@@ -1,9 +1,9 @@
 import os
 
-from _unittest.conftest import config
-from _unittest.conftest import local_path
 import pytest
 
+from _unittest.conftest import config
+from _unittest.conftest import local_path
 from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.modules.Boundary import NativeComponentObject

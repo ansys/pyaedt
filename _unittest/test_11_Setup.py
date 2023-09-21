@@ -1,6 +1,6 @@
-from _unittest.conftest import desktop_version
 import pytest
 
+from _unittest.conftest import desktop_version
 from pyaedt import Circuit
 
 test_subfolder = "T11"

@@ -1,7 +1,7 @@
-from collections import defaultdict
 import math
 import os
 import warnings
+from collections import defaultdict
 
 import numpy as np
 import pyvista as pv

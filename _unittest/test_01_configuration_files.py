@@ -2,9 +2,9 @@
 import os
 import time
 
-from _unittest.conftest import config
 import pytest
 
+from _unittest.conftest import config
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
