@@ -360,7 +360,7 @@ class EdgeTerminal(Terminal):
 
         Parameters
         ----------
-        port: :class:`pyaedt.edb_core.ports.WavePort`, :class:`pyaedt.edb_core.ports.GapPort`, list ,optional
+        port : :class:`pyaedt.edb_core.ports.WavePort`, :class:`pyaedt.edb_core.ports.GapPort`, list, optional
             Ports to be added.
         Returns
         -------
