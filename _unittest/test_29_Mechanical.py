@@ -138,3 +138,8 @@ class TestClass:
         shutil.copyfile(example_project, example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(design_name="MechanicalDesign2", project_name=example_project_copy)
         os.remove(example_project_copy)
+
+    def test_12_transient_thermal(self):
+        mech = Mechanical(solution_type="Transient Thermal")
+        setup = mech.create_setup()
+        assert "Stop Time" in setup.props
