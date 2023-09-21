@@ -69,8 +69,7 @@ class WavePort(EdgeTerminal):
 
     >>> from pyaedt import Edb
     >>> edb = Edb("myaedb.aedb")
-    >>> exc = edb.excitations
-    >>> print(exc["Port1"].name)
+    >>> exc = edb.ports
     """
 
     def __init__(self, pedb, edb_terminal):
