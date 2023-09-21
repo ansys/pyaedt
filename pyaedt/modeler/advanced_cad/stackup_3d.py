@@ -1,5 +1,5 @@
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 
 from pyaedt import is_ironpython
 

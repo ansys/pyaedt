@@ -7,13 +7,13 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os
 import re
 import shutil
 import tempfile
 import time
 import warnings
+from collections import OrderedDict
 
 from pyaedt import is_ironpython
 from pyaedt import is_linux

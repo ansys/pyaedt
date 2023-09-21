@@ -1,7 +1,7 @@
 import imp
-from importlib import import_module
 import os
 import sys
+from importlib import import_module
 
 from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.emit_core.emit_constants import EmiCategoryFilter

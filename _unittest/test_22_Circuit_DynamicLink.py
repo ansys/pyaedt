@@ -1,9 +1,9 @@
 import os
 
-from _unittest.conftest import config
-from _unittest.conftest import local_path
 import pytest
 
+from _unittest.conftest import config
+from _unittest.conftest import local_path
 from pyaedt import Circuit
 from pyaedt import Q2d
 from pyaedt import Q3d

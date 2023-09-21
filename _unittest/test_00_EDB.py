@@ -21,7 +21,6 @@ from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
-
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
@@ -2540,7 +2539,9 @@ class TestClass:
         edb.close()
 
     def test_134_hfss_extent_info(self):
-        from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
+        from pyaedt.edb_core.edb_data.primitives_data import (
+            EDBPrimitives as EDBPrimitives,
+        )
 
         config = {
             "air_box_horizontal_extent_enabled": False,
