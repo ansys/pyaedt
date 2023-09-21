@@ -151,7 +151,7 @@ class TestClass:
         assert port.props["DoDeembed"] is False
 
         # Get the object for "outer_1".
-        outer_1 = self.aedtapp.modeler.objects[self.aedtapp.modeler.get_obj_id("outer_1")]
+        outer_1 = self.aedtapp.modeler["outer_1"]
         bottom_port = self.aedtapp.wave_port(
             outer_1.bottom_face_z,
             reference=outer_1.name,
