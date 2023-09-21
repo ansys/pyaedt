@@ -6255,7 +6255,7 @@ class Hfss(FieldAnalysis3D, object):
             Whether to create a port sheet or use the start object as the surface
             to create the port. The default is ``False``.
         create_pec_cap : bool, False
-            Whether to create a port cap or not. Default is ``False``.
+            Whether to create a port cap. The default is ``False``.
         integration_line : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
