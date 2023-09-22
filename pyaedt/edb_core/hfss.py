@@ -4,7 +4,7 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
-from pyaedt.edb_core.edb_data.ports import ExcitationBundle
+from pyaedt.edb_core.edb_data.ports import BundleWavePort
 from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
@@ -539,7 +539,7 @@ class EdbHfss(object):
         _edb_boundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
         # _edb_boundle_terminal.SetName("Wave_"+port_name)
         pos_term._edb_object.SetName(port_name)
-        return port_name, ExcitationBundle(self._pedb, _edb_boundle_terminal)
+        return port_name, BundleWavePort(self._pedb, _edb_boundle_terminal)
 
     @pyaedt_function_handler
     def create_bundle_wave_port(
@@ -601,7 +601,7 @@ class EdbHfss(object):
 
         edb_list = convert_py_list_to_net_list([i._edb_object for i in terminals], self._edb.cell.terminal.Terminal)
         _edb_bundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
-        return port_name, ExcitationBundle(self._pedb, _edb_bundle_terminal)
+        return port_name, BundleWavePort(self._pedb, _edb_bundle_terminal)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
