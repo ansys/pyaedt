@@ -694,6 +694,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         "PushExcitations",
         "Rename",
         "RestoreProjectArchive",
+        "ImportGerber",
     ]
     # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
     if func_name and func_name not in inclusion_list:
