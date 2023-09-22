@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import itertools
+import logging
 import math
 import os
 import sys
@@ -15,6 +16,7 @@ from pyaedt.generic.constants import db20
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
@@ -1075,37 +1077,29 @@ class FfdSolutionData(object):
 
     def __init__(
         self,
-        app,
-        sphere_name,
-        setup_name,
         frequencies,
-        variations=None,
-        overwrite=True,
-        taper="flat",
-        sbr_3d_comp_name=None,
+        eep_files,
     ):
-        self._app = app
-        self.levels = 64
-        self._native_indexes = []
         self._port_indexes = {}
-        self.all_max = 1
-        self.sphere_name = sphere_name
-        self.setup_name = setup_name
-        self.sbr_comp = sbr_3d_comp_name
-        if not isinstance(frequencies, list):
-            self.frequencies = [frequencies]
-        else:
-            self.frequencies = frequencies
-        self._frequency = self.frequencies[0]
-        self.variations = variations
-        self.overwrite = overwrite
-        self._all_solutions = self._export_all_ffd()
+        if isinstance(frequencies, (float, str, int)):
+            frequencies = [frequencies]
+        self.frequencies = frequencies
+        if isinstance(eep_files, str):
+            eep_files = [eep_files]
+        self.eep_files = eep_files
+        self._all_solutions = []
+        for eep in eep_files:
+            self._read_eep_files(eep)
         self.ffd_dict = self._all_solutions[0]
-        self.lattice_vectors = self.get_lattice_vectors()
-        self.taper = taper
+        self.lattice_vectors = None
+        for eep in eep_files:
+            if os.path.exists(os.path.join(os.path.dirname(eep), "eep.latvec")):
+                self.lattice_vectors = read_csv(os.path.join(os.path.dirname(eep), "eep.latvec"))[0]
+        self.taper = "flat"
         self.data_dict = {}
         self._init_ffd()
         self._phase_offset = [0] * len(self.all_port_names)
+        self._mag_offset = [1] * len(self.all_port_names)
 
     @pyaedt_function_handler()
     def _init_ffd(self):
@@ -1157,7 +1151,7 @@ class FfdSolutionData(object):
                 self.renorm_value = 1
         else:
             valid_ffd = False
-            self._app.logger.info("ERROR: Far Field Files are Missing")
+            self.logger.info("ERROR: Far Field Files are Missing")
         self.valid_ffd = valid_ffd
         self.Ax = float(self.lattice_vectors[0])
         self.Ay = float(self.lattice_vectors[1])
@@ -1197,7 +1191,7 @@ class FfdSolutionData(object):
     @phase_offset.setter
     def phase_offset(self, phases):
         if len(phases) != len(self.all_port_names):
-            self._app.logger.error("Number of phases must be equal to number of ports")
+            self.logger.error("Number of phases must be equal to number of ports")
         else:
             phases_to_rad = []
             for phase in phases:
@@ -1218,7 +1212,7 @@ class FfdSolutionData(object):
     @mag_offset.setter
     def mag_offset(self, mags):
         if len(mags) != len(self.all_port_names):
-            self._app.logger.error("Number of magnitude must be equal to number of ports")
+            self.logger.error("Number of magnitude must be equal to number of ports")
         else:
             self._mag_offset = mags
             self.beamform()
@@ -1252,10 +1246,6 @@ class FfdSolutionData(object):
         -------
         list of float
         """
-        row_min = 1
-        row_max = 1
-        col_min = 1
-        col_max = 1
         rows = []
         cols = []
         for portstring in self.all_port_names:
@@ -1536,13 +1526,13 @@ class FfdSolutionData(object):
         self.all_qtys["nTheta"] = Ntheta
         pin = np.sum(np.power(np.abs(w), 2))
         self.all_qtys["Pincident"] = pin
-        self._app.logger.info("Incident Power: %s", pin)
+        self.logger.info("Incident Power: %s", pin)
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
         self.all_qtys["RealizedGain"] = real_gain
         self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
         self.max_gain = np.max(10 * np.log10(real_gain))
         self.min_gain = np.min(10 * np.log10(real_gain))
-        self._app.logger.info("Peak Realized Gain: %s dB", self.max_gain)
+        self.logger.info("Peak Realized Gain: %s dB", self.max_gain)
         self.all_qtys["Element_Location"] = array_positions
 
         return self.all_qtys
@@ -1666,13 +1656,13 @@ class FfdSolutionData(object):
         self.all_qtys["nTheta"] = Ntheta
         pin = np.sum(np.power(np.abs(w), 2))
         self.all_qtys["Pincident"] = pin
-        self._app.logger.info("Incident Power: %s", pin)
+        self.logger.info("Incident Power: %s", pin)
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
         self.all_qtys["RealizedGain"] = real_gain
         self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
         self.max_gain = np.max(10 * np.log10(real_gain))
         self.min_gain = np.min(10 * np.log10(real_gain))
-        self._app.logger.info("Peak Realized Gain: %s dB", self.max_gain)
+        self.logger.info("Peak Realized Gain: %s dB", self.max_gain)
         self.all_qtys["Element_Location"] = array_positions
 
         return self.all_qtys
@@ -1689,140 +1679,18 @@ class FfdSolutionData(object):
         self.mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
 
     @pyaedt_function_handler()
-    def get_lattice_vectors(self):
-        """Compute Lattice vectors for Antenna Arrays or return default array in case of simple antenna analysis.
-
-        Returns
-        -------
-        list of float
-        """
-        if self.sbr_comp and self.sbr_comp in self._app.modeler.user_defined_components:
-            component_props = "NativeComponentDefinitionProvider"
-            comp_obj = self._app.modeler.user_defined_components[self.sbr_comp]
-            if "Project" in list(comp_obj.native_properties.keys()):
-                # Project opened
-                project = comp_obj.native_properties["Project"]
-                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
-                close = False
-                if proj_name not in self._app.project_list:
-                    close = True
-                    self._app.odesktop.OpenProject(project)
-                comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
-                comp_units = comp.modeler.model_units
-                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
-                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
-                for port in source_names:
-                    try:
-                        str1 = port.split("[", 1)[1].split("]", 1)[0]
-                        self._native_indexes.append([int(i) for i in str1.split(",")])
-                    except:
-                        self._native_indexes.append([1, 1])
-                if close:
-                    comp.close_project()
-            else:
-                # Project not opened
-                project = comp_obj.native_properties[component_props]["Project"]
-                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
-                close = False
-                if proj_name not in self._app.project_list:
-                    close = True
-                    self._app.odesktop.OpenProject(project)
-                comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
-                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
-                comp_units = comp.modeler.model_units
-                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
-                for port in source_names:
-                    try:
-                        str1 = port.split("[", 1)[1].split("]", 1)[0]
-                        self._native_indexes.append([int(i) for i in str1.split(",")])
-                    except:
-                        self._native_indexes.append([1, 1])
-                if close:
-                    comp.close_project(save_project=False)
-
-            lattice_vectors = [
-                str(x)
-                for x in unit_converter(
-                    values=[float(i) for i in lattice_vectors],
-                    unit_system="Length",
-                    input_units=comp_units,
-                    output_units=self._app.modeler.model_units,
-                )
-            ]
-        else:
-            try:
-                lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
-                lattice_vectors = [
-                    float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
-                ]
-            except:
-                lattice_vectors = [0, 0, 0, 0, 1, 0]
-        return lattice_vectors
-
-    @pyaedt_function_handler()
-    def _export_all_ffd(self):
-        exported_name_base = "eep"
-        exported_name_map = exported_name_base + ".txt"
-        sol_setup_name_str = self.setup_name.replace(":", "_").replace(" ", "")
-        path_dict = []
-        for frequency in self.frequencies:
-            full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
-            export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
-            if settings.remote_rpc_session:
-                settings.remote_rpc_session.filemanager.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.filemanager.pathexists(
-                    export_path + exported_name_base + ".txt"
-                )
-            elif not os.path.exists(export_path):
-                os.makedirs(export_path)
-                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
-            else:
-                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
-            path_dict.append({})
-            time_before = time.time()
-            if self.overwrite or not file_exists:
-                self._app.logger.info("Exporting Embedded Element Patterns...")
-                var = []
-                if self.variations:
-                    for k, v in self.variations.items():
-                        var.append("{}='{}'".format(k, v))
-                variation = " ".join(var)
-                try:
-                    self._app.oradfield.ExportElementPatternToFile(
-                        [
-                            "ExportFileName:=",
-                            export_path + exported_name_base + ".ffd",
-                            "SetupName:=",
-                            self.sphere_name,
-                            "IntrinsicVariationKey:=",
-                            "Freq='" + str(frequency) + "'",
-                            "DesignVariationKey:=",
-                            variation,
-                            "SolutionName:=",
-                            self.setup_name,
-                        ]
-                    )
-                except:
-                    self._app.logger.error("Failed to export one Element Pattern.")
-                    self._app.logger.error(export_path + exported_name_base + ".ffd")
-
-            else:
-                self._app.logger.info("Using Existing Embedded Element Patterns")
-            local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
-            export_path = check_and_download_folder(local_path, export_path)
-            if os.path.exists(export_path + "/" + exported_name_map):
-                with open(export_path + "/" + exported_name_map, "r") as reader:
-                    lines = [line.split(None) for line in reader]
-                lines = lines[1:]  # remove header
-                for pattern in lines:
-                    if len(pattern) >= 2:
-                        port = pattern[0]
-                        if ":" in port:
-                            port = port.split(":")[0]
-                        path_dict[-1][port] = export_path + "/" + pattern[1] + ".ffd"
-        elapsed_time = time.time() - time_before
-        self._app.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
-        return path_dict
+    def _read_eep_files(self, eep_path):
+        self._all_solutions.append({})
+        if os.path.exists(eep_path):
+            with open(eep_path, "r") as reader:
+                lines = [line.split(None) for line in reader]
+            lines = lines[1:]  # remove header
+            for pattern in lines:
+                if len(pattern) >= 2:
+                    port = pattern[0]
+                    if ":" in port:
+                        port = port.split(":")[0]
+                    self._all_solutions[-1][port] = os.path.join(os.path.dirname(eep_path), pattern[1] + ".ffd")
 
     @pyaedt_function_handler()
     def plot_farfield_contour(
@@ -2033,22 +1901,30 @@ class FfdSolutionData(object):
     def _get_geometry(self, is_antenna_array=True):
         data = self.beamform(0, 0)
         time_before = time.time()
-        self._app.logger.info("Exporting Geometry...")
+        self.logger.info("Exporting Geometry...")
 
         # obj is being exported as model units, scaling factor needed for display
-        sf = AEDT_UNITS["Length"][self._app.modeler.model_units]
 
-        bounding_box = self._app.modeler.obounding_box
-        xmax = float(bounding_box[3]) - float(bounding_box[0])
-        ymax = float(bounding_box[4]) - float(bounding_box[1])
-        zmax = float(bounding_box[5]) - float(bounding_box[2])
+        xmax = ymax = zmax = 0
 
-        geo_path = "{}\\geo\\".format(self._app.working_directory)
-        if not os.path.exists(geo_path):
-            os.makedirs(geo_path)
+        from pyaedt.generic.plot import ModelPlotter
 
-        model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
+        eep_dir = os.path.join(os.path.dirname(self.eep_files[self.frequencies.index(self.frequency)]))
+        model_pv = ModelPlotter()
+        if os.path.exists(os.path.join(eep_dir, "eep.models")):
+            model_pv.off_screen = True
+            csv_in = read_csv(os.path.join(eep_dir, "eep.models"))
+            for object_in in csv_in:
+                model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
+                sf = AEDT_UNITS["Length"][object_in[3]]
+            object_in.array_coordinates = None
+        else:
+            import glob
 
+            files = glob.glob(os.path.join(eep_dir, "*.obj"))
+            if files:
+                for file in files:
+                    model_pv.add_object(file)
         obj_meshes = []
         center = []
         if is_antenna_array:
@@ -2078,7 +1954,7 @@ class FfdSolutionData(object):
         center = [-k / i for k in center]
         self.all_max = np.max(np.array([xmax, ymax, zmax]))
         elapsed_time = time.time() - time_before
-        self._app.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
+        self.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
         for mesh in obj_meshes:
             mesh[0].translate(center, inplace=True)
         return obj_meshes
@@ -2416,6 +2292,184 @@ class FfdSolutionData(object):
             y = math.atan2(-R[2, 0], sy)
             z = 0
         return np.array([x, y, z])
+
+
+class FfdSolutionDataExporter(FfdSolutionData):
+    """Contains Hfss Far Field Solution Data (ffd)."""
+
+    def __init__(
+        self,
+        app,
+        sphere_name,
+        setup_name,
+        frequencies,
+        variations=None,
+        overwrite=True,
+        taper="flat",
+        sbr_3d_comp_name=None,
+    ):
+        self.logger = logging.getLogger(__name__)
+        self._app = app
+        self.levels = 64
+        self._native_indexes = []
+        self.all_max = 1
+        self.sphere_name = sphere_name
+        self.setup_name = setup_name
+        self.sbr_comp = sbr_3d_comp_name
+        if not isinstance(frequencies, list):
+            self.frequencies = [frequencies]
+        else:
+            self.frequencies = frequencies
+        self._frequency = self.frequencies[0]
+        self.variations = variations
+        self.overwrite = overwrite
+        eep_files = self._export_all_ffd()
+        self.taper = taper
+        self.data_dict = {}
+        FfdSolutionData.__init__(self, self.frequencies, eep_files)
+
+    @pyaedt_function_handler()
+    def get_lattice_vectors(self, export_path):
+        """Compute Lattice vectors for Antenna Arrays or return default array in case of simple antenna analysis.
+
+        Returns
+        -------
+        list of float
+        """
+        if self.sbr_comp and self.sbr_comp in self._app.modeler.user_defined_components:
+            component_props = "NativeComponentDefinitionProvider"
+            comp_obj = self._app.modeler.user_defined_components[self.sbr_comp]
+            if "Project" in list(comp_obj.native_properties.keys()):
+                # Project opened
+                project = comp_obj.native_properties["Project"]
+                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                close = False
+                if proj_name not in self._app.project_list:
+                    close = True
+                    self._app.odesktop.OpenProject(project)
+                comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
+                comp_units = comp.modeler.model_units
+                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
+                for port in source_names:
+                    try:
+                        str1 = port.split("[", 1)[1].split("]", 1)[0]
+                        self._native_indexes.append([int(i) for i in str1.split(",")])
+                    except:
+                        self._native_indexes.append([1, 1])
+                if close:
+                    comp.close_project()
+            else:
+                # Project not opened
+                project = comp_obj.native_properties[component_props]["Project"]
+                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                close = False
+                if proj_name not in self._app.project_list:
+                    close = True
+                    self._app.odesktop.OpenProject(project)
+                comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
+                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+                comp_units = comp.modeler.model_units
+                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
+                for port in source_names:
+                    try:
+                        str1 = port.split("[", 1)[1].split("]", 1)[0]
+                        self._native_indexes.append([int(i) for i in str1.split(",")])
+                    except:
+                        self._native_indexes.append([1, 1])
+                if close:
+                    comp.close_project(save_project=False)
+
+            lattice_vectors = [
+                str(x)
+                for x in unit_converter(
+                    values=[float(i) for i in lattice_vectors],
+                    unit_system="Length",
+                    input_units=comp_units,
+                    output_units=self._app.modeler.model_units,
+                )
+            ]
+        else:
+            try:
+                lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
+                lattice_vectors = [
+                    float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
+                ]
+            except:
+                lattice_vectors = [0, 0, 0, 0, 1, 0]
+        write_csv(os.path.join(export_path, "eep.latvec"), [lattice_vectors])
+        return lattice_vectors
+
+    @pyaedt_function_handler()
+    def _export_all_ffd(self):
+        exported_name_base = "eep"
+        exported_name_map = exported_name_base + ".txt"
+        sol_setup_name_str = self.setup_name.replace(":", "_").replace(" ", "")
+        path_dict = []
+        for frequency in self.frequencies:
+            full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
+            export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
+            if settings.remote_rpc_session:
+                settings.remote_rpc_session.filemanager.makedirs(export_path)
+                file_exists = settings.remote_rpc_session.filemanager.pathexists(
+                    export_path + exported_name_base + ".txt"
+                )
+            elif not os.path.exists(export_path):
+                os.makedirs(export_path)
+                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
+            else:
+                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
+            time_before = time.time()
+            if self.overwrite or not file_exists:
+                self.logger.info("Exporting Embedded Element Patterns...")
+                var = []
+                if self.variations:
+                    for k, v in self.variations.items():
+                        var.append("{}='{}'".format(k, v))
+                variation = " ".join(var)
+                try:
+                    self._app.oradfield.ExportElementPatternToFile(
+                        [
+                            "ExportFileName:=",
+                            export_path + exported_name_base + ".ffd",
+                            "SetupName:=",
+                            self.sphere_name,
+                            "IntrinsicVariationKey:=",
+                            "Freq='" + str(frequency) + "'",
+                            "DesignVariationKey:=",
+                            variation,
+                            "SolutionName:=",
+                            self.setup_name,
+                        ]
+                    )
+                except:
+                    self.logger.error("Failed to export one Element Pattern.")
+                    self.logger.error(export_path + exported_name_base + ".ffd")
+
+            else:
+                self.logger.info("Using Existing Embedded Element Patterns")
+            local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
+            export_path = check_and_download_folder(local_path, export_path)
+            if os.path.exists(export_path + "/" + exported_name_map):
+                path_dict.append(export_path + "/" + exported_name_map)
+                self.get_lattice_vectors(export_path)
+                self._create_geometries(export_path)
+        elapsed_time = time.time() - time_before
+        self.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
+        return path_dict
+
+    @pyaedt_function_handler()
+    def _create_geometries(self, export_path):
+        self.logger.info("Exporting Geometry...")
+        geo_path = "{}\\geo\\".format(self._app.working_directory)
+        if not os.path.exists(geo_path):
+            os.makedirs(geo_path)
+
+        model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
+        obj_list = []
+        for obj in model_pv.objects:
+            obj_list.append([obj.path, obj.color, obj.opacity, obj.units])
+        write_csv(os.path.join(export_path, "eep.objects"), obj_list)
 
 
 class UpdateBeamForm:

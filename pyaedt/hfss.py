@@ -5698,8 +5698,8 @@ class Hfss(FieldAnalysis3D, object):
         overwrite=True,
         taper="flat",
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object. For
-        phased array cases, only one phased array will be calculated.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionDataExporter`` object.
+        For phased array cases, only one phased array will be calculated.
 
         Parameters
         ----------
@@ -5720,10 +5720,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.FfdSolutionData`
+        :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
             SolutionData object.
         """
-        from pyaedt.modules.solutions import FfdSolutionData
+        from pyaedt.modules.solutions import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
@@ -5755,7 +5755,7 @@ class Hfss(FieldAnalysis3D, object):
             if antenna.native_properties["Type"] == "Linked Antenna":
                 component_name = antenna.name
 
-        return FfdSolutionData(
+        return FfdSolutionDataExporter(
             self,
             sphere_name=sphere_name,
             setup_name=setup_name,
