@@ -628,7 +628,7 @@ class CircuitComponents(object):
         return model_name
 
     @pyaedt_function_handler()
-    def create_touchsthone_component(
+    def create_touchstone_component(
         self,
         model_name,
         location=[],
@@ -669,7 +669,7 @@ class CircuitComponents(object):
         >>> cir = Circuit()
         >>> comps = cir.modeler.components
         >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
-        >>> circuit_comp = comps.create_touchsthone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
+        >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
