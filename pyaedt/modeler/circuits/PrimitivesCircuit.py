@@ -402,8 +402,18 @@ class CircuitComponents(object):
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
+        # with open_file(touchstone_full_path, "r") as f:
+        # port_names = _parse_ports_name(f, num_terminal)
+
+        port_names = []
         with open_file(touchstone_full_path, "r") as f:
-            port_names = _parse_ports_name(f, num_terminal)
+            for line in f:
+                line = line.strip()
+                if line.startswith(("!", "#", "")):
+                    if "Port" in line and "=" in line and "Impedance" not in line:
+                        port_names.append(line.split("=")[-1].strip().replace(" ", "_").strip("[]"))
+                else:
+                    break
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
