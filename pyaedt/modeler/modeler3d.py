@@ -6,6 +6,7 @@ import json
 import os.path
 import warnings
 
+from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -227,7 +228,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if included_cs:
             allcs = included_cs
         else:
-            allcs = [reference_cs]
+            allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
@@ -261,12 +262,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg.append("VendorComponentIdentifier:="), arg.append("")
         arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        if boundaries_list:
+        if boundaries_list is not None:
             boundaries = boundaries_list
         else:
             boundaries = self.get_boundaries_name()
-        if boundaries:
-            arg2.append("Boundaries:="), arg2.append(boundaries)
+        arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
@@ -1442,9 +1442,15 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 )
             )
             create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
-            success = all(create_region.GetPropValue(lst[0].strip("NAME:")) == lst[-1] for lst in modify_props)
-            if not success:
-                self.logger.error("Settings update failed.")
+
+            property_names = [lst[0].strip("NAME:") for lst in modify_props]
+            actual_settings = [create_region.GetPropValue(property_name) for property_name in property_names]
+            expected_settings = [lst[-1] for lst in modify_props]
+            validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
+
+            if validation_errors:
+                message = ",".join(validation_errors)
+                self.logger.error("Settings update failed. {0}".format(message))
                 return False
             return True
         except (GrpcApiError, SystemExit):

@@ -4,10 +4,10 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
+from pyaedt.edb_core.edb_data.ports import BundleWavePort
+from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.sources import ExcitationBundle
-from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.constants import RadiationBoxType
@@ -522,7 +522,6 @@ class EdbHfss(object):
         _, pos_term = self.create_wave_port(
             positive_primitive_id,
             positive_points_on_edge,
-            port_name=port_name,
             horizontal_extent_factor=horizontal_extent_factor,
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
@@ -535,10 +534,12 @@ class EdbHfss(object):
             pec_launch_width=pec_launch_width,
         )
         edb_list = convert_py_list_to_net_list(
-            [pos_term._edb_terminal, neg_term._edb_terminal], self._edb.cell.terminal.Terminal
+            [pos_term._edb_object, neg_term._edb_object], self._edb.cell.terminal.Terminal
         )
         _edb_boundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
-        return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
+        # _edb_boundle_terminal.SetName("Wave_"+port_name)
+        pos_term._edb_object.SetName(port_name)
+        return port_name, BundleWavePort(self._pedb, _edb_boundle_terminal)
 
     @pyaedt_function_handler
     def create_bundle_wave_port(
@@ -598,9 +599,9 @@ class EdbHfss(object):
             _port_name = None
             terminals.append(term)
 
-        edb_list = convert_py_list_to_net_list([i._edb_terminal for i in terminals], self._edb.cell.terminal.Terminal)
+        edb_list = convert_py_list_to_net_list([i._edb_object for i in terminals], self._edb.cell.terminal.Terminal)
         _edb_bundle_terminal = self._edb.cell.terminal.BundleTerminal.Create(edb_list)
-        return port_name, ExcitationBundle(self._pedb, _edb_bundle_terminal)
+        return port_name, BundleWavePort(self._pedb, _edb_bundle_terminal)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
@@ -791,21 +792,14 @@ class EdbHfss(object):
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
 
-        prop = ", ".join(
-            [
-                "HFSS('HFSS Type'='Wave'",
-                " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
-                " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
-                " 'PEC Launch Width'='{}')".format(pec_launch_width),
-            ]
-        )
-        pos_edge_term.SetProductSolverOption(
-            self._pedb.edb_api.ProductId.Designer,
-            "HFSS",
-            prop,
-        )
+        wave_port = WavePort(self._pedb, pos_edge_term)
+        wave_port.horizontal_extent_factor = horizontal_extent_factor
+        wave_port.vertical_extent_factor = vertical_extent_factor
+        wave_port.pec_launch_width = pec_launch_width
+        wave_port.hfss_type = "Wave"
+        wave_port.do_renormalize = True
         if pos_edge_term:
-            return port_name, self._pedb.hfss.excitations[port_name]
+            return port_name, wave_port
         else:
             return False
 

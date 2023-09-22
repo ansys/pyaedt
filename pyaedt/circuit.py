@@ -413,21 +413,25 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, path):
+    def get_ibis_model_from_file(self, path, is_ami=False):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
         ----------
         path : str
             Path of the IBIS file.
+        is_ami : bool, optional
+            Whether if import an IBIS or an IBIS AMI.
 
         Returns
         -------
         :class:`pyaedt.generic.ibis_reader.Ibis`
             IBIS object exposing all data from the IBIS file.
         """
-
-        reader = ibis_reader.IbisReader(path, self)
+        if is_ami:
+            reader = ibis_reader.AMIReader(path, self)
+        else:
+            reader = ibis_reader.IbisReader(path, self)
         reader.parse_ibis_file()
         return reader.ibis_model
 

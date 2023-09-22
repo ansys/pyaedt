@@ -1,0 +1,59 @@
+[IBIS Ver]      5.1
+[Disclaimer]
+             Example IBIS file that refers to example
+             Algorithmic Model.  This file does not
+             contain a model for an actual physical
+             device.
+[File Name] ibis_ami_example_rx.ibs
+|
+[Date] March 29, 2018 10:59:00 AM EDT
+[File Rev]      0.2
+[Source]        
+|
+[Notes]         
+|
+[Component] example_device_rx
+|
+[Manufacturer]  ANSYS, Inc.
+|
+[Package]
+R_pkg        0.01m  NA  NA
+L_pkg        0.001nH  NA  NA
+C_pkg        0.001pF  NA  NA
+|
+[Pin] signal_name model_name R_pin L_pin C_pin
+  11   example_rx_P   example_model_rx  NA NA NA
+  12   example_rx_N   example_model_rx  NA NA NA
+|
+[Diff Pin] inv_pin  vdiff tdelay_typ tdelay_min tdelay_max|
+     11       12    0.2   NA   NA   NA
+
+
+| ------------------------------------
+|
+|   model   example_model_rx
+|
+[Model] example_model_rx
+Model_type Input
+C_comp 166.88f 166.88f 166.88f
+Vinl = .5
+Vinh = .5
+[Temperature Range]  85 100 0
+[Voltage Range] 1. 1. 1.
+[Algorithmic Model]
+Executable Windows_Intel7_32 ibis_ami_example_w32.dll ibis_ami_example_rx.ami
+Executable Windows_Intel10_64 ibis_ami_example_w64.dll ibis_ami_example_rx.ami
+Executable Linux_Intel10_32 ibis_ami_example_l32.so ibis_ami_example_rx.ami
+Executable Linux_Intel10_64 ibis_ami_example_l64.so ibis_ami_example_rx.ami
+[End Algorithmic Model]
+[GND_clamp]
+-1     0.0  0.0  0.0
+1.5    0.0  0.0  0.0
+[POWER_clamp]
+-1     0.0  0.0  0.0
+1.5    0.0  0.0  0.0
+|
+| ------------------------------------
+|
+|
+[End]

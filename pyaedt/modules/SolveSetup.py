@@ -357,6 +357,8 @@ class Setup(CommonSetup):
                 name = name.replace("*", "_")
                 name = name.replace("+", "_")
                 name = name.replace("-", "_")
+                name = name.replace(":", "_")
+                name = name.replace(",", "_")
                 if isinstance(report_type_list, list):
                     report_type = report_type_list[i]
                 else:

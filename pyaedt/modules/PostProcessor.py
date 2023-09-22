@@ -756,9 +756,14 @@ class PostProcessorCommon(object):
             Report Category. Default is `""` which will take first default context.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
+
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAllCategories
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -823,6 +828,10 @@ class PostProcessorCommon(object):
         Returns
         -------
         list
+
+        References
+        ----------
+        >>> oModule.GetAllQuantities
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -861,6 +870,31 @@ class PostProcessorCommon(object):
                     report_category, display_type, solution, context, quantities_category
                 )
             )
+        return None
+
+    @pyaedt_function_handler()
+    def available_report_solutions(self, report_category=None):
+        """Get the list of available solutions that can be used for the reports.
+        This list differs from the one obtained with ``app.existing_analysis_sweeps``,
+        because it includes additional elements like "AdaptivePass".
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is ``None`` which will take first default category.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+        >>> oModule.GetAvailableSolutions
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if report_category:
+            return list(self.oreportsetup.GetAvailableSolutions(report_category))
         return None
 
     @pyaedt_function_handler()
@@ -2613,7 +2647,9 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
+    def _create_fieldplot(
+        self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None, filter_boxes=[]
+    ):
         if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
@@ -2676,7 +2712,7 @@ class PostProcessor(PostProcessorCommon, object):
             )
         plot.name = plot_name
         plot.plotFolder = plot_name
-
+        plot.filter_boxes = filter_boxes
         plt = plot.create()
         if "Maxwell" in self._app.design_type and "Transient" in self.post_solution_type:
             self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
@@ -2987,7 +3023,9 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @pyaedt_function_handler()
-    def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
+    def create_fieldplot_cutplane(
+        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, filter_objects=[]
+    ):
         """Create a field plot of cut planes.
 
         Parameters
@@ -3005,6 +3043,8 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``{}``.
         plot_name : str, optional
             Name of the fieldplot to create.
+        filter_objects : list, optional
+            Objects list on which filter the plot.
 
         Returns
         -------
@@ -3021,7 +3061,11 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name)
+        if filter_objects:
+            filter_objects = self._app.modeler.convert_to_selections(filter_objects, True)
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name, filter_boxes=filter_objects
+        )
 
     @pyaedt_function_handler()
     def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
@@ -3253,7 +3297,7 @@ class PostProcessor(PostProcessorCommon, object):
             full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        if not settings.non_graphical:
+        if not self._app.desktop_class.non_graphical:  # pragma: no cover
             if self._app.design_type not in [
                 "HFSS 3D Layout Design",
                 "Circuit Design",
@@ -3382,7 +3426,8 @@ class PostProcessor(PostProcessorCommon, object):
             export_path = self._app.working_directory
         if not obj_list:
             self._app.modeler.refresh_all_ids()
-            obj_list = self._app.modeler.object_names
+            non_model = self._app.modeler.non_model_objects[:]
+            obj_list = [i for i in self._app.modeler.object_names if i not in non_model]
             if not air_objects:
                 obj_list = [
                     i
