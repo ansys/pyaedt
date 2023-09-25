@@ -861,7 +861,8 @@ class Icepak(FieldAnalysis3D):
             List of sources with inputs ``rjc``, ``rjb``, and ``power``.
             For example, ``[[Objname1, rjc, rjb, power1, power2, ...], [Objname2, rjc2, rbj2, power1, power2, ...]]``.
         gravity_dir : int
-            Gravity direction X to Z. Options are ``0`` to ``2``. This parameter determines the orientation of network boundary faces.
+            Gravity direction X to Z. Options are ``0`` to ``2``. This parameter determines the orientation of network
+            boundary faces.
         top : float, optional
             Chosen orientation (X to Z) coordinate value in millimeters of the top face of
             the board. The default is ''0 mm''. This parameter determines the casing and
