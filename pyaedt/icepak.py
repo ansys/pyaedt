@@ -742,7 +742,7 @@ class Icepak(FieldAnalysis3D):
         rjc,
         rjb,
         gravity_dir,
-        top,
+        top=0,
         assign_material=True,
         default_material="Ceramic_material",
         use_object_for_name=True,
@@ -758,14 +758,16 @@ class Icepak(FieldAnalysis3D):
             Name of the object to create the block for.
         power : str or var
             Input power.
-        rjc :
+        rjc : float
             RJC value.
-        rjb :
+        rjb : float
             RJB value.
-        gravity_dir :
-            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
-        top :
-            Board bounding value in millimeters of the top face.
+        gravity_dir : int
+            Gravity direction X to Z. Options are ``0`` to ``2``. Determines the orientation of network boundary faces
+        top : float, optional
+            Chosen orientation (X to Z) coordinate value in millimeters of the top face of board.
+            Determines the casing and board side of network.
+            The default is ''0 mm''.
         assign_material : bool, optional
             Whether to assign a material. The default is ``True``.
         default_material : str, optional
@@ -787,7 +789,7 @@ class Icepak(FieldAnalysis3D):
         --------
 
         >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
-        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, icepak.GravityDirection.ZNeg, 1.05918)
+        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2 , 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
@@ -849,7 +851,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_network_blocks(
-        self, input_list, gravity_dir, top, assign_material=True, default_material="Ceramic_material"
+        self, input_list, gravity_dir, top=0, assign_material=True, default_material="Ceramic_material"
     ):
         """Create network blocks from CSV files.
 
@@ -859,9 +861,11 @@ class Icepak(FieldAnalysis3D):
             List of sources with inputs ``rjc``, ``rjb``, and ``power``.
             For example, ``[[Objname1, rjc, rjb, power1, power2, ...], [Objname2, rjc2, rbj2, power1, power2, ...]]``.
         gravity_dir : int
-            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
-        top :
-            Board bounding value in millimeters of the top face.
+            Gravity direction X to Z. Options are ``0`` to ``2``. Determines the orientation of network boundary faces.
+        top : float, optional
+            Chosen orientation (X to Z) coordinate value in millimeters of the top face of board.
+            Determines the casing and board side of network.
+            The default is ''0 mm''.
         assign_material : bool, optional
             Whether to assign a material. The default is ``True``.
         default_material : str, optional
@@ -885,7 +889,7 @@ class Icepak(FieldAnalysis3D):
         >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
         >>> box2 = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
         >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
-        ...                                        icepak.GravityDirection.ZNeg, 1.05918, False)
+        ...                                        2, 1.05918, False)
         >>> blocks[0].props["Nodes"]["Internal"]
         ['3W']
         """
