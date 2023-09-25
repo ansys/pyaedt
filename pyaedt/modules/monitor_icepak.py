@@ -6,12 +6,12 @@ from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
-quantities_dict = {  # pragma: no cover
+quantities_dict_1 = {  # pragma: no cover
     8: "Speed",
     9: "Pressure",
     10: "TKE",
     11: "Epsilon",
-    12: "ViscosityRatio",
+    15: "ViscosityRatio",
     16: "MassFlow",
     17: "VolumeFlow",
     18: "WallYPlus",
@@ -22,6 +22,26 @@ quantities_dict = {  # pragma: no cover
     29: "HeatFlux",
     31: "HeatFlowRate",
 }
+
+quantities_dict_2 = {  # pragma: no cover
+    8: "Speed",
+    9: "Pressure",
+    10: "TKE",
+    11: "Epsilon",
+    15: "ViscosityRatio",
+    16: "MassFlow",
+    17: "VolumeFlow",
+    18: "WallYPlus",
+    19: "Temperature",
+    20: "K_X",
+    21: "K_Y",
+    22: "K_Z",
+    29: "HeatFlux",
+    31: "TemperatureMaximum",
+    32: "TemperatureMinimum",
+    33: "HeatFlowRate",
+}
+
 
 quantities_type_dict = {  # pragma: no cover
     "Speed": ["Point"],
@@ -38,6 +58,8 @@ quantities_type_dict = {  # pragma: no cover
     "K_Z": ["Point"],
     "HeatFlux": ["Point"],
     "HeatFlowRate": ["Face"],
+    "TemperatureMaximum": ["Face"],
+    "TemperatureMinimum": ["Face"],
 }
 
 
@@ -48,6 +70,10 @@ class Monitor:
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
+        if self._app.desktop_class.aedt_version_id > "2023.2":  # pragma: no cover
+            self.quantities_dict = quantities_dict_2
+        else:
+            self.quantities_dict = quantities_dict_1
         self._omonitor = self._app.odesign.GetModule("Monitor")
         if self._app.design_properties:  # if is not a 3d comp/blank file
             aedtfile_monitor_dict = self._app.design_properties["Monitor"]["IcepakMonitors"].copy()
@@ -66,7 +92,7 @@ class Monitor:
 
     @pyaedt_function_handler
     def _check_quantities(self, quantities):
-        if all(q in quantities_dict.values() for q in quantities):
+        if all(q in self.quantities_dict.values() for q in quantities):
             return [monitor_type for q in quantities for monitor_type in quantities_type_dict[q]]
         else:
             self._app.logger.error("Invalid quantities selected.")
@@ -117,7 +143,7 @@ class Monitor:
                     monitor_name,
                     "Face",
                     monitor_prop["Faces"][0],
-                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    [self.quantities_dict[i] for i in monitor_prop["Quantities"]],
                     self._app,
                 )
             elif "Objects" in monitor_prop.keys() and monitor_prop["Type"] == 2:
@@ -125,7 +151,7 @@ class Monitor:
                     monitor_name,
                     "Object",
                     self._app.oeditor.GetObjectNameByID(int(monitor_prop["Objects"][0])),
-                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    [self.quantities_dict[i] for i in monitor_prop["Quantities"]],
                     self._app,
                 )
             elif "Objects" in monitor_prop.keys():
@@ -133,7 +159,7 @@ class Monitor:
                     monitor_name,
                     "Surface",
                     self._app.oeditor.GetObjectNameByID(int(monitor_prop["Objects"][0])),
-                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    [self.quantities_dict[i] for i in monitor_prop["Quantities"]],
                     self._app,
                 )
             elif "Points" in monitor_prop.keys():
@@ -147,7 +173,7 @@ class Monitor:
                     monitor_name,
                     "Point",
                     point_name,
-                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    [self.quantities_dict[i] for i in monitor_prop["Quantities"]],
                     self._app,
                 )
             else:
@@ -155,7 +181,7 @@ class Monitor:
                     monitor_name,
                     "Vertex",
                     monitor_prop["Vertices"][0],
-                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    [self.quantities_dict[i] for i in monitor_prop["Quantities"]],
                     self._app,
                 )
         return True

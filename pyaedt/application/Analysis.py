@@ -423,6 +423,7 @@ class Analysis(Design, object):
         try:
             list_names = list(self.oboundary.GetExcitations())
             del list_names[1::2]
+            list_names = list(set(list_names))
             return list_names
         except:
             return []
