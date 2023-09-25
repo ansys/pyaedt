@@ -768,7 +768,6 @@ class Icepak(FieldAnalysis3D):
             Chosen orientation (X to Z) coordinate value in millimeters of the top face of the board.
             The default is ''0 mm''.
             This parameter determines the casing and board side of the network.
-            The default is ''0 mm''.
         assign_material : bool, optional
             Whether to assign a material. The default is ``True``.
         default_material : str, optional
