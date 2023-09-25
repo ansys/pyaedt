@@ -1434,7 +1434,10 @@ class Desktop(object):
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:
-                self.odesktop.CloseProject(project)
+                try:
+                    self.odesktop.CloseProject(project)
+                except:  # pragma: no cover
+                    self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
