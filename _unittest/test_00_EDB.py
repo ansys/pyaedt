@@ -1622,13 +1622,23 @@ class TestClass:
             port_name="df_port",
         )
         assert edb.ports["df_port"]
-        assert not edb.are_port_reference_terminals_connected()
+        p, n = edb.ports["df_port"].terminals
+        assert edb.ports["df_port"].decouple()
+        p.couple_ports(n)
 
         traces_id = [i.id for i in traces]
         paths = [i[1] for i in trace_paths]
         _, df_port = edb.hfss.create_bundle_wave_port(traces_id, paths)
         assert df_port.name
         assert df_port.terminals
+        df_port.horizontal_extent_factor = 10
+        df_port.vertical_extent_factor = 10
+        df_port.deembed = True
+        df_port.deembed_length = "1mm"
+        assert df_port.horizontal_extent_factor == 10
+        assert df_port.vertical_extent_factor == 10
+        assert df_port.deembed
+        assert df_port.deembed_length == 1e-3
         edb.close()
 
     def test_120b_edb_create_port(self):
@@ -1662,7 +1672,6 @@ class TestClass:
             trace_pathes[1][0],
             horizontal_extent_factor=8,
         )
-        assert not edb.are_port_reference_terminals_connected()
 
         paths = [i[1] for i in trace_pathes]
         assert edb.hfss.create_bundle_wave_port(traces, paths)
