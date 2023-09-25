@@ -11,7 +11,11 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black, watermark, ansys_logo_white, ansys_logo_white_cropped
+from ansys_sphinx_theme import (ansys_favicon, 
+                                get_version_match, pyansys_logo_black,
+                                watermark, 
+                                ansys_logo_white, 
+                                ansys_logo_white_cropped, latex)
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
