@@ -22,7 +22,7 @@ from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.latex import LaTeXBuilder
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp"]
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
