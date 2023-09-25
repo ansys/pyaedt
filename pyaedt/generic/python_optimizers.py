@@ -249,6 +249,7 @@ class GeneticAlgorithm(object):
         self.output_dict = {}
         self.pop = []
         self.reference_file = reference_file
+        self.evaluate_val = 1e10
 
     def run(self):
         """Implements the genetic algorithm"""
@@ -280,10 +281,6 @@ class GeneticAlgorithm(object):
         t = 1
         counter = 0
         while t <= self.iterate:
-            # if self.population_file:
-            #     # Save Population in CSV
-            #     np.savetxt(self.population_file, pop, delimiter=",")
-
             if self.progress_bar:
                 self.progress(t, self.iterate, status="GA is running...")
             # Sort
@@ -299,6 +296,7 @@ class GeneticAlgorithm(object):
             if self.best_function < self.goal:
                 break
             print("\nInfo: Iteration {}".format(t))
+            print("\nInfo: Goal {}".format(self.goal))
             print("\nInfo: Best Function {}".format(self.best_function))
             print("\nInfo: Best Variable {}".format(self.best_variable))
 
@@ -486,12 +484,11 @@ class GeneticAlgorithm(object):
         return x
 
     def evaluate(self):
-        self.goal = 1e10
         if not self.reference_file:
-            self.goal = self.function(self.temp)
+            self.evaluate_val = self.function(self.temp)
             return True
         else:
-            self.goal = self.function(self.temp, self.reference_file)
+            self.evaluate_val = self.function(self.temp, self.reference_file)
             return True
 
     def sim(self, X):
@@ -507,7 +504,7 @@ class GeneticAlgorithm(object):
                 thread.join()
         else:
             self.evaluate()
-        return self.goal
+        return self.evaluate_val
 
     def progress(self, count, total, status=""):
         bar_len = 50
