@@ -766,7 +766,7 @@ class Icepak(FieldAnalysis3D):
             Gravity direction X to Z. Options are ``0`` to ``2``. Determines the orientation of network boundary faces
         top : float, optional
             Chosen orientation (X to Z) coordinate value in millimeters of the top face of board.
-            Determines the casing and board side of network.
+            This parameter determines the casing and board side of the network.
             The default is ''0 mm''.
         assign_material : bool, optional
             Whether to assign a material. The default is ``True``.
