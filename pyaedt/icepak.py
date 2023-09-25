@@ -763,7 +763,7 @@ class Icepak(FieldAnalysis3D):
         rjb : float
             RJB value.
         gravity_dir : int
-            Gravity direction X to Z. Options are ``0`` to ``2``. Determines the orientation of network boundary faces
+            Gravity direction X to Z. Options are ``0`` to ``2``. Determines the orientation of network boundary faces.
         top : float, optional
             Chosen orientation (X to Z) coordinate value in millimeters of the top face of the board.
             The default is ''0 mm''.
