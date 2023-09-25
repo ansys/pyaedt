@@ -4,6 +4,8 @@
 class ValidationCheck(object):
     def __init__(self, pedb):
         self._pedb = pedb
+        self.primitives_dict = {}
+        self.padstack_instances_dict = {}
         self.connected_primitives = None
 
     @property
@@ -21,9 +23,14 @@ class ValidationCheck(object):
         """EDB logger."""
         return self._pedb.logger
 
-    def dc_shorts(self):
-        # self.connected_primitives = self._get_connected_primitives()
-        pass
+    def init_primitives(self):
+        for net_name, net in self._pedb.nets.nets.items():
+            self.primitives_dict[net_name] = net.primitives
+        for padstck in list(self._pedb.padstacks.padstack_instances.values()):
+            if padstck.net_name in self.padstack_instances_dict:
+                self.padstack_instances_dict[padstck.net_name].append(padstck)
+            else:
+                self.padstack_instances_dict[padstck.net_name] = [padstck]
 
     def _get_connected_primitives(self):
         prim_rtree = self._pedb._edb.Geometry.RTree()
