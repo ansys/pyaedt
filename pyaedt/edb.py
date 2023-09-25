@@ -48,6 +48,7 @@ from pyaedt.edb_core.nets import EdbNets
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.siwave import EdbSiwave
 from pyaedt.edb_core.stackup import Stackup
+from pyaedt.edb_core.validation_check import ValidationCheck
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import generate_unique_name
@@ -145,7 +146,7 @@ class Edb(Database):
         technology_file=None,
     ):
         edbversion = get_string_version(edbversion)
-
+        self.validation_check = ValidationCheck(self)
         self._clean_variables()
         Database.__init__(self, edbversion=edbversion, student_version=student_version)
         self.standalone = True
