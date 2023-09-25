@@ -11,7 +11,7 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black, watermark, ansys_logo_white, ansys_logo_white_cropped
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
@@ -320,7 +320,12 @@ html_css_files = [
 htmlhelp_basename = "pyaedtdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
-latex_elements = {}
+# additional logos for the latex coverpage
+latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
+
+# change the preamble of latex with customized title page
+# variables are the title of pdf, watermark
+latex_elements = {"preamble": latex.generate_preamble(html_title)}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
