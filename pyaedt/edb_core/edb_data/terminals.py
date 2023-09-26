@@ -404,3 +404,10 @@ class BundleTerminal(Terminal):
     def decouple(self):
         """Ungroup a bundle of terminals."""
         return self._edb_object.Ungroup()
+
+
+class PadstackInstanceTerminal(Terminal):
+    """Manages bundle terminal properties."""
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)

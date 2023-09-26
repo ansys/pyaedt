@@ -1,6 +1,4 @@
 from pyaedt import pyaedt_function_handler
-from pyaedt.edb_core.edb_data.components_data import EDBComponent
-from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 
 
 class LayoutObj(object):
@@ -34,6 +32,15 @@ class LayoutObj(object):
         """Determine if this object is null."""
         return self._edb_object.IsNull()
 
+    @property
+    def id(self):
+        """Primitive ID.
+
+        Returns
+        -------
+        int
+        """
+        return self._edb_object.GetId()
 
 class Connectable(LayoutObj):
     """Manages EDB functionalities for a connectable object."""
@@ -49,6 +56,7 @@ class Connectable(LayoutObj):
         -------
         :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
         """
+        from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
         return EDBNetsData(self._edb_object.GetNet(), self._pedb)
 
     @property
@@ -59,6 +67,7 @@ class Connectable(LayoutObj):
         -------
         :class:`pyaedt.edb_core.edb_data.nets_data.EDBComponent`
         """
+        from pyaedt.edb_core.edb_data.components_data import EDBComponent
 
         edb_comp = self._edb_object.GetComponent()
         if edb_comp.IsNull():

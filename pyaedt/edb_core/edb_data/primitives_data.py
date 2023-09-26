@@ -810,7 +810,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
         >>> sig = appedb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
-        >>> sig..create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+        >>> sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
 
         """
         center_line = self.get_center_line()
