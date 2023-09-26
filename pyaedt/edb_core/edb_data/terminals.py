@@ -442,13 +442,8 @@ class PadstackInstanceTerminal(Terminal):
         layer_obj = self._pedb.stackup.signal_layers[layer]
 
         terminal = self._edb.cell.terminal.PadstackInstanceTerminal.Create(
-            self._layout,
-            self.net.net_object,
-            name,
-            padstack_instance._edb_object,
-            layer_obj._edb_layer,
-            isRef=is_ref
+            self._layout, self.net.net_object, name, padstack_instance._edb_object, layer_obj._edb_layer, isRef=is_ref
         )
-        terminal =  PadstackInstanceTerminal(self._pedb, terminal)
+        terminal = PadstackInstanceTerminal(self._pedb, terminal)
 
         return terminal if not terminal.is_null else False
