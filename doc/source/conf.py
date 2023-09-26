@@ -334,12 +334,30 @@ latex_elements = {"preamble": latex.generate_preamble(html_title)}
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (
-        master_doc,
-        f"{project}-Documentation-{__version__}.tex",
-        f"{project} Documentation",
-        author,
-        "manual",
-    ),
-]
+#latex_documents = [
+#    (
+#        master_doc,
+#        f"{project}-Documentation-{__version__}.tex",
+#        f"{project} Documentation",
+#        author,
+#        "manual",
+#    ),
+#]
+
+from sphinx.writers.latex import CR
+from sphinx.writers.latex import LaTeXTranslator
+
+def visit_desc_signature(self, node):
+    hyper = ''
+    if node.parent['objtype'] != 'describe' and node['ids']:
+        for id in node['ids']:
+            hyper += self.hypertarget(id)
+    self.body.append(hyper)
+    if not self.in_desc_signature:
+        self.in_desc_signature = True
+        self.body.append(CR + r'\pysigstartsignatures')
+    if not node.get('is_multiline'):
+        self._visit_signature_line(node)
+    else:
+        self.body.append(CR + r'\pysigstartmultiline')
+LaTeXTranslator.visit_desc_signature = visit_desc_signature
