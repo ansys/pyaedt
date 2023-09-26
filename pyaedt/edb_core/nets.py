@@ -836,13 +836,14 @@ class EdbNets(object):
             size = (fig_size_x, fig_size_y)
 
         plot_matplotlib(
-            object_lists,
-            size,
-            show_legend,
-            "X (m)",
-            "Y (m)",
-            self._pedb.active_cell.GetName(),
-            save_plot,
+            plot_data=object_lists,
+            size=size,
+            show_legend=show_legend,
+            xlabel="X (m)",
+            ylabel="Y (m)",
+            title=self._pedb.active_cell.GetName(),
+            snapshot_path=save_plot,
+            axis_equal=True,
         )
 
     @pyaedt_function_handler()
