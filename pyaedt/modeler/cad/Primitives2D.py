@@ -51,7 +51,7 @@ class Primitives2D(Primitives, object):
             Name of the material. The default is ``None``. If ``None``,
             the default material is assigned.
         non_model : bool, optional
-             Either if create the new object as model or non-model. The default is ``False``.
+             Either to create the new object as model or non-model. The default is ``False``.
 
 
         Returns
