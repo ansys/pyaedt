@@ -85,9 +85,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
 
-        vArg2 = self._default_object_attributes(
-            name=name, matname=matname, non_model_flag="NonModel#" if non_model else ""
-        )
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
@@ -142,9 +140,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("Ratio:="), vArg1.append(ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
-        vArg2 = self._default_object_attributes(
-            name=name, matname=matname, non_model_flag="NonModel#" if non_model else ""
-        )
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
@@ -200,9 +196,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("Height:="), vArg1.append(height)
         vArg1.append("WhichAxis:="), vArg1.append(axis)
 
-        vArg2 = self._default_object_attributes(
-            name=name, matname=matname, non_model_flag="NonModel#" if non_model else ""
-        )
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
@@ -262,9 +256,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("NumSides:="), vArg1.append(n_sides)
         vArg1.append("WhichAxis:="), vArg1.append(self.plane2d)
 
-        vArg2 = self._default_object_attributes(
-            name=name, matname=matname, non_model_flag="NonModel#" if non_model else ""
-        )
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
         return self._create_object(new_object_name)
 
