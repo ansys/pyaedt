@@ -2751,7 +2751,7 @@ class SetupQ3D(Setup, object):
             Starting frequency of the sweep. The default is ``0``.
             If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
         freqstop : float, str, optional
-            Stopping frequency of the sweep.
+            Stopping frequency of the sweep. The default is ``20``.
             If a unit is passed with the number, such as ``"1MHz"``, the unit is ignored.
         num_of_freq_points : int
             Number of frequency points in the range. The default is ``401`` for
