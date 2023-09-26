@@ -2165,12 +2165,12 @@ class Analysis(Design, object):
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
-        if isinstance(value, str):
-            val = value
-        else:
-            if units is None:
-                units = self.modeler.model_units
+        units = self.modeler.model_units if units is None else units
+        try:
+            float(value)
             val = "{0}{1}".format(value, units)
+        except ValueError:
+            val = value
         return val
 
     @pyaedt_function_handler()

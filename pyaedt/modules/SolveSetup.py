@@ -1861,16 +1861,9 @@ class SetupHFSS(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        try:
-            float(freqstart)
-            sweepdata.props["RangeStart"] = str(freqstart) + unit
-        except ValueError:
-            sweepdata.props["RangeStart"] = freqstart
-        try:
-            float(freqstop)
-            sweepdata.props["RangeEnd"] = str(freqstop) + unit
-        except ValueError:
-            sweepdata.props["RangeEnd"] = freqstop
+        sweepdata.props["RangeStart"] = self.p_app.value_with_units(freqstart, unit)
+        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(freqstop, unit)
+
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
         if sweep_type == "Interpolating":
@@ -2817,16 +2810,8 @@ class SetupQ3D(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        try:
-            float(freqstart)
-            sweepdata.props["RangeStart"] = str(freqstart) + unit
-        except ValueError:
-            sweepdata.props["RangeStart"] = freqstart
-        try:
-            float(freqstop)
-            sweepdata.props["RangeEnd"] = str(freqstop) + unit
-        except ValueError:
-            sweepdata.props["RangeEnd"] = freqstop
+        sweepdata.props["RangeStart"] = self.p_app.value_with_units(freqstart, unit)
+        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(freqstop, unit)
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
         if sweep_type == "Interpolating":

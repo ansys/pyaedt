@@ -1825,27 +1825,10 @@ class Q3d(QExtractor, object):
                         self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                try:
-                    float(freqstart)
-                    sweepdata.props["RangeStart"] = str(freqstart) + units
-                except ValueError:
-                    sweepdata.props["RangeStart"] = freqstart
-                if not freqstop:
-                    freqstop = freqstart
-                if not freqstep:
-                    freqstep = (freqstop - freqstart) / 11
-                    if freqstep == 0:
-                        freqstep = freqstart
-                try:
-                    float(freqstop)
-                    sweepdata.props["RangeEnd"] = str(freqstop) + units
-                except ValueError:
-                    sweepdata.props["RangeEnd"] = freqstop
-                try:
-                    float(freqstep)
-                    sweepdata.props["RangeStep"] = str(freqstep) + units
-                except ValueError:
-                    sweepdata.props["RangeStep"] = freqstep
+                sweepdata.props["RangeStart"] = self.value_with_units(freqstart, units)
+                sweepdata.props["RangeEnd"] = self.value_with_units(freqstop, units)
+                sweepdata.props["RangeStep"] = self.value_with_units(freqstep, units)
+
                 sweepdata.props["SaveFields"] = False
                 sweepdata.props["SaveRadFields"] = False
                 sweepdata.props["Type"] = "Interpolating"
