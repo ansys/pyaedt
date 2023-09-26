@@ -1772,9 +1772,9 @@ class SetupHFSS(Setup, object):
     @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
-        unit,
-        freqstart,
-        freqstop,
+        unit="GHz",
+        freqstart=1,
+        freqstop=10,
         num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
@@ -1787,12 +1787,14 @@ class SetupHFSS(Setup, object):
 
         Parameters
         ----------
-        unit : str
-            Frequency Units.
-        freqstart : float
+        unit : str, optional
+            Frequency Units. Default is ``"GHz"``.
+        freqstart : float, str, optional
             Starting frequency of the sweep, such as ``1``.
-        freqstop : float
-            Stopping frequency of the sweep.
+            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+        freqstop : float, str, optional
+            Stopping frequency of the sweep. Default is ``10``.
+            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
         num_of_freq_points : int
             Number of frequency points in the range. The default is ``401`` for
             a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
@@ -1841,12 +1843,10 @@ class SetupHFSS(Setup, object):
 
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
-        if sweep_type in ["Interpolating", "Fast"]:
-            if num_of_freq_points == None:
-                num_of_freq_points = 401
-        elif sweep_type == "Discrete":
-            if num_of_freq_points == None:
-                num_of_freq_points = 5
+        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = 401
+        elif num_of_freq_points is None and sweep_type == "Discrete":
+            num_of_freq_points = 5
         else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
@@ -1861,8 +1861,16 @@ class SetupHFSS(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["RangeStart"] = str(freqstart) + unit
-        sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        try:
+            float(freqstart)
+            sweepdata.props["RangeStart"] = str(freqstart) + unit
+        except ValueError:
+            sweepdata.props["RangeStart"] = freqstart
+        try:
+            float(freqstop)
+            sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        except ValueError:
+            sweepdata.props["RangeEnd"] = freqstop
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
         if sweep_type == "Interpolating":
@@ -2737,12 +2745,14 @@ class SetupQ3D(Setup, object):
 
         Parameters
         ----------
-        unit : str
+        unit : str, optional
             Frequency Units.
-        freqstart : float
+        freqstart : float, str, optional
             Starting frequency of the sweep, such as ``1``.
-        freqstop : float
+            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+        freqstop : float, str, optional
             Stopping frequency of the sweep.
+            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
         num_of_freq_points : int
             Number of frequency points in the range. The default is ``401`` for
             a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
@@ -2789,12 +2799,10 @@ class SetupQ3D(Setup, object):
 
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
-        if sweep_type in ["Interpolating", "Fast"]:
-            if num_of_freq_points == None:
-                num_of_freq_points = 401
-        elif sweep_type == "Discrete":
-            if num_of_freq_points == None:
-                num_of_freq_points = 5
+        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = 401
+        elif num_of_freq_points is None and sweep_type == "Discrete":
+            num_of_freq_points = 5
         else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
@@ -2809,8 +2817,16 @@ class SetupQ3D(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["RangeStart"] = str(freqstart) + unit
-        sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        try:
+            float(freqstart)
+            sweepdata.props["RangeStart"] = str(freqstart) + unit
+        except ValueError:
+            sweepdata.props["RangeStart"] = freqstart
+        try:
+            float(freqstop)
+            sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        except ValueError:
+            sweepdata.props["RangeEnd"] = freqstop
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
         if sweep_type == "Interpolating":

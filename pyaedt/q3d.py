@@ -1780,20 +1780,22 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
-    def create_frequency_sweep(self, setupname, units, freqstart, freqstop, freqstep=None, sweepname=None):
+    def create_frequency_sweep(self, setupname, units="GHz", freqstart=0, freqstop=1, freqstep=None, sweepname=None):
         """Create a frequency sweep.
 
         Parameters
         ----------
         setupname : str
             Name of the setup that is attached to the sweep.
-        units : str
+        units : str, optional
             Units of the frequency. For example, ``"MHz"`` or
-            ``"GHz"``. The default is ``"GHz"``.
-        freqstart :
+            ``"GHz"``. The default is ``"GHz"``. Default is ``"GHz"``.
+        freqstart : float, str, optional
             Starting frequency of the sweep.
-        freqstop :
+             If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+        freqstop : float, str, optional
             Stopping frequency of the sweep.
+            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
         freqstep : optional
             Frequency step point.
         sweepname : str, optional
@@ -1802,8 +1804,8 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
+            Sweep object when successful, ``False`` when failed.
 
         References
         ----------
@@ -1823,15 +1825,27 @@ class Q3d(QExtractor, object):
                         self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
+                try:
+                    float(freqstart)
+                    sweepdata.props["RangeStart"] = str(freqstart) + units
+                except ValueError:
+                    sweepdata.props["RangeStart"] = freqstart
                 if not freqstop:
                     freqstop = freqstart
                 if not freqstep:
                     freqstep = (freqstop - freqstart) / 11
                     if freqstep == 0:
                         freqstep = freqstart
-                sweepdata.props["RangeEnd"] = str(freqstop) + "GHz"
-                sweepdata.props["RangeStep"] = str(freqstep) + "GHz"
+                try:
+                    float(freqstop)
+                    sweepdata.props["RangeEnd"] = str(freqstop) + units
+                except ValueError:
+                    sweepdata.props["RangeEnd"] = freqstop
+                try:
+                    float(freqstep)
+                    sweepdata.props["RangeStep"] = str(freqstep) + units
+                except ValueError:
+                    sweepdata.props["RangeStep"] = freqstep
                 sweepdata.props["SaveFields"] = False
                 sweepdata.props["SaveRadFields"] = False
                 sweepdata.props["Type"] = "Interpolating"
