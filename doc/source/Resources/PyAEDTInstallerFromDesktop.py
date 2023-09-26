@@ -114,9 +114,10 @@ def install_pyaedt():
             "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(args.edt_root,
                                                                          args.python_version.replace(".", "_")),
             "{}/common/mono/Linux64/lib64".format(args.edt_root),
-            "{}/Delcross".format(args.edt_root),
             "{}".format(args.edt_root),
         ]
+        if args.version<"232":
+            ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     if not os.path.exists(venv_dir):
