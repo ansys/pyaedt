@@ -139,7 +139,6 @@ class EDBPrimitivesMain(Connectable):
         else:
             raise AttributeError("Invalid input value")
 
-
     @property
     def is_void(self):
         """Either if the primitive is a void or not.

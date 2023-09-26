@@ -1,5 +1,6 @@
 from pyaedt import pyaedt_function_handler
 
+
 class LayoutObj(object):
     """Manages EDB functionalities for the layout object."""
 
@@ -61,6 +62,7 @@ class LayoutObj(object):
         self._edb_object.Delete()
         return True
 
+
 class Connectable(LayoutObj):
     """Manages EDB functionalities for a connectable object."""
 
@@ -76,6 +78,7 @@ class Connectable(LayoutObj):
         :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
         """
         from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
+
         return EDBNetsData(self._edb_object.GetNet(), self._pedb)
 
     @property

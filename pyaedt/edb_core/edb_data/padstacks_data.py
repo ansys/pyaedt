@@ -1015,6 +1015,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
     def create_coax_port(self):
         """"""
         from pyaedt.edb_core.edb_data.ports import CoaxPort
+
         term = self._create_terminal()
         return CoaxPort(self._pedb, term._edb_object)
 
