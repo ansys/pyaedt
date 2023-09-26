@@ -615,7 +615,12 @@ class CircuitComponent(object):
     @angle.setter
     def angle(self, angle=None):
         """Set the part angle."""
-        if not self._circuit_components._app.desktop_class.is_grpc_api:
+        self._angle = 0 if angle is None else angle
+        if self._circuit_components._app.aedt_version_id > "2023.2":
+            angle = _dim_arg(self._angle, "deg")
+            vMaterial = ["NAME:Component Angle", "Value:=", angle]
+            self.change_property(vMaterial)
+        elif not self._circuit_components._app.desktop_class.is_grpc_api:
             if not angle:
                 angle = str(self._angle) + "°"
             else:
