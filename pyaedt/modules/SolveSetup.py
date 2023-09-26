@@ -2739,13 +2739,13 @@ class SetupQ3D(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Frequency Units.
+            Frequency units. The default is ``GHz``.
         freqstart : float, str, optional
-            Starting frequency of the sweep, such as ``1``.
-            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+            Starting frequency of the sweep. The default is ``0``.
+            If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
         freqstop : float, str, optional
-            Stopping frequency of the sweep.
-            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+            Stopping frequency of the sweep. The default is ``20``.
+            If a unit is passed with the number, such as ``"1MHz"``, the unit is ignored.
         num_of_freq_points : int
             Number of frequency points in the range. The default is ``401`` for
             a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
