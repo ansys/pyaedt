@@ -107,6 +107,7 @@ class TestClass:
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
+    #
     def test_25a_create_parametrics(self):
         self.aedtapp.set_active_design("HFSSDesign")
         self.aedtapp["w1"] = "10mm"
@@ -201,21 +202,32 @@ class TestClass:
         )
         assert setup2.add_variation("w1", 0.1, 10)
         assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+        assert setup2.add_goal(
+            calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+        )
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
         assert setup2.delete()
 
-    def test_28A_create_dx(self):
+    def test_28A_create_optislang(self):
         new_setup = self.aedtapp.create_setup("MyOptisSetup")
         new_setup.props["Frequency"] = "2.5GHz"
         sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-        setup2 = self.aedtapp.optimizations.add(
-            None,
-            {"w1": "1mm", "w2": "2mm"},
+        setup1 = self.aedtapp.optimizations.add(
+            calculation=None,
+            ranges=None,
+            variables=None,
             optim_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
-        assert setup2.add_variation("w1", 0.1, 10, 51)
+        assert setup1.add_variation("w1", 1, 10, 51)
+        setup2 = self.aedtapp.optimizations.add(
+            calculation=None,
+            ranges=None,
+            variables={"w1": "1mm", "w2": "2mm"},
+            optim_type="optiSLang",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_variation("a1", 1, 10, 51)
         assert not setup2.add_variation("w3", 0.1, 10, 5)
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
@@ -224,13 +236,22 @@ class TestClass:
         new_setup = self.aedtapp.create_setup("MyDXSetup")
         new_setup.props["Frequency"] = "2.5GHz"
         sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-        setup2 = self.aedtapp.optimizations.add(
+        setup1 = self.aedtapp.optimizations.add(
             None,
-            {"w1": "1mm", "w2": "2mm"},
+            ranges=None,
+            variables=None,
             optim_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
-        assert setup2.add_variation("w1", 0.1, 10)
+        assert setup1.add_variation("w1", 1, 10, 51)
+        setup2 = self.aedtapp.optimizations.add(
+            None,
+            ranges=None,
+            variables={"w1": "1mm", "w2": "2mm"},
+            optim_type="DesignExplorer",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_variation("a1", 1, 10, 51)
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
