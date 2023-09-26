@@ -477,6 +477,10 @@ class Revision:
                         domain.set_receiver(rx_radio, rx_band)
                         domain.set_interferer(tx_radio, tx_band)
                         interaction = self.run(domain)
+                        # check for valid interaction, this would catch any disabled radio pairs
+                        if not interaction.is_valid():
+                            continue
+
                         domain.set_receiver(rx_radio, rx_band, rx_freq)
                         tx_freqs = self.get_active_frequencies(tx_radio, tx_band, modeTx)
                         for tx_freq in tx_freqs:
@@ -622,6 +626,9 @@ class Revision:
                     domain.set_receiver(rx_radio, rx_band)
                     domain.set_interferer(tx_radio, tx_band)
                     interaction = self.run(domain)
+                    # check for valid interaction, this would catch any disabled radio pairs
+                    if not interaction.is_valid():
+                        continue
                     domain.set_receiver(rx_radio, rx_band, rx_freq)
                     tx_freqs = self.get_active_frequencies(tx_radio, tx_band, modeTx)
 
@@ -648,7 +655,9 @@ class Revision:
                         else:
                             filtering = True
 
-                        if instance.get_value(mode_power) > max_power and filtering:
+                        if (instance.has_valid_values() and
+                                instance.get_value(mode_power) > max_power and
+                                filtering):
                             max_power = instance.get_value(mode_power)
 
                 # If the worst case for the band-pair is below the power thresholds, then
