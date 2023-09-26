@@ -1357,19 +1357,21 @@ class Analysis(Design, object):
         return setup
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None):
+    def create_output_variable(self, variable, expression, solution=None, context=None):
         """Create or modify an output variable.
 
 
         Parameters
         ----------
-        variable : str
+        variable : str, optional
             Name of the variable.
-        expression :
+        expression : str, optional
             Value for the variable.
-        solution :
+        solution : str, optional
             Name of the solution in the format `"setup_name : sweep_name"`.
             If `None`, the first available solution is used. Default is `None`.
+        context : list, str, optional
+            Context under which the output variable will produce results.
 
         Returns
         -------
@@ -1381,13 +1383,20 @@ class Analysis(Design, object):
 
         >>> oModule.CreateOutputVariable
         """
+        if context is None:
+            context = []
+        if not context and self.solution_type == "Q3D Extractor":
+            context = ["Context:=", "Original"]
+
         oModule = self.ooutput_variable
         if solution is None:
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
-            oModule.EditOutputVariable(variable, expression, variable, solution, self.solution_type, [])
+            oModule.EditOutputVariable(
+                variable, expression, variable, solution, self.design_solutions.report_type, context
+            )
         else:
-            oModule.CreateOutputVariable(variable, expression, solution, self.solution_type, [])
+            oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
         return True
 
     @pyaedt_function_handler()

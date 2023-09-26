@@ -69,18 +69,22 @@ class CommonOptimetrics(PropsManager, object):
             if inputd.get("Sim. Setups"):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
-                    if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
-                        for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
-                            if setup["I"] == el:
-                                setups[setups.index(el)] = setup["I"]
+                    try:
+                        if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                            for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
+                                if setup["I"] == el:
+                                    setups[setups.index(el)] = setup["I"]
+                                    break
+                        else:
+                            if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+                                setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
+                                    "Setup"
+                                ]["N"]
                                 break
-                    else:
-                        if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
-                            setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
-                                "Setup"
-                            ]["N"]
-                            break
-            if inputd.get("Goals", None):
+                    except (TypeError, KeyError):
+                        pass
+
+            if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
                 if self._app._is_object_oriented_enabled():
                     oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
@@ -710,6 +714,7 @@ class SetupOpti(CommonOptimetrics, object):
         min_step=None,
         max_step=None,
         use_manufacturable=False,
+        levels=None,
     ):
         """Add a new variable as input for the optimization and defines its ranges.
 
@@ -730,7 +735,8 @@ class SetupOpti(CommonOptimetrics, object):
             Maximum Step Size for optimization. If None, 1/10 of the range will be used.
         use_manufacturable : bool
             Either if to use or not the Manufacturable values. Default is False.
-
+        levels : list, optional
+            List of available manufacturer levels.
 
         Returns
         -------
@@ -748,36 +754,44 @@ class SetupOpti(CommonOptimetrics, object):
 
         if not max_step:
             max_step = (max_value - min_value) / 10
+        if levels is None:
+            levels = "[{}: {}] mm".format(min_value, max_value)
+        else:
+            levels = "{} {}".format(levels, self._app.variable_manager[variable_name].units)
         max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
-        min_value = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
-        max_value = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
+        min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
+        max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
         arg = [
             "i:=",
             True,
             "int:=",
             False,
             "Min:=",
-            min_value,
+            min_value_wuints,
             "Max:=",
-            max_value,
+            max_value_wuints,
             "MinStep:=",
             min_step,
             "MaxStep:=",
             max_step,
             "MinFocus:=",
-            min_value,
+            min_value_wuints,
             "MaxFocus:=",
-            max_value,
+            max_value_wuints,
             "UseManufacturableValues:=",
             use_manufacturable,
         ]
+        if self._app.aedt_version_id > "2023.2":
+            arg.extend(["DiscreteLevel:=", levels])
         if not self.props.get("Variables", None):
             self.props["Variables"] = OrderedDict({})
         self.props["Variables"][variable_name] = arg
         if not self.props.get("StartingPoint", None):
             self.props["StartingPoint"] = OrderedDict({})
         if not starting_point:
-            starting_point = self._app[variable_name]
+            starting_point = self._app.variable_manager[variable_name].numeric_value
+            if starting_point < min_value or starting_point > max_value:
+                starting_point = (max_value + min_value) / 2
 
         self.props["StartingPoint"][variable_name] = self._app.value_with_units(
             starting_point, self._app.variable_manager[variable_name].units
@@ -917,13 +931,15 @@ class SetupParam(CommonOptimetrics, object):
             if v not in existing_variables:
                 self._app.logger.error("Variable {} is not defined in the Parametric setup".format(v))
                 return False
+        legacy_update = self.auto_update
+        self.auto_update = False
         for v in variables:
             for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
                 if v == sweep_def["Variable"]:
                     undo_vals[v] = sweep_def["Synchronize"]
                     sweep_def["Synchronize"] = sync_n
         try:
-            return self.update()
+            self.update()
         except Exception:  # pragma: no cover
             # If it fails to sync (due to e.g. different number of variations), reverts to original values.
             for v in variables:
@@ -931,7 +947,10 @@ class SetupParam(CommonOptimetrics, object):
                     if v == sweep_def["Variable"]:
                         sweep_def["Synchronize"] = undo_vals[v]
             self._app.logger.error("Failed to sync the Parametric setup.")
+            self.auto_update = legacy_update
             return False
+        self.auto_update = legacy_update
+        return True
 
     @pyaedt_function_handler()
     def add_calculation(
