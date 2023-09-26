@@ -315,16 +315,20 @@ class TestClass:
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
         touch = os.path.join(local_path, "example_models", test_subfolder, "SSN_ssn.s6p")
-        t1 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 6
         assert t1.model_data
         t1.model_data.props["NexximCustomization"]["Passivity"] = 7
         assert t1.model_data.update()
-        t2 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
+        t2 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t2
         t2.model_data.props["NexximCustomization"]["Passivity"] = 0
         assert t2.model_data.update()
+        touch = os.path.join(local_path, "example_models", test_subfolder, "y4bm_rdl_dq_byte0.s26p")
+        t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
+        assert t1
+        assert len(t1.pins) == 26
 
     def test_25_zoom_to_fit(self):
         self.aedtapp.insert_design("zoom_test")

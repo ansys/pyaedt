@@ -76,7 +76,7 @@ class Edb(Database):
     ----------
     edbpath : str, optional
         Full path to the ``aedb`` folder. The variable can also contain
-        the path to a layout to import. Allowed formats are BRD,
+        the path to a layout to import. Allowed formats are BRD, MCM,
         XML (IPC2581), GDS, and DXF. The default is ``None``.
         For GDS import, the Ansys control file (also XML) should have the same
         name as the GDS file. Only the file extension differs.
@@ -177,7 +177,7 @@ class Edb(Database):
 
         if isaedtowned and (inside_desktop or settings.remote_api or settings.remote_rpc_session):
             self.open_edb_inside_aedt()
-        elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+        elif edbpath[-3:] in ["brd", "mcm", "gds", "xml", "dxf", "tgz"]:
             self.edbpath = edbpath[:-4] + ".aedb"
             working_dir = os.path.dirname(edbpath)
             control_file = None
@@ -518,7 +518,7 @@ class Edb(Database):
     def import_layout_pcb(self, input_file, working_dir, anstranslator_full_path="", use_ppe=False, control_file=None):
         """Import a board file and generate an ``edb.def`` file in the working directory.
 
-        This function supports all AEDT formats, including DXF, GDS, SML (IPC2581), BRD, and TGZ.
+        This function supports all AEDT formats, including DXF, GDS, SML (IPC2581), BRD, MCM and TGZ.
 
         Parameters
         ----------
@@ -566,7 +566,7 @@ class Edb(Database):
         ]
         if not use_ppe:
             cmd_translator.append("-ppe=false")
-        if control_file and input_file[-3:] not in ["brd"]:
+        if control_file and input_file[-3:] not in ["brd", "mcm"]:
             if is_linux:
                 cmd_translator.append("-c={}".format(control_file))
             else:
