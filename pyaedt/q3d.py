@@ -1795,7 +1795,7 @@ class Q3d(QExtractor, object):
              If units is passed with number like ``"1MHz"`` then the unit will be ignored.
         freqstop : float, str, optional
             Stopping frequency of the sweep.
-            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+            If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
         freqstep : optional
             Frequency step point.
         sweepname : str, optional
