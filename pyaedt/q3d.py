@@ -1789,7 +1789,7 @@ class Q3d(QExtractor, object):
             Name of the setup that is attached to the sweep.
         units : str, optional
             Units of the frequency. For example, ``"MHz"`` or
-            ``"GHz"``. The default is ``"GHz"``. Default is ``"GHz"``.
+            ``"GHz"``. The default is ``"GHz"``. The default is ``"GHz"``.
         freqstart : float, str, optional
             Starting frequency of the sweep.
              If units is passed with number like ``"1MHz"`` then the unit will be ignored.
