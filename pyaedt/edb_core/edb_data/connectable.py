@@ -58,7 +58,8 @@ class LayoutObj(object):
     @pyaedt_function_handler()
     def delete(self):
         """Delete this primitive."""
-        return self._edb_object.Delete()
+        self._edb_object.Delete()
+        return True
 
 class Connectable(LayoutObj):
     """Manages EDB functionalities for a connectable object."""

@@ -1582,7 +1582,7 @@ class TestClass:
         )
         assert edb.hfss.get_ports_number() == 2
         port_ver = edb.ports["port_ver"]
-        assert not port_ver.is_null()
+        assert not port_ver.is_null
         assert port_ver.hfss_type == "Gap"
 
         args = {
