@@ -1788,7 +1788,7 @@ class SetupHFSS(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Frequency Units. Default is ``"GHz"``.
+            Frequency Units. The default is ``"GHz"``.
         freqstart : float, str, optional
             Starting frequency of the sweep. The default is ``1``.
             If a unit is passed with number, such as ``"1MHz"``, the unit will be ignored.
