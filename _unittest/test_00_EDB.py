@@ -109,7 +109,7 @@ class TestClass:
 
     def test_003_create_coax_port_on_component(self):
         assert self.edbapp.hfss.create_coax_port_on_component("U1", "DDR4_DQS0_P")
-        coax_port =  self.edbapp.components["U6"].pins["R3"].create_coax_port()
+        coax_port =  self.edbapp.components["U6"].pins["R3"].create_coax_port("coax_port")
         coax_port.radial_extent_factor = 3
         assert coax_port.radial_extent_factor == 3
 

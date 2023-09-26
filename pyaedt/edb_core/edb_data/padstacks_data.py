@@ -1004,19 +1004,22 @@ class EDBPadstackInstance(EDBPrimitivesMain):
             return term
 
     @pyaedt_function_handler
-    def _create_terminal(self):
+    def _create_terminal(self, name=None):
         """Create a padstack instance terminal"""
         from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 
         term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
-        return term.create(self)
+        return term.create(self, name)
 
     @pyaedt_function_handler
-    def create_coax_port(self):
+    def create_coax_port(self, name=None, radial_extent_factor=0):
         """"""
         from pyaedt.edb_core.edb_data.ports import CoaxPort
-        term = self._create_terminal()
-        return CoaxPort(self._pedb, term._edb_object)
+        term = self._create_terminal(name)
+        coax = CoaxPort(self._pedb, term._edb_object)
+        coax.radial_extent_factor = radial_extent_factor
+        return coax
+
 
     @property
     def _em_properties(self):
