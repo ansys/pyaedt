@@ -423,6 +423,7 @@ class Analysis(Design, object):
         try:
             list_names = list(self.oboundary.GetExcitations())
             del list_names[1::2]
+            list_names = list(set(list_names))
             return list_names
         except:
             return []
@@ -1697,6 +1698,7 @@ class Analysis(Design, object):
                     if self.working_directory[0] != "\\"
                     else os.path.join(self.working_directory, config_name + ".acf")
                 )
+            skip_files = False
             try:
                 shutil.copy2(source_name, target_name)
 
@@ -1706,28 +1708,34 @@ class Analysis(Design, object):
             # If there is any permission issue
             except PermissionError:
                 self.logger.error("Permission denied.")
+                skip_files = True
             # For other errors
             except:
                 self.logger.error("Error occurred while copying file.")
-
-            if num_cores:
-                update_hpc_option(target_name, "NumCores", num_cores, False)
-            if num_gpu:
-                update_hpc_option(target_name, "NumGPUs", num_gpu, False)
-            if num_tasks:
-                update_hpc_option(target_name, "NumEngines", num_tasks, False)
-            update_hpc_option(target_name, "ConfigName", config_name, True)
-            update_hpc_option(target_name, "DesignType", self.design_type, True)
-            if self.design_type == "Icepak":
-                use_auto_settings = False
-            update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
-            if num_variations_to_distribute:
-                update_hpc_option(target_name, "NumVariationsToDistribute", num_variations_to_distribute, False)
-            if isinstance(allowed_distribution_types, list):
-                num_adt = len(allowed_distribution_types)
-                adt_string = "', '".join(allowed_distribution_types)
-                adt_string = "[{}: '{}']".format(num_adt, adt_string)
-                update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, separator="")
+                skip_files = True
+            if not skip_files:
+                if num_cores:
+                    skip_files = update_hpc_option(target_name, "NumCores", num_cores, False)
+                if num_gpu:
+                    skip_files = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                if num_tasks:
+                    skip_files = update_hpc_option(target_name, "NumEngines", num_tasks, False)
+                skip_files = update_hpc_option(target_name, "ConfigName", config_name, True)
+                skip_files = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                if self.design_type == "Icepak":
+                    use_auto_settings = False
+                skip_files = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                if num_variations_to_distribute:
+                    skip_files = update_hpc_option(
+                        target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
+                    )
+                if isinstance(allowed_distribution_types, list):
+                    num_adt = len(allowed_distribution_types)
+                    adt_string = "', '".join(allowed_distribution_types)
+                    adt_string = "[{}: '{}']".format(num_adt, adt_string)
+                    skip_files = update_hpc_option(
+                        target_name, "AllowedDistributionTypes", adt_string, False, separator=""
+                    )
 
             if settings.remote_rpc_session:
                 remote_name = (
@@ -1737,13 +1745,13 @@ class Analysis(Design, object):
                 )
                 settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
                 target_name = remote_name
-
-            try:
-                self._desktop.SetRegistryFromFile(target_name)
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
-                set_custom_dso = True
-            except:
-                pass
+            if not skip_files:
+                try:
+                    self._desktop.SetRegistryFromFile(target_name)
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
+                    set_custom_dso = True
+                except:
+                    pass
         if not name:
             try:
                 self.logger.info("Solving all design setups")

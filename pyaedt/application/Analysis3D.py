@@ -199,6 +199,9 @@ class FieldAnalysis3D(Analysis, object):
         clean_files=False,
         view="isometric",
         show_legend=True,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Plot the model or a subset of objects.
 
@@ -229,6 +232,12 @@ class FieldAnalysis3D(Analysis, object):
            The default is ``"isometric"``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -250,6 +259,9 @@ class FieldAnalysis3D(Analysis, object):
                 clean_files=clean_files,
                 view=view,
                 show_legend=show_legend,
+                dark_mode=dark_mode,
+                show_bounding=show_bounding,
+                show_grid=show_grid,
             )
 
     @pyaedt_function_handler()
@@ -1219,8 +1231,10 @@ class FieldAnalysis3D(Analysis, object):
                 self.logger.error("{} does not exist in specified dxf.".format(layer))
                 return False
 
-        if self.is3d:
+        if hasattr(self, "is3d") and self.is3d:
             sheet_bodies_2d = False
+        else:
+            sheet_bodies_2d = True
 
         vArg1 = ["NAME:options"]
         vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))

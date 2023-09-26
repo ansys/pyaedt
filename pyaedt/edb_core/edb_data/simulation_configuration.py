@@ -1190,7 +1190,7 @@ class SimulationConfigurationAc(object):
     def __init__(self):
         self._sweep_interpolating = True
         self._use_q3d_for_dc = False
-        self._relative_error = 0.5
+        self._relative_error = 0.005
         self._use_error_z0 = False
         self._percentage_error_z0 = 1
         self._enforce_causality = True

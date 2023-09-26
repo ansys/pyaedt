@@ -375,34 +375,35 @@ class Revision:
         self.emit_project._emit_api.save_project()
 
     @property
-    def max_n_to_1_instances(self):
+    def n_to_1_limit(self):
         """
-        The maximum number of instances per band combination allowed to run for N to 1.
-        A value of 0 disables N to 1 entirely.
-        A value of -1 allows unlimited N to 1 instances.
+        Maximum number of interference combinations to run per receiver for N to 1.
+
+        - A value of ``0`` disables N to 1 entirely.
+        - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
 
         Examples
         ----------
-        >>> aedtapp.results.current_revision.max_n_to_1_instances = 2**20
-        >>> aedtapp.results.current_revision.max_n_to_1_instances
+        >>> aedtapp.results.current_revision.n_to_1_limit = 2**20
+        >>> aedtapp.results.current_revision.n_to_1_limit
         1048576
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
-            max_instances = engine.max_n_to_1_instances
+            max_instances = engine.n_to_1_limit
         else:  # pragma: no cover
             max_instances = None
         return max_instances
 
-    @max_n_to_1_instances.setter
-    def max_n_to_1_instances(self, max_instances):
+    @n_to_1_limit.setter
+    def n_to_1_limit(self, max_instances):
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
-            engine.max_n_to_1_instances = max_instances
+            engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
     def interference_type_classification(self, domain, use_filter=False, filter_list=None):
@@ -499,9 +500,13 @@ class Revision:
                                 in_filters = True
 
                             # Save the worst case interference values
-                            if instance.get_value(mode_power) > max_power and in_filters:
+                            if (
+                                instance.has_valid_values()
+                                and instance.get_value(ResultType.EMI) > max_power
+                                and in_filters
+                            ):
                                 prob = instance.get_largest_problem_type(ResultType.EMI)
-                                max_power = instance.get_value(mode_power)
+                                max_power = instance.get_value(ResultType.EMI)
                                 largest_rx_prob = rx_prob
                                 largest_tx_prob = prob.replace(" ", "").split(":")
 

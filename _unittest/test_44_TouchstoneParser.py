@@ -1,12 +1,10 @@
 import os
 
-from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Hfss3dLayout
 
-config["NonGraphical"] = False
 test_subfolder = "T44"
 test_T44_dir = os.path.join(local_path, "example_models", test_subfolder)
 

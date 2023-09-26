@@ -149,3 +149,26 @@ class DielectricExtentType(Enum):
     Conforming = 1
     ConvexHull = 2
     Polygon = 3
+
+
+class BoundaryType(Enum):
+    InvalidBoundary = -1
+    PortBoundary = 0
+    PecBoundary = 1
+    RlcBoundary = 2
+    kCurrentSource = 3
+    kVoltageSource = 4
+    kNexximGround = 5
+    kNexximPort = 6
+    kDcTerminal = 7
+    kVoltageProbe = 8
+
+
+class TerminalType(Enum):
+    InvalidTerminal = -1
+    EdgeTerminal = 0
+    PointTerminal = 1
+    TerminalInstanceTerminal = 2
+    PadstackInstanceTerminal = 3
+    BundleTerminal = 4
+    PinGroupTerminal = 5

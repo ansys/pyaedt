@@ -232,6 +232,9 @@ class PostProcessor(Post):
         array_coordinates=None,
         view="isometric",
         show_legend=True,
+        dark_mode=False,
+        show_bounding=False,
+        show_grid=False,
     ):
         """Plot the model or a substet of objects.
 
@@ -261,6 +264,12 @@ class PostProcessor(Post):
             The default is ``"isometric"``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -278,6 +287,10 @@ class PostProcessor(Post):
 
         model.show_legend = show_legend
         model.off_screen = not show
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
         elif view != "isometric":
@@ -305,6 +318,9 @@ class PostProcessor(Post):
         scale_max=None,
         plot_cad_objs=True,
         log_scale=True,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -342,6 +358,12 @@ class PostProcessor(Post):
             Whether to include objects in the plot. The default is ``True``.
         log_scale : bool, optional
             Whether to plot fields in log scale. The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -358,6 +380,10 @@ class PostProcessor(Post):
         model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
 
         model.off_screen = not show
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if file_to_add:
             model.add_field_from_file(
                 file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
@@ -398,6 +424,9 @@ class PostProcessor(Post):
         export_path="",
         imageformat="jpg",
         keep_plot_after_generation=False,
+        dark_mode=False,
+        show_bounding=False,
+        show_grid=False,
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -442,6 +471,12 @@ class PostProcessor(Post):
             ``"jpg"``.
         keep_plot_after_generation : bool, optional
             Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -478,6 +513,9 @@ class PostProcessor(Post):
             scale_max,
             plot_cad_objs,
             log_scale,
+            dark_mode=dark_mode,
+            show_grid=show_grid,
+            show_bounding=show_bounding,
         )
         if not keep_plot_after_generation:
             plotf.delete()
@@ -504,6 +542,9 @@ class PostProcessor(Post):
         export_gif=False,
         export_path="",
         force_opacity_value=0.1,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -549,6 +590,12 @@ class PostProcessor(Post):
         force_opacity_value : float, optional
             Opacity value between 0 and 1 to be applied to all model.
             If `None` aedt opacity will be applied to each object.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -586,7 +633,10 @@ class PostProcessor(Post):
             generate_mesh=False, get_objects_from_aedt=plot_cad_objs, force_opacity_value=force_opacity_value
         )
         model.off_screen = not show
-
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if fields_to_add:
             model.add_frames_from_file(fields_to_add, log_scale=log_scale)
         if export_gif:
@@ -616,6 +666,9 @@ class PostProcessor(Post):
         project_path="",
         export_gif=False,
         show=True,
+        dark_mode=False,
+        show_bounding=False,
+        show_grid=False,
     ):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
 
@@ -643,6 +696,12 @@ class PostProcessor(Post):
                 show=False,
         show : bool, optional
              Generate the animation without showing an interactive plot.  The default is ``True``.
+        dark_mode : bool, optional
+            Whether to display the model in dark mode or not. The default is ``False``.
+        show_grid : bool, optional
+            Whether to display the axes grid or not. The default is ``False``.
+        show_bounding : bool, optional
+            Whether to display the axes bounding box or not. The default is ``False``.
 
         Returns
         -------
@@ -678,7 +737,10 @@ class PostProcessor(Post):
 
         model = self.get_model_plotter_geometries(generate_mesh=False)
         model.off_screen = not show
-
+        if dark_mode:
+            model.background_color = [40, 40, 40]
+        model.bounding_box = show_bounding
+        model.show_grid = show_grid
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
@@ -704,6 +766,9 @@ class PostProcessor(Post):
         show=True,
         zoom=None,
         log_scale=False,
+        dark_mode=False,
+        show_grid=False,
+        show_bounding=False,
     ):
         """Generate a field plot to an animated gif file using PyVista.
 
@@ -774,6 +839,9 @@ class PostProcessor(Post):
             show=show,
             export_gif=export_gif,
             zoom=zoom,
+            show_bounding=show_bounding,
+            show_grid=show_grid,
+            dark_mode=dark_mode,
         )
 
     @pyaedt_function_handler()
