@@ -2752,7 +2752,7 @@ class SetupQ3D(Setup, object):
             If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
         freqstop : float, str, optional
             Stopping frequency of the sweep.
-            If units is passed with number like ``"1MHz"`` then the unit will be ignored.
+            If a unit is passed with the number, such as ``"1MHz"``, the unit is ignored.
         num_of_freq_points : int
             Number of frequency points in the range. The default is ``401`` for
             a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
