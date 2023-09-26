@@ -5,6 +5,7 @@ import warnings
 
 from pyaedt import is_ironpython
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitivesMain
 from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import String
@@ -968,7 +969,7 @@ class EDBPadstack(object):
         return new_instances
 
 
-class EDBPadstackInstance(object):
+class EDBPadstackInstance(EDBPrimitivesMain):
     """Manages EDB functionalities for a padstack.
 
     Parameters
@@ -985,22 +986,37 @@ class EDBPadstackInstance(object):
     >>> edb_padstack_instance = edb.padstacks.instances[0]
     """
 
-    def __getattr__(self, key):
-        try:
-            return super().__getattribute__(key)
-        except AttributeError:
-            try:
-                return getattr(self._edb_padstackinstance, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, edb_padstackinstance, _pedb):
-        self._edb_padstackinstance = edb_padstackinstance
-        self._pedb = _pedb
+        super().__init__(edb_padstackinstance, _pedb)
+        self._edb_padstackinstance = self._edb_object
         self._bounding_box = []
         self._object_instance = None
         self._position = []
         self._pdef = None
+
+    @property
+    def terminal(self):
+        """Return PadstackInstanceTerminal object."""
+        from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
+        term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        if not term.is_null:
+            return term
+
+    @pyaedt_function_handler
+    def _create_terminal(self):
+        """Create a padstack instance terminal"""
+        from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
+        term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        return term.create(self)
+
+    @pyaedt_function_handler
+    def create_coax_port(self):
+        """"""
+        from pyaedt.edb_core.edb_data.ports import CoaxPort
+        term = self._create_terminal()
+        return CoaxPort(self._pedb, term._edb_object)
 
     @property
     def _em_properties(self):
@@ -1067,7 +1083,7 @@ class EDBPadstackInstance(object):
 
     @property
     def object_instance(self):
-        """Edb Object Instance."""
+        """Return Ansys.Ansoft.Edb.LayoutInstance.LayoutObjInstance object."""
         if not self._object_instance:
             self._object_instance = (
                 self._edb_padstackinstance.GetLayout()
@@ -1137,16 +1153,6 @@ class EDBPadstackInstance(object):
             return True
         else:
             return False
-
-    @property
-    def component(self):
-        """Get the component that this padstack belongs to."""
-        api_object = self._edb_padstackinstance.GetComponent()
-        from pyaedt.edb_core.edb_data.components_data import EDBComponent
-
-        edb_comp = EDBComponent(self._pedb, api_object)
-        if not edb_comp.is_null:
-            return edb_comp
 
     @property
     def pin(self):
@@ -1441,17 +1447,6 @@ class EDBPadstackInstance(object):
             return out[2].ToDouble()
 
     @property
-    def id(self):
-        """Id of this padstack instance.
-
-        Returns
-        -------
-        str
-            Padstack instance id.
-        """
-        return self._edb_padstackinstance.GetId()
-
-    @property
     def name(self):
         """Padstack Instance Name. If it is a pin, the syntax will be like in AEDT ComponentName-PinName."""
         if self.is_pin:
@@ -1566,12 +1561,6 @@ class EDBPadstackInstance(object):
            Use :func:`delete` property instead.
         """
         warnings.warn("`delete_padstack_instance` is deprecated. Use `delete` instead.", DeprecationWarning)
-        self._edb_padstackinstance.Delete()
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
         return True
 

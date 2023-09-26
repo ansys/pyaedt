@@ -33,6 +33,7 @@ from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimul
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
+from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import TerminalType
@@ -353,6 +354,8 @@ class Edb(Database):
                 ter = EdgeTerminal(self, i)
             elif terminal_type == TerminalType.BundleTerminal.name:
                 ter = BundleTerminal(self, i)
+            elif terminal_type == TerminalType.PadstackInstanceTerminal.name:
+                ter = PadstackInstanceTerminal(self, i)
             else:
                 ter = Terminal(self, i)
             temp[ter.name] = ter
