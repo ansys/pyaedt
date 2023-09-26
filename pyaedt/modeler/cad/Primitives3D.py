@@ -130,7 +130,7 @@ class Primitives3D(Primitives, object):
             Name of the cylinder. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
-            Name of the material. The default is ''None``, in which case the
+            Name of the material. The default is ``None``, in which case the
             default material is assigned.
 
         Returns
@@ -155,7 +155,7 @@ class Primitives3D(Primitives, object):
         if isinstance(radius, (int, float)) and radius < 0:
             raise ValueError("Radius must be greater than 0.")
 
-        assert len(position) == 3, "Position Argument must be a valid 3 Element List"
+        assert len(position) == 3, "``Position`` Argument must be a valid 3 Element List"
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -218,6 +218,7 @@ class Primitives3D(Primitives, object):
         References
         ----------
 
+
         >>> oEditor.CreateRegularPolyhedron
 
         Examples
@@ -229,9 +230,10 @@ class Primitives3D(Primitives, object):
         ...                                              num_sides=8, name="mybox", matname="copper")
 
         """
+
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
-        assert len(center_position) == 3, "Position Argument must be a valid 3 Element List"
+        assert len(center_position) == 3, "``Position`` Argument must be a valid 3 Element List"
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
@@ -303,6 +305,7 @@ class Primitives3D(Primitives, object):
             raise ValueError("Top radius must be greater than 0.")
         if isinstance(height, (int, float)) and height <= 0:
             raise ValueError("Height must be greater than 0.")
+        assert len(position) == 3, "``Position`` Argument must be a valid 3 Element List"
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
