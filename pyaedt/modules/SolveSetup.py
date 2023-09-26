@@ -2746,7 +2746,7 @@ class SetupQ3D(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Frequency Units.
+            Frequency units. The default is ``GHz``.
         freqstart : float, str, optional
             Starting frequency of the sweep, such as ``1``.
             If units is passed with number like ``"1MHz"`` then the unit will be ignored.
