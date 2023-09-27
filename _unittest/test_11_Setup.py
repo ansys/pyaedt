@@ -107,7 +107,6 @@ class TestClass:
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
-    #
     def test_25a_create_parametrics(self):
         self.aedtapp.set_active_design("HFSSDesign")
         self.aedtapp["w1"] = "10mm"
