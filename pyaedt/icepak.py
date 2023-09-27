@@ -2177,7 +2177,7 @@ class Icepak(FieldAnalysis3D):
                 }
             )
         native_props["BasicComponentInfo"] = OrderedDict({"IconType": "PCB"})
-        if settings.aedt_version > "2023.2":
+        if settings.aedt_version > "2023.2":  # pragma: no cover
             native_props["ViaHoleMaterial"] = "copper"
             native_props["IncludeMCAD"] = False
 
