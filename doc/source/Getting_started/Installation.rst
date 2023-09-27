@@ -42,7 +42,7 @@ Starting from 2023R2, a Ribbon button is available in Automation Tab as in the e
   :alt: PyAEDT toolkit buttons available in AEDT 2023.2 after batch run
 
 
-Install PyAEDT Toolkits
+Build Toolkits with PyAEDT
 ~~~~~~~~~~~~~~~~~~~~~~~
 You can create and install external toolkits.
 The template provides a framework to create your own toolkits using PyAEDT.
