@@ -361,3 +361,12 @@ class TestClass:
         assert self.aedtapp.show_extent()
         assert self.aedtapp.show_extent(show=False)
         assert not self.aedtapp.show_extent(show=None)
+
+    def test_22_change_design_settings(self):
+        assert (
+            self.aedtapp.get_oo_property_value(self.aedtapp.odesign, "Design Settings", "DCExtrapolation") == "Standard"
+        )
+        assert self.aedtapp.change_design_settings({"UseAdvancedDCExtrap": True})
+        assert (
+            self.aedtapp.get_oo_property_value(self.aedtapp.odesign, "Design Settings", "DCExtrapolation") == "Advanced"
+        )

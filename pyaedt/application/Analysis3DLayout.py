@@ -168,6 +168,26 @@ class FieldAnalysis3DLayout(Analysis):
         return spar
 
     @pyaedt_function_handler()
+    def change_design_settings(self, settings):
+        """Set HFSS 3D Layout Design Settings.
+
+        Parameters
+        ----------
+        settings : dict
+            Dictionary of settings with value to apply.
+
+        Returns
+        -------
+        bool
+        """
+        arg = ["NAME:options"]
+        for key, value in settings.items():
+            arg.append(key + ":=")
+            arg.append(value)
+        self.odesign.DesignOptions(arg)
+        return True
+
+    @pyaedt_function_handler()
     def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
