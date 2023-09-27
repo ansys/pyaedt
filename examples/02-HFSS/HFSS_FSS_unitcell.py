@@ -175,7 +175,7 @@ hfss.parametrics.add("patch_dim", 8, 11, 0.5, variation_type = "LinearStep", par
 ###############################################################################
 # Create S-parameter report using report objects
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a far fields report using the ``report_by_category.far field`` method,
+# Create S-parameter reports using create report,
 # which gives you more freedom.
 
 # Create a report
