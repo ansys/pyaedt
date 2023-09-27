@@ -764,6 +764,8 @@ class SetupOpti(CommonOptimetrics, object):
         if self.soltype in "OptiDXDOE":
             self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
             self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
+            self.auto_update = True
+            return True
         elif self.soltype in ["optiSLang", "OptiDesignExplorer"]:
             self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
             self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
@@ -1446,15 +1448,14 @@ class OptimizationSetups(object):
                 self._app.activate_variable_statistical(v)
         if optim_type == "OptiDXDOE" and calculation:
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-        if optim_type in "OptiDesignExplorer":
-            setup.props["Sweeps"]["SweepDefinition"] = []
-            for l, k in dx_variables.items():
-                arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
-                setup.props["Sweeps"]["SweepDefinition"].append(arg)
-        elif optim_type in "optiSLang":
+
+        if optim_type in ["optiSLang", "OptiDesignExplorer"]:
             setup.props["Sweeps"]["SweepDefinition"] = []
             if not dx_variables:
-                dx_variables = self._app.variable_manager.design_variables
+                if optim_type == "optiSLang":
+                    dx_variables = self._app.variable_manager.design_variables
+                else:
+                    dx_variables = self._app.variable_manager.variables
                 for variable in dx_variables.keys():
                     self._app.activate_variable_optimization(variable)
                 for var in dx_variables:
@@ -1472,11 +1473,6 @@ class OptimizationSetups(object):
                     arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
         setup.create()
-
-        if optim_type in "optiSLang" and not list(dx_variables.keys()):
-            dx_variables = list(self._app.variable_manager.variables.keys())
-            for variable in dx_variables:
-                self._app.activate_variable_optimization(variable)
 
         setup.auto_update = True
         self.setups.append(setup)

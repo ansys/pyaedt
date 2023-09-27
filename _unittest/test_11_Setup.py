@@ -201,11 +201,19 @@ class TestClass:
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10)
+        assert setup2.add_variation("w2", 0.1, 10)
         assert setup2
-        assert setup2.add_goal(
-            calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
-        )
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+        if desktop_version < "2024.1":
+            assert setup2.add_goal(
+                calculation="dB(S(1,1))",
+                ranges={"Freq": "2.5GHz"},
+                solution="{} : {}".format(new_setup.name, sweep.name),
+            )
+            assert setup2.add_calculation(
+                calculation="dB(S(1,1))",
+                ranges={"Freq": "2.5GHz"},
+                solution="{} : {}".format(new_setup.name, sweep.name),
+            )
         assert setup2.delete()
 
     def test_28A_create_optislang(self):
@@ -230,7 +238,9 @@ class TestClass:
         assert setup2.add_variation("a1", 1, 10, 51)
         assert not setup2.add_variation("w3", 0.1, 10, 5)
         assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+        assert setup2.add_goal(
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+        )
 
     def test_28B_create_dx(self):
         new_setup = self.aedtapp.create_setup("MyDXSetup")
@@ -243,7 +253,7 @@ class TestClass:
             optim_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
-        assert setup1.add_variation("w1", 1, 10, 51)
+        assert setup1.add_variation("w1", 5, 10, 51)
         setup2 = self.aedtapp.optimizations.add(
             None,
             ranges=None,
@@ -253,7 +263,9 @@ class TestClass:
         )
         assert setup2.add_variation("a1", 1, 10, 51)
         assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+        assert setup2.add_goal(
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+        )
 
     def test_29_create_sensitivity(self):
         calculation = "db(S(1,1))"
@@ -268,7 +280,9 @@ class TestClass:
         )
         assert setup2.add_variation("w1", 0.1, 10, 3.2)
         assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+        assert setup2.add_calculation(
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+        )
 
     def test_29_create_statistical(self):
         calculation = "db(S(1,1))"
@@ -283,4 +297,6 @@ class TestClass:
         )
         assert setup2.add_variation("w1", 0.1, 10, 0.3)
         assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+        assert setup2.add_calculation(
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+        )
