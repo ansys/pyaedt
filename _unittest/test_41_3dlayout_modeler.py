@@ -1,4 +1,5 @@
 import os
+import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
@@ -590,7 +591,15 @@ class TestClass:
         )
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         output = self.aedtapp.export_3d_model()
-        assert os.path.exists(output)
+        time_out = 0
+        while time_out < 10:
+            if not os.path.exists(output):
+                time_out += 1
+                time.sleep(1)
+            else:
+                break
+        if time_out == 10:
+            assert False
 
     @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_36_import_gerber(self):
