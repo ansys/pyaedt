@@ -1399,6 +1399,8 @@ class Icepak(FieldAnalysis3D):
         export_directory=os.getcwd(),
         gauge_pressure=0,
         radiation_temperature=20,
+        ignore_unclassified_objects=False,
+        skip_intersection_checks=False,
         **kwargs,
     ):
         """Update the main settings of the design.
@@ -1431,7 +1433,12 @@ class Icepak(FieldAnalysis3D):
         radiation_temperature : float, str, optional
             Set the radiation temperature. It can be a float (units will be "cel") or a string with units.
             Default is ``20``.
-
+        ignore_unclassified_objects : bool, optional
+            Whether to ignore unclassified objects during validation check.
+            The default value is ``False``.
+        skip_intersection_checks : bool, optional
+            Whether to skip intersection checks during validation check.
+            The default value is ``False``.
         Returns
         -------
         bool
@@ -1496,9 +1503,9 @@ class Icepak(FieldAnalysis3D):
                 "EntityCheckLevel:=",
                 check_level,
                 "IgnoreUnclassifiedObjects:=",
-                False,
+                ignore_unclassified_objects,
                 "SkipIntersectionChecks:=",
-                False,
+                skip_intersection_checks,
             ],
         )
         return True
