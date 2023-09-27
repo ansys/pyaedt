@@ -993,7 +993,13 @@ class TestClass:
         self.aedtapp.insert_design("mesh_priority")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
         self.aedtapp.create_ipk_3dcomponent_pcb(
-            "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+            "Board",
+            link_data,
+            solution_freq,
+            resolution,
+            extent_type="Polygon",
+            custom_x_resolution=400,
+            custom_y_resolution=500,
         )
         assert self.aedtapp.mesh.add_priority(entity_type=1, obj_list=self.aedtapp.modeler.object_names, priority=2)
         assert self.aedtapp.mesh.add_priority(
