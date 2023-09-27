@@ -2169,7 +2169,7 @@ class Analysis(Design, object):
         try:
             float(value)
             val = "{0}{1}".format(value, units)
-        except ValueError:
+        except (TypeError, ValueError):
             val = value
         return val
 
