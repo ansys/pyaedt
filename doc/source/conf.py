@@ -21,8 +21,21 @@ from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+
+# <-----------------Override the sphinx pdf builder---------------->
 from sphinx.builders.latex import LaTeXBuilder
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+
+from sphinx.writers.latex import CR
+from sphinx.writers.latex import LaTeXTranslator
+from docutils.nodes import Element
+
+def visit_desc_content(self, node: Element) -> None:
+    self.body.append(CR + r'\pysigstopsignatures')
+    self.in_desc_signature = False
+LaTeXTranslator.visit_desc_content = visit_desc_content
+
+# <----------------- End of sphinx pdf builder override---------------->
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -343,21 +356,3 @@ latex_elements = {"preamble": latex.generate_preamble(html_title)}
 #        "manual",
 #    ),
 #]
-
-from sphinx.writers.latex import CR
-from sphinx.writers.latex import LaTeXTranslator
-
-def visit_desc_signature(self, node):
-    hyper = ''
-    if node.parent['objtype'] != 'describe' and node['ids']:
-        for id in node['ids']:
-            hyper += self.hypertarget(id)
-    self.body.append(hyper)
-    if not self.in_desc_signature:
-        self.in_desc_signature = True
-        self.body.append(CR + r'\pysigstartsignatures')
-    if not node.get('is_multiline'):
-        self._visit_signature_line(node)
-    else:
-        self.body.append(CR + r'\pysigstartmultiline')
-LaTeXTranslator.visit_desc_signature = visit_desc_signature
