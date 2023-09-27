@@ -11,6 +11,7 @@ from pyaedt import Mechanical
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import TwinBuilder
+from pyaedt.generic.general_methods import is_linux
 
 
 @pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
@@ -37,6 +38,7 @@ class TestClass:
         assert aedtapp.design_type == "HFSS 3D Layout Design"
         assert aedtapp.solution_type == "HFSS3DLayout"
 
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_run_desktop_twinbuilder(self):
         aedtapp = TwinBuilder()
         assert aedtapp.design_type == "Twin Builder"
