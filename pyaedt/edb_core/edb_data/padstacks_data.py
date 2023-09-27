@@ -1013,7 +1013,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
 
     @pyaedt_function_handler
     def create_coax_port(self, name=None, radial_extent_factor=0):
-        """"""
+        """Create a coax port."""
         from pyaedt.edb_core.edb_data.ports import CoaxPort
         term = self._create_terminal(name)
         coax = CoaxPort(self._pedb, term._edb_object)

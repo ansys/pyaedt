@@ -4,7 +4,7 @@ from pyaedt import pyaedt_function_handler
 class LayoutObj(object):
     """Manages EDB functionalities for the layout object."""
 
-    def __getattr__(self, key):
+    def __getattr__(self, key):  # pragma: no cover
         try:
             return super().__getattribute__(key)
         except AttributeError:

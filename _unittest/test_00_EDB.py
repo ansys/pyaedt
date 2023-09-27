@@ -112,6 +112,11 @@ class TestClass:
         coax_port =  self.edbapp.components["U6"].pins["R3"].create_coax_port("coax_port")
         coax_port.radial_extent_factor = 3
         assert coax_port.radial_extent_factor == 3
+        assert coax_port.component
+        assert self.edbapp.components["U6"].pins["R3"].terminal
+        assert self.edbapp.components["U6"].pins["R3"].id
+        assert self.edbapp.terminals
+        assert self.edbapp.ports
 
     def test_004_get_properties(self):
         assert len(self.edbapp.components.components) > 0
