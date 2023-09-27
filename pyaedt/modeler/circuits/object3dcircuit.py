@@ -615,8 +615,14 @@ class CircuitComponent(object):
     @angle.setter
     def angle(self, angle=None):
         """Set the part angle."""
+        from pyaedt.generic.settings import settings
+
+        if isinstance(angle, (float, int)):
+            angle = int(angle)
+            if angle not in [0, 90, 180, 270]:  # pragma: no cover
+                self._circuit_components._app.logger.error("Supported angle values are 0,90,180,270.")
         self._angle = 0 if angle is None else angle
-        if self._circuit_components._app.aedt_version_id > "2023.2":
+        if settings.aedt_version > "2023.2":  # pragma: no cover
             angle = _dim_arg(self._angle, "deg")
             vMaterial = ["NAME:Component Angle", "Value:=", angle]
             self.change_property(vMaterial)
@@ -628,7 +634,7 @@ class CircuitComponent(object):
             vMaterial = ["NAME:Component Angle", "Value:=", angle]
             self.change_property(vMaterial)
         else:
-            self._circuit_components._app.logger.error(
+            self._circuit_components._app.logger.warning(
                 "Grpc doesn't support angle settings because special characters are not supported."
             )
 
