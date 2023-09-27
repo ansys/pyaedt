@@ -6,6 +6,7 @@ from pyaedt.edb_core.dotnet.primitive import PathDotNet
 from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
 from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
 from pyaedt.edb_core.dotnet.primitive import TextDotNet
+from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -51,7 +52,7 @@ def cast(raw_primitive, core_app):
             return None
 
 
-class EDBPrimitivesMain:
+class EDBPrimitivesMain(Connectable):
     """Manages EDB functionalities for a primitives.
     It Inherits EDB Object properties.
 
@@ -65,20 +66,11 @@ class EDBPrimitivesMain:
     """
 
     def __init__(self, raw_primitive, core_app):
-        self._app = core_app
+        super().__init__(core_app, raw_primitive)
+        self._app = self._pedb
         self._core_stackup = core_app.stackup
         self._core_net = core_app.nets
-        self.primitive_object = raw_primitive
-
-    @property
-    def id(self):
-        """Primitive ID.
-
-        Returns
-        -------
-        int
-        """
-        return self.GetId()
+        self.primitive_object = self._edb_object
 
     @property
     def type(self):
@@ -116,11 +108,6 @@ class EDBPrimitivesMain:
             except:
                 self._app.logger.error("Failed to set net name.")
 
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete this primitive."""
-        return self.primitive_object.Delete()
-
     @property
     def layer(self):
         """Get the primitive edb layer object."""
@@ -151,6 +138,16 @@ class EDBPrimitivesMain:
                 raise AttributeError("Failed to assign new layer on primitive.")
         else:
             raise AttributeError("Invalid input value")
+
+    @property
+    def is_void(self):
+        """Either if the primitive is a void or not.
+
+        Returns
+        -------
+        bool
+        """
+        return self._edb_object.IsVoid()
 
 
 class EDBPrimitives(EDBPrimitivesMain):
@@ -187,18 +184,6 @@ class EDBPrimitives(EDBPrimitivesMain):
             for el in self.primitive_object.Voids:
                 area -= el.GetPolygonData().Area()
         return area
-
-    @property
-    def is_void(self):
-        """Either if the primitive is a void or not.
-
-        Returns
-        -------
-        bool
-        """
-        if not hasattr(self.primitive_object, "IsVoid"):
-            return False
-        return self.primitive_object.IsVoid()
 
     @property
     def is_negative(self):
@@ -810,7 +795,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
         >>> sig = appedb.modeler.create_trace([[0, 0], ["9mm", 0]], "TOP", "1mm", "SIG", "Flat", "Flat")
-        >>> sig..create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
+        >>> sig.create_edge_port("pcb_port", "end", "Wave", None, 8, 8)
 
         """
         center_line = self.get_center_line()

@@ -1125,7 +1125,10 @@ class Icepak(FieldAnalysis3D):
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
                         id1 = line.find(component_prefix)
-                        id2 = line[id1:].find('"')
+                        if self.aedt_version_id > "2023.2":
+                            id2 = line[id1:].find(" ")
+                        else:
+                            id2 = line[id1:].find('"')
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)

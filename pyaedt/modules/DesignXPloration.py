@@ -69,18 +69,22 @@ class CommonOptimetrics(PropsManager, object):
             if inputd.get("Sim. Setups"):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
-                    if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
-                        for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
-                            if setup["I"] == el:
-                                setups[setups.index(el)] = setup["I"]
+                    try:
+                        if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                            for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
+                                if setup["I"] == el:
+                                    setups[setups.index(el)] = setup["I"]
+                                    break
+                        else:
+                            if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+                                setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
+                                    "Setup"
+                                ]["N"]
                                 break
-                    else:
-                        if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
-                            setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
-                                "Setup"
-                            ]["N"]
-                            break
-            if inputd.get("Goals", None):
+                    except (TypeError, KeyError):
+                        pass
+
+            if inputd.get("Goals", None) and self.name in self.omodule.GetChildNames():
                 if self._app._is_object_oriented_enabled():
                     oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
@@ -475,7 +479,7 @@ class CommonOptimetrics(PropsManager, object):
 
     @pyaedt_function_handler()
     def _activate_variable(self, variable_name):
-        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "OptiSLang"]:
+        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
             self._app.activate_variable_optimization(variable_name)
         elif self.soltype == "OptiParametric":
             self._app.activate_variable_tuning(variable_name)
@@ -710,6 +714,7 @@ class SetupOpti(CommonOptimetrics, object):
         min_step=None,
         max_step=None,
         use_manufacturable=False,
+        levels=None,
     ):
         """Add a new variable as input for the optimization and defines its ranges.
 
@@ -725,12 +730,12 @@ class SetupOpti(CommonOptimetrics, object):
             Starting point for optimization. If None, default will be used.
         min_step : float
             Minimum Step Size for optimization. If None, 1/100 of the range will be used.
-
         max_step : float
             Maximum Step Size for optimization. If None, 1/10 of the range will be used.
         use_manufacturable : bool
             Either if to use or not the Manufacturable values. Default is False.
-
+        levels : list, optional
+            List of available manufacturer levels.
 
         Returns
         -------
@@ -748,40 +753,82 @@ class SetupOpti(CommonOptimetrics, object):
 
         if not max_step:
             max_step = (max_value - min_value) / 10
+        if levels is None:
+            levels = "[{}: {}] mm".format(min_value, max_value)
+        else:
+            levels = "{} {}".format(levels, self._app.variable_manager[variable_name].units)
         max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
-        min_value = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
-        max_value = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
-        arg = [
-            "i:=",
-            True,
-            "int:=",
-            False,
-            "Min:=",
-            min_value,
-            "Max:=",
-            max_value,
-            "MinStep:=",
-            min_step,
-            "MaxStep:=",
-            max_step,
-            "MinFocus:=",
-            min_value,
-            "MaxFocus:=",
-            max_value,
-            "UseManufacturableValues:=",
-            use_manufacturable,
-        ]
-        if not self.props.get("Variables", None):
-            self.props["Variables"] = OrderedDict({})
-        self.props["Variables"][variable_name] = arg
-        if not self.props.get("StartingPoint", None):
-            self.props["StartingPoint"] = OrderedDict({})
-        if not starting_point:
-            starting_point = self._app[variable_name]
+        min_value_wuints = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
+        max_value_wuints = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
 
-        self.props["StartingPoint"][variable_name] = self._app.value_with_units(
-            starting_point, self._app.variable_manager[variable_name].units
-        )
+        if self.soltype in "OptiDXDOE":
+            self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
+            self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
+            self.auto_update = True
+            return True
+        elif self.soltype in ["optiSLang", "OptiDesignExplorer"]:
+            self._app.variable_manager.variables[variable_name].optimization_max_value = max_value_wuints
+            self._app.variable_manager.variables[variable_name].optimization_min_value = min_value_wuints
+            input_variables = self.props["Sweeps"]["SweepDefinition"]
+            cont = 0
+            variable_included = False
+            for var in input_variables:
+                if var["Variable"] == variable_name:
+                    self.props["Sweeps"]["SweepDefinition"][cont]["Data"] = self._app.variable_manager.variables[
+                        variable_name
+                    ].evaluated_value
+                    variable_included = True
+                    break
+                cont += 1
+            if not variable_included:
+                sweepdefinition = OrderedDict()
+                sweepdefinition["Variable"] = variable_name
+                sweepdefinition["Data"] = self._app.variable_manager.variables[variable_name].evaluated_value
+                sweepdefinition["OffsetF1"] = False
+                sweepdefinition["Synchronize"] = 0
+                self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+        elif self.soltype == "OptiParametric":
+            self._app.activate_variable_tuning(variable_name)
+        elif self.soltype == "OptiSensitivity":
+            self._app.activate_variable_sensitivity(variable_name)
+        elif self.soltype == "OptiStatistical":
+            self._app.activate_variable_statistical(variable_name)
+        else:
+            arg = [
+                "i:=",
+                True,
+                "int:=",
+                False,
+                "Min:=",
+                min_value_wuints,
+                "Max:=",
+                max_value_wuints,
+                "MinStep:=",
+                min_step,
+                "MaxStep:=",
+                max_step,
+                "MinFocus:=",
+                min_value_wuints,
+                "MaxFocus:=",
+                max_value_wuints,
+                "UseManufacturableValues:=",
+                use_manufacturable,
+            ]
+            if self._app.aedt_version_id > "2023.2":
+                arg.extend(["DiscreteLevel:=", levels])
+            if not self.props.get("Variables", None):
+                self.props["Variables"] = OrderedDict({})
+            self.props["Variables"][variable_name] = arg
+            if not self.props.get("StartingPoint", None):
+                self.props["StartingPoint"] = OrderedDict({})
+            if not starting_point:
+                starting_point = self._app.variable_manager[variable_name].numeric_value
+                if starting_point < min_value or starting_point > max_value:
+                    starting_point = (max_value + min_value) / 2
+
+            self.props["StartingPoint"][variable_name] = self._app.value_with_units(
+                starting_point, self._app.variable_manager[variable_name].units
+            )
         self.auto_update = True
         self.update()
         return True
@@ -917,13 +964,15 @@ class SetupParam(CommonOptimetrics, object):
             if v not in existing_variables:
                 self._app.logger.error("Variable {} is not defined in the Parametric setup".format(v))
                 return False
+        legacy_update = self.auto_update
+        self.auto_update = False
         for v in variables:
             for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
                 if v == sweep_def["Variable"]:
                     undo_vals[v] = sweep_def["Synchronize"]
                     sweep_def["Synchronize"] = sync_n
         try:
-            return self.update()
+            self.update()
         except Exception:  # pragma: no cover
             # If it fails to sync (due to e.g. different number of variations), reverts to original values.
             for v in variables:
@@ -931,7 +980,10 @@ class SetupParam(CommonOptimetrics, object):
                     if v == sweep_def["Variable"]:
                         sweep_def["Synchronize"] = undo_vals[v]
             self._app.logger.error("Failed to sync the Parametric setup.")
+            self.auto_update = legacy_update
             return False
+        self.auto_update = legacy_update
+        return True
 
     @pyaedt_function_handler()
     def add_calculation(
@@ -1296,7 +1348,7 @@ class OptimizationSetups(object):
             Values can be: a list of discrete values, a dict with tuple args of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         variables : list, optional
-            List of variables to include in the optimization.
+            List of variables to include in the optimization. By default all variables are included.
         optim_type : strm optional
             Optimization Type.
             Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`
@@ -1388,7 +1440,7 @@ class OptimizationSetups(object):
                 except:
                     pass
         for v in list(dx_variables.keys()):
-            if optim_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer"]:
+            if optim_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:
                 self._app.activate_variable_optimization(v)
             elif optim_type == "OptiSensitivity":
                 self._app.activate_variable_sensitivity(v)
@@ -1396,12 +1448,32 @@ class OptimizationSetups(object):
                 self._app.activate_variable_statistical(v)
         if optim_type == "OptiDXDOE" and calculation:
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-        if optim_type in ["OptiDesignExplorer", "optiSLang"]:
+
+        if optim_type in ["optiSLang", "OptiDesignExplorer"]:
             setup.props["Sweeps"]["SweepDefinition"] = []
-            for l, k in dx_variables.items():
-                arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
-                setup.props["Sweeps"]["SweepDefinition"].append(arg)
+            if not dx_variables:
+                if optim_type == "optiSLang":
+                    dx_variables = self._app.variable_manager.design_variables
+                else:
+                    dx_variables = self._app.variable_manager.variables
+                for variable in dx_variables.keys():
+                    self._app.activate_variable_optimization(variable)
+                for var in dx_variables:
+                    arg = OrderedDict(
+                        {
+                            "Variable": var,
+                            "Data": dx_variables[var].evaluated_value,
+                            "OffsetF1": False,
+                            "Synchronize": 0,
+                        }
+                    )
+                    setup.props["Sweeps"]["SweepDefinition"].append(arg)
+            else:
+                for l, k in dx_variables.items():
+                    arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
+                    setup.props["Sweeps"]["SweepDefinition"].append(arg)
         setup.create()
+
         setup.auto_update = True
         self.setups.append(setup)
         return setup
