@@ -278,7 +278,7 @@ class Maxwell(object):
 
         Examples
         --------
-        Set matrix in a Maxwell analysis.
+        Set matrix in a Maxwell magnetostatic analysis.
 
         >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", close_on_exit=True, specified_version="2022.1")
         >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
@@ -293,6 +293,12 @@ class Maxwell(object):
         >>> selection = ['Current1', 'Current2', 'Current3', 'Current4']
         >>> turns = [5, 1, 2, 3]
         >>> L = m2d.assign_matrix(sources=selection, matrix_name="Test2", turns=turns, group_sources=group_sources)
+
+        Set matrix in a Maxwell DC Conduction analysis.
+        >>> m2d.assign_voltage(["Port1"], amplitude=1, name="1V")
+        >>> m2d.assign_voltage(["Port2"], amplitude=0, name="0V")
+        >>> m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
+
         """
         sources = self.modeler.convert_to_selections(sources, True)
         if self.solution_type in ["Electrostatic", "ACConduction", "DCConduction"]:
