@@ -27,6 +27,7 @@ from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -2162,28 +2163,51 @@ class Icepak(FieldAnalysis3D):
         low_radiation, high_radiation = self.get_radiation_settings(rad)
         hfss_link_info = OrderedDict({})
         _arg2dict(self.get_link_data(setupLinkInfo), hfss_link_info)
-
-        native_props = OrderedDict(
-            {
-                "NativeComponentDefinitionProvider": OrderedDict(
-                    {
-                        "Type": "PCB",
-                        "Unit": self.modeler.model_units,
-                        "MovePlane": "XY",
-                        "Use3DLayoutExtents": False,
-                        "ExtentsType": extent_type,
-                        "OutlinePolygon": outline_polygon,
-                        "CreateDevices": False,
-                        "CreateTopSolderballs": False,
-                        "CreateBottomSolderballs": False,
-                        "Resolution": int(resolution),
-                        "LowSide": OrderedDict({"Radiate": low_radiation}),
-                        "HighSide": OrderedDict({"Radiate": high_radiation}),
-                    }
-                )
-            }
-        )
+        if extent_type == "Polygon" and not outline_polygon:
+            native_props = OrderedDict(
+                {
+                    "NativeComponentDefinitionProvider": OrderedDict(
+                        {
+                            "Type": "PCB",
+                            "Unit": self.modeler.model_units,
+                            "MovePlane": "XY",
+                            "Use3DLayoutExtents": True,
+                            "ExtentsType": extent_type,
+                            "CreateDevices": False,
+                            "CreateTopSolderballs": False,
+                            "CreateBottomSolderballs": False,
+                            "Resolution": int(resolution),
+                            "LowSide": OrderedDict({"Radiate": low_radiation}),
+                            "HighSide": OrderedDict({"Radiate": high_radiation}),
+                        }
+                    )
+                }
+            )
+        else:
+            native_props = OrderedDict(
+                {
+                    "NativeComponentDefinitionProvider": OrderedDict(
+                        {
+                            "Type": "PCB",
+                            "Unit": self.modeler.model_units,
+                            "MovePlane": "XY",
+                            "Use3DLayoutExtents": False,
+                            "ExtentsType": extent_type,
+                            "OutlinePolygon": outline_polygon,
+                            "CreateDevices": False,
+                            "CreateTopSolderballs": False,
+                            "CreateBottomSolderballs": False,
+                            "Resolution": int(resolution),
+                            "LowSide": OrderedDict({"Radiate": low_radiation}),
+                            "HighSide": OrderedDict({"Radiate": high_radiation}),
+                        }
+                    )
+                }
+            )
         native_props["BasicComponentInfo"] = OrderedDict({"IconType": "PCB"})
+        if settings.aedt_version > "2023.2":  # pragma: no cover
+            native_props["ViaHoleMaterial"] = "copper"
+            native_props["IncludeMCAD"] = False
 
         if custom_x_resolution and custom_y_resolution:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
