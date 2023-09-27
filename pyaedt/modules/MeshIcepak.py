@@ -113,15 +113,9 @@ class IcepakMesh(object):
 
         @pyaedt_function_handler()
         def _dim_arg(self, value):
-            if type(value) is str:
-                try:
-                    float(value)
-                    val = "{0}{1}".format(value, self.model_units)
-                except:
-                    val = value
-            else:
-                val = "{0}{1}".format(value, self.model_units)
-            return val
+            from pyaedt.generic.general_methods import _dim_arg
+
+            return _dim_arg(value, self.model_units)
 
         @property
         def _new_versions_fields(self):
