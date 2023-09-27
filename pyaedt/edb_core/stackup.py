@@ -2574,6 +2574,7 @@ class Stackup(object):
             snapshot_path=None,
             x_limits=[x_min, x_max],
             y_limits=[y_min, y_max],
+            axis_equal=False,
             annotations=annotations,
             show=False,
         )

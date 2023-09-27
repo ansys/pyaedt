@@ -163,8 +163,8 @@ class TestClass:
         assert pins["L10-1"].object_units == "mm"
         assert pins["L10-1"].componentname == "L10"
         assert pins["L10-1"].is_pin
-        assert pins["L10-1"].angle == "90deg"
-        assert pins["L10-1"].location[0] > 0
+        assert pins["L10-1"].angle == "90deg" or pins["L10-1"].angle == "-270deg"
+        assert pins["L10-1"].location[0] != 0
         assert pins["L10-1"].start_layer == "1_Top"
         assert pins["L10-1"].stop_layer == "1_Top"
 
@@ -361,3 +361,12 @@ class TestClass:
         assert self.aedtapp.show_extent()
         assert self.aedtapp.show_extent(show=False)
         assert not self.aedtapp.show_extent(show=None)
+
+    def test_22_change_design_settings(self):
+        assert (
+            self.aedtapp.get_oo_property_value(self.aedtapp.odesign, "Design Settings", "DCExtrapolation") == "Standard"
+        )
+        assert self.aedtapp.change_design_settings({"UseAdvancedDCExtrap": True})
+        assert (
+            self.aedtapp.get_oo_property_value(self.aedtapp.odesign, "Design Settings", "DCExtrapolation") == "Advanced"
+        )

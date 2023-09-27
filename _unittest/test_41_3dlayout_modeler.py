@@ -518,7 +518,7 @@ class TestClass:
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
-        assert self.aedtapp.modeler.duplicate_across_layers("circle_0", "Bottom")
+        assert self.aedtapp.modeler.duplicate_across_layers("mycircle2", "Bottom")
 
     def test_27_create_pin_port(self):
         port = self.aedtapp.create_pin_port("PinPort1")
