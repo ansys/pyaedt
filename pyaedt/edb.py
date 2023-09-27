@@ -23,6 +23,7 @@ from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.ports import BundleWavePort
+from pyaedt.edb_core.edb_data.ports import CoaxPort
 from pyaedt.edb_core.edb_data.ports import ExcitationProbes
 from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.ports import GapPort
@@ -33,6 +34,7 @@ from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimul
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
+from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import TerminalType
@@ -353,6 +355,8 @@ class Edb(Database):
                 ter = EdgeTerminal(self, i)
             elif terminal_type == TerminalType.BundleTerminal.name:
                 ter = BundleTerminal(self, i)
+            elif terminal_type == TerminalType.PadstackInstanceTerminal.name:
+                ter = PadstackInstanceTerminal(self, i)
             else:
                 ter = Terminal(self, i)
             temp[ter.name] = ter
@@ -391,6 +395,8 @@ class Edb(Database):
                 ports[bundle_ter.name] = bundle_ter
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
+            elif t2.terminal_type == TerminalType.PadstackInstanceTerminal.name:
+                ports[t2.name] = CoaxPort(self, t)
             else:
                 ports[t2.name] = GapPort(self, t)
         return ports
