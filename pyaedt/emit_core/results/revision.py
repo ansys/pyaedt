@@ -655,9 +655,7 @@ class Revision:
                         else:
                             filtering = True
 
-                        if (instance.has_valid_values() and
-                                instance.get_value(mode_power) > max_power and
-                                filtering):
+                        if instance.has_valid_values() and instance.get_value(mode_power) > max_power and filtering:
                             max_power = instance.get_value(mode_power)
 
                 # If the worst case for the band-pair is below the power thresholds, then
