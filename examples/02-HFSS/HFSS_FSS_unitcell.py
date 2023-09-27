@@ -1,5 +1,5 @@
 """
-HFSS: dipole antenna
+HFSS: FSS Unitcell Simulation
 --------------------
 This example shows how you can use PyAEDT to create a FSS unitcell simulations in HFSS and postprocess results.
 """
@@ -21,6 +21,11 @@ project_name = pyaedt.generate_unique_project_name(project_name="FSS")
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
+##########################################################
+# Download 3D component
+# ~~~~~~~~~~~~~~~~~~~~~
+# Download the 3D component that is needed to run the example.
+unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
 
 ###############################################################################
 # Launch AEDT
