@@ -279,18 +279,18 @@ jinja_contexts = {
         "run_examples": config["run_examples"],
     },
 }
-def prepare_jinja_env(jinja_env) -> None:
-    """
-    Customize the jinja env.
-
-    Notes
-    -----
-    See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
-    """
-    jinja_env.globals["project_name"] = project
-
-
-autoapi_prepare_jinja_env = prepare_jinja_env
+# def prepare_jinja_env(jinja_env) -> None:
+#     """
+#     Customize the jinja env.
+#
+#     Notes
+#     -----
+#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
+#     """
+#     jinja_env.globals["project_name"] = project
+#
+#
+# autoapi_prepare_jinja_env = prepare_jinja_env
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
