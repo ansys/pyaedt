@@ -251,7 +251,7 @@ class TestClass:
         assert grille2.update()
 
     def test_14_edit_design_settings(self):
-        assert self.aedtapp.edit_design_settings(gravityDir=1)
+        assert self.aedtapp.edit_design_settings(gravity_dir=1)
         assert self.aedtapp.edit_design_settings(ambtemp=20)
         assert self.aedtapp.edit_design_settings(ambtemp="325kel")
 

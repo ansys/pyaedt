@@ -1386,6 +1386,7 @@ class Icepak(FieldAnalysis3D):
         self.modeler[list_to_move[0]].name = "HeatSink1"
         return True
 
+    # fmt: off
     @pyaedt_function_handler()
     def edit_design_settings(
         self,
@@ -1401,8 +1402,9 @@ class Icepak(FieldAnalysis3D):
         radiation_temperature=20,
         ignore_unclassified_objects=False,
         skip_intersection_checks=False,
-        **kwargs,
+        **kwargs
     ):
+        # fmt: on
         """Update the main settings of the design.
 
         Parameters
