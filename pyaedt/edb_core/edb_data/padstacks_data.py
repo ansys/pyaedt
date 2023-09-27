@@ -1874,6 +1874,21 @@ class EDBPadstackInstance(object):
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
 
     @pyaedt_function_handler()
+    def get_connected_object_obj_set(self):
+        """Produce a list of all geometries net name physically connected to a given padstack instance object. Can
+        be called to detect DC short nets.
+
+        Returns
+        -------
+        list
+            List of all net name from connected primitives.
+
+        """
+        layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
+        layoutObjInst = self.object_instance
+        return list([loi.GetLayoutObj() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items])
+
+    @pyaedt_function_handler()
     def get_reference_pins(self, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True):
         """Search for reference pins using given criteria.
 
