@@ -78,8 +78,6 @@ jobs:
       - name: Install doc build requirements
         run: |
           sudo apt install graphviz
-          sudo apt update
-          sudo apt-get install -y build-essential zip pandoc texlive-latex-extra latexmk texlive-pstricks
 
       # run doc build, without creating the examples directory
       # note that we have to add the examples file here since it won't
@@ -95,10 +93,7 @@ jobs:
       - name: Check for warnings
         run: |
           python doc/print_errors.py
-      
-      - name: Build PDF Documentation
-        run: |
-          make -C doc pdf
+
 #      - name: Upload Documentation
 #        uses: actions/upload-artifact@v3
 #        with:
