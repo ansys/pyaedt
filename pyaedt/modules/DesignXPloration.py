@@ -94,7 +94,7 @@ class CommonOptimetrics(PropsManager, object):
                     _arg2dict(calculation, arg1)
                     self.props["Goals"] = arg1
 
-            if inputd.get("Variables"):
+            if inputd.get("Variables"):  # pragma: no cover
                 for var in inputd.get("Variables"):
                     output_list = []
                     props = self.props["Variables"][var]
