@@ -1275,7 +1275,7 @@ class EdbNets(object):
         Returns
         -------
         List[List[str, str]]
-            [[net name, net name]]
+            [[net name, net name]].
 
         Examples
         --------
