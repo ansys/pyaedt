@@ -1,5 +1,4 @@
 import os
-import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
@@ -585,15 +584,13 @@ class TestClass:
         assert setup_name == setup.name
 
     def test_35a_export_layout(self):
+        self.aedtapp.insert_design("export_layout")
+        s1 = self.aedtapp.modeler.layers.add_layer(
+            layername="Top", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
+        )
+        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         output = self.aedtapp.export_3d_model()
-        time_out = 10
-        while time_out < 10:
-            if os.path.exists(output):
-                break
-            time.sleep(1)
-            time_out += 1
-        if time_out == 10:
-            assert False
+        assert os.path.exists(output)
 
     @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_36_import_gerber(self):
