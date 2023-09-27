@@ -588,6 +588,8 @@ class IcepakMesh(object):
                     new_obj_list.append(comp)
 
             objects = ", ".join(new_obj_list)
+            if not new_obj_list:
+                return False
             prio = [
                 "NAME:PriorityListParameters",
                 "EntityType:=",
