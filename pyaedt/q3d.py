@@ -1780,7 +1780,7 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
-    def create_frequency_sweep(self, setupname, units="GHz", freqstart=0, freqstop=1, freqstep=None, sweepname=None):
+    def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
         """Create a frequency sweep.
 
         Parameters
@@ -1789,7 +1789,7 @@ class Q3d(QExtractor, object):
             Name of the setup that is attached to the sweep.
         units : str, optional
             Units of the frequency. For example, ``"MHz"`` or
-            ``"GHz"``. The default is ``"GHz"``. The default is ``"GHz"``.
+            ``"GHz"``. The default is ``None`` which takes the Default Desktop units.
         freqstart : float, str, optional
             Starting frequency of the sweep. The default is ``0``.
              If a unit is passed with the number, such as ``"1MHz"``, the unit is ignored.
@@ -1825,9 +1825,9 @@ class Q3d(QExtractor, object):
                         self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = self.value_with_units(freqstart, units)
-                sweepdata.props["RangeEnd"] = self.value_with_units(freqstop, units)
-                sweepdata.props["RangeStep"] = self.value_with_units(freqstep, units)
+                sweepdata.props["RangeStart"] = self.value_with_units(freqstart, units, "Frequency")
+                sweepdata.props["RangeEnd"] = self.value_with_units(freqstop, units, "Frequency")
+                sweepdata.props["RangeStep"] = self.value_with_units(freqstep, units, "Frequency")
 
                 sweepdata.props["SaveFields"] = False
                 sweepdata.props["SaveRadFields"] = False

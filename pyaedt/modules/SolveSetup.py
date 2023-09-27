@@ -1772,7 +1772,7 @@ class SetupHFSS(Setup, object):
     @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
-        unit="GHz",
+        unit=None,
         freqstart=1,
         freqstop=10,
         num_of_freq_points=None,
@@ -1788,7 +1788,7 @@ class SetupHFSS(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Frequency Units. The default is ``"GHz"``.
+            Frequency Units. The default is ``None`` which takes the Default Desktop units.
         freqstart : float, str, optional
             Starting frequency of the sweep. The default is ``1``.
             If a unit is passed with number, such as ``"1MHz"``, the unit will be ignored.
@@ -1861,8 +1861,8 @@ class SetupHFSS(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["RangeStart"] = self.p_app.value_with_units(freqstart, unit)
-        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(freqstop, unit)
+        sweepdata.props["RangeStart"] = self.p_app.value_with_units(freqstart, unit, "Frequency")
+        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(freqstop, unit, "Frequency")
 
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
@@ -2724,7 +2724,7 @@ class SetupQ3D(Setup, object):
     @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
-        unit="GHz",
+        unit=None,
         freqstart=0,
         freqstop=20,
         num_of_freq_points=None,
@@ -2739,7 +2739,7 @@ class SetupQ3D(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Frequency units. The default is ``GHz``.
+            Frequency units. The default is ``None`` which takes the Default Desktop units.
         freqstart : float, str, optional
             Starting frequency of the sweep. The default is ``0``.
             If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
@@ -2810,8 +2810,8 @@ class SetupQ3D(Setup, object):
         if not sweepdata:
             return False
         sweepdata.props["RangeType"] = "LinearCount"
-        sweepdata.props["RangeStart"] = self.p_app.value_with_units(freqstart, unit)
-        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(freqstop, unit)
+        sweepdata.props["RangeStart"] = self.p_app.value_with_units(freqstart, unit, "Frequency")
+        sweepdata.props["RangeEnd"] = self.p_app.value_with_units(freqstop, unit, "Frequency")
         sweepdata.props["RangeCount"] = num_of_freq_points
         sweepdata.props["Type"] = sweep_type
         if sweep_type == "Interpolating":
