@@ -1455,7 +1455,7 @@ class Icepak(FieldAnalysis3D):
         # Configure design settings for gravity etc
         IceGravity = ["X", "Y", "Z"]
         GVPos = False
-        if "gravityDir" in kwargs:
+        if "gravityDir" in kwargs:  # pragma: no cover
             warnings.warn(
                 "`gravityDir` is deprecated. Use `gravity_dir` instead.",
                 DeprecationWarning,
