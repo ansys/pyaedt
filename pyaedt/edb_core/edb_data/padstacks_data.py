@@ -1015,11 +1015,11 @@ class EDBPadstackInstance(EDBPrimitivesMain):
     def create_coax_port(self, name=None, radial_extent_factor=0):
         """"""
         from pyaedt.edb_core.edb_data.ports import CoaxPort
+
         term = self._create_terminal(name)
         coax = CoaxPort(self._pedb, term._edb_object)
         coax.radial_extent_factor = radial_extent_factor
         return coax
-
 
     @property
     def _em_properties(self):
