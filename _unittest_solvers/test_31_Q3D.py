@@ -89,7 +89,7 @@ class TestClass:
             unit="GHz",
             sweepname="Sweep1",
             freqstart=9.5,
-            freqstop=10.5,
+            freqstop="10.5GHz",
             sweep_type="Interpolating",
         )
 

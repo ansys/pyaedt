@@ -2137,7 +2137,12 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def value_with_units(self, value, units=None):
+    def value_with_units(
+        self,
+        value,
+        units=None,
+        unit_system="Length",
+    ):
         """Combine a number and a string containing the modeler length unit in a single
         string e.g. "1.2mm".
         If the units are not specified, the model units are used.
@@ -2158,20 +2163,26 @@ class Analysis(Design, object):
             "mil": 0.001 inches (mils)
             "km": kilometer
             "ft": feet
-
+        unit_system : str, optional
+            Unit system. Default is `"Length"`.
 
         Returns
         -------
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
-        if isinstance(value, str):
-            val = value
-        else:
-            if units is None:
+        if not units:
+            if unit_system == "Length":
                 units = self.modeler.model_units
-            val = "{0}{1}".format(value, units)
-        return val
+            else:
+                try:
+                    units = self.odesktop.GetDefaultUnit(unit_system)
+                except:
+                    self.logger.warning("Defined unit system is incorrect.")
+                    units = ""
+        from pyaedt.generic.general_methods import _dim_arg
+
+        return _dim_arg(value, units)
 
     @pyaedt_function_handler()
     def export_rl_matrix(
