@@ -1,4 +1,5 @@
 import os
+import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
@@ -6,6 +7,7 @@ import pytest
 
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 
 test_subfolder = "T41"
@@ -584,7 +586,15 @@ class TestClass:
 
     def test_35a_export_layout(self):
         output = self.aedtapp.export_3d_model()
-        assert os.path.exists(output)
+        time_out = 0
+        while time_out < 10:
+            if not os.path.exists(output):
+                time_out += 1
+                time.sleep(1)
+            else:
+                break
+        if time_out == 10:
+            assert False
 
     @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_36_import_gerber(self):
@@ -596,7 +606,7 @@ class TestClass:
             os.path.join(local_path, "../_unittest/example_models", "cad", "Gerber", "gerber1.xml")
         )
 
-        aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
+        aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gerber_out") + ".aedb")
         assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
@@ -606,7 +616,7 @@ class TestClass:
         control_file = self.local_scratch.copyfile(
             os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.tech")
         )
-        aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
+        aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gds_out") + ".aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
