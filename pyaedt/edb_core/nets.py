@@ -1274,14 +1274,14 @@ class EdbNets(object):
 
         Returns
         -------
-        List[str, str, float, float]
-            [net name, net name, x, y]
+        List[str, str]
+            [net name, net name]
 
         Examples
         --------
 
         >>> edb = Edb("edb_file")
-        >>> dc_shorts_found = edb.nets.find_dc_shorts()
+        >>> dc_shorts = edb.nets.find_dc_shorts()
 
         """
         if not net_list:
@@ -1304,21 +1304,20 @@ class EdbNets(object):
                 _padstacks_list[n_name] = [pad]
         dc_shorts = []
         for net in net_list:
-            obj_dict = {}
+            objs = []
             for i in _objects_list.get(net, []):
-                obj_dict[i.id] = i
+                objs.append(i)
             for i in _padstacks_list.get(net, []):
-                obj_dict[i.id] = i
-            objs = list(obj_dict.values())
+                objs.append(i)
             try:
                 connected_objs = objs[0].get_connected_object_obj_set()
                 connected_objs.append(objs[0].api_object)
                 net_dc_shorts = [obj for obj in connected_objs if not obj.GetNet().GetName() == net]
                 if net_dc_shorts:
-                    for dc_obj in net_dc_shorts:
-                        position = dc_obj.GetPositionAndRotation()[1]
-                        dc = [net, dc_obj.GetNet().GetName(), position.X.ToDouble(), position.Y.ToDouble()]
-                        dc_shorts.append(dc)
+                    dc_nets = list(set([obj.GetNet().GetName() for obj in net_dc_shorts]))
+                    for dc in dc_nets:
+                        if dc:
+                            dc_shorts.append([net, dc])
             except:
                 pass
         return dc_shorts

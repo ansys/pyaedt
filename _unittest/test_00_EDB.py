@@ -2864,3 +2864,16 @@ class TestClass:
         assert ipc_stats.stackup_thickness == 0.001748
         edbapp.close()
         ipc_edb.close()
+
+    def test_147_find_dc_shorts(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        dc_shorts = edbapp.nets.find_dc_shorts()
+        assert dc_shorts
+        # assert len(dc_shorts) == 20
+        assert ["LVDS_CH09_N", "GND"] in dc_shorts
+        assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
+        assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        edbapp.close()
