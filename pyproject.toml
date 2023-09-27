@@ -154,6 +154,15 @@ line_length = 120
 default_section = "THIRDPARTY"
 src_paths = ["doc", "pyaedt", "_unittests"]
 
+[tool.codespell]
+ignore-words = "ignore_words.txt"
+skip = """
+*.pyc,*.aedt,*.xml,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,\
+*.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./docs/build/*,./docs/images/*,./dist/*,*~,.hypothesis*,\
+./pyaedt/third_party,./docs/source/examples/*,*cover,*.dat,*.mac,PKG-INFO,*.mypy_cache/*,*.xml,*.aedt,*.svg
+"""
+enable-colors = true
+
 [tool.coverage.run]
 source = ["pyaedt"]
 
@@ -166,6 +175,5 @@ addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xm
 testpaths = [
     "_unittest",
 ]
-
 
 
