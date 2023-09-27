@@ -5710,7 +5710,7 @@ class Hfss(FieldAnalysis3D, object):
         sphere_name : str, optional
             Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
             one is created.
-        variations : ditc, optional
+        variations : dict, optional
             Variation dictionary.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
