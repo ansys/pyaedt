@@ -6,6 +6,7 @@ from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import generate_unique_name
 
 
 class Terminal(Connectable):
@@ -404,3 +405,45 @@ class BundleTerminal(Terminal):
     def decouple(self):
         """Ungroup a bundle of terminals."""
         return self._edb_object.Ungroup()
+
+
+class PadstackInstanceTerminal(Terminal):
+    """Manages bundle terminal properties."""
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
+
+    def create(self, padstack_instance, name=None, layer=None, is_ref=False):
+        """Create an edge terminal.
+
+        Parameters
+        ----------
+        prim_id : int
+            Primitive ID.
+        point_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be on the target edge but not on the two
+            ends of the edge.
+        terminal_name : str, optional
+            Name of the terminal. The default is ``None``, in which case the
+            default name is assigned.
+        is_ref : bool, optional
+            Whether it is a reference terminal. The default is ``False``.
+        Returns
+        -------
+        Edb.Cell.Terminal.EdgeTerminal
+        """
+        if not name:
+            name = generate_unique_name("Terminal")
+
+        if not layer:
+            layer = padstack_instance.start_layer
+
+        layer_obj = self._pedb.stackup.signal_layers[layer]
+
+        terminal = self._edb.cell.terminal.PadstackInstanceTerminal.Create(
+            self._layout, self.net.net_object, name, padstack_instance._edb_object, layer_obj._edb_layer, isRef=is_ref
+        )
+        terminal = PadstackInstanceTerminal(self._pedb, terminal)
+
+        return terminal if not terminal.is_null else False
