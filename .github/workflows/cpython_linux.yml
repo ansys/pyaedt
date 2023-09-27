@@ -72,7 +72,7 @@ jobs:
           export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
           export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
-          pytest --tx 6*popen --durations=50  --dist loadfile -v _unittest_solvers
+          pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
