@@ -27,6 +27,7 @@ from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -742,7 +743,7 @@ class Icepak(FieldAnalysis3D):
         rjc,
         rjb,
         gravity_dir,
-        top,
+        top=0,
         assign_material=True,
         default_material="Ceramic_material",
         use_object_for_name=True,
@@ -758,14 +759,16 @@ class Icepak(FieldAnalysis3D):
             Name of the object to create the block for.
         power : str or var
             Input power.
-        rjc :
+        rjc : float
             RJC value.
-        rjb :
+        rjb : float
             RJB value.
-        gravity_dir :
-            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
-        top :
-            Board bounding value in millimeters of the top face.
+        gravity_dir : int
+            Gravity direction X to Z. Options are ``0`` to ``2``. Determines the orientation of network boundary faces.
+        top : float, optional
+            Chosen orientation (X to Z) coordinate value in millimeters of the top face of the board.
+            The default is ''0 mm''.
+            This parameter determines the casing and board side of the network.
         assign_material : bool, optional
             Whether to assign a material. The default is ``True``.
         default_material : str, optional
@@ -787,7 +790,7 @@ class Icepak(FieldAnalysis3D):
         --------
 
         >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
-        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, icepak.GravityDirection.ZNeg, 1.05918)
+        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2 , 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
@@ -849,7 +852,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_network_blocks(
-        self, input_list, gravity_dir, top, assign_material=True, default_material="Ceramic_material"
+        self, input_list, gravity_dir, top=0, assign_material=True, default_material="Ceramic_material"
     ):
         """Create network blocks from CSV files.
 
@@ -859,9 +862,13 @@ class Icepak(FieldAnalysis3D):
             List of sources with inputs ``rjc``, ``rjb``, and ``power``.
             For example, ``[[Objname1, rjc, rjb, power1, power2, ...], [Objname2, rjc2, rbj2, power1, power2, ...]]``.
         gravity_dir : int
-            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
-        top :
-            Board bounding value in millimeters of the top face.
+            Gravity direction X to Z. Options are ``0`` to ``2``. This parameter determines the orientation of network
+            boundary faces.
+        top : float, optional
+            Chosen orientation (X to Z) coordinate value in millimeters of the top face of
+            the board. The default is ''0 mm''. This parameter determines the casing and
+            board side of the network.
+
         assign_material : bool, optional
             Whether to assign a material. The default is ``True``.
         default_material : str, optional
@@ -885,7 +892,7 @@ class Icepak(FieldAnalysis3D):
         >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
         >>> box2 = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
         >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
-        ...                                        icepak.GravityDirection.ZNeg, 1.05918, False)
+        ...                                        2, 1.05918, False)
         >>> blocks[0].props["Nodes"]["Internal"]
         ['3W']
         """
@@ -1119,7 +1126,10 @@ class Icepak(FieldAnalysis3D):
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
                         id1 = line.find(component_prefix)
-                        id2 = line[id1:].find('"')
+                        if self.aedt_version_id > "2023.2":
+                            id2 = line[id1:].find(" ")
+                        else:
+                            id2 = line[id1:].find('"')
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
@@ -2125,28 +2135,51 @@ class Icepak(FieldAnalysis3D):
         low_radiation, high_radiation = self.get_radiation_settings(rad)
         hfss_link_info = OrderedDict({})
         _arg2dict(self.get_link_data(setupLinkInfo), hfss_link_info)
-
-        native_props = OrderedDict(
-            {
-                "NativeComponentDefinitionProvider": OrderedDict(
-                    {
-                        "Type": "PCB",
-                        "Unit": self.modeler.model_units,
-                        "MovePlane": "XY",
-                        "Use3DLayoutExtents": False,
-                        "ExtentsType": extent_type,
-                        "OutlinePolygon": outline_polygon,
-                        "CreateDevices": False,
-                        "CreateTopSolderballs": False,
-                        "CreateBottomSolderballs": False,
-                        "Resolution": int(resolution),
-                        "LowSide": OrderedDict({"Radiate": low_radiation}),
-                        "HighSide": OrderedDict({"Radiate": high_radiation}),
-                    }
-                )
-            }
-        )
+        if extent_type == "Polygon" and not outline_polygon:
+            native_props = OrderedDict(
+                {
+                    "NativeComponentDefinitionProvider": OrderedDict(
+                        {
+                            "Type": "PCB",
+                            "Unit": self.modeler.model_units,
+                            "MovePlane": "XY",
+                            "Use3DLayoutExtents": True,
+                            "ExtentsType": extent_type,
+                            "CreateDevices": False,
+                            "CreateTopSolderballs": False,
+                            "CreateBottomSolderballs": False,
+                            "Resolution": int(resolution),
+                            "LowSide": OrderedDict({"Radiate": low_radiation}),
+                            "HighSide": OrderedDict({"Radiate": high_radiation}),
+                        }
+                    )
+                }
+            )
+        else:
+            native_props = OrderedDict(
+                {
+                    "NativeComponentDefinitionProvider": OrderedDict(
+                        {
+                            "Type": "PCB",
+                            "Unit": self.modeler.model_units,
+                            "MovePlane": "XY",
+                            "Use3DLayoutExtents": False,
+                            "ExtentsType": extent_type,
+                            "OutlinePolygon": outline_polygon,
+                            "CreateDevices": False,
+                            "CreateTopSolderballs": False,
+                            "CreateBottomSolderballs": False,
+                            "Resolution": int(resolution),
+                            "LowSide": OrderedDict({"Radiate": low_radiation}),
+                            "HighSide": OrderedDict({"Radiate": high_radiation}),
+                        }
+                    )
+                }
+            )
         native_props["BasicComponentInfo"] = OrderedDict({"IconType": "PCB"})
+        if settings.aedt_version > "2023.2":  # pragma: no cover
+            native_props["ViaHoleMaterial"] = "copper"
+            native_props["IncludeMCAD"] = False
 
         if custom_x_resolution and custom_y_resolution:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""

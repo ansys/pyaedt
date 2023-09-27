@@ -305,17 +305,9 @@ class BaseCoordinateSystem(PropsManager, object):
         -------
         str
         """
-        if units is None:
-            units = self.model_units
-        if type(value) is str:
-            try:
-                float(value)
-                val = "{0}{1}".format(value, units)
-            except:
-                val = value
-        else:
-            val = "{0}{1}".format(value, units)
-        return val
+        from pyaedt.generic.general_methods import _dim_arg
+
+        return _dim_arg(value, self.model_units)
 
     @pyaedt_function_handler()
     def set_as_working_cs(self):
