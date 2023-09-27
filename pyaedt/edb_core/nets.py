@@ -1274,8 +1274,8 @@ class EdbNets(object):
 
         Returns
         -------
-        List[str, str]
-            [net name, net name]
+        List[List[str, str]]
+            [[net name, net name]]
 
         Examples
         --------
@@ -1310,7 +1310,7 @@ class EdbNets(object):
             for i in _padstacks_list.get(net, []):
                 objs.append(i)
             try:
-                connected_objs = objs[0].get_connected_object_obj_set()
+                connected_objs = objs[0]._get_connected_object_obj_set()
                 connected_objs.append(objs[0].api_object)
                 net_dc_shorts = [obj for obj in connected_objs if not obj.GetNet().GetName() == net]
                 if net_dc_shorts:
