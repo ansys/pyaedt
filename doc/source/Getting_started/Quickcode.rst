@@ -1,4 +1,4 @@
-Qhick Code
+Quick Code
 ==========
 
 Documentation and issues
@@ -32,7 +32,7 @@ To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@a
 
 
 Example Workflow
-================
+----------------
 Here’s a brief example of how PyAEDT works:
 
 Connect to AEDT from a Python IDE
