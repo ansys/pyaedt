@@ -1462,7 +1462,7 @@ class Icepak(FieldAnalysis3D):
             )
 
             gravity_dir = kwargs["gravityDir"]
-        if "CheckLevel" in kwargs:
+        if "CheckLevel" in kwargs:  # pragma: no cover
             warnings.warn(
                 "`CheckLevel` is deprecated. Use `check_level` instead.",
                 DeprecationWarning,
