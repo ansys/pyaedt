@@ -576,7 +576,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Closing GUI")
-        msg.setText("Closing AEDT, please wait for GUI to close on its own.")
+        msg.setText("Closing AEDT. Wait for the GUI to close on its own.")
         x = msg.exec()
         if self.emitapp:
             self.emitapp.close_project()
