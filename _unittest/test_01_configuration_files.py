@@ -86,6 +86,7 @@ class TestClass:
 
     def test_02_q3d_export(self, q3dtest, add_app):
         q3dtest.modeler.create_coordinate_system()
+        q3dtest.setups[0].props["AdaptiveFreq"] = "100MHz"
         conf_file = q3dtest.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = q3dtest.design_name
