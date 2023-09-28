@@ -4379,14 +4379,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None,
+            renormalization=False, impedance=None, comments=False
     ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solution_name : str, optional
-            Name of the solution that has been solved.
+        setup_name : str, optional
+            Name of the setup that has been solved.
         sweep_name : str, optional
             Name of the sweep that has been solved.
         file_name : str, optional
@@ -4398,6 +4399,15 @@ class Hfss(FieldAnalysis3D, object):
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
             The default is ``None``.
+        renormalization : bool, optional
+            Perform renormalization before export.
+            The default is ``False``.
+        impedance : float, optional
+            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
+            The default is ``None``.
+        comments: bool, optional
+            Include Gamma and Impedance values in comments.
+            The default is ``False``.
 
         Returns
         -------
@@ -4405,11 +4415,14 @@ class Hfss(FieldAnalysis3D, object):
             ``True`` when successful, ``False`` when failed.
         """
         return self._export_touchstone(
-            solution_name=solution_name,
+            setup_name=setup_name,
             sweep_name=sweep_name,
             file_name=file_name,
             variations=variations,
             variations_value=variations_value,
+            renormalization=renormalization,
+            impedance=impedance,
+            comments=comments
         )
 
     @pyaedt_function_handler()
