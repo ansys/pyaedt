@@ -635,9 +635,9 @@ def download_FSS_3dcomponent(force_download=False, destination=None):
     """
     if not destination:
         destination = EXAMPLES_PATH
-    if force_download:
+    if force_download:  # pragma: no cover
         local_path = os.path.join(destination, "fss_3d_component")
-        if os.path.exists(local_path):
+        if os.path.exists(local_path):  # pragma: no cover
             shutil.rmtree(local_path, ignore_errors=True)
     download_file("pyaedt/fss_3d_component", destination=destination)
     return os.path.join(destination, "fss_3d_component")
