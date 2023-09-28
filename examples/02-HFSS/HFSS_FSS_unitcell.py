@@ -44,105 +44,56 @@ hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 hfss["patch_dim"] = "10mm"
 
 ###############################################################################
-# Get 3D component from system library
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# downaload the 3D component from the example data
+# Insert 3D component from system library
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Download the 3D component from the example data and insert the 3D Component.
 
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent() # download path of 3D component
-unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell.3dcomp")
+unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
+unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 
-comp = hfss.modeler.insert_3d_component(unitcell_3d_component_path) # inserting 3D component
-component_name = hfss.modeler.user_defined_component_names
-hfss.modeler.user_defined_components[component_name[0]].parameters["a"] = "patch_dim" # assigning variable to the parameter
+comp = hfss.modeler.insert_3d_component(unitcell_path)
 
 ###############################################################################
-# Create boundary setup
+# Assign design parameter to 3D Component parameter
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Assign parameter.
+
+component_name = hfss.modeler.user_defined_component_names
+comp.parameters["a"] = "patch_dim"
+
+###############################################################################
+# Create air region
 # ~~~~~~~~~~~~~~~~~
-# Create boundaries. A region with openings is needed to run the analysis.
+# Create an open region along +Z direction for unitcell analysis.
+
 bounding_dimensions = hfss.modeler.get_bounding_dimension()
+
 periodicity_x = bounding_dimensions[0]
 periodicity_y = bounding_dimensions[1]
 
-# Create open region along +z direction for unitcell analysis
 region = hfss.modeler.create_air_region(
         z_pos=10 * bounding_dimensions[2],
         is_percentage=False,
     )
 
-# Assigning Master, Slave boundary conditions along x and y-directions
 [x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box
 
-# get the face id's
-id_x_neg = region.bottom_face_x
-id_x_pos = region.top_face_x
+###############################################################################
+# Assign Lattice pair boundary
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Assigning lattice pair boundary automatically detected.
 
-# assign primary for pair-1
-primary_1 = hfss.assign_primary(
-    id_x_neg,
-    [x_min, y_min, z_min],
-    [x_min, y_max, z_min],
-    reverse_v= False,
-    coord_name="Global",
-    primary_name="P1",
-)
-# assign secondary for pair-1
-secondary_1 = hfss.assign_secondary(
-    id_x_pos,
-    "P1",
-    [x_max, y_min, z_min],
-    [x_max, y_max, z_min],
-    reverse_v= True,
-    coord_name="Global",
-    secondary_name="S1",
-)
-
-# get the face_ids
-id_y_neg = region.bottom_face_y
-id_y_pos = region.top_face_y
-
-# assign primary for pair-2
-primary_2 = hfss.assign_primary(
-    id_y_neg,
-    [x_min, y_min, z_min],
-    [x_max, y_min, z_min],
-    reverse_v=True,
-    coord_name="Global",
-    primary_name="P2",
-)
-# assign secondary for pair-2
-secondary_2 = hfss.assign_secondary(
-    id_y_pos,
-    "P2",
-    [x_min, y_max, z_min],
-    [x_max, y_max, z_min],
-    reverse_v= False,
-    coord_name="Global",
-    secondary_name="S2",
-)
-
-
-hfss.create_open_region(Frequency="1GHz")
+hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
 
 ###############################################################################
-# Assign Floquet port excitation along +z direction
-# ~~~~~~~~~~~~~~~~~
-# lattice directions: [0, y_max, z_max], [x_max, 0, z_max]
+# Assign Floquet port excitation along +Z direction
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Assign Floquet port.
+
 id_z_pos = region.top_face_z
 hfss.create_floquet_port(id_z_pos, [0, 0, z_max], [0, y_max, z_max], [x_max, 0, z_max],
                                      portname='port_z_max', deembed_dist=10 * bounding_dimensions[2])
 
-###############################################################################
-# Plot model
-# ~~~~~~~~~~
-# Plot the model.
-
-my_plot = hfss.plot(show=False, plot_air_objects=False)
-my_plot.show_axes = False
-my_plot.show_grid = False
-my_plot.isometric_view = False
-my_plot.plot(
-    os.path.join(hfss.working_directory, "Image.jpg"),
-)
 
 ###############################################################################
 # Create setup
@@ -157,7 +108,7 @@ hfss.create_linear_count_sweep(
     unit="GHz",
     freqstart=6,
     freqstop=15,
-    num_of_freq_points=201,
+    num_of_freq_points=51,
     sweepname="sweep1",
     sweep_type="Interpolating",
     interpolation_tol=6,
@@ -165,29 +116,19 @@ hfss.create_linear_count_sweep(
 )
 
 ###############################################################################
-# Create parameteric sweep
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create parameteric sweep by varying "patch_dim", start:8 mm, stop: 11mm, step: 0.5
-
-hfss.parametrics.add("patch_dim", 8, 11, 0.5, variation_type = "LinearStep", parametricname="sweep_para")
-
-###############################################################################
 # Create S-parameter report using report objects
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create S-parameter reports using create report,
-# which gives you more freedom.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create S-parameter reports using create report.
 
-# Create a report
 all_quantities = hfss.post.available_report_quantities()
 str_mag = []
 str_ang = []
 
 variation = {"Freq": ["All"]}
-variation["patch_dim"] = ["All"]
 
 for i in all_quantities:
     str_mag.append("mag(" + i + ")")
-    str_ang.append("ang_deg("+ i+")")
+    str_ang.append("ang_deg(" + i + ")")
 
 hfss.post.create_report(
     expressions=str_mag,
@@ -200,23 +141,12 @@ hfss.post.create_report(
     plotname="phase_plot",
 )
 
-# create a report angle vs sweep parameters
-variation_2 = {"Freq": ["10.05GHz"]}
-variation_2["patch_dim"] = ["All"]
-
-hfss.post.create_report(
-    expressions=str_ang,
-    primary_sweep_variable = "patch_dim",
-    variations=variation_2,
-    plotname="phase_plot_vs_dim",
-)
-
-
 ###############################################################################
 # Save and run simulation
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Save and run the simulation.
-hfss.analyze_all()
+# Save and run the simulation. Uncomment the line following line to run the analysis.
+
+# hfss.analyze()
 
 ###############################################################################
 # Close AEDT
