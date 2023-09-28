@@ -14,12 +14,12 @@ released versions.
 You can also view or download PyAEDT cheat sheets, which are one-page references
 providing syntax rules and commands for using the PyAEDT API and PyEDB API:
 
-- `View <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
-  `download <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
+- `View PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
+  `download PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
   PyAEDT API cheat sheet.
 
-- `View <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
-  `download <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
+- `View EDB cheat sheet <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
+  `download EDB cheat sheet  <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
   PyAEDT API cheat sheet.
 
 
