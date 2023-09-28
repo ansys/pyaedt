@@ -154,7 +154,6 @@ class Primitives3D(Primitives, object):
         """
         if isinstance(radius, (int, float)) and radius < 0:
             raise ValueError("Radius must be greater than 0.")
-
         assert len(position) == 3, "``Position`` Argument must be a valid 3 Element List"
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
@@ -218,7 +217,6 @@ class Primitives3D(Primitives, object):
         References
         ----------
 
-
         >>> oEditor.CreateRegularPolyhedron
 
         Examples
@@ -228,12 +226,12 @@ class Primitives3D(Primitives, object):
         >>> ret_obj = aedtapp.modeler.create_polyhedron(cs_axis='X', center_position=[0, 0, 0],
         ...                                             start_position=[0,5,0], height=0.5,
         ...                                              num_sides=8, name="mybox", matname="copper")
-
         """
-
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
-        assert len(center_position) == 3, "``Position`` Argument must be a valid 3 Element List"
+        assert len(center_position) == 3, "``center_position`` Argument must be a valid 3 Element List"
+        assert len(start_position) == 3, "``start_position`` Argument must be a valid 3 Element List"
+        assert center_position != start_position, "``center_position`` and ``start_position`` must be different"
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
