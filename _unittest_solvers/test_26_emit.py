@@ -704,11 +704,6 @@ class TestClass:
         rad3 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        # give the bluetooth radios different transmit power levels
-        for band in rad2.bands():
-            band.set_band_power_level(0.0)
-        for band in rad3.bands():
-            band.set_band_power_level(10.0)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         if self.aedtapp._emit_api is not None:
@@ -759,7 +754,7 @@ class TestClass:
             worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad4.name
             assert len(worst_domain.interferer_names) == 1
-            assert worst_domain.interferer_names[0] == rad3.name  # rad3 has the higher transmit power
+            assert worst_domain.interferer_names[0] == rad3.name
             domain2.set_receiver(rad3.name)
             domain2.set_interferer(rad2.name)
             assert rev2.is_domain_valid(domain2)

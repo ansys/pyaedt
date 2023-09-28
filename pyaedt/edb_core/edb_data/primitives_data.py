@@ -350,6 +350,12 @@ class EDBPrimitives(EDBPrimitivesMain):
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
 
     @pyaedt_function_handler()
+    def _get_connected_object_obj_set(self):
+        layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
+        layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)
+        return list([loi.GetLayoutObj() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items])
+
+    @pyaedt_function_handler()
     def convert_to_polygon(self):
         """Convert path to polygon.
 
