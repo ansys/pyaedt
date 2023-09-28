@@ -633,7 +633,7 @@ def download_FSS_3dcomponent(force_download=False, destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/array_3d_component'
     """
-    if not destination:
+    if not destination:  # pragma: no cover
         destination = EXAMPLES_PATH
     if force_download:  # pragma: no cover
         local_path = os.path.join(destination, "fss_3d_component")
