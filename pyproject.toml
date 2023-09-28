@@ -95,6 +95,8 @@ doc = [
     "utm",
     "scikit-rf",
     "openpyxl==3.1.2",
+    "sphinx_design",
+    "sphinx_jinja",
 ]
 full = [
     "imageio",
