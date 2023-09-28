@@ -2,6 +2,7 @@ Getting started
 ===============
 
 .. grid:: 2
+    :gutter: 3 3 4 4
 
    .. grid-item-card:: About PyAnsys and AEDT
             :link: About
