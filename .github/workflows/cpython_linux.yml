@@ -61,7 +61,7 @@ jobs:
         with:
           max_attempts: 3
           retry_on: error
-          timeout-minutes: 60
+          timeout_minutes: 60
           command: |
             export ANS_NODEPCHECK=1
             export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
@@ -75,7 +75,7 @@ jobs:
         with:
           max_attempts: 3
           retry_on: error
-          timeout-minutes: 60
+          timeout_minutes: 60
           command: |
             export ANS_NODEPCHECK=1
             export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
