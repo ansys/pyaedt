@@ -486,7 +486,19 @@ class Revision:
                         for tx_freq in tx_freqs:
                             domain.set_interferer(tx_radio, tx_band, tx_freq)
                             instance = interaction.get_instance(domain)
-                            tx_prob = instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
+                            if not instance.has_valid_values():
+                                # check for saturation somewhere in the chain
+                                # set power so its flagged as strong interference
+                                if instance.get_result_warning() == "An amplifier was saturated.":
+                                    max_power = 200
+                                else:
+                                    # other warnings (e.g. no path from Tx to Rx,
+                                    # no power received, error in configuration, etc)
+                                    # should just be skipped
+                                    continue
+                            else:
+                                tx_prob = instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
+                                power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
                                 <= tx_freq
@@ -504,15 +516,10 @@ class Revision:
                                 in_filters = True
 
                             # Save the worst case interference values
-                            if (
-                                instance.has_valid_values()
-                                and instance.get_value(ResultType.EMI) > max_power
-                                and in_filters
-                            ):
-                                prob = instance.get_largest_problem_type(ResultType.EMI)
-                                max_power = instance.get_value(ResultType.EMI)
+                            if power > max_power and in_filters:
+                                max_power = power
                                 largest_rx_prob = rx_prob
-                                largest_tx_prob = prob.replace(" ", "").split(":")
+                                largest_tx_prob = tx_prob
 
                 if max_power > -200:
                     rx_powers.append(max_power)
@@ -637,7 +644,18 @@ class Revision:
                     for tx_freq in tx_freqs:
                         domain.set_interferer(tx_radio, tx_band, tx_freq)
                         instance = interaction.get_instance(domain)
-                        power = instance.get_value(mode_power)
+                        if not instance.has_valid_values():
+                            # check for saturation somewhere in the chain
+                            # set power so its flagged as "damage threshold"
+                            if instance.get_result_warning() == "An amplifier was saturated.":
+                                max_power = 200
+                            else:
+                                # other warnings (e.g. no path from Tx to Rx,
+                                # no power received, error in configuration, etc)
+                                # should just be skipped
+                                continue
+                        else:
+                            power = instance.get_value(mode_power)
 
                         if power > damage_threshold:
                             classification = "damage"
@@ -655,8 +673,9 @@ class Revision:
                         else:
                             filtering = True
 
-                        if instance.has_valid_values() and instance.get_value(mode_power) > max_power and filtering:
-                            max_power = instance.get_value(mode_power)
+                        if power > max_power and filtering:
+                            max_power = power
+
 
                 # If the worst case for the band-pair is below the power thresholds, then
                 # there are no interference issues and no offset is required.
