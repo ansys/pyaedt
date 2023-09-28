@@ -296,19 +296,18 @@ legally licensed local copy of AEDT.
 To get a copy of AEDT, see the `Ansys Electronics <https://www.ansys.com/products/electronics>`_
 page on the Ansys website.
 
-
-.. toctree::
-   :hidden:
-
-   Getting_started/index
-   User_guide/index
-   API/index
-   EDBAPI/index
-   examples/index
-
-
 Indices and tables
-==================
+------------------
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. toctree::
+  :hidden:
+
+  Getting_started/index
+  User_guide/index
+  API/index
+  EDBAPI/index
+  examples/index
