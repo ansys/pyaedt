@@ -2,7 +2,6 @@ Getting started
 ===============
 
 .. grid:: 2
-    :gutter: 3 3 4 4
 
    .. grid-item-card:: About PyAnsys and AEDT
             :link: About
@@ -13,18 +12,21 @@ Getting started
    .. grid-item-card:: Installation
             :link: Installation
             :link-type: doc
+            :margin: 2 2 0 0
 
             Learn how to install PyAEDT from PyPi or conda.
 
    .. grid-item-card:: Quick code
             :link: Quickcode
             :link-type: doc
+            :margin: 2 2 0 0
 
             Here's a brief example of how PyAEDT works.
 
    .. grid-item-card:: Client-Server
             :link: ClientServer
             :link-type: doc
+            :margin: 2 2 0 0
 
             Launch PyAEDT on a client machine and control Electronics Desktop
             on a remote server.
@@ -32,12 +34,14 @@ Getting started
    .. grid-item-card:: Versions and interfaces
             :link: versioning
             :link-type: doc
+            :margin: 2 2 0 0
 
             Discover the compatibility between PyAEDT and Ansys AEDT versions.
 
    .. grid-item-card:: Troubleshooting
             :link: Troubleshooting
             :link-type: doc
+            :margin: 2 2 0 0
 
             Any questions? Refer to Q&A before submitting an issue.
 
