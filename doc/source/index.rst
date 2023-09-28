@@ -124,23 +124,24 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
 
                       Contribute
 
-
-
-.. toctree::
-   :hidden:
-   :maxdepth: 3
-
-   Getting_started/index
-   User_guide/index
-   API/index
-   EDBAPI/index
-   {% if run_examples %}
-   examples/index
-   {% endif %}
-
-
 Indices and tables
 ==================
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. jinja:: main_toctree
+
+    .. toctree::
+       :hidden:
+
+       Getting_started/index
+       User_guide/index
+       API/index
+       EDBAPI/index
+       {% if run_examples %}
+       examples/index
+       {% endif %}
+
+
