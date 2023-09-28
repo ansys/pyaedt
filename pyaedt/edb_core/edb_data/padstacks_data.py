@@ -4,6 +4,7 @@ import re
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt.edb_core.dotnet.database import PolygonDataDotNet
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitivesMain
 from pyaedt.edb_core.general import PadGeometryTpe
@@ -134,7 +135,7 @@ class EDBPadProperties(object):
             pad_values = self._edb_padstack.GetData().GetPolygonalPadParameters(
                 self.layer_name, self.int_to_pad_type(self.pad_type)
             )
-            return pad_values[1]
+            return PolygonDataDotNet(self._app, pad_values[1])
         except:
             return
 
