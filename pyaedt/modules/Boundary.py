@@ -3214,9 +3214,8 @@ class Excitations(object):
         return self._angle
 
     @angle.setter
-    def angle(self, angle=None):
-        self._logger.warning("Angle cannot be modified. This capability has not yet been implemented in the AEDT API.")
-        # self._app.modeler.schematic.components[self.comp].angle = angle
+    def angle(self, angle):
+        self._app.modeler.schematic.components[self.schematic_id].angle = angle
 
     @property
     def mirror(self):

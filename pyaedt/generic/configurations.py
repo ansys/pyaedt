@@ -3,6 +3,7 @@ import copy
 from datetime import datetime
 import json
 import os
+import tempfile
 
 from pyaedt import Icepak
 from pyaedt import __version__
@@ -76,6 +77,7 @@ class ConfigurationsOptions(object):
         self._import_coordinate_systems = True
         # self._import_face_coordinate_systems = False
         self._import_materials = True
+        self._import_output_variables = True
         self._import_object_properties = True
         self._skip_import_if_exists = False
 
@@ -499,6 +501,26 @@ class ConfigurationsOptions(object):
         """
         return self._import_materials
 
+    @property
+    def import_output_variables(self):
+        """Define if the output variables have to be imported/created from json file. Default is `True`.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.import_output_variables = False  # Disable the materials import
+        """
+        return self._import_output_variables
+
+    @import_output_variables.setter
+    def import_output_variables(self, val):
+        self._import_output_variables = val
+
     @import_materials.setter
     def import_materials(self, val):
         self._import_materials = val
@@ -617,6 +639,7 @@ class ImportResults(object):
     def __init__(self):
         self.import_units = None
         self.import_variables = None
+        self.import_output_variables = None
         self.import_postprocessing_variables = None
         self.import_setup = None
         self.import_optimizations = None
@@ -915,7 +938,7 @@ class Configurations(object):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupOpti(self._app, name, optim_type=props.get("SetupType", None))
+        setup = SetupOpti(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info("Optim {} added.".format(name))
@@ -932,7 +955,7 @@ class Configurations(object):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupParam(self._app, name, optim_type=props.get("SetupType", None))
+        setup = SetupParam(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info("Optim {} added.".format(name))
@@ -1089,6 +1112,15 @@ class Configurations(object):
                 if not self._update_setup(setup, props):
                     self.results.import_setup = False
 
+        if self.options.import_output_variables:
+            try:
+                for k, v in dict_in["general"]["output_variables"].items():
+                    self._app.create_output_variable(k, v)
+            except KeyError:
+                self.results.import_variables = False
+            else:
+                self.results.import_variables = True
+
         if self.options.import_optimizations and dict_in.get("optimizations", None):
             self.results.import_optimizations = True
             for setup, props in dict_in["optimizations"].items():
@@ -1110,6 +1142,18 @@ class Configurations(object):
         dict_out["general"]["design_name"] = self._app.design_name
         dict_out["general"]["date"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         dict_out["general"]["object_mapping"] = {}
+        dict_out["general"]["output_variables"] = {}
+        if self._app.output_variables:
+            oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
+            self._app.ooutput_variable.ExportOutputVariables(oo_out)
+            with open(oo_out, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    line_split = line.split(" ")
+                    try:
+                        dict_out["general"]["output_variables"][line_split[0]] = line.split("'")[1]
+                    except IndexError:
+                        pass
 
     @pyaedt_function_handler()
     def _export_variables(self, dict_out):
@@ -1133,37 +1177,49 @@ class Configurations(object):
         if self._app.setups:
             dict_out["setups"] = {}
             for setup in self._app.setups:
+                legacy_update = setup.auto_update
+                setup.auto_update = False
                 dict_out["setups"][setup.name] = setup.props
                 dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
                 if setup.sweeps:
                     for sweep in setup.sweeps:
                         dict_out["setups"][setup.name][sweep.name] = sweep.props
+                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
         if self._app.optimizations.setups:
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
-                dict_out["optimizations"][setup.name] = setup.props
+                legacy_update = setup.auto_update
+                setup.auto_update = False
+                dict_out["optimizations"][setup.name] = dict(setup.props)
                 dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
+                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
         if self._app.parametrics.setups:
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
-                dict_out["parametrics"][setup.name] = setup.props
+                legacy_update = setup.auto_update
+                setup.auto_update = False
+                dict_out["parametrics"][setup.name] = dict(setup.props)
                 dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
+                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
         if self._app.boundaries:
             dict_out["boundaries"] = {}
             for boundary in self._app.boundaries:
-                dict_out["boundaries"][boundary.name] = boundary.props
+                legacy_update = boundary.auto_update
+                boundary.auto_update = False
+                dict_out["boundaries"][boundary.name] = dict(boundary.props)
                 if not boundary.props.get("BoundType", None):
                     dict_out["boundaries"][boundary.name]["BoundType"] = boundary.type
                 self._map_object(boundary.props, dict_out)
+                boundary.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
@@ -1171,9 +1227,12 @@ class Configurations(object):
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
                 if isinstance(cs, CoordinateSystem):
+                    legacy_update = cs.auto_update
+                    cs.auto_update = False
                     if cs.props:
-                        dict_out["coordinatesystems"][cs.name] = cs.props
+                        dict_out["coordinatesystems"][cs.name] = copy.deepcopy(dict(cs.props))
                         dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
+                    cs.auto_update = legacy_update
 
     # @pyaedt_function_handler()
     # def _export_face_coordinate_systems(self, dict_out):
@@ -1206,7 +1265,7 @@ class Configurations(object):
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
             for mesh in self._app.mesh.meshoperations:
-                dict_out["mesh"][mesh.name] = mesh.props
+                dict_out["mesh"][mesh.name] = copy.deepcopy(dict(mesh.props))
                 self._map_object(mesh.props, dict_out)
 
     @pyaedt_function_handler()
