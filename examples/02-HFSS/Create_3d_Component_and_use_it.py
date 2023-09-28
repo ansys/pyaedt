@@ -176,7 +176,7 @@ optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized"+".aedt")))
+hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized")+".aedt"))
 hfss2.release_desktop()
 
 
