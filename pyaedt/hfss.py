@@ -4412,7 +4412,7 @@ class Hfss(FieldAnalysis3D, object):
         impedance : float, optional
             Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
             The default is ``None``.
-        comments: bool, optional
+        comments : bool, optional
             Include Gamma and Impedance values in comments.
             The default is ``False``.
 
