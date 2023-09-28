@@ -135,7 +135,10 @@ class EDBPadProperties(object):
             pad_values = self._edb_padstack.GetData().GetPolygonalPadParameters(
                 self.layer_name, self.int_to_pad_type(self.pad_type)
             )
-            return PolygonDataDotNet(self._app, pad_values[1])
+            if pad_values[1]:
+                return PolygonDataDotNet(self._edb._app, pad_values[1])
+            else:
+                return
         except:
             return
 
@@ -1822,8 +1825,8 @@ class EDBPadstackInstance(EDBPrimitivesMain):
             # Polygon
             points = []
             i = 0
-            while i < polygon_data.Count:
-                point = polygon_data.GetPoint(i)
+            while i < polygon_data.edb_api.Count:
+                point = polygon_data.edb_api.GetPoint(i)
                 i += 1
                 if point.IsArc():
                     continue
