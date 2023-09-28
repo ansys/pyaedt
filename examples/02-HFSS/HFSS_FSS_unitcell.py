@@ -21,11 +21,6 @@ project_name = pyaedt.generate_unique_project_name(project_name="FSS")
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-##########################################################
-# Download 3D component
-# ~~~~~~~~~~~~~~~~~~~~~
-# Download the 3D component that is needed to run the example.
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
 
 ###############################################################################
 # Launch AEDT
@@ -44,22 +39,21 @@ hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 ###############################################################################
 # Define variable
 # ~~~~~~~~~~~~~~~
-# Define a variable for the dipole length.
+# Define a variable for the 3D-component.
 
 hfss["patch_dim"] = "10mm"
 
 ###############################################################################
 # Get 3D component from system library
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Get a 3D component from the ``syslib`` directory. For this example to run
-# correctly, you must get all geometry parameters of the 3D component or, in
-# case of an encrypted 3D component, create a dictionary of the parameters.
+# downaload the 3D component from the example data
 
-compfile = hfss.components3d["FSS_unitcell"]
-geometryparams = hfss.get_components3d_vars("FSS_unitcell")
+unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent() # download path of 3D component
+unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell.3dcomp")
 
-geometryparams["a"] = "patch_dim"
-hfss.modeler.insert_3d_component(compfile, geometryparams)
+comp = hfss.modeler.insert_3d_component(unitcell_3d_component_path) # inserting 3D component
+component_name = hfss.modeler.user_defined_component_names
+hfss.modeler.user_defined_components[component_name[0]].parameters["a"] = "patch_dim" # assigning variable to the parameter
 
 ###############################################################################
 # Create boundary setup
