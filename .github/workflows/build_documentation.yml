@@ -35,6 +35,7 @@ jobs:
           filter_mode: nofilter
           fail_on_error: true
           vale_flags: "--config=doc/.vale.ini"
+
   docs_build:
     runs-on: ubuntu-20.04
 

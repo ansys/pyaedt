@@ -6140,12 +6140,12 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         signal : str, int, list, :class:`pyaedt.modeler.cad.object3d.Object3d` or
-         :class:`pyaedt.modeler.elements3d.FacePrimitive`
+            :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
         reference : int, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
-            Whether to create a port sheet or use given start_object as port shee.
+            Whether to create a port sheet or use given start_object as port sheet.
         integration_line : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -6157,12 +6157,11 @@ class Hfss(FieldAnalysis3D, object):
         impedance : float, optional
             Port impedance. The default is ``50``.
         name : str, optional
-            name of the port. The default is ``None``.
+            Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
+            Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
 

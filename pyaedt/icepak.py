@@ -27,6 +27,7 @@ from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -1125,7 +1126,10 @@ class Icepak(FieldAnalysis3D):
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
                         id1 = line.find(component_prefix)
-                        id2 = line[id1:].find('"')
+                        if self.aedt_version_id > "2023.2":
+                            id2 = line[id1:].find(" ")
+                        else:
+                            id2 = line[id1:].find('"')
                         name = line[id1 : id1 + id2]
                         if name not in priority_list:
                             priority_list.append(name)
@@ -1383,23 +1387,30 @@ class Icepak(FieldAnalysis3D):
         self.modeler[list_to_move[0]].name = "HeatSink1"
         return True
 
+    # fmt: off
     @pyaedt_function_handler()
     def edit_design_settings(
         self,
-        gravityDir=0,
+        gravity_dir=0,
         ambtemp=20,
         performvalidation=False,
-        CheckLevel="None",
+        check_level="None",
         defaultfluid="air",
         defaultsolid="Al-Extruded",
         export_monitor=False,
         export_directory=os.getcwd(),
+        gauge_pressure=0,
+        radiation_temperature=20,
+        ignore_unclassified_objects=False,
+        skip_intersection_checks=False,
+        **kwargs
     ):
+        # fmt: on
         """Update the main settings of the design.
 
         Parameters
         ----------
-        gravityDir : int, optional
+        gravity_dir : int, optional
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
             The default is ``0``.
         ambtemp : float, str, optional
@@ -1407,7 +1418,7 @@ class Icepak(FieldAnalysis3D):
             The default unit is celsius for float or string including unit definition is accepted, e.g. ``325kel``.
         performvalidation : bool, optional
             Whether to perform validation. The default is ``False``.
-        CheckLevel : str, optional
+        check_level : str, optional
             Level of check to perform during validation. The default
             is ``"None"``.
         defaultfluid : str, optional
@@ -1419,7 +1430,18 @@ class Icepak(FieldAnalysis3D):
             The default value is ``False``.
         export_directory : str, optional
             Default export directory for monitor point data. The default value is the current working directory.
-
+        gauge_pressure : float, str, optional
+            Set the Gauge pressure. It can be a float (units will be "n_per_meter_sq") or a string with units.
+            Default is ``0``.
+        radiation_temperature : float, str, optional
+            Set the radiation temperature. It can be a float (units will be "cel") or a string with units.
+            Default is ``20``.
+        ignore_unclassified_objects : bool, optional
+            Whether to ignore unclassified objects during validation check.
+            The default value is ``False``.
+        skip_intersection_checks : bool, optional
+            Whether to skip intersection checks during validation check.
+            The default value is ``False``.
         Returns
         -------
         bool
@@ -1430,17 +1452,27 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-        if ambtemp and not isinstance(ambtemp, str):
-            AmbientTemp = str(ambtemp) + "cel"
-        else:
-            AmbientTemp = ambtemp
         #
         # Configure design settings for gravity etc
         IceGravity = ["X", "Y", "Z"]
         GVPos = False
-        if int(gravityDir) > 2:
+        if "gravityDir" in kwargs:  # pragma: no cover
+            warnings.warn(
+                "`gravityDir` is deprecated. Use `gravity_dir` instead.",
+                DeprecationWarning,
+            )
+
+            gravity_dir = kwargs["gravityDir"]
+        if "CheckLevel" in kwargs:  # pragma: no cover
+            warnings.warn(
+                "`CheckLevel` is deprecated. Use `check_level` instead.",
+                DeprecationWarning,
+            )
+
+            check_level = kwargs["CheckLevel"]
+        if int(gravity_dir) > 2:
             GVPos = True
-        GVA = IceGravity[int(gravityDir) - 3]
+        GVA = IceGravity[int(gravity_dir) - 3]
         self._odesign.SetDesignSettings(
             [
                 "NAME:Design Settings Data",
@@ -1453,11 +1485,11 @@ class Icepak(FieldAnalysis3D):
                 "Default Surface Material:=",
                 "Steel-oxidised-surface",
                 "AmbientTemperature:=",
-                AmbientTemp,
+                self.value_with_units(ambtemp, "cel"),
                 "AmbientPressure:=",
-                "0n_per_meter_sq",
+                self.value_with_units(gauge_pressure, "n_per_meter_sq"),
                 "AmbientRadiationTemperature:=",
-                AmbientTemp,
+                self.value_with_units(radiation_temperature, "cel"),
                 "Gravity Vector CS ID:=",
                 1,
                 "Gravity Vector Axis:=",
@@ -1472,11 +1504,11 @@ class Icepak(FieldAnalysis3D):
             [
                 "NAME:Model Validation Settings",
                 "EntityCheckLevel:=",
-                CheckLevel,
+                check_level,
                 "IgnoreUnclassifiedObjects:=",
-                False,
+                ignore_unclassified_objects,
                 "SkipIntersectionChecks:=",
-                False,
+                skip_intersection_checks,
             ],
         )
         return True
@@ -2131,28 +2163,51 @@ class Icepak(FieldAnalysis3D):
         low_radiation, high_radiation = self.get_radiation_settings(rad)
         hfss_link_info = OrderedDict({})
         _arg2dict(self.get_link_data(setupLinkInfo), hfss_link_info)
-
-        native_props = OrderedDict(
-            {
-                "NativeComponentDefinitionProvider": OrderedDict(
-                    {
-                        "Type": "PCB",
-                        "Unit": self.modeler.model_units,
-                        "MovePlane": "XY",
-                        "Use3DLayoutExtents": False,
-                        "ExtentsType": extent_type,
-                        "OutlinePolygon": outline_polygon,
-                        "CreateDevices": False,
-                        "CreateTopSolderballs": False,
-                        "CreateBottomSolderballs": False,
-                        "Resolution": int(resolution),
-                        "LowSide": OrderedDict({"Radiate": low_radiation}),
-                        "HighSide": OrderedDict({"Radiate": high_radiation}),
-                    }
-                )
-            }
-        )
+        if extent_type == "Polygon" and not outline_polygon:
+            native_props = OrderedDict(
+                {
+                    "NativeComponentDefinitionProvider": OrderedDict(
+                        {
+                            "Type": "PCB",
+                            "Unit": self.modeler.model_units,
+                            "MovePlane": "XY",
+                            "Use3DLayoutExtents": True,
+                            "ExtentsType": extent_type,
+                            "CreateDevices": False,
+                            "CreateTopSolderballs": False,
+                            "CreateBottomSolderballs": False,
+                            "Resolution": int(resolution),
+                            "LowSide": OrderedDict({"Radiate": low_radiation}),
+                            "HighSide": OrderedDict({"Radiate": high_radiation}),
+                        }
+                    )
+                }
+            )
+        else:
+            native_props = OrderedDict(
+                {
+                    "NativeComponentDefinitionProvider": OrderedDict(
+                        {
+                            "Type": "PCB",
+                            "Unit": self.modeler.model_units,
+                            "MovePlane": "XY",
+                            "Use3DLayoutExtents": False,
+                            "ExtentsType": extent_type,
+                            "OutlinePolygon": outline_polygon,
+                            "CreateDevices": False,
+                            "CreateTopSolderballs": False,
+                            "CreateBottomSolderballs": False,
+                            "Resolution": int(resolution),
+                            "LowSide": OrderedDict({"Radiate": low_radiation}),
+                            "HighSide": OrderedDict({"Radiate": high_radiation}),
+                        }
+                    )
+                }
+            )
         native_props["BasicComponentInfo"] = OrderedDict({"IconType": "PCB"})
+        if settings.aedt_version > "2023.2":  # pragma: no cover
+            native_props["ViaHoleMaterial"] = "copper"
+            native_props["IncludeMCAD"] = False
 
         if custom_x_resolution and custom_y_resolution:
             native_props["NativeComponentDefinitionProvider"]["UseThermalLink"] = solutionFreq != ""
