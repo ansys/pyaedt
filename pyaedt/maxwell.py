@@ -300,6 +300,7 @@ class Maxwell(object):
         >>> m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
 
         """
+
         sources = self.modeler.convert_to_selections(sources, True)
         if self.solution_type in ["Electrostatic", "ACConduction", "DCConduction"]:
             turns = ["1"] * len(sources)
@@ -1029,6 +1030,7 @@ class Maxwell(object):
         ind=0,
         voltage=0,
         parallel_branches=1,
+        phase=0,
         name=None,
     ):
         """Assign a winding to a Maxwell design.
@@ -1054,6 +1056,8 @@ class Maxwell(object):
             Voltage value. The default is ``0``.
         parallel_branches : int, optional
             Number of parallel branches. The default is ``1``.
+        phase : float, optional
+            Value of the phase delay in degrees. The default is ``0``.
         name : str, optional
             Name of the boundary. The default is ``None``.
 
@@ -1081,6 +1085,7 @@ class Maxwell(object):
                 "Inductance": self.modeler._arg_with_dim(ind, "H"),
                 "Voltage": self.modeler._arg_with_dim(voltage, "V"),
                 "ParallelBranchesNum": str(parallel_branches),
+                "Phase": self.modeler._arg_with_dim(phase, "deg"),
             }
         )
         bound = BoundaryObject(self, name, props, "Winding")

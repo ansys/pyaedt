@@ -11,23 +11,35 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (
-    ansys_favicon,
-    ansys_logo_white,
-    ansys_logo_white_cropped,
-    get_version_match,
-    latex,
-    pyansys_logo_black,
-    watermark,
-)
+from ansys_sphinx_theme import (ansys_favicon, 
+                                get_version_match, pyansys_logo_black,
+                                watermark, 
+                                ansys_logo_white, 
+                                ansys_logo_white_cropped, latex)
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
-from sphinx.builders.latex import LaTeXBuilder
 
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
+# <-----------------Override the sphinx pdf builder---------------->
+# Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
+# This issue can be resolved by migrating to the autoapi format.
+# Additionally, when documenting images in formats other than the supported ones, 
+# make sure to specify their types.
+from sphinx.builders.latex import LaTeXBuilder
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+
+from sphinx.writers.latex import CR
+from sphinx.writers.latex import LaTeXTranslator
+from docutils.nodes import Element
+
+def visit_desc_content(self, node: Element) -> None:
+    self.body.append(CR + r'\pysigstopsignatures')
+    self.in_desc_signature = False
+LaTeXTranslator.visit_desc_content = visit_desc_content
+
+# <----------------- End of sphinx pdf builder override---------------->
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -349,7 +361,12 @@ html_css_files = [
 htmlhelp_basename = "pyaedtdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
-latex_elements = {}
+# additional logos for the latex coverpage
+latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
+
+# change the preamble of latex with customized title page
+# variables are the title of pdf, watermark
+latex_elements = {"preamble": latex.generate_preamble(html_title)}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
@@ -363,10 +380,3 @@ latex_documents = [
         "manual",
     ),
 ]
-
-# additional logos for the latex coverpage
-latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
-
-# change the preamble of latex with customized title page
-# variables are the title of pdf, watermark
-latex_elements = {"preamble": latex.generate_preamble(html_title)}

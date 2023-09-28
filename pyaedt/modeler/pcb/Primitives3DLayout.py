@@ -1350,6 +1350,8 @@ class Primitives3DLayout(object):
         pos_x=0,
         pos_y=0,
         create_ports=True,
+        is_3d_placement=False,
+        pos_z=0,
     ):
         """Place an HFSS 3D component in HFSS 3D Layout.
 
@@ -1371,6 +1373,11 @@ class Primitives3DLayout(object):
             Y placement. The default is ``0``.
         create_ports : bool, optional
             Whether to expose 3D component ports. The default is ``True``.
+        is_3d_placement : bool, optional
+            Whether if the component is placed on a layer or arbitrary.
+        pos_z : float, optional
+            Z placement. When enabled, 3d placement will be automatically enabled too.
+             The default is ``False``.
 
         Returns
         -------
@@ -1459,7 +1466,7 @@ class Primitives3DLayout(object):
             "placement:=",
             ["x:=", arg_x, "y:=", arg_y],
             "layer:=",
-            placement_layer,
+            placement_layer if placement_layer else self.modeler.layers.stackup_layers[0].name,
             "isCircuit:=",
             False,
             "compInstName:=",
@@ -1473,6 +1480,10 @@ class Primitives3DLayout(object):
         ]
         comp_name = self.modeler.oeditor.CreateComponent(args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
+        if is_3d_placement or pos_z != 0:
+            comp.is_3d_placement = True
+            if pos_z:
+                comp.location = [arg_x, arg_y, self.modeler._arg_with_dim(pos_z)]
         self.components_3d[comp_name.split(";")[-1]] = comp
         if create_ports:
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")

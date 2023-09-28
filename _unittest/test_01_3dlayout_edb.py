@@ -300,6 +300,10 @@ class TestClass:
         assert comp.angle == "10deg"
         assert comp.component_name == "my_connector"
         assert len(self.aedtapp.modeler.components_3d) == 1
+        comp2 = self.aedtapp.modeler.place_3d_component(
+            encrypted_model_path, 1, component_name="my_connector2", pos_x=0.001, pos_y=0.002, pos_z=1
+        )
+        assert comp2.location[2] == 1.0
 
     def test_16_differential_ports(self):
         self.aedtapp.set_active_design(self.design_name)
