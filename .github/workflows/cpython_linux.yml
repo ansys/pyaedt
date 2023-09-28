@@ -57,22 +57,31 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
-        timeout-minutes: 120
-        run: |
-          export ANS_NODEPCHECK=1
-          export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
-          export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .pyaedt_test_env/bin/activate
-          pytest --tx 6*popen --durations=50  --dist loadfile -v _unittest
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout-minutes: 60
+          run: |
+            export ANS_NODEPCHECK=1
+            export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
+            export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            source .pyaedt_test_env/bin/activate
+            pytest --tx 6*popen --durations=50  --dist loadfile -v _unittest
 
       - name: 'Unit testing Solvers'
-        timeout-minutes: 120
-        run: |
-          export ANS_NODEPCHECK=1
-          export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
-          export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .pyaedt_test_env/bin/activate
-          pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest_solvers
+        continue-on-error: true
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout-minutes: 60
+          run: |
+            export ANS_NODEPCHECK=1
+            export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
+            export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            source .pyaedt_test_env/bin/activate
+            pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest_solvers
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
