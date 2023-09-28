@@ -2030,8 +2030,15 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def _export_touchstone(
-        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None,
-            renormalization=False, impedance=None, comments=False
+        self,
+        setup_name=None,
+        sweep_name=None,
+        file_name=None,
+        variations=None,
+        variations_value=None,
+        renormalization=False,
+        impedance=None,
+        comments=False,
     ):
         """Export the Touchstone file to a local folder.
 

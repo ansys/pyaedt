@@ -4379,8 +4379,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None,
-            renormalization=False, impedance=None, comments=False
+        self,
+        setup_name=None,
+        sweep_name=None,
+        file_name=None,
+        variations=None,
+        variations_value=None,
+        renormalization=False,
+        impedance=None,
+        comments=False,
     ):
         """Export the Touchstone file to a local folder.
 
@@ -4422,7 +4429,7 @@ class Hfss(FieldAnalysis3D, object):
             variations_value=variations_value,
             renormalization=renormalization,
             impedance=impedance,
-            comments=comments
+            comments=comments,
         )
 
     @pyaedt_function_handler()
