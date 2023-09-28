@@ -147,7 +147,6 @@ class Edb(Database):
         technology_file=None,
     ):
         edbversion = get_string_version(edbversion)
-
         self._clean_variables()
         Database.__init__(self, edbversion=edbversion, student_version=student_version)
         self.standalone = True
