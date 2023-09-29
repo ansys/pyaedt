@@ -1236,7 +1236,7 @@ class Maxwell(object):
         Examples
         --------
 
-        Assign virtual to force to a magnetic object:
+        Assign virtual force to a magnetic object:
 
         >>> iron_object = m3d.modeler.create_box([0, 0, 0], [2, 10, 10], name="iron")
         >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
