@@ -33,6 +33,7 @@ class MatProperties(object):
         "conductivity",
         "dielectric_loss_tangent",
         "magnetic_loss_tangent",
+        "magnetic_coercivity",
         "thermal_conductivity",
         "mass_density",
         "specific_heat",
@@ -43,11 +44,39 @@ class MatProperties(object):
         "molecular_mass",
         "viscosity",
     ]
-    defaultvalue = [1.0, 1.0, 0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 0, 0]
+    defaultvalue = [
+        1.0,
+        1.0,
+        0,
+        0,
+        0,
+        OrderedDict(
+            {
+                "Magnitude": 0,
+                "DirComp1": 1,
+                "DirComp2": 0,
+                "DirComp3": 0,
+            }
+        ),
+        0.01,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ]
     defaultunit = [
         None,
         None,
         "[siemens m^-1]",
+        None,
         None,
         None,
         "[W m^-1 C^-1]",
@@ -235,10 +264,10 @@ class MatProperty(object):
 
         if val is not None and isinstance(val, (str, float, int)):
             self.value = val
-        elif val is not None and val["property_type"] == "AnisoProperty":
+        elif val is not None and "property_type" in val.keys() and val["property_type"] == "AnisoProperty":
             self.type = "anisotropic"
             self.value = [val["component1"], val["component2"], val["component3"]]
-        elif val is not None and val["property_type"] == "nonlinear":
+        elif val is not None and "property_type" in val.keys() and val["property_type"] == "nonlinear":
             self.type = "nonlinear"
             for e, v in val.items():
                 if e == "BTypeForSingleCurve":
@@ -254,6 +283,9 @@ class MatProperty(object):
                     self._unit = v["DimUnits"]
                 elif e == "Temperatures":
                     self.temperatures = v
+        elif val is not None and isinstance(val, OrderedDict):
+            self.type = "vector"
+            self.value = [val["Magnitude"], val["DirComp1"], val["DirComp2"], val["DirComp3"]]
         if not isinstance(thermalmodifier, list):
             thermalmodifier = [thermalmodifier]
         for tm in thermalmodifier:
@@ -281,8 +313,8 @@ class MatProperty(object):
         Parameters
         ----------
         type : str
-            Type of properties. Options are ``simple"``,
-            ``"anisotropic",`` ``"tensor"``, and ``"nonlinear",``
+            Type of properties. Options are ``"simple"``,
+            ``"anisotropic"``, ``"tensor"``, ``"vector"``, and ``"nonlinear"``
         """
         return self._type
 
@@ -1044,7 +1076,7 @@ class CommonMaterial(object):
         self._oproject = self._materials._oproject
         self.logger = self._materials.logger
         self.name = name
-        self.coordinate_system = ""
+        self._coordinate_system = ""
         self.is_sweep_material = False
         if props:
             self._props = props.copy()
@@ -1068,6 +1100,16 @@ class CommonMaterial(object):
         if "ModSinceLib" in self._props:
             self.mod_since_lib = self._props["ModSinceLib"]
             del self._props["ModSinceLib"]
+
+    @property
+    def coordinate_system(self):
+        return self._coordinate_system
+
+    @coordinate_system.setter
+    def coordinate_system(self, value):
+        if value in ["Cartesian", "Cylindrical", "Spherical"]:
+            self._coordinate_system = value
+            self._update_props("CoordinateSystemType", value)
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -1260,6 +1302,7 @@ class Material(CommonMaterial, object):
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )
             self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
+            x = 1
         pass
 
     @property
@@ -1550,6 +1593,28 @@ class Material(CommonMaterial, object):
     @diffusivity.setter
     def diffusivity(self, value):
         self._diffusivity.value = value
+
+    @property
+    def magnetic_coercivity(self):
+        """Magnetic coercivity.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Material.MatProperty`
+            Magnetic coercivity of the material.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._magnetic_coercivity
+
+    @magnetic_coercivity.setter
+    def magnetic_coercivity(self, value):
+        if isinstance(value, list) and len(value) == 4:
+            self.set_magnetic_coercitivity(value)
+            self._magnetic_coercivity.value = value
 
     @property
     def molecular_mass(self):
