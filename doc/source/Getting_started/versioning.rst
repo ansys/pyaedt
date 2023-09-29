@@ -57,6 +57,8 @@ The following table shows the supported versions of Ansys EDT and the recommende
 |                           |                        +-----------------------+-----------------------+
 |                           |                        | gRPC                  | COM                   |
 +===========================+========================+=======================+=======================+
+| AnsysEM 2024 R1           | gRPC                   |        YES            |        NO*            |
++---------------------------+------------------------+-----------------------+-----------------------+
 | AnsysEM 2023 R2           | gRPC                   |        YES            |        YES*           |
 +---------------------------+------------------------+-----------------------+-----------------------+
 | AnsysEM 2023 R1           | gRPC                   |        YES            |        YES*           |
@@ -73,3 +75,4 @@ Where:
 * YES means that the interface is supported and recommended.
 * YES* means that the interface is supported, but not recommended. Their support might be dropped in the future.
 * NO means that the interface is not supported.
+* NO* means that the interface is still supported but it is deprecated.
