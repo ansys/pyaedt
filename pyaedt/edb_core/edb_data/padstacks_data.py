@@ -769,7 +769,7 @@ class EDBPadstack(object):
                         layout,
                         self.via_start_layer,
                         via._edb_padstackinstance.GetNet(),
-                        self.pad_by_layer[self.via_start_layer].polygon_data,
+                        self.pad_by_layer[self.via_start_layer].polygon_data.edb_api,
                     )
                 else:
                     self._edb.cell.primitive.circle.create(
@@ -785,7 +785,7 @@ class EDBPadstack(object):
                         layout,
                         self.via_stop_layer,
                         via._edb_padstackinstance.GetNet(),
-                        self.pad_by_layer[self.via_stop_layer].polygon_data,
+                        self.pad_by_layer[self.via_stop_layer].polygon_data.edb_api,
                     )
                 else:
                     self._edb.cell.primitive.circle.create(
