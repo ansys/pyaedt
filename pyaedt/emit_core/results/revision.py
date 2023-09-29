@@ -497,7 +497,9 @@ class Revision:
                                     # should just be skipped
                                     continue
                             else:
-                                tx_prob = instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
+                                tx_prob = (
+                                    instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
+                                )
                                 power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
@@ -676,7 +678,6 @@ class Revision:
 
                         if power > max_power and filtering:
                             max_power = power
-
 
                 # If the worst case for the band-pair is below the power thresholds, then
                 # there are no interference issues and no offset is required.
