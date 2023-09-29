@@ -1231,6 +1231,25 @@ class Maxwell(object):
         ----------
 
         >>> oModule.AssignForce
+
+        Examples
+        --------
+
+        Assign virtual force to a magnetic object:
+
+        >>> iron_object = m3d.modeler.create_box([0, 0, 0], [2, 10, 10], name="iron")
+        >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
+        >>> m3d.assign_material(iron_object, "iron")
+        >>> m3d.assign_material(magnet_object, "NdFe30")
+        >>> m3d.assign_force("iron", force_name="force_iron", is_virtual=True)
+
+        Assign Lorentz force to a conductor:
+
+        >>> conductor1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="conductor1")
+        >>> conductor2 = m3d.modeler.create_box([10, 0, 0], [1, 1, 10], name="conductor2")
+        >>> m3d.assign_material(conductor1, "copper")
+        >>> m3d.assign_material(conductor2, "copper")
+        >>> m3d.assign_force("conductor1", force_name="force_copper", is_virtual=False) # conductor, use Lorentz force
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
             input_object = self.modeler.convert_to_selections(input_object, True)
