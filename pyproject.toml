@@ -25,8 +25,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "cffi == 1.15.1;platform_system=='Linux'; python_version == '3.7'",
-    "cffi == 1.16.0;platform_system=='Linux'; python_version > '3.7'",
+    "cffi == 1.15.1;platform_system=='Linux' and python_version == '3.7'",
+    "cffi == 1.16.0;platform_system=='Linux' and python_version > '3.7'",
     "pywin32 >= 303;platform_system=='Windows'",
     "pythonnet == 3.0.2",
     "rpyc==5.3.1",
