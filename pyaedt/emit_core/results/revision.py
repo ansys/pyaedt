@@ -519,7 +519,8 @@ class Revision:
                             if power > max_power and in_filters:
                                 max_power = power
                                 largest_rx_prob = rx_prob
-                                largest_tx_prob = tx_prob
+                                prob = instance.get_largest_problem_type(ResultType.EMI)
+                                largest_tx_prob = prob.replace(" ", "").split(":")
 
                 if max_power > -200:
                     rx_powers.append(max_power)
