@@ -1644,7 +1644,6 @@ class Stackup(object):
                 for material in v.values():
                     self._pedb.materials._load_materials(material)
             if k == "layers":
-
                 if len(list(v.values())) == len(list(self.stackup_layers.values())):
                     imported_layers_list = [l_dict["name"] for l_dict in list(v.values())]
                     layout_layer_list = list(self.stackup_layers.keys())
@@ -1655,7 +1654,6 @@ class Stackup(object):
                 prev_layer = None
                 for layer_name, layer in v.items():
                     if layer["name"] not in self.stackup_layers:
-
                         default_layer = {
                             "name": "default",
                             "type": "signal",
@@ -1680,7 +1678,7 @@ class Stackup(object):
 
                         for k, v in layer.items():
                             default_layer[k] = v
-                        
+
                         layer = default_layer
 
                         if not prev_layer:

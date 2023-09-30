@@ -298,20 +298,20 @@ class Material(object):
     @pyaedt_function_handler()
     def _load(self, input_dict):
         default_material = {
-            "name":"default",
-            "conductivity":0,
-            "loss_tangent":0,
-            "magnetic_loss_tangent":0,
-            "mass_density":0,
-            "permittivity":1,
-            "permeability":1,
-            "poisson_ratio":0,
-            "specific_heat":0,
-            "thermal_conductivity":0,
-            "youngs_modulus":0,
-            "thermal_expansion_coefficient":0,
-            "dielectric_model_frequency":None,
-            "dc_permittivity":None,
+            "name": "default",
+            "conductivity": 0,
+            "loss_tangent": 0,
+            "magnetic_loss_tangent": 0,
+            "mass_density": 0,
+            "permittivity": 1,
+            "permeability": 1,
+            "poisson_ratio": 0,
+            "specific_heat": 0,
+            "thermal_conductivity": 0,
+            "youngs_modulus": 0,
+            "thermal_expansion_coefficient": 0,
+            "dielectric_model_frequency": None,
+            "dc_permittivity": None,
         }
         if input_dict:
             for k, v in input_dict.items():
