@@ -328,7 +328,7 @@ class Material(object):
             self.thermal_conductivity = default_material["thermal_conductivity"]
             self.youngs_modulus = default_material["youngs_modulus"]
             self.thermal_expansion_coefficient = default_material["thermal_expansion_coefficient"]
-            if default_material["dielectric_model_frequency"] is not None:
+            if default_material["dielectric_model_frequency"] is not None:  # pragma: no cover
                 if self._edb_material_def.GetDielectricMaterialModel():
                     model = self._edb_material_def.GetDielectricMaterialModel()
                     self.dielectric_model_frequency = default_material["dielectric_model_frequency"]
