@@ -1,4 +1,45 @@
 from pyaedt import pyaedt_function_handler
+from pyaedt.edb_core.general import Primitives
+from pyaedt.edb_core.general import LayoutObjType
+
+
+class LayoutObjInstance:
+
+    def __init__(self, pedb, edb_object):
+        self._pedb = pedb
+        self._edb_object = edb_object
+
+    @property
+    def layout_instance(self):
+        return self._pedb.active_layout.GetLayoutInstance()
+
+    @pyaedt_function_handler
+    def get_connected_objects(self):
+        temp = []
+        for i in list([loi.GetLayoutObj() for loi in self.layout_instance.GetConnectedObjects(self._edb_object).Items]):
+            obj_type = i.GetObjType().ToString()
+            if obj_type == LayoutObjType.PadstackInstance.name:
+                from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+                temp.append(EDBPadstackInstance(i, self._pedb))
+            elif obj_type == LayoutObjType.Primitive.name:
+                prim_type = i.GetPrimitiveType().ToString()
+                if prim_type == Primitives.Path.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPath
+                    temp.append(EdbPath(i, self._pedb))
+                elif prim_type == Primitives.Rectangle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbRectangle
+                    temp.append(EdbRectangle(i, self._pedb))
+                elif prim_type == Primitives.Circle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbCircle
+                    temp.append(EdbCircle(i, self._pedb))
+                elif prim_type == Primitives.Polygon.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPolygon
+                    temp.append(EdbPolygon(i, self._pedb))
+                else:
+                    temp.append(LayoutObj(self._pedb, i))
+            else:
+                temp.append(LayoutObj(self._pedb, i))
+        return temp
 
 
 class LayoutObj(object):
@@ -28,9 +69,9 @@ class LayoutObj(object):
         return self._pedb.edb_api
 
     @property
-    def _layout(self):
-        """Return Ansys.Ansoft.Edb.Cell.Layout object."""
-        return self._pedb.active_layout
+    def _layout_obj_instance(self):
+        obj = self._pedb.active_layout.GetLayoutInstance().GetLayoutObjInstance(self._edb_object, None)
+        return LayoutObjInstance(self._pedb, obj)
 
     @property
     def _edb_properties(self):
@@ -40,6 +81,10 @@ class LayoutObj(object):
     @_edb_properties.setter
     def _edb_properties(self, value):
         self._edb_object.SetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS", value)
+
+    @property
+    def _obj_type(self):
+        return self._edb_object.GetObjType().ToString()
 
     @property
     def is_null(self):

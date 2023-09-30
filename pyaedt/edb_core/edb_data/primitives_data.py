@@ -81,11 +81,7 @@ class EDBPrimitivesMain(Connectable):
         -------
         str
         """
-        types = ["Circle", "Path", "Polygon", "Rectangle", "Bondwire"]
-        str_type = self.primitive_type.ToString().split(".")
-        if str_type[-1] in types:
-            return str_type[-1]
-        return None
+        return self._edb_object.GetPrimitiveType().ToString()
 
     @property
     def net_name(self):
@@ -148,6 +144,9 @@ class EDBPrimitivesMain(Connectable):
         bool
         """
         return self._edb_object.IsVoid()
+
+    def get_connected_objects(self):
+        return self._layout_obj_instance.get_connected_objects()
 
 
 class EDBPrimitives(EDBPrimitivesMain):
