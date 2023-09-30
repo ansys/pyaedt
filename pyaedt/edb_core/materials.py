@@ -297,40 +297,59 @@ class Material(object):
 
     @pyaedt_function_handler()
     def _load(self, input_dict):
+        default_material = {
+            "name":"default",
+            "conductivity":0,
+            "loss_tangent":0,
+            "magnetic_loss_tangent":0,
+            "mass_density":0,
+            "permittivity":1,
+            "permeability":1,
+            "poisson_ratio":0,
+            "specific_heat":0,
+            "thermal_conductivity":0,
+            "youngs_modulus":0,
+            "thermal_expansion_coefficient":0,
+            "dielectric_model_frequency":None,
+            "dc_permittivity":None,
+        }
         if input_dict:
-            self.conductivity = input_dict["conductivity"]
-            self.loss_tangent = input_dict["loss_tangent"]
-            self.magnetic_loss_tangent = input_dict["magnetic_loss_tangent"]
-            self.mass_density = input_dict["mass_density"]
-            self.permittivity = input_dict["permittivity"]
-            self.permeability = input_dict["permeability"]
-            self.poisson_ratio = input_dict["poisson_ratio"]
-            self.specific_heat = input_dict["specific_heat"]
-            self.thermal_conductivity = input_dict["thermal_conductivity"]
-            self.youngs_modulus = input_dict["youngs_modulus"]
-            self.thermal_expansion_coefficient = input_dict["thermal_expansion_coefficient"]
-            if input_dict["dielectric_model_frequency"] is not None:
+            for k, v in input_dict.items():
+                default_material[k] = v
+
+            self.conductivity = default_material["conductivity"]
+            self.loss_tangent = default_material["loss_tangent"]
+            self.magnetic_loss_tangent = default_material["magnetic_loss_tangent"]
+            self.mass_density = default_material["mass_density"]
+            self.permittivity = default_material["permittivity"]
+            self.permeability = default_material["permeability"]
+            self.poisson_ratio = default_material["poisson_ratio"]
+            self.specific_heat = default_material["specific_heat"]
+            self.thermal_conductivity = default_material["thermal_conductivity"]
+            self.youngs_modulus = default_material["youngs_modulus"]
+            self.thermal_expansion_coefficient = default_material["thermal_expansion_coefficient"]
+            if default_material["dielectric_model_frequency"] is not None:
                 if self._edb_material_def.GetDielectricMaterialModel():
                     model = self._edb_material_def.GetDielectricMaterialModel()
-                    self.dielectric_model_frequency = input_dict["dielectric_model_frequency"]
-                    self.loss_tangent_at_frequency = input_dict["loss_tangent_at_frequency"]
-                    self.permittivity_at_frequency = input_dict["permittivity_at_frequency"]
-                    if input_dict["dc_permittivity"] is not None:
+                    self.dielectric_model_frequency = default_material["dielectric_model_frequency"]
+                    self.loss_tangent_at_frequency = default_material["loss_tangent_at_frequency"]
+                    self.permittivity_at_frequency = default_material["permittivity_at_frequency"]
+                    if default_material["dc_permittivity"] is not None:
                         model.SetUseDCRelativePermitivity(True)
-                        self.dc_permittivity = input_dict["dc_permittivity"]
-                    self.dc_conductivity = input_dict["dc_conductivity"]
+                        self.dc_permittivity = default_material["dc_permittivity"]
+                    self.dc_conductivity = default_material["dc_conductivity"]
                 else:
                     if not self._pclass.add_djordjevicsarkar_material(
-                        input_dict["name"],
-                        input_dict["permittivity_at_frequency"],
-                        input_dict["loss_tangent_at_frequency"],
-                        input_dict["dielectric_model_frequency"],
-                        input_dict["dc_permittivity"],
-                        input_dict["dc_conductivity"],
+                        default_material["name"],
+                        default_material["permittivity_at_frequency"],
+                        default_material["loss_tangent_at_frequency"],
+                        default_material["dielectric_model_frequency"],
+                        default_material["dc_permittivity"],
+                        default_material["dc_conductivity"],
                     ):
                         self._pclass._pedb.logger.warning(
                             'Cannot set DS model for material "{}". Check for realistic '
-                            "values that define DS Model".format(input_dict["name"])
+                            "values that define DS Model".format(default_material["name"])
                         )
             else:
                 # To unset DS model if already assigned to the material in database

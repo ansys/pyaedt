@@ -529,6 +529,7 @@ class StackupLayerEdbClass(LayerEdbClass):
         return dict_out
 
     def _load_layer(self, layer):
+
         if layer:
             self.color = layer["color"]
             self.type = layer["type"]
