@@ -4,8 +4,6 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 class LayoutValidation:
     """Manages all layout validation capabilities"""
 
-    REPORT_DC_SHORTS = {}
-
     def __init__(self, pedb):
         self._pedb = pedb
 
@@ -60,11 +58,8 @@ class LayoutValidation:
             connected_objs.append(objs[0])
             net_dc_shorts = [obj for obj in connected_objs if not obj.net.name == net]
             if net_dc_shorts:
-                if not net in self.REPORT_DC_SHORTS:
-                    self.REPORT_DC_SHORTS[net] = []
                 dc_nets = list(set([obj.net.name for obj in net_dc_shorts]))
                 for dc in dc_nets:
                     if dc:
                         dc_shorts.append([net, dc])
-                    self.REPORT_DC_SHORTS[net].append(dc)
-        return dc_shorts
+§        return dc_shorts
