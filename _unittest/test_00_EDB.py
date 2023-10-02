@@ -1,3 +1,4 @@
+import json
 import os
 
 # Setup paths for module imports
@@ -1838,6 +1839,18 @@ class TestClass:
         assert layer.is_negative
         assert not layer.is_via_layer
         assert layer.material == "copper"
+        edbapp.close()
+
+    def test_125d_stackup(self):
+        fpath = os.path.join(local_path, "example_models", test_subfolder, "stackup.json")
+        stackup_json = json.load(open(fpath, "r"))
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(fpath)
+        edbapp.close()
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(stackup_json)
         edbapp.close()
 
     def test_126_comp_def(self):
