@@ -79,6 +79,7 @@ class LayoutObj(object):
 
     @property
     def _layout_obj_instance(self):
+        """Returns :class:`pyaedt.edb_core.edb_data.connectable.LayoutObjInstance`."""
         obj = self._pedb.layout_instance.GetLayoutObjInstance(self._edb_object, None)
         return LayoutObjInstance(self._pedb, obj)
 
@@ -93,6 +94,7 @@ class LayoutObj(object):
 
     @property
     def _obj_type(self):
+        """Returns LayoutObjType."""
         return self._edb_object.GetObjType().ToString()
 
     @property
