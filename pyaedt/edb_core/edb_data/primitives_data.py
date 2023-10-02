@@ -150,13 +150,7 @@ class EDBPrimitivesMain(Connectable):
 
         Returns
         -------
-        list[:class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPath`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbRectangle`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbCircle`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPolygon`,
-            ]
+        list
         """
         return self._pedb.get_connected_objects(self._layout_obj_instance)
 

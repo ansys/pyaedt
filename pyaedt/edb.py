@@ -333,6 +333,7 @@ class Edb(Database):
 
     @property
     def layout_validation(self):
+        """:class:`pyaedt.edb_core.edb_data.layout_validation.LayoutValidation`."""
         return LayoutValidation(self)
 
     @property
@@ -1045,13 +1046,7 @@ class Edb(Database):
 
         Returns
         -------
-        list[:class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPath`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbRectangle`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbCircle`,
-        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPolygon`,
-            ]
+        list
         """
         temp = []
         for i in list(
