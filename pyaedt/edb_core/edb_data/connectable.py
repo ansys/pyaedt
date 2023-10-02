@@ -57,7 +57,7 @@ class LayoutObj(object):
 
     @property
     def is_null(self):
-        """Determine if this object is null."""
+        """Flag indicating if this object is null."""
         return self._edb_object.IsNull()
 
     @property
