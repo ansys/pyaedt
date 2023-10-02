@@ -14,6 +14,7 @@ This module contains these data classes for creating a material library:
 """
 from collections import OrderedDict
 import copy
+import warnings
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import CSS4_COLORS
@@ -1220,7 +1221,7 @@ class CommonMaterial(object):
                 return self.update()
         elif isinstance(provpavlue, list) and material_props_type and material_props_type == "vector":
             if propname == "magnetic_coercivity":
-                self.set_magnetic_coercitivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
+                self.set_magnetic_coercivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
         return False
 
 
@@ -1633,8 +1634,8 @@ class Material(CommonMaterial, object):
     @magnetic_coercivity.setter
     def magnetic_coercivity(self, value):
         if isinstance(value, list) and len(value) == 4:
-            self.set_magnetic_coercitivity(value[0], value[1], value[2], value[3])
-            self._magnetic_coercitivity.value = value
+            self.set_magnetic_coercivity(value[0], value[1], value[2], value[3])
+            self._magnetic_coercivity.value = value
 
     @property
     def molecular_mass(self):
@@ -1925,7 +1926,23 @@ class Material(CommonMaterial, object):
 
     @pyaedt_function_handler()
     def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
-        """Set Magnetic Coercitivity for material.
+        """Set magnetic coercivity for material.
+
+        .. deprecated:: 0.7.0
+
+        Returns
+        -------
+        bool
+
+        """
+        warnings.warn(
+            "`set_magnetic_coercitivity` is deprecated. Use `set_magnetic_coercivity` instead.", DeprecationWarning
+        )
+        return self.set_magnetic_coercivity(self, value=value, x=x, y=y, z=z)
+
+    @pyaedt_function_handler()
+    def set_magnetic_coercivity(self, value=0, x=1, y=0, z=0):
+        """Set magnetic coercivity for material.
 
         Parameters
         ----------
@@ -2166,8 +2183,8 @@ class Material(CommonMaterial, object):
         return out
 
     @pyaedt_function_handler()
-    def get_magnetic_coercitivity(self):
-        """Get the magnetic coercitivity values.
+    def get_magnetic_coercivity(self):
+        """Get the magnetic coercivity values.
 
         Returns
         -------
@@ -2182,6 +2199,22 @@ class Material(CommonMaterial, object):
                 self._props["magnetic_coercivity"]["DirComp3"],
             )
         return False
+
+    @pyaedt_function_handler()
+    def get_magnetic_coercitivity(self):
+        """Get the magnetic coercivity values.
+
+        .. deprecated:: 0.7.0
+
+        Returns
+        -------
+        bool
+
+        """
+        warnings.warn(
+            "`get_magnetic_coercitivity` is deprecated. Use `get_magnetic_coercivity` instead.", DeprecationWarning
+        )
+        return self.get_magnetic_coercivity(self)
 
     @pyaedt_function_handler()
     def is_conductor(self, threshold=100000):
