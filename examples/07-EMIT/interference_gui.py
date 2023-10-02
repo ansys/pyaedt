@@ -329,6 +329,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.warning_label.setText("Warning: The selected design must contain at least two radios.")
             self.warning_label.setHidden(False)
 
+        # clear the table if the design is changed
+        self.clear_table()
+
     ###############################################################################
     # Enable radio specific protection levels
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -568,7 +571,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         button.setEnabled(True)
         img_btn.setEnabled(True)
-    
+
+    def clear_table(self):
+        # get the table/buttons based on current tab
+        if self.tab_widget.currentIndex() == 0:
+            table = self.protection_matrix
+            button = self.protection_export_btn
+            img_btn = self.protection_save_img_btn
+        else:
+            table = self.interference_matrix
+            button = self.interference_export_btn
+            img_btn = self.interference_save_img_btn
+
+        # disable export options
+        button.setEnabled(False)
+        img_btn.setEnabled(False)
+
+        # clear the table
+        table.setColumnCount(0)
+        table.setRowCount(0)
+
     ###############################################################################
     # GUI closing event
     # ~~~~~~~~~~~~~~~~~
