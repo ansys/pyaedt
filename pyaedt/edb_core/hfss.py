@@ -418,8 +418,6 @@ class EdbHfss(object):
     @pyaedt_function_handler()
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
-
-        .. note::
            The name of the new coaxial port is automatically assigned.
 
         Parameters
@@ -1113,7 +1111,7 @@ class EdbHfss(object):
                                 ref_prim = [
                                     prim
                                     for prim in reference_net.primitives
-                                    if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                    if prim.polygon_data.edb_api.PointInPolygon(mid_pt_data)
                                 ]
                                 if not ref_prim:
                                     self._logger.warning("no reference primitive found, trying to extend scanning area")
@@ -1130,7 +1128,7 @@ class EdbHfss(object):
                                         ref_prim = [
                                             prim
                                             for prim in reference_net.primitives
-                                            if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                            if prim.polygon_data.edb_api.PointInPolygon(mid_pt_data)
                                         ]
                                         if ref_prim:
                                             self._logger.info("Reference primitive found")

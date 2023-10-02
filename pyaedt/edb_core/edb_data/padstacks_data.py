@@ -4,7 +4,9 @@ import re
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt.edb_core.dotnet.database import PolygonDataDotNet
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitivesMain
 from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import String
@@ -133,7 +135,10 @@ class EDBPadProperties(object):
             pad_values = self._edb_padstack.GetData().GetPolygonalPadParameters(
                 self.layer_name, self.int_to_pad_type(self.pad_type)
             )
-            return pad_values[1]
+            if pad_values[1]:
+                return PolygonDataDotNet(self._edb._app, pad_values[1])
+            else:
+                return
         except:
             return
 
@@ -764,7 +769,7 @@ class EDBPadstack(object):
                         layout,
                         self.via_start_layer,
                         via._edb_padstackinstance.GetNet(),
-                        self.pad_by_layer[self.via_start_layer].polygon_data,
+                        self.pad_by_layer[self.via_start_layer].polygon_data.edb_api,
                     )
                 else:
                     self._edb.cell.primitive.circle.create(
@@ -780,7 +785,7 @@ class EDBPadstack(object):
                         layout,
                         self.via_stop_layer,
                         via._edb_padstackinstance.GetNet(),
-                        self.pad_by_layer[self.via_stop_layer].polygon_data,
+                        self.pad_by_layer[self.via_stop_layer].polygon_data.edb_api,
                     )
                 else:
                     self._edb.cell.primitive.circle.create(
@@ -968,7 +973,7 @@ class EDBPadstack(object):
         return new_instances
 
 
-class EDBPadstackInstance(object):
+class EDBPadstackInstance(EDBPrimitivesMain):
     """Manages EDB functionalities for a padstack.
 
     Parameters
@@ -985,22 +990,40 @@ class EDBPadstackInstance(object):
     >>> edb_padstack_instance = edb.padstacks.instances[0]
     """
 
-    def __getattr__(self, key):
-        try:
-            return super().__getattribute__(key)
-        except AttributeError:
-            try:
-                return getattr(self._edb_padstackinstance, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, edb_padstackinstance, _pedb):
-        self._edb_padstackinstance = edb_padstackinstance
-        self._pedb = _pedb
+        super().__init__(edb_padstackinstance, _pedb)
+        self._edb_padstackinstance = self._edb_object
         self._bounding_box = []
         self._object_instance = None
         self._position = []
         self._pdef = None
+
+    @property
+    def terminal(self):
+        """Return PadstackInstanceTerminal object."""
+        from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
+        term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        if not term.is_null:
+            return term
+
+    @pyaedt_function_handler
+    def _create_terminal(self, name=None):
+        """Create a padstack instance terminal"""
+        from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
+        term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        return term.create(self, name)
+
+    @pyaedt_function_handler
+    def create_coax_port(self, name=None, radial_extent_factor=0):
+        """Create a coax port."""
+        from pyaedt.edb_core.edb_data.ports import CoaxPort
+
+        term = self._create_terminal(name)
+        coax = CoaxPort(self._pedb, term._edb_object)
+        coax.radial_extent_factor = radial_extent_factor
+        return coax
 
     @property
     def _em_properties(self):
@@ -1067,7 +1090,7 @@ class EDBPadstackInstance(object):
 
     @property
     def object_instance(self):
-        """Edb Object Instance."""
+        """Return Ansys.Ansoft.Edb.LayoutInstance.LayoutObjInstance object."""
         if not self._object_instance:
             self._object_instance = (
                 self._edb_padstackinstance.GetLayout()
@@ -1137,16 +1160,6 @@ class EDBPadstackInstance(object):
             return True
         else:
             return False
-
-    @property
-    def component(self):
-        """Get the component that this padstack belongs to."""
-        api_object = self._edb_padstackinstance.GetComponent()
-        from pyaedt.edb_core.edb_data.components_data import EDBComponent
-
-        edb_comp = EDBComponent(self._pedb, api_object)
-        if not edb_comp.is_null:
-            return edb_comp
 
     @property
     def pin(self):
@@ -1441,17 +1454,6 @@ class EDBPadstackInstance(object):
             return out[2].ToDouble()
 
     @property
-    def id(self):
-        """Id of this padstack instance.
-
-        Returns
-        -------
-        str
-            Padstack instance id.
-        """
-        return self._edb_padstackinstance.GetId()
-
-    @property
     def name(self):
         """Padstack Instance Name. If it is a pin, the syntax will be like in AEDT ComponentName-PinName."""
         if self.is_pin:
@@ -1566,12 +1568,6 @@ class EDBPadstackInstance(object):
            Use :func:`delete` property instead.
         """
         warnings.warn("`delete_padstack_instance` is deprecated. Use `delete` instead.", DeprecationWarning)
-        self._edb_padstackinstance.Delete()
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
         return True
 
@@ -1829,8 +1825,8 @@ class EDBPadstackInstance(object):
             # Polygon
             points = []
             i = 0
-            while i < polygon_data.Count:
-                point = polygon_data.GetPoint(i)
+            while i < polygon_data.edb_api.Count:
+                point = polygon_data.edb_api.GetPoint(i)
                 i += 1
                 if point.IsArc():
                     continue
@@ -1872,6 +1868,12 @@ class EDBPadstackInstance(object):
         layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
         layoutObjInst = self.object_instance
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
+
+    @pyaedt_function_handler()
+    def _get_connected_object_obj_set(self):
+        layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
+        layoutObjInst = self.object_instance
+        return list([loi.GetLayoutObj() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items])
 
     @pyaedt_function_handler()
     def get_reference_pins(self, reference_net="GND", search_radius=5e-3, max_limit=0, component_only=True):

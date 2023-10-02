@@ -31,7 +31,7 @@ class Primitives2D(Primitives, object):
         Primitives.__init__(self)
 
     @pyaedt_function_handler()
-    def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):
+    def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None, non_model=False):
         """Create a circle.
 
         Parameters
@@ -40,7 +40,7 @@ class Primitives2D(Primitives, object):
             ApplicationName.modeler.Position(x,y,z) object
         radius : float
             Radius of the object.
-        numSides : int, optional
+        num_sides : int, optional
             Number of sides. The default is ``0``, which is correct for a circle.
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
@@ -50,6 +50,9 @@ class Primitives2D(Primitives, object):
         matname : str, optional
             Name of the material. The default is ``None``. If ``None``,
             the default material is assigned.
+        non_model : bool, optional
+             Either to create the new object as model or non-model. The default is ``False``.
+
 
         Returns
         -------
@@ -82,12 +85,12 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
 
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
-    def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None):
+    def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None, non_model=False):
         """Create an ellipse.
 
         Parameters
@@ -106,6 +109,8 @@ class Primitives2D(Primitives, object):
         matname : str, default=None
              Name of the material. The default is ``None``. If ``None``,
              the default material is assigned.
+        non_model : bool, optional
+             Either if create the new object as model or non-model. The default is ``False``.
 
         Returns
         -------
@@ -135,12 +140,12 @@ class Primitives2D(Primitives, object):
         vArg1.append("Ratio:="), vArg1.append(ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None):
+    def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None, non_model=False):
         """Create a rectangle.
 
         Parameters
@@ -157,6 +162,8 @@ class Primitives2D(Primitives, object):
         matname : str, default=None
              Name of the material. The default is ``None``. If ``None``,
              the default material is assigned.
+        non_model : bool, optional
+             Either if create the new object as model or non-model. The default is ``False``.
 
         Returns
         -------
@@ -189,12 +196,12 @@ class Primitives2D(Primitives, object):
         vArg1.append("Height:="), vArg1.append(height)
         vArg1.append("WhichAxis:="), vArg1.append(axis)
 
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
-    def create_regular_polygon(self, position, start_point, num_sides=6, is_covered=True, name=None, matname=None):
+    def create_regular_polygon(self, position, start_point, num_sides=6, name=None, matname=None, non_model=False):
         """Create a rectangle.
 
         Parameters
@@ -205,14 +212,15 @@ class Primitives2D(Primitives, object):
             Start point for the outer path of the polygon in ``[x, y, z]``.
         num_sides : int
             Number of sides of the polygon. Must be an integer >= 3.
-        is_covered : bool
-            Specify whether the ellipse is a sheet (covered) or a line object
         name : str, default=None
             Name of the object. The default is ``None``. If ``None`` ,
             a unique name NewObject_xxxxxx will be assigned)
         matname : str, default=None
              Name of the material. The default is ``None``. If ``None``,
              the default material is assigned.
+        non_model : bool, optional
+             Either if create the new object as model or non-model. The default is ``False``.
+
 
         Returns
         -------
@@ -248,7 +256,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("NumSides:="), vArg1.append(n_sides)
         vArg1.append("WhichAxis:="), vArg1.append(self.plane2d)
 
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
         return self._create_object(new_object_name)
 

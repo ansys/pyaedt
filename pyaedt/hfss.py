@@ -4379,14 +4379,22 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self,
+        setup_name=None,
+        sweep_name=None,
+        file_name=None,
+        variations=None,
+        variations_value=None,
+        renormalization=False,
+        impedance=None,
+        comments=False,
     ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solution_name : str, optional
-            Name of the solution that has been solved.
+        setup_name : str, optional
+            Name of the setup that has been solved.
         sweep_name : str, optional
             Name of the sweep that has been solved.
         file_name : str, optional
@@ -4398,6 +4406,15 @@ class Hfss(FieldAnalysis3D, object):
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
             The default is ``None``.
+        renormalization : bool, optional
+            Perform renormalization before export.
+            The default is ``False``.
+        impedance : float, optional
+            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
+            The default is ``None``.
+        comments : bool, optional
+            Include Gamma and Impedance values in comments.
+            The default is ``False``.
 
         Returns
         -------
@@ -4405,11 +4422,14 @@ class Hfss(FieldAnalysis3D, object):
             ``True`` when successful, ``False`` when failed.
         """
         return self._export_touchstone(
-            solution_name=solution_name,
+            setup_name=setup_name,
             sweep_name=sweep_name,
             file_name=file_name,
             variations=variations,
             variations_value=variations_value,
+            renormalization=renormalization,
+            impedance=impedance,
+            comments=comments,
         )
 
     @pyaedt_function_handler()
@@ -6140,12 +6160,12 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         signal : str, int, list, :class:`pyaedt.modeler.cad.object3d.Object3d` or
-         :class:`pyaedt.modeler.elements3d.FacePrimitive`
+            :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
         reference : int, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
-            Whether to create a port sheet or use given start_object as port shee.
+            Whether to create a port sheet or use given start_object as port sheet.
         integration_line : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -6157,12 +6177,11 @@ class Hfss(FieldAnalysis3D, object):
         impedance : float, optional
             Port impedance. The default is ``50``.
         name : str, optional
-            name of the port. The default is ``None``.
+            Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
+            Deembed distance in millimeters. The default is ``0``, in which case deembed is disabled.
         terminals_rename : bool, optional
             Modify terminals name with the port name plus the terminal number. The default value is ``True``.
 
