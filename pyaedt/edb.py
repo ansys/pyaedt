@@ -1054,24 +1054,34 @@ class Edb(Database):
             ]
         """
         temp = []
-        for i in list([loi.GetLayoutObj() for loi in self.layout_instance.GetConnectedObjects(layout_object_instance._edb_object).Items]):
+        for i in list(
+            [
+                loi.GetLayoutObj()
+                for loi in self.layout_instance.GetConnectedObjects(layout_object_instance._edb_object).Items
+            ]
+        ):
             obj_type = i.GetObjType().ToString()
             if obj_type == LayoutObjType.PadstackInstance.name:
                 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+
                 temp.append(EDBPadstackInstance(i, self))
             elif obj_type == LayoutObjType.Primitive.name:
                 prim_type = i.GetPrimitiveType().ToString()
                 if prim_type == Primitives.Path.name:
                     from pyaedt.edb_core.edb_data.primitives_data import EdbPath
+
                     temp.append(EdbPath(i, self))
                 elif prim_type == Primitives.Rectangle.name:
                     from pyaedt.edb_core.edb_data.primitives_data import EdbRectangle
+
                     temp.append(EdbRectangle(i, self))
                 elif prim_type == Primitives.Circle.name:
                     from pyaedt.edb_core.edb_data.primitives_data import EdbCircle
+
                     temp.append(EdbCircle(i, self))
                 elif prim_type == Primitives.Polygon.name:
                     from pyaedt.edb_core.edb_data.primitives_data import EdbPolygon
+
                     temp.append(EdbPolygon(i, self))
                 else:
                     continue

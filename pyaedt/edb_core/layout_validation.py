@@ -50,7 +50,6 @@ class LayoutValidation:
                 _padstacks_list[n_name] = [pad]
         dc_shorts = []
         for net in net_list:
-
             objs = []
             for i in _objects_list.get(net, []):
                 objs.append(i)

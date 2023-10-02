@@ -188,20 +188,20 @@ class Primitives(Enum):
 
 
 class LayoutObjType(Enum):
-    InvalidLayoutObj=-1
-    Primitive=0
-    PadstackInstance=1
-    Terminal=2
-    TerminalInstance=3
-    CellInstance=4
-    Layer=5
-    Net=6
-    Padstack=7
-    Group=8
-    NetClass=9
-    Cell=10
-    DifferentialPair=11
-    PinGroup=12
-    VoltageRegulator=13
-    ExtendedNet=14
-    LayoutObjTypeCount=15
+    InvalidLayoutObj = -1
+    Primitive = 0
+    PadstackInstance = 1
+    Terminal = 2
+    TerminalInstance = 3
+    CellInstance = 4
+    Layer = 5
+    Net = 6
+    Padstack = 7
+    Group = 8
+    NetClass = 9
+    Cell = 10
+    DifferentialPair = 11
+    PinGroup = 12
+    VoltageRegulator = 13
+    ExtendedNet = 14
+    LayoutObjTypeCount = 15

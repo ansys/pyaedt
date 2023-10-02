@@ -147,7 +147,7 @@ class EDBPrimitivesMain(Connectable):
 
     def get_connected_objects(self):
         """Get connected objects.
-        
+
         Returns
         -------
         list[:class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
