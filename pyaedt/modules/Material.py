@@ -1634,7 +1634,7 @@ class Material(CommonMaterial, object):
     def magnetic_coercivity(self, value):
         if isinstance(value, list) and len(value) == 4:
             self.set_magnetic_coercitivity(value[0], value[1], value[2], value[3])
-            self._magnetic_coercivity.value = value
+            self._magnetic_coercitivity.value = value
 
     @property
     def molecular_mass(self):
@@ -2157,10 +2157,7 @@ class Material(CommonMaterial, object):
                 out["core_loss_y"] = self._props["core_loss_y"]
                 out["core_loss_kdc"] = self._props["core_loss_kdc"]
                 out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
-            elif (
-                self._props["from pyaedt.generic.constants import AEDT_UNITScore_loss_type"].get("Choice", None)
-                == "Hysteresis Model"
-            ):
+            elif self._props["core_loss_type"].get("Choice", None) == "Hysteresis Model":
                 out["core_loss_hci"] = self._props["core_loss_hci"]
                 out["core_loss_br"] = self._props["core_loss_br"]
                 out["core_loss_hkc"] = self._props["core_loss_hkc"]
