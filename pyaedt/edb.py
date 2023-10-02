@@ -44,6 +44,7 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.layout import EdbLayout
+from pyaedt.edb_core.layout_validation import LayoutValidation
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.net_class import EdbDifferentialPairs
 from pyaedt.edb_core.net_class import EdbExtendedNets
@@ -329,6 +330,10 @@ class Edb(Database):
         for i in self.active_db.GetVariableServer().GetAllVariableNames():
             p_var[i] = Variable(self, i)
         return p_var
+
+    @property
+    def layout_validation(self):
+        return LayoutValidation(self)
 
     @property
     def variables(self):

@@ -74,6 +74,10 @@ class EDBNetsData(NetDotNet):
                     comps[comp.refdes] = comp
         return comps
 
+    @pyaedt_function_handler
+    def find_dc_short(self):
+        return self._app.layout_validation.dc_shorts(self.name)
+
     @pyaedt_function_handler()
     def plot(
         self,

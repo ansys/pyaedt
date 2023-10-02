@@ -1265,65 +1265,6 @@ class EdbNets(object):
         return new_nets
 
     @pyaedt_function_handler()
-    def find_dc_shorts(self, net_list=None):
-        """Find DC shorts on layout.
-
-        Parameters
-        ----------
-        net_list : str or list[str]
-            Optional
-
-        Returns
-        -------
-        List[List[str, str]]
-            [[net name, net name]].
-
-        Examples
-        --------
-
-        >>> edb = Edb("edb_file")
-        >>> dc_shorts = edb.nets.find_dc_shorts()
-
-        """
-        if not net_list:
-            net_list = list(self.nets.keys())
-        elif isinstance(net_list, str):
-            net_list = [net_list]
-        _objects_list = {}
-        _padstacks_list = {}
-        for prim in self._pedb.modeler.primitives:
-            n_name = prim.net_name
-            if n_name in _objects_list:
-                _objects_list[n_name].append(prim)
-            else:
-                _objects_list[n_name] = [prim]
-        for pad in list(self._pedb.padstacks.instances.values()):
-            n_name = pad.net_name
-            if n_name in _padstacks_list:
-                _padstacks_list[n_name].append(pad)
-            else:
-                _padstacks_list[n_name] = [pad]
-        dc_shorts = []
-        for net in net_list:
-            objs = []
-            for i in _objects_list.get(net, []):
-                objs.append(i)
-            for i in _padstacks_list.get(net, []):
-                objs.append(i)
-            try:
-                connected_objs = objs[0]._get_connected_object_obj_set()
-                connected_objs.append(objs[0].api_object)
-                net_dc_shorts = [obj for obj in connected_objs if not obj.GetNet().GetName() == net]
-                if net_dc_shorts:
-                    dc_nets = list(set([obj.GetNet().GetName() for obj in net_dc_shorts]))
-                    for dc in dc_nets:
-                        if dc:
-                            dc_shorts.append([net, dc])
-            except:
-                pass
-        return dc_shorts
-
-    @pyaedt_function_handler()
     def merge_nets_polygons(self, net_list):
         """Convert paths from net into polygons, evaluate all connected polygons and perform the merge.
 
