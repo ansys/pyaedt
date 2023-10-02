@@ -76,7 +76,7 @@ class EDBNetsData(NetDotNet):
 
     @pyaedt_function_handler
     def find_dc_short(self):
-        """Find dc shorted nets.
+        """Find DC-shorted nets.
         Returns
         -------
         List[List[str, str]]
