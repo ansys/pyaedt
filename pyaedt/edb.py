@@ -1086,7 +1086,7 @@ class Edb(Database):
 
     @property
     def pins(self):
-        """EDBPadstackInstance of Component.
+        """EDB padstack instance of the component.
 
         .. deprecated:: 0.6.62
            Use new method :func:`edb.padstacks.pins` instead.
