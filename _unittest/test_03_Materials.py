@@ -71,6 +71,13 @@ class TestClass:
 
         assert mat1.set_magnetic_coercitivity(1, 2, 3, 4)
         assert mat1.get_magnetic_coercitivity() == ("1A_per_meter", "2", "3", "4")
+        mat1.coordinate_system = "Cylindrical"
+        assert mat1.coordinate_system == "Cylindrical"
+        mat1.magnetic_coercivity = [2, 1, 0, 1]
+        assert mat1.get_magnetic_coercitivity() == ("2A_per_meter", "1", "0", "`1`")
+        mat1.magnetic_coercivity.value = ["1", "2", "3", "4"]
+        assert mat1.get_magnetic_coercitivity() == ("1A_per_meter", "2", "3", "4")
+
         assert mat1.set_electrical_steel_coreloss(1, 2, 3, 4, 0.002)
         assert mat1.get_curve_coreloss_type() == "Electrical Steel"
         assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == "0.002meter"

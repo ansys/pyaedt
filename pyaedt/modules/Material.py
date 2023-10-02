@@ -283,9 +283,16 @@ class MatProperty(object):
                     self._unit = v["DimUnits"]
                 elif e == "Temperatures":
                     self.temperatures = v
-        elif val is not None and isinstance(val, OrderedDict):
+        elif val is not None and isinstance(val, OrderedDict) and "Magnitude" in val.keys():
             self.type = "vector"
-            self.value = [val["Magnitude"], val["DirComp1"], val["DirComp2"], val["DirComp3"]]
+            magnitude = val["Magnitude"]
+            units = None
+            if isinstance(magnitude, str):
+                units = "".join(filter(lambda c: c.isalpha() or c == "_", val["Magnitude"]))
+                magnitude = "".join(filter(str.isdigit, val["Magnitude"]))
+            if units:
+                self.unit = units
+            self.value = [str(magnitude), str(val["DirComp1"]), str(val["DirComp2"]), str(val["DirComp3"])]
         if not isinstance(thermalmodifier, list):
             thermalmodifier = [thermalmodifier]
         for tm in thermalmodifier:
@@ -339,6 +346,11 @@ class MatProperty(object):
     @property
     def evaluated_value(self):
         """Evaluated value."""
+        evaluated_expression = []
+        if isinstance(self.value, list):
+            for value in self.value:
+                evaluated_expression.append(self._material._materials._app.evaluate_expression(value))
+            return evaluated_expression
         return self._material._materials._app.evaluate_expression(self.value)
 
     @property
@@ -354,7 +366,7 @@ class MatProperty(object):
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
             self.set_non_linear()
-        elif isinstance(val, list):
+        elif isinstance(val, list) and self.type != "vector":
             if len(val) == 3:
                 self.type = "anisotropic"
             elif len(val) == 9:
@@ -369,6 +381,12 @@ class MatProperty(object):
                 i += 1
             if self._material._material_update:
                 self._material._update_props(self.name, val)
+
+        elif isinstance(val, list) and self.type == "vector":
+            if len(val) == 4:
+                self._property_value[0].value = val
+                if self._material._material_update:
+                    self._material._update_props(self.name, val)
         else:
             self.type = "simple"
             self._property_value[0].value = val
@@ -1200,6 +1218,9 @@ class CommonMaterial(object):
                 self._props[propname] = OrderedDict({"property_type": "nonlinear", pr_name: bh})
             if update_aedt:
                 return self.update()
+        elif isinstance(provpavlue, list) and material_props_type and material_props_type == "vector":
+            if propname == "magnetic_coercivity":
+                self.set_magnetic_coercitivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
         return False
 
 
@@ -1302,7 +1323,6 @@ class Material(CommonMaterial, object):
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )
             self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
-            x = 1
         pass
 
     @property
@@ -1613,7 +1633,7 @@ class Material(CommonMaterial, object):
     @magnetic_coercivity.setter
     def magnetic_coercivity(self, value):
         if isinstance(value, list) and len(value) == 4:
-            self.set_magnetic_coercitivity(value)
+            self.set_magnetic_coercitivity(value[0], value[1], value[2], value[3])
             self._magnetic_coercivity.value = value
 
     @property
@@ -2137,7 +2157,10 @@ class Material(CommonMaterial, object):
                 out["core_loss_y"] = self._props["core_loss_y"]
                 out["core_loss_kdc"] = self._props["core_loss_kdc"]
                 out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
-            elif self._props["core_loss_type"].get("Choice", None) == "Hysteresis Model":
+            elif (
+                self._props["from pyaedt.generic.constants import AEDT_UNITScore_loss_type"].get("Choice", None)
+                == "Hysteresis Model"
+            ):
                 out["core_loss_hci"] = self._props["core_loss_hci"]
                 out["core_loss_br"] = self._props["core_loss_br"]
                 out["core_loss_hkc"] = self._props["core_loss_hkc"]
