@@ -4,6 +4,7 @@ from pyaedt.edb_core.general import LayoutObjType
 
 
 class LayoutObjInstance:
+    """Manages EDB functionalities for the layout object instance."""
 
     def __init__(self, pedb, edb_object):
         self._pedb = pedb
@@ -11,6 +12,18 @@ class LayoutObjInstance:
 
     @pyaedt_function_handler
     def get_connected_objects(self):
+        """Get connected objects.
+
+        Returns
+        -------
+        list[:class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPath`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbRectangle`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbCircle`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPolygon`,
+            ]
+        """
         temp = []
         for i in list([loi.GetLayoutObj() for loi in self._pedb.layout_instance.GetConnectedObjects(self._edb_object).Items]):
             obj_type = i.GetObjType().ToString()
@@ -32,9 +45,9 @@ class LayoutObjInstance:
                     from pyaedt.edb_core.edb_data.primitives_data import EdbPolygon
                     temp.append(EdbPolygon(i, self._pedb))
                 else:
-                    temp.append(LayoutObj(self._pedb, i))
+                    continue
             else:
-                temp.append(LayoutObj(self._pedb, i))
+                continue
         return temp
 
 
@@ -66,7 +79,7 @@ class LayoutObj(object):
 
     @property
     def _layout_obj_instance(self):
-        obj = self._pedb.active_layout.GetLayoutInstance().GetLayoutObjInstance(self._edb_object, None)
+        obj = self._pedb.layout_instance.GetLayoutObjInstance(self._edb_object, None)
         return LayoutObjInstance(self._pedb, obj)
 
     @property

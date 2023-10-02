@@ -117,6 +117,7 @@ class TestClass:
         assert self.edbapp.components["U6"].pins["R3"].id
         assert self.edbapp.terminals
         assert self.edbapp.ports
+        assert self.edbapp.components["U6"].pins["R3"].get_connected_objects()
 
     def test_004_get_properties(self):
         assert len(self.edbapp.components.components) > 0
