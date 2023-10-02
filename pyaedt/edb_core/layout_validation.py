@@ -13,8 +13,8 @@ class LayoutValidation:
 
         Parameters
         ----------
-        net_list : str or list[str]
-            Optional
+        net_list : str or list[str], optional
+           List of nets. 
 
         Returns
         -------
