@@ -62,4 +62,4 @@ class LayoutValidation:
                 for dc in dc_nets:
                     if dc:
                         dc_shorts.append([net, dc])
-§        return dc_shorts
+        return dc_shorts
