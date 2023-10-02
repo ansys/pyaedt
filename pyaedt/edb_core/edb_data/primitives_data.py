@@ -146,6 +146,18 @@ class EDBPrimitivesMain(Connectable):
         return self._edb_object.IsVoid()
 
     def get_connected_objects(self):
+        """Get connected objects.
+        
+        Returns
+        -------
+        list[:class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPath`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbRectangle`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbCircle`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPolygon`,
+            ]
+        """
         return self._layout_obj_instance.get_connected_objects()
 
 
