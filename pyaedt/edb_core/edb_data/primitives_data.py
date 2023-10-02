@@ -158,7 +158,7 @@ class EDBPrimitivesMain(Connectable):
         :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPolygon`,
             ]
         """
-        return self._layout_obj_instance.get_connected_objects()
+        return self._pedb.get_connected_objects(self._layout_obj_instance)
 
 
 class EDBPrimitives(EDBPrimitivesMain):

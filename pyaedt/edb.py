@@ -37,6 +37,8 @@ from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
+from pyaedt.edb_core.general import LayoutObjType
+from pyaedt.edb_core.general import Primitives
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
@@ -1031,6 +1033,46 @@ class Edb(Database):
     def layout_instance(self):
         """Edb Layout Instance."""
         return self.layout.layout_instance
+
+    @pyaedt_function_handler
+    def get_connected_objects(self, layout_object_instance):
+        """Get connected objects.
+
+        Returns
+        -------
+        list[:class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPath`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbRectangle`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbCircle`,
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPolygon`,
+            ]
+        """
+        temp = []
+        for i in list([loi.GetLayoutObj() for loi in self.layout_instance.GetConnectedObjects(layout_object_instance._edb_object).Items]):
+            obj_type = i.GetObjType().ToString()
+            if obj_type == LayoutObjType.PadstackInstance.name:
+                from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+                temp.append(EDBPadstackInstance(i, self))
+            elif obj_type == LayoutObjType.Primitive.name:
+                prim_type = i.GetPrimitiveType().ToString()
+                if prim_type == Primitives.Path.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPath
+                    temp.append(EdbPath(i, self))
+                elif prim_type == Primitives.Rectangle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbRectangle
+                    temp.append(EdbRectangle(i, self))
+                elif prim_type == Primitives.Circle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbCircle
+                    temp.append(EdbCircle(i, self))
+                elif prim_type == Primitives.Polygon.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPolygon
+                    temp.append(EdbPolygon(i, self))
+                else:
+                    continue
+            else:
+                continue
+        return temp
 
     @property
     def pins(self):
