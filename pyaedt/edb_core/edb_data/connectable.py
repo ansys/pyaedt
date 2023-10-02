@@ -9,14 +9,10 @@ class LayoutObjInstance:
         self._pedb = pedb
         self._edb_object = edb_object
 
-    @property
-    def layout_instance(self):
-        return self._pedb.active_layout.GetLayoutInstance()
-
     @pyaedt_function_handler
     def get_connected_objects(self):
         temp = []
-        for i in list([loi.GetLayoutObj() for loi in self.layout_instance.GetConnectedObjects(self._edb_object).Items]):
+        for i in list([loi.GetLayoutObj() for loi in self._pedb.layout_instance.GetConnectedObjects(self._edb_object).Items]):
             obj_type = i.GetObjType().ToString()
             if obj_type == LayoutObjType.PadstackInstance.name:
                 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
