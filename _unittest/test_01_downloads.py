@@ -87,3 +87,7 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_14_download_icepak_3d_component(self):
         assert self.examples.download_icepak_3d_component()
+
+    def test_15_download_fss_file(self):
+        example_folder = self.examples.download_FSS_3dcomponent()
+        assert os.path.exists(example_folder)

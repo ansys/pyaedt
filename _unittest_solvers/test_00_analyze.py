@@ -243,7 +243,7 @@ class TestClass:
         assert os.path.exists(self.hfss3dl_solve.export_mesh_stats("Setup1"))
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    def test_04d_3dl_export_touchsthone(self):
+    def test_04d_3dl_export_touchstone(self):
         filename = os.path.join(self.local_scratch.path, "touchstone.s2p")
         solution_name = "Setup1"
         sweep_name = "Sweep1"

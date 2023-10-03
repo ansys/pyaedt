@@ -143,7 +143,7 @@ class NexximComponents(CircuitComponents):
                         i / AEDT_UNITS["Length"][self.schematic_units] for i in self._get_location(location)
                     ]
                 if angle is not None:
-                    self.components[el].angle = self.number_with_units(angle, "°")
+                    self.components[el].angle = angle
                 return self.components[el]
         return False
 

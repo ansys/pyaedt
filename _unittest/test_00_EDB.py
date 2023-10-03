@@ -1,3 +1,4 @@
+import json
 import os
 
 # Setup paths for module imports
@@ -109,6 +110,14 @@ class TestClass:
 
     def test_003_create_coax_port_on_component(self):
         assert self.edbapp.hfss.create_coax_port_on_component("U1", "DDR4_DQS0_P")
+        coax_port = self.edbapp.components["U6"].pins["R3"].create_coax_port("coax_port")
+        coax_port.radial_extent_factor = 3
+        assert coax_port.radial_extent_factor == 3
+        assert coax_port.component
+        assert self.edbapp.components["U6"].pins["R3"].terminal
+        assert self.edbapp.components["U6"].pins["R3"].id
+        assert self.edbapp.terminals
+        assert self.edbapp.ports
 
     def test_004_get_properties(self):
         assert len(self.edbapp.components.components) > 0
@@ -1579,7 +1588,7 @@ class TestClass:
         )
         assert edb.hfss.get_ports_number() == 2
         port_ver = edb.ports["port_ver"]
-        assert not port_ver.is_null()
+        assert not port_ver.is_null
         assert port_ver.hfss_type == "Gap"
 
         args = {
@@ -1830,6 +1839,18 @@ class TestClass:
         assert layer.is_negative
         assert not layer.is_via_layer
         assert layer.material == "copper"
+        edbapp.close()
+
+    def test_125d_stackup(self):
+        fpath = os.path.join(local_path, "example_models", test_subfolder, "stackup.json")
+        stackup_json = json.load(open(fpath, "r"))
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(fpath)
+        edbapp.close()
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(stackup_json)
         edbapp.close()
 
     def test_126_comp_def(self):
@@ -2600,7 +2621,6 @@ class TestClass:
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A24"], reference_pins=["A11", "A16"])
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A26"], reference_pins=["A11", "A16", "A17"])
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A28"], reference_pins=["A11", "A16"])
-
         edbapp.close()
 
     def test_138_import_gds_from_tech(self):
@@ -2633,7 +2653,9 @@ class TestClass:
         c.import_options.import_dummy_nets = True
         from pyaedt import Edb
 
-        edb = Edb(gds_out, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
+        edb = Edb(
+            gds_out, edbversion=desktop_version, technology_file=os.path.join(self.local_scratch.path, "test_138.xml")
+        )
 
         assert edb
         assert "P1" in edb.excitations
@@ -2864,3 +2886,16 @@ class TestClass:
         assert ipc_stats.stackup_thickness == 0.001748
         edbapp.close()
         ipc_edb.close()
+
+    def test_147_find_dc_shorts(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        dc_shorts = edbapp.nets.find_dc_shorts()
+        assert dc_shorts
+        # assert len(dc_shorts) == 20
+        assert ["LVDS_CH09_N", "GND"] in dc_shorts
+        assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
+        assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        edbapp.close()
