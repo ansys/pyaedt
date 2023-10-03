@@ -68,10 +68,10 @@ jobs:
           echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      #- name: Create HTML Documentations
-      #  run: |
-      #    testenv\Scripts\Activate.ps1
-      #    sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+      - name: Create HTML Documentations
+        run: |
+          testenv\Scripts\Activate.ps1
+          sphinx-build -j auto --color -b html -a doc/source doc/_build/html
 
       - name: Create PDF Documentations
         run: |
