@@ -197,7 +197,7 @@ class SurfMatProperties(object):
 
 
 class ClosedFormTM(object):
-    """Manges closed-form thermal modifiers."""
+    """Manages closed-form thermal modifiers."""
 
     Tref = "22cel"
     C1 = 0
@@ -1137,7 +1137,7 @@ class CommonMaterial(object):
 
         Parameters
         ----------
-        prop : str, optoinal
+        prop : str, optional
             Name of the property.  The default is ``None``.
         """
         if not props:

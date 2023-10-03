@@ -5296,7 +5296,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def find_port_faces(self, port_sheets):
-        """Find the vaccums given a list of input sheets.
+        """Find the vacuums given a list of input sheets.
 
         Starting from a list of input sheets, this method creates a list of output sheets
         that represent the blank parts (vacuums) and the tool parts of all the intersections
