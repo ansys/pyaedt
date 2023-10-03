@@ -95,6 +95,12 @@ class Connectable(LayoutObj):
 
         return EDBNetsData(self._edb_object.GetNet(), self._pedb)
 
+    @net.setter
+    def net(self, value):
+        """Set net."""
+        net = self._pedb.nets[value]
+        self._edb_object.SetNet(net.net_object)
+
     @property
     def component(self):
         """Component connected to this object.

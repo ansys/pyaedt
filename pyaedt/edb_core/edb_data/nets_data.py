@@ -75,14 +75,20 @@ class EDBNetsData(NetDotNet):
         return comps
 
     @pyaedt_function_handler
-    def find_dc_short(self):
+    def find_dc_short(self, fix=False):
         """Find DC-shorted nets.
+
+        Parameters
+        ----------
+        fix : bool, optional
+            If `True`, rename all the nets. (default)
+            If `False`, only report dc shorts.
         Returns
         -------
         List[List[str, str]]
             [[net name, net name]].
         """
-        return self._app.layout_validation.dc_shorts(self.name)
+        return self._app.layout_validation.dc_shorts(self.name, fix)
 
     @pyaedt_function_handler()
     def plot(

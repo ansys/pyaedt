@@ -2893,11 +2893,13 @@ class TestClass:
         target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
         dc_shorts = edbapp.layout_validation.dc_shorts()
         assert dc_shorts
         # assert len(dc_shorts) == 20
         assert ["LVDS_CH09_N", "GND"] in dc_shorts
         assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
         assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
+        edbapp.nets["DDR4_DM3"].find_dc_short(True)
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()

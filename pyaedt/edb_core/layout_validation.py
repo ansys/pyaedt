@@ -8,13 +8,16 @@ class LayoutValidation:
         self._pedb = pedb
 
     @pyaedt_function_handler()
-    def dc_shorts(self, net_list=None):
+    def dc_shorts(self, net_list=None, fix=False):
         """Find DC shorts on layout.
 
         Parameters
         ----------
         net_list : str or list[str], optional
-           List of nets.
+            List of nets.
+        fix : bool, optional
+            If `True`, rename all the nets. (default)
+            If `False`, only report dc shorts.
 
         Returns
         -------
@@ -53,13 +56,34 @@ class LayoutValidation:
                 objs.append(i)
             for i in _padstacks_list.get(net, []):
                 objs.append(i)
+            if not len(objs):
+                self._pedb.nets[net].delete()
+                continue
 
             connected_objs = objs[0].get_connected_objects()
             connected_objs.append(objs[0])
-            net_dc_shorts = [obj for obj in connected_objs if not obj.net.name == net]
+            net_dc_shorts = [obj for obj in connected_objs]
             if net_dc_shorts:
-                dc_nets = list(set([obj.net.name for obj in net_dc_shorts]))
+                dc_nets = list(set([obj.net.name for obj in net_dc_shorts if not obj.net.name == net]))
                 for dc in dc_nets:
                     if dc:
                         dc_shorts.append([net, dc])
+                if fix:
+                    temp = []
+                    for i in net_dc_shorts:
+                        temp.append(i.net.name)
+                    temp_key = set(temp)
+                    temp_count = {temp.count(i): i for i in temp_key}
+                    temp_count = dict(sorted(temp_count.items()))
+                    while True:
+                        temp_name = list(temp_count.values()).pop()
+                        if not temp_name.lower().startswith("unnamed"):
+                            break
+                        elif temp_name.lower():
+                            break
+                        elif len(temp) == 0:
+                            break
+                    for i in net_dc_shorts:
+                        if not i.net.name == temp_name:
+                            i.net = temp_name
         return dc_shorts
