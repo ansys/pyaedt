@@ -1122,6 +1122,7 @@ class CommonMaterial(object):
 
     @property
     def coordinate_system(self):
+        """Material coordinate system."""
         return self._coordinate_system
 
     @coordinate_system.setter
@@ -1221,7 +1222,7 @@ class CommonMaterial(object):
                 return self.update()
         elif isinstance(provpavlue, list) and material_props_type and material_props_type == "vector":
             if propname == "magnetic_coercivity":
-                self.set_magnetic_coercivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
+                return self.set_magnetic_coercivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
         return False
 
 
@@ -1925,7 +1926,7 @@ class Material(CommonMaterial, object):
             self._update_props("stacking_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @pyaedt_function_handler()
-    def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
+    def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):  # pragma: no cover
         """Set magnetic coercivity for material.
 
         .. deprecated:: 0.7.0
@@ -1938,7 +1939,7 @@ class Material(CommonMaterial, object):
         warnings.warn(
             "`set_magnetic_coercitivity` is deprecated. Use `set_magnetic_coercivity` instead.", DeprecationWarning
         )
-        return self.set_magnetic_coercivity(self, value=value, x=x, y=y, z=z)
+        return self.set_magnetic_coercivity(self, value, x, y, z)
 
     @pyaedt_function_handler()
     def set_magnetic_coercivity(self, value=0, x=1, y=0, z=0):
@@ -2201,7 +2202,7 @@ class Material(CommonMaterial, object):
         return False
 
     @pyaedt_function_handler()
-    def get_magnetic_coercitivity(self):
+    def get_magnetic_coercitivity(self):  # pragma: no cover
         """Get the magnetic coercivity values.
 
         .. deprecated:: 0.7.0
@@ -2214,7 +2215,7 @@ class Material(CommonMaterial, object):
         warnings.warn(
             "`get_magnetic_coercitivity` is deprecated. Use `get_magnetic_coercivity` instead.", DeprecationWarning
         )
-        return self.get_magnetic_coercivity(self)
+        return self.get_magnetic_coercivity()
 
     @pyaedt_function_handler()
     def is_conductor(self, threshold=100000):
