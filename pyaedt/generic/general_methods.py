@@ -1084,7 +1084,7 @@ def _create_json_file(json_dict, full_json_path):
 #     ----------
 #     version : str, optional
 #         Version to check. The default is ``None``, in which case all versions are checked.
-#         When specififying a version, you can use a three-digit format like ``"222"`` or a
+#         When specifying a version, you can use a three-digit format like ``"222"`` or a
 #         five-digit format like ``"2022.2"``.
 #     student_version : bool, optional
 #         Whether to check for student version sessions. The default is ``False``.
@@ -1275,7 +1275,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     ----------
     version : str, optional
         Version to check. The default is ``None``, in which case all versions are checked.
-        When specififying a version, you can use a three-digit format like ``"222"`` or a
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
         five-digit format like ``"2022.2"``.
     student_version : bool, optional
         Whether to check for student version sessions. The default is ``False``.

@@ -4066,7 +4066,7 @@ class Icepak(FieldAnalysis3D):
             set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
             ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"SquareWave"``.
             - For the ``"Values"`` key, a list of strings contain the parameters required by
-            the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+            the ``"Function"`` key selection. For example, when``"Linear"`` is set as the
             ``"Function"`` key, two parameters are required: the value of the variable
             at t=0 and the slope of the line. For the parameters required by each
             ``"Function"`` key selection, see the Icepak documentation. The parameters
@@ -4199,7 +4199,7 @@ class Icepak(FieldAnalysis3D):
             When the ``"Type"`` key is set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
             ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
             - For the ``"Values"`` key, a list of strings contain the parameters required by the ``"Function"``
-            key selection. For example, whn``"Linear"`` is set as the ``"Function"`` key, two parameters are required:
+            key selection. For example, when``"Linear"`` is set as the ``"Function"`` key, two parameters are required:
             the value of the variable at t=0 and the slope of the line.
             For the parameters required by each ``"Function"`` key selection, see the Icepak documentation.
             The parameters must contain the units where needed.

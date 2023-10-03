@@ -751,7 +751,7 @@ class PostProcessorCommon(object):
             Report Display Type.
             Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adpative solution.
+            Report Setup. Default is `None` which will take first nominal_adaptive solution.
         context : str, optional
             Report Category. Default is `""` which will take first default context.
         is_siwave_dc : bool, optional
@@ -816,7 +816,7 @@ class PostProcessorCommon(object):
             Report Display Type.
             Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adpative solution.
+            Report Setup. Default is `None` which will take first nominal_adaptive solution.
         quantities_category : str, optional
             The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
             Default is ``None`` which will take first default quantity.".
