@@ -1939,7 +1939,7 @@ class Material(CommonMaterial, object):
         warnings.warn(
             "`set_magnetic_coercitivity` is deprecated. Use `set_magnetic_coercivity` instead.", DeprecationWarning
         )
-        return self.set_magnetic_coercivity(self, value, x, y, z)
+        return self.set_magnetic_coercivity(value, x, y, z)
 
     @pyaedt_function_handler()
     def set_magnetic_coercivity(self, value=0, x=1, y=0, z=0):
