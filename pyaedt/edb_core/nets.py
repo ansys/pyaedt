@@ -1174,7 +1174,9 @@ class EdbNets(object):
         >>> renamed_nets = edb_core.nets.find_and_fix_disjoint_nets(["GND","Net2"])
         """
         warnings.warn("Use new function :func:`edb.layout_validation.disjoint_nets` instead.", DeprecationWarning)
-        return self._pedb.layout_validation.disjoint_nets(net_list, keep_only_main_net, clean_disjoints_less_than, order_by_area)
+        return self._pedb.layout_validation.disjoint_nets(
+            net_list, keep_only_main_net, clean_disjoints_less_than, order_by_area
+        )
 
     @pyaedt_function_handler()
     def merge_nets_polygons(self, net_list):

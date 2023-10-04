@@ -1,8 +1,7 @@
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import pyaedt_function_handler
-
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class LayoutValidation:
@@ -91,7 +90,6 @@ class LayoutValidation:
                         if not i.net.name == temp_name:
                             i.net = temp_name
         return dc_shorts
-
 
     @pyaedt_function_handler()
     def disjoint_nets(
