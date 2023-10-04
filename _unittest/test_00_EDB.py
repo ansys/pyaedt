@@ -118,6 +118,7 @@ class TestClass:
         assert self.edbapp.components["U6"].pins["R3"].id
         assert self.edbapp.terminals
         assert self.edbapp.ports
+        assert self.edbapp.components["U6"].pins["R3"].get_connected_objects()
 
     def test_004_get_properties(self):
         assert len(self.edbapp.components.components) > 0
@@ -2892,10 +2893,13 @@ class TestClass:
         target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        dc_shorts = edbapp.nets.find_dc_shorts()
+        dc_shorts = edbapp.layout_validation.dc_shorts()
         assert dc_shorts
         # assert len(dc_shorts) == 20
         assert ["LVDS_CH09_N", "GND"] in dc_shorts
         assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
         assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
+        edbapp.nets["DDR4_DM3"].find_dc_short(True)
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()
