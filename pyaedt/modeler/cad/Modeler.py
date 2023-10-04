@@ -482,7 +482,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify where the X or Y axis is pointing. The position must belong to the face where the
             coordinate system is defined.
-            Select which axis is considered with the option ``axix``.
+            Select which axis is considered with the option ``axis``.
             If a face is specified, the position is placed on the face center. It must be the same as ``face``.
             If an edge is specified, the position is placed on the edce midpoint.
             If a vertex is specified, the position is placed on the vertex.
@@ -2476,7 +2476,7 @@ class GeometryModeler(Modeler, object):
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify where the X or Y axis is pointing. The position must belong to the face where the
             coordinate system is defined.
-            Select which axis is considered with the option ``axix``.
+            Select which axis is considered with the option ``axis``.
             If a face is specified, the position is placed on the face center. It must be the same as ``face``.
             If an edge is specified, the position is placed on the edce midpoint.
             If a vertex is specified, the position is placed on the vertex.
