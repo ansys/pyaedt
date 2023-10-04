@@ -62,7 +62,7 @@ tests = [
     "scikit-rf",
 ]
 doc = [
-    "ansys-sphinx-theme==0.12.1",
+    "ansys-sphinx-theme==0.12.2",
     "imageio==2.31.5",
     "imageio-ffmpeg==0.4.9",
     "ipython==8.13.0; python_version < '3.9'",
