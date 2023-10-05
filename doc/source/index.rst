@@ -53,7 +53,7 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
                and how to interact with them programmatically.
 
                +++
-               .. button-link:: api/index
+               .. button-link:: API/pyaedt/index.html
                   :color: secondary
                   :expand:
                   :outline:
@@ -156,7 +156,7 @@ Indices and tables
 
        Getting_started/index
        User_guide/index
-       API/index
+       API/pyaedt/index.html
        EDBAPI/index
        {% if run_examples %}
        examples/index
