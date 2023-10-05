@@ -1372,7 +1372,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
         logging.error("NumPy is not available. Install it.")
         return False
 
-    available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "and_deg"]
+    available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg"]
     if not function_str:
         function_str = "dB10"
     elif not isinstance(function_str, str) or function_str not in available_functions:

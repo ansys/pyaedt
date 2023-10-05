@@ -2451,7 +2451,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 file_exists = os.path.exists(export_path + exported_name_base + ".txt")
             time_before = time.time()
             if self.overwrite or not file_exists:
-                self.logger.info("Exporting Embedded Element Patterns...")
+                self._app.logger.info("Exporting Embedded Element Patterns...")
                 var = []
                 if self.variations:
                     for k, v in self.variations.items():
@@ -2473,11 +2473,11 @@ class FfdSolutionDataExporter(FfdSolutionData):
                         ]
                     )
                 except:
-                    self.logger.error("Failed to export one Element Pattern.")
-                    self.logger.error(export_path + exported_name_base + ".ffd")
+                    self._app.logger.error("Failed to export one Element Pattern.")
+                    self._app.logger.error(export_path + exported_name_base + ".ffd")
 
             else:
-                self.logger.info("Using Existing Embedded Element Patterns")
+                self._app.logger.info("Using Existing Embedded Element Patterns")
             local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
             export_path = check_and_download_folder(local_path, export_path)
             if os.path.exists(export_path + "/" + exported_name_map):
@@ -2492,12 +2492,12 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 with open(metadata_file_name, "w") as f:
                     json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
-        self.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
+        self._app.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
         return path_dict
 
     @pyaedt_function_handler()
     def _create_geometries(self, export_path):
-        self.logger.info("Exporting Geometry...")
+        self._app.logger.info("Exporting Geometry...")
         model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = []
         for obj in model_pv.objects:
