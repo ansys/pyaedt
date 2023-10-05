@@ -1327,6 +1327,78 @@ def compute_fft(time_vals, value):  # pragma: no cover
     return freq, valueFFT
 
 
+@pyaedt_function_handler()
+def conversion_function(data, function_str=None):  # pragma: no cover
+    """This method performs various types of conversions on the input data based on the specified function string.
+    The available functions are:
+
+    - `"dB10"`: Converts the data to decibels using base 10 logarithm.
+    - `"dB20"`: Converts the data to decibels using base 20 logarithm.
+    - `"abs"`: Computes the absolute value of the data.
+    - `"real"`: Computes the real part of the data.
+    - `"imag"`: Computes the imaginary part of the data.
+    - `"norm"`: Normalizes the data to have values between 0 and 1.
+    - `"ang"`: Computes the phase angle of the data.
+    - `"ang_deg"`: Computes the phase angle of the data in degrees.
+
+    If an invalid function string is provided, the method returns ``False``.
+
+    Parameters
+    ----------
+    data : list
+    function_str : str, optional
+        The desired conversion function. Default is `"dB10"`.
+
+    Returns
+    -------
+    list
+        Converted data.
+
+    Examples
+    --------
+    >>> data = [1, 2, 3, 4]
+    >>> conversion_function(data, "dB10")
+    array([-inf, 0., 4.77, 6.02])
+
+    >>> conversion_function(data, "abs")
+    array([1, 2, 3, 4])
+
+    >>> conversion_function(data, "ang_deg")
+    array([ 0., 0., 0., 0.])
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        logging.error("NumPy is not available. Install it.")
+        return False
+
+    available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "and_deg"]
+    if not function_str:
+        function_str = "dB10"
+    elif not isinstance(function_str, str) or function_str not in available_functions:
+        return False
+    if function_str == "dB10":
+        data = 10 * np.log10(np.abs(data))
+    elif function_str == "dB20":
+        data = 20 * np.log10(np.abs(data))
+    elif function_str == "abs":
+        data = np.abs(data)
+    elif function_str == "real":
+        data = np.real(data)
+    elif function_str == "imag":
+        data = np.imag(data)
+    elif function_str == "norm":
+        data = np.abs(data) / np.max(np.abs(data))
+    elif function_str == "ang":
+        data = np.angle(data)
+    elif function_str == "ang_deg":
+        data = np.angle(data, deg=True)
+    else:
+        data = data
+
+    return data
+
+
 def parse_excitation_file(
     file_name,
     is_time_domain=True,

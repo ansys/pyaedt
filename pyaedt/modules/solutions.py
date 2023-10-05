@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import itertools
+import json
 import logging
 import math
 import os
@@ -10,11 +11,13 @@ from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
+from pyaedt.generic.general_methods import conversion_function
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import write_csv
@@ -1084,6 +1087,13 @@ class FfdSolutionData(object):
         if isinstance(frequencies, (float, str, int)):
             frequencies = [frequencies]
         self.frequencies = frequencies
+        self.data_dict = {}
+        self._native_indexes = []
+        self.Ax = None
+        self.Ay = None
+        self.Bx = None
+        self.By = None
+
         if isinstance(eep_files, str):
             eep_files = [eep_files]
         self.eep_files = eep_files
@@ -1091,20 +1101,28 @@ class FfdSolutionData(object):
         for eep in eep_files:
             self._read_eep_files(eep)
         self.ffd_dict = self._all_solutions[0]
+        self.taper = "flat"
+        self.all_port_names = list(self.ffd_dict.keys())
+        self._phase_offset = [0] * len(self.all_port_names)
+        self._mag_offset = [1] * len(self.all_port_names)
         self.lattice_vectors = None
         for eep in eep_files:
             if os.path.exists(os.path.join(os.path.dirname(eep), "eep.latvec")):
                 self.lattice_vectors = read_csv(os.path.join(os.path.dirname(eep), "eep.latvec"))[0]
-        self.taper = "flat"
-        self.data_dict = {}
+        self.frequency = self.frequencies[0]
         self._init_ffd()
-        self._phase_offset = [0] * len(self.all_port_names)
-        self._mag_offset = [1] * len(self.all_port_names)
 
     @pyaedt_function_handler()
     def _init_ffd(self):
         all_ports = list(self.ffd_dict.keys())
         valid_ffd = True
+
+        for port in all_ports:
+            try:
+                str1 = port.split("[", 1)[1].split("]", 1)[0]
+                self._native_indexes.append([int(i) for i in str1.split(",")])
+            except:
+                self._native_indexes.append([1, 1])
 
         if os.path.exists(self.ffd_dict[all_ports[0]]):
             with open(self.ffd_dict[all_ports[0]], "r") as reader:
@@ -1174,7 +1192,11 @@ class FfdSolutionData(object):
     @frequency.setter
     def frequency(self, val):
         if val in self.frequencies:
-            self._frequency = val
+            frequency_hz = val
+            if isinstance(val, str):
+                frequency, units = decompose_variable_value(val)
+                frequency_hz = unit_converter(frequency, "Freq", units, "Hz")
+            self._frequency = frequency_hz
             self.ffd_dict = self._all_solutions[self.frequencies.index(val)]
             self._init_ffd()
 
@@ -1453,6 +1475,7 @@ class FfdSolutionData(object):
         dict
             Updated quantities dictionary.
         """
+        self.logger = logging.getLogger(__name__)
         num_ports = len(self.all_port_names)
         self.array_center_and_edge()
 
@@ -1529,10 +1552,17 @@ class FfdSolutionData(object):
         self.logger.info("Incident Power: %s", pin)
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
         self.all_qtys["RealizedGain"] = real_gain
+        self.all_qtys["RealizedGain_Total"] = real_gain
         self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
         self.max_gain = np.max(10 * np.log10(real_gain))
         self.min_gain = np.min(10 * np.log10(real_gain))
         self.logger.info("Peak Realized Gain: %s dB", self.max_gain)
+
+        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETheta"], 2)) / pin / 377
+        self.all_qtys["RealizedGain_Theta"] = real_gain
+
+        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rEPhi"], 2)) / pin / 377
+        self.all_qtys["RealizedGain_Phi"] = real_gain
         self.all_qtys["Element_Location"] = array_positions
 
         return self.all_qtys
@@ -1689,7 +1719,7 @@ class FfdSolutionData(object):
                 if len(pattern) >= 2:
                     port = pattern[0]
                     if ":" in port:
-                        port = port.split(":")[0]
+                        port = port.split(":")[0] + "_" + port.split(":")[1]
                     self._all_solutions[-1][port] = os.path.join(os.path.dirname(eep_path), pattern[1] + ".ffd")
 
     @pyaedt_function_handler()
@@ -1759,8 +1789,9 @@ class FfdSolutionData(object):
         phi_scan=0,
         theta_scan=0,
         title="Far Field Cut",
-        convert_to_db=True,
+        quantity_format="norm",
         export_image_path=None,
+        show=True,
     ):
         """Create a 2D plot of specified quantity in matplotlib.
 
@@ -1778,20 +1809,24 @@ class FfdSolutionData(object):
             Theta Scan Angle in degree. Default `0`.
         title : str, optional
             Plot title. Default `"RectangularPlot"`.
-        convert_to_db : bool, optional
-            Either if the quantity has to be converted in db or not. Default is `True`.
+        quantity_format : str, optional
+            Conversion data function.
+            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
-
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is `True`.
 
         Returns
         -------
         :class:`matplotlib.plt`
-            Matplotlib fig object.
+            If show is `True`, it returns a matplotlib figure instance of the plot.
+            If show is `False`, it returns the plotted curves.
         """
         data = self.beamform(phi_scan, theta_scan)
 
         data_to_plot = data[qty_str]
+
         curves = []
         if primary_sweep == "phi":
             x_key = "Phi"
@@ -1809,11 +1844,7 @@ class FfdSolutionData(object):
             for el in data[y_key]:
                 idx = self._find_nearest(data[y_key], el)
                 y = temp[idx]
-                if convert_to_db:
-                    if "Gain" in qty_str or "Dir" in qty_str:
-                        y = 10 * np.log10(y)
-                    else:
-                        y = 20 * np.log10(y)
+                y = conversion_function(y, quantity_format)
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
@@ -1821,28 +1852,29 @@ class FfdSolutionData(object):
                 theta_idx = self._find_nearest(data[y_key], el)
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
-                    if convert_to_db:
-                        if "Gain" in qty_str or "Dir" in qty_str:
-                            y = 10 * np.log10(y)
-                        else:
-                            y = 20 * np.log10(y)
+                    y = conversion_function(y, quantity_format)
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
-            if convert_to_db:
-                if "Gain" in qty_str or "Dir" in qty_str:
-                    y = 10 * np.log10(y)
-                else:
-                    y = 20 * np.log10(y)
+            y = conversion_function(y, quantity_format)
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
-        show_legend = True
-        if len(curves) > 15:
-            show_legend = False
-        return plot_2d_chart(
-            curves, xlabel=xlabel, ylabel=qty_str, title=title, snapshot_path=export_image_path, show_legend=show_legend
-        )
+
+        if show:
+            show_legend = True
+            if len(curves) > 15:
+                show_legend = False
+            return plot_2d_chart(
+                curves,
+                xlabel=xlabel,
+                ylabel=qty_str,
+                title=title,
+                snapshot_path=export_image_path,
+                show_legend=show_legend,
+            )
+        else:
+            return curves
 
     @pyaedt_function_handler()
     def polar_plot_3d(
@@ -2308,7 +2340,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
         taper="flat",
         sbr_3d_comp_name=None,
     ):
-        self.logger = logging.getLogger(__name__)
         self._app = app
         self.levels = 64
         self._native_indexes = []
@@ -2320,7 +2351,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
             self.frequencies = [frequencies]
         else:
             self.frequencies = frequencies
-        self._frequency = self.frequencies[0]
         self.variations = variations
         self.overwrite = overwrite
         eep_files = self._export_all_ffd()
@@ -2453,7 +2483,14 @@ class FfdSolutionDataExporter(FfdSolutionData):
             if os.path.exists(export_path + "/" + exported_name_map):
                 path_dict.append(export_path + "/" + exported_name_map)
                 self.get_lattice_vectors(export_path)
-                self._create_geometries(export_path)
+                obj_list = self._create_geometries(export_path)
+                metadata_file_name = os.path.join(export_path, "eep.json")
+                items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": frequency}
+                if obj_list:
+                    items["model_info"] = obj_list
+
+                with open(metadata_file_name, "w") as f:
+                    json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
         self.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
         return path_dict
@@ -2461,15 +2498,11 @@ class FfdSolutionDataExporter(FfdSolutionData):
     @pyaedt_function_handler()
     def _create_geometries(self, export_path):
         self.logger.info("Exporting Geometry...")
-        geo_path = "{}\\geo\\".format(self._app.working_directory)
-        if not os.path.exists(geo_path):
-            os.makedirs(geo_path)
-
         model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = []
         for obj in model_pv.objects:
             obj_list.append([obj.path, obj.color, obj.opacity, obj.units])
-        write_csv(os.path.join(export_path, "eep.objects"), obj_list)
+        return obj_list
 
 
 class UpdateBeamForm:
