@@ -2,6 +2,8 @@ from __future__ import absolute_import  # noreorder
 
 import difflib
 import logging
+import os
+import re
 import warnings
 
 from pyaedt import is_ironpython
@@ -346,6 +348,7 @@ class Materials(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
+        self._syslib = os.path.join(self._pedb.base_path, "syslib")
         if not self.materials:
             self.add_material("air")
             self.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
@@ -788,3 +791,122 @@ class Materials(object):
                 else:
                     return property_box.ToDouble()
         return False
+
+    def load_material_from_aedt(self):
+        material_dict = self._read_materials()
+        for material_name, material in material_dict.items():
+            if not material_name in list(self.materials.keys()):
+                new_material = self.add_material(name=material_name)
+                for mat_prop_name, prop in material.items():
+                    if mat_prop_name == "permittivity":
+                        new_material.permittivity = prop
+                    if mat_prop_name == "conductivity":
+                        new_material.conductivity = prop
+                    if mat_prop_name == "mass_density":
+                        new_material.mass_density = prop
+                    if mat_prop_name == "permeability":
+                        new_material.permeability = prop
+                    if mat_prop_name == "tangent_delta":
+                        new_material.loss_tangent = prop
+                    if mat_prop_name == "specific_heat":
+                        new_material.specific_heat = prop
+                    if mat_prop_name == "thermal_expansion_coeffcient":
+                        new_material.thermal_expansion_coefficient = prop
+        return True
+
+    def _read_materials(self):
+        def get_mat_list(file_name):
+            mats = {}
+            _begin_search = re.compile(r"^\$begin '(.+)'")
+            _end_search = re.compile(r"^\$end '(.+)'")
+            with open(file_name, "r") as aedt_fh:
+                raw_lines = aedt_fh.read().splitlines()
+                mat_found = ""
+                for line in raw_lines:
+                    b = _begin_search.search(line)
+                    if b:  # walk down a level
+                        mat_found = b.group(1)
+                        if not mat_found in mats:
+                            mats[mat_found] = {}
+                    if mat_found and "permittivity" in line:
+                        try:
+                            permittivity = float(
+                                re.compile(r"permittivity").search(line).string.split(",")[1].strip(")")
+                            )
+                            mats[mat_found]["permittivity"] = permittivity
+                        except:
+                            pass
+                    if mat_found and "dielectric_loss_tangent" in line:
+                        try:
+                            tangent_delta = float(
+                                re.compile(r"dielectric_loss_tangent").search(line).string.split(",")[1].strip(")")
+                            )
+                            mats[mat_found]["tangent_delta"] = tangent_delta
+                        except:
+                            pass
+                    if mat_found and "permeability" in line:
+                        try:
+                            mur = float(re.compile(r"permeability").search(line).string.split(",")[1].strip(")"))
+                            mats[mat_found]["permeability"] = mur
+                        except:
+                            continue
+                    if mat_found and "conductivity" and "thermal_conductivity" not in line:
+                        try:
+                            cond = float(re.compile(r"conductivity").search(line).string.split(",")[1].strip(")"))
+                            mats[mat_found]["conductivity"] = cond
+                        except:
+                            pass
+                    if mat_found and "magnetic_loss_tangent" in line:
+                        try:
+                            tg_mu = float(
+                                re.compile(r"magnetic_loss_tangent").search(line).string.split(",")[1].strip(")")
+                            )
+                            mats[mat_found]["magnetic_loss_tangent"] = tg_mu
+                        except:
+                            pass
+                    if mat_found and "thermal_conductivity" and "conductivity" not in line:
+                        try:
+                            therm_cond = float(
+                                re.compile(r"thermal_conductivity").search(line).string.split(",")[1].strip(")")
+                            )
+                            mats[mat_found]["thermal_conductivity"] = therm_cond
+                        except:
+                            pass
+                    if mat_found and "thermal_expansion_coeffcient" in line:
+                        try:
+                            therm_exp = float(
+                                re.compile(r"thermal_expansion_coeffcient").search(line).string.split(",")[1].strip(")")
+                            )
+                            mats[mat_found]["thermal_expansion_coeffcient"] = therm_exp
+                        except:
+                            pass
+                    if mat_found and "specific_heat" in line:
+                        try:
+                            spec_heat = float(re.compile(r"specific_heat").search(line).string.split(",")[1].strip(")"))
+                            mats[mat_found]["specific_heat"] = spec_heat
+                        except:
+                            pass
+                    if mat_found and "mass_density" in line:
+                        try:
+                            spec_heat = float(re.compile(r"mass_density").search(line).string.split(",")[1].strip(")"))
+                            mats[mat_found]["mass_density"] = spec_heat
+                        except:
+                            pass
+                    end = _end_search.search(line)
+                    if end:
+                        mat_found = ""
+            return mats
+
+        amat_libs = [os.path.join(self._syslib, "Materials.amat")]
+        mats = {}
+        for amat in amat_libs:
+            mats = get_mat_list(amat)
+        try:
+            del mats["$index$"]
+        except ValueError:
+            pass
+        try:
+            del mats["$base_index$"]
+        except ValueError:
+            pass
+        return mats
