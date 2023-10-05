@@ -1031,7 +1031,7 @@ class AdaptiveSettings(object):
 
         Returns
         -------
-            ``True`` if bais adaptive is used, ``False`` otherwise.
+            ``True`` if basic adaptive is used, ``False`` otherwise.
         """
         return self.adaptive_settings.Basic
 
@@ -1042,7 +1042,7 @@ class AdaptiveSettings(object):
 
     @property
     def do_adaptive(self):
-        """Whether if adpative mesh is on.
+        """Whether if adaptive mesh is on.
 
         Returns
         -------
