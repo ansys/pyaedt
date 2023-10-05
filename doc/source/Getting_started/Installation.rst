@@ -97,67 +97,6 @@ For example, on Windows with Python 3.7, install PyAEDT and all its dependencies
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
 
 
-Install from a batch file
-~~~~~~~~~~~~~~~~~~~~~~~~~
-If you are running on Windows, you can download
-:download:`PyAEDT Environment with IDE bat file <../Resources/pyaedt_with_IDE.bat>`
-and run this batch file on your local machine. Using this approach
-provides you with a complete integrated development environment (IDE)
-for writing PyAEDT scripts in Windows with a simple batch file.
-
-This batch file executes these steps:
-
-1. Creates a Python virtual environment in your ``%APPDATA%`` folder. To accomplish
-   this, it uses CPython in the selected version of AEDT available on your machine.
-2. Installs PyAEDT.
-3. Optionally installs `Spyder <https://www.spyder-ide.org/>`_ with -s flag.
-4. Installs `Jupyter Lab <https://jupyter.org/>`_.
-5. Creates a symbolic link from your PyAEDT installation to AEDT ``PersonalLib`` so
-   that scripts can also be run within AEDT.
-6. Updates PyAEDT.
-7. Install PyAEDT toolkit in AEDT to enable PyAEDT Console and PyAEDT Run Script.
-8. Runs the tool that you choose (Spyder, Jupyter Lab, or a simple console).
-
-.. image:: ../Resources/toolkits.png
-  :width: 800
-  :alt: PyAEDT toolkit installed after batch run
-
-Steps 1 through 5 are executed only the first time that you run the batch file or when ``-f`` is used:
-
-.. code::
-
-    pyaedt_with_IDE.bat --force-install
-
-    pyaedt_with_IDE.bat -f
-
-Step 6 is executed only when running the command with the ``-update`` option:
-
-.. code::
-
-    pyaedt_with_IDE.bat --update
-
-    pyaedt_with_IDE.bat -u
-
-Optionally, you can decide to pass a Python path. This path is then used to create a virtual environment:
-
-.. code::
-
-    pyaedt_with_IDE.bat -f -p <path-to-python-root-folder>
-
-
-In addition, it is possible to install the PyAEDT package and all its dependencies provided in the wheelhouse by
-executing the batch file mentioned earlier. You must use the Wheelhouse 3.7 package if no Python path is provided.
-Otherwise, you must download and use the correct wheelhouse:
-
-.. code::
-
-    pyaedt_with_IDE.bat-w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
-
-    pyaedt_with_IDE.bat -p <path-to-python3.8-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.8
-    pyaedt_with_IDE.bat -p <path-to-python3.7-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
-    pyaedt_with_IDE.bat -p <path-to-python3.9-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.9
-
-
 Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like
