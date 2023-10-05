@@ -401,6 +401,6 @@ exclude_patterns = [
     "**/ExampleData*",
     "**/LaunchWorkbench*",
 ]
-autoapi_root = "api"
+autoapi_root = "API"
 autoapi_python_use_implicit_namespaces = True
 autoapi_render_in_single_page = ["class", "enum", "exception"]
