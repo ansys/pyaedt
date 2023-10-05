@@ -18,9 +18,3 @@ These classes are the containers of sources methods of the EDB for both HFSS and
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
-
-   ExcitationPorts
-   ExcitationProbes
-   ExcitationSources
-   ExcitationDifferential
-

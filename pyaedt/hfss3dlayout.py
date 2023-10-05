@@ -777,14 +777,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
     ):
         """Export a Touchstone file.
 
         Parameters
         ----------
-        solution_name : str, optional
-            Name of the solution that has been solved.
+        setup_name : str, optional
+            Name of the setup that has been solved.
         sweep_name : str, optional
             Name of the sweep that has been solved.
         file_name : str, optional
@@ -809,7 +809,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oDesign.ExportNetworkData
         """
         return self._export_touchstone(
-            solution_name=solution_name,
+            setup_name=setup_name,
             sweep_name=sweep_name,
             file_name=file_name,
             variations=variations,

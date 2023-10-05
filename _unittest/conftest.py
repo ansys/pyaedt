@@ -155,6 +155,7 @@ def add_app(local_scratch):
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_project):
+                # Copy unit test project to scratch folder. Return full file path to the project without extension.
                 test_project = local_scratch.copyfile(example_project)
             elif os.path.exists(example_project + "z"):
                 example_project = example_project + "z"

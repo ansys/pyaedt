@@ -331,7 +331,12 @@ class Mechanical(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_uniform_convection(
-        self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
+        self,
+        objects_list,
+        convection_value=1.0,
+        convection_unit="w_per_m2kel",
+        temperature="AmbientTemp",
+        boundary_name="",
     ):
         """Assign a uniform convection to the face list.
 
@@ -339,8 +344,8 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         objects_list : list
             List of objects, faces, or both.
-        convection_value : float
-            Convection value.
+        convection_value : float, optional
+            Convection value. The default is ``"1.0"``.
         convection_unit : str, optional
             Units for the convection value. The default is ``"w_per_m2kel"``.
         temperature : str, optional

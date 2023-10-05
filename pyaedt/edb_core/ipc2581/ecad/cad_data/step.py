@@ -240,7 +240,7 @@ class Step(object):
             drill_layer_feature.layer_name = layer_feature_name
             for via in via_list:
                 try:
-                    via_diameter = via._edb_padstackinstance.GetPadstackDef().hole_properties[0]
+                    via_diameter = via.pin.GetPadstackDef().GetData().GetHoleParameters()[2][0]
                     drill_layer_feature.add_drill_feature(via, via_diameter)
                 except:
                     pass

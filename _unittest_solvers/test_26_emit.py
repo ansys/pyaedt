@@ -688,7 +688,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_analyze_manually(self, add_app):
+    def test_basic_run(self, add_app):
         self.aedtapp = add_app(application=Emit)
         assert len(self.aedtapp.results.revisions) == 0
         # place components and generate the appropriate number of revisions
@@ -704,11 +704,6 @@ class TestClass:
         rad3 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        # give the bluetooth radios different transmit power levels
-        for band in rad2.bands():
-            band.set_band_power_level(0.0)
-        for band in rad3.bands():
-            band.set_band_power_level(10.0)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         if self.aedtapp._emit_api is not None:
@@ -749,8 +744,9 @@ class TestClass:
             rev2 = self.aedtapp.results.analyze()
             domain2 = self.aedtapp.results.interaction_domain()
             domain2.set_receiver("MD400C")
+            domain2.set_interferer(rad3.name)
             if config["desktopVersion"] >= "2024.1":
-                rev2.max_n_to_1_instances = 0
+                rev2.n_to_1_limit = 0
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
@@ -758,8 +754,9 @@ class TestClass:
             worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad4.name
             assert len(worst_domain.interferer_names) == 1
-            assert worst_domain.interferer_names[0] == rad3.name  # rad3 has the higher transmit power
+            assert worst_domain.interferer_names[0] == rad3.name
             domain2.set_receiver(rad3.name)
+            domain2.set_interferer(rad2.name)
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
@@ -797,22 +794,22 @@ class TestClass:
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
 
-        # check max_n_to_1_instances can be set to different values
-        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 1
-        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 1
-        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 0
-        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 0
+        # check n_to_1_limit can be set to different values
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 1
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 1
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 0
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 0
 
         # get number of 1-1 instances
-        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 105702
+        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 52851
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == 76.02
 
         # rerun with N-1
-        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 2**25
-        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 2**25
-        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 23305632
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 2**20
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2**20
+        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 11652816
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         domain2 = instance.get_domain()
@@ -909,7 +906,7 @@ class TestClass:
 
         # Test with no filtering
         expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
-        expected_interference_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
+        expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
@@ -974,10 +971,10 @@ class TestClass:
             [["white", "white", "yellow"], ["red", "white", "white"]],
         ]
         all_interference_power = [
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", "<= -200", -20.0], [-20.0, "<= -200", "N/A"]],
+            [["N/A", 16.64, 56.0], [-3.96, 16.64, "N/A"]],
+            [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
+            [["N/A", 16.64, 2.45], [60.0, 16.64, "N/A"]],
+            [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
         ]
         interference_filters = [
             "TxFundamental:In-band",

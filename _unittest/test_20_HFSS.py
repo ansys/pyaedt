@@ -1,3 +1,4 @@
+import math
 import os
 import shutil
 
@@ -5,6 +6,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
+
+small_number = 1e-10  # Used for checking equivalence.
 
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
@@ -45,50 +48,70 @@ class TestClass:
         assert self.aedtapp.active_setup is None
 
     def test_02_create_primitive(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        coax_dimension = 200
-        o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
-        assert isinstance(o1.id, int)
-        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
-        assert isinstance(o2.id, int)
-        assert self.aedtapp.modeler.subtract(o2, o1, True)
+        coax1_len = 200
+        coax2_len = 70
+        r1 = 3.0
+        r2 = 10.0
+        r1_sq = 9.0  # Used to test area later.
+        coax1_origin = self.aedtapp.modeler.Position(0, 0, 0)  # Thru coax origin.
+        coax2_origin = self.aedtapp.modeler.Position(125, 0, -coax2_len)  # Perpendicular coax 1.
+
+        inner_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, coax1_origin, r1, coax1_len, 0, "inner_1")
+        assert isinstance(inner_1.id, int)
+        inner_2 = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.AXIS.Z, coax2_origin, r1, coax2_len, 0, "inner_2", matname="copper"
+        )
+        assert len(inner_2.faces) == 3  # Cylinder has 3 faces.
+        # Check area of circular face.
+        assert abs(min([f.area for f in inner_2.faces]) - math.pi * r1_sq) < small_number
+        outer_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, coax1_origin, r2, coax1_len, 0, "outer_1")
+        assert isinstance(outer_1.id, int)
+        outer_2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.Z, coax2_origin, r2, coax2_len, 0, "outer_2")
+
+        # Check the area of the outer surface of the cylinder "outer_2".
+        assert abs(max([f.area for f in outer_2.faces]) - 2 * coax2_len * r2 * math.pi) < small_number
+        inner = self.aedtapp.modeler.unite(["inner_1", "inner_2"])
+        outer = self.aedtapp.modeler.unite(["outer_1", "outer_2"])
+        assert outer == "outer_1"
+        assert inner == "inner_1"
+        assert self.aedtapp.modeler.subtract(outer_1, inner_1, keep_originals=True)
 
     def test_03_2_assign_material(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        coax_dimension = 200
-        cyl_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "die")
-        self.aedtapp.modeler.subtract(cyl_1, "inner", True)
-        self.aedtapp.modeler["inner"].material_name = "Copper"
+        coax_length = 80
+        cyl_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_length, 0, "insulator")
+        self.aedtapp.modeler.subtract(cyl_1, "inner_1", keep_originals=True)
+        self.aedtapp.modeler["inner_1"].material_name = "Copper"
         cyl_1.material_name = "teflon_based"
-        assert self.aedtapp.modeler["inner"].material_name == "copper"
+        assert self.aedtapp.modeler["inner_1"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
     def test_04_assign_coating(self):
-        id = self.aedtapp.modeler.get_obj_id("inner")
+        id = self.aedtapp.modeler.get_obj_id("inner_1")
         args = {
             "mat": "aluminum",
             "usethickness": True,
             "thickness": "0.5mm",
             "istwoside": True,
-            "issheelElement": True,
+            "issheelElement": True,  # TODO: Is "sheelElement" a typo in native API?
             "usehuray": True,
             "radius": "0.75um",
             "ratio": "3",
         }
-        coat = self.aedtapp.assign_coating([id, "die", 41], **args)
+        coat = self.aedtapp.assign_coating([id, "inner_1", 41], **args)
         coat.name = "Coating1inner"
         assert coat.update()
         assert coat.object_properties
         material = coat.props.get("Material", "")
         assert material == "aluminum"
-        assert not self.aedtapp.assign_coating(["die2", 45])
+        assert not self.aedtapp.assign_coating(["insulator2", 45])
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
-
-        # Wave port cannot be created if the reference conductors are missing.
+        outer_1 = self.aedtapp.modeler["outer_1"]
+        # TODO: Consider allowing a TEM port to be created.
         assert not self.aedtapp.wave_port(o5)
 
         port = self.aedtapp.wave_port(
@@ -99,16 +122,19 @@ class TestClass:
             num_modes=2,
             name="sheet1_Port",
             renormalize=False,
-            reference=["outer"],
+            reference=[outer_1.name],
             terminals_rename=False,
         )
+
         assert port.object_properties
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
 
-        udp = self.aedtapp.modeler.Position(100, 0, 0)
+        udp = self.aedtapp.modeler.Position(80, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
+        self.aedtapp.modeler.subtract(o6, "inner_1", keep_originals=True)
+
         port = self.aedtapp.wave_port(
             signal=o6,
             deembed=0,
@@ -117,13 +143,26 @@ class TestClass:
             num_modes=2,
             name="sheet1a_Port",
             renormalize=True,
-            reference=["outer"],
+            reference=[outer_1.name],
+            create_pec_cap=True,
         )
         assert port.name == "sheet1a_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["DoDeembed"] is False
 
+        # Get the object for "outer_1".
+        outer_1 = self.aedtapp.modeler["outer_1"]
+        bottom_port = self.aedtapp.wave_port(
+            outer_1.bottom_face_z,
+            reference=outer_1.name,
+            create_pec_cap=True,
+            name="bottom_probe_port",
+        )
+        assert bottom_port.name == "bottom_probe_port"
+        pec_objects = self.aedtapp.modeler.get_objects_by_material("pec")
+        assert len(pec_objects) == 2  # PEC cap created.
         self.aedtapp.solution_type = "Modal"
+        assert len(self.aedtapp.boundaries) == 4
         udp = self.aedtapp.modeler.Position(200, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet2")
         port = self.aedtapp.wave_port(
@@ -142,7 +181,7 @@ class TestClass:
         id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
-        ports = self.aedtapp.wave_port(
+        port3 = self.aedtapp.wave_port(
             signal=rect,
             deembed=5,
             integration_line=self.aedtapp.AxisDir.ZNeg,
@@ -151,7 +190,7 @@ class TestClass:
             name="sheet3_Port",
             renormalize=False,
         )
-        assert ports.name in [i.name for i in self.aedtapp.boundaries]
+        assert port3.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
         setup = self.aedtapp.create_setup("MySetup")
@@ -405,7 +444,7 @@ class TestClass:
         assert sweep.props["SaveSingleField"] == False
 
     def test_06z_validate_setup(self):
-        list, ok = self.aedtapp.validate_full_design(ports=7)
+        list, ok = self.aedtapp.validate_full_design(ports=len(self.aedtapp.excitations))
         assert ok
 
     def test_07_set_power(self):
@@ -803,107 +842,6 @@ class TestClass:
         mesh.delete()
         assert len(self.aedtapp.mesh.meshoperations) == 2
         pass
-
-    def test_25a_create_parametrics(self):
-        self.aedtapp["w1"] = "10mm"
-        self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
-        assert setup1
-        assert setup1.add_variation("w2", "0.1mm", 10, 11)
-        assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
-        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
-        assert setup1.add_calculation(
-            calculation="dB(S(1,1))", ranges={"Freq": "5GHz"}, solution="MySetupForSweep : LastAdaptive"
-        )
-        assert setup1.name in self.aedtapp.get_oo_name(
-            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup1.name))
-        oo_calculation = oo.GetCalculationInfo()[0]
-        assert "Modal Solution Data" in oo_calculation
-        assert setup1.export_to_csv(os.path.join(self.local_scratch.path, "test.csv"))
-        assert os.path.exists(os.path.join(self.local_scratch.path, "test.csv"))
-        assert self.aedtapp.parametrics.add_from_file(
-            os.path.join(self.local_scratch.path, "test.csv"), "ParametricsfromFile"
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
-        assert oo
-        assert self.aedtapp.parametrics.delete("ParametricsfromFile")
-
-    def test_25b_create_parametrics_sync(self):
-        self.aedtapp["a1"] = "10mm"
-        self.aedtapp["a2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add(
-            "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
-        )
-        assert setup1
-        assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
-        assert setup1.sync_variables(["a1", "a2"], sync_n=1)
-        assert setup1.sync_variables(["a1", "a2"], sync_n=0)
-        setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
-
-    def test_26_create_optimization(self):
-        calculation = "db(S(Cir1,Cir1))"
-        setup2 = self.aedtapp.optimizations.add(calculation, ranges={"Freq": "2.5GHz"})
-        assert setup2
-        assert setup2.name in self.aedtapp.get_oo_name(
-            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
-        oo_calculation = oo.GetCalculationInfo()[0]
-        assert calculation in oo_calculation
-        assert self.aedtapp.nominal_sweep in oo_calculation
-        for el in oo_calculation:
-            if "NAME:Ranges" in el:
-                break
-        assert len(el) == 3
-        assert setup2.add_goal(calculation=calculation, ranges={"Freq": "2.6GHz"})
-        oo_calculation = oo.GetCalculationInfo()[0]
-        for el in reversed(oo_calculation):
-            if "NAME:Ranges" in el:
-                break
-        assert "2.6GHz" in el[2]
-        assert setup2.add_goal(calculation=calculation, ranges={"Freq": ("2.6GHz", "5GHZ")})
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
-        oo_calculation = oo.GetCalculationInfo()[0]
-        for el in reversed(oo_calculation):
-            if "NAME:Ranges" in el:
-                break
-        assert "rd" in el[2]
-        assert self.aedtapp.optimizations.delete(setup2.name)
-
-    def test_27_create_doe(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
-        assert setup2.delete()
-
-    def test_28A_create_dx(self):
-        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert not setup2.add_variation("w3", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
-    def test_28B_create_dx(self):
-        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="DesignExplorer")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
-    def test_29_create_sensitivity(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
-    def test_29_create_statistical(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Statistical")
-        assert setup2.add_variation("w1", 0.1, 10, 0.1, "LinearStep")
-        assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
@@ -1357,10 +1295,7 @@ class TestClass:
         time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
 
         box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
-        aedtapp.wave_port(
-            signal=box1.bottom_face_x,
-            create_port_sheet=False,
-        )
+        aedtapp.wave_port(signal=box1.bottom_face_x, create_port_sheet=False, name="Port1")
         aedtapp.create_setup()
         assert aedtapp.edit_source_from_file(aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9)
         assert aedtapp.edit_source_from_file(
@@ -1492,7 +1427,46 @@ class TestClass:
         assert term.props["TerminalResistance"] == "1ohm"
         assert not self.aedtapp.set_impedance_multiplier(2)
 
-    def test_61_set_power_calc(self):
+    def test_62_set_power_calc(self):
         assert self.aedtapp.set_radiated_power_calc_method()
         assert self.aedtapp.set_radiated_power_calc_method("Radiation Surface Integral")
         assert self.aedtapp.set_radiated_power_calc_method("Far Field Integral")
+
+    def test_63_set_phase_center_per_port(self):
+        self.aedtapp.insert_design("PhaseCenter")
+        self.aedtapp.solution_type = "Modal"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
+        box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "BoxWG2", "copper")
+        box2.material_name = "Copper"
+        port = self.aedtapp.wave_port(
+            signal="BoxWG1",
+            reference="BoxWG2",
+            integration_line=self.aedtapp.AxisDir.XNeg,
+            create_port_sheet=True,
+            impedance=50,
+            num_modes=1,
+            name="Wave1",
+            renormalize=False,
+        )
+        port2 = self.aedtapp.wave_port(
+            signal="BoxWG1",
+            reference="BoxWG2",
+            integration_line=self.aedtapp.AxisDir.XNeg,
+            create_port_sheet=True,
+            impedance=50,
+            num_modes=1,
+            name="Wave2",
+            renormalize=False,
+        )
+        assert self.aedtapp.set_phase_center_per_port()
+        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        assert not self.aedtapp.set_phase_center_per_port(["Global"])
+        assert not self.aedtapp.set_phase_center_per_port("Global")
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_64_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)

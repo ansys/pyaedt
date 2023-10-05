@@ -29,6 +29,12 @@ clean:
 phtml:
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
 
+# Build pdf docs.
+pdf:
+	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
+	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
+
 # build docs like the CI build
 cibuild:
 	mkdir source/examples -p

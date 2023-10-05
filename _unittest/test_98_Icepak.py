@@ -60,9 +60,6 @@ class TestClass:
         self.project_path = examples[0]
         self.source_project_path = examples[1]
 
-    def test_01_save(self):
-        self.aedtapp.save_project()
-
     def test_02_ImportPCB(self):
         component_name = "RadioBoard1"
         assert self.aedtapp.create_ipk_3dcomponent_pcb(
@@ -254,7 +251,8 @@ class TestClass:
         assert grille2.update()
 
     def test_14_edit_design_settings(self):
-        assert self.aedtapp.edit_design_settings(gravityDir=1)
+        assert self.aedtapp.edit_design_settings(gravity_dir=1)
+        assert self.aedtapp.edit_design_settings(gravity_dir=3)
         assert self.aedtapp.edit_design_settings(ambtemp=20)
         assert self.aedtapp.edit_design_settings(ambtemp="325kel")
 
@@ -996,7 +994,13 @@ class TestClass:
         self.aedtapp.insert_design("mesh_priority")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
         self.aedtapp.create_ipk_3dcomponent_pcb(
-            "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+            "Board",
+            link_data,
+            solution_freq,
+            resolution,
+            extent_type="Polygon",
+            custom_x_resolution=400,
+            custom_y_resolution=500,
         )
         assert self.aedtapp.mesh.add_priority(entity_type=1, obj_list=self.aedtapp.modeler.object_names, priority=2)
         assert self.aedtapp.mesh.add_priority(
@@ -1295,3 +1299,11 @@ class TestClass:
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
         assert self.aedtapp.modeler.user_defined_components["test"].update_definition()
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_67_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)
+        assert self.aedtapp.import_dxf(dxf_file, dxf_layers)

@@ -91,7 +91,8 @@ jobs:
           index-name: pyedb-vdev
           host-url: ${{ vars.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
-          doc-artifact-name: documentation-html-edb # Add only EDB API to index
+          doc-artifact-name: documentation-html-edb # Add only EDB API as page in this index.
+          pymeilisearchopts: --port 8001 # serve in another port as 8000 is deafult
 
   # docstring_testing:
   #   runs-on: Windows

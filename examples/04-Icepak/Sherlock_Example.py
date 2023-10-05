@@ -77,7 +77,7 @@ component_name = "from_ODB"
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
 ipk.create_pcb_from_3dlayout(component_name=component_name, project_name=odb_path, design_name=aedt_odb_design_name,
-                             extenttype="Polygon", outlinepolygon=outline_polygon_name)
+                             extenttype="Polygon")
 
 ###############################################################################
 # Create offset coordinate system

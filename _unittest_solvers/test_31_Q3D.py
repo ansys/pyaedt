@@ -89,7 +89,7 @@ class TestClass:
             unit="GHz",
             sweepname="Sweep1",
             freqstart=9.5,
-            freqstop=10.5,
+            freqstop="10.5GHz",
             sweep_type="Interpolating",
         )
 
@@ -446,7 +446,7 @@ class TestClass:
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
+        q3d.analyze(num_cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)

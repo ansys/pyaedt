@@ -55,13 +55,20 @@ def _tuple2dict(t, d):
 
 @pyaedt_function_handler()
 def _dict2arg(d, arg_out):
-    """
+    """Create a valid string of name-value pairs for the native AEDT API.
+
+    Prepend the argument string in `arg_out` using the dictionary ``d``
+    to create a valid input string as an argument for the native AEDT API.
 
     Parameters
     ----------
     d : dict
+        Dictionary to use for prepending to the argument string being built
+        for the native AEDT API.
 
-    arg_out :
+    arg_out : str.
+        String of the name/value pair to be built as an argument
+        for the native AEDT API.
 
     """
     for k, v in d.items():
@@ -480,6 +487,39 @@ def to_aedt(code):
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
     return return_code
+
+
+def str_to_bool(s):
+    """Convert a ``"True"`` or ``"False"`` string to its corresponding Boolean value.
+
+    If the passed arguments are not relevant in the context of conversion, the argument
+    itself is returned. This method can be called using the ``map()`` function to
+    ensure conversion of Boolean strings in a list.
+
+    Parameters
+    ----------
+    s: str
+
+    Returns
+    -------
+    bool or str
+         The method is not case-sensitive.
+         - ``True`` is returned  if the input is ``"true"``, ``"1"``,
+           `"yes"``, or ``"y"``,
+         - ``False`` is returned if the input is ``"false"``, ``"no"``,
+           ``"n``,  or ``"0"``.
+         - Otherwise, the input value is passed through the method unchanged.
+
+    """
+    if type(s) == str:
+        if s.lower() in ["true", "yes", "y", "1"]:
+            return True
+        elif s.lower() in ["false", "no", "n", "0"]:
+            return False
+        else:
+            return s
+    elif type(s) == int:
+        return False if s == 0 else True
 
 
 @pyaedt_function_handler()

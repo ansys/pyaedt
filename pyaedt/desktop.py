@@ -532,7 +532,6 @@ class Desktop(object):
             self._logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
             self._logger.info("Debug logger is disabled. PyAEDT methods will not be logged.")
-
         student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
 
         # start the AEDT opening decision tree
@@ -546,6 +545,8 @@ class Desktop(object):
         elif is_linux:
             starting_mode = "grpc"
         elif is_windows and "pythonnet" not in modules:
+            starting_mode = "grpc"
+        elif settings.remote_rpc_session:
             starting_mode = "grpc"
         elif is_ironpython:
             starting_mode = "ironpython"
@@ -567,16 +568,16 @@ class Desktop(object):
                         specified_version, aedt_process_id
                     )
                 )
-        elif float(version_key) < 2022.2:
+        elif float(version_key[0:6]) < 2022.2:
             starting_mode = "com"
-        elif float(version_key) == 2022.2:
+        elif float(version_key[0:6]) == 2022.2:
             if self.machine and self.port:
                 starting_mode = "grpc"  # if the machine and port is specified, user wants to use gRPC
             elif settings.use_grpc_api is None:
                 starting_mode = "com"  # default if user doesn't specify use_grpc_api
             else:
                 starting_mode = "grpc" if settings.use_grpc_api else "com"
-        elif float(version_key) > 2022.2:
+        elif float(version_key[0:6]) > 2022.2:
             if settings.use_grpc_api is None:
                 starting_mode = "grpc"  # default if user doesn't specify use_grpc_api
             else:
@@ -734,6 +735,12 @@ class Desktop(object):
 
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times
+        if settings.remote_rpc_session:
+            try:
+                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
+                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
+            except:
+                return False, "", ""
         self_current_version = self.current_version
         self_current_student_version = self.current_student_version
 
@@ -922,6 +929,18 @@ class Desktop(object):
 
     def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT using the gRPC plugin.")
+        if settings.remote_rpc_session:  # pragma: no cover
+            settings.remote_api = True
+            if not self.machine:
+                try:
+                    self.machine = settings.remote_rpc_session.server_name
+                except:
+                    pass
+            if not self.port:
+                try:
+                    self.port = settings.remote_rpc_session.port
+                except:
+                    pass
         if not self.machine or self.machine in [
             "localhost",
             "127.0.0.1",
@@ -989,8 +1008,14 @@ class Desktop(object):
                 return
         elif new_aedt_session:
             installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
+            if student_version:  # pragma: no cover
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv")
             if not is_linux:
-                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
+                if student_version:  # pragma: no cover
+                    installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")
+                else:
+                    installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
+
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
@@ -1030,7 +1055,7 @@ class Desktop(object):
         if settings.logger_file_path:
             self.logfile = settings.logger_file_path
         else:
-            if settings.remote_api:
+            if settings.remote_api or settings.remote_rpc_session:
                 project_dir = tempfile.gettempdir()
             elif "oDesktop" in dir(self._main):
                 project_dir = self._main.oDesktop.GetProjectDirectory()
@@ -1409,7 +1434,10 @@ class Desktop(object):
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:
-                self.odesktop.CloseProject(project)
+                try:
+                    self.odesktop.CloseProject(project)
+                except:  # pragma: no cover
+                    self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
@@ -2197,8 +2225,6 @@ class Desktop(object):
         """
         if self.aedt_version_id > "2023.1":
             return self.odesktop.AreThereSimulationsRunning()
-        else:
-            self.logger.error("It works only for AEDT >= `2023.2`.")
         return False
 
     @pyaedt_function_handler()

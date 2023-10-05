@@ -413,21 +413,25 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, path):
+    def get_ibis_model_from_file(self, path, is_ami=False):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
         ----------
         path : str
             Path of the IBIS file.
+        is_ami : bool, optional
+            Whether if import an IBIS or an IBIS AMI.
 
         Returns
         -------
         :class:`pyaedt.generic.ibis_reader.Ibis`
             IBIS object exposing all data from the IBIS file.
         """
-
-        reader = ibis_reader.IbisReader(path, self)
+        if is_ami:
+            reader = ibis_reader.AMIReader(path, self)
+        else:
+            reader = ibis_reader.IbisReader(path, self)
         reader.parse_ibis_file()
         return reader.ibis_model
 
@@ -794,14 +798,14 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
     ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solution_name : str, optional
-            Name of the solution that has been solved.
+        setup_name : str, optional
+            Name of the setup that has been solved.
         sweep_name : str, optional
             Name of the sweep that has been solved.
         file_name : str, optional
@@ -825,7 +829,7 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.ExportNetworkData
         """
         return self._export_touchstone(
-            solution_name=solution_name,
+            setup_name=setup_name,
             sweep_name=sweep_name,
             file_name=file_name,
             variations=variations,

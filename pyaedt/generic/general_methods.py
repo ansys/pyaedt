@@ -694,6 +694,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         "PushExcitations",
         "Rename",
         "RestoreProjectArchive",
+        "ImportGerber",
     ]
     # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
     if func_name and func_name not in inclusion_list:
@@ -1210,7 +1211,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
-    if version and version < "222":
+    if version and version < "221":
         version = version[:2] + "." + version[2]
     for p in psutil.process_iter():
         try:

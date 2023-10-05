@@ -637,10 +637,13 @@ class BoundaryObject(BoundaryCommon, object):
         elif bound_type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif bound_type == "AutoIdentify":
+            # Build reference conductor argument as a list of strings
+            # ref_cond_arg should be a list.
+            ref_cond_arg = ["NAME:ReferenceConductors"] + self.props["ReferenceConductors"]
             self._app.oboundary.AutoIdentifyPorts(
                 ["NAME:Faces", self.props["Faces"]],
                 self.props["IsWavePort"],
-                ["NAME:ReferenceConductors"] + self.props["ReferenceConductors"],
+                ref_cond_arg,
                 self.name,
                 self.props["RenormalizeModes"],
             )
@@ -3211,9 +3214,8 @@ class Excitations(object):
         return self._angle
 
     @angle.setter
-    def angle(self, angle=None):
-        self._logger.warning("Angle cannot be modified. This capability has not yet been implemented in the AEDT API.")
-        # self._app.modeler.schematic.components[self.comp].angle = angle
+    def angle(self, angle):
+        self._app.modeler.schematic.components[self.schematic_id].angle = angle
 
     @property
     def mirror(self):
@@ -3955,22 +3957,26 @@ class NetworkObject(BoundaryObject):
         >>>                                                       "Function": "Piecewise Linear",
         >>>                                                       "Values": "Test_DataSet"})
         """
-        if assignment_type not in ["Power", "Temperature"]:  # pragma: no cover
+        if assignment_type not in ["Power", "Temperature", "PowerValue", "TemperatureValue"]:  # pragma: no cover
             raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``.')
         if isinstance(value, (float, int)):
-            if assignment_type == "Power":
+            if assignment_type == "Power" or assignment_type == "PowerValue":
                 value = str(value) + "W"
             else:
                 value = str(value) + "cel"
-        if isinstance(value, dict) and assignment_type == "Temperature":  # pragma: no cover
+        if isinstance(value, dict) and (
+            assignment_type == "Temperature" or assignment_type == "TemperatureValue"
+        ):  # pragma: no cover
             raise AttributeError(
                 "Temperature-dependent or transient assignment is not supported in a temperature boundary node."
             )
+        if not assignment_type.endswith("Value"):
+            assignment_type += "Value"
         new_node = self._Node(
             name,
             self._app,
             node_type="BoundaryNode",
-            props={"ValueType": assignment_type + "Value", assignment_type: value},
+            props={"ValueType": assignment_type, assignment_type.removesuffix("Value"): value},
             network=self,
         )
         self._nodes.append(new_node)
@@ -4164,11 +4170,11 @@ class NetworkObject(BoundaryObject):
                     resistance=node_dict.get("Resistance", None),
                 )
             elif "ValueType" in node_dict.keys():
-                self.add_boundary_node(
-                    name=node_dict["Name"],
-                    assignment_type=node_dict["ValueType"],
-                    value=node_dict[node_dict["ValueType"]],
-                )
+                if node_dict["ValueType"].endswith("Value"):
+                    value = node_dict[node_dict["ValueType"].removesuffix("Value")]
+                else:
+                    value = node_dict[node_dict["ValueType"]]
+                self.add_boundary_node(name=node_dict["Name"], assignment_type=node_dict["ValueType"], value=value)
             else:
                 self.add_internal_node(
                     name=node_dict["Name"],
