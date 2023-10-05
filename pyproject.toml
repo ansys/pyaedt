@@ -180,4 +180,29 @@ testpaths = [
     "_unittest",
 ]
 
-
+[tool.numpydoc_validation]
+checks = [
+    "GL06",  # Found unknown section
+    "GL07",  # Sections are in the wrong order.
+    "GL08",  # The object does not have a docstring
+    "GL09",  # Deprecation warning should precede extended summary
+    "GL10",  # reST directives {directives} must be followed by two colons
+    # Return
+    "RT04", # Return value description should start with a capital letter"
+    "RT05", # Return value description should finish with "."
+    # Summary
+    "SS01",  # No summary found
+    "SS02",  # Summary does not start with a capital letter
+    "SS03",  # Summary does not end with a period
+    "SS04",  # Summary contains heading whitespaces
+    "SS05",  # Summary must start with infinitive verb, not third person
+    # Parameters
+    "PR10",  # Parameter "{param_name}" requires a space before the colon
+    # separating the parameter name and type",
+]
+exclude = [
+    '\.AEDTMessageManager.add_message$',  # bad SS05
+    '\.Modeler3D\.create_choke$',  # bad RT05
+    '\._unittest\',  # missing docstring for tests
+    'HistoryProps.',  # bad RT05 because of the base class named OrderedDict
+]

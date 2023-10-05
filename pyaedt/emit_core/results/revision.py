@@ -79,7 +79,7 @@ class Revision:
         Load this revision.
 
         Examples
-        ----------
+        --------
         >>> aedtapp.results.revision.load_revision()
         """
         if self.revision_loaded:
@@ -105,7 +105,7 @@ class Revision:
     @pyaedt_function_handler()
     def get_interaction(self, domain):
         """
-        Creates a new interaction for a domain.
+        Create a new interaction for a domain.
 
         Parameters
         ----------
@@ -118,7 +118,7 @@ class Revision:
             Interaction object.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.results.interaction_domain()
         >>> rev.get_interaction(domain)
 
@@ -146,7 +146,7 @@ class Revision:
             Interaction object.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.results.interaction_domain()
         >>> rev.run(domain)
 
@@ -180,7 +180,7 @@ class Revision:
             ``InteractionDomain`` object for constraining the analysis parameters.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.interaction_domain()
         >>> aedtapp.results.current_revision.is_domain_valid(domain)
         True
@@ -200,12 +200,12 @@ class Revision:
             ``InteractionDomain`` object for constraining the analysis parameters.
 
         Returns
-        --------
+        -------
         count : int
             Number of instances in the domain for the current revision.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.interaction_domain()
         >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
         """
@@ -228,7 +228,7 @@ class Revision:
             List of receiver names.
 
         Examples
-        ----------
+        --------
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
         if self.revision_loaded:
@@ -262,7 +262,7 @@ class Revision:
             List of interfering systems' names.
 
         Examples
-        ----------
+        --------
         >>> transmitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS)
         >>> emitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.EMITTERS)
         >>> both = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
@@ -301,7 +301,7 @@ class Revision:
             List of ``tx`` or ``rx`` band/waveform names.
 
         Examples
-        ----------
+        --------
         >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', TxRxMode.RX)
         >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', TxRxMode.TX)
         """
@@ -340,7 +340,7 @@ class Revision:
             List of ``tx`` or ``rx`` radio/emitter frequencies.
 
         Examples
-        ----------
+        --------
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
         """
@@ -361,7 +361,7 @@ class Revision:
         Add notes to the revision.
 
         Examples
-        ----------
+        --------
         >>> aedtapp.results.current_revision.notes = "Added a filter to the WiFi Radio."
         >>> aedtapp.results.current_revision.notes
         'Added a filter to the WiFi Radio.'
@@ -383,7 +383,7 @@ class Revision:
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
 
         Examples
-        ----------
+        --------
         >>> aedtapp.results.current_revision.n_to_1_limit = 2**20
         >>> aedtapp.results.current_revision.n_to_1_limit
         1048576

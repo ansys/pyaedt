@@ -263,7 +263,7 @@ def decompose_variable_value(variable_value, full_variables={}):
     Returns
     -------
     tuples
-        tuples made of the float value of the variable and the units exposed as a string.
+        Tuples made of the float value of the variable and the units exposed as a string.
     """
     # set default return values - then check for valid units
     float_value = variable_value
@@ -323,7 +323,7 @@ def generate_validation_errors(property_names, expected_settings, actual_setting
         List of property names.
     expected_settings : List[str]
         List of the expected settings.
-    actual_settings: List[str]
+    actual_settings : List[str]
         List of actual settings.
 
     Returns
@@ -1761,7 +1761,7 @@ class Variable(object):
         """Multiply the variable with a number or another variable and return a new object.
 
                 Parameters
-                ---------
+                ----------
                 other : numbers.Number or variable
                     Object to be multiplied.
 
@@ -1820,7 +1820,7 @@ class Variable(object):
         """Add the variable to another variable to return a new object.
 
         Parameters
-        ---------
+        ----------
         other : class:`pyaedt.application.Variables.Variable`
             Object to be multiplied.
 
@@ -1861,7 +1861,7 @@ class Variable(object):
         """Subtract another variable from the variable to return a new object.
 
         Parameters
-        ---------
+        ----------
         other : class:`pyaedt.application.Variables.Variable`
             Object to be subtracted.
 
@@ -1904,7 +1904,7 @@ class Variable(object):
         """Divide the variable by a number or another variable to return a new object.
 
         Parameters
-        ---------
+        ----------
         other : numbers.Number or variable
             Object by which to divide.
 
@@ -1948,7 +1948,7 @@ class Variable(object):
         """Divide another object by this object.
 
         Parameters
-        ---------
+        ----------
         other : numbers.Number or variable
             Object to divide by.
 
