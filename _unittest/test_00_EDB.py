@@ -2876,7 +2876,6 @@ class TestClass:
         ipc_edb.close()
 
     def test_147_find_dc_shorts(self):
-        #
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
@@ -2890,7 +2889,6 @@ class TestClass:
         edbapp.close()
 
     def test_148_load_material_from_aedt(self):
-        #
         assert self.edbapp.materials.load_material_from_aedt()
         material_list = list(self.edbapp.materials.materials.keys())
         assert material_list
