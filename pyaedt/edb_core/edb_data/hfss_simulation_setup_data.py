@@ -1031,7 +1031,7 @@ class AdaptiveSettings(object):
 
         Returns
         -------
-            ``True`` if bais adaptive is used, ``False`` otherwise.
+            ``True`` if basic adaptive is used, ``False`` otherwise.
         """
         return self.adaptive_settings.Basic
 
