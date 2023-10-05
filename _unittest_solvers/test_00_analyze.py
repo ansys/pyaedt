@@ -95,7 +95,7 @@ class TestClass:
             theta_scan=20,
             qty_str="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
+            quantity_format="dB10",
             export_image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))

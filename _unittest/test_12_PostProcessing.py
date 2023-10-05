@@ -578,7 +578,6 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             qty_str="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
@@ -587,7 +586,6 @@ class TestClass:
             secondary_sweep_value=30,
             qty_str="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
@@ -631,7 +629,6 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             qty_str="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
@@ -640,7 +637,6 @@ class TestClass:
             secondary_sweep_value=30,
             qty_str="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 

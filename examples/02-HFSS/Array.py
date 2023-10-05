@@ -94,12 +94,12 @@ ffdata.plot_farfield_contour(qty_str='RealizedGain', convert_to_db=True,
 ffdata.plot_2d_cut(primary_sweep='theta', secondary_sweep_value=[-180, -75, 75],
                    qty_str='RealizedGain',
                    title='Azimuth at {}Hz'.format(ffdata.frequency),
-                   convert_to_db=True)
+                   quantity_format="dB10")
 
 ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
                    qty_str='RealizedGain',
                    title='Elevation',
-                   convert_to_db=True)
+                   quantity_format="dB10")
 
 ##########################################################
 # Generate 3D polar plots in Matplotlib

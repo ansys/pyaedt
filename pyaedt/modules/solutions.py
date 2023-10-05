@@ -1789,9 +1789,10 @@ class FfdSolutionData(object):
         phi_scan=0,
         theta_scan=0,
         title="Far Field Cut",
-        quantity_format="norm",
+        quantity_format="dB10",
         export_image_path=None,
         show=True,
+        **kwargs,
     ):
         """Create a 2D plot of specified quantity in matplotlib.
 
@@ -1823,6 +1824,9 @@ class FfdSolutionData(object):
             If show is `True`, it returns a matplotlib figure instance of the plot.
             If show is `False`, it returns the plotted curves.
         """
+        if "convert_to_db" in kwargs:
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+
         data = self.beamform(phi_scan, theta_scan)
 
         data_to_plot = data[qty_str]
