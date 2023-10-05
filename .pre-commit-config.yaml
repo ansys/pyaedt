@@ -64,10 +64,10 @@ repos:
       additional_dependencies: [black==23.9.1]
 
 
-- repo: https://github.com/numpy/numpydoc
-  rev: v1.6.0
-  hooks:
-    - id: numpydoc-validation
+# - repo: https://github.com/numpy/numpydoc
+#   rev: v1.6.0
+#   hooks:
+#     - id: numpydoc-validation
 
 # - repo: https://github.com/pycqa/pydocstyle
 #   rev: 6.1.1

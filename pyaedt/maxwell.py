@@ -2261,7 +2261,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """Create a boundary.
 
         Parameters
-        ---------
+        ----------
         name : str
             Name of the boundary.
         props : list
