@@ -21,7 +21,7 @@ from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 ###############################################################################
 ## Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
