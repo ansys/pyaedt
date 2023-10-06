@@ -158,7 +158,7 @@ numpydoc_validation_checks = {
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
     "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."'
+    "RT05", # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -166,7 +166,7 @@ numpydoc_validation_checks = {
     "SS04",  # Summary contains heading whitespaces
     "SS05",  # Summary must start with infinitive verb, not third person
     # Parameters
-    "PR10",  # Parameter "{param_name}" requires a space before the colon '
+    "PR10",  # Parameter "{param_name}" requires a space before the colon
     # separating the parameter name and type",
 }
 
