@@ -82,13 +82,21 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        The following examples shows how to create a box in HFSS.
+        The main parameters are position that provides the origin of the
+        box and dimensions_list that provide the box sizes.
+        The parameter matname is optional and allows to set the material name of the box.
+        The parameter name is optional and allows to give a name to the box.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
 
         >>> from pyaedt import hfss
         >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
-        >>> #Material and name are not mandatory fields
-        >>> box_object = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
+        >>> box_object = hfss.modeler.primivites.create_box(position=origin,
+        ...                                                 dimensions_list=dimensions,
+        ...                                                 name="mybox",
+        ...                                                 matname="copper")
 
         """
         if len(position) != 3:
@@ -145,9 +153,16 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        The following examples shows how to create a cylinder in HFSS.
+        The main parameters are ``cs_axis`` that provides the direction axis of the cylinder,
+        ``position`` that provides the origin of the cylinder, ``radius`` of the cylinder, ``height`` of the cylinder.
+        The parameter ``matname`` is optional and allows to set the material name of the cylinder.
+        The parameter ``"name"`` is optional and allows to give a name to the cylinder.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cylinder_object = aedtapp.modeler..create_cylinder(cs_axis='Z', position=[0,0,0],
+        >>> cylinder_object = aedtapp.modeler.create_cylinder(cs_axis='Z', position=[0,0,0],
         ...                                                   radius=2, height=3, name="mycyl",
         ...                                                   matname="vacuum")
 
@@ -220,6 +235,14 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        The following examples shows how to create a regular polyhedron in HFSS.
+        The main parameters are cs_axis that provides the direction axis of the polyhedron,
+        center_position that provides the center of the polyhedron, start_position of the polyhedron,
+        height of the polyhedron and num_sides to determine the number of sides.
+        The parameter matname is optional and allows to set the material name of the polyhedron.
+        The parameter name is optional and allows to give a name to the polyhedron.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_obj = aedtapp.modeler.create_polyhedron(cs_axis='X', center_position=[0, 0, 0],
@@ -257,7 +280,7 @@ class Primitives3D(Primitives, object):
         cs_axis : str
             Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
-        center_position : list, optional
+        position : list, optional
             List of ``[x, y, z]`` coordinates for the center position
             of the bottom of the cone.
         bottom_radius : float
@@ -285,6 +308,15 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        The following examples shows how to create a cone in HFSS.
+        The main parameters are ``cs_axis`` that provides the direction axis of the cone,
+        ``position`` that provides the starting point of the cone, ``bottom_radius`` and ``top_radius`` are the
+        radius of the cone and ``height`` of the cone.
+        The parameter ``matname`` is optional and allows to set the material name of the cone.
+        The parameter ``name`` is optional and allows to give a name to the cone.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> cone_object = aedtapp.modeler.create_cone(cs_axis='Z', position=[0, 0, 0],
@@ -349,6 +381,14 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        The following examples shows how to create a sphere in HFSS.
+        The main parameters are ``position`` which provides the center of the sphere and
+        ``radius`` which is the sphere radius.
+        The parameter ``matname`` is optional and allows to set the material name of the sphere.
+        The parameter ``name`` is optional and allows to give a name to the sphere.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.create_sphere(position=[0,0,0], radius=2,
@@ -409,11 +449,15 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         Create a torus named ``"mytorus"`` about the Z axis with a major
-        radius of 1, minor radius of 0.5, and a material of ``"copper"``.
+        radius of 1 , minor radius of 0.5, and a material of ``"copper"``.
+        The parameter ``matname`` is optional and allows to set the material name of the sphere.
+        The parameter ``name`` is optional and allows to give a name to the sphere.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = [0, 0, 0]
-        >>> torus = hfss.modeler.create_torus(origin, major_radius=1,
+        >>> torus = hfss.modeler.create_torus(center=origin, major_radius=1,
         ...                                   minor_radius=0.5, axis="Z",
         ...                                    name="mytorus", material_name="copper")
 
@@ -686,6 +730,23 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.CreateCircle
 
+        Examples
+        --------
+        The following examples shows how to create a circle in HFSS.
+        The main parameters are ``cs_plane`` that provides the plane on which the circle is designed,
+        ``position`` that provides the origin of the circle, ``radius`` of the circle,
+        ``num_sides`` the number of discrete sides of the circle.
+        The parameter ``matname`` is optional and allows to set the material name of the circle.
+        The parameter ``name`` is optional and allows to give a name to the circle.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> circle_object = aedtapp.modeler.create_circle(cs_plane='Z', position=[0,0,0],
+        ...                                                   radius=2, num_sides=8, name="mycyl",
+        ...                                                   matname="vacuum")
+
+
         """
         non_model_flag = ""
         if non_model:
@@ -740,6 +801,24 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.CreateEllipse
+
+        Examples
+        --------
+        The following examples shows how to create an ellipse in HFSS.
+        The main parameters are ``cs_plane`` that provides the plane on which the ellipse is designed,
+        ``position`` that provides the origin of the ellipse, ``major_radius`` of the ellipse,
+        ``ratio`` between major radius and minor radius of the ellipse,
+        ``is_covered`` a flag to determine if ellipse is covered or no.
+        The parameter ``matname`` is optional and allows to set the material name of the ellipse.
+        The parameter ``name`` is optional and allows to give a name to the ellipse.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> ellipse = aedtapp.modeler.create_ellipse(cs_plane='Z', position=[0,0,0],
+        ...                                          major_radius=2, ratio=2, is_covered=True, name="myell",
+        ...                                          matname="vacuum")
+
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
@@ -833,6 +912,28 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.CreateEquationCurve
 
+
+        Examples
+        --------
+        The following examples shows how to create an equation based curve in HFSS.
+        The main parameters are ``cs_plane`` that provides the plane on which the ellipse is designed,
+        ``position`` that provides the origin of the ellipse, ``major_radius`` of the ellipse,
+        ``ratio`` between major radius and minor radius of the ellipse,
+        ``is_covered`` a flag to determine if ellipse is covered or no.
+        The parameter ``matname`` is optional and allows to set the material name of the ellipse.
+        The parameter ``name`` is optional and allows to give a name to the ellipse.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> eq_xsection = self.aedtapp.modeler.create_equationbased_curve(x_t="_t",
+        ...                                                               y_t="_t*2",
+        ...                                                               num_points=200,
+        ...                                                               z_t=0,
+        ...                                                               t_start=0.2,
+        ...                                                               t_end=1.2,
+        ...                                                               xsection_type="Circle")
+
         """
         x_section = self._crosssection_arguments(
             type=xsection_type,
@@ -913,6 +1014,32 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.CreateHelix
 
+        Examples
+        --------
+        The following example shows how to create a polyline and then create an helix from the polyline.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> udp1 = [0, 0, 0]
+        >>> udp2 = [5, 0, 0]
+        >>> udp3 = [10, 5, 0]
+        >>> udp4 = [15, 3, 0]
+        >>> polyline = aedtapp.modeler.create_polyline(
+        >>>     [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline"
+        >>> )
+
+        >>> helix_right_turn = aedtapp.modeler.create_helix(
+        >>>     polyline_name=polyline.name,
+        >>>     position=[0, 0, 0],
+        >>>     x_start_dir=0,
+        >>>     y_start_dir=1.0,
+        >>>     z_start_dir=1.0,
+        >>>     num_thread=1,
+        >>>     right_hand=True,
+        >>>     radius_increment=0.0,
+        >>>     thread=1.0,
+        >>> )
         """
         if not polyline_name or polyline_name == "":
             raise ValueError("The name of the polyline cannot be an empty string.")
@@ -958,7 +1085,7 @@ class Primitives3D(Primitives, object):
 
         Parameters
         ----------
-        object_name : int, str, or Object3d
+        object_name : int, str, or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Specified for the object.
 
         Returns
@@ -970,6 +1097,15 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> edge_object = aedtapp.modeler.create_object_from_edge("my_edge")
+        >>> aedtapp.modeler.generate_object_history(edge_object)
+        >>> aedtapp.modeler.convert_segments_to_line(edge_object.name)
 
         """
         this_object = self._resolve_object(object_name)
