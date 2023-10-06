@@ -819,7 +819,7 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def add_material_from_aedt(self, material_name):
-        """Add a material read from syslib amat library.
+        """Add a material read from ``syslib amat`` library.
 
         Parameters
         ----------
