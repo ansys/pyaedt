@@ -855,7 +855,7 @@ class Materials(object):
             return True
 
     @pyaedt_function_handler()
-    def load_material_from_amat(self, amat_file):
+    def load_amat(self, amat_file):
         """Load material from an amat file and add materials to Edb.
 
         Parameters
