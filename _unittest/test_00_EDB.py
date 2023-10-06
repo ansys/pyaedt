@@ -2888,11 +2888,14 @@ class TestClass:
         assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
         edbapp.close()
 
-    def test_148_load_material_from_aedt(self):
-        assert self.edbapp.materials.load_material_from_aedt()
+    def test_148_load_material_from_amat(self):
+        assert "Rogers RO3003 (tm)" in self.edbapp.materials.materials_in_aedt
+        material_file = os.path.join(self.edbapp.materials.syslib, "Materials.amat")
+        assert self.edbapp.materials.add_material_from_aedt("Arnold_Magnetics_N28AH_-40C")
+        assert "Arnold_Magnetics_N28AH_-40C" in self.edbapp.materials.materials.keys()
+        assert self.edbapp.materials.load_material_from_amat(material_file)
         material_list = list(self.edbapp.materials.materials.keys())
         assert material_list
-        assert len(material_list) == 419
-        assert self.edbapp.materials.materials["Megtron4_2"].permittivity == 3.47
+        assert len(material_list) > 0
         assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].loss_tangent == 0.0013
         assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].permittivity == 3.0
