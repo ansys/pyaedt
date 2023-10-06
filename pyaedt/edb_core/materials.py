@@ -819,6 +819,17 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def add_material_from_aedt(self, material_name):
+        """Add a material read from syslib amat library.
+
+        Parameters
+        ----------
+        material_name : str
+            Material name.
+
+        Returns
+        -------
+        bool
+        """
         if material_name in self.materials_in_aedt:
             if material_name in list(self.materials.keys()):
                 self._pedb.logger.warning("Material {} already exists. Skipping it.".format(material_name))
