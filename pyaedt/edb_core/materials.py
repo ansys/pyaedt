@@ -829,6 +829,7 @@ class Materials(object):
         Returns
         -------
         bool
+            "True`` when successful, ``False`` when failed.
         """
         if material_name in self.materials_in_aedt:
             if material_name in list(self.materials.keys()):
