@@ -359,6 +359,7 @@ class Materials(object):
 
     @property
     def materials_in_aedt(self):
+        """Retrieve the dictionary of materials available in AEDT syslib."""
         if self._materials_in_aedt:
             return self._materials_in_aedt
         self._materials_in_aedt = self._read_materials()
