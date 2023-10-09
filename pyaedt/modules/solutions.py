@@ -1107,6 +1107,7 @@ class FfdSolutionData(object):
         self._mag_offset = [1] * len(self.all_port_names)
         self.lattice_vectors = None
         self._origin = [0, 0, 0]
+        self._model_units_scale = 1
 
         for eep in eep_files:
             if os.path.exists(os.path.join(os.path.dirname(eep), "eep.latvec")):
@@ -1754,7 +1755,8 @@ class FfdSolutionData(object):
         ff_data = conversion_function(self.all_qtys[qty_str], quantity_format)
         theta = np.deg2rad(np.array(self.all_qtys["Theta"]))
         phi = np.deg2rad(np.array(self.all_qtys["Phi"]))
-        self.mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
+        mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
+        self.mesh = mesh
 
     @pyaedt_function_handler()
     def _read_eep_files(self, eep_path):
@@ -1997,65 +1999,75 @@ class FfdSolutionData(object):
         plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=export_image_path)
 
     @pyaedt_function_handler()
-    def _get_geometry(self, is_antenna_array=True):
-        data = self.combine_farfields(0, 0)
-
-        xmax = ymax = zmax = 0
+    def _get_geometry(self):
         from pyaedt.generic.plot import ModelPlotter
 
         eep_dir = os.path.join(os.path.dirname(self.eep_files[self._freq_index]))
         model_pv = ModelPlotter()
         metadata_file = os.path.join(eep_dir, "eep.json")
+        sf = AEDT_UNITS["Length"]["meter"]
         if os.path.exists(metadata_file):
             model_pv.off_screen = True
             with open(metadata_file) as f:
                 # Load JSON data from file
                 metadata = json.load(f)
             for object_in in metadata["model_info"]:
-                model_pv.add_object(object_in[0], object_in[1], object_in[2], "meter")
-                sf = AEDT_UNITS["Length"]["meter"]
+                model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
+                sf = AEDT_UNITS["Length"][object_in[3]]
         else:
-            sf = AEDT_UNITS["Length"]["meter"]
             import glob
 
             files = glob.glob(os.path.join(eep_dir, "*.obj"))
             if files:
                 for file in files:
                     model_pv.add_object(file)
+        self._model_units = sf
         model_pv.generate_geometry_mesh()
         obj_meshes = []
-        center = []
-        if is_antenna_array:
-            i = 0
-            for obj in model_pv.objects:
-                for each in data["Element_Location"]:
-                    mesh = obj._cached_polydata
-                    translated_mesh = mesh.copy()
-                    offset_xyz = [n * sf for n in data["Element_Location"][each]]
-                    if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
-                        xmax = offset_xyz[0] * 2
-                    if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
-                        ymax = offset_xyz[1] * 2
-                    translated_mesh.position = offset_xyz
-                    translated_mesh.translate(offset_xyz, inplace=True)
-                    color_cad = [i / 255 for i in obj.color]
+        i = 0
+        for obj in model_pv.objects:
+            mesh = obj._cached_polydata
+            translated_mesh = mesh.copy()
+            color_cad = [i / 255 for i in obj.color]
 
-                    if len(obj_meshes) > i:
-                        obj_meshes[i][0] += translated_mesh
-                    else:
-                        obj_meshes.append([translated_mesh, color_cad, obj.opacity])
-                i += 1
-                if not center:
-                    center = obj_meshes[-1][0].center
-                else:
-                    center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
-        center = [-k / i for k in center]
-        all_max = np.max(np.array([xmax, ymax, zmax]))
-        if all_max > self.all_max:
-            self.all_max = all_max
+            if len(obj_meshes) > i:
+                obj_meshes[i][0] += translated_mesh
+            else:
+                obj_meshes.append([translated_mesh, color_cad, obj.opacity])
+            i += 1
 
-        for mesh in obj_meshes:
-            mesh[0].translate(center, inplace=True)
+        # center = []
+        # if is_antenna_array:
+        #     i = 0
+        #     for obj in model_pv.objects:
+        #         for each in data["Element_Location"]:
+        #             mesh = obj._cached_polydata
+        #             translated_mesh = mesh.copy()
+        #             offset_xyz = [n * sf for n in data["Element_Location"][each]]
+        #             if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
+        #                 xmax = offset_xyz[0] * 2
+        #             if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
+        #                 ymax = offset_xyz[1] * 2
+        #             translated_mesh.position = offset_xyz
+        #             translated_mesh.translate(offset_xyz, inplace=True)
+        #             color_cad = [i / 255 for i in obj.color]
+        #
+        #             if len(obj_meshes) > i:
+        #                 obj_meshes[i][0] += translated_mesh
+        #             else:
+        #                 obj_meshes.append([translated_mesh, color_cad, obj.opacity])
+        #         i += 1
+        #         if not center:
+        #             center = obj_meshes[-1][0].center
+        #         else:
+        #             center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
+        # center = [-k / i for k in center]
+        # all_max = np.max(np.array([xmax, ymax, zmax]))
+        # if all_max > self.all_max:
+        #     self.all_max = all_max
+        #
+        # for mesh in obj_meshes:
+        #     mesh[0].translate(center, inplace=True)
         return obj_meshes
 
     @pyaedt_function_handler()
@@ -2063,7 +2075,6 @@ class FfdSolutionData(object):
         self,
         qty_str="RealizedGain",
         quantity_format="dB10",
-        position=None,
         rotation=None,
         export_image_path=None,
         show=True,
@@ -2084,8 +2095,6 @@ class FfdSolutionData(object):
             Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
-        position : list, optional
-            It can be a list of numpy list of origin of plot. Default is [0,0,0].
         rotation : list, optional
             It can be a list of numpy list of origin of plot.
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
@@ -2107,10 +2116,6 @@ class FfdSolutionData(object):
                 quantity_format = "dB10"
             else:
                 quantity_format = "abs"
-        if not position:
-            position = np.zeros(3)
-        elif isinstance(position, (list, tuple)):
-            position = np.array(position)
         if not rotation:
             rotation = np.eye(3)
         elif isinstance(rotation, (list, tuple)):
@@ -2122,7 +2127,6 @@ class FfdSolutionData(object):
         self.combine_farfields(phi_scan=0, theta_scan=0)
         plot_min = -40
         self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
-
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -2175,7 +2179,6 @@ class FfdSolutionData(object):
                 title_height=0.02,
             )
 
-        # sargs = dict(height=0.4, vertical=True, position_x=0.05, position_y=0.5)
         sargs = dict(
             title_font_size=12,
             label_font_size=10,
@@ -2193,8 +2196,9 @@ class FfdSolutionData(object):
             color=axes_color,
         )
 
-        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs)
         cad_mesh = self._get_geometry()
+        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs)
+
         if cad_mesh:
 
             def toggle_vis_ff(flag):
@@ -2206,9 +2210,8 @@ class FfdSolutionData(object):
 
             def scale(value=1):
                 ff_mesh_inst.SetScale(value, value, value)
-                ff_mesh_inst.SetPosition(position)
+                ff_mesh_inst.SetPosition(self.origin)
                 ff_mesh_inst.SetOrientation(rotation_euler)
-                # p.add_mesh(ff_mesh, smooth_shading=True,cmap="jet")
                 return
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
