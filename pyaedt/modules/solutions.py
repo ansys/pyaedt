@@ -1083,21 +1083,21 @@ class FfdSolutionData(object):
         frequencies,
         eep_files,
     ):
+        self.logger = logging.getLogger(__name__)
         self._port_indexes = {}
         if isinstance(frequencies, (float, str, int)):
             frequencies = [frequencies]
+        self._freq_index = 0
         self.frequencies = frequencies
         self.data_dict = {}
-        self._native_indexes = []
-        self.Ax = None
-        self.Ay = None
-        self.Bx = None
-        self.By = None
-
+        self.all_qtys = {}
+        self._levels = 64
+        self.all_max = 1
         if isinstance(eep_files, str):
             eep_files = [eep_files]
         self.eep_files = eep_files
         self._all_solutions = []
+        self._element_position = {}
         for eep in eep_files:
             self._read_eep_files(eep)
         self.ffd_dict = self._all_solutions[0]
@@ -1106,9 +1106,33 @@ class FfdSolutionData(object):
         self._phase_offset = [0] * len(self.all_port_names)
         self._mag_offset = [1] * len(self.all_port_names)
         self.lattice_vectors = None
+        self._origin = [0, 0, 0]
+
         for eep in eep_files:
             if os.path.exists(os.path.join(os.path.dirname(eep), "eep.latvec")):
                 self.lattice_vectors = read_csv(os.path.join(os.path.dirname(eep), "eep.latvec"))[0]
+
+        self._is_array = True
+        if not self.lattice_vectors or self.lattice_vectors == ["0", "0", "0", "0", "0", "0"]:
+            self.lattice_vectors = None
+            self._is_array = False
+
+        # Array props
+        if self._is_array:
+            self.Ax = float(self.lattice_vectors[0])
+            self.Ay = float(self.lattice_vectors[1])
+            self.Bx = float(self.lattice_vectors[3])
+            self.By = float(self.lattice_vectors[4])
+        else:
+            self.Ax = 0
+            self.Ay = 0
+            self.Bx = 0
+            self.By = 0
+            self.AMax = 0
+            self.BMax = 0
+            self.CenterA = 0
+            self.CenterB = 0
+
         self.frequency = self.frequencies[0]
         self._init_ffd()
 
@@ -1116,16 +1140,8 @@ class FfdSolutionData(object):
     def _init_ffd(self):
         all_ports = list(self.ffd_dict.keys())
         valid_ffd = True
-
-        for port in all_ports:
-            try:
-                str1 = port.split("[", 1)[1].split("]", 1)[0]
-                self._native_indexes.append([int(i) for i in str1.split(",")])
-            except:
-                self._native_indexes.append([1, 1])
-
-        if os.path.exists(self.ffd_dict[all_ports[0]]):
-            with open(self.ffd_dict[all_ports[0]], "r") as reader:
+        if os.path.exists(self.ffd_dict[all_ports[0]][0]):
+            with open(self.ffd_dict[all_ports[0]][0], "r") as reader:
                 theta = [int(i) for i in reader.readline().split()]
                 phi = [int(i) for i in reader.readline().split()]
             reader.close()
@@ -1135,49 +1151,36 @@ class FfdSolutionData(object):
                 temp_dict = {}
                 theta_range = np.linspace(*theta)
                 phi_range = np.linspace(*phi)
-                if os.path.exists(self.ffd_dict[port]):
-                    eep_txt = np.loadtxt(self.ffd_dict[port], skiprows=4)
+                if os.path.exists(self.ffd_dict[port][0]):
+                    eep_txt = np.loadtxt(self.ffd_dict[port][0], skiprows=4)
                     Etheta = np.vectorize(complex)(eep_txt[:, 0], eep_txt[:, 1])
                     Ephi = np.vectorize(complex)(eep_txt[:, 2], eep_txt[:, 3])
-                    # eep=np.column_stack((etheta, ephi))
                     temp_dict["Theta"] = theta_range
                     temp_dict["Phi"] = phi_range
                     temp_dict["rETheta"] = Etheta
                     temp_dict["rEPhi"] = Ephi
                     self.data_dict[port] = temp_dict
+                    if not self.get_array_index(port):
+                        break
                 else:
                     valid_ffd = False
-            if valid_ffd:
+            if valid_ffd and len(self._port_indexes) == len(self.all_port_names):
                 # differential area of sphere, based on observation angle
                 self.d_theta = np.abs(theta_range[1] - theta_range[0])
                 self.d_phi = np.abs(phi_range[1] - phi_range[0])
                 self.diff_area = np.radians(self.d_theta) * np.radians(self.d_phi) * np.sin(np.radians(theta_range))
                 self.num_samples = len(temp_dict["rETheta"])
                 self.all_port_names = list(self.data_dict.keys())
-                if self._native_indexes:
-                    i = 0
-                    for p in self.all_port_names:
-                        self._port_indexes[p] = self._native_indexes[i]
-                        i += 1
-                else:
-                    for p in self.all_port_names:
-                        self._port_indexes[p] = self.get_array_index(p)
-                self.solution_type = "DrivenModal"
-                self.unique_beams = None
-                self.renormalize = False
-                self.renormalize_dB = True
-                self.renorm_value = 1
         else:
             valid_ffd = False
-            self.logger.info("ERROR: Far Field Files are Missing")
+            self.logger.error("Wrong far fields imported")
+
         self.valid_ffd = valid_ffd
-        self.Ax = float(self.lattice_vectors[0])
-        self.Ay = float(self.lattice_vectors[1])
-        self.Bx = float(self.lattice_vectors[3])
-        self.By = float(self.lattice_vectors[4])
+
         self._phase_offset = [0] * len(self.all_port_names)
         self._mag_offset = [1] * len(self.all_port_names)
-        self.beamform()
+        if self.valid_ffd:
+            self.combine_farfields()
 
     @property
     def frequency(self):
@@ -1197,7 +1200,8 @@ class FfdSolutionData(object):
                 frequency, units = decompose_variable_value(val)
                 frequency_hz = unit_converter(frequency, "Freq", units, "Hz")
             self._frequency = frequency_hz
-            self.ffd_dict = self._all_solutions[self.frequencies.index(val)]
+            self._freq_index = self.frequencies.index(val)
+            self.ffd_dict = self._all_solutions[self._freq_index]
             self._init_ffd()
 
     @property
@@ -1219,7 +1223,8 @@ class FfdSolutionData(object):
             for phase in phases:
                 phases_to_rad.append(math.radians(phase))
             self._phase_offset = phases_to_rad
-            self.beamform()
+            if self.valid_ffd:
+                self.combine_farfields()
 
     @property
     def mag_offset(self):
@@ -1237,7 +1242,23 @@ class FfdSolutionData(object):
             self.logger.error("Number of magnitude must be equal to number of ports")
         else:
             self._mag_offset = mags
-            self.beamform()
+            if self.valid_ffd:
+                self.combine_farfields()
+
+    @property
+    def origin(self):
+        return self._origin
+
+    @origin.setter
+    def origin(self, vals):
+        if len(vals) != 3:
+            self.logger.error("Wrong origin")
+        else:
+            self._origin = vals
+            if self.valid_ffd:
+                self.combine_farfields()
+            else:
+                self.logger.error("Wrong FFD")
 
     @pyaedt_function_handler()
     def get_array_index(self, port_name):
@@ -1253,12 +1274,26 @@ class FfdSolutionData(object):
         """
         if self._port_indexes and port_name in self._port_indexes:
             return self._port_indexes[port_name]
-        try:
-            str1 = port_name.split("[", 1)[1].split("]", 1)[0]
-            index_str = [int(i) for i in str1.split(",")]
-        except:
-            return [1, 1]
-        return index_str
+
+        self._port_indexes = {}
+
+        if self._is_array:
+            for port in self.all_port_names:
+                try:
+                    str1 = port.split("[", 1)[0]
+                    self._port_indexes[port] = [int(i) for i in str1.split(",")]
+                except:
+                    return False
+        else:
+            cont = 1
+            for port in self.all_port_names:
+                self._port_indexes[port] = [1, cont]
+                cont += 1
+
+        if self._port_indexes and port_name in self._port_indexes:
+            return self._port_indexes[port_name]
+        else:
+            return False
 
     @pyaedt_function_handler()
     def array_min_max_values(self):
@@ -1370,11 +1405,10 @@ class FfdSolutionData(object):
         y = (a + 0.5) * self.Ay + (b + 0.5) * self.By
         x_dis = x - self.CenterX
         y_dis = y - self.CenterY
-
         return np.array([x_dis, y_dis, 0])
 
     @pyaedt_function_handler()
-    def assign_weight(self, a, b, taper="flat", port_cont=0):
+    def assign_weight(self, a, b, taper="flat", port_index=0):
         """Assign weight to array.
 
         Parameters
@@ -1386,6 +1420,7 @@ class FfdSolutionData(object):
         taper : string, optional
             This is the type of taper we want to apply. The default is 'flat'.
             It can be ``"cosine"``, ``"triangular"``, ``"hamming"`` or ``"flat"``.
+        port_index
 
         Returns
         -------
@@ -1395,8 +1430,8 @@ class FfdSolutionData(object):
 
         a = int(a)
         b = int(b)
-        if taper.lower() == "flat":  # Flat
-            return self.mag_offset[port_cont]
+        if taper.lower() == "flat" or not self._is_array:
+            return self.mag_offset[port_index]
 
         cosinePow = 1
         edgeTaper_dB = -200
@@ -1404,11 +1439,6 @@ class FfdSolutionData(object):
         edgeTaper = 10 ** ((float(edgeTaper_dB)) / 20)
 
         threshold = 1e-10
-        length_in_direction1 = 0
-        max_length_in_dir1 = 0
-        length_in_direction2 = 0
-        max_length_in_dir2 = 0
-        w1 = w2 = None
 
         # find the distance between current cell and array center in terms of index
         length_in_direction1 = a - self.CenterA
@@ -1450,10 +1480,24 @@ class FfdSolutionData(object):
         else:
             return 0
 
-        return w1 * w2 * self.mag_offset[port_cont]
+        return w1 * w2 * self.mag_offset[port_index]
+
+    def calc_relative_phase(self, port, theta, phi):
+        c = 299792458
+        k = (2 * math.pi * self.frequency) / c
+        pos = self._element_position[port]
+        theta = np.deg2rad(theta)
+        phi = np.deg2rad(phi)
+        xVector = -pos[0] * np.sin(theta) * np.cos(phi)
+        yVector = -pos[1] * np.sin(theta) * np.sin(phi)
+        zVector = -pos[2] * np.cos(theta)
+
+        phase_shift = k * (xVector + yVector + zVector)
+
+        return np.rad2deg(phase_shift)
 
     @pyaedt_function_handler()
-    def beamform(self, phi_scan=0, theta_scan=0):
+    def combine_farfields(self, phi_scan=0, theta_scan=0):
         """Compute the far field pattern calculated for a specific phi/scan angle requested.
         This is calculated based on the lattice vector spacing and the embedded element
         patterns of a ca-ddm or fa-ddm array in HFSS.
@@ -1475,66 +1519,73 @@ class FfdSolutionData(object):
         dict
             Updated quantities dictionary.
         """
-        self.logger = logging.getLogger(__name__)
-        num_ports = len(self.all_port_names)
-        self.array_center_and_edge()
-
-        c = 299792458
-        k = (2 * math.pi * self.frequency) / c
-
-        theta_scan = math.radians(theta_scan)
-        phi_scan = math.radians(phi_scan)
-
-        phase_shift_A_rad = -1 * (
-            (self.Ax * k * math.sin(theta_scan) * math.cos(phi_scan))
-            + (self.Ay * k * math.sin(theta_scan) * math.sin(phi_scan))
-        )
-        phase_shift_B_rad = -1 * (
-            (self.Bx * k * math.sin(theta_scan) * math.cos(phi_scan))
-            + (self.By * k * math.sin(theta_scan) * math.sin(phi_scan))
-        )
+        if self._is_array:
+            self.array_center_and_edge()
 
         w_dict = {}
         w_dict_ang = {}
         w_dict_mag = {}
         array_positions = {}
         port_cont = 0
+        initial_port = self.all_port_names[0]
         for port_name in self.all_port_names:
             index_str = self.get_array_index(port_name)
+            phase_shift = self.calc_relative_phase(port_name, theta_scan, phi_scan)
             a = index_str[0] - 1
             b = index_str[1] - 1
-            w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_cont)), 3)
-            w_ang = self.phase_offset[port_cont] + (a * phase_shift_A_rad + b * phase_shift_B_rad)
+            w_mag = np.round(np.abs(self.assign_weight(a=a, b=b, port_index=port_cont, taper=self.taper)), 3)
+            w_ang = self.phase_offset[port_cont] + phase_shift
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
             w_dict_mag[port_name] = w_mag
-            array_positions[port_name] = self.element_location(a, b)
+            if self._is_array:
+                array_positions[port_name] = self.element_location(a, b)
+            else:
+                array_positions[port_name] = self._element_position[port_name]
             port_cont += 1
 
-        length_of_ff_data = len(self.data_dict[self.all_port_names[0]]["rETheta"])
+        length_of_ff_data = len(self.data_dict[initial_port]["rETheta"])
 
-        rEtheta_fields = np.zeros((num_ports, length_of_ff_data), dtype=complex)
-        rEphi_fields = np.zeros((num_ports, length_of_ff_data), dtype=complex)
-        w = np.zeros((1, num_ports), dtype=complex)
-        # create port mapping
+        rEphi_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
+        rETheta_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
+
+        theta_range = self.data_dict[initial_port]["Theta"]
+        phi_range = self.data_dict[initial_port]["Phi"]
+        Ntheta = len(theta_range)
+        Nphi = len(phi_range)
+        incident_power = 0
+
+        ph, th = np.meshgrid(self.data_dict[initial_port]["Phi"], self.data_dict[initial_port]["Theta"])
+        ph = np.deg2rad(ph)
+        th = np.deg2rad(th)
+        c = 299792458
+        k = 2 * np.pi * self.frequency / c
+        kx_grid = k * np.sin(th) * np.cos(ph)
+        ky_grid = k * np.sin(th) * np.sin(ph)
+        kz_grid = k * np.cos(th)
+
+        kx_flat = kx_grid.ravel()
+        ky_flat = ky_grid.ravel()
+        kz_flat = kz_grid.ravel()
+
         for n, port in enumerate(self.all_port_names):
-            re_theta = self.data_dict[port]["rETheta"]  # this is re_theta index of loaded data
-            re_phi = self.data_dict[port]["rEPhi"]  # this is re_ohi index of loaded data
+            if port not in w_dict.keys():
+                w_dict[port] = np.sqrt(0) * np.exp(1j * 0)
+            incident_power += w_dict_mag[port]
 
-            w[0][n] = w_dict[port]  # build 1xNumPorts array of weights
+            xyz_pos = array_positions[port]
+            array_factor = (
+                np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * w_dict[port]
+            )
 
-            rEtheta_fields[n] = re_theta
-            rEphi_fields[n] = re_phi
+            rEphi_fields_sum += array_factor * self.data_dict[port]["rEPhi"]
+            rETheta_fields_sum += array_factor * self.data_dict[port]["rETheta"]
 
-            theta_range = self.data_dict[port]["Theta"]
-            phi_range = self.data_dict[port]["Phi"]
-            Ntheta = len(theta_range)
-            Nphi = len(phi_range)
+        array_factor = np.exp(-1j * (self.origin[0] * kx_flat + self.origin[1] * ky_flat + self.origin[2] * kz_flat))
+        rETheta_fields_sum = array_factor * rETheta_fields_sum
+        rEphi_fields_sum = array_factor * rEphi_fields_sum
 
-        rEtheta_fields_sum = np.dot(w, rEtheta_fields)
-        rEtheta_fields_sum = np.reshape(rEtheta_fields_sum, (Ntheta, Nphi))
-
-        rEphi_fields_sum = np.dot(w, rEphi_fields)
+        rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (Ntheta, Nphi))
         rEphi_fields_sum = np.reshape(rEphi_fields_sum, (Ntheta, Nphi))
 
         self.all_qtys = {}
@@ -1547,24 +1598,18 @@ class FfdSolutionData(object):
         self.all_qtys["Phi"] = phi_range
         self.all_qtys["nPhi"] = Nphi
         self.all_qtys["nTheta"] = Ntheta
-        pin = np.sum(np.power(np.abs(w), 2))
-        self.all_qtys["Pincident"] = pin
-        self.logger.info("Incident Power: %s", pin)
-        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
+        self.all_qtys["Pincident"] = incident_power
+        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / incident_power / 377
         self.all_qtys["RealizedGain"] = real_gain
         self.all_qtys["RealizedGain_Total"] = real_gain
         self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
         self.max_gain = np.max(10 * np.log10(real_gain))
         self.min_gain = np.min(10 * np.log10(real_gain))
-        self.logger.info("Peak Realized Gain: %s dB", self.max_gain)
-
-        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETheta"], 2)) / pin / 377
+        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETheta"], 2)) / incident_power / 377
         self.all_qtys["RealizedGain_Theta"] = real_gain
-
-        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rEPhi"], 2)) / pin / 377
+        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rEPhi"], 2)) / incident_power / 377
         self.all_qtys["RealizedGain_Phi"] = real_gain
         self.all_qtys["Element_Location"] = array_positions
-
         return self.all_qtys
 
     @pyaedt_function_handler()
@@ -1698,12 +1743,15 @@ class FfdSolutionData(object):
         return self.all_qtys
 
     @pyaedt_function_handler()
-    def _get_far_field_mesh(self, qty_str="RealizedGain", convert_to_db=True):
-        if convert_to_db:
-            ff_data = 10 * np.log10(self.all_qtys[qty_str])
+    def _get_far_field_mesh(self, qty_str="RealizedGain", quantity_format="dB10", **kwargs):
+        if "convert_to_db" in kwargs:  # pragma: no cover
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            if kwargs["convert_to_db"]:
+                quantity_format = "dB10"
+            else:
+                quantity_format = "abs"
 
-        else:
-            ff_data = self.all_qtys[qty_str]
+        ff_data = conversion_function(self.all_qtys[qty_str], quantity_format)
         theta = np.deg2rad(np.array(self.all_qtys["Theta"]))
         phi = np.deg2rad(np.array(self.all_qtys["Phi"]))
         self.mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
@@ -1720,7 +1768,13 @@ class FfdSolutionData(object):
                     port = pattern[0]
                     if ":" in port:
                         port = port.split(":")[0] + "_" + port.split(":")[1]
-                    self._all_solutions[-1][port] = os.path.join(os.path.dirname(eep_path), pattern[1] + ".ffd")
+                    self._all_solutions[-1][port] = [
+                        os.path.join(os.path.dirname(eep_path), pattern[1] + ".ffd"),
+                        pattern[2],
+                        pattern[3],
+                        pattern[4],
+                    ]
+                    self._element_position[port] = [float(pattern[2]), float(pattern[3]), float(pattern[4])]
 
     @pyaedt_function_handler()
     def plot_farfield_contour(
@@ -1729,8 +1783,9 @@ class FfdSolutionData(object):
         phi_scan=0,
         theta_scan=0,
         title="RectangularPlot",
-        convert_to_db=True,
+        quantity_format="dB10",
         export_image_path=None,
+        **kwargs,
     ):
         """Create a Contour plot of specified quantity.
 
@@ -1744,8 +1799,9 @@ class FfdSolutionData(object):
             Theta Scan Angle in degree. Default `0`.
         title : str, optional
             Plot title. Default `"RectangularPlot"`.
-        convert_to_db : bool, optional
-            Either if the quantity has to be converted in db or not. Default is `True`.
+        quantity_format : str, optional
+            Conversion data function.
+            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
 
@@ -1754,7 +1810,13 @@ class FfdSolutionData(object):
         :class:`matplotlib.plt`
             Matplotlib fig object.
         """
-        data = self.beamform(phi_scan, theta_scan)
+        if "convert_to_db" in kwargs:  # pragma: no cover
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            if kwargs["convert_to_db"]:
+                quantity_format = "dB10"
+            else:
+                quantity_format = "abs"
+        data = self.combine_farfields(phi_scan, theta_scan)
         if qty_str == "":
             qty_to_plot = data
             qty_str = "Data"
@@ -1763,11 +1825,7 @@ class FfdSolutionData(object):
         qty_to_plot = np.reshape(qty_to_plot, (data["nTheta"], data["nPhi"]))
         th, ph = np.meshgrid(data["Theta"], data["Phi"])
 
-        if convert_to_db:
-            factor = 20
-            if "Gain" in qty_str:
-                factor = 10
-            qty_to_plot = factor * np.log10(np.abs(qty_to_plot))
+        qty_to_plot = conversion_function(qty_to_plot, quantity_format)
 
         return plot_contour(
             x=th,
@@ -1776,7 +1834,7 @@ class FfdSolutionData(object):
             xlabel="Theta (degree)",
             ylabel="Phi (degree)",
             title=title,
-            levels=self.levels,
+            levels=self._levels,
             snapshot_path=export_image_path,
         )
 
@@ -1824,10 +1882,14 @@ class FfdSolutionData(object):
             If show is `True`, it returns a matplotlib figure instance of the plot.
             If show is `False`, it returns the plotted curves.
         """
-        if "convert_to_db" in kwargs:
+        if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            if kwargs["convert_to_db"]:
+                quantity_format = "dB10"
+            else:
+                quantity_format = "abs"
 
-        data = self.beamform(phi_scan, theta_scan)
+        data = self.combine_farfields(phi_scan, theta_scan)
 
         data_to_plot = data[qty_str]
 
@@ -1887,8 +1949,9 @@ class FfdSolutionData(object):
         phi_scan=0,
         theta_scan=0,
         title="3D Plot",
-        convert_to_db=True,
+        quantity_format="dB10",
         export_image_path=None,
+        **kwargs,
     ):
         """Create a 3d plot of specified quantity.
 
@@ -1902,26 +1965,26 @@ class FfdSolutionData(object):
             Theta Scan Angle in degree. Default `0`.
         title : str, optional
             Plot title. Default `"3D Plot"`.
-        convert_to_db : bool, optional
-            Either if the quantity has to be converted in db or not. Default is `True`.
+        quantity_format : str, optional
+            Conversion data function.
+            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
 
         """
-        data = self.beamform(phi_scan, theta_scan)
+        if "convert_to_db" in kwargs:  # pragma: no cover
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            if kwargs["convert_to_db"]:
+                quantity_format = "dB10"
+            else:
+                quantity_format = "abs"
+        data = self.combine_farfields(phi_scan, theta_scan)
 
-        if convert_to_db:
-            ff_data = 10 * np.log10(data[qty_str])
-            # renormalize to 0 and 1
-            ff_max_dB = np.max(ff_data)
-            ff_min_dB = np.min(ff_data)
-            ff_data_renorm = (ff_data - ff_min_dB) / (ff_max_dB - ff_min_dB)
-        else:
-            ff_data = data[qty_str]
-            # renormalize to 0 and 1
-            ff_max = np.max(ff_data)
-            ff_min = np.min(ff_data)
-            ff_data_renorm = (ff_data - ff_max) / (ff_max - ff_min)
+        ff_data = conversion_function(data[qty_str], quantity_format)
+        # renormalize to 0 and 1
+        ff_max = np.max(ff_data)
+        ff_min = np.min(ff_data)
+        ff_data_renorm = (ff_data - ff_max) / (ff_max - ff_min)
 
         theta = np.deg2rad(np.array(data["Theta"]))
         phi = np.deg2rad(np.array(data["Phi"]))
@@ -1935,32 +1998,31 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def _get_geometry(self, is_antenna_array=True):
-        data = self.beamform(0, 0)
-        time_before = time.time()
-        self.logger.info("Exporting Geometry...")
-
-        # obj is being exported as model units, scaling factor needed for display
+        data = self.combine_farfields(0, 0)
 
         xmax = ymax = zmax = 0
-
         from pyaedt.generic.plot import ModelPlotter
 
-        eep_dir = os.path.join(os.path.dirname(self.eep_files[self.frequencies.index(self.frequency)]))
+        eep_dir = os.path.join(os.path.dirname(self.eep_files[self._freq_index]))
         model_pv = ModelPlotter()
-        if os.path.exists(os.path.join(eep_dir, "eep.models")):
+        metadata_file = os.path.join(eep_dir, "eep.json")
+        if os.path.exists(metadata_file):
             model_pv.off_screen = True
-            csv_in = read_csv(os.path.join(eep_dir, "eep.models"))
-            for object_in in csv_in:
-                model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
-                sf = AEDT_UNITS["Length"][object_in[3]]
-            object_in.array_coordinates = None
+            with open(metadata_file) as f:
+                # Load JSON data from file
+                metadata = json.load(f)
+            for object_in in metadata["model_info"]:
+                model_pv.add_object(object_in[0], object_in[1], object_in[2], "meter")
+                sf = AEDT_UNITS["Length"]["meter"]
         else:
+            sf = AEDT_UNITS["Length"]["meter"]
             import glob
 
             files = glob.glob(os.path.join(eep_dir, "*.obj"))
             if files:
                 for file in files:
                     model_pv.add_object(file)
+        model_pv.generate_geometry_mesh()
         obj_meshes = []
         center = []
         if is_antenna_array:
@@ -1969,7 +2031,7 @@ class FfdSolutionData(object):
                 for each in data["Element_Location"]:
                     mesh = obj._cached_polydata
                     translated_mesh = mesh.copy()
-                    offset_xyz = data["Element_Location"][each] / sf
+                    offset_xyz = [n * sf for n in data["Element_Location"][each]]
                     if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
                         xmax = offset_xyz[0] * 2
                     if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
@@ -1988,9 +2050,10 @@ class FfdSolutionData(object):
                 else:
                     center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
         center = [-k / i for k in center]
-        self.all_max = np.max(np.array([xmax, ymax, zmax]))
-        elapsed_time = time.time() - time_before
-        self.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
+        all_max = np.max(np.array([xmax, ymax, zmax]))
+        if all_max > self.all_max:
+            self.all_max = all_max
+
         for mesh in obj_meshes:
             mesh[0].translate(center, inplace=True)
         return obj_meshes
@@ -1999,12 +2062,16 @@ class FfdSolutionData(object):
     def polar_plot_3d_pyvista(
         self,
         qty_str="RealizedGain",
-        convert_to_db=True,
+        quantity_format="dB10",
         position=None,
         rotation=None,
         export_image_path=None,
         show=True,
         show_as_standalone=False,
+        pyvista_object=None,
+        background=None,
+        show_beam_slider=True,
+        **kwargs,
     ):
         """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
 
@@ -2012,8 +2079,9 @@ class FfdSolutionData(object):
         ----------
         qty_str : str, optional
             Quantity to plot. Default `"RealizedGain"`.
-        convert_to_db : bool, optional
-            Either if the quantity has to be converted in db or not. Default is `True`.
+        quantity_format : str, optional
+            Conversion data function.
+            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         position : list, optional
@@ -2033,6 +2101,12 @@ class FfdSolutionData(object):
             In other cases return ``True`` when successful.
 
         """
+        if "convert_to_db" in kwargs:  # pragma: no cover
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            if kwargs["convert_to_db"]:
+                quantity_format = "dB10"
+            else:
+                quantity_format = "abs"
         if not position:
             position = np.zeros(3)
         elif isinstance(position, (list, tuple)):
@@ -2041,9 +2115,13 @@ class FfdSolutionData(object):
             rotation = np.eye(3)
         elif isinstance(rotation, (list, tuple)):
             rotation = np.array(rotation)
-        self.beamform(phi_scan=0, theta_scan=0)
+        text_color = "white"
+        if background is None:
+            background = [255, 255, 255]
+            text_color = "black"
+        self.combine_farfields(phi_scan=0, theta_scan=0)
         plot_min = -40
-        self._get_far_field_mesh(qty_str=qty_str, convert_to_db=convert_to_db)
+        self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
@@ -2053,35 +2131,49 @@ class FfdSolutionData(object):
         else:
             off_screen = not show
 
-        if show_as_standalone:
-            p = pv.Plotter(notebook=False, off_screen=off_screen)
+        if not pyvista_object:
+            if show_as_standalone:
+                p = pv.Plotter(notebook=False, off_screen=off_screen)
+            else:
+                p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
         else:
-            p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
+            p = pyvista_object
 
         uf = UpdateBeamForm(self)
 
-        p.add_slider_widget(
-            uf.update_phi,
-            rng=[0, 360],
-            value=0,
-            title="Phi",
-            pointa=(0.55, 0.1),
-            pointb=(0.74, 0.1),
-            style="modern",
-            event_type="always",
-            title_height=0.02,
-        )
-        p.add_slider_widget(
-            uf.update_theta,
-            rng=[-180, 180],
-            value=0,
-            title="Theta",
-            pointa=(0.77, 0.1),
-            pointb=(0.98, 0.1),
-            style="modern",
-            event_type="always",
-            title_height=0.02,
-        )
+        default_background = [255, 255, 255]
+        axes_color = [i / 255 for i in default_background]
+
+        if isinstance(background, list):
+            background_color = [i / 255 for i in background]
+            p.background_color = background_color
+            axes_color = [0 if i >= 128 else 255 for i in background]
+        elif isinstance(background, str):
+            p.add_background_image(background, scale=2.5)
+
+        if show_beam_slider:
+            p.add_slider_widget(
+                uf.update_phi,
+                rng=[0, 360],
+                value=0,
+                title="Phi",
+                pointa=(0.55, 0.1),
+                pointb=(0.74, 0.1),
+                style="modern",
+                event_type="always",
+                title_height=0.02,
+            )
+            p.add_slider_widget(
+                uf.update_theta,
+                rng=[-180, 180],
+                value=0,
+                title="Theta",
+                pointa=(0.77, 0.1),
+                pointb=(0.98, 0.1),
+                style="modern",
+                event_type="always",
+                title_height=0.02,
+            )
 
         # sargs = dict(height=0.4, vertical=True, position_x=0.05, position_y=0.5)
         sargs = dict(
@@ -2098,9 +2190,8 @@ class FfdSolutionData(object):
             height=0.3,
             width=0.06,
             outline=True,
+            color=axes_color,
         )
-        # ff_mesh_inst = p.add_mesh(uf.output,smooth_shading=True,cmap="jet",scalar_bar_args=sargs,opacity=0.5)
-        # not sure why, but smooth_shading causes this to not update
 
         ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs)
         cad_mesh = self._get_geometry()
@@ -2121,7 +2212,7 @@ class FfdSolutionData(object):
                 return
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
-            p.add_text("Show Far Fields", position=(70, 25), color="white", font_size=10)
+            p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
             slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
             if slider_max > 0:
                 slider_min = 0
@@ -2146,7 +2237,7 @@ class FfdSolutionData(object):
             for cm in cad_mesh:
                 cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
-            p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
+            p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
         if export_image_path:
             p.show(screenshot=export_image_path)
@@ -2160,11 +2251,12 @@ class FfdSolutionData(object):
     def polar_plot_3d_pyvista_2beams(
         self,
         qty_str="RealizedGain",
-        convert_to_db=True,
+        quantity_format="dB10",
         position=None,
         rotation=None,
         export_image_path=None,
         show=True,
+        **kwargs,
     ):  # pragma: no cover
         """Create a 3d Polar Plot with 2 beams of Geometry with Radiation Pattern in Pyvista.
 
@@ -2172,8 +2264,9 @@ class FfdSolutionData(object):
         ----------
         qty_str : str, optional
             Quantity to plot. Default `"RealizedGain"`.
-        convert_to_db : bool, optional
-            Either if the quantity has to be converted in db or not. Default is `True`.
+        quantity_format : str, optional
+            Conversion data function.
+            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         position : list, optional
@@ -2190,6 +2283,12 @@ class FfdSolutionData(object):
             Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
             In other cases return ``True`` when successful.
         """
+        if "convert_to_db" in kwargs:  # pragma: no cover
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            if kwargs["convert_to_db"]:
+                quantity_format = "dB10"
+            else:
+                quantity_format = "abs"
         if not position:
             position = np.zeros(3)
         elif isinstance(position, (list, tuple)):
@@ -2199,7 +2298,7 @@ class FfdSolutionData(object):
         elif isinstance(rotation, (list, tuple)):
             rotation = np.array(rotation)
         self.beamform_2beams(phi_scan1=0, theta_scan1=0, phi_scan2=0, theta_scan2=0)
-        self._get_far_field_mesh(qty_str=qty_str, convert_to_db=convert_to_db)
+        self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
 
         uf = Update2BeamForms(self, max_value=self.max_gain)
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
@@ -2345,9 +2444,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
         sbr_3d_comp_name=None,
     ):
         self._app = app
-        self.levels = 64
-        self._native_indexes = []
-        self.all_max = 1
         self.sphere_name = sphere_name
         self.setup_name = setup_name
         self.sbr_comp = sbr_3d_comp_name
@@ -2430,7 +2526,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                     float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
                 ]
             except:
-                lattice_vectors = [0, 0, 0, 0, 1, 0]
+                lattice_vectors = [0, 0, 0, 0, 0, 0]
         write_csv(os.path.join(export_path, "eep.latvec"), [lattice_vectors])
         return lattice_vectors
 
@@ -2517,13 +2613,13 @@ class UpdateBeamForm:
         # default parameters
         self.ff = ff
         self.qty_str = "RealizedGain"
-        self.convert_to_db = True
+        self.quantity_format = "dB10"
 
     def _update_both(self):
-        self.ff.beamform(phi_scan=self._phi, theta_scan=self._theta)
+        self.ff.combine_farfields(phi_scan=self._phi, theta_scan=self._theta)
         # perc_of_maxgain= self.ff.max_gain/self.max_value
 
-        self.ff._get_far_field_mesh(self.qty_str, self.convert_to_db)
+        self.ff._get_far_field_mesh(self.qty_str, self.quantity_format)
 
         self.output.overwrite(self.ff.mesh)
         return
@@ -2550,13 +2646,13 @@ class Update2BeamForms:
         # default parameters
         self.ff = ff
         self.qty_str = "RealizedGain"
-        self.convert_to_db = True
+        self.quantity_format = "dB10"
 
     def _update_both(self):
         self.ff.beamform_2beams(
             phi_scan1=self._phi1, theta_scan1=self._theta1, phi_scan2=self._phi2, theta_scan2=self._theta2
         )
-        self.ff._get_far_field_mesh(self.qty_str, self.convert_to_db)
+        self.ff._get_far_field_mesh(self.qty_str, self.quantity_format)
         current_max = np.max(self.ff.mesh["FarFieldData"])
         delta = self.max_value - current_max
         self.ff.mesh["FarFieldData"] = self.ff.mesh["FarFieldData"] - delta
