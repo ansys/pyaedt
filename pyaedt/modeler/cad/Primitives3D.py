@@ -930,14 +930,21 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        The following examples shows how to create an equation based curve in HFSS.
-        The main parameters are ``cs_plane`` that provides the plane on which the ellipse is designed,
-        ``position`` that provides the origin of the ellipse, ``major_radius`` of the ellipse,
-        ``ratio`` between major radius and minor radius of the ellipse,
-        ``is_covered`` a flag to determine if ellipse is covered or no.
-        The parameter ``matname`` is optional and allows to set the material name of the ellipse.
-        The parameter ``name`` is optional and allows to give a name to the ellipse.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        The following example shows how to create an equation- based curve in HFSS.
+        The main parameters are ``cs_plane``, ``position``, ``major_radius``,
+        ``ratio``, and ``is_covered``. The ``cs_plane`` parameter provides
+        the plane that the ellipse is designed on. The ``position`` parameter
+        provides the origin of the ellipse. The ``major_radius`` parameter provides
+        the radius of the ellipse. The ``ratio`` parameter is a ratio between the
+        major radius and minor radius of the ellipse. The ``is_covered`` parameter
+        is a flag indicating if the ellipse is covered.
+        
+        The optional parameter ``matname`` allows you to set the material name
+        of the ellipse. The optional parameter ``name`` allows you to assign a name
+        to the ellipse.
+        
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, 
+        and Mechanical.
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
