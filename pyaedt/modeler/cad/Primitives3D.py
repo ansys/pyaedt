@@ -82,7 +82,7 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        The following examples shows how to create a box in HFSS.
+        This example shows how to create a box in HFSS.
         The main parameters are position that provides the origin of the
         box and dimensions_list that provide the box sizes.
         The optional parameter ``matname`` allows you to set the material name of the box.
