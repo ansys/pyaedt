@@ -718,7 +718,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
     @pyaedt_function_handler
     def add_point(self, x, y, incremental=False):
-        """
+        """Add a point at the end of the path.
 
         Parameters
         ----------
