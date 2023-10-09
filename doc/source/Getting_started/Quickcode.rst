@@ -31,7 +31,7 @@ page on the Ansys Developer portal, you can post questions, share ideas, and get
 To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 
-Example Workflow
+Example workflow
 ----------------
 Here’s a brief example of how PyAEDT works:
 
