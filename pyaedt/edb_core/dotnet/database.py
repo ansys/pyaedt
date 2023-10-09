@@ -100,11 +100,14 @@ class PolygonDataDotNet:  # pragma: no cover
         y: str, in, float
             Y coordinate.
         incremental: bool
-            Add point incrementally. If True, coordinates of the added point is incremental to the last point.
-            The default value is ``False``.
+            Whether to add the point incrementally. The default value is ``False``. When
+            ``True``, the coordinates of the added point are incremental to the last point.
+            
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if incremental:
             x = self._pedb.edb_value(x)
