@@ -155,12 +155,17 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        The following examples shows how to create a cylinder in HFSS.
-        The main parameters are ``cs_axis`` that provides the direction axis of the cylinder,
-        ``position`` that provides the origin of the cylinder, ``radius`` of the cylinder, ``height`` of the cylinder.
-        The parameter ``matname`` is optional and allows to set the material name of the cylinder.
-        The parameter ``"name"`` is optional and allows to give a name to the cylinder.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        This example shows how to create a cylinder in HFSS.
+        The main parameters are ``cs_axis``, ``position``, ``radius``, and ``height``. The
+        ``cs_axis`` parameter provides the direction axis of the cylinder. The ``position``
+        parameter provides the origin of the cylinder. The other two parameters provide
+        the radius and height of the cylinder.
+        
+        The optional parameter ``matname`` allows you to set the material name of the cylinder.
+        The optional parameter ``name`` allows to assign a name to the cylinder.
+        
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
