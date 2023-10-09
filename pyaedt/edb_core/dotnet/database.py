@@ -102,7 +102,7 @@ class PolygonDataDotNet:  # pragma: no cover
         incremental: bool
             Whether to add the point incrementally. The default value is ``False``. When
             ``True``, the coordinates of the added point are incremental to the last point.
-            
+
 
         Returns
         -------
