@@ -85,9 +85,11 @@ class Primitives3D(Primitives, object):
         The following examples shows how to create a box in HFSS.
         The main parameters are position that provides the origin of the
         box and dimensions_list that provide the box sizes.
-        The parameter matname is optional and allows to set the material name of the box.
-        The parameter name is optional and allows to give a name to the box.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        The optional parameter ``matname`` allows you to set the material name of the box.
+        The optional parameter ``name`` allows you to assign a name to the box.
+        
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
         >>> from pyaedt import hfss
         >>> hfss = Hfss()
