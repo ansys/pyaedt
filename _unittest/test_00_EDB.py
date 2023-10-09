@@ -886,6 +886,11 @@ class TestClass:
         assert trace
         assert isinstance(trace.get_center_line(), list)
         assert isinstance(trace.get_center_line(True), list)
+        self.edbapp["delta_x"] = "1mm"
+        assert trace.add_point("delta_x", "1mm", True)
+        assert trace.get_center_line(True)[-1][0] == "(delta_x)+(0.025)"
+        assert trace.add_point(0.001, 0.002)
+        assert trace.get_center_line()[-1] == [0.001, 0.002]
 
     def test_070_create_outline(self):
         edbapp = Edb(
@@ -2855,6 +2860,7 @@ class TestClass:
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
 
     def test_145_via_volume(self):
+        #
         vias = [
             via
             for via in list(self.edbapp.padstacks.padstack_instances.values())
@@ -2903,3 +2909,15 @@ class TestClass:
         edbapp.nets["DDR4_DM3"].find_dc_short(True)
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()
+
+    def test_148_load_amat(self):
+        assert "Rogers RO3003 (tm)" in self.edbapp.materials.materials_in_aedt
+        material_file = os.path.join(self.edbapp.materials.syslib, "Materials.amat")
+        assert self.edbapp.materials.add_material_from_aedt("Arnold_Magnetics_N28AH_-40C")
+        assert "Arnold_Magnetics_N28AH_-40C" in self.edbapp.materials.materials.keys()
+        assert self.edbapp.materials.load_amat(material_file)
+        material_list = list(self.edbapp.materials.materials.keys())
+        assert material_list
+        assert len(material_list) > 0
+        assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].loss_tangent == 0.0013
+        assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].permittivity == 3.0
