@@ -1041,8 +1041,8 @@ class Primitives3D(Primitives, object):
         >>> udp3 = [10, 5, 0]
         >>> udp4 = [15, 3, 0]
         >>> polyline = aedtapp.modeler.create_polyline(
-        >>>     [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline"
-        >>> )
+        ...     [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline"
+        ... )
 
         >>> helix_right_turn = aedtapp.modeler.create_helix(
         ...     polyline_name=polyline.name,
