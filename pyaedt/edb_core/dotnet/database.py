@@ -5,7 +5,6 @@ import sys
 
 from pyaedt import __version__
 from pyaedt.aedt_logger import pyaedt_logger
-from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -86,7 +85,7 @@ class PolygonDataDotNet:  # pragma: no cover
 
         Returns
         -------
-        list[list[EdbValue]]
+        list[list[edb_value]]
         """
 
         return [[self._pedb.edb_value(i.X), self._pedb.edb_value(i.Y)] for i in list(self.edb_api.Points)]
