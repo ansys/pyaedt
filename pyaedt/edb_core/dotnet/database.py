@@ -88,7 +88,32 @@ class PolygonDataDotNet:  # pragma: no cover
         -------
         list[list[EdbValue]]
         """
-        return [[EdbValue(i.X), EdbValue(i.Y)] for i in list(self.edb_api.Points)]
+
+        return [[self._pedb.edb_value(i.X), self._pedb.edb_value(i.Y)] for i in list(self.edb_api.Points)]
+
+    def add_point(self, x, y, incremental=False):
+        """Add a point at the end of the point list of the polygon.
+
+        Parameters
+        ----------
+        x: str, int, float
+            X coordinate.
+        y: str, in, float
+            Y coordinate.
+        incremental: bool
+            Add point incrementally. If True, coordinates of the added point is incremental to the last point.
+            The default value is ``False``.
+        Returns
+        -------
+        bool
+        """
+        if incremental:
+            x = self._pedb.edb_value(x)
+            y = self._pedb.edb_value(y)
+            last_point = self.get_points()[-1]
+            x = "({})+({})".format(x, last_point[0].ToString())
+            y = "({})+({})".format(y, last_point[1].ToString())
+        return self.edb_api.AddPoint(GeometryDotNet(self._pedb).point_data(x, y))
 
     def get_bbox_of_boxes(self, points):
         """Get the EDB .NET API ``Edb.Geometry.GetBBoxOfBoxes`` database.
