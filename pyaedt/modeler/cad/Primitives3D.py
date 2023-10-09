@@ -388,12 +388,14 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        The following examples shows how to create a sphere in HFSS.
-        The main parameters are ``position`` which provides the center of the sphere and
-        ``radius`` which is the sphere radius.
-        The parameter ``matname`` is optional and allows to set the material name of the sphere.
-        The parameter ``name`` is optional and allows to give a name to the sphere.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        This example shows how to create a sphere in HFSS.
+        The main parameters are ``position``, which provides the center of the sphere, and
+        ``radius``, which is the radius of the sphere. The optional parameter ``matname``
+        allows you to set the material name of the sphere. The optional parameter
+        ``name``  allows to assign a name to the sphere.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
 
         >>> from pyaedt import Hfss
