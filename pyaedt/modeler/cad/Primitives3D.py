@@ -87,7 +87,7 @@ class Primitives3D(Primitives, object):
         box and dimensions_list that provide the box sizes.
         The optional parameter ``matname`` allows you to set the material name of the box.
         The optional parameter ``name`` allows you to assign a name to the box.
-        
+
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
         Mechanical.
 
@@ -160,10 +160,10 @@ class Primitives3D(Primitives, object):
         ``cs_axis`` parameter provides the direction axis of the cylinder. The ``position``
         parameter provides the origin of the cylinder. The other two parameters provide
         the radius and height of the cylinder.
-        
+
         The optional parameter ``matname`` allows you to set the material name of the cylinder.
         The optional parameter ``name`` allows to assign a name to the cylinder.
-        
+
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
         Mechanical.
 
@@ -321,7 +321,7 @@ class Primitives3D(Primitives, object):
         the cone. The ``position`` parameter provides the starting point of the
         cone. The ``bottom_radius`` and ``top_radius`` parameters provide the
         radius and `eight of the cone.
-        
+
         The optional parameter ``matname`` allows you to set the material name of the cone.
         The optional parameter ``name`` allows you to assign a name to the cone.
 
@@ -834,12 +834,12 @@ class Primitives3D(Primitives, object):
         the radius of the ellipse. The ``ratio`` parameter is a ratio between the
         major radius and minor radius of the ellipse. The ``is_covered`` parameter
         is a flag indicating if the ellipse is covered.
-        
+
         The optional parameter ``matname`` allows you to set the material name
         of the ellipse. The optional parameter ``name`` allows you to assign a name
         to the ellipse.
 
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, 
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
         >>> from pyaedt import Hfss
@@ -952,12 +952,12 @@ class Primitives3D(Primitives, object):
         the radius of the ellipse. The ``ratio`` parameter is a ratio between the
         major radius and minor radius of the ellipse. The ``is_covered`` parameter
         is a flag indicating if the ellipse is covered.
-        
+
         The optional parameter ``matname`` allows you to set the material name
         of the ellipse. The optional parameter ``name`` allows you to assign a name
         to the ellipse.
-        
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, 
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
         >>> from pyaedt import Hfss
