@@ -1045,16 +1045,16 @@ class Primitives3D(Primitives, object):
         >>> )
 
         >>> helix_right_turn = aedtapp.modeler.create_helix(
-        >>>     polyline_name=polyline.name,
-        >>>     position=[0, 0, 0],
-        >>>     x_start_dir=0,
-        >>>     y_start_dir=1.0,
-        >>>     z_start_dir=1.0,
-        >>>     num_thread=1,
-        >>>     right_hand=True,
-        >>>     radius_increment=0.0,
-        >>>     thread=1.0,
-        >>> )
+        ...     polyline_name=polyline.name,
+        ...     position=[0, 0, 0],
+        ...     x_start_dir=0,
+        ...     y_start_dir=1.0,
+        ...     z_start_dir=1.0,
+        ...     num_thread=1,
+        ...     right_hand=True,
+        ...     radius_increment=0.0,
+        ...     thread=1.0,
+        ... )
         """
         if not polyline_name or polyline_name == "":
             raise ValueError("The name of the polyline cannot be an empty string.")
