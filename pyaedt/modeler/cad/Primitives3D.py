@@ -315,13 +315,18 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        The following examples shows how to create a cone in HFSS.
-        The main parameters are ``cs_axis`` that provides the direction axis of the cone,
-        ``position`` that provides the starting point of the cone, ``bottom_radius`` and ``top_radius`` are the
-        radius of the cone and ``height`` of the cone.
-        The parameter ``matname`` is optional and allows to set the material name of the cone.
-        The parameter ``name`` is optional and allows to give a name to the cone.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        This example shows how to create a cone in HFSS.
+        The main parameters are ``cs_axis``, ``position``, ``bottom_radius``, and
+        ``top_radius``. The ``cs_axis`` parameter provides the direction axis of
+        the cone. The ``position`` parameter provides the starting point of the
+        cone. The ``bottom_radius`` and ``top_radius`` parameters provide the
+        radius and `eight of the cone.
+        
+        The optional parameter ``matname`` allows you to set the material name of the cone.
+        The optional parameter ``name`` allows you to assign a name to the cone.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
 
         >>> from pyaedt import Hfss
