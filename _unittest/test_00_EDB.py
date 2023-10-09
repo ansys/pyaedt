@@ -886,6 +886,11 @@ class TestClass:
         assert trace
         assert isinstance(trace.get_center_line(), list)
         assert isinstance(trace.get_center_line(True), list)
+        self.edbapp["delta_x"] = "1mm"
+        assert trace.add_point("delta_x", "1mm", True)
+        assert trace.get_center_line(True)[-1][0] == "(delta_x)+(0.025)"
+        assert trace.add_point(0.001, 0.002)
+        assert trace.get_center_line()[-1] == [0.001, 0.002]
 
     def test_070_create_outline(self):
         edbapp = Edb(
