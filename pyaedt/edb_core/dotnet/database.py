@@ -80,6 +80,43 @@ class PolygonDataDotNet:  # pragma: no cover
         """List of Edb.Geometry.ArcData."""
         return list(self.edb_api.GetArcData())
 
+    def get_points(self):
+        """Get all points in polygon.
+
+        Returns
+        -------
+        list[list[edb_value]]
+        """
+
+        return [[self._pedb.edb_value(i.X), self._pedb.edb_value(i.Y)] for i in list(self.edb_api.Points)]
+
+    def add_point(self, x, y, incremental=False):
+        """Add a point at the end of the point list of the polygon.
+
+        Parameters
+        ----------
+        x: str, int, float
+            X coordinate.
+        y: str, in, float
+            Y coordinate.
+        incremental: bool
+            Whether to add the point incrementally. The default value is ``False``. When
+            ``True``, the coordinates of the added point are incremental to the last point.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if incremental:
+            x = self._pedb.edb_value(x)
+            y = self._pedb.edb_value(y)
+            last_point = self.get_points()[-1]
+            x = "({})+({})".format(x, last_point[0].ToString())
+            y = "({})+({})".format(y, last_point[1].ToString())
+        return self.edb_api.AddPoint(GeometryDotNet(self._pedb).point_data(x, y))
+
     def get_bbox_of_boxes(self, points):
         """Get the EDB .NET API ``Edb.Geometry.GetBBoxOfBoxes`` database.
 
