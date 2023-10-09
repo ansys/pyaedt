@@ -3,8 +3,8 @@ import math
 from pyaedt.edb_core.dotnet.primitive import BondwireDotNet
 from pyaedt.edb_core.dotnet.primitive import CircleDotNet
 from pyaedt.edb_core.dotnet.primitive import PathDotNet
-from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
 from pyaedt.edb_core.dotnet.primitive import PolygonDataDotNet
+from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
 from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
 from pyaedt.edb_core.dotnet.primitive import TextDotNet
 from pyaedt.edb_core.edb_data.connectable import Connectable
