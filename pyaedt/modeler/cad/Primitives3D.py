@@ -83,11 +83,11 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         This example shows how to create a box in HFSS.
-        The main parameters are position that provides the origin of the
-        box and dimensions_list that provide the box sizes.
+        The required parameters are ``position`` that provides the origin of the
+        box and ``dimensions_list`` that provide the box sizes.
         The optional parameter ``matname`` allows you to set the material name of the box.
         The optional parameter ``name`` allows you to assign a name to the box.
-        
+
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
         Mechanical.
 
@@ -156,14 +156,14 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         This example shows how to create a cylinder in HFSS.
-        The main parameters are ``cs_axis``, ``position``, ``radius``, and ``height``. The
+        The required parameters are ``cs_axis``, ``position``, ``radius``, and ``height``. The
         ``cs_axis`` parameter provides the direction axis of the cylinder. The ``position``
         parameter provides the origin of the cylinder. The other two parameters provide
         the radius and height of the cylinder.
-        
+
         The optional parameter ``matname`` allows you to set the material name of the cylinder.
         The optional parameter ``name`` allows to assign a name to the cylinder.
-        
+
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
         Mechanical.
 
@@ -243,7 +243,7 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         The following examples shows how to create a regular polyhedron in HFSS.
-        The main parameters are cs_axis that provides the direction axis of the polyhedron,
+        The required parameters are cs_axis that provides the direction axis of the polyhedron,
         center_position that provides the center of the polyhedron, start_position of the polyhedron,
         height of the polyhedron and num_sides to determine the number of sides.
         The parameter matname is optional and allows to set the material name of the polyhedron.
@@ -316,12 +316,12 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         This example shows how to create a cone in HFSS.
-        The main parameters are ``cs_axis``, ``position``, ``bottom_radius``, and
+        The required parameters are ``cs_axis``, ``position``, ``bottom_radius``, and
         ``top_radius``. The ``cs_axis`` parameter provides the direction axis of
         the cone. The ``position`` parameter provides the starting point of the
         cone. The ``bottom_radius`` and ``top_radius`` parameters provide the
         radius and `eight of the cone.
-        
+
         The optional parameter ``matname`` allows you to set the material name of the cone.
         The optional parameter ``name`` allows you to assign a name to the cone.
 
@@ -394,7 +394,7 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         This example shows how to create a sphere in HFSS.
-        The main parameters are ``position``, which provides the center of the sphere, and
+        The required parameters are ``position``, which provides the center of the sphere, and
         ``radius``, which is the radius of the sphere. The optional parameter ``matname``
         allows you to set the material name of the sphere. The optional parameter
         ``name``  allows to assign a name to the sphere.
@@ -749,7 +749,7 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         The following example shows how to create a circle in HFSS.
-        The main parameters are ``cs_plane``, ``position``, ``radius``,
+        The required parameters are ``cs_plane``, ``position``, ``radius``,
         and ``num_sides``. The ``cs_plane`` parameter provides the plane
         that the circle is designed on. The ``position`` parameter provides
         the origin of the  circle.  The ``radius`` and ``num_sides`` parameters
@@ -827,19 +827,19 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         The following example shows how to create an ellipse in HFSS.
-        The main parameters are ``cs_plane``, ``position``,  ``major_radius``,
+        The required parameters are ``cs_plane``, ``position``,  ``major_radius``,
         ``ratio``, and ``is_covered``. The ``cs_plane`` parameter provides
         the plane that the ellipse is designed on. The ``position`` parameter
         provides the origin of the ellipse. The ``major_radius`` parameter provides
         the radius of the ellipse. The ``ratio`` parameter is a ratio between the
         major radius and minor radius of the ellipse. The ``is_covered`` parameter
         is a flag indicating if the ellipse is covered.
-        
+
         The optional parameter ``matname`` allows you to set the material name
         of the ellipse. The optional parameter ``name`` allows you to assign a name
         to the ellipse.
 
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, 
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
         >>> from pyaedt import Hfss
@@ -945,19 +945,19 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         The following example shows how to create an equation- based curve in HFSS.
-        The main parameters are ``cs_plane``, ``position``, ``major_radius``,
+        The required parameters are ``cs_plane``, ``position``, ``major_radius``,
         ``ratio``, and ``is_covered``. The ``cs_plane`` parameter provides
         the plane that the ellipse is designed on. The ``position`` parameter
         provides the origin of the ellipse. The ``major_radius`` parameter provides
         the radius of the ellipse. The ``ratio`` parameter is a ratio between the
         major radius and minor radius of the ellipse. The ``is_covered`` parameter
         is a flag indicating if the ellipse is covered.
-        
+
         The optional parameter ``matname`` allows you to set the material name
         of the ellipse. The optional parameter ``name`` allows you to assign a name
         to the ellipse.
-        
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, 
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
         >>> from pyaedt import Hfss
