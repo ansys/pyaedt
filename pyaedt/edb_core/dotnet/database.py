@@ -5,6 +5,7 @@ import sys
 
 from pyaedt import __version__
 from pyaedt.aedt_logger import pyaedt_logger
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -79,6 +80,15 @@ class PolygonDataDotNet:  # pragma: no cover
     def arcs(self):  # pragma: no cover
         """List of Edb.Geometry.ArcData."""
         return list(self.edb_api.GetArcData())
+
+    def get_points(self):
+        """Get all points in polygon.
+
+        Returns
+        -------
+        list[list[EdbValue]]
+        """
+        return [[EdbValue(i.X), EdbValue(i.Y)] for i in list(self.edb_api.Points)]
 
     def get_bbox_of_boxes(self, points):
         """Get the EDB .NET API ``Edb.Geometry.GetBBoxOfBoxes`` database.
