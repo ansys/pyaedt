@@ -1032,7 +1032,8 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         The following example shows how to create a polyline and then create an helix from the polyline.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
