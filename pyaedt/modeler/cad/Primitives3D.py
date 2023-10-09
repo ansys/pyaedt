@@ -459,9 +459,11 @@ class Primitives3D(Primitives, object):
         --------
         Create a torus named ``"mytorus"`` about the Z axis with a major
         radius of 1 , minor radius of 0.5, and a material of ``"copper"``.
-        The parameter ``matname`` is optional and allows to set the material name of the sphere.
-        The parameter ``name`` is optional and allows to give a name to the sphere.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        The optional parameter ``matname`` allows you to set the material name of the sphere.
+        The optional parameter ``name`` allows you to give a name to the sphere.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
