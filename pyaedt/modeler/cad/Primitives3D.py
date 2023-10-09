@@ -741,13 +741,19 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        The following examples shows how to create a circle in HFSS.
-        The main parameters are ``cs_plane`` that provides the plane on which the circle is designed,
-        ``position`` that provides the origin of the circle, ``radius`` of the circle,
-        ``num_sides`` the number of discrete sides of the circle.
-        The parameter ``matname`` is optional and allows to set the material name of the circle.
-        The parameter ``name`` is optional and allows to give a name to the circle.
-        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+        The following example shows how to create a circle in HFSS.
+        The main parameters are ``cs_plane``, ``position``, ``radius``,
+        and ``num_sides``. The ``cs_plane`` parameter provides the plane
+        that the circle is designed on. The ``position`` parameter provides
+        the origin of the  circle.  The ``radius`` and ``num_sides`` parameters
+        provide the radius and number of discrete sides of the circle,
+
+        The optional parameter ``matname`` allows you to set the material name
+        of the circle. The optional parameter ``name`` allows you to assign a name
+        to the circle.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
+        and Mechanical.
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
