@@ -37,11 +37,14 @@ from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
+from pyaedt.edb_core.general import LayoutObjType
+from pyaedt.edb_core.general import Primitives
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.layout import EdbLayout
+from pyaedt.edb_core.layout_validation import LayoutValidation
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.net_class import EdbDifferentialPairs
 from pyaedt.edb_core.net_class import EdbExtendedNets
@@ -327,6 +330,11 @@ class Edb(Database):
         for i in self.active_db.GetVariableServer().GetAllVariableNames():
             p_var[i] = Variable(self, i)
         return p_var
+
+    @property
+    def layout_validation(self):
+        """:class:`pyaedt.edb_core.edb_data.layout_validation.LayoutValidation`."""
+        return LayoutValidation(self)
 
     @property
     def variables(self):
@@ -1032,9 +1040,53 @@ class Edb(Database):
         """Edb Layout Instance."""
         return self.layout.layout_instance
 
+    @pyaedt_function_handler
+    def get_connected_objects(self, layout_object_instance):
+        """Get connected objects.
+
+        Returns
+        -------
+        list
+        """
+        temp = []
+        for i in list(
+            [
+                loi.GetLayoutObj()
+                for loi in self.layout_instance.GetConnectedObjects(layout_object_instance._edb_object).Items
+            ]
+        ):
+            obj_type = i.GetObjType().ToString()
+            if obj_type == LayoutObjType.PadstackInstance.name:
+                from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+
+                temp.append(EDBPadstackInstance(i, self))
+            elif obj_type == LayoutObjType.Primitive.name:
+                prim_type = i.GetPrimitiveType().ToString()
+                if prim_type == Primitives.Path.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPath
+
+                    temp.append(EdbPath(i, self))
+                elif prim_type == Primitives.Rectangle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbRectangle
+
+                    temp.append(EdbRectangle(i, self))
+                elif prim_type == Primitives.Circle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbCircle
+
+                    temp.append(EdbCircle(i, self))
+                elif prim_type == Primitives.Polygon.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPolygon
+
+                    temp.append(EdbPolygon(i, self))
+                else:
+                    continue
+            else:
+                continue
+        return temp
+
     @property
     def pins(self):
-        """EDBPadstackInstance of Component.
+        """EDB padstack instance of the component.
 
         .. deprecated:: 0.6.62
            Use new method :func:`edb.padstacks.pins` instead.

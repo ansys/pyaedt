@@ -118,6 +118,8 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
     "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_jinja",
     "recommonmark",
     "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
@@ -156,7 +158,7 @@ numpydoc_validation_checks = {
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
     "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."'
+    "RT05", # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -164,7 +166,7 @@ numpydoc_validation_checks = {
     "SS04",  # Summary contains heading whitespaces
     "SS05",  # Summary must start with infinitive verb, not third person
     # Parameters
-    "PR10",  # Parameter "{param_name}" requires a space before the colon '
+    "PR10",  # Parameter "{param_name}" requires a space before the colon
     # separating the parameter name and type",
 }
 
@@ -283,6 +285,24 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             #                         "from pyvista import set_plot_theme\n"
             #                         "set_plot_theme('document')"),
         }
+
+jinja_contexts = {
+    "main_toctree": {
+        "run_examples": config["run_examples"],
+    },
+}
+# def prepare_jinja_env(jinja_env) -> None:
+#     """
+#     Customize the jinja env.
+#
+#     Notes
+#     -----
+#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
+#     """
+#     jinja_env.globals["project_name"] = project
+#
+#
+# autoapi_prepare_jinja_env = prepare_jinja_env
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"

@@ -364,7 +364,7 @@ class Design(AedtObjects):
 
     @property
     def excitations_by_type(self):
-        """Design excitations by tupe.
+        """Design excitations by type.
 
         Returns
         -------

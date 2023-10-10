@@ -3,6 +3,7 @@ import math
 from pyaedt.edb_core.dotnet.primitive import BondwireDotNet
 from pyaedt.edb_core.dotnet.primitive import CircleDotNet
 from pyaedt.edb_core.dotnet.primitive import PathDotNet
+from pyaedt.edb_core.dotnet.primitive import PolygonDataDotNet
 from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
 from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
 from pyaedt.edb_core.dotnet.primitive import TextDotNet
@@ -81,11 +82,7 @@ class EDBPrimitivesMain(Connectable):
         -------
         str
         """
-        types = ["Circle", "Path", "Polygon", "Rectangle", "Bondwire"]
-        str_type = self.primitive_type.ToString().split(".")
-        if str_type[-1] in types:
-            return str_type[-1]
-        return None
+        return self._edb_object.GetPrimitiveType().ToString()
 
     @property
     def net_name(self):
@@ -148,6 +145,15 @@ class EDBPrimitivesMain(Connectable):
         bool
         """
         return self._edb_object.IsVoid()
+
+    def get_connected_objects(self):
+        """Get connected objects.
+
+        Returns
+        -------
+        list
+        """
+        return self._pedb.get_connected_objects(self._layout_obj_instance)
 
 
 class EDBPrimitives(EDBPrimitivesMain):
@@ -348,12 +354,6 @@ class EDBPrimitives(EDBPrimitivesMain):
         layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
         layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)  # 2nd arg was []
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
-
-    @pyaedt_function_handler()
-    def _get_connected_object_obj_set(self):
-        layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
-        layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)
-        return list([loi.GetLayoutObj() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items])
 
     @pyaedt_function_handler()
     def convert_to_polygon(self):
@@ -715,6 +715,27 @@ class EdbPath(EDBPrimitives, PathDotNet):
             if pt_ind < len(center_line) - 1:
                 length += GeometryOperators.points_distance(center_line[pt_ind], center_line[pt_ind + 1])
         return length
+
+    @pyaedt_function_handler
+    def add_point(self, x, y, incremental=False):
+        """Add a point at the end of the path.
+
+        Parameters
+        ----------
+        x: str, int, float
+            X coordinate.
+        y: str, in, float
+            Y coordinate.
+        incremental: bool
+            Add point incrementally. If True, coordinates of the added point is incremental to the last point.
+            The default value is ``False``.
+        Returns
+        -------
+        bool
+        """
+        center_line = PolygonDataDotNet(self._pedb, self._edb_object.GetCenterLine())
+        center_line.add_point(x, y, incremental)
+        return self._edb_object.SetCenterLine(center_line.edb_api)
 
     @pyaedt_function_handler
     def get_center_line(self, to_string=False):

@@ -57,7 +57,7 @@ desktop = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thre
 
 # Add emitapi to system path
 emit_path = os.path.join(desktop.install_path, "Delcross")
-sys.path.append(emit_path)
+sys.path.insert(0,emit_path)
 import EmitApiPython
 api = EmitApiPython.EmitApi()
 
@@ -244,7 +244,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Close previous project and open specified one
             if self.emitapp is not None:
                 self.emitapp.close_project()
+                self.emitapp = None
             desktop_proj = desktop.load_project(self.file_path_box.text())
+
+            # check for an empty project (i.e. no designs)
+            if isinstance(desktop_proj, bool):
+                self.file_path_box.setText("")
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowTitle("Error: Project missing designs.")
+                msg.setText(
+                    "The selected project has no designs. Projects must have at least "
+                    "one EMIT design. See AEDT log for more information.")
+                x = msg.exec()
+                return
 
             # Check if project is already open
             if desktop_proj.lock_file == None:
@@ -316,6 +328,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if len(radios) < 2:
             self.warning_label.setText("Warning: The selected design must contain at least two radios.")
             self.warning_label.setHidden(False)
+
+        # clear the table if the design is changed
+        self.clear_table()
 
     ###############################################################################
     # Enable radio specific protection levels
@@ -556,7 +571,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         button.setEnabled(True)
         img_btn.setEnabled(True)
-    
+
+    def clear_table(self):
+        # get the table/buttons based on current tab
+        if self.tab_widget.currentIndex() == 0:
+            table = self.protection_matrix
+            button = self.protection_export_btn
+            img_btn = self.protection_save_img_btn
+        else:
+            table = self.interference_matrix
+            button = self.interference_export_btn
+            img_btn = self.interference_save_img_btn
+
+        # disable export options
+        button.setEnabled(False)
+        img_btn.setEnabled(False)
+
+        # clear the table
+        table.setColumnCount(0)
+        table.setRowCount(0)
+
     ###############################################################################
     # GUI closing event
     # ~~~~~~~~~~~~~~~~~
@@ -564,10 +598,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle("Closing GUI")
-        msg.setText("Closing AEDT, please wait for GUI to close on its own.")
+        msg.setText("Closing AEDT. Wait for the GUI to close on its own.")
         x = msg.exec()
-        self.emitapp.close_project()
-        self.emitapp.close_desktop()
+        if self.emitapp:
+            self.emitapp.close_project()
+            self.emitapp.close_desktop()
+        else:
+            desktop.release_desktop(True, True)
 
 ###############################################################################
 # Run GUI

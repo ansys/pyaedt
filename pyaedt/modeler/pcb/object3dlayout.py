@@ -1879,7 +1879,7 @@ class Padstack(object):
             The default is ``"0mm"``.
         ypos : str, optional
             The default is ``"0mm"``.
-        rot : str, otpional
+        rot : str, optional
             Rotation in degrees. The default is ``"0deg"``.
 
         """

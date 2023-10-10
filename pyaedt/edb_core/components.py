@@ -1240,7 +1240,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def _is_top_component(self, cmp):
-        """Test the component placment layer.
+        """Test the component placement layer.
 
         Parameters
         ----------
