@@ -102,9 +102,9 @@ class Primitives3D(Primitives, object):
 
         """
         if len(position) != 3:
-            raise ValueError("Position argument must be a valid three-element list.")
+            raise ValueError("The ``position`` argument must be a valid three-element list.")
         if len(dimensions_list) != 3:
-            raise ValueError("Dimension argument must be a valid 3 element List")
+            raise ValueError("The ``dimension_list`` argument must be a valid three-element list.")
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)
         XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
         vArg1 = ["NAME:BoxParameters"]
@@ -175,8 +175,8 @@ class Primitives3D(Primitives, object):
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
-            raise ValueError("Radius must be greater than 0.")
-        assert len(position) == 3, "``Position`` Argument must be a valid 3 Element List"
+            raise ValueError("The ``radius`` argument must be greater than 0.")
+        assert len(position) == 3, "The ``position`` argument must be a valid three-element list."
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -259,9 +259,9 @@ class Primitives3D(Primitives, object):
         """
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
-        assert len(center_position) == 3, "``center_position`` Argument must be a valid 3 Element List"
-        assert len(start_position) == 3, "``start_position`` Argument must be a valid 3 Element List"
-        assert center_position != start_position, "``center_position`` and ``start_position`` must be different"
+        assert len(center_position) == 3, "The ``center_position`` argument must be a valid three-element list."
+        assert len(start_position) == 3, "The ``start_position`` argument must be a valid three-element list."
+        assert center_position != start_position, "The ``center_position`` and ``start_position`` arguments must be different."
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
@@ -340,14 +340,14 @@ class Primitives3D(Primitives, object):
 
         """
         if bottom_radius == top_radius:
-            raise ValueError("Bottom radius and top radius must have different values.")
+            raise ValueError("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
-            raise ValueError("Bottom radius must be greater than 0.")
+            raise ValueError("The ``bottom_radius`` argument must be greater than 0.")
         if isinstance(top_radius, (int, float)) and top_radius < 0:
-            raise ValueError("Top radius must be greater than 0.")
+            raise ValueError("The ``top_radius`` argument must be greater than 0.")
         if isinstance(height, (int, float)) and height <= 0:
-            raise ValueError("Height must be greater than 0.")
-        assert len(position) == 3, "``Position`` Argument must be a valid 3 Element List"
+            raise ValueError("The ``height`` argument must be greater than 0.")
+        assert len(position) == 3, "The ``position`` argument must be a valid three-element list."
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
@@ -414,9 +414,9 @@ class Primitives3D(Primitives, object):
 
         """
         if len(position) != 3:
-            raise ValueError("Position argument must be a valid 3 elements List.")
+            raise ValueError("The ``position`` argument must be a valid three-element list.")
         if isinstance(radius, (int, float)) and radius < 0:
-            raise ValueError("Radius must be greater than 0.")
+            raise ValueError("The ``radius`` argument must be greater than 0.")
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
@@ -483,7 +483,7 @@ class Primitives3D(Primitives, object):
 
         """
         if len(center) != 3:
-            raise ValueError("Center argument must be a valid 3 element sequence.")
+            raise ValueError("The ``center`` argument must be a valid three-element list.")
         # if major_radius <= 0 or minor_radius <= 0:
         #     raise ValueError("Both major and minor radius must be greater than 0.")
         # if minor_radius >= major_radius:
@@ -589,13 +589,13 @@ class Primitives3D(Primitives, object):
         >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                          bond_type=0, name="mybox", matname="copper")
         """
-        assert len(start_position) == 3, "``start_position`` Argument must be a valid 3 Element List"
+        assert len(start_position) == 3, "The ``start_position`` argument must be a valid three-Element List"
         x_position, y_position, z_position = self._pos_with_arg(start_position)
-        assert len(end_position) == 3, "``end_position`` Argument must be a valid 3 Element List"
+        assert len(end_position) == 3, "The ``end_position`` argument must be a valid three-Element List"
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
 
         if x_position is None or y_position is None or z_position is None:
-            raise AttributeError("Position Argument must be a valid 3 Element List")
+            raise AttributeError("The ``position`` argument must be a valid three-element list.")
 
         cont = 0
         x_length = None
@@ -699,7 +699,7 @@ class Primitives3D(Primitives, object):
 
         """
 
-        assert len(dimension_list) == 2, "``dimension_list`` Argument must be a valid 2 Element List"
+        assert len(dimension_list) == 2, "The ``dimension_list`` argument must be a valid two-element list."
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
@@ -1089,7 +1089,7 @@ class Primitives3D(Primitives, object):
         if not polyline_name or polyline_name == "":
             raise ValueError("The name of the polyline cannot be an empty string.")
 
-        assert len(position) == 3, "``position`` Argument must be a valid 3 Element List"
+        assert len(position) == 3, "The ``position`` argument must be a valid three-element list."
         x_center, y_center, z_center = self._pos_with_arg(position)
 
         vArg1 = ["NAME:Selections"]
@@ -1302,8 +1302,8 @@ class Primitives3D(Primitives, object):
         :class:`pyaedt.modeler.Object3d.Polyline`
             Polyline object.
         """
-        assert internal_radius > 0, "Internal Radius must be greater than 0."
-        assert faces > 0, "Faces must be greater than 0."
+        assert internal_radius > 0, "The ``internal_radius`` argument must be greater than 0."
+        assert faces > 0, "The ``faces`` argument must be greater than 0."
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
