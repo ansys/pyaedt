@@ -199,7 +199,7 @@ class PostProcessor(Post):
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
 
         files = []
-        if get_objects_from_aedt:
+        if get_objects_from_aedt and self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             files = self.export_model_obj(
                 obj_list=objects,
                 export_as_single_objects=plot_as_separate_objects,
@@ -370,13 +370,15 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        is_pcb = False
+        if self._app.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            is_pcb = True
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
         file_to_add = self.export_field_plot(plotname, self._app.working_directory)
-
         model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
 
         model.off_screen = not show
@@ -395,6 +397,8 @@ class PostProcessor(Post):
             model.camera_position = view
         elif view != "isometric":
             self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
+        if is_pcb:
+            model.z_scale = 5
 
         if scale_min and scale_max:
             model.range_min = scale_min
