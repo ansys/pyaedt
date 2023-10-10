@@ -1108,7 +1108,8 @@ class FfdSolutionData(object):
         self.lattice_vectors = None
         self._origin = [0, 0, 0]
         self._model_units_scale = 1
-        self.model_info = []
+        if "model_info" not in self.__dir__():
+            self.model_info = []
 
         for eep in eep_files:
             if os.path.exists(os.path.join(os.path.dirname(eep), "eep.latvec")):
@@ -2470,6 +2471,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
             self.frequencies = frequencies
         self.variations = variations
         self.overwrite = overwrite
+        self.model_info = []
         eep_files = self._export_all_ffd()
         self.taper = taper
         FfdSolutionData.__init__(self, self.frequencies, eep_files)
