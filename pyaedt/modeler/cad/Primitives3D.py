@@ -72,8 +72,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -102,9 +102,12 @@ class Primitives3D(Primitives, object):
 
         """
         if len(position) != 3:
-            raise ValueError("The ``position`` argument must be a valid three-element list.")
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
         if len(dimensions_list) != 3:
-            raise ValueError("The ``dimension_list`` argument must be a valid three-element list.")
+            self.logger.error("The ``dimension_list`` argument must be a valid three-element list.")
+            return False
+
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)
         XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
         vArg1 = ["NAME:BoxParameters"]
@@ -145,8 +148,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -175,8 +178,11 @@ class Primitives3D(Primitives, object):
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
-            raise ValueError("The ``radius`` argument must be greater than 0.")
-        assert len(position) == 3, "The ``position`` argument must be a valid three-element list."
+            self.logger.error("The ``radius`` argument must be greater than 0.")
+            return False
+        if len(position) != 3:
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -200,8 +206,8 @@ class Primitives3D(Primitives, object):
     def create_polyhedron(
         self,
         cs_axis=None,
-        center_position=(0.0, 0.0, 0.0),
-        start_position=(0.0, 1.0, 0.0),
+        center_position=[0.0, 0.0, 0.0],
+        start_position=[0.0, 1.0, 0.0],
         height=1.0,
         num_sides=12,
         name=None,
@@ -233,8 +239,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -259,11 +265,16 @@ class Primitives3D(Primitives, object):
         """
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
-        assert len(center_position) == 3, "The ``center_position`` argument must be a valid three-element list."
-        assert len(start_position) == 3, "The ``start_position`` argument must be a valid three-element list."
-        assert (
-            center_position != start_position
-        ), "The ``center_position`` and ``start_position`` arguments must be different."
+        if len(center_position) != 3:
+            self.logger.error("The ``center_position`` argument must be a valid three-element list.")
+            return False
+        if len(start_position) != 3:
+            self.logger.error("The ``start_position`` argument must be a valid three-element list.")
+            return False
+        if center_position == start_position:
+            self.logger.error("The ``center_position`` and ``start_position`` arguments must be different.")
+            return False
+
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
@@ -310,8 +321,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -333,7 +344,6 @@ class Primitives3D(Primitives, object):
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
         Mechanical.
 
-
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> cone_object = aedtapp.modeler.create_cone(cs_axis='Z', position=[0, 0, 0],
@@ -342,14 +352,20 @@ class Primitives3D(Primitives, object):
 
         """
         if bottom_radius == top_radius:
-            raise ValueError("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
+            self.logger.error("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
+            return False
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
-            raise ValueError("The ``bottom_radius`` argument must be greater than 0.")
+            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
+            return False
         if isinstance(top_radius, (int, float)) and top_radius < 0:
-            raise ValueError("The ``top_radius`` argument must be greater than 0.")
+            self.logger.error("The ``top_radius`` argument must be greater than 0.")
+            return False
         if isinstance(height, (int, float)) and height <= 0:
-            raise ValueError("The ``height`` argument must be greater than 0.")
-        assert len(position) == 3, "The ``position`` argument must be a valid three-element list."
+            self.logger.error("The ``height`` argument must be greater than 0.")
+            return False
+        if len(position) != 3:
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
@@ -389,8 +405,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -408,17 +424,17 @@ class Primitives3D(Primitives, object):
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
         Mechanical.
 
-
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.create_sphere(position=[0,0,0], radius=2,
         ...                                            name="mysphere", matname="copper")
-
         """
         if len(position) != 3:
-            raise ValueError("The ``position`` argument must be a valid three-element list.")
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
         if isinstance(radius, (int, float)) and radius < 0:
-            raise ValueError("The ``radius`` argument must be greater than 0.")
+            self.logger.error("The ``radius`` argument must be greater than 0.")
+            return False
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
@@ -458,8 +474,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -482,10 +498,10 @@ class Primitives3D(Primitives, object):
         >>> torus = hfss.modeler.create_torus(center=origin, major_radius=1,
         ...                                   minor_radius=0.5, axis="Z",
         ...                                    name="mytorus", material_name="copper")
-
         """
         if len(center) != 3:
-            raise ValueError("The ``center`` argument must be a valid three-element list.")
+            self.logger.error("The ``center`` argument must be a valid three-element list.")
+            return False
         # if major_radius <= 0 or minor_radius <= 0:
         #     raise ValueError("Both major and minor radius must be greater than 0.")
         # if minor_radius >= major_radius:
@@ -591,13 +607,14 @@ class Primitives3D(Primitives, object):
         >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                          bond_type=0, name="mybox", matname="copper")
         """
-        assert len(start_position) == 3, "The ``start_position`` argument must be a valid three-Element List"
+        if len(start_position) != 3:
+            self.logger.error("The ``start_position`` argument must be a valid three-Element List")
+            return False
         x_position, y_position, z_position = self._pos_with_arg(start_position)
-        assert len(end_position) == 3, "The ``end_position`` argument must be a valid three-Element List"
+        if len(end_position) != 3:
+            self.logger.error("The ``end_position`` argument must be a valid three-Element List")
+            return False
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
-
-        if x_position is None or y_position is None or z_position is None:
-            raise AttributeError("The ``position`` argument must be a valid three-element list.")
 
         cont = 0
         x_length = None
@@ -617,8 +634,6 @@ class Primitives3D(Primitives, object):
                 z_length = "(" + str(n) + ") - (" + str(m) + ")"
             cont += 1
 
-        if x_length is None or y_length is None or z_length is None:
-            raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
             bondwire = "JEDEC_5Points"
         elif bond_type == 1:
@@ -691,17 +706,17 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
 
         >>> oEditor.CreateRectangle
-
         """
-
-        assert len(dimension_list) == 2, "The ``dimension_list`` argument must be a valid two-element list."
+        if len(dimension_list) != 2:
+            self.logger.error("The ``dimension_list`` argument must be a valid two-element list.")
+            return False
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
@@ -777,8 +792,6 @@ class Primitives3D(Primitives, object):
         >>> circle_object = aedtapp.modeler.create_circle(cs_plane='Z', position=[0,0,0],
         ...                                                   radius=2, num_sides=8, name="mycyl",
         ...                                                   matname="vacuum")
-
-
         """
         non_model_flag = ""
         if non_model:
@@ -951,7 +964,6 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.CreateEquationCurve
 
-
         Examples
         --------
         The following example shows how to create an equation- based curve in HFSS.
@@ -979,7 +991,6 @@ class Primitives3D(Primitives, object):
         ...                                                               t_start=0.2,
         ...                                                               t_end=1.2,
         ...                                                               xsection_type="Circle")
-
         """
         x_section = self._crosssection_arguments(
             type=xsection_type,
@@ -1052,8 +1063,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -1089,9 +1100,12 @@ class Primitives3D(Primitives, object):
         ... )
         """
         if not polyline_name or polyline_name == "":
-            raise ValueError("The name of the polyline cannot be an empty string.")
+            self.logger.error("The name of the polyline cannot be an empty string.")
+            return False
 
-        assert len(position) == 3, "The ``position`` argument must be a valid three-element list."
+        if len(position) != 3:
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
         x_center, y_center, z_center = self._pos_with_arg(position)
 
         vArg1 = ["NAME:Selections"]
@@ -1138,8 +1152,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool
+            ``True`` if successful, ``False`` if it fails.
 
         References
         ----------
@@ -1194,8 +1208,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
-            User-defined component object.
+        bool, :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+            User-defined component object or ``False`` if it fails.
 
         References
         ----------
@@ -1301,11 +1315,15 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Polyline`
-            Polyline object.
+        bool, :class:`pyaedt.modeler.Object3d.Polyline`
+            Polyline object or ``False`` if it fails.
         """
-        assert internal_radius > 0, "The ``internal_radius`` argument must be greater than 0."
-        assert faces > 0, "The ``faces`` argument must be greater than 0."
+        if internal_radius < 0:
+            self.logger.error("The ``internal_radius`` argument must be greater than 0.")
+            return False
+        if faces < 0:
+            self.logger.error("The ``faces`` argument must be greater than 0.")
+            return False
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
