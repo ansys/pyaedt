@@ -261,7 +261,9 @@ class Primitives3D(Primitives, object):
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
         assert len(center_position) == 3, "The ``center_position`` argument must be a valid three-element list."
         assert len(start_position) == 3, "The ``start_position`` argument must be a valid three-element list."
-        assert center_position != start_position, "The ``center_position`` and ``start_position`` arguments must be different."
+        assert (
+            center_position != start_position
+        ), "The ``center_position`` and ``start_position`` arguments must be different."
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
