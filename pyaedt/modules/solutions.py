@@ -1108,10 +1108,18 @@ class FfdSolutionData(object):
         self.lattice_vectors = None
         self._origin = [0, 0, 0]
         self._model_units_scale = 1
+        self.model_info = []
 
         for eep in eep_files:
             if os.path.exists(os.path.join(os.path.dirname(eep), "eep.latvec")):
                 self.lattice_vectors = read_csv(os.path.join(os.path.dirname(eep), "eep.latvec"))[0]
+
+            metadata_file = os.path.join(os.path.dirname(eep), "eep.json")
+            if os.path.exists(metadata_file):
+                with open(metadata_file) as f:
+                    # Load JSON data from file
+                    metadata = json.load(f)
+                self.model_info = metadata["model_info"]
 
         self._is_array = True
         if not self.lattice_vectors or self.lattice_vectors == ["0", "0", "0", "0", "0", "0"]:
@@ -1196,14 +1204,26 @@ class FfdSolutionData(object):
     @frequency.setter
     def frequency(self, val):
         if val in self.frequencies:
-            frequency_hz = val
-            if isinstance(val, str):
-                frequency, units = decompose_variable_value(val)
-                frequency_hz = unit_converter(frequency, "Freq", units, "Hz")
-            self._frequency = frequency_hz
+            # frequency_hz = val
+            # if isinstance(val, str):
+            #     frequency, units = decompose_variable_value(val)
+            #     frequency_hz = unit_converter(frequency, "Freq", units, "Hz")
+            self._frequency = val
             self._freq_index = self.frequencies.index(val)
             self.ffd_dict = self._all_solutions[self._freq_index]
             self._init_ffd()
+
+    @property
+    def _frequency_value(self):
+        """Frequency value in Hz.
+
+        Returns
+        -------
+        float
+        """
+        if isinstance(self.frequency, str):
+            frequency, units = decompose_variable_value(self.frequency)
+            return unit_converter(frequency, "Freq", units, "Hz")
 
     @property
     def phase_offset(self):
@@ -1485,7 +1505,7 @@ class FfdSolutionData(object):
 
     def calc_relative_phase(self, port, theta, phi):
         c = 299792458
-        k = (2 * math.pi * self.frequency) / c
+        k = (2 * math.pi * self._frequency_value) / c
         pos = self._element_position[port]
         theta = np.deg2rad(theta)
         phi = np.deg2rad(phi)
@@ -1560,7 +1580,7 @@ class FfdSolutionData(object):
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
         c = 299792458
-        k = 2 * np.pi * self.frequency / c
+        k = 2 * np.pi * self._frequency_value / c
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
@@ -1639,7 +1659,7 @@ class FfdSolutionData(object):
         self.array_center_and_edge()
 
         c = 299792458
-        k = (2 * math.pi * self.frequency) / c
+        k = (2 * math.pi * self._frequency_value) / c
 
         # ---------------------- METHOD : CalculatePhaseShifts -------------------
         # Calculates phase shifts between array elements in A and B directions,
@@ -2002,25 +2022,18 @@ class FfdSolutionData(object):
     def _get_geometry(self):
         from pyaedt.generic.plot import ModelPlotter
 
-        eep_dir = os.path.join(os.path.dirname(self.eep_files[self._freq_index]))
         model_pv = ModelPlotter()
-        metadata_file = os.path.join(eep_dir, "eep.json")
+        # metadata_file = os.path.join(eep_dir, "eep.json")
         sf = AEDT_UNITS["Length"]["meter"]
-        if os.path.exists(metadata_file):
+        if self.model_info:
             model_pv.off_screen = True
-            with open(metadata_file) as f:
-                # Load JSON data from file
-                metadata = json.load(f)
-            for object_in in metadata["model_info"]:
+            for object_in in self.model_info:
                 model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
                 sf = AEDT_UNITS["Length"][object_in[3]]
         else:
-            import glob
+            self.logger.warning("Geometry objects not defined")
+            return False
 
-            files = glob.glob(os.path.join(eep_dir, "*.obj"))
-            if files:
-                for file in files:
-                    model_pv.add_object(file)
         self._model_units = sf
         model_pv.generate_geometry_mesh()
         obj_meshes = []
@@ -2181,7 +2194,7 @@ class FfdSolutionData(object):
 
         sargs = dict(
             title_font_size=12,
-            label_font_size=10,
+            label_font_size=12,
             shadow=True,
             n_labels=7,
             italic=True,
@@ -2192,8 +2205,9 @@ class FfdSolutionData(object):
             position_y=0.65,
             height=0.3,
             width=0.06,
-            outline=True,
             color=axes_color,
+            title=None,
+            outline=False,
         )
 
         cad_mesh = self._get_geometry()
@@ -2458,7 +2472,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
         self.overwrite = overwrite
         eep_files = self._export_all_ffd()
         self.taper = taper
-        self.data_dict = {}
         FfdSolutionData.__init__(self, self.frequencies, eep_files)
 
     @pyaedt_function_handler()
@@ -2591,7 +2604,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": frequency}
                 if obj_list:
                     items["model_info"] = obj_list
-
+                    self.model_info.append(obj_list)
                 with open(metadata_file_name, "w") as f:
                     json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
