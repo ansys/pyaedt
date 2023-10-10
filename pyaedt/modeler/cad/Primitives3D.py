@@ -589,7 +589,9 @@ class Primitives3D(Primitives, object):
         >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                          bond_type=0, name="mybox", matname="copper")
         """
+        assert len(start_position) == 3, "``start_position`` Argument must be a valid 3 Element List"
         x_position, y_position, z_position = self._pos_with_arg(start_position)
+        assert len(end_position) == 3, "``end_position`` Argument must be a valid 3 Element List"
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
 
         if x_position is None or y_position is None or z_position is None:
@@ -696,6 +698,8 @@ class Primitives3D(Primitives, object):
         >>> oEditor.CreateRectangle
 
         """
+
+        assert len(dimension_list) == 2, "``dimension_list`` Argument must be a valid 2 Element List"
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
@@ -1085,6 +1089,7 @@ class Primitives3D(Primitives, object):
         if not polyline_name or polyline_name == "":
             raise ValueError("The name of the polyline cannot be an empty string.")
 
+        assert len(position) == 3, "``position`` Argument must be a valid 3 Element List"
         x_center, y_center, z_center = self._pos_with_arg(position)
 
         vArg1 = ["NAME:Selections"]
