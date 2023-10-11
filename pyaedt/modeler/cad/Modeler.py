@@ -4479,7 +4479,7 @@ class GeometryModeler(Modeler, object):
             objs = unite_list[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals, "TurnOnNBodyBoolean:=", True]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
             if settings.aedt_version > "2022.2":
                 vArg2.append("TurnOnNBodyBoolean:=")
                 vArg2.append(True)
