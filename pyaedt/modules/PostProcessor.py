@@ -1179,16 +1179,19 @@ class PostProcessorCommon(object):
         unique_file : bool
             If set to True, generates unique file in output_dit
         uniform : bool, optional
-            Whether if export uniform points to file or not.
-            Default is ``False``.
+            Whether the export uniform points to the file. The
+            default is ``False``.
         start : str, optional
-            If ``uniform`` is set then this is the start range with units for the sweep.
+            Start range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
         end : str, optional
-            If ``uniform`` is set then this is the end range with units for the sweep.
+            End range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
         step : str, optional
-            If ``uniform`` is set then this is the step range with units for the sweep.
+            Step range with units for the sweep if the ``uniform`` parameter is
+            set to ``True``.
         use_trace_number_format : bool, optional
-            Whether to use trace number formats or not. Default is ``False``.
+            Whether to use trace number formats. The default is ``False``.
 
         Returns
         -------
