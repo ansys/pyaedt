@@ -26,7 +26,7 @@ available_toolkits = {
         "pip": "git+https://github.com/ansys/pymotorcad-pyaedt-toolkit.git",
         "image": "pyansys.png",
         "toolkit_script": "ansys/aedt/toolkits/motor/run_toolkit.py",
-        "installation_path": "Project",
+        "installation_path": "Maxwell3d",
         "package_name": "ansys.aedt.toolkits.motor",
     },
     "TemplateToolkit": {
