@@ -1145,7 +1145,18 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def export_report_to_file(self, output_dir, plot_name, extension, unique_file=False):
+    def export_report_to_file(
+        self,
+        output_dir,
+        plot_name,
+        extension,
+        unique_file=False,
+        uniform=False,
+        start=None,
+        end=None,
+        step=None,
+        use_trace_number_format=False,
+    ):
         """Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -1167,6 +1178,20 @@ class PostProcessorCommon(object):
                 * (Ansoft Report Data Files) .rdat
         unique_file : bool
             If set to True, generates unique file in output_dit
+        uniform : bool, optional
+            Whether the export uniform points to the file. The
+            default is ``False``.
+        start : str, optional
+            Start range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        end : str, optional
+            End range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        step : str, optional
+            Step range with units for the sweep if the ``uniform`` parameter is
+            set to ``True``.
+        use_trace_number_format : bool, optional
+            Whether to use trace number formats. The default is ``False``.
 
         Returns
         -------
@@ -1177,6 +1202,7 @@ class PostProcessorCommon(object):
         ----------
 
         >>> oModule.ExportReportDataToFile
+        >>> oModule.ExportUniformPointsToFile
         >>> oModule.ExportToFile
 
         Examples
@@ -1204,13 +1230,18 @@ class PostProcessorCommon(object):
 
         if extension == ".rdat":
             self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
+        elif uniform:
+            self.oreportsetup.ExportUniformPointsToFile(plot_name, file_path, start, end, step, use_trace_number_format)
+
         else:
             self.oreportsetup.ExportToFile(plot_name, file_path)
 
         return file_path
 
     @pyaedt_function_handler()
-    def export_report_to_csv(self, project_dir, plot_name):
+    def export_report_to_csv(
+        self, project_dir, plot_name, uniform=False, start=None, end=None, step=None, use_trace_number_format=False
+    ):
         """Export the 2D Plot data to a CSV file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -1222,6 +1253,20 @@ class PostProcessorCommon(object):
             Path to the project directory. The csv file will be plot_name.csv.
         plot_name : str
             Name of the plot to export.
+        uniform : bool, optional
+            Whether the export uniform points to the file. The
+            default is ``False``.
+        start : str, optional
+            Start range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        end : str, optional
+            End range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        step : str, optional
+            Step range with units for the sweep if the ``uniform`` parameter is
+            set to ``True``.
+        use_trace_number_format : bool, optional
+            Whether to use trace number formats. The default is ``False``.
 
         Returns
         -------
@@ -1233,8 +1278,18 @@ class PostProcessorCommon(object):
 
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
+        >>> oModule.ExportUniformPointsToFile
         """
-        return self.export_report_to_file(project_dir, plot_name, extension=".csv")
+        return self.export_report_to_file(
+            project_dir,
+            plot_name,
+            extension=".csv",
+            uniform=uniform,
+            start=start,
+            end=end,
+            step=step,
+            use_trace_number_format=use_trace_number_format,
+        )
 
     @pyaedt_function_handler()
     def export_report_to_jpg(self, project_dir, plot_name, width=0, height=0):

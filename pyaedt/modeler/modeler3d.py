@@ -1390,7 +1390,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             ``True`` if successful, else ``None``.
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
@@ -1474,7 +1474,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             ``True`` if successful, else ``None``.
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
