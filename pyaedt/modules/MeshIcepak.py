@@ -187,7 +187,7 @@ class IcepakMesh(object):
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
-            else:
+            if self.Objects:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
             arg.extend(self._new_versions_fields)
@@ -242,7 +242,7 @@ class IcepakMesh(object):
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
-            else:
+            if self.Objects:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
             arg.extend(self._new_versions_fields)
