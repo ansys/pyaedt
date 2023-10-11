@@ -4480,6 +4480,9 @@ class GeometryModeler(Modeler, object):
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
+            if settings.aedt_version > "2022.2":
+                vArg2.append("TurnOnNBodyBoolean:=")
+                vArg2.append(True)
             self.oeditor.Unite(vArg1, vArg2)
             if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
