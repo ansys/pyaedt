@@ -1,12 +1,9 @@
-
-
 class ObjBase(object):
     """Manages EDB functionalities for a base object."""
 
     def __init__(self, pedb, model):
         self._pedb = pedb
         self._edb_object = model
-
 
     @property
     def is_null(self):
