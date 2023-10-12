@@ -44,7 +44,6 @@ class EdbNets(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-        self._nets = {}
         self._nets_by_comp_dict = {}
         self._comps_by_nets_dict = {}
 
@@ -87,10 +86,10 @@ class EdbNets(object):
         dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`]
             Dictionary of nets.
         """
-
+        temp = {}
         for net in self._layout.nets:
-            self._nets[net.name] = EDBNetsData(net.api_object, self._pedb)
-        return self._nets
+            temp[net.name] = EDBNetsData(net.api_object, self._pedb)
+        return temp
 
     @property
     def netlist(self):
