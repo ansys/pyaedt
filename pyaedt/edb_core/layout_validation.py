@@ -230,3 +230,12 @@ class LayoutValidation:
 
         self._pedb._logger.info("Found {} illegal net names.".format(len(renamed_nets)))
         return
+
+    def component_properties(self):
+        resistors = self._pedb.components.resistors
+        inductors = self._pedb.components.inductors
+        capacitors = self._pedb.components.capacitors
+
+        for k, v in inductors.items():
+            v.value
+
