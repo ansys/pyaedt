@@ -241,7 +241,7 @@ class LayoutValidation:
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
 
-            if not len(list(pinpairs)):
+            if not len(list(pinpairs)):  # pragma: no cover
                 temp.append(k)
                 if fix:
                     v.rlc_values = [0, 1, 0]
