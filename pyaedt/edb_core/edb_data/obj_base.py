@@ -1,6 +1,7 @@
 
 
 class ObjBase(object):
+    """Manages EDB functionalities for a base object."""
 
     def __init__(self, pedb, model):
         self._pedb = pedb
@@ -14,4 +15,5 @@ class ObjBase(object):
 
     @property
     def type(self):
+        """Get type."""
         return self._edb_object.GetType()
