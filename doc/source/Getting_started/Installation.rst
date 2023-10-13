@@ -45,8 +45,8 @@ Starting from 2023R2, a Ribbon button is available in Automation Tab as in the e
 Build Toolkits with PyAEDT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can create and install external toolkits.
-The template provides a framework to create your own toolkits using PyAEDT.
-The template can be found at `Template <https://aedt.toolkit.template.docs.pyansys.com/>`_.
+The Antenna Wizard toolkit provides an example for modeling antennas using Ansys Electronics Desktop (AEDT).
+The Antenna Wizard can be found at `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna/>`_.
 
 .. image:: ../Resources/template_ribbon.png
   :width: 800
