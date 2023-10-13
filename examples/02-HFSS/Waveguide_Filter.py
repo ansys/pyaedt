@@ -199,8 +199,7 @@ setup.analyze(num_tasks=2)
 
 ###############################################################################
 # Generate S-Parameter Plots
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#################################################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
 #  Caution: The syntax for expressions must be identical to that used
@@ -209,7 +208,21 @@ setup.analyze(num_tasks=2)
 traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
 report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
 solution = report.get_solution_data()
+
 plt = solution.plot(solution.expressions)  # Matplotlib axes object.
+
+###############################################################################
+# Generate E field plot
+# ~~~~~~~~~~~~~~~~~~~~~
+#  The following command generate a field plot in HFSS and uses pyvista
+#  to plot the field in Jupyter.
+
+plot=hfss.post.plot_field("Mag_E",["Global:XZ"], "CutPlane",hfss.nominal_adaptive, intrinsics={"Freq":"9.8GHz", "Phase":"0deg"})
+
+###############################################################################
+# Save and close the desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  The following command save the project to file and close the desktop.
 
 hfss.save_project()
 hfss.release_desktop()
