@@ -217,7 +217,13 @@ plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 #  The following command generate a field plot in HFSS and uses pyvista
 #  to plot the field in Jupyter.
 
-plot=hfss.post.plot_field("Mag_E",["Global:XZ"], "CutPlane",hfss.nominal_adaptive, intrinsics={"Freq":"9.8GHz", "Phase":"0deg"})
+plot=hfss.post.plot_field(quantity="Mag_E",
+                          objects_list=["Global:XZ"],
+                          plot_type="CutPlane",
+                          setup_name=hfss.nominal_adaptive,
+                          intrinsics={"Freq":"9.8GHz", "Phase":"0deg"},
+                          export_path=hfss.working_directory,
+                          show=False)
 
 ###############################################################################
 # Save and close the desktop
