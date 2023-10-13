@@ -277,7 +277,7 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # Plot Temperature on cut plane.
 # Plot Temperature on monitor point.
 
-ipk.analyze(num_cores=6)
+ipk.analyze(num_cores=4,num_tasks=4)
 ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"],
                                    intrinsincDict={"Time": "0s"})
 ipk.save_project()
