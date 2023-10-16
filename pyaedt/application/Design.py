@@ -52,6 +52,7 @@ from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
+from pyaedt.modeler.cad.component_array import ComponentArray
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NetworkObject
@@ -230,6 +231,13 @@ class Design(AedtObjects):
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
+        if self.design_type == "HFSS":
+            model_list = list(self.omodelsetup.GetArrayNames())
+            self.component_array = {}
+            self.component_array_names = []
+            for model in model_list:
+                self.component_array[model] = ComponentArray(model)
+                self.component_array_names.append(model)
         if t:
             t.join()
         self._variable_manager = VariableManager(self)
