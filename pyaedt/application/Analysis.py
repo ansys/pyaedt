@@ -1724,27 +1724,36 @@ class Analysis(Design, object):
                 skip_files = True
             if not skip_files:
                 if num_cores:
-                    skip_files = update_hpc_option(target_name, "NumCores", num_cores, False)
+                    succeeded = update_hpc_option(target_name, "NumCores", num_cores, False)
+                    skip_files = True if not succeeded else skip_files
                 if num_gpu:
-                    skip_files = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                    succeeded = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                    skip_files = True if not succeeded else skip_files
                 if num_tasks:
-                    skip_files = update_hpc_option(target_name, "NumEngines", num_tasks, False)
-                skip_files = update_hpc_option(target_name, "ConfigName", config_name, True)
-                skip_files = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                    succeeded = update_hpc_option(target_name, "NumEngines", num_tasks, False)
+                    skip_files = True if not succeeded else skip_files
+                succeeded = update_hpc_option(target_name, "ConfigName", config_name, True)
+                skip_files = True if not succeeded else skip_files
+                succeeded = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                skip_files = True if not succeeded else skip_files
                 if self.design_type == "Icepak":
                     use_auto_settings = False
-                skip_files = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                succeeded = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                skip_files = True if not succeeded else skip_files
                 if num_variations_to_distribute:
-                    skip_files = update_hpc_option(
+                    succeeded = update_hpc_option(
                         target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
                     )
+                    skip_files = True if not succeeded else skip_files
                 if isinstance(allowed_distribution_types, list):
                     num_adt = len(allowed_distribution_types)
                     adt_string = "', '".join(allowed_distribution_types)
                     adt_string = "[{}: '{}']".format(num_adt, adt_string)
-                    skip_files = update_hpc_option(
+
+                    succeeded = update_hpc_option(
                         target_name, "AllowedDistributionTypes", adt_string, False, separator=""
                     )
+                    skip_files = True if not succeeded else skip_files
 
             if settings.remote_rpc_session:
                 remote_name = (
