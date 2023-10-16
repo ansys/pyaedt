@@ -6467,3 +6467,85 @@ class Hfss(FieldAnalysis3D, object):
         """
         self.oradfield.EditRadiatedPowerCalculationMethod(method)
         return True
+
+    @pyaedt_function_handler()
+    def set_mesh_fusion_settings(self, component=None, volume_padding=None, priority=None):
+        # type: (list|str, list, list) -> bool
+
+        """Set mesh fusion settings in Hfss.
+
+        component : list, optional
+            List of active 3D Components.
+            The default is ``None``, in which case components are disabled.
+        volume_padding : list, optional
+            List of mesh envelope padding, the format is ``[+x, -x, +y, -y, +z, -z]``.
+            The default is ``None``, in which case all zeros are applied.
+        priority : list, optional
+            List of components with the priority flag enabled. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDoMeshAssembly
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss()
+        >>> app.set_mesh_fusion_settings(component=["Comp1", "Comp2"],
+         ... volume_padding=[[0,0,0,0,0,0], [0,0,5,0,0,0]],
+         ... priority=["Comp1"])
+        """
+        arg = ["NAME:AllSettings"]
+        arg2 = ["NAME:MeshAssembly"]
+        arg3 = ["NAME:Priority Components"]
+
+        if component and not isinstance(component, list):
+            component = [component]
+
+        if not volume_padding and component:
+            for comp in component:
+                if comp in self.modeler.user_defined_component_names:
+                    mesh_assembly_arg = ["NAME:" + comp]
+                    mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
+                    mesh_assembly_arg.append(["0", "0", "0", "0", "0", "0"])
+                    arg2.append(mesh_assembly_arg)
+                else:
+                    self.logger.warning(comp + " does not exist.")
+
+        elif component and isinstance(volume_padding, list) and len(volume_padding) == len(component):
+            count = 0
+            for comp in component:
+                padding = [str(pad) for pad in volume_padding[count]]
+                if comp in self.modeler.user_defined_component_names:
+                    mesh_assembly_arg = ["NAME:" + comp]
+                    mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
+                    mesh_assembly_arg.append(padding)
+                    arg2.append(mesh_assembly_arg)
+                else:
+                    self.logger.warning("{0} does not exist".format(str(comp)))
+                count += 1
+        else:
+            self.logger.error("Volume padding length is different than component list length.")
+            return False
+
+        if priority and not isinstance(priority, list):
+            priority = [priority]
+
+        if component and priority:
+            for p in priority:
+                if p in self.modeler.user_defined_component_names:
+                    arg3.append(p)
+                else:
+                    self.logger.warning("{0} does not exist".format(str(p)))
+
+        arg.append(arg2)
+        arg.append(arg3)
+        self.odesign.SetDoMeshAssembly(arg)
+        return True

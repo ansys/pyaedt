@@ -1789,3 +1789,39 @@ class TestClass:
         assert comp2.layout_component.display_mode == 1
         comp2.layout_component.layers["Trace"] = [True, True, 90]
         assert comp2.layout_component.update_visibility()
+
+    def test_87_set_mesh_fusion_settings(self):
+        self.aedtapp.insert_design("MeshFusionSettings")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box1.name],
+        )
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [100, 20, 30])
+        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box2.name],
+        )
+        assert self.aedtapp.set_mesh_fusion_settings(component=obj2_3dcomp.name, volume_padding=None, priority=None)
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name, "Dummy"], volume_padding=None, priority=None
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name],
+            volume_padding=[[0, 5, 0, 0, 0, 1], [0, 0, 0, 2, 0, 0]],
+            priority=None,
+        )
+
+        assert not self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=[[0, 0, 0, 2, 0, 0]], priority=None
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=None, priority=[obj2_3dcomp.name, "Dummy"]
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name],
+            volume_padding=[[0, 5, 0, 0, 0, 1], [10, 0, 0, 2, 0, 0]],
+            priority=[obj_3dcomp.name],
+        )
