@@ -228,7 +228,7 @@ plot=hfss.post.plot_field(quantity="Mag_E",
 ###############################################################################
 # Save and close the desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-#  The following command save the project to file and close the desktop.
+#  The following command saves the project to a file and closes the desktop.
 
 hfss.save_project()
 hfss.release_desktop()
