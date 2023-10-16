@@ -214,7 +214,7 @@ plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 ###############################################################################
 # Generate E field plot
 # ~~~~~~~~~~~~~~~~~~~~~
-#  The following command generate a field plot in HFSS and uses pyvista
+#  The following command generates a field plot in HFSS and uses PyVista
 #  to plot the field in Jupyter.
 
 plot=hfss.post.plot_field(quantity="Mag_E",
