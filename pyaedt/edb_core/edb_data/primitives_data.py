@@ -836,6 +836,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
             return self._app.hfss.create_edge_port_vertical(self.id, pos, name, 50, reference_layer)
 
     pyaedt_function_handler()
+
     def create_via_fence(self, distance, gap, padstack_name):
         """Create via fences on both sides of the trace.
 
@@ -852,6 +853,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
         -------
 
         """
+
         def getAngle(v1, v2):
             v1_mag = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
             v2_mag = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
@@ -861,13 +863,13 @@ class EdbPath(EDBPrimitives, PathDotNet):
             else:
                 scale = -1
             dtheta = scale * math.acos(dotsum / (v1_mag * v2_mag))
-        
+
             return dtheta
 
         def getLocations(line, gap):
             location = [line[0]]
             residual = 0
-        
+
             for n in range(len(line) - 1):
                 x0, y0 = line[n]
                 x1, y1 = line[n + 1]
@@ -881,48 +883,48 @@ class EdbPath(EDBPrimitives, PathDotNet):
                     y += gap * dy
                     location.append((x, y))
                     length -= gap
-        
+
                 residual = length
             return location
 
         def getParalletLines(pts, distance):
             leftline = []
             rightline = []
-        
+
             x0, y0 = pts[0]
             x1, y1 = pts[1]
             vector = (x1 - x0, y1 - y0)
             orientation1 = getAngle((1, 0), vector)
-        
+
             leftturn = orientation1 + math.pi / 2
             righrturn = orientation1 - math.pi / 2
             leftPt = (x0 + distance * math.cos(leftturn), y0 + distance * math.sin(leftturn))
             leftline.append(leftPt)
             rightPt = (x0 + distance * math.cos(righrturn), y0 + distance * math.sin(righrturn))
             rightline.append(rightPt)
-        
+
             for n in range(1, len(pts) - 1):
                 x0, y0 = pts[n - 1]
                 x1, y1 = pts[n]
                 x2, y2 = pts[n + 1]
-        
+
                 v1 = (x1 - x0, y1 - y0)
                 v2 = (x2 - x1, y2 - y1)
                 dtheta = getAngle(v1, v2)
                 orientation1 = getAngle((1, 0), v1)
-        
+
                 leftturn = orientation1 + dtheta / 2 + math.pi / 2
                 righrturn = orientation1 + dtheta / 2 - math.pi / 2
-        
+
                 distance2 = distance / math.sin((math.pi - dtheta) / 2)
                 leftPt = (x1 + distance2 * math.cos(leftturn), y1 + distance2 * math.sin(leftturn))
                 leftline.append(leftPt)
                 rightPt = (x1 + distance2 * math.cos(righrturn), y1 + distance2 * math.sin(righrturn))
                 rightline.append(rightPt)
-        
+
             x0, y0 = pts[-2]
             x1, y1 = pts[-1]
-        
+
             vector = (x1 - x0, y1 - y0)
             orientation1 = getAngle((1, 0), vector)
             leftturn = orientation1 + math.pi / 2
@@ -939,7 +941,6 @@ class EdbPath(EDBPrimitives, PathDotNet):
         leftline, rightline = getParalletLines(center_line, distance)
         for x, y in getLocations(rightline, gap) + getLocations(leftline, gap):
             self._pedb.padstacks.place([x, y], padstack_name)
-
 
 
 class EdbRectangle(EDBPrimitives, RectangleDotNet):
