@@ -6531,7 +6531,7 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     self.logger.warning("{0} does not exist".format(str(comp)))
                 count += 1
-        else:
+        elif component and isinstance(volume_padding, list) and len(volume_padding) != len(component):
             self.logger.error("Volume padding length is different than component list length.")
             return False
 
