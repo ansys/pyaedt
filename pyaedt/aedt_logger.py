@@ -320,7 +320,7 @@ class AedtLogger(object):
         """
         project_name = project_name or self._project_name
         design_name = design_name or self._design_name
-        if self._log_on_desktop or aedt_messages:
+        if aedt_messages and self._desktop.GetVersion() > "2022.2":
             global_message_data = self._desktop.GetMessages("", "", level)
             # if a 3d component is open, GetMessages without the project name argument returns messages with
             # "(3D Component)" appended to project name
