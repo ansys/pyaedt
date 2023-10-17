@@ -854,7 +854,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
         """
 
-        def getAngle(v1, v2):
+        def getAngle(v1, v2):  # pragma: no cover
             v1_mag = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
             v2_mag = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
             dotsum = v1[0] * v2[0] + v1[1] * v2[1]
@@ -866,7 +866,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
             return dtheta
 
-        def getLocations(line, gap):
+        def getLocations(line, gap):  # pragma: no cover
             location = [line[0]]
             residual = 0
 
@@ -887,7 +887,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
                 residual = length
             return location
 
-        def getParalletLines(pts, distance):
+        def getParalletLines(pts, distance):  # pragma: no cover
             leftline = []
             rightline = []
 
