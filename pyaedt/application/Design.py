@@ -232,12 +232,12 @@ class Design(AedtObjects):
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
         if self.design_type == "HFSS":
-            model_list = list(self.omodelsetup.GetArrayNames())
             self.component_array = {}
-            self.component_array_names = []
-            for model in model_list:
-                self.component_array[model] = ComponentArray(model)
-                self.component_array_names.append(model)
+            self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
+            for component_array in self.component_array_names:
+                self.component_array[component_array] = ComponentArray(
+                    self, component_array, self.design_properties["ArrayObject"]
+                )
         if t:
             t.join()
         self._variable_manager = VariableManager(self)

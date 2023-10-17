@@ -4,7 +4,6 @@ from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
-from pyaedt.modeler.cad.elements3d import _dict2arg
 
 
 class ComponentArrayProps(OrderedDict):
@@ -59,27 +58,35 @@ class ComponentArray(object):
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
     """
 
-    def __init__(self, name=None, props=None):
+    def __init__(self, app, name=None, props=None):
         if name:
             self._m_name = name
         else:
             self._m_name = _uname("Array_")
 
-        self._visible = None
+        self._app = app
 
-        self._show_cell_number = None
+        self._logger = app.logger
 
-        self._render = None
+        self._omodel = self._app.get_oo_object(self._app.odesign, "Model")
 
-        self._a_vector_name = None
+        self._oarray = self._app.get_oo_object(self._omodel, name)
 
-        self._b_vector_name = None
+        self._visible = self._app.get_oo_property_value(self._omodel, name, "Visible")
 
-        self._a_size = None
+        self._show_cell_number = self._app.get_oo_property_value(self._omodel, name, "Show Cell Number")
 
-        self._b_size = None
+        self._render = self._app.get_oo_property_value(self._omodel, name, "Render")
 
-        self._padding_cells = None
+        self._a_vector_name = self._app.get_oo_property_value(self._omodel, name, "A Vector")
+
+        self._b_vector_name = self._app.get_oo_property_value(self._omodel, name, "B Vector")
+
+        self._a_size = self._app.get_oo_property_value(self._omodel, name, "A Cell Count")
+
+        self._b_size = self._app.get_oo_property_value(self._omodel, name, "B Cell Count")
+
+        self._padding_cells = self._app.get_oo_property_value(self._omodel, name, "Padding")
 
         self._coordinate_system = None
 
@@ -113,208 +120,195 @@ class ComponentArray(object):
         Returns
         -------
         str
-           Name of the object.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
+           Name of the array.
         """
         return self._m_name
 
     @name.setter
-    def name(self, component_name):
-        if component_name not in self._primitives.user_defined_component_names + self._primitives.object_names + list(
-            self._primitives.oeditor.Get3DComponentDefinitionNames()
-        ):
-            if component_name != self._m_name:
-                pcs = ["NAME:Name", "Value:=", component_name]
-                self._change_property(pcs)
-                self._primitives.user_defined_components.update({component_name: self})
-                del self._primitives.user_defined_components[self._m_name]
-                self._project_dictionary = None
-                self._m_name = component_name
+    def name(self, array_name):
+        if array_name not in self._app.component_array_names:
+            if array_name != self._m_name:
+                bug_flag = True
+                if bug_flag:
+                    self._logger.warning("Array rename it is not possible.")
+                else:  # pragma: no cover
+                    self._oarray.SetPropValue("Name", array_name)
+                    # self._change_array_property("Name", array_name)
+                    self._app.component_array.update({array_name: self})
+                    self._app.component_array_names = list(self._app.omodelsetup.GetArrayNames())
+                    self._m_name = array_name
         else:  # pragma: no cover
-            self._logger.warning("Name %s already assigned in the design", component_name)
+            self._logger.warning("Name %s already assigned in the design", array_name)
 
     @property
-    def target_coordinate_system(self):
-        """Target coordinate system.
-
-        Returns
-        -------
-        str
-            Name of the target coordinate system.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        """
-        self._target_coordinate_system = None
-        if "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            tCS = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System")
-            self._target_coordinate_system = tCS
-        return self._target_coordinate_system
-
-    @target_coordinate_system.setter
-    def target_coordinate_system(self, tCS):
-        if (
-            "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-            and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-        ):
-            tCS_options = list(
-                self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System/Choices")
-            )
-            if tCS in tCS_options:
-                pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
-                self._change_property(pcs)
-                self._target_coordinate_system = tCS
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete the object. The project must be saved after the operation to update the list
-        of names for user-defined components.
-
-        References
-        ----------
-
-        >>> oEditor.Delete
-
-        Examples
-        --------
-
-        >>> from pyaedt import hfss
-        >>> hfss = Hfss()
-        >>> hfss.modeler["UDM"].delete()
-        >>> hfss.save_project()
-        >>> hfss._project_dictionary = None
-        >>> udc = hfss.modeler.user_defined_component_names
-
-        """
-        arg = ["NAME:Selections", "Selections:=", self._m_name]
-        self._m_Editor.Delete(arg)
-        del self._primitives.modeler.user_defined_components[self.name]
-        self._primitives.cleanup_objects()
-        self.__dict__ = {}
-
-    @property
-    def bounding_box(self):
-        """Get bounding dimension of a user defined model.
-
-        Returns
-        -------
-        list
-            List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
-
-        """
-        bb = [float("inf")] * 3 + [float("-inf")] * 3
-        for _, obj in self.parts.items():
-            bbox = obj.bounding_box
-            bb = [min(bb[i], bbox[i]) for i in range(3)] + [max(bb[i + 3], bbox[i + 3]) for i in range(3)]
-        return bb
-
-    @property
-    def center(self):
-        """Get center coordinates of a user defined model.
-
-        Returns
-        -------
-        list
-            List of floats containing [x_center, y_center, z_center].
-
-        """
-        x_min, y_min, z_min, x_max, y_max, z_max = self.bounding_box
-        x_center = (x_min + x_max) / 2
-        y_center = (y_min + y_max) / 2
-        z_center = (z_min + z_max) / 2
-        return [x_center, y_center, z_center]
-
-    @property
-    def _logger(self):
-        """Logger."""
-        return self._primitives.logger
-
-    @pyaedt_function_handler()
-    def _get_args(self, props=None):
-        if props is None:
-            props = self.props
-        arg = ["NAME:" + self.name]
-        _dict2arg(props, arg)
-        return arg
-
-    @pyaedt_function_handler()
-    def _update_props(self, d, u):
-        for k, v in u.items():
-            if isinstance(v, (dict, OrderedDict)):
-                if k not in d:
-                    d[k] = OrderedDict({})
-                d[k] = self._update_props(d[k], v)
-            else:
-                d[k] = v
-        return d
-
-    @property
-    def _m_Editor(self):
-        """Pointer to the oEditor object in the AEDT API. This property is
-        intended primarily to be used by FacePrimitive, EdgePrimitive, and
-        VertexPrimitive child objects.
-
-        Returns
-        -------
-        oEditor COM Object
-
-        """
-        return self._primitives.oeditor
-
-    @pyaedt_function_handler()
-    def get_component_filepath(self):
-        """Get 3d component file path.
-
-        Returns
-        -------
-        str
-            Path of the 3d component file.
-        """
-
-        return self._primitives._app.get_oo_object(self._primitives._app.oeditor, self.definition_name).GetPropValue(
-            "3D Component File Path"
-        )
-
-    @pyaedt_function_handler()
-    def update_definition(self, password="", new_filepath=""):
-        """Update 3d component definition.
-
-        Parameters
-        ----------
-        password : str, optional
-            Password for encrypted models. The default value is ``""``.
-        new_filepath : str, optional
-            New path containing the 3d component file. The default value is ``""``, which means
-            that the 3d component file has not changed.
+    def visible(self):
+        """Array visibility.
 
         Returns
         -------
         bool
-            True if successful.
+           ``True`` if property is checked.
         """
+        return self._visible
 
-        self._primitives._app.oeditor.UpdateComponentDefinition(
-            [
-                "NAME:UpdateDefinitionData",
-                "ForLocalEdit:=",
-                False,
-                "DefinitionNames:=",
-                self.definition_name,
-                "Passwords:=",
-                [password],
-                "NewFilePath:=",
-                new_filepath,
-            ]
-        )
-        self._primitives._app.modeler.refresh_all_ids()
-        return True
+    @visible.setter
+    def visible(self, val):
+        self._visible = val
+        self._oarray.SetPropValue("Visible", val)
+
+    @property
+    def show_cell_number(self):
+        """Show array cell number.
+
+        Returns
+        -------
+        bool
+           ``True`` if property is checked.
+        """
+        return self._show_cell_number
+
+    @show_cell_number.setter
+    def show_cell_number(self, val):
+        self._show_cell_number = val
+        self._oarray.SetPropValue("Show Cell Number", val)
+
+    @property
+    def render(self):
+        """Array rendering.
+
+        Returns
+        -------
+        str
+           Rendering type.
+        """
+        return self._render
+
+    @render.setter
+    def render(self, val):
+        self._render = val
+        self._oarray.SetPropValue("Render", val)
+
+    @property
+    def a_vector_name(self):
+        """A vector name.
+
+        Returns
+        -------
+        str
+           Lattice vector name.
+        """
+        return self._a_vector_name
+
+    @a_vector_name.setter
+    def a_vector_name(self, val):
+        self._a_vector_name = val
+        self._oarray.SetPropValue("A Vector", val)
+
+    @property
+    def b_vector_name(self):
+        """B vector name.
+
+        Returns
+        -------
+        str
+           Lattice vector name.
+        """
+        return self._a_vector_name
+
+    @b_vector_name.setter
+    def b_vector_name(self, val):
+        self._b_vector_name = val
+        self._oarray.SetPropValue("B Vector", val)
+
+    @property
+    def a_size(self):
+        """A cell count.
+
+        Returns
+        -------
+        int
+           Number of cells in A direction.
+        """
+        return self._a_size
+
+    @a_size.setter
+    def a_size(self, val):
+        self._a_size = val
+        self._oarray.SetPropValue("A Cell Count", val)
+
+    @property
+    def b_size(self):
+        """B cell count.
+
+        Returns
+        -------
+        int
+           Number of cells in B direction.
+        """
+        return self._a_size
+
+    @b_size.setter
+    def b_size(self, val):
+        self._b_size = val
+        self._oarray.SetPropValue("B Cell Count", val)
+
+    @property
+    def padding_cells(self):
+        """Number of padding cells.
+
+        Returns
+        -------
+        int
+           Number of padding cells.
+        """
+        return self._padding_cells
+
+    @padding_cells.setter
+    def padding_cells(self, val):
+        self._padding_cells = val
+        self._oarray.SetPropValue("Padding", val)
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the object.
+
+        References
+        ----------
+
+        >>> oModule.DeleteArray
+
+        """
+        self._app.omodelsetup.DeleteArray()
+        del self._app.component_array[self.name]
+        self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
+
+    # @pyaedt_function_handler()
+    # def _change_array_property(self, prop_name, value):
+    #     # names = self._app.modeler.convert_to_selections(value, True)
+    #     vChangedProp = ["NAME:ChangedProps", ["NAME:" + prop_name, "Value:=", value]]
+    #     vPropServer = ["NAME:PropServers", "ModelSetup:" + self.name]
+    #
+    #     vGeo3d = ["NAME:HfssTab", vPropServer, vChangedProp]
+    #     vOut = ["NAME:AllTabs", vGeo3d]
+    #
+    #     self._app.odesign.ChangeProperty(vOut)
+    #     return True
+
+    # @pyaedt_function_handler()
+    # def _get_args(self, props=None):
+    #     if props is None:
+    #         props = self.props
+    #     arg = ["NAME:" + self.name]
+    #     _dict2arg(props, arg)
+    #     return arg
+
+    # @pyaedt_function_handler()
+    # def _update_props(self, d, u):
+    #     for k, v in u.items():
+    #         if isinstance(v, (dict, OrderedDict)):
+    #             if k not in d:
+    #                 d[k] = OrderedDict({})
+    #             d[k] = self._update_props(d[k], v)
+    #         else:
+    #             d[k] = v
+    #     return d
