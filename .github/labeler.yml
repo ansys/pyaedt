@@ -13,3 +13,10 @@ testing:
 - _unittest/conftest.py
 - _unittest_ironpython/run_unittests.py
 - _unittest_ironpython/run_unittests_batchmode.cmd
+# TODO : Remove once EDB is extracted from PyAEDT
+edb:
+- examples/00-EDB/**
+- examples/01-HFSS3DLayout/EDB_in_3DLayout.py
+- examples/05-Q3D/Q3D_from_EDB.py
+- pyaedt/edb_core/**
+- pyaedt/edb.py
