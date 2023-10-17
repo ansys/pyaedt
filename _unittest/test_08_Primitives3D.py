@@ -1824,7 +1824,6 @@ class TestClass:
             volume_padding=[[0, 5, 0, 0, 0, 1], [10, 0, 0, 2, 0, 0]],
             priority=[obj_3dcomp.name],
         )
-
         assert self.aedtapp.set_mesh_fusion_settings(
             component=None,
             volume_padding=None,
