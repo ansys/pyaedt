@@ -3103,10 +3103,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             return bound
         return False
 
-
     @pyaedt_function_handler()
     def assign_radiation(self, geometry_selection, radiation_name=None):
-
         if self.solution_type in [
             "EddyCurrent",
         ]:
