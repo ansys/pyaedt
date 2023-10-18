@@ -1302,9 +1302,9 @@ class PostProcessorCommon(object):
         plot_name : str
             Name of the plot to export.
         width : int, optional
-            Image width. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
+            Image width. Default is ``0`` which takes Desktop size or 1980 pixel in case of non-graphical mode.
         height : int, optional
-            Image height. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
+            Image height. Default is ``0`` which takes Desktop size or 1020 pixel in case of non-graphical mode.
 
         Returns
         -------
@@ -1321,9 +1321,9 @@ class PostProcessorCommon(object):
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
         if self._app.desktop_class.non_graphical:
             if width == 0:
-                width = 500
+                width = 1980
             if height == 0:
-                height = 500
+                height = 1020
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
