@@ -3505,7 +3505,7 @@ class PostProcessor(PostProcessorCommon, object):
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
                     t = self._app.modeler[el].transparency
-                    if t:
+                    if t is not None:
                         transp = t
                     files_exported.append([fname, self._app.modeler[el].color, 1 - transp])
                 else:
