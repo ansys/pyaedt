@@ -490,6 +490,7 @@ class PostProcessor(Post):
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
             Objects list on which filter the plot for ``CutPlane`` plots.
+
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
