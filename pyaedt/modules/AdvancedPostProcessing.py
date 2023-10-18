@@ -497,7 +497,7 @@ class PostProcessor(Post):
             Model Object.
         """
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
-            show = True
+            show = False
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
@@ -627,7 +627,7 @@ class PostProcessor(Post):
             Model Object.
         """
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
-            show = True
+            show = False
         if intrinsics is None:
             intrinsics = {}
         if not export_path:
