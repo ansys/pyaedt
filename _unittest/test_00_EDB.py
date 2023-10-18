@@ -2903,6 +2903,7 @@ class TestClass:
         assert dc_shorts
         edbapp.nets.nets["DDR4_A0"].name = "DDR4$A0"
         edbapp.layout_validation.illegal_net_names(True)
+        edbapp.layout_validation.illegal_rlc_values(True)
 
         # assert len(dc_shorts) == 20
         assert ["LVDS_CH09_N", "GND"] in dc_shorts
