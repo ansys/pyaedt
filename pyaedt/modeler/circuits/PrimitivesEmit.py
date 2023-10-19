@@ -760,7 +760,7 @@ class EmitRadioComponent(EmitComponent):
             raise TypeError("{} must be a band.".format(band_node.node_name))
 
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
-            units = 'Hz'#self.parent_component.units["Frequency"]
+            units = "Hz"  # self.parent_component.units["Frequency"]
         # convert to Hz
         freq_string = "{}".format(consts.unit_converter(band_start_freq, "Freq", units, "Hz"))
         prop_list = {"StartFrequency": freq_string}
@@ -782,7 +782,7 @@ class EmitRadioComponent(EmitComponent):
         if "Band" not in band_node.props["Type"]:
             raise TypeError("{} must be a band.".format(band_node.node_name))
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
-            units = 'Hz'
+            units = "Hz"
 
         freq_string = "{}".format(consts.unit_converter(band_stop_freq, "Freq", units, "Hz"))
         prop_list = {"StopFrequency": freq_string}
@@ -835,7 +835,6 @@ class EmitRadioComponent(EmitComponent):
     #         self.set_band_stop_frequency(baby_band_node, baby_band_stop)
     #         # set start and stop freq for that band name
     #     # to be
-
 
     def band_channel_bandwidth(self, band_node, units=""):
         """Get the channel bandwidth of the band node.
