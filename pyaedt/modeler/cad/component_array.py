@@ -72,23 +72,14 @@ class ComponentArray(object):
 
         self._oarray = self._app.get_oo_object(self._omodel, name)
 
-        self._visible = self._app.get_oo_property_value(self._omodel, name, "Visible")
+        cs_id = props["ReferenceCSID"]
+        if cs_id != 1:
+            self._logger.warning(
+                "Coordinate system ID could not be retrieved. Coordinate system must be the Global one."
+            )
+            cs_id = 1
 
-        self._show_cell_number = self._app.get_oo_property_value(self._omodel, name, "Show Cell Number")
-
-        self._render = self._app.get_oo_property_value(self._omodel, name, "Render")
-
-        self._a_vector_name = self._app.get_oo_property_value(self._omodel, name, "A Vector")
-
-        self._b_vector_name = self._app.get_oo_property_value(self._omodel, name, "B Vector")
-
-        self._a_size = self._app.get_oo_property_value(self._omodel, name, "A Cell Count")
-
-        self._b_size = self._app.get_oo_property_value(self._omodel, name, "B Cell Count")
-
-        self._padding_cells = self._app.get_oo_property_value(self._omodel, name, "Padding")
-
-        self._coordinate_system = None
+        self._coordinate_system = cs_id
 
         # Everything inside components ?
         self._component_names = None
@@ -128,9 +119,8 @@ class ComponentArray(object):
     def name(self, array_name):
         if array_name not in self._app.component_array_names:
             if array_name != self._m_name:
-                bug_flag = True
-                if bug_flag:
-                    self._logger.warning("Array rename it is not possible.")
+                if self._app.settings.aedt_version < "2024.2":
+                    self._logger.warning("Array rename it is not possible on this AEDT version.")
                 else:  # pragma: no cover
                     self._oarray.SetPropValue("Name", array_name)
                     # self._change_array_property("Name", array_name)
@@ -149,7 +139,7 @@ class ComponentArray(object):
         bool
            ``True`` if property is checked.
         """
-        return self._visible
+        return self._app.get_oo_property_value(self._omodel, self.name, "Visible")
 
     @visible.setter
     def visible(self, val):
@@ -165,12 +155,22 @@ class ComponentArray(object):
         bool
            ``True`` if property is checked.
         """
-        return self._show_cell_number
+        return self._app.get_oo_property_value(self._omodel, self.name, "Show Cell Number")
 
     @show_cell_number.setter
     def show_cell_number(self, val):
-        self._show_cell_number = val
         self._oarray.SetPropValue("Show Cell Number", val)
+
+    @property
+    def render_choices(self):
+        """Render name choices.
+
+        Returns
+        -------
+        list
+           Render names.
+        """
+        return list(self._oarray.GetPropValue("Render/Choices"))
 
     @property
     def render(self):
@@ -181,12 +181,36 @@ class ComponentArray(object):
         str
            Rendering type.
         """
-        return self._render
+        return self._app.get_oo_property_value(self._omodel, self.name, "Render")
 
     @render.setter
     def render(self, val):
-        self._render = val
-        self._oarray.SetPropValue("Render", val)
+        if val not in self.render_choices:
+            self._logger.warning("Render value not available")
+        else:
+            self._oarray.SetPropValue("Render", val)
+
+    @property
+    def a_vector_choices(self):
+        """A vector name choices.
+
+        Returns
+        -------
+        list
+           Lattice vector names.
+        """
+        return list(self._app.get_oo_property_value(self._omodel, self.name, "A Vector/Choices"))
+
+    @property
+    def b_vector_choices(self):
+        """B vector name choices.
+
+        Returns
+        -------
+        list
+           Lattice vector names.
+        """
+        return list(self._app.get_oo_property_value(self._omodel, self.name, "B Vector/Choices"))
 
     @property
     def a_vector_name(self):
@@ -197,12 +221,14 @@ class ComponentArray(object):
         str
            Lattice vector name.
         """
-        return self._a_vector_name
+        return self._app.get_oo_property_value(self._omodel, self.name, "A Vector")
 
     @a_vector_name.setter
     def a_vector_name(self, val):
-        self._a_vector_name = val
-        self._oarray.SetPropValue("A Vector", val)
+        if val in self.a_vector_choices:
+            self._oarray.SetPropValue("A Vector", val)
+        else:
+            self._logger.warning("A vector name not available")
 
     @property
     def b_vector_name(self):
@@ -213,12 +239,14 @@ class ComponentArray(object):
         str
            Lattice vector name.
         """
-        return self._a_vector_name
+        return self._oarray.GetPropValue("B Vector")
 
     @b_vector_name.setter
     def b_vector_name(self, val):
-        self._b_vector_name = val
-        self._oarray.SetPropValue("B Vector", val)
+        if val in self.b_vector_choices:
+            self._oarray.SetPropValue("B Vector", val)
+        else:
+            self._logger.warning("B vector name not available")
 
     @property
     def a_size(self):
@@ -229,12 +257,12 @@ class ComponentArray(object):
         int
            Number of cells in A direction.
         """
-        return self._a_size
+        return int(self._app.get_oo_property_value(self._omodel, self.name, "A Cell Count"))
 
     @a_size.setter
     def a_size(self, val):
-        self._a_size = val
-        self._oarray.SetPropValue("A Cell Count", val)
+        # self._oarray.SetPropValue("A Cell Count", val)
+        pass
 
     @property
     def b_size(self):
@@ -245,12 +273,12 @@ class ComponentArray(object):
         int
            Number of cells in B direction.
         """
-        return self._a_size
+        return int(self._app.get_oo_property_value(self._omodel, self.name, "B Cell Count"))
 
     @b_size.setter
     def b_size(self, val):
-        self._b_size = val
-        self._oarray.SetPropValue("B Cell Count", val)
+        # self._oarray.SetPropValue("B Cell Count", val)
+        pass
 
     @property
     def padding_cells(self):
@@ -261,12 +289,30 @@ class ComponentArray(object):
         int
            Number of padding cells.
         """
-        return self._padding_cells
+        return int(self._app.get_oo_property_value(self._omodel, self.name, "Padding"))
 
     @padding_cells.setter
     def padding_cells(self, val):
-        self._padding_cells = val
         self._oarray.SetPropValue("Padding", val)
+
+    @property
+    def coordinate_system(self):
+        """Coordinate system.
+
+        Returns
+        -------
+        str
+           Coordinate system name.
+        """
+        if self._coordinate_system == 1:
+            return "Global"
+        else:
+            self._logger.warning("Only Global coordinate system available")
+
+    @coordinate_system.setter
+    def coordinate_system(self, val):
+        if val == 1:
+            self._coordinate_system = val
 
     @pyaedt_function_handler()
     def delete(self):

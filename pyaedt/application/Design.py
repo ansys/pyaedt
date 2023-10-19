@@ -236,7 +236,7 @@ class Design(AedtObjects):
             self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
             for component_array in self.component_array_names:
                 self.component_array[component_array] = ComponentArray(
-                    self, component_array, self.design_properties["ArrayObject"]
+                    self, component_array, self.design_properties["ArrayDefinition"]["ArrayObject"]
                 )
         if t:
             t.join()
