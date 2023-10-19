@@ -2480,6 +2480,11 @@ class TestClass:
         assert pad_instance3.dcir_equipotential_region
         pad_instance3.dcir_equipotential_region = False
         assert not pad_instance3.dcir_equipotential_region
+
+        trace = edb.modeler.create_trace([[0, 0], [0, 10e-3]], "1_Top", "0.1mm", "trace_with_via_fence")
+        edb.padstacks.create_padstack("via_0")
+        trace.create_via_fence("1mm", "1mm", "via_0")
+
         edb.close()
 
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
@@ -2901,6 +2906,10 @@ class TestClass:
         edbapp = Edb(target_path, edbversion=desktop_version)
         dc_shorts = edbapp.layout_validation.dc_shorts()
         assert dc_shorts
+        edbapp.nets.nets["DDR4_A0"].name = "DDR4$A0"
+        edbapp.layout_validation.illegal_net_names(True)
+        edbapp.layout_validation.illegal_rlc_values(True)
+
         # assert len(dc_shorts) == 20
         assert ["LVDS_CH09_N", "GND"] in dc_shorts
         assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
