@@ -348,11 +348,11 @@ class Layer3D(object):
         self._obj_3d = []
         obj_3d = None
         self._duplicated_material = self.duplicate_parametrize_material(material_name)
-        self._material = self._duplicated_material.material
-        self._material_name = self._material.name
+        self._material = self._duplicated_material  # Set material for this layer.
+
         if self._layer_type != "dielectric":
             self._fill_duplicated_material = self.duplicate_parametrize_material(fill_material)
-            self._fill_material = self._fill_duplicated_material.material
+            self._fill_material = self._fill_duplicated_material
             self._fill_material_name = self._fill_material.name
         self._thickness_variable = self._name + "_thickness"
         if thickness:
@@ -366,7 +366,7 @@ class Layer3D(object):
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
                 ["dielectric_length", "dielectric_width", self._thickness_variable],
                 name=self._name,
-                matname=self._material_name,
+                matname=self.material_name,
             )
         elif self._layer_type == "ground":
             if thickness:
@@ -374,7 +374,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self._material_name,
+                    matname=self.material_name,
                 )
 
             else:
@@ -383,7 +383,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
-                    matname=self._material_name,
+                    matname=self.material_name,
                 )
         elif self._layer_type == "signal":
             if thickness:
@@ -391,7 +391,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self._fill_material,
+                    matname=self._fill_material.name,
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
@@ -399,7 +399,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
-                    matname=self._fill_material,
+                    matname=self._fill_material.name,
                 )
         obj_3d.group_name = "Layer_{}".format(self._name)
         if obj_3d:
@@ -445,7 +445,7 @@ class Layer3D(object):
         -------
         str
         """
-        return self._material_name
+        return self._material.name
 
     @property
     def material(self):
@@ -558,7 +558,18 @@ class Layer3D(object):
         return self._frequency
 
     @pyaedt_function_handler()
-    def duplicate_parametrize_material(self, material_name, cloned_material_name=None, list_of_properties=None):
+    def duplicate_parametrize_material(
+        self,
+        material_name,
+        cloned_material_name=None,
+        list_of_properties=(
+            "permittivity",
+            "permeability",
+            "conductivity",
+            "dielectric_loss_tangent",
+            "magnetic_loss_tangent",
+        ),
+    ):
         """Duplicate a material and parametrize all properties.
 
         Parameters
@@ -568,26 +579,30 @@ class Layer3D(object):
         cloned_material_name : str, optional
             Name of destination material. The default is ``None``.
         list_of_properties : list, optional
-            Properties to parametrize. The default is ``None``.
+            Properties to parametrize. The default is
+            ``("permittivity", "permeability", "conductivity", "dielectric_loss_tan", "magnetic_loss_tan")``.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
             Material object.
         """
-        application = self._app
-        if isinstance(material_name, Material):
+
+        if isinstance(material_name, Material):  # Make sure material_name is of type str.
             material_name = material_name.name
-        if isinstance(cloned_material_name, Material):
+        if isinstance(cloned_material_name, Material):  # Make sure cloned_material_name is of type str.
             cloned_material_name = cloned_material_name.name
-        if not cloned_material_name:
+        if not cloned_material_name:  # If a name has not been defined, create one.
             cloned_material_name = "cloned_" + material_name
-        for duplicated_material in self._stackup.duplicated_material_list:
-            if duplicated_material.material_name == cloned_material_name:
+        for duplicated_material in self._stackup.duplicated_material_list:  # If the new material exists, don't
+            if duplicated_material.name == cloned_material_name:  # return that material.
                 return duplicated_material
-        duplicated_material = DuplicatedParametrizedMaterial(
-            application, material_name, cloned_material_name, list_of_properties
+        duplicated_material = self._app.materials.duplicate_material(
+            material_name, cloned_material_name, props=list_of_properties
         )
+        #        duplicated_material = DuplicatedParametrizedMaterial(
+        #            application, material_name, cloned_material_name, list_of_properties
+        #        )
         self._stackup.duplicated_material_list.append(duplicated_material)
         return duplicated_material
 
@@ -641,14 +656,16 @@ class Layer3D(object):
         """
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
-        lst = self._stackup._layer_name
-        for i in range(len(lst)):
-            if lst[i] == self._name:
-                if self._stackup.stackup_layers[lst[i - 1]].type == "dielectric":
-                    below_layer = self._stackup.stackup_layers[lst[i - 1]]
+        layer_names = self._stackup._layer_name
+
+        # Find the layer where the patch should be placed.
+        for i in range(len(layer_names)):
+            if layer_names[i] == self._name:
+                if self._stackup.stackup_layers[layer_names[i - 1]].type == "dielectric":
+                    below_layer = self._stackup.stackup_layers[layer_names[i - 1]]
                     break
                 else:
-                    self._app.logger.error("The layer below the selected one must be of dielectric type")
+                    self._app.logger.error("The layer below the selected one must be of dielectric type.")
                     return False
         created_patch = Patch(
             self._app,
@@ -656,7 +673,7 @@ class Layer3D(object):
             patch_width,
             signal_layer=self,
             dielectric_layer=below_layer,
-            patch_length=patch_length,
+            dy=patch_length,
             patch_position_x=patch_position_x,
             patch_position_y=patch_position_y,
             patch_name=patch_name,
@@ -760,7 +777,7 @@ class Layer3D(object):
         line_width : float
             Line width. It can be the physical width or the line impedance.
         line_length : float
-            Line length. It can be the physical length or the electrical length.
+            Line length. It can be the physical length or the electrical length in degrees.
         is_electrical_length : bool, optional
             Whether the line length is an electrical length or a physical length. The default
             is ``False``, which means it is a physical length.
@@ -1316,7 +1333,7 @@ class Stackup3D(object):
 
     @property
     def objects(self):
-        """List of obects created.
+        """List of objects created.
 
         Returns
         -------
@@ -1507,9 +1524,14 @@ class Stackup3D(object):
         name : str
             Layer name.
         layer_type : str, optional
-            Layer type. Options are ``"S"``, ``"D"``, and ``"G"``. The default is ``"S"``.
+            Layer type. The default is ``"S"``. Options are:
+
+             - ``"D"`` for "dielectric" layer
+             - ``"G"`` for "ground" layer
+             - ``"S"`` for "signal" layer
+
         material_name : str, optional
-            Material name. The default is ``"copper"``. The material will be parametrized.
+            Material name. The default is ``"copper"``. The material is parametrized.
         thickness : float, optional
             Thickness value. The default is ``0.035``. The thickness will be parametrized.
         fill_material : str, optional
@@ -1538,7 +1560,7 @@ class Stackup3D(object):
         self._shifted_index += 1
         if not layer_type:
             raise ValueError("Layer type has to be an S, D, or G string.")
-        self._layer_name.append(name)
+        self._layer_name.append(name)  # update the list of layer names.
 
         lay = Layer3D(
             stackup=self,
@@ -1566,7 +1588,7 @@ class Stackup3D(object):
         elif layer_type == "S":
             self._signal_list.extend(lay._obj_3d)
             self._signal_name_list.append(lay._name)
-            self._signal_material.append(lay._material_name)
+            self._signal_material.append(lay.material_name)
             lay._obj_3d[-1].transparency = "0.8"
         self._stackup[lay._name] = lay
         return lay
@@ -1819,7 +1841,7 @@ class CommonObject(object):
     """CommonObject Class in Stackup3D. This class must not be directly used."""
 
     def __init__(self, application):
-        self._application = application
+        self._app = application
         self._name = None
         self._dielectric_layer = None
         self._signal_layer = None
@@ -1872,7 +1894,7 @@ class CommonObject(object):
     @property
     def application(self):
         """App object."""
-        return self._application
+        return self._app
 
     @property
     def aedt_object(self):
@@ -1937,16 +1959,17 @@ class Patch(CommonObject, object):
     application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
-        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        Target resonant frequency for the patch antenna. The default is ``None``,
+        in which case the patch frequency is that of the
         layer or of the stackup.
-    patch_width : float
+    dx : float
         The patch width.
     signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
         The signal layer where the patch will be drawn.
     dielectric_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
         The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
         prediction formulas.
-    patch_length : float, None, optional
+    dy : float, None, optional
         The patch length. By default, it is None and so the length is calculated by prediction formulas.
     patch_position_x : float, optional
         Patch x position, by default it is 0.
@@ -1963,14 +1986,18 @@ class Patch(CommonObject, object):
     --------
 
     >>> from pyaedt import Hfss
-    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
-    >>> my_stackup = Stackup3D(hfss, 2.5e9)
-    >>> gnd = my_stackup.add_ground_layer("gnd")
-    >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
-    >>> top = my_stackup.add_signal_layer("top")
-    >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
-    >>> my_stackup.resize_around_element(my_patch)
+    >>> stackup = Stackup3D(hfss)
+    >>> gnd = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
+    >>> dielectric = stackup.add_dielectric_layer("dielectric", thickness="0.5" + length_units, material="Duroid (tm)")
+    >>> signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
+    >>> patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch")
+    >>> stackup.resize_around_element(patch)
+    >>> pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
+    >>> region = hfss.modeler.create_region(pad_length, is_percentage=False)
+    >>> hfss.assign_radiation_boundary_to_objects(region)
+    >>> patch.create_probe_port(gnd, rel_x_offset=0.485)
 
     """
 
@@ -1978,10 +2005,10 @@ class Patch(CommonObject, object):
         self,
         application,
         frequency,
-        patch_width,
+        dx,
         signal_layer,
         dielectric_layer,
-        patch_length=None,
+        dy=None,
         patch_position_x=0,
         patch_position_y=0,
         patch_name="patch",
@@ -2000,7 +2027,7 @@ class Patch(CommonObject, object):
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
-        self._width = NamedVariable(application, patch_name + "_width", application.modeler._arg_with_dim(patch_width))
+        self._width = NamedVariable(application, patch_name + "_width", application.modeler._arg_with_dim(dx))
         self._position_x = NamedVariable(
             application, patch_name + "_position_x", application.modeler._arg_with_dim(patch_position_x)
         )
@@ -2019,15 +2046,15 @@ class Patch(CommonObject, object):
         self._application = application
         self._aedt_object = None
         self._permittivity = NamedVariable(
-            application, patch_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
+            application,
+            patch_name + "_permittivity",
+            self._dielectric_layer.duplicated_material.permittivity.value,  # value -> name
         )
-        if isinstance(patch_length, float) or isinstance(patch_length, int):
-            self._length = NamedVariable(
-                application, patch_name + "_length", application.modeler._arg_with_dim(patch_length)
-            )
+        if isinstance(dy, float) or isinstance(dy, int):
+            self._length = NamedVariable(application, patch_name + "_length", application.modeler._arg_with_dim(dy))
             self._effective_permittivity = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
-        elif patch_length is None:
+        elif dy is None:
             self._effective_permittivity = self._effective_permittivity_calcul
             self._added_length = self._added_length_calcul
             self._wave_length = self._wave_length_calcul
@@ -2310,7 +2337,7 @@ class Patch(CommonObject, object):
         """
         # "45 * (patch_wave_length/patch_width * sqrt(patch_eff_permittivity)) ** 2"
         # "60 * patch_wave_length/patch_width * sqrt(patch_eff_permittivity)"
-        # "90 * (patch_permittivity)**2/(patch_permittivity -1) * patch_length/patch_width
+        # "90 * (patch_permittivity)**2/(patch_permittivity -1) * dy/patch_width
         er_e = self._effective_permittivity.name
         lbd = self._wave_length.name
         w = self._width.name
@@ -2333,6 +2360,102 @@ class Patch(CommonObject, object):
             " the less correct the impedance calculation is"
         )
         return self._impedance_l_w, self._impedance_w_l
+
+    def create_probe_port(self, reference_layer, rel_x_offset=0, rel_y_offset=0, r=0.01, name="Probe"):
+        """Create a coaxial probe port for the patch.
+
+        Parameters
+        ----------
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
+            Reference layer (ground).
+
+        rel_x_offset : float,
+            Relative x-offset for probe feed.
+            Provide a value between 0.0 and 1.0.
+            Offset in the x-direction relative to the center of the patch.
+            `0` places the probe at the center of the patch.
+            `1` places the probe at the edge of the patch.
+            Default: 0
+
+        rel_y_offset : float, value between 0 and 1
+            `0` places the probe at the center of the patch.
+            `1` places the probe at the edge of the patch.
+            Default: 0
+
+        d : float, probe diameter
+            Default: 0.01
+
+        name : str, optional name of probe port.
+            Default value `"Probe"`
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+        >>> my_patch.create_probe_port(gnd)
+        """
+        probe_or = 2.45 * r  # Probe outer radius (relative to inner radius).
+        feed_length = 6 * probe_or
+
+        # Add parameters for relative probe feed location.
+        self.application["probe_x_rel"] = str(rel_x_offset)
+        self.application["probe_y_rel"] = str(rel_y_offset)
+        x_probe = self.position_x.name + "+(1.0 + probe_x_rel)*" + self.length.name + " / 2"
+        y_probe = self.position_y.name + "+  probe_y_rel *" + self.width.name + " / 2"
+
+        probe_height = (
+            self._signal_layer.elevation.name
+            + " - "
+            + reference_layer.elevation.name
+            + " - "
+            + reference_layer.thickness.name
+        )
+        z_ref = reference_layer.elevation.name + " + " + reference_layer.thickness.name
+        probe_pos = [x_probe, y_probe, z_ref]  # Probe base position.
+        probe_wire = self.application.modeler.create_cylinder(
+            cs_axis="Z", position=probe_pos, radius=r, height=probe_height, name=name, matname="copper"
+        )
+        probe_feed_wire = self.application.modeler.create_cylinder(
+            cs_axis="Z", position=probe_pos, radius=r, height=-feed_length, name=name + "_feed_wire", matname="copper"
+        )
+        probe_feed_outer = self.application.modeler.create_cylinder(
+            cs_axis="Z",
+            position=probe_pos,
+            radius=probe_or,
+            height=-feed_length,
+            name=name + "_feed_outer",
+            matname="vacuum",
+        )
+
+        # Probe extends through the ground plane.
+        self.application.modeler.subtract(reference_layer.name, probe_feed_outer.name)
+
+        # Find face on probe with max area. This is the outer ground and will be assigned PEC.
+        areas = [f.area for f in probe_feed_outer.faces]
+        i_pec = areas.index(max(areas))
+        outer_sheet_id = probe_feed_outer.faces[i_pec].id
+        self.application.assign_perfecte_to_sheets(outer_sheet_id, "Probe_PEC")
+
+        # Assign port. Find the face with the minimum z-position.
+        self.application.wave_port(
+            probe_feed_outer.bottom_face_z,
+            reference=probe_feed_outer.name,
+            create_pec_cap=True,
+            name="Probe_Port",
+        )
 
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
@@ -2568,9 +2691,9 @@ class Trace(CommonObject, object):
         self._effective_permittivity_h_w = None
         self._effective_permittivity_w_h = None
         self._axis = axis
-        self._permittivity = NamedVariable(
-            application, line_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
-        )
+        #  self._permittivity = NamedVariable(
+        #      application, line_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
+        #  )
         if isinstance(line_width, float) or isinstance(line_width, int):
             self._width = NamedVariable(
                 application, line_name + "_width", application.modeler._arg_with_dim(line_width)
@@ -2744,7 +2867,7 @@ class Trace(CommonObject, object):
         # w/h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
         h = self._substrate_thickness.name
         z = self._charac_impedance.name
-        er = self._permittivity.name
+        er = self._permittivity.value
         a_formula = (
             "("
             + z
@@ -2820,14 +2943,19 @@ class Trace(CommonObject, object):
         return self._permittivity
 
     @property
-    def _permittivity_calcul(self):
-        """Permittivity Calculation.
+    def _permittivity(self):
+        """Permittivity"""
+        return self.application.materials[self._dielectric_material].permittivity
 
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+    @property
+    def _permittivity_calcul(self):
+        """Permittivity.
+
+        (Obsolete)
+
         """
+        # TODO: This property is superfluous and causes inconsistencies. Remove it later.
+
         self._permittivity = self.application.materials[self._dielectric_material].permittivity
         return self._permittivity
 
@@ -2978,7 +3106,7 @@ class Trace(CommonObject, object):
         # "(substrat_permittivity + 1)/2 +
         # (substrat_permittivity - 1)/(2 * sqrt(1 + 12 * substrate_thickness/patch_width))"
         #
-        er = self._permittivity.name
+        er = self._permittivity.value
         h = self._substrate_thickness.name
         w = self.width.name
         patch_eff_permittivity_formula_w_h = (
@@ -3257,7 +3385,7 @@ class MachineLearningPatch(Patch, object):
     frequency : float, None
         The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
         layer or of the stackup. From 0.1 to 10 GHz.
-    patch_width : float
+    dx : float
         The patch width. From O.5 to 1.5 of the optimal width value : c0 * 1000/(2 * f * sqrt((er  + 1)/2))
     signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
         The signal layer where the patch will be drawn.
@@ -3295,7 +3423,7 @@ class MachineLearningPatch(Patch, object):
         self,
         application,
         frequency,
-        patch_width,
+        dx,
         signal_layer,
         dielectric_layer,
         patch_position_x=0,
@@ -3308,10 +3436,10 @@ class MachineLearningPatch(Patch, object):
             self,
             application,
             frequency,
-            patch_width,
+            dx,
             signal_layer,
             dielectric_layer,
-            patch_length=None,
+            dy=None,
             patch_position_x=patch_position_x,
             patch_position_y=patch_position_y,
             patch_name=patch_name,

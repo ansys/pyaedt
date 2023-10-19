@@ -1,7 +1,9 @@
 from __future__ import absolute_import  # noreorder
 
 import difflib
+import fnmatch
 import logging
+import os
 import warnings
 
 from pyaedt import is_ironpython
@@ -297,40 +299,59 @@ class Material(object):
 
     @pyaedt_function_handler()
     def _load(self, input_dict):
+        default_material = {
+            "name": "default",
+            "conductivity": 0,
+            "loss_tangent": 0,
+            "magnetic_loss_tangent": 0,
+            "mass_density": 0,
+            "permittivity": 1,
+            "permeability": 1,
+            "poisson_ratio": 0,
+            "specific_heat": 0,
+            "thermal_conductivity": 0,
+            "youngs_modulus": 0,
+            "thermal_expansion_coefficient": 0,
+            "dielectric_model_frequency": None,
+            "dc_permittivity": None,
+        }
         if input_dict:
-            self.conductivity = input_dict["conductivity"]
-            self.loss_tangent = input_dict["loss_tangent"]
-            self.magnetic_loss_tangent = input_dict["magnetic_loss_tangent"]
-            self.mass_density = input_dict["mass_density"]
-            self.permittivity = input_dict["permittivity"]
-            self.permeability = input_dict["permeability"]
-            self.poisson_ratio = input_dict["poisson_ratio"]
-            self.specific_heat = input_dict["specific_heat"]
-            self.thermal_conductivity = input_dict["thermal_conductivity"]
-            self.youngs_modulus = input_dict["youngs_modulus"]
-            self.thermal_expansion_coefficient = input_dict["thermal_expansion_coefficient"]
-            if input_dict["dielectric_model_frequency"] is not None:
+            for k, v in input_dict.items():
+                default_material[k] = v
+
+            self.conductivity = default_material["conductivity"]
+            self.loss_tangent = default_material["loss_tangent"]
+            self.magnetic_loss_tangent = default_material["magnetic_loss_tangent"]
+            self.mass_density = default_material["mass_density"]
+            self.permittivity = default_material["permittivity"]
+            self.permeability = default_material["permeability"]
+            self.poisson_ratio = default_material["poisson_ratio"]
+            self.specific_heat = default_material["specific_heat"]
+            self.thermal_conductivity = default_material["thermal_conductivity"]
+            self.youngs_modulus = default_material["youngs_modulus"]
+            self.thermal_expansion_coefficient = default_material["thermal_expansion_coefficient"]
+            if default_material["dielectric_model_frequency"] is not None:  # pragma: no cover
                 if self._edb_material_def.GetDielectricMaterialModel():
                     model = self._edb_material_def.GetDielectricMaterialModel()
-                    self.dielectric_model_frequency = input_dict["dielectric_model_frequency"]
-                    self.loss_tangent_at_frequency = input_dict["loss_tangent_at_frequency"]
-                    self.permittivity_at_frequency = input_dict["permittivity_at_frequency"]
-                    if input_dict["dc_permittivity"] is not None:
+                    self.dielectric_model_frequency = default_material["dielectric_model_frequency"]
+                    self.loss_tangent_at_frequency = default_material["loss_tangent_at_frequency"]
+                    self.permittivity_at_frequency = default_material["permittivity_at_frequency"]
+                    if default_material["dc_permittivity"] is not None:
                         model.SetUseDCRelativePermitivity(True)
-                        self.dc_permittivity = input_dict["dc_permittivity"]
-                    self.dc_conductivity = input_dict["dc_conductivity"]
+                        self.dc_permittivity = default_material["dc_permittivity"]
+                    self.dc_conductivity = default_material["dc_conductivity"]
                 else:
                     if not self._pclass.add_djordjevicsarkar_material(
-                        input_dict["name"],
-                        input_dict["permittivity_at_frequency"],
-                        input_dict["loss_tangent_at_frequency"],
-                        input_dict["dielectric_model_frequency"],
-                        input_dict["dc_permittivity"],
-                        input_dict["dc_conductivity"],
+                        default_material["name"],
+                        default_material["permittivity_at_frequency"],
+                        default_material["loss_tangent_at_frequency"],
+                        default_material["dielectric_model_frequency"],
+                        default_material["dc_permittivity"],
+                        default_material["dc_conductivity"],
                     ):
                         self._pclass._pedb.logger.warning(
                             'Cannot set DS model for material "{}". Check for realistic '
-                            "values that define DS Model".format(input_dict["name"])
+                            "values that define DS Model".format(default_material["name"])
                         )
             else:
                 # To unset DS model if already assigned to the material in database
@@ -346,11 +367,37 @@ class Materials(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
+        self._syslib = os.path.join(self._pedb.base_path, "syslib")
+        self._personal_lib = None
+        self._materials_in_aedt = None
         if not self.materials:
             self.add_material("air")
             self.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
             self.add_material("fr4_epoxy", 4.4, 1, 0, 0.02, 0)
             self.add_material("solder_mask", 3.1, 1, 0, 0.035, 0)
+
+    @property
+    def materials_in_aedt(self):
+        """Retrieve the dictionary of materials available in AEDT syslib."""
+        if self._materials_in_aedt:
+            return self._materials_in_aedt
+        self._materials_in_aedt = self._read_materials()
+        return self._materials_in_aedt
+
+    @property
+    def syslib(self):
+        """Retrieve the project sys library."""
+        return self._syslib
+
+    @property
+    def personallib(self):
+        """Get or Set the user personallib."""
+        return self._personal_lib
+
+    @personallib.setter
+    def personallib(self, value):
+        self._personal_lib = value
+        self._materials_in_aedt = self._read_materials()
 
     @pyaedt_function_handler()
     def _edb_value(self, value):
@@ -788,3 +835,137 @@ class Materials(object):
                 else:
                     return property_box.ToDouble()
         return False
+
+    @pyaedt_function_handler()
+    def add_material_from_aedt(self, material_name):
+        """Add a material read from ``syslib amat`` library.
+
+        Parameters
+        ----------
+        material_name : str
+            Material name.
+
+        Returns
+        -------
+        bool
+            "True`` when successful, ``False`` when failed.
+        """
+        if material_name in self.materials_in_aedt:
+            if material_name in list(self.materials.keys()):
+                self._pedb.logger.warning("Material {} already exists. Skipping it.".format(material_name))
+                return False
+            new_material = self.add_material(name=material_name)
+            material = self.materials_in_aedt[material_name]
+            try:
+                new_material.permittivity = float(material["permittivity"])
+            except (KeyError, TypeError):
+                pass
+            try:
+                new_material.conductivity = float(material["conductivity"])
+            except (KeyError, TypeError):
+                pass
+            try:
+                new_material.mass_density = float(material["mass_density"])
+            except (KeyError, TypeError):
+                pass
+            try:
+                new_material.permeability = float(material["permeability"])
+            except (KeyError, TypeError):
+                pass
+            try:
+                new_material.loss_tangent = float(material["dielectric_loss_tangent"])
+            except (KeyError, TypeError):
+                pass
+            try:
+                new_material.specific_heat = float(material["specific_heat"])
+            except (KeyError, TypeError):
+                pass
+            try:
+                new_material.thermal_expansion_coefficient = float(material["thermal_expansion_coeffcient"])
+            except (KeyError, TypeError):
+                pass
+            return True
+
+    @pyaedt_function_handler()
+    def load_amat(self, amat_file):
+        """Load material from an amat file and add materials to Edb.
+
+        Parameters
+        ----------
+        amat_file : str
+            Full path to the amat file to read and add to the Edb.
+        """
+        material_dict = self._read_materials(amat_file)
+        for material_name, material in material_dict.items():
+            if not material_name in list(self.materials.keys()):
+                new_material = self.add_material(name=material_name)
+                try:
+                    new_material.permittivity = float(material["permittivity"])
+                except (KeyError, TypeError):
+                    pass
+                try:
+                    new_material.conductivity = float(material["conductivity"])
+                except (KeyError, TypeError):
+                    pass
+                try:
+                    new_material.mass_density = float(material["mass_density"])
+                except (KeyError, TypeError):
+                    pass
+                try:
+                    new_material.permeability = float(material["permeability"])
+                except (KeyError, TypeError):
+                    pass
+                try:
+                    new_material.loss_tangent = float(material["dielectric_loss_tangent"])
+                except (KeyError, TypeError):
+                    pass
+                try:
+                    new_material.specific_heat = float(material["specific_heat"])
+                except (KeyError, TypeError):
+                    pass
+                try:
+                    new_material.thermal_expansion_coefficient = float(material["thermal_expansion_coeffcient"])
+                except (KeyError, TypeError):
+                    pass
+        return True
+
+    @pyaedt_function_handler()
+    def _read_materials(self, mat_file=None):
+        def get_mat_list(file_name, mats):
+            from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+
+            mread = load_entire_aedt_file(file_name)
+            for mat, mdict in mread.items():
+                if mat != "$base_index$":
+                    try:
+                        mats[mat] = mdict["MaterialDef"][mat]
+                    except KeyError:
+                        mats[mat] = mdict
+
+        if mat_file and os.path.exists(mat_file):
+            materials = {}
+            get_mat_list(mat_file, materials)
+            return materials
+
+        amat_sys = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(self.syslib)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, "*.amat")
+        ]
+        amat_personal = []
+        if self.personallib:
+            amat_personal = [
+                os.path.join(dirpath, filename)
+                for dirpath, _, filenames in os.walk(self.personallib)
+                for filename in filenames
+                if fnmatch.fnmatch(filename, "*.amat")
+            ]
+        materials = {}
+        for amat in amat_sys:
+            get_mat_list(amat, materials)
+
+        if amat_personal:
+            for amat in amat_personal:
+                get_mat_list(amat, materials)
+        return materials

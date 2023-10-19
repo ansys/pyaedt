@@ -720,11 +720,6 @@ class TestClass:
         rad3 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        # give the bluetooth radios different transmit power levels
-        for band in rad2.bands():
-            band.set_band_power_level(0.0)
-        for band in rad3.bands():
-            band.set_band_power_level(10.0)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         if self.aedtapp._emit_api is not None:
@@ -775,7 +770,7 @@ class TestClass:
             worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad4.name
             assert len(worst_domain.interferer_names) == 1
-            assert worst_domain.interferer_names[0] == rad3.name  # rad3 has the higher transmit power
+            assert worst_domain.interferer_names[0] == rad3.name
             domain2.set_receiver(rad3.name)
             domain2.set_interferer(rad2.name)
             assert rev2.is_domain_valid(domain2)
@@ -927,7 +922,7 @@ class TestClass:
 
         # Test with no filtering
         expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
-        expected_interference_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
+        expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
@@ -992,10 +987,10 @@ class TestClass:
             [["white", "white", "yellow"], ["red", "white", "white"]],
         ]
         all_interference_power = [
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
-            [["N/A", "<= -200", -20.0], [-20.0, "<= -200", "N/A"]],
+            [["N/A", 16.64, 56.0], [-3.96, 16.64, "N/A"]],
+            [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
+            [["N/A", 16.64, 2.45], [60.0, 16.64, "N/A"]],
+            [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
         ]
         interference_filters = [
             "TxFundamental:In-band",

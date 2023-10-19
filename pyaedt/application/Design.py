@@ -364,7 +364,7 @@ class Design(AedtObjects):
 
     @property
     def excitations_by_type(self):
-        """Design excitations by tupe.
+        """Design excitations by type.
 
         Returns
         -------
@@ -2241,21 +2241,21 @@ class Design(AedtObjects):
         return boundaries
 
     @pyaedt_function_handler()
-    def _get_ds_data(self, name, datas):
+    def _get_ds_data(self, name, data):
         """
 
         Parameters
         ----------
         name :
 
-        datas :
+        data :
 
 
         Returns
         -------
 
         """
-        units = datas["DimUnits"]
+        units = data["DimUnits"]
         numcol = len(units)
         x = []
         y = []
@@ -2264,15 +2264,15 @@ class Design(AedtObjects):
         if numcol > 2:
             z = []
             v = []
-        if "Coordinate" in datas:
-            for el in datas["Coordinate"]:
+        if "Coordinate" in data:
+            for el in data["Coordinate"]:
                 x.append(el["CoordPoint"][0])
                 y.append(el["CoordPoint"][1])
                 if numcol > 2:
                     z.append(el["CoordPoint"][2])
                     v.append(el["CoordPoint"][3])
         else:
-            new_list = [datas["Points"][i : i + numcol] for i in range(0, len(datas["Points"]), numcol)]
+            new_list = [data["Points"][i : i + numcol] for i in range(0, len(data["Points"]), numcol)]
             for el in new_list:
                 x.append(el[0])
                 y.append(el[1])
@@ -2290,10 +2290,10 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
+                data = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
                     "Coordinates"
                 ]
-                datasets[ds] = self._get_ds_data(ds, datas)
+                datasets[ds] = self._get_ds_data(ds, data)
         except:
             pass
         return datasets
@@ -2304,8 +2304,8 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
-                datasets[ds] = self._get_ds_data(ds, datas)
+                data = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datasets[ds] = self._get_ds_data(ds, data)
         except:
             pass
         return datasets
@@ -3781,6 +3781,10 @@ class Design(AedtObjects):
             for ds in self.design_datasets:
                 if ds in expression_string:
                     return expression_string
+        try:
+            return float(expression_string)
+        except ValueError:
+            pass
         try:
             variable_name = "pyaedt_evaluator"
             if "$" in expression_string:

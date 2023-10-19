@@ -30,11 +30,12 @@ if is_linux and cpython:  # pragma: no cover
         json_file = os.path.abspath(os.path.join(pyaedt_path, "misc", "pyaedt.runtimeconfig.json"))
         load("coreclr", runtime_config=json_file, dotnet_root=os.environ["DOTNET_ROOT"])
         print("DotNet Core correctly loaded.")
-        if "Delcross" not in os.getenv("LD_LIBRARY_PATH", "") or "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
+        if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
             warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
-            warnings.warn("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
+            warnings.warn("export ANSYSEM_ROOT232=/path/to/AnsysEM/v232/Linux64")
             msg = "export LD_LIBRARY_PATH="
-            msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
+            msg += "$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
+            msg += "If PyAEDT will run on AEDT<2023.2 then $ANSYSEM_ROOT222/Delcross should be added to LD_LIBRARY_PATH"
             warnings.warn(msg)
         is_clr = True
     except ImportError:

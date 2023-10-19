@@ -22,7 +22,8 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.ports import ExcitationBundle
+from pyaedt.edb_core.edb_data.ports import BundleWavePort
+from pyaedt.edb_core.edb_data.ports import CoaxPort
 from pyaedt.edb_core.edb_data.ports import ExcitationProbes
 from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.ports import GapPort
@@ -31,13 +32,19 @@ from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfigur
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.terminals import BundleTerminal
+from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
+from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
+from pyaedt.edb_core.general import LayoutObjType
+from pyaedt.edb_core.general import Primitives
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.layout import EdbLayout
+from pyaedt.edb_core.layout_validation import LayoutValidation
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.net_class import EdbDifferentialPairs
 from pyaedt.edb_core.net_class import EdbExtendedNets
@@ -73,7 +80,7 @@ class Edb(Database):
     ----------
     edbpath : str, optional
         Full path to the ``aedb`` folder. The variable can also contain
-        the path to a layout to import. Allowed formats are BRD,
+        the path to a layout to import. Allowed formats are BRD, MCM,
         XML (IPC2581), GDS, and DXF. The default is ``None``.
         For GDS import, the Ansys control file (also XML) should have the same
         name as the GDS file. Only the file extension differs.
@@ -143,7 +150,6 @@ class Edb(Database):
         technology_file=None,
     ):
         edbversion = get_string_version(edbversion)
-
         self._clean_variables()
         Database.__init__(self, edbversion=edbversion, student_version=student_version)
         self.standalone = True
@@ -174,7 +180,7 @@ class Edb(Database):
 
         if isaedtowned and (inside_desktop or settings.remote_api or settings.remote_rpc_session):
             self.open_edb_inside_aedt()
-        elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+        elif edbpath[-3:] in ["brd", "mcm", "gds", "xml", "dxf", "tgz"]:
             self.edbpath = edbpath[:-4] + ".aedb"
             working_dir = os.path.dirname(edbpath)
             control_file = None
@@ -326,6 +332,11 @@ class Edb(Database):
         return p_var
 
     @property
+    def layout_validation(self):
+        """:class:`pyaedt.edb_core.edb_data.layout_validation.LayoutValidation`."""
+        return LayoutValidation(self)
+
+    @property
     def variables(self):
         """Get all Edb variables.
 
@@ -344,7 +355,20 @@ class Edb(Database):
     @property
     def terminals(self):
         """Get terminals belonging to active layout."""
-        return {i.GetName(): GapPort(self, i) for i in self.layout.terminals}
+        temp = {}
+        for i in self.layout.terminals:
+            terminal_type = i.ToString().split(".")[-1]
+            if terminal_type == TerminalType.EdgeTerminal.name:
+                ter = EdgeTerminal(self, i)
+            elif terminal_type == TerminalType.BundleTerminal.name:
+                ter = BundleTerminal(self, i)
+            elif terminal_type == TerminalType.PadstackInstanceTerminal.name:
+                ter = PadstackInstanceTerminal(self, i)
+            else:
+                ter = Terminal(self, i)
+            temp[ter.name] = ter
+
+        return temp
 
     @property
     def excitations(self):
@@ -353,7 +377,7 @@ class Edb(Database):
         temp = {}
         for ter in terms:
             if "BundleTerminal" in ter.GetType().ToString():
-                temp[ter.GetName()] = ExcitationBundle(self, ter)
+                temp[ter.GetName()] = BundleWavePort(self, ter)
             else:
                 temp[ter.GetName()] = GapPort(self, ter)
         return temp
@@ -374,10 +398,12 @@ class Edb(Database):
         for t in temp:
             t2 = Terminal(self, t)
             if t2.terminal_type == TerminalType.BundleTerminal.name:
-                bundle_ter = ExcitationBundle(self, t)
+                bundle_ter = BundleWavePort(self, t)
                 ports[bundle_ter.name] = bundle_ter
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
+            elif t2.terminal_type == TerminalType.PadstackInstanceTerminal.name:
+                ports[t2.name] = CoaxPort(self, t)
             else:
                 ports[t2.name] = GapPort(self, t)
         return ports
@@ -502,7 +528,7 @@ class Edb(Database):
     def import_layout_pcb(self, input_file, working_dir, anstranslator_full_path="", use_ppe=False, control_file=None):
         """Import a board file and generate an ``edb.def`` file in the working directory.
 
-        This function supports all AEDT formats, including DXF, GDS, SML (IPC2581), BRD, and TGZ.
+        This function supports all AEDT formats, including DXF, GDS, SML (IPC2581), BRD, MCM and TGZ.
 
         Parameters
         ----------
@@ -550,7 +576,7 @@ class Edb(Database):
         ]
         if not use_ppe:
             cmd_translator.append("-ppe=false")
-        if control_file and input_file[-3:] not in ["brd"]:
+        if control_file and input_file[-3:] not in ["brd", "mcm"]:
             if is_linux:
                 cmd_translator.append("-c={}".format(control_file))
             else:
@@ -1014,9 +1040,53 @@ class Edb(Database):
         """Edb Layout Instance."""
         return self.layout.layout_instance
 
+    @pyaedt_function_handler
+    def get_connected_objects(self, layout_object_instance):
+        """Get connected objects.
+
+        Returns
+        -------
+        list
+        """
+        temp = []
+        for i in list(
+            [
+                loi.GetLayoutObj()
+                for loi in self.layout_instance.GetConnectedObjects(layout_object_instance._edb_object).Items
+            ]
+        ):
+            obj_type = i.GetObjType().ToString()
+            if obj_type == LayoutObjType.PadstackInstance.name:
+                from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+
+                temp.append(EDBPadstackInstance(i, self))
+            elif obj_type == LayoutObjType.Primitive.name:
+                prim_type = i.GetPrimitiveType().ToString()
+                if prim_type == Primitives.Path.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPath
+
+                    temp.append(EdbPath(i, self))
+                elif prim_type == Primitives.Rectangle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbRectangle
+
+                    temp.append(EdbRectangle(i, self))
+                elif prim_type == Primitives.Circle.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbCircle
+
+                    temp.append(EdbCircle(i, self))
+                elif prim_type == Primitives.Polygon.name:
+                    from pyaedt.edb_core.edb_data.primitives_data import EdbPolygon
+
+                    temp.append(EdbPolygon(i, self))
+                else:
+                    continue
+            else:
+                continue
+        return temp
+
     @property
     def pins(self):
-        """EDBPadstackInstance of Component.
+        """EDB padstack instance of the component.
 
         .. deprecated:: 0.6.62
            Use new method :func:`edb.padstacks.pins` instead.
@@ -3119,7 +3189,7 @@ class Edb(Database):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
-        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort))]
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, (WavePort, GapPort, BundleWavePort))]
         all_sources.extend([i for i in self.sources.values()])
         if not all_sources:
             return True

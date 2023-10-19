@@ -1,3 +1,4 @@
+import json
 import os
 
 # Setup paths for module imports
@@ -109,6 +110,15 @@ class TestClass:
 
     def test_003_create_coax_port_on_component(self):
         assert self.edbapp.hfss.create_coax_port_on_component("U1", "DDR4_DQS0_P")
+        coax_port = self.edbapp.components["U6"].pins["R3"].create_coax_port("coax_port")
+        coax_port.radial_extent_factor = 3
+        assert coax_port.radial_extent_factor == 3
+        assert coax_port.component
+        assert self.edbapp.components["U6"].pins["R3"].terminal
+        assert self.edbapp.components["U6"].pins["R3"].id
+        assert self.edbapp.terminals
+        assert self.edbapp.ports
+        assert self.edbapp.components["U6"].pins["R3"].get_connected_objects()
 
     def test_004_get_properties(self):
         assert len(self.edbapp.components.components) > 0
@@ -876,6 +886,11 @@ class TestClass:
         assert trace
         assert isinstance(trace.get_center_line(), list)
         assert isinstance(trace.get_center_line(True), list)
+        self.edbapp["delta_x"] = "1mm"
+        assert trace.add_point("delta_x", "1mm", True)
+        assert trace.get_center_line(True)[-1][0] == "(delta_x)+(0.025)"
+        assert trace.add_point(0.001, 0.002)
+        assert trace.get_center_line()[-1] == [0.001, 0.002]
 
     def test_070_create_outline(self):
         edbapp = Edb(
@@ -1579,7 +1594,7 @@ class TestClass:
         )
         assert edb.hfss.get_ports_number() == 2
         port_ver = edb.ports["port_ver"]
-        assert not port_ver.is_null()
+        assert not port_ver.is_null
         assert port_ver.hfss_type == "Gap"
 
         args = {
@@ -1622,13 +1637,23 @@ class TestClass:
             port_name="df_port",
         )
         assert edb.ports["df_port"]
-        assert not edb.are_port_reference_terminals_connected()
+        p, n = edb.ports["df_port"].terminals
+        assert edb.ports["df_port"].decouple()
+        p.couple_ports(n)
 
         traces_id = [i.id for i in traces]
         paths = [i[1] for i in trace_paths]
         _, df_port = edb.hfss.create_bundle_wave_port(traces_id, paths)
         assert df_port.name
         assert df_port.terminals
+        df_port.horizontal_extent_factor = 10
+        df_port.vertical_extent_factor = 10
+        df_port.deembed = True
+        df_port.deembed_length = "1mm"
+        assert df_port.horizontal_extent_factor == 10
+        assert df_port.vertical_extent_factor == 10
+        assert df_port.deembed
+        assert df_port.deembed_length == 1e-3
         edb.close()
 
     def test_120b_edb_create_port(self):
@@ -1662,7 +1687,6 @@ class TestClass:
             trace_pathes[1][0],
             horizontal_extent_factor=8,
         )
-        assert not edb.are_port_reference_terminals_connected()
 
         paths = [i[1] for i in trace_pathes]
         assert edb.hfss.create_bundle_wave_port(traces, paths)
@@ -1821,6 +1845,18 @@ class TestClass:
         assert layer.is_negative
         assert not layer.is_via_layer
         assert layer.material == "copper"
+        edbapp.close()
+
+    def test_125d_stackup(self):
+        fpath = os.path.join(local_path, "example_models", test_subfolder, "stackup.json")
+        stackup_json = json.load(open(fpath, "r"))
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(fpath)
+        edbapp.close()
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(stackup_json)
         edbapp.close()
 
     def test_126_comp_def(self):
@@ -2444,6 +2480,11 @@ class TestClass:
         assert pad_instance3.dcir_equipotential_region
         pad_instance3.dcir_equipotential_region = False
         assert not pad_instance3.dcir_equipotential_region
+
+        trace = edb.modeler.create_trace([[0, 0], [0, 10e-3]], "1_Top", "0.1mm", "trace_with_via_fence")
+        edb.padstacks.create_padstack("via_0")
+        trace.create_via_fence("1mm", "1mm", "via_0")
+
         edb.close()
 
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
@@ -2591,7 +2632,6 @@ class TestClass:
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A24"], reference_pins=["A11", "A16"])
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A26"], reference_pins=["A11", "A16", "A17"])
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A28"], reference_pins=["A11", "A16"])
-
         edbapp.close()
 
     def test_138_import_gds_from_tech(self):
@@ -2624,7 +2664,9 @@ class TestClass:
         c.import_options.import_dummy_nets = True
         from pyaedt import Edb
 
-        edb = Edb(gds_out, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
+        edb = Edb(
+            gds_out, edbversion=desktop_version, technology_file=os.path.join(self.local_scratch.path, "test_138.xml")
+        )
 
         assert edb
         assert "P1" in edb.excitations
@@ -2823,6 +2865,7 @@ class TestClass:
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
 
     def test_145_via_volume(self):
+        #
         vias = [
             via
             for via in list(self.edbapp.padstacks.padstack_instances.values())
@@ -2855,3 +2898,35 @@ class TestClass:
         assert ipc_stats.stackup_thickness == 0.001748
         edbapp.close()
         ipc_edb.close()
+
+    def test_147_find_dc_shorts(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        dc_shorts = edbapp.layout_validation.dc_shorts()
+        assert dc_shorts
+        edbapp.nets.nets["DDR4_A0"].name = "DDR4$A0"
+        edbapp.layout_validation.illegal_net_names(True)
+        edbapp.layout_validation.illegal_rlc_values(True)
+
+        # assert len(dc_shorts) == 20
+        assert ["LVDS_CH09_N", "GND"] in dc_shorts
+        assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
+        assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
+        edbapp.nets["DDR4_DM3"].find_dc_short(True)
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
+        edbapp.close()
+
+    def test_148_load_amat(self):
+        assert "Rogers RO3003 (tm)" in self.edbapp.materials.materials_in_aedt
+        material_file = os.path.join(self.edbapp.materials.syslib, "Materials.amat")
+        assert self.edbapp.materials.add_material_from_aedt("Arnold_Magnetics_N28AH_-40C")
+        assert "Arnold_Magnetics_N28AH_-40C" in self.edbapp.materials.materials.keys()
+        assert self.edbapp.materials.load_amat(material_file)
+        material_list = list(self.edbapp.materials.materials.keys())
+        assert material_list
+        assert len(material_list) > 0
+        assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].loss_tangent == 0.0013
+        assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].permittivity == 3.0

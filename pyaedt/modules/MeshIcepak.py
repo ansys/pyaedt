@@ -113,15 +113,9 @@ class IcepakMesh(object):
 
         @pyaedt_function_handler()
         def _dim_arg(self, value):
-            if type(value) is str:
-                try:
-                    float(value)
-                    val = "{0}{1}".format(value, self.model_units)
-                except:
-                    val = value
-            else:
-                val = "{0}{1}".format(value, self.model_units)
-            return val
+            from pyaedt.generic.general_methods import _dim_arg
+
+            return _dim_arg(value, self.model_units)
 
         @property
         def _new_versions_fields(self):
@@ -193,7 +187,7 @@ class IcepakMesh(object):
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
-            else:
+            if self.Objects:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
             arg.extend(self._new_versions_fields)
@@ -248,7 +242,7 @@ class IcepakMesh(object):
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
-            else:
+            if self.Objects:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
             arg.extend(self._new_versions_fields)
@@ -594,6 +588,8 @@ class IcepakMesh(object):
                     new_obj_list.append(comp)
 
             objects = ", ".join(new_obj_list)
+            if not new_obj_list:
+                return False
             prio = [
                 "NAME:PriorityListParameters",
                 "EntityType:=",
@@ -673,12 +669,23 @@ class IcepakMesh(object):
         except Exception:  # pragma : no cover
             created = False
         if created:
-            objectlist2 = self.modeler.object_names
-            added_obj = [i for i in objectlist2 if i not in all_objs]
-            if not added_obj:
-                added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
-            meshregion.Objects = added_obj
-            meshregion.SubModels = None
+            if virtual_region and self._app.check_beta_option_enabled(
+                "S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"
+            ):  # pragma : no cover
+                if is_submodel:
+                    meshregion.Objects = [i for i in objectlist if i in all_objs]
+                    meshregion.SubModels = [i for i in objectlist if i not in all_objs]
+                else:
+                    meshregion.Objects = objectlist
+                    meshregion.SubModels = None
+            else:
+                objectlist2 = self.modeler.object_names
+                added_obj = [i for i in objectlist2 if i not in all_objs]
+                if not added_obj:
+                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+                meshregion.Objects = added_obj
+                meshregion.SubModels = None
+
             meshregion.update()
             return meshregion
         else:

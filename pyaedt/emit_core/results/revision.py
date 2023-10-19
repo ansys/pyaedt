@@ -79,7 +79,7 @@ class Revision:
         Load this revision.
 
         Examples
-        ----------
+        --------
         >>> aedtapp.results.revision.load_revision()
         """
         if self.revision_loaded:
@@ -105,7 +105,7 @@ class Revision:
     @pyaedt_function_handler()
     def get_interaction(self, domain):
         """
-        Creates a new interaction for a domain.
+        Create a new interaction for a domain.
 
         Parameters
         ----------
@@ -118,7 +118,7 @@ class Revision:
             Interaction object.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.results.interaction_domain()
         >>> rev.get_interaction(domain)
 
@@ -146,7 +146,7 @@ class Revision:
             Interaction object.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.results.interaction_domain()
         >>> rev.run(domain)
 
@@ -180,7 +180,7 @@ class Revision:
             ``InteractionDomain`` object for constraining the analysis parameters.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.interaction_domain()
         >>> aedtapp.results.current_revision.is_domain_valid(domain)
         True
@@ -200,12 +200,12 @@ class Revision:
             ``InteractionDomain`` object for constraining the analysis parameters.
 
         Returns
-        --------
+        -------
         count : int
             Number of instances in the domain for the current revision.
 
         Examples
-        ----------
+        --------
         >>> domain = aedtapp.interaction_domain()
         >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
         """
@@ -228,7 +228,7 @@ class Revision:
             List of receiver names.
 
         Examples
-        ----------
+        --------
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
         if self.revision_loaded:
@@ -262,7 +262,7 @@ class Revision:
             List of interfering systems' names.
 
         Examples
-        ----------
+        --------
         >>> transmitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS)
         >>> emitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.EMITTERS)
         >>> both = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
@@ -301,7 +301,7 @@ class Revision:
             List of ``tx`` or ``rx`` band/waveform names.
 
         Examples
-        ----------
+        --------
         >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', TxRxMode.RX)
         >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', TxRxMode.TX)
         """
@@ -340,7 +340,7 @@ class Revision:
             List of ``tx`` or ``rx`` radio/emitter frequencies.
 
         Examples
-        ----------
+        --------
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
         """
@@ -361,7 +361,7 @@ class Revision:
         Add notes to the revision.
 
         Examples
-        ----------
+        --------
         >>> aedtapp.results.current_revision.notes = "Added a filter to the WiFi Radio."
         >>> aedtapp.results.current_revision.notes
         'Added a filter to the WiFi Radio.'
@@ -383,7 +383,7 @@ class Revision:
         - A value of  ``-1`` allows unlimited N to 1. (N is set to the maximum.)
 
         Examples
-        ----------
+        --------
         >>> aedtapp.results.current_revision.n_to_1_limit = 2**20
         >>> aedtapp.results.current_revision.n_to_1_limit
         1048576
@@ -477,12 +477,30 @@ class Revision:
                         domain.set_receiver(rx_radio, rx_band)
                         domain.set_interferer(tx_radio, tx_band)
                         interaction = self.run(domain)
+                        # check for valid interaction, this would catch any disabled radio pairs
+                        if not interaction.is_valid():
+                            continue
+
                         domain.set_receiver(rx_radio, rx_band, rx_freq)
                         tx_freqs = self.get_active_frequencies(tx_radio, tx_band, modeTx)
                         for tx_freq in tx_freqs:
                             domain.set_interferer(tx_radio, tx_band, tx_freq)
                             instance = interaction.get_instance(domain)
-                            tx_prob = instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
+                            if not instance.has_valid_values():
+                                # check for saturation somewhere in the chain
+                                # set power so its flagged as strong interference
+                                if instance.get_result_warning() == "An amplifier was saturated.":
+                                    max_power = 200
+                                else:
+                                    # other warnings (e.g. no path from Tx to Rx,
+                                    # no power received, error in configuration, etc)
+                                    # should just be skipped
+                                    continue
+                            else:
+                                tx_prob = (
+                                    instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
+                                )
+                                power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
                                 <= tx_freq
@@ -500,10 +518,10 @@ class Revision:
                                 in_filters = True
 
                             # Save the worst case interference values
-                            if instance.get_value(mode_power) > max_power and in_filters:
-                                prob = instance.get_largest_problem_type(ResultType.EMI)
-                                max_power = instance.get_value(mode_power)
+                            if power > max_power and in_filters:
+                                max_power = power
                                 largest_rx_prob = rx_prob
+                                prob = instance.get_largest_problem_type(ResultType.EMI)
                                 largest_tx_prob = prob.replace(" ", "").split(":")
 
                 if max_power > -200:
@@ -618,6 +636,9 @@ class Revision:
                     domain.set_receiver(rx_radio, rx_band)
                     domain.set_interferer(tx_radio, tx_band)
                     interaction = self.run(domain)
+                    # check for valid interaction, this would catch any disabled radio pairs
+                    if not interaction.is_valid():
+                        continue
                     domain.set_receiver(rx_radio, rx_band, rx_freq)
                     tx_freqs = self.get_active_frequencies(tx_radio, tx_band, modeTx)
 
@@ -626,7 +647,18 @@ class Revision:
                     for tx_freq in tx_freqs:
                         domain.set_interferer(tx_radio, tx_band, tx_freq)
                         instance = interaction.get_instance(domain)
-                        power = instance.get_value(mode_power)
+                        if not instance.has_valid_values():
+                            # check for saturation somewhere in the chain
+                            # set power so its flagged as "damage threshold"
+                            if instance.get_result_warning() == "An amplifier was saturated.":
+                                max_power = 200
+                            else:
+                                # other warnings (e.g. no path from Tx to Rx,
+                                # no power received, error in configuration, etc)
+                                # should just be skipped
+                                continue
+                        else:
+                            power = instance.get_value(mode_power)
 
                         if power > damage_threshold:
                             classification = "damage"
@@ -644,8 +676,8 @@ class Revision:
                         else:
                             filtering = True
 
-                        if instance.get_value(mode_power) > max_power and filtering:
-                            max_power = instance.get_value(mode_power)
+                        if power > max_power and filtering:
+                            max_power = power
 
                 # If the worst case for the band-pair is below the power thresholds, then
                 # there are no interference issues and no offset is required.

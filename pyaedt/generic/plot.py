@@ -470,6 +470,7 @@ def plot_matplotlib(
     snapshot_path=None,
     x_limits=None,
     y_limits=None,
+    axis_equal=False,
     annotations=None,
     show=True,
 ):
@@ -483,23 +484,27 @@ def plot_matplotlib(
         For type ``path``: `[vertices, codes, color, label, alpha, type=="path"]`.
         For type ``contour``: `[vertices, codes, color, label, alpha, line_width, type=="contour"]`.
     size : tuple, optional
-        Image size in pixel (width, height).
-    show_legend : bool
-        Either to show legend or not.
-    xlabel : str
-        Plot X label.
-    ylabel : str
-        Plot Y label.
-    title : str
-        Plot Title label.
-    snapshot_path : str
-        Full path to image file if a snapshot is needed.
+        Image size in pixel (width, height). Default is `(2000, 1000)`.
+    show_legend : bool, optional
+        Either to show legend or not. Default is `True`.
+    xlabel : str, optional
+        Plot X label. Default is `""`.
+    ylabel : str, optional
+        Plot Y label. Default is `""`.
+    title : str, optional
+        Plot Title label. Default is `""`.
+    snapshot_path : str, optional
+        Full path to image file if a snapshot is needed. Default is `None`.
     x_limits : list, optional
-        List of x limits (left and right).
+        List of x limits (left and right). Default is `None`.
     y_limits : list, optional
-        List of y limits (bottom and top).
+        List of y limits (bottom and top). Default is `None`.
+    axis_equal : bool, optional
+         Whether to show the same scale on both axis or have a different scale based on plot size.
+        Default is `False`.
     annotations : list, optional
-        List of annotations to add to the plot. [x,y,string, dictionary of font options]
+        List of annotations to add to the plot. The format is [x, y, string, dictionary of font options].
+        Default is `None`.
     show : bool, optional
         Whether to show the plot or return the matplotlib object. Default is `True`.
 
@@ -513,7 +518,6 @@ def plot_matplotlib(
     figsize = (size[0] / dpi, size[1] / dpi)
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(1, 1, 1)
-    # fig, ax = plt.subplot(figsize=figsize)
     if isinstance(plot_data, str):
         plot_data = ast.literal_eval(plot_data)
     for points in plot_data:
@@ -531,11 +535,34 @@ def plot_matplotlib(
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
     if show_legend:
         ax.legend(loc="upper right")
-    # ax.axis("equal")
+
+    # evaluating the limits
+    xmin = ymin = 1e30
+    xmax = ymax = -1e30
+    for points in plot_data:
+        if points[-1] == "fill":
+            xmin = min(xmin, min(points[0]))
+            xmax = max(xmax, max(points[0]))
+            ymin = min(ymin, min(points[1]))
+            ymax = max(ymax, max(points[1]))
+        else:
+            for p in points[0]:
+                xmin = min(xmin, p[0])
+                xmax = max(xmax, p[0])
+                ymin = min(ymin, p[1])
+                ymax = max(ymax, p[1])
     if x_limits:
         ax.set_xlim(x_limits)
+    else:
+        ax.set_xlim([xmin, xmax])
     if y_limits:
         ax.set_ylim(y_limits)
+    else:
+        ax.set_ylim([ymin, ymax])
+
+    if axis_equal:
+        ax.axis("equal")
+
     if annotations:
         for annotation in annotations:
             plt.text(annotation[0], annotation[1], annotation[2], **annotation[3])
@@ -1489,6 +1516,7 @@ class ModelPlotter(CommonPlotter):
         bool
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv.enable_ssao()
         self.meshes = None
         if self.background_image:
             self.pv.add_background_image(self.background_image)
@@ -1555,8 +1583,8 @@ class ModelPlotter(CommonPlotter):
 
         if self.show_axes:
             self.pv.show_axes()
-        if not self.is_notebook:
-            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid)
+        if not self.is_notebook and self.show_grid:
+            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.2e")
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.set_focus(self.pv.mesh.center)

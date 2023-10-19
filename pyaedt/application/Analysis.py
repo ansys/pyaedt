@@ -423,6 +423,7 @@ class Analysis(Design, object):
         try:
             list_names = list(self.oboundary.GetExcitations())
             del list_names[1::2]
+            list_names = list(set(list_names))
             return list_names
         except:
             return []
@@ -1356,19 +1357,21 @@ class Analysis(Design, object):
         return setup
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None):
+    def create_output_variable(self, variable, expression, solution=None, context=None):
         """Create or modify an output variable.
 
 
         Parameters
         ----------
-        variable : str
+        variable : str, optional
             Name of the variable.
-        expression :
+        expression : str, optional
             Value for the variable.
-        solution :
+        solution : str, optional
             Name of the solution in the format `"setup_name : sweep_name"`.
             If `None`, the first available solution is used. Default is `None`.
+        context : list, str, optional
+            Context under which the output variable will produce results.
 
         Returns
         -------
@@ -1380,13 +1383,20 @@ class Analysis(Design, object):
 
         >>> oModule.CreateOutputVariable
         """
+        if context is None:
+            context = []
+        if not context and self.solution_type == "Q3D Extractor":
+            context = ["Context:=", "Original"]
+
         oModule = self.ooutput_variable
         if solution is None:
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
-            oModule.EditOutputVariable(variable, expression, variable, solution, self.solution_type, [])
+            oModule.EditOutputVariable(
+                variable, expression, variable, solution, self.design_solutions.report_type, context
+            )
         else:
-            oModule.CreateOutputVariable(variable, expression, solution, self.solution_type, [])
+            oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
         return True
 
     @pyaedt_function_handler()
@@ -1714,27 +1724,36 @@ class Analysis(Design, object):
                 skip_files = True
             if not skip_files:
                 if num_cores:
-                    skip_files = update_hpc_option(target_name, "NumCores", num_cores, False)
+                    succeeded = update_hpc_option(target_name, "NumCores", num_cores, False)
+                    skip_files = True if not succeeded else skip_files
                 if num_gpu:
-                    skip_files = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                    succeeded = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                    skip_files = True if not succeeded else skip_files
                 if num_tasks:
-                    skip_files = update_hpc_option(target_name, "NumEngines", num_tasks, False)
-                skip_files = update_hpc_option(target_name, "ConfigName", config_name, True)
-                skip_files = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                    succeeded = update_hpc_option(target_name, "NumEngines", num_tasks, False)
+                    skip_files = True if not succeeded else skip_files
+                succeeded = update_hpc_option(target_name, "ConfigName", config_name, True)
+                skip_files = True if not succeeded else skip_files
+                succeeded = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                skip_files = True if not succeeded else skip_files
                 if self.design_type == "Icepak":
                     use_auto_settings = False
-                skip_files = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                succeeded = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                skip_files = True if not succeeded else skip_files
                 if num_variations_to_distribute:
-                    skip_files = update_hpc_option(
+                    succeeded = update_hpc_option(
                         target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
                     )
+                    skip_files = True if not succeeded else skip_files
                 if isinstance(allowed_distribution_types, list):
                     num_adt = len(allowed_distribution_types)
                     adt_string = "', '".join(allowed_distribution_types)
                     adt_string = "[{}: '{}']".format(num_adt, adt_string)
-                    skip_files = update_hpc_option(
+
+                    succeeded = update_hpc_option(
                         target_name, "AllowedDistributionTypes", adt_string, False, separator=""
                     )
+                    skip_files = True if not succeeded else skip_files
 
             if settings.remote_rpc_session:
                 remote_name = (
@@ -2020,17 +2039,25 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def _export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self,
+        setup_name=None,
+        sweep_name=None,
+        file_name=None,
+        variations=None,
+        variations_value=None,
+        renormalization=False,
+        impedance=None,
+        comments=False,
     ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solution_name : str, optional
-            Name of the solution that has been solved.
+        setup_name : str, optional
+            Name of the setup that has been solved.
         sweep_name : str, optional
             Name of the sweep that has been solved.
-            This parameter has to be ignored or set with same value as solution_name
+            This parameter has to be ignored or set with same value as setup_name
         file_name : str, optional
             Full path and name for the Touchstone file. The default is ``None``,
             which exports the file to the working directory.
@@ -2040,6 +2067,15 @@ class Analysis(Design, object):
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
             The default is ``None``.
+        renormalization : bool, optional
+            Perform renormalization before export.
+            The default is ``False``.
+        impedance : float, optional
+            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
+            The default is ``None``.
+        comments : bool, optional
+            Include Gamma and Impedance values in comments.
+            The default is ``False``.
 
         Returns
         -------
@@ -2051,15 +2087,17 @@ class Analysis(Design, object):
             if variations_value is None:
                 variations_value = [str(x) for x in list(self.available_variations.nominal_w_values_dict.values())]
 
-        if solution_name is None:
+        if setup_name is None:
             nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
-            solution_name = nominal_sweep_list[0]
+            setup_name = nominal_sweep_list[0]
+        if impedance is None:
+            impedance = 50
         if self.design_type == "Circuit Design":
-            sweep_name = solution_name
+            sweep_name = setup_name
         else:
             if sweep_name is None:
                 for sol in self.existing_analysis_sweeps:
-                    if solution_name == sol.split(":")[0].strip():
+                    if setup_name == sol.split(":")[0].strip():
                         sweep_name = sol.split(":")[1].strip()
                         break
 
@@ -2073,7 +2111,7 @@ class Analysis(Design, object):
             for v, vv in zip(variations, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + n + "p"
-            filename = os.path.join(self.working_directory, solution_name + "_" + sweep_name + appendix + ext)
+            filename = os.path.join(self.working_directory, setup_name + "_" + sweep_name + appendix + ext)
         else:
             filename = file_name.replace("//", "/").replace("\\", "/")
         self.logger.info("Exporting Touchstone " + filename)
@@ -2082,20 +2120,20 @@ class Analysis(Design, object):
             DesignVariations += str(variations[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solution_name + ":" + sweep_name]
+        SolutionSelectionArray = [setup_name + ":" + sweep_name]
         # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
         # array containing the frequencies to export, use ["all"] for all frequencies
         FreqsArray = ["all"]
-        DoRenorm = True  # perform renormalization before export
-        RenormImped = 50  # Real impedance value in ohm, for renormalization
+        DoRenorm = renormalization  # perform renormalization before export
+        RenormImped = impedance  # Real impedance value in ohm, for renormalization
         DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
         Pass = -1  # The pass to export. -1 = export all passes.
         ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
         DigitsPrecision = 15  # Touchstone number of digits precision
-        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
+        IncludeGammaImpedance = comments  # Include Gamma and Impedance in comments
         NonStandardExtensions = False  # Support for non-standard Touchstone extensions
 
         if self.design_type == "HFSS":
@@ -2136,7 +2174,12 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def value_with_units(self, value, units=None):
+    def value_with_units(
+        self,
+        value,
+        units=None,
+        unit_system="Length",
+    ):
         """Combine a number and a string containing the modeler length unit in a single
         string e.g. "1.2mm".
         If the units are not specified, the model units are used.
@@ -2157,20 +2200,26 @@ class Analysis(Design, object):
             "mil": 0.001 inches (mils)
             "km": kilometer
             "ft": feet
-
+        unit_system : str, optional
+            Unit system. Default is `"Length"`.
 
         Returns
         -------
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
-        if isinstance(value, str):
-            val = value
-        else:
-            if units is None:
+        if not units:
+            if unit_system == "Length":
                 units = self.modeler.model_units
-            val = "{0}{1}".format(value, units)
-        return val
+            else:
+                try:
+                    units = self.odesktop.GetDefaultUnit(unit_system)
+                except:
+                    self.logger.warning("Defined unit system is incorrect.")
+                    units = ""
+        from pyaedt.generic.general_methods import _dim_arg
+
+        return _dim_arg(value, units)
 
     @pyaedt_function_handler()
     def export_rl_matrix(

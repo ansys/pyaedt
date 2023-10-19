@@ -751,7 +751,7 @@ class PostProcessorCommon(object):
             Report Display Type.
             Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adpative solution.
+            Report Setup. Default is `None` which will take first nominal_adaptive solution.
         context : str, optional
             Report Category. Default is `""` which will take first default context.
         is_siwave_dc : bool, optional
@@ -816,7 +816,7 @@ class PostProcessorCommon(object):
             Report Display Type.
             Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adpative solution.
+            Report Setup. Default is `None` which will take first nominal_adaptive solution.
         quantities_category : str, optional
             The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
             Default is ``None`` which will take first default quantity.".
@@ -1145,7 +1145,18 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def export_report_to_file(self, output_dir, plot_name, extension, unique_file=False):
+    def export_report_to_file(
+        self,
+        output_dir,
+        plot_name,
+        extension,
+        unique_file=False,
+        uniform=False,
+        start=None,
+        end=None,
+        step=None,
+        use_trace_number_format=False,
+    ):
         """Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -1167,6 +1178,20 @@ class PostProcessorCommon(object):
                 * (Ansoft Report Data Files) .rdat
         unique_file : bool
             If set to True, generates unique file in output_dit
+        uniform : bool, optional
+            Whether the export uniform points to the file. The
+            default is ``False``.
+        start : str, optional
+            Start range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        end : str, optional
+            End range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        step : str, optional
+            Step range with units for the sweep if the ``uniform`` parameter is
+            set to ``True``.
+        use_trace_number_format : bool, optional
+            Whether to use trace number formats. The default is ``False``.
 
         Returns
         -------
@@ -1177,6 +1202,7 @@ class PostProcessorCommon(object):
         ----------
 
         >>> oModule.ExportReportDataToFile
+        >>> oModule.ExportUniformPointsToFile
         >>> oModule.ExportToFile
 
         Examples
@@ -1204,13 +1230,18 @@ class PostProcessorCommon(object):
 
         if extension == ".rdat":
             self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
+        elif uniform:
+            self.oreportsetup.ExportUniformPointsToFile(plot_name, file_path, start, end, step, use_trace_number_format)
+
         else:
             self.oreportsetup.ExportToFile(plot_name, file_path)
 
         return file_path
 
     @pyaedt_function_handler()
-    def export_report_to_csv(self, project_dir, plot_name):
+    def export_report_to_csv(
+        self, project_dir, plot_name, uniform=False, start=None, end=None, step=None, use_trace_number_format=False
+    ):
         """Export the 2D Plot data to a CSV file.
 
         This method leaves the data in the plot (as data) as a reference
@@ -1222,6 +1253,20 @@ class PostProcessorCommon(object):
             Path to the project directory. The csv file will be plot_name.csv.
         plot_name : str
             Name of the plot to export.
+        uniform : bool, optional
+            Whether the export uniform points to the file. The
+            default is ``False``.
+        start : str, optional
+            Start range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        end : str, optional
+            End range with units for the sweep if the ``uniform`` parameter
+            is set to ``True``.
+        step : str, optional
+            Step range with units for the sweep if the ``uniform`` parameter is
+            set to ``True``.
+        use_trace_number_format : bool, optional
+            Whether to use trace number formats. The default is ``False``.
 
         Returns
         -------
@@ -1233,8 +1278,18 @@ class PostProcessorCommon(object):
 
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
+        >>> oModule.ExportUniformPointsToFile
         """
-        return self.export_report_to_file(project_dir, plot_name, extension=".csv")
+        return self.export_report_to_file(
+            project_dir,
+            plot_name,
+            extension=".csv",
+            uniform=uniform,
+            start=start,
+            end=end,
+            step=step,
+            use_trace_number_format=use_trace_number_format,
+        )
 
     @pyaedt_function_handler()
     def export_report_to_jpg(self, project_dir, plot_name, width=0, height=0):
@@ -1247,9 +1302,9 @@ class PostProcessorCommon(object):
         plot_name : str
             Name of the plot to export.
         width : int, optional
-            Image width. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
+            Image width. Default is ``0`` which takes Desktop size or 1980 pixel in case of non-graphical mode.
         height : int, optional
-            Image height. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
+            Image height. Default is ``0`` which takes Desktop size or 1020 pixel in case of non-graphical mode.
 
         Returns
         -------
@@ -1264,11 +1319,11 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        if self._app.desktop_class.non_graphical:
+        if self._app.desktop_class.non_graphical:  # pragma: no cover
             if width == 0:
-                width = 500
+                width = 1980
             if height == 0:
-                height = 500
+                height = 1020
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
@@ -3297,7 +3352,7 @@ class PostProcessor(PostProcessorCommon, object):
             full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        if not settings.non_graphical:
+        if not self._app.desktop_class.non_graphical:  # pragma: no cover
             if self._app.design_type not in [
                 "HFSS 3D Layout Design",
                 "Circuit Design",
@@ -3450,7 +3505,7 @@ class PostProcessor(PostProcessorCommon, object):
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
                     t = self._app.modeler[el].transparency
-                    if t:
+                    if t is not None:
                         transp = t
                     files_exported.append([fname, self._app.modeler[el].color, 1 - transp])
                 else:

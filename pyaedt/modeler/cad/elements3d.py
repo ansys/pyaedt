@@ -69,7 +69,7 @@ class EdgeTypePrimitive(object):
 
     @pyaedt_function_handler()
     def fillet(self, radius=0.1, setback=0.0):
-        """Add a fillet to the selected edge.
+        """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
         ----------
@@ -98,7 +98,7 @@ class EdgeTypePrimitive(object):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Filet is possible only on a vertex in 2D designs.")
+                self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
                 return False
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
@@ -116,7 +116,7 @@ class EdgeTypePrimitive(object):
 
     @pyaedt_function_handler()
     def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
-        """Add a chamfer to the selected edge.
+        """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
         ----------

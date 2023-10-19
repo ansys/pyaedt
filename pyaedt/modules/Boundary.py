@@ -225,7 +225,7 @@ class NativeComponentObject(BoundaryCommon, object):
         Returns
         -------
         str
-            Native Component Coordinate System
+            Native Component Coordinate System.
         """
         if "TargetCS" in list(self.props.keys()):
             return self.props["TargetCS"]
@@ -637,10 +637,13 @@ class BoundaryObject(BoundaryCommon, object):
         elif bound_type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif bound_type == "AutoIdentify":
+            # Build reference conductor argument as a list of strings
+            # ref_cond_arg should be a list.
+            ref_cond_arg = ["NAME:ReferenceConductors"] + self.props["ReferenceConductors"]
             self._app.oboundary.AutoIdentifyPorts(
                 ["NAME:Faces", self.props["Faces"]],
                 self.props["IsWavePort"],
-                ["NAME:ReferenceConductors"] + self.props["ReferenceConductors"],
+                ref_cond_arg,
                 self.name,
                 self.props["RenormalizeModes"],
             )
@@ -3211,9 +3214,8 @@ class Excitations(object):
         return self._angle
 
     @angle.setter
-    def angle(self, angle=None):
-        self._logger.warning("Angle cannot be modified. This capability has not yet been implemented in the AEDT API.")
-        # self._app.modeler.schematic.components[self.comp].angle = angle
+    def angle(self, angle):
+        self._app.modeler.schematic.components[self.schematic_id].angle = angle
 
     @property
     def mirror(self):
@@ -3688,7 +3690,7 @@ class NetworkObject(BoundaryObject):
 
         Parameters
         ----------
-        b: bool
+        b : bool
             Whether to enable auto-update.
 
         """
@@ -3846,7 +3848,7 @@ class NetworkObject(BoundaryObject):
 
         Parameters
         ----------
-        new_network_name: str
+        new_network_name : str
             New name of the network.
         """
         bound_names = [b.name for b in self._app.boundaries]
@@ -3927,11 +3929,11 @@ class NetworkObject(BoundaryObject):
 
         Parameters
         ----------
-        name: str
+        name : str
             Name of the node.
-        assignment_type: str
+        assignment_type : str
             Type assignment. Options are ``"Power"`` and ``"Temperature"``.
-        value: str or float or dict
+        value : str or float or dict
             String, float, or dictionary containing the value of the assignment.
             If a float is passed the ``"W"`` or ``"cel"`` unit is used, depending on
             the selection for the ``assignment_type`` parameter. If ``"Power"`
@@ -3941,7 +3943,7 @@ class NetworkObject(BoundaryObject):
         Returns
         -------
         bool
-            True if successful.
+            ``True`` if successful.
 
         Examples
         --------
@@ -4080,7 +4082,7 @@ class NetworkObject(BoundaryObject):
         Add nodes to the network from dictionary.
 
         Parameters
-        -------
+        ----------
         nodes_dict : list or dict
             A dictionary or list of dictionaries containing nodes to add to the network. Different
             node types require different key and value pairs:
@@ -4429,8 +4431,8 @@ class NetworkObject(BoundaryObject):
             Set properties of the node.
 
             Parameters
-            -------
-            props: dict
+            ----------
+            props : dict
                 Node properties.
             """
             self._props = props

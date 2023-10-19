@@ -73,7 +73,7 @@ class TestClass:
         # file handler on every logger has been released properly.
         # Otherwise, we can't read the content of the log file.
 
-        # delete the global file handler but not the log hadler because
+        # delete the global file handler but not the log handler because
         # it is used to write some info messages when closing AEDT.
         logger.disable_log_on_file()
 

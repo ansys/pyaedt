@@ -66,6 +66,8 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
         command = [full_path, "-grpcsrv", str(port)]
         if non_graphical:
             command.append("-ng")
+        if settings.wait_for_license:
+            command.append("-waitforlicense")
         my_env = os.environ.copy()
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
@@ -131,6 +133,8 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         ]
     if non_graphical:
         command.append("-ng")
+    if settings.wait_for_license:
+        command.append("-waitforlicense")
     print(command)
     p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     timeout = settings.lsf_timeout
@@ -1008,8 +1012,14 @@ class Desktop(object):
                 return
         elif new_aedt_session:
             installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
+            if student_version:  # pragma: no cover
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv")
             if not is_linux:
-                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
+                if student_version:  # pragma: no cover
+                    installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")
+                else:
+                    installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
+
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
@@ -1428,7 +1438,10 @@ class Desktop(object):
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:
-                self.odesktop.CloseProject(project)
+                try:
+                    self.odesktop.CloseProject(project)
+                except:  # pragma: no cover
+                    self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
