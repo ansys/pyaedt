@@ -33,10 +33,10 @@ goto end
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 
 :pdf
-%SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-cd "%BUILDDIR%\latex"
-for %%f in (*.tex) do (
-pdflatex "%%f" --interaction=nonstopmode)
+%SPHINXBUILD% -M latexpdf %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+REM cd "%BUILDDIR%\latex"
+REM for %%f in (*.tex) do (
+REM pdflatex "%%f" --interaction=nonstopmode)
 
 :end
 popd

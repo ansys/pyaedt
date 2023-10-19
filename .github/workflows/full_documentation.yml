@@ -78,25 +78,25 @@ jobs:
             testenv\Scripts\Activate.ps1
             .\doc\make.bat pdf
 
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-html
-          path: doc/_build/html
-          retention-days: 7
-
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-html-edb
-          path: doc/_build/html/EDBAPI
-          retention-days: 7
+      #- name: Upload HTML documentation artifact
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: documentation-html
+      #    path: doc/_build/html
+      #    retention-days: 7
+#
+      #- name: Upload HTML documentation artifact
+      #  uses: actions/upload-artifact@v3
+      #  with:
+      #    name: documentation-html-edb
+      #    path: doc/_build/html/EDBAPI
+      #    retention-days: 7
 
       - name: Upload PDF documentation artifact
         uses: actions/upload-artifact@v3
         with:
           name: documentation-pdf
-          path: doc/_build/pdf
+          path: doc/_build/latex/pyaedt.pdf
           retention-days: 7
 
       - name: Release
