@@ -669,7 +669,9 @@ class IcepakMesh(object):
         except Exception:  # pragma : no cover
             created = False
         if created:
-            if virtual_region and self._app.check_beta_option_enabled("S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"):
+            if virtual_region and self._app.check_beta_option_enabled(
+                "S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"
+            ):  # pragma : no cover
                 if is_submodel:
                     meshregion.Objects = [i for i in objectlist if i in all_objs]
                     meshregion.SubModels = [i for i in objectlist if i not in all_objs]
