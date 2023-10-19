@@ -2829,23 +2829,19 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     @property
     def model_depth(self):
         """Model depth."""
-
-        if "ModelDepth" in self.design_properties:
-            value_str = self.design_properties["ModelDepth"]
-            a = None
-            try:
-                a = float_units(value_str)
-            except:
-                a = self.variable_manager[value_str].value
-            finally:
-                return a
+        design_settings = self.design_settings()
+        if "ModelDepth" in design_settings:
+            value_str = design_settings["ModelDepth"]
+            return value_str
         else:
             return None
 
     @model_depth.setter
     def model_depth(self, value):
         """Set model depth."""
-        return self.change_design_settings({"ModelDepth": self.modeler._arg_with_dim(value, self.modeler.model_units)})
+        if isinstance(value, float) or isinstance(value, int):
+            value = self.modeler._arg_with_dim(value, self.modeler.model_units)
+        return self.change_design_settings({"ModelDepth": value})
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):
