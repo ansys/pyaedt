@@ -1319,7 +1319,7 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        if self._app.desktop_class.non_graphical:
+        if self._app.desktop_class.non_graphical:  # pragma: no cover
             if width == 0:
                 width = 1980
             if height == 0:

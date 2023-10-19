@@ -489,7 +489,7 @@ class PostProcessor(Post):
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
-            Objects list on which filter the plot for ``CutPlane`` plots.
+            Objects list for filtering the ``CutPlane`` plots.
 
         Returns
         -------
@@ -619,7 +619,7 @@ class PostProcessor(Post):
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
-            Objects list on which filter the plot for ``CutPlane`` plots.
+            Objects list for filtering the ``CutPlane`` plots.
 
         Returns
         -------
