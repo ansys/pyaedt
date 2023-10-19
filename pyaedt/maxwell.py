@@ -10,7 +10,6 @@ import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -2841,7 +2840,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         """Set model depth."""
         if isinstance(value, float) or isinstance(value, int):
             value = self.modeler._arg_with_dim(value, self.modeler.model_units)
-        return self.change_design_settings({"ModelDepth": value})
+        self.change_design_settings({"ModelDepth": value})
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):
