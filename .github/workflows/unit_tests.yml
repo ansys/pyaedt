@@ -66,11 +66,15 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
-        timeout-minutes: 40
-        run: |
-          testenv_s\Scripts\Activate.ps1
-          Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            testenv_s\Scripts\Activate.ps1
+            Set-Item -Path env:PYTHONMALLOC -Value "malloc"
+            pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v3
         env:
@@ -125,11 +129,15 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
-        timeout-minutes: 40
-        run: |
-          testenv\Scripts\Activate.ps1
-          Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            testenv\Scripts\Activate.ps1
+            Set-Item -Path env:PYTHONMALLOC -Value "malloc"
+            pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v3
         env:

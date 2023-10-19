@@ -10,7 +10,6 @@ import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -1231,6 +1230,25 @@ class Maxwell(object):
         ----------
 
         >>> oModule.AssignForce
+
+        Examples
+        --------
+
+        Assign virtual force to a magnetic object:
+
+        >>> iron_object = m3d.modeler.create_box([0, 0, 0], [2, 10, 10], name="iron")
+        >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
+        >>> m3d.assign_material(iron_object, "iron")
+        >>> m3d.assign_material(magnet_object, "NdFe30")
+        >>> m3d.assign_force("iron", force_name="force_iron", is_virtual=True)
+
+        Assign Lorentz force to a conductor:
+
+        >>> conductor1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="conductor1")
+        >>> conductor2 = m3d.modeler.create_box([10, 0, 0], [1, 1, 10], name="conductor2")
+        >>> m3d.assign_material(conductor1, "copper")
+        >>> m3d.assign_material(conductor2, "copper")
+        >>> m3d.assign_force("conductor1", force_name="force_copper", is_virtual=False) # conductor, use Lorentz force
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
             input_object = self.modeler.convert_to_selections(input_object, True)
@@ -2242,7 +2260,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """Create a boundary.
 
         Parameters
-        ---------
+        ----------
         name : str
             Name of the boundary.
         props : list
@@ -2810,23 +2828,19 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     @property
     def model_depth(self):
         """Model depth."""
-
-        if "ModelDepth" in self.design_properties:
-            value_str = self.design_properties["ModelDepth"]
-            a = None
-            try:
-                a = float_units(value_str)
-            except:
-                a = self.variable_manager[value_str].value
-            finally:
-                return a
+        design_settings = self.design_settings()
+        if "ModelDepth" in design_settings:
+            value_str = design_settings["ModelDepth"]
+            return value_str
         else:
             return None
 
     @model_depth.setter
     def model_depth(self, value):
         """Set model depth."""
-        return self.change_design_settings({"ModelDepth": self.modeler._arg_with_dim(value, self.modeler.model_units)})
+        if isinstance(value, float) or isinstance(value, int):
+            value = self.modeler._arg_with_dim(value, self.modeler.model_units)
+        self.change_design_settings({"ModelDepth": value})
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):

@@ -199,7 +199,15 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
 
     def test_06_export_report_to_csv(self):
-        self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
+        self.aedtapp.post.export_report_to_csv(
+            self.local_scratch.path,
+            "MyTestScattering",
+            start="3GHz",
+            end="6GHz",
+            step="0.12GHz",
+            uniform=True,
+            use_trace_number_format=False,
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
 
     def test_06_export_report_to_rdat(self):

@@ -79,7 +79,7 @@ def create_output_folder(ProjectDir):
     # set pathname for the files
     ResultsPath = os.path.join(npath, os.path.basename(npath), "Results")
 
-    # Add foldes for outputs
+    # Add folders for outputs
     if not os.path.exists(OutputPath):
         os.mkdir(OutputPath)
     if not os.path.exists(PicturePath):

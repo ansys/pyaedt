@@ -183,7 +183,7 @@ mat_coils.permeability = "1"
 mat_PM = M2D.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
 mat_PM.conductivity = "555555.5556"
-mat_PM.set_magnetic_coercitivity(value=-800146.66287534, x=1, y=0, z=0)
+mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
 mat_PM.mass_density = "7500"
 BH_List_PM = []
 with open(filename_PM) as f:

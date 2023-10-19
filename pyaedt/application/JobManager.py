@@ -185,7 +185,7 @@ def update_cluster_cores(file_name, param_name, param_val):
 
 
 def update_hpc_template(file_name, param_name, param_val):
-    """Update a paramerter in the HPC template file.
+    """Update a parameter in the HPC template file.
 
     Parameters
     ----------

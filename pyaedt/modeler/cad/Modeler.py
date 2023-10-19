@@ -482,7 +482,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify where the X or Y axis is pointing. The position must belong to the face where the
             coordinate system is defined.
-            Select which axis is considered with the option ``axix``.
+            Select which axis is considered with the option ``axis``.
             If a face is specified, the position is placed on the face center. It must be the same as ``face``.
             If an edge is specified, the position is placed on the edce midpoint.
             If a vertex is specified, the position is placed on the vertex.
@@ -2476,7 +2476,7 @@ class GeometryModeler(Modeler, object):
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify where the X or Y axis is pointing. The position must belong to the face where the
             coordinate system is defined.
-            Select which axis is considered with the option ``axix``.
+            Select which axis is considered with the option ``axis``.
             If a face is specified, the position is placed on the face center. It must be the same as ``face``.
             If an edge is specified, the position is placed on the edce midpoint.
             If a vertex is specified, the position is placed on the vertex.
@@ -4480,6 +4480,9 @@ class GeometryModeler(Modeler, object):
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
+            if settings.aedt_version > "2022.2":
+                vArg2.append("TurnOnNBodyBoolean:=")
+                vArg2.append(True)
             self.oeditor.Unite(vArg1, vArg2)
             if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
@@ -5296,7 +5299,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def find_port_faces(self, port_sheets):
-        """Find the vaccums given a list of input sheets.
+        """Find the vacuums given a list of input sheets.
 
         Starting from a list of input sheets, this method creates a list of output sheets
         that represent the blank parts (vacuums) and the tool parts of all the intersections
