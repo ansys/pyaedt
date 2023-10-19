@@ -2901,6 +2901,9 @@ class TestClass:
         edbapp = Edb(target_path, edbversion=desktop_version)
         dc_shorts = edbapp.layout_validation.dc_shorts()
         assert dc_shorts
+        edbapp.nets.nets["DDR4_A0"].name = "DDR4$A0"
+        edbapp.layout_validation.illegal_net_names(True)
+
         # assert len(dc_shorts) == 20
         assert ["LVDS_CH09_N", "GND"] in dc_shorts
         assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts

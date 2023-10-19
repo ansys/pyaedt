@@ -1516,6 +1516,7 @@ class ModelPlotter(CommonPlotter):
         bool
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv.enable_ssao()
         self.meshes = None
         if self.background_image:
             self.pv.add_background_image(self.background_image)
@@ -1582,7 +1583,7 @@ class ModelPlotter(CommonPlotter):
 
         if self.show_axes:
             self.pv.show_axes()
-        if not self.is_notebook:
+        if not self.is_notebook and self.show_grid:
             self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.3e")
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
