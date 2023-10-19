@@ -206,6 +206,22 @@ class TestClass:
             assert start_freq == 0.1
             start_freq = radio.band_start_frequency(band, "THz")
             assert start_freq == 0.0001
+            # test band.set_band_start_frequency
+            start_freq = 10
+            units = 'MHz'
+            radio.set_band_start_frequency(band, start_freq, units=units)
+            assert radio.band_start_frequency(band, units=units) == start_freq
+            start_freq = 20000000
+            radio.set_band_start_frequency(band, start_freq)
+            assert radio.band_start_frequency(band, units='Hz') == start_freq
+            # test band.set_band_stop_frequency
+            stop_freq = 30
+            units = 'MHz'
+            radio.set_band_stop_frequency(band, stop_freq, units=units)
+            assert radio.band_stop_frequency(band, units=units) == stop_freq
+            stop_freq = 40000000
+            radio.set_band_stop_frequency(band, stop_freq)
+            assert radio.band_stop_frequency(band, units='Hz') == stop_freq
             # test power unit conversions
             band_power = radio.band_tx_power(band)
             assert band_power == 40.0

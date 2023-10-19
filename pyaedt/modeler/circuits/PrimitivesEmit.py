@@ -743,6 +743,100 @@ class EmitRadioComponent(EmitComponent):
             units = self.units["Frequency"]
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
 
+    def set_band_start_frequency(self, band_node, band_start_freq, units=""):
+        """Set start frequency of a given band.
+
+        Parameters
+        ----------
+        band_node
+        band_start_freq : float
+        units : str, optional
+
+        Return
+        ------
+        None
+        """
+        if "Band" not in band_node.props["Type"]:
+            raise TypeError("{} must be a band.".format(band_node.node_name))
+
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = 'Hz'#self.parent_component.units["Frequency"]
+        # convert to Hz
+        freq_string = "{}".format(consts.unit_converter(band_start_freq, "Freq", units, "Hz"))
+        prop_list = {"StartFrequency": freq_string}
+        band_node._set_prop_value(prop_list)
+
+    def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
+        """[Incomplete 10/19/2023]. Set stop frequency of a given band.
+
+        Parameters
+        ----------
+        band_node
+        band_stop_freq : float
+        units : str, optional
+
+        Return
+        ------
+        None
+        """
+        if "Band" not in band_node.props["Type"]:
+            raise TypeError("{} must be a band.".format(band_node.node_name))
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = 'Hz'
+
+        freq_string = "{}".format(consts.unit_converter(band_stop_freq, "Freq", units, "Hz"))
+        prop_list = {"StopFrequency": freq_string}
+        band_node._set_prop_value(prop_list)
+
+    # def duplicate_band(self, band_node_to_duplicate):
+    #     """
+    #     [Incomplete 10/19/2023]
+    #     Parameters
+    #     ----------
+    #     band_node_to_duplicate
+    #
+    #     Returns
+    #     -------
+    #
+    #     """
+    #     # append number to the name of the band to duplicate.
+    #     print('Duplicating...')
+    #
+    #
+    #     # return band node
+    # def convert_channels_to_multi_bands(self, band_node):
+    #     """
+    #     [Incomplete 10/19/2023]
+    #     Parameters
+    #     ----------
+    #     band_node
+    #
+    #     Returns
+    #     -------
+    #
+    #     """
+    #     # get the channels. Say returns 10 channels in the band_node
+    #     # Name = r.bands()[0].children[0].props['Name']
+    #     # band_node.props['Name']
+    #     # Start = r.bands()[0].props['StartFrequency']
+    #     band_start_frequency = float(band_node.props['StartFrequency'])
+    #     # Stop = r.bands()[0].props['StopFrequency']
+    #     band_stop_frequency = float(band_node.props['StopFrequency'])
+    #     # Spacing = r.bands()[0].props['ChannelSpacing']
+    #     channel_spacing = float(band_node.props['ChannelSpacing'])
+    #     # for each channel
+    #     # 1) create a band (duplicate original one)
+    #     # 2) set band start and stop frequencies
+    #     for channel in list(range(int(band_start_frequency), int(band_stop_frequency), int(channel_spacing))):
+    #         baby_band_start = channel
+    #         baby_band_stop = channel+channel_spacing
+    #         baby_band_node = self.duplicate_band(band_node) # return band name or some handle to it
+    #         self.set_band_start_frequency(baby_band_node, baby_band_start)
+    #         self.set_band_stop_frequency(baby_band_node, baby_band_stop)
+    #         # set start and stop freq for that band name
+    #     # to be
+
+
     def band_channel_bandwidth(self, band_node, units=""):
         """Get the channel bandwidth of the band node.
 
