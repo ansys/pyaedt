@@ -748,42 +748,62 @@ class EmitRadioComponent(EmitComponent):
 
         Parameters
         ----------
-        band_node
+        band_node : Instance of the band node
         band_start_freq : float
         units : str, optional
 
-        Return
+        Returns
         ------
         None
+
+        Examples
+        --------
+        >>> from pyaedt import Emit
+        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> radio = aedtapp.modeler.components.create_component("New Radio")
+        >>> band =  radio.bands()[0]
+        >>> start_freq = 10
+        >>> units = 'MHz'
+        >>> radio.set_band_start_frequency(band, start_freq, units=units)
         """
         if "Band" not in band_node.props["Type"]:
             raise TypeError("{} must be a band.".format(band_node.node_name))
 
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
-            units = "Hz"  # self.parent_component.units["Frequency"]
+            units = "Hz"
         # convert to Hz
         freq_string = "{}".format(consts.unit_converter(band_start_freq, "Freq", units, "Hz"))
         prop_list = {"StartFrequency": freq_string}
         band_node._set_prop_value(prop_list)
 
     def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
-        """[Incomplete 10/19/2023]. Set stop frequency of a given band.
+        """Set stop frequency of a given band.
 
         Parameters
         ----------
-        band_node
+        band_node : Instance of the band node
         band_stop_freq : float
         units : str, optional
 
-        Return
+        Returns
         ------
         None
+
+        Examples
+        --------
+        >>> from pyaedt import Emit
+        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> radio = aedtapp.modeler.components.create_component("New Radio")
+        >>> band =  radio.bands()[0]
+        >>> stop_freq = 10
+        >>> units = 'MHz'
+        >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
         """
         if "Band" not in band_node.props["Type"]:
             raise TypeError("{} must be a band.".format(band_node.node_name))
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
-
+        # convert to Hz
         freq_string = "{}".format(consts.unit_converter(band_stop_freq, "Freq", units, "Hz"))
         prop_list = {"StopFrequency": freq_string}
         band_node._set_prop_value(prop_list)
