@@ -954,6 +954,7 @@ class TestClass:
 
     def test_076_create_solder_ball_on_component(self):
         assert self.edbapp.components.set_solder_ball("U1")
+        assert self.edbapp.components.set_solder_ball("U6", sball_height=None)
 
     def test_077_add_void(self):
         plane_shape = self.edbapp.modeler.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
