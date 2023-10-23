@@ -2,6 +2,7 @@ ANSYS
 Ansys
 ansys
 AEDB
+API
 AEDT
 AEDT API
 2D Extractor
@@ -39,6 +40,7 @@ Icepak
 IronPython
 limitilines
 Layout
+layout
 matplotlib
 Maxwell 2D
 Maxwell 3D
