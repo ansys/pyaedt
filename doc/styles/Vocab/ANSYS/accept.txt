@@ -13,6 +13,7 @@ busbars
 Bz
 circuit
 Circuit
+com
 COM
 COM interface
 CPython
@@ -28,6 +29,7 @@ EMIT
 getters
 globals
 gRPC
+GRPC
 HFSS
 HFSS 3D Layout
 Huray
@@ -64,6 +66,7 @@ Python
 pyvista
 Q2D Extractor
 Q3D Extractor
+Q3D
 RC
 RF
 RMXprt
@@ -92,4 +95,5 @@ Python.NET
 Toolkits
 toolkits
 3D modeler
-
+2D modeler
+Stackup 3D

@@ -59,8 +59,8 @@ Run this script directly from AEDT and pass the wheelhouse file name as an argum
 Run PyAEDT
 ~~~~~~~~~~
 
-COM vs gRPC
------------
+COM and gRPC
+------------
 Prior to the 2022R2 release CPython automation in AEDT used
 `COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_  which
 requires all interfaces to be registered in the Windows Registry.
