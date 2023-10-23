@@ -1771,14 +1771,16 @@ class Icepak(FieldAnalysis3D):
         return filename
 
     def export_summary(
-        self,
-        output_dir=None,
-        solution_name=None,
-        type="Object",
-        geometryType="Volume",
-        quantity="Temperature",
-        variation="",
-        variationlist=None,
+            self,
+            output_dir=None,
+            solution_name=None,
+            type="Object",
+            geometry_type="Volume",
+            quantity="Temperature",
+            variation="",
+            variation_list=None,
+            filename="IPKsummaryReport",
+            **kwargs
     ):
         """Export a fields summary of all objects.
 
@@ -1790,17 +1792,19 @@ class Icepak(FieldAnalysis3D):
             is exported to the working directory.
         solution_name : str, optional
             Name of the solution. The default is ``None``, in which case the
-            the default name is used.
+            default solution is used.
         type : string, optional
-            The default is ``"Object"``.
-        geometryType : str, optional
-            Type of the geometry. The default is ``"Volume"``.
+            Entity type, ``"Boundary"`` or ``"Object"``. The default is ``"Object"``.
+        geometry_type : str, optional
+            Geometry type, ``"Volume"`` or ``"Surface"``. The default is ``"Volume"``.
         quantity : str, optional
             The default is ``"Temperature"``.
         variation : str, optional
             The default is ``""``.
-        variationlist : list, optional
+        variation_list : list, optional
             The default is ``None``.
+        filename : str, optional
+            The default is ``"IPKsummaryReport"``.
 
         Returns
         -------
@@ -1813,24 +1817,33 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
-        if variationlist == None:
-            variationlist = []
+        geometry_type = kwargs.get('geometryType', geometry_type)
+        variation_list = kwargs.get('variationlist', variation_list)
 
-        all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
-        all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
-        all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
+        if variation_list is None:
+            variation_list = []
+
+        if type == "Object":
+            all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
+            all_objs_non_modeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
+            all_elements = [item for item in all_objs if item not in all_objs_non_modeled]
+            self.logger.info("Objects lists " + str(all_elements))
+        elif type == "Boundary":
+            all_elements = [b.name for b in self.boundaries]
+            self.logger.info("Boundary lists " + str(all_elements))
+        else:
+            self.logger.error("Entity type " + type + " not supported.")
+            return False
         arg = []
-        self.logger.info("Objects lists " + str(all_objs_model))
-        for el in all_objs_model:
+        for el in all_elements:
             try:
                 self.osolution.EditFieldsSummarySetting(
-                    ["Calculation:=", [type, geometryType, el, quantity, "", "Default"]]
+                    ["Calculation:=", [type, geometry_type, el, quantity, "", "Default"]]
                 )
                 arg.append("Calculation:=")
-                arg.append([type, geometryType, el, quantity, "", "Default"])
+                arg.append([type, geometry_type, el, quantity, "", "Default"])
             except Exception as e:
-                self.logger.error("Object " + el + " not added.")
-                self.logger.error(str(e))
+                self.logger.warning("Object " + el + " not added.")
         if not output_dir:
             output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1839,7 +1852,7 @@ class Icepak(FieldAnalysis3D):
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:
-            for l in variationlist:
+            for l in variation_list:
                 self.osolution.ExportFieldsSummary(
                     [
                         "SolutionName:=",
@@ -1847,7 +1860,7 @@ class Icepak(FieldAnalysis3D):
                         "DesignVariationKey:=",
                         variation + "='" + str(l) + "'",
                         "ExportFileName:=",
-                        os.path.join(output_dir, "IPKsummaryReport" + quantity + "_" + str(l) + ".csv"),
+                        os.path.join(output_dir, filename + "_" + quantity + "_" + str(l) + ".csv"),
                     ]
                 )
         else:
@@ -1858,7 +1871,7 @@ class Icepak(FieldAnalysis3D):
                     "DesignVariationKey:=",
                     "",
                     "ExportFileName:=",
-                    os.path.join(output_dir, "IPKsummaryReport" + quantity + ".csv"),
+                    os.path.join(output_dir, filename + "_" + quantity + ".csv"),
                 ]
             )
         return True
