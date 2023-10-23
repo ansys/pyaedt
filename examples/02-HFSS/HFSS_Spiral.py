@@ -45,7 +45,7 @@ thickness = 1
 Np = 8
 Nr = 10
 gap = 3
-Tsub = 6
+hfss["Tsub"] = 6
 
 
 #############################################################
@@ -93,7 +93,7 @@ p.create_box((x0 - width / 2, y0 - width / 2, -gap - thickness / 2), (width, wid
 
 p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
                    position=(abs(x1) + 5, y0 - width / 2, -gap - thickness / 2),
-                   dimension_list=(width, -Tsub + gap),
+                   dimension_list=(width, hfss.variable_manager["Tsub"].numeric_value + gap),
                    name="port1"
                    )
 hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
@@ -104,7 +104,7 @@ hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
-p.create_rectangle(pyaedt.constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
+p.create_rectangle(pyaedt.constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, "-Tsub"), name="port2")
 hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
@@ -112,9 +112,9 @@ hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the silicon substrate and the ground plane.
 
-p.create_box([x1 - 20, x1 - 20, -Tsub - thickness / 2], [-2 * x1 + 40, -2 * x1 + 40, Tsub], matname="silicon")
+p.create_box([x1 - 20, x1 - 20, "-Tsub" - thickness / 2], [-2 * x1 + 40, -2 * x1 + 40, "Tsub"], matname="silicon")
 
-p.create_box([x1 - 20, x1 - 20, -Tsub - thickness / 2], [-2 * x1 + 40, -2 * x1 + 40, -0.1], matname="PEC")
+p.create_box([x1 - 20, x1 - 20, "-Tsub" - thickness / 2], [-2 * x1 + 40, -2 * x1 + 40, -0.1], matname="PEC")
 
 ################################################################
 # Assign airbox and radiation
@@ -122,7 +122,7 @@ p.create_box([x1 - 20, x1 - 20, -Tsub - thickness / 2], [-2 * x1 + 40, -2 * x1 +
 # Assign the airbox and the radiation.
 
 box = p.create_box(
-    [x1 - 20, x1 - 20, -Tsub - thickness / 2 - 0.1], [-2 * x1 + 40, -2 * x1 + 40, 100], name="airbox", matname="air"
+    [x1 - 20, x1 - 20, "-Tsub" - thickness / 2 - 0.1], [-2 * x1 + 40, -2 * x1 + 40, 100], name="airbox", matname="air"
 )
 
 hfss.assign_radiation_boundary_to_objects("airbox")
@@ -164,12 +164,24 @@ L_formula = "1e9*im(1/Y(1,1))/(2*pi*freq)"
 Q_formula = "im(Y(1,1))/re(Y(1,1))"
 
 ################################################################
+# Create output variable
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Create output variable
+hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
+
+################################################################
 # Plot calculated values in Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot the calculated values in Matplotlib.
 
 x = hfss.post.get_solution_data([L_formula, Q_formula])
 x.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
+
+################################################################
+# Export results to csv file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Export results to csv file
+x.export_data_to_csv(hfss.toolkit_directory, delimiter=",")
 
 ################################################################
 # Save project and close AEDT
