@@ -1,4 +1,5 @@
 from pyaedt import pyaedt_function_handler
+from pyaedt.edb_core.edb_data.obj_base import ObjBase
 
 
 class LayoutObjInstance:
@@ -9,7 +10,7 @@ class LayoutObjInstance:
         self._edb_object = edb_object
 
 
-class LayoutObj(object):
+class LayoutObj(ObjBase):
     """Manages EDB functionalities for the layout object."""
 
     def __getattr__(self, key):  # pragma: no cover
@@ -22,8 +23,7 @@ class LayoutObj(object):
                 raise AttributeError("Attribute not present")
 
     def __init__(self, pedb, edb_object):
-        self._pedb = pedb
-        self._edb_object = edb_object
+        super().__init__(pedb, edb_object)
 
     @property
     def _edb(self):
@@ -54,11 +54,6 @@ class LayoutObj(object):
     def _obj_type(self):
         """Returns LayoutObjType."""
         return self._edb_object.GetObjType().ToString()
-
-    @property
-    def is_null(self):
-        """Flag indicating if this object is null."""
-        return self._edb_object.IsNull()
 
     @property
     def id(self):

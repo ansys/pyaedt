@@ -29,3 +29,7 @@
 - name: testing
   description: Anything related to testing
   color: 5802B8
+
+- name: edb
+  description: Anything related to the EDB API
+  color: C4C25D
