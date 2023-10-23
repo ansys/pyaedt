@@ -1783,7 +1783,7 @@ class Components(object):
         auto_reference_size=True,
         reference_size_x=0,
         reference_size_y=0,
-        reference_height=0
+        reference_height=0,
     ):
         """Set cylindrical solder balls on a given component.
 
