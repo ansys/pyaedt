@@ -2257,6 +2257,7 @@ class Icepak(FieldAnalysis3D):
             custom_x_resolution=None,
             custom_y_resolution=None,
             power_in=0,
+            rad="Nothing",
             **kwargs  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
@@ -2286,7 +2287,16 @@ class Icepak(FieldAnalysis3D):
         custom_y_resolution : int, optional
             The default is ``None``.
         power_in : float, optional
-            Power in in Watt.
+            Power in Watt.
+        rad : str, optional
+            Radiating faces. Options are:
+
+            * ``"Nothing"``
+            * ``"Low"``
+            * ``"High"``
+            * ``"Both"``
+
+            The default is ``"Nothing"``.
 
         Returns
         -------
