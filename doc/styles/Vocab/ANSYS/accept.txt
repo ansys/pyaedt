@@ -2,6 +2,8 @@ ANSYS
 Ansys
 ansys
 AEDB
+AEDT
+AEDT API
 2D Extractor
 airbox
 airgap
@@ -11,6 +13,8 @@ busbars
 Bz
 circuit
 Circuit
+COM
+COM interface
 CPython
 DesignXploration
 docstring
@@ -18,10 +22,13 @@ Docstrings
 docstrings
 doppler
 EDB
+EDB API
 efields
 EMIT
 getters
 globals
+gRPC
+HFSS
 HFSS 3D Layout
 Huray
 Icepak
@@ -51,6 +58,7 @@ Postprocessing
 PMs
 pyaedt
 PyAEDT
+PyAnsys
 PyPI
 Python
 pyvista
@@ -83,4 +91,5 @@ Slurm
 Python.NET
 Toolkits
 toolkits
+3D modeler
 
