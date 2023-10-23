@@ -1817,6 +1817,14 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
+        if 'geometryType' in kwargs:
+            warnings.warn("The 'geometryType' argument is deprecated. Use 'geometry_type' instead.",
+                          DeprecationWarning)
+
+        if 'variationlist' in kwargs:
+            warnings.warn("The 'variationlist' argument is deprecated. Use 'variation_list' instead.",
+                          DeprecationWarning)
+
         geometry_type = kwargs.get('geometryType', geometry_type)
         variation_list = kwargs.get('variationlist', variation_list)
 
