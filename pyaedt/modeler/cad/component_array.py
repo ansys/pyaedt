@@ -72,14 +72,7 @@ class ComponentArray(object):
 
         self._oarray = self._app.get_oo_object(self._omodel, name)
 
-        cs_id = props["ReferenceCSID"]
-        if cs_id != 1:
-            self._logger.warning(
-                "Coordinate system ID could not be retrieved. Coordinate system must be the Global one."
-            )
-            cs_id = 1
-
-        self._coordinate_system = cs_id
+        self._cs_id = props["ReferenceCSID"]
 
         # Everything inside components ?
         self._component_names = None
@@ -143,7 +136,6 @@ class ComponentArray(object):
 
     @visible.setter
     def visible(self, val):
-        self._visible = val
         self._oarray.SetPropValue("Visible", val)
 
     @property
@@ -304,15 +296,20 @@ class ComponentArray(object):
         str
            Coordinate system name.
         """
-        if self._coordinate_system == 1:
+        cs_dict = self._get_coordinate_system_id()
+        if self._cs_id not in cs_dict.values():
+            self._logger.warning("Coordinate system is not loaded, please save the project.")
             return "Global"
         else:
-            self._logger.warning("Only Global coordinate system available")
+            return [cs for cs in cs_dict if cs_dict[cs] == self._cs_id][0]
 
     @coordinate_system.setter
-    def coordinate_system(self, val):
-        if val == 1:
-            self._coordinate_system = val
+    def coordinate_system(self, name):
+        cs_dict = self._get_coordinate_system_id()
+        if name not in cs_dict.keys():
+            self._logger.warning("Coordinate system is not loaded, please save the project.")
+        else:
+            self._cs_id = cs_dict[name]
 
     @pyaedt_function_handler()
     def delete(self):
@@ -327,6 +324,28 @@ class ComponentArray(object):
         self._app.omodelsetup.DeleteArray()
         del self._app.component_array[self.name]
         self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
+
+    @pyaedt_function_handler()
+    def _get_coordinate_system_id(self):
+        id2name = {1: "Global"}
+        name2id = id2name
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:
+            cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+            for ds in cs:
+                try:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
+                        name = cs[ds]["Attributes"]["Name"]
+                        cs_id = cs[ds]["ID"]
+                        id2name[cs_id] = name
+                    elif isinstance(cs[ds], list):
+                        for el in cs[ds]:
+                            name = el["Attributes"]["Name"]
+                            cs_id = el["ID"]
+                            id2name[cs_id] = name
+                except:
+                    pass
+            name2id = {v: k for k, v in id2name.items()}
+        return name2id
 
     # @pyaedt_function_handler()
     # def _change_array_property(self, prop_name, value):
