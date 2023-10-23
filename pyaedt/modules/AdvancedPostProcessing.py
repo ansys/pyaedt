@@ -321,6 +321,7 @@ class PostProcessor(Post):
         dark_mode=False,
         show_grid=False,
         show_bounding=False,
+        show_legend=True,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -364,6 +365,8 @@ class PostProcessor(Post):
             Whether to display the axes grid or not. The default is ``False``.
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -380,7 +383,7 @@ class PostProcessor(Post):
 
         file_to_add = self.export_field_plot(plotname, self._app.working_directory)
         model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
-
+        model.show_legend = show_legend
         model.off_screen = not show
         if dark_mode:
             model.background_color = [40, 40, 40]
@@ -431,6 +434,8 @@ class PostProcessor(Post):
         dark_mode=False,
         show_bounding=False,
         show_grid=False,
+        show_legend=True,
+        filter_objects=[],
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -481,12 +486,18 @@ class PostProcessor(Post):
             Whether to display the axes grid or not. The default is ``False``.
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        filter_objects : list, optional
+            Objects list for filtering the ``CutPlane`` plots.
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            show = False
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
@@ -500,7 +511,9 @@ class PostProcessor(Post):
         elif plot_type == "Volume":
             plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
         else:
-            plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+            plotf = self.create_fieldplot_cutplane(
+                object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
+            )
         # if plotf:
         #     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)
 
@@ -520,6 +533,7 @@ class PostProcessor(Post):
             dark_mode=dark_mode,
             show_grid=show_grid,
             show_bounding=show_bounding,
+            show_legend=show_legend,
         )
         if not keep_plot_after_generation:
             plotf.delete()
@@ -549,6 +563,8 @@ class PostProcessor(Post):
         dark_mode=False,
         show_grid=False,
         show_bounding=False,
+        show_legend=True,
+        filter_objects=[],
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -600,12 +616,18 @@ class PostProcessor(Post):
             Whether to display the axes grid or not. The default is ``False``.
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        filter_objects : list, optional
+            Objects list for filtering the ``CutPlane`` plots.
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            show = False
         if intrinsics is None:
             intrinsics = {}
         if not export_path:
@@ -626,7 +648,9 @@ class PostProcessor(Post):
             elif plot_type == "Volume":
                 plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
             else:
-                plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+                plotf = self.create_fieldplot_cutplane(
+                    object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
+                )
             if plotf:
                 file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
                 if file_to_add:
@@ -641,6 +665,7 @@ class PostProcessor(Post):
             model.background_color = [40, 40, 40]
         model.bounding_box = show_bounding
         model.show_grid = show_grid
+        model.show_legend = show_legend
         if fields_to_add:
             model.add_frames_from_file(fields_to_add, log_scale=log_scale)
         if export_gif:

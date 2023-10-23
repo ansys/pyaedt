@@ -283,13 +283,13 @@ class Primitives2D(Primitives, object):
         >>> oEditor.CreateRegion
         """
         if not isinstance(pad_percent, list):
-            if self._app.xy_plane:
+            if self._app.design_type == "2D Extractor" or self._app.xy_plane:
                 pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
             else:
                 pad_percent = [pad_percent, 0, pad_percent, pad_percent, 0, pad_percent]
 
         else:
-            if self._app.xy_plane:
+            if self._app.design_type == "2D Extractor" or self._app.xy_plane:
                 pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
 
             else:
