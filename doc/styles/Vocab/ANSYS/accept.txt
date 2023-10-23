@@ -16,6 +16,7 @@ Circuit
 com
 COM
 COM interface
+Components
 CPython
 DesignXploration
 docstring
@@ -36,6 +37,7 @@ Huray
 Icepak
 IronPython
 limitilines
+Layout
 matplotlib
 Maxwell 2D
 Maxwell 3D
