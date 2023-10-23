@@ -1803,7 +1803,7 @@ class Components(object):
         chip_orientation : str, optional
             Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
             IC model.
-        auto_reference_size: bool, optional
+        auto_reference_size : bool, optional
             Whether to automatically set reference size.
         reference_size_x : int, str, float, optional
             X size of the reference. Applicable when auto_reference_size is False.
