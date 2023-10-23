@@ -1775,8 +1775,8 @@ class Components(object):
     def set_solder_ball(
         self,
         component="",
-        sball_diam="100um",
-        sball_height="150um",
+        sball_diam=None,
+        sball_height=None,
         shape="Cylinder",
         sball_mid_diam=None,
         chip_orientation="chip_down",
@@ -1805,11 +1805,11 @@ class Components(object):
             IC model.
         auto_reference_size: bool, optional
             Whether to automatically set reference size.
-        reference_size_x: int, str, float, optional
+        reference_size_x : int, str, float, optional
             X size of the reference. Applicable when auto_reference_size is False.
-        reference_size_y: int, str, float, optional
+        reference_size_y : int, str, float, optional
             Y size of the reference. Applicable when auto_reference_size is False.
-        reference_height: int, str, float, optional
+        reference_height : int, str, float, optional
             Height of the reference. Applicable when auto_reference_size is False.
         Returns
         -------
@@ -1827,7 +1827,7 @@ class Components(object):
         if not isinstance(component, self._pedb.edb_api.cell.hierarchy.component):
             edb_cmp = self.get_component_by_name(component)
             cmp = self.instances[component]
-        else:
+        else:  # pragma: no cover
             edb_cmp = component
             cmp = self.instances[edb_cmp.GetName()]
 
@@ -1855,8 +1855,6 @@ class Components(object):
         if cmp_type == self._edb.definition.ComponentType.IC:
             ic_die_prop = cmp_property.GetDieProperty().Clone()
             ic_die_prop.SetType(self._edb.definition.DieType.FlipChip)
-            if chip_orientation.lower() == "chip_down":
-                ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipDown)
             if chip_orientation.lower() == "chip_up":
                 ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipUp)
             else:
@@ -1878,7 +1876,6 @@ class Components(object):
         cmp_property.SetPortProperty(port_prop)
         edb_cmp.SetComponentProperty(cmp_property)
         return True
-
 
     @pyaedt_function_handler()
     def set_component_rlc(
