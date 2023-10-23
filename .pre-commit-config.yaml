@@ -17,7 +17,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 23.9.1  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  rev: 23.10.1  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
