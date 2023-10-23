@@ -17,6 +17,7 @@ com
 COM
 COM interface
 Components
+components
 CPython
 DesignXploration
 docstring
