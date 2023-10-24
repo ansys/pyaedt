@@ -828,7 +828,6 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self.max_coupled_lines = 40
             self.return_current_distribution = True
 
-
     @property
     def use_custom_settings(self):
         """Whether to use custom settings.
