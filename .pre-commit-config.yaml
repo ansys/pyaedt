@@ -57,11 +57,11 @@ repos:
   hooks:
     - id: check-github-workflows
 
-- repo: https://github.com/asottile/blacken-docs
+- repo: https://github.com/asottile/en-docs
   rev: 1.16.0
   hooks:
   -   id: blacken-docs
-      additional_dependencies: [black==23.9.1]
+      additional_dependencies: [black==23.10.1]
 
 
 # - repo: https://github.com/numpy/numpydoc
