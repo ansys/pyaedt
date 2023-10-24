@@ -1584,7 +1584,7 @@ class ModelPlotter(CommonPlotter):
         if self.show_axes:
             self.pv.show_axes()
         if not self.is_notebook and self.show_grid:
-            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.3e")
+            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.2e")
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
         self.pv.set_focus(self.pv.mesh.center)
