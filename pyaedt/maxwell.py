@@ -1626,6 +1626,61 @@ class Maxwell(object):
             return False
 
     @pyaedt_function_handler()
+    def assign_radiation(self, input_object, radiation_name=None):
+        """Assign radiation boundary to one or more objects.
+
+        Radiation assignment can be calculated based upon the solver type.
+        Available solution type is: ``Eddy Current``.
+
+        Parameters
+        ----------
+        input_object : str, list
+            One or more objects to assign the radiation to.
+        radiation_name : str, optional
+            Name of the force. The default is ``None``, in which case the default
+            name is used.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Radiation objects. If the method fails to execute it returns ``False``.
+
+        References
+        ----------
+
+        >>> oModule.Radiation
+
+        Examples
+        --------
+
+        Assign radiation boundary to one box and one face:
+
+        >>> box1 = m3d.modeler.create_box([0, 0, 0], [2, 10, 10])
+        >>> box2 = m3d.modeler.create_box([10, 0, 0], [2, 10, 10])
+        >>> m3d.assign_radiation([box1, box2.faces[0]], force_name="radiation_boundary")
+        """
+
+        if self.solution_type in ["EddyCurrent"]:
+            if not radiation_name:
+                radiation_name = generate_unique_name("Radiation")
+            elif radiation_name in self.modeler.get_boundaries_name():
+                radiation_name = generate_unique_name(radiation_name)
+
+            listobj = self.modeler.convert_to_selections(input_object, True)
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
+            bound = BoundaryObject(self, radiation_name, props, "Radiation")
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+        self.logger.error("Excitation applicable only to Eddy current.")
+        return False
+
+    @pyaedt_function_handler()
     def enable_harmonic_force(
         self,
         objects,
@@ -3101,25 +3156,4 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
-        return False
-
-    @pyaedt_function_handler()
-    def assign_radiation(self, geometry_selection, radiation_name=None):
-        if self.solution_type in [
-            "EddyCurrent",
-        ]:
-            if not radiation_name:
-                radiation_name = generate_unique_name("Radiation")
-            elif radiation_name in self.modeler.get_boundaries_name():
-                radiation_name = generate_unique_name(radiation_name)
-
-            listobj = self.modeler.convert_to_selections(geometry_selection, True)
-            props = {"Objects": [], "Faces": []}
-            for sel in listobj:
-                if isinstance(sel, str):
-                    props["Objects"].append(sel)
-                elif isinstance(sel, int):
-                    props["Faces"].append(sel)
-
-            return self._create_boundary(radiation_name, props, "Radiation")
         return False
