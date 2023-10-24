@@ -57,7 +57,7 @@ repos:
   hooks:
     - id: check-github-workflows
 
-- repo: https://github.com/asottile/en-docs
+- repo: https://github.com/asottile/blacken-docs
   rev: 1.16.0
   hooks:
   -   id: blacken-docs
