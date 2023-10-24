@@ -927,5 +927,7 @@ class TestClass:
         assert bound
         bound2 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
         assert bound2
+        bound3 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2.name != bound3.name
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
         assert not self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
