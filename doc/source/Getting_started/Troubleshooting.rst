@@ -62,7 +62,7 @@ Run PyAEDT
 COM and gRPC
 ------------
 Prior to the 2022 R2 release, CPython automation in AEDT used
-`COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_  which
+`COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_ , which
 requires all interfaces to be registered in the Windows Registry.
 Communication between Python and the AEDT API were translated through an intermediate layer using
 `pywin32 <https://github.com/mhammond/pywin32>`_ and  `PythonNET <https://pythonnet.github.io/pythonnet/>`_.
