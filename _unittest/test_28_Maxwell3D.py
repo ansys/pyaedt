@@ -917,8 +917,9 @@ class TestClass:
             box.top_face_z,
         )
 
-    def test_34_radiation(self):
+    def test_57_radiation(self):
         self.aedtapp.insert_design("Radiation")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], matname="aluminum")
         rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], matname="aluminum")
         box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], matname="aluminum")
