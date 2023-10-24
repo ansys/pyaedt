@@ -2877,7 +2877,10 @@ class GeometryModeler(Modeler, object):
             if cs.props["Origin"]["PositionType"] != "AbsolutePosition":
                 if cs.props["Origin"]["PositionType"] == "FaceCenter":
                     origin = [f for f in obj.faces if f.id == cs.props["Origin"]["EntityID"]][0]
-                elif cs.props["Origin"]["PositionType"] == "EdgeCenter" or cs.props["Origin"]["PositionType"] == "ArcCenter":
+                elif (
+                    cs.props["Origin"]["PositionType"] == "EdgeCenter"
+                    or cs.props["Origin"]["PositionType"] == "ArcCenter"
+                ):
                     origin = [e for e in obj.edges if e.id == cs.props["Origin"]["EntityID"]][0]
                 elif cs.props["Origin"]["PositionType"] == "OnVertex":
                     origin = [v for v in obj.vertices if v.id == cs.props["Origin"]["EntityID"]][0]
@@ -2890,7 +2893,10 @@ class GeometryModeler(Modeler, object):
             if "xAxisPos" in cs.props:
                 if cs.props["xAxisPos"]["PositionType"] == "FaceCenter":
                     x_axis = [f for f in obj.faces if f.id == cs.props["xAxisPos"]["EntityID"]][0]
-                elif cs.props["xAxisPos"]["PositionType"] == "EdgeCenter" or cs.props["xAxisPos"]["PositionType"] == "ArcCenter":
+                elif (
+                    cs.props["xAxisPos"]["PositionType"] == "EdgeCenter"
+                    or cs.props["xAxisPos"]["PositionType"] == "ArcCenter"
+                ):
                     x_axis = [e for e in obj.edges if e.id == cs.props["xAxisPos"]["EntityID"]][0]
                 elif cs.props["xAxisPos"]["PositionType"] == "OnVertex":
                     x_axis = [v for v in obj.vertices if v.id == cs.props["xAxisPos"]["EntityID"]][0]
@@ -2903,7 +2909,10 @@ class GeometryModeler(Modeler, object):
             if "yAxisPos" in cs.props:
                 if cs.props["yAxisPos"]["PositionType"] == "FaceCenter":
                     y_axis = [f for f in obj.faces if f.id == cs.props["yAxisPos"]["EntityID"]][0]
-                elif cs.props["yAxisPos"]["PositionType"] == "EdgeCenter" or cs.props["yAxisPos"]["PositionType"] == "ArcCenter":
+                elif (
+                    cs.props["yAxisPos"]["PositionType"] == "EdgeCenter"
+                    or cs.props["yAxisPos"]["PositionType"] == "ArcCenter"
+                ):
                     y_axis = [e for e in obj.edges if e.id == cs.props["yAxisPos"]["EntityID"]][0]
                 elif cs.props["yAxisPos"]["PositionType"] == "OnVertex":
                     y_axis = [v for v in obj.vertices if v.id == cs.props["yAxisPos"]["EntityID"]][0]
