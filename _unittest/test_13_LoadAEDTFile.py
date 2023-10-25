@@ -175,6 +175,7 @@ class TestClass:
     def test_09_3dcomponents_array(self):
         array_file = os.path.join(local_path, "example_models", test_subfolder, "phased_array.aedt")
         dd = load_entire_aedt_file(array_file)
+        dd_array = dd["AnsoftProject"]["HFSSModel"]["ArrayDefinition"]["ArrayObject"]
         cells = [
             [3, 4, 4, 4, 4, 4, 4, 3],
             [4, 2, 2, 2, 2, 2, 2, 4],
@@ -202,4 +203,12 @@ class TestClass:
             [270, 0, 0, 0, 0, 0, 0, 90],
             [270, 0, 0, 0, 0, 0, 0, 90],
         ]
-        pass
+        assert dd_array["Cells"]["rows"] == 7
+        assert dd_array["Cells"]["columns"] == 8
+        assert dd_array["Cells"]["matrix"] == cells
+        assert dd_array["Active"]["rows"] == 7
+        assert dd_array["Active"]["columns"] == 8
+        assert dd_array["Active"]["matrix"] == active
+        assert dd_array["Rotation"]["rows"] == 7
+        assert dd_array["Rotation"]["columns"] == 8
+        assert dd_array["Rotation"]["matrix"] == rotation

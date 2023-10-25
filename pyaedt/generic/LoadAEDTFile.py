@@ -231,7 +231,6 @@ def _decode_recognized_key(keyword, line, d):
         temp_list.append([_parse_value(i) for i in match.group(3).split(", ")])
         d["Name"].append(temp_list)
     elif keyword in _recognized_keywords[3:6]:  # Cells, Active, Rotation
-        d[keyword] = []
         li = _count
         line_m = _all_lines[li]
         li += 1
@@ -239,13 +238,16 @@ def _decode_recognized_key(keyword, line, d):
         if line_m[:2] != "m=" or line_n[:2] != "n=":
             return False
         m = int(re.search(r"[m|n]=(\d+)", line_m).group(1))
+        d["rows"] = m
         n = int(re.search(r"[m|n]=(\d+)", line_n).group(1))
+        d["columns"] = n
+        d["matrix"] = []
         for i in range(m):
             li += 1
             r = re.search(r"\$begin 'r(\d+)'", _all_lines[li])
             if not r or i != int(r.group(1)):
                 return False  # there should be a row definition
-            d[keyword].append([])
+            d["matrix"].append([])
             for j in range(n):
                 li += 1
                 c = re.search(r"c\((.+)\)", _all_lines[li])
@@ -257,7 +259,7 @@ def _decode_recognized_key(keyword, line, d):
                     c = c.group(1).lower() == "true"
                 elif keyword == "Rotation":
                     c = int(c.group(1)) * 90
-                d[keyword][i].append(c)
+                d["matrix"][i].append(c)
             li += 1
             r = re.search(r"\$end 'r(\d+)'", _all_lines[li])
             if not r or i != int(r.group(1)):
