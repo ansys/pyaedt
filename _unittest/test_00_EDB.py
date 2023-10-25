@@ -466,7 +466,6 @@ class TestClass:
         assert ref_term.layer
         ref_term.layer = "1_Top"
 
-
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"
 
