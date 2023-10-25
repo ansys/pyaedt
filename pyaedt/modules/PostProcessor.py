@@ -2636,7 +2636,13 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             filename = plotname
         file_path = os.path.join(filepath, filename + "." + file_format)
-        self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
+        if ".case" in file_path:
+            try:
+                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
+            except:
+                self.logger.warning("case file is not supported for this plot. Switching to aedtplt")
+                file_path = os.path.join(filepath, filename + ".aedtplt")
+                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
         if settings.remote_rpc_session_temp_folder:
             local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
             file_path = check_and_download_file(local_path, file_path)
@@ -2703,7 +2709,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(
-        self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None, filter_boxes=[]
+        self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None, filter_boxes=[], field_type=None
     ):
         if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             objlist = self._app.modeler.convert_to_selections(objlist, True)
@@ -2765,6 +2771,8 @@ class PostProcessor(PostProcessorCommon, object):
                 intrinsincList=intrinsics,
                 layers_plot_type=listtype,
             )
+        if self._app.design_type == "Q3D Extractor":
+            plot.field_type = field_type
         plot.name = plot_name
         plot.plotFolder = plot_name
         plot.filter_boxes = filter_boxes
@@ -2787,6 +2795,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_name,
         intrinsics,
         plot_name=None,
+        field_type="",
     ):
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
@@ -2814,6 +2823,8 @@ class PostProcessor(PostProcessorCommon, object):
             intrinsincList=intrinsics,
             seedingFaces=seeding_faces_ids,
         )
+        if field_type:
+            plot.field_type = field_type
         plot.name = plot_name
         plot.plotFolder = plot_name
 
@@ -2827,7 +2838,9 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
-    def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
+    def create_fieldplot_line(
+        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, field_type="DC R/L Fields"
+    ):
         """Create a field plot of the line.
 
         Parameters
@@ -2845,6 +2858,8 @@ class PostProcessor(PostProcessorCommon, object):
             is ``{}``.
         plot_name : str, optional
             Name of the fieldplot to create.
+        field_type : str, optional
+            Field type to plot. Valid only for Q3D Field plots.
 
         Returns
         -------
@@ -2861,7 +2876,9 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name)
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name, field_type=field_type
+        )
 
     @pyaedt_function_handler()
     def create_fieldplot_line_traces(
@@ -2872,6 +2889,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_name=None,
         intrinsinc_dict=None,
         plot_name=None,
+        field_type="DC R/L Fields",
     ):
         """
         Create a field plot of the line.
@@ -2892,6 +2910,8 @@ class PostProcessor(PostProcessorCommon, object):
             is ``{}``.
         plot_name : str, optional
             Name of the field plot to create. The default is ``None``.
+        field_type : str, optional
+            Field type to plot. Valid only for Q3D Field plots.
 
         Returns
         -------
@@ -2965,6 +2985,7 @@ class PostProcessor(PostProcessorCommon, object):
             setup_name,
             intrinsinc_dict,
             plot_name,
+            field_type=field_type,
         )
 
     @pyaedt_function_handler()
@@ -3033,7 +3054,9 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(layers_nets, quantity_name, setup_name, intrinsics, plot_type, plot_name)
 
     @pyaedt_function_handler()
-    def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
+    def create_fieldplot_surface(
+        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, field_type="DC R/L Fields"
+    ):
         """Create a field plot of surfaces.
 
         Parameters
@@ -3051,6 +3074,8 @@ class PostProcessor(PostProcessorCommon, object):
             is ``{}``.
         plot_name : str, optional
             Name of the fieldplot to create.
+        field_type : str, optional
+            Field type to plot. Valid only for Q3D Field plots.
 
         Returns
         -------
@@ -3075,11 +3100,20 @@ class PostProcessor(PostProcessorCommon, object):
                 new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
             else:
                 new_obj_list.append(objs)
-        return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
+        return self._create_fieldplot(
+            new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
+        )
 
     @pyaedt_function_handler()
     def create_fieldplot_cutplane(
-        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, filter_objects=[]
+        self,
+        objlist,
+        quantityName,
+        setup_name=None,
+        intrinsincDict=None,
+        plot_name=None,
+        filter_objects=[],
+        field_type="DC R/L Fields",
     ):
         """Create a field plot of cut planes.
 
@@ -3100,6 +3134,8 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the fieldplot to create.
         filter_objects : list, optional
             Objects list on which filter the plot.
+        field_type : str, optional
+            Field type to plot. Valid only for Q3D Field plots.
 
         Returns
         -------
@@ -3119,11 +3155,26 @@ class PostProcessor(PostProcessorCommon, object):
         if filter_objects:
             filter_objects = self._app.modeler.convert_to_selections(filter_objects, True)
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name, filter_boxes=filter_objects
+            objlist,
+            quantityName,
+            setup_name,
+            intrinsincDict,
+            "CutPlane",
+            plot_name,
+            filter_boxes=filter_objects,
+            field_type=field_type,
         )
 
     @pyaedt_function_handler()
-    def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
+    def create_fieldplot_volume(
+        self,
+        objlist,
+        quantityName,
+        setup_name=None,
+        intrinsincDict=None,
+        plot_name=None,
+        field_type="DC R/L Fields",
+    ):
         """Create a field plot of volumes.
 
         Parameters
@@ -3157,7 +3208,9 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name)
+        return self._create_fieldplot(
+            objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name, field_type=field_type
+        )
 
     @pyaedt_function_handler()
     def export_field_jpg(
@@ -3514,7 +3567,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
-            return [[fname, "grey", 0.6]]
+            return [[fname, "aquamarine", 0.3]]
 
     @pyaedt_function_handler()
     def export_mesh_obj(self, setup_name=None, intrinsic_dict=None):
