@@ -266,27 +266,3 @@ class CoaxPort(PadstackInstanceTerminal):
         p = self._hfss_port_property
         p["Radial Extent Factor"] = value
         self._hfss_port_property = p
-
-
-class VoltageProbe:
-    """Manage probes properties.
-
-    Parameters
-    ----------
-    pedb : pyaedt.edb.Edb
-        Edb object from Edblib.
-    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from Edb.
-
-
-    Examples
-    --------
-    This example shows how to access this class.
-    >>> from pyaedt import Edb
-    >>> edb = Edb("myaedb.aedb")
-    >>> probes = edb.probes
-    >>> print(probes["Probe1"].name)
-    """
-
-    def __init__(self, pedb, edb_object):
-        Terminal.__init__(self, pedb, edb_object)

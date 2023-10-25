@@ -132,7 +132,7 @@ class Terminal(Connectable):
         -------
         int
         """
-        return self._edb_object.GetBoundaryType()
+        return self._edb_object.GetBoundaryType().ToString()
 
     @boundary_type.setter
     def boundary_type(self, value):
@@ -152,6 +152,11 @@ class Terminal(Connectable):
     @impedance.setter
     def impedance(self, value):
         self._edb_object.SetImpedance(self._pedb.edb_value(value))
+
+    @property
+    def is_reference_terminal(self):
+        """Whether it is a reference terminal."""
+        return self._edb_object.IsReferenceTerminal()
 
     @property
     def ref_terminal(self):
@@ -546,3 +551,10 @@ class PointTerminal(Terminal):
         layer = self._pedb.stackup.layers[value]._edb_layer
         point_data = self._pedb.point_data(*self.location)
         self._edb_object.SetParameters(point_data, layer)
+
+
+class PinGroupTerminal(Terminal):
+    """Manages pin group terminal properties."""
+
+    def __init__(self, pedb, edb_object=None):
+        super().__init__(pedb, edb_object)

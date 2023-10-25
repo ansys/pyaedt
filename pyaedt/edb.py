@@ -22,12 +22,11 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.ports_sources import BundleWavePort
-from pyaedt.edb_core.edb_data.ports_sources import CoaxPort
-from pyaedt.edb_core.edb_data.ports_sources import VoltageProbe
-from pyaedt.edb_core.edb_data.ports_sources import ExcitationSources
-from pyaedt.edb_core.edb_data.ports_sources import GapPort
-from pyaedt.edb_core.edb_data.ports_sources import WavePort
+from pyaedt.edb_core.edb_data.ports import BundleWavePort
+from pyaedt.edb_core.edb_data.ports import CoaxPort
+from pyaedt.edb_core.edb_data.ports import ExcitationSources
+from pyaedt.edb_core.edb_data.ports import GapPort
+from pyaedt.edb_core.edb_data.ports import WavePort
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
@@ -35,8 +34,10 @@ from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
+from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import LayoutObjType
 from pyaedt.edb_core.general import Primitives
 from pyaedt.edb_core.general import TerminalType
@@ -364,6 +365,8 @@ class Edb(Database):
                 ter = BundleTerminal(self, i)
             elif terminal_type == TerminalType.PadstackInstanceTerminal.name:
                 ter = PadstackInstanceTerminal(self, i)
+            elif terminal_type == TerminalType.PinGroupTerminal.name:
+                ter = PinGroupTerminal(self, i)
             else:
                 ter = Terminal(self, i)
             temp[ter.name] = ter
@@ -424,8 +427,12 @@ class Edb(Database):
     @property
     def probes(self):
         """Get all layout sources."""
-        terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) in [8]]
-        return {ter.GetName(): VoltageProbe(self, ter) for ter in terms}
+        temp = {}
+        for name, val in self.terminals.items():
+            if val.boundary_type == BoundaryType.kVoltageProbe.name:
+                if not val.is_reference_terminal:
+                    temp[name] = val
+        return temp
 
     @pyaedt_function_handler()
     def open_edb(self):
