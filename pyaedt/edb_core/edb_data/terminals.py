@@ -4,6 +4,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
+from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.generic.general_methods import generate_unique_name
@@ -135,15 +136,11 @@ class Terminal(Connectable):
 
     @boundary_type.setter
     def boundary_type(self, value):
+        if not value in [i.name for i in BoundaryType]:  # pragma : no cover
+            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))
         if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
             temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
-        elif value == self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary.ToString():
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary
-        elif value == self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal.ToString():
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal
-        elif value == self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary.ToString():
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary
-        else:
+        else:  # pragma : no cover
             temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary
         self._edb_object.SetBoundaryType(temp)
 
@@ -497,7 +494,25 @@ class PointTerminal(Terminal):
 
     @pyaedt_function_handler
     def create(self, name, net, location, layer, is_ref=False):
+        """Create a point terminal.
 
+        Parameters
+        ----------
+        name : str
+            Name of the terminal.
+        net : str
+            Name of the net.
+        location : list
+            Location of the terminal.
+        layer : str
+            Name of the layer.
+        is_ref : bool, optional
+            Whether it is a reference terminal.
+
+        Returns
+        -------
+
+        """
         terminal = self._pedb.edb_api.cell.terminal.PointTerminal.Create(
             self._pedb.active_layout,
             self._pedb.nets[net].net_object,
@@ -511,6 +526,7 @@ class PointTerminal(Terminal):
 
     @property
     def location(self):
+        """Get location of the terminal."""
         point_data = self._pedb.point_data(0, 0)
         layer = ""
         if self._edb_object.GetParameters(point_data, layer):
@@ -526,6 +542,7 @@ class PointTerminal(Terminal):
 
     @property
     def layer(self):
+        """Get layer of the terminal."""
         point_data = self._pedb.point_data(0, 0)
         layer = ""
         if self._edb_object.GetParameters(point_data, layer):

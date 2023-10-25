@@ -1390,6 +1390,25 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler
     def place_voltage_probe(self, name, positive_net_name, positive_location, positive_layer, negative_net_name, negative_location, negative_layer):
+        """Place a voltage probe between two points.
+
+        Parameters
+        ----------
+        name : str,
+            Name of the probe.
+        positive_net_name : str
+            Name of the positive net.
+        positive_location : list
+            Location of the positive terminal.
+        positive_layer : str,
+            Layer of the positive terminal.
+        negative_net_name : str,
+            Name of the negative net.
+        negative_location : list
+            Location of the negative terminal.
+        negative_layer : str
+            Layer of the negative terminal.
+        """
         from pyaedt.edb_core.edb_data.terminals import PointTerminal
         point_terminal = PointTerminal(self._pedb)
         p_terminal = point_terminal.create(name, positive_net_name, positive_location, positive_layer)
@@ -1398,5 +1417,3 @@ class EdbSiwave(object):
         n_terminal = point_terminal.create(name+"_ref", negative_net_name, negative_location, negative_layer)
         n_terminal.boundary_type = BoundaryType.kVoltageProbe.name
         p_terminal.ref_terminal = n_terminal
-
-
