@@ -756,29 +756,74 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         """Whether the setup is enabled."""
         return self._edb_sim_setup_info.SimulationSettings.Enabled
 
+    @enabled.setter
+    def enabled(self, value):
+        self._edb_sim_setup_info.SimulationSettings.Enabled = value
+        self._update_setup()
+
     @property
     def pi_slider_postion(self):
         """PI solider position. Values are from ``1`` to ``3``."""
         return self._edb_sim_setup_info.SimulationSettings.PISliderPos
+
+    @pi_slider_postion.setter
+    def pi_slider_postion(self, value):
+        if value == 0:
+            self.include_coplane_coupling = False
+            self.include_inter_plane_coupling = False
+            self.include_split_plane_coupling = False
+            self.include_fringe_coupling = False
+            self.include_trace_coupling = False
+            self.max_coupled_lines = 12
+        elif value == 1:
+            self.include_coplane_coupling = False
+            self.include_inter_plane_coupling = False
+            self.include_split_plane_coupling = False
+            self.include_fringe_coupling = True
+            self.include_trace_coupling = False
+            self.max_coupled_lines = 12
+        else:
+            self.include_coplane_coupling = True
+            self.include_inter_plane_coupling = False
+            self.include_split_plane_coupling = True
+            self.include_fringe_coupling = True
+            self.include_trace_coupling = True
+            self.max_coupled_lines = 40
+        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
+        self._edb_sim_setup_info.SimulationSettings.PISliderPos = value
+        self._update_setup()
 
     @property
     def si_slider_postion(self):
         """SI solider position. Values are from ``1`` to ``3``."""
         return self._edb_sim_setup_info.SimulationSettings.SISliderPos
 
-    @enabled.setter
-    def enabled(self, value):
-        self._edb_sim_setup_info.SimulationSettings.Enabled = value
-        self._update_setup()
-
-    @pi_slider_postion.setter
-    def pi_slider_postion(self, value):
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
-        self._edb_sim_setup_info.SimulationSettings.PISliderPos = value
-        self._update_setup()
-
     @si_slider_postion.setter
     def si_slider_postion(self, value):
+        if value == 0:
+            self.include_coplane_coupling = False
+            self.include_inter_plane_coupling = False
+            self.include_split_plane_coupling = False
+            self.include_fringe_coupling = False
+            self.include_trace_coupling = True
+            self.max_coupled_lines = 12
+            self.return_current_distribution = False
+        elif value == 1:
+            self.include_coplane_coupling = True
+            self.include_inter_plane_coupling = False
+            self.include_split_plane_coupling = True
+            self.include_fringe_coupling = True
+            self.include_trace_coupling = True
+            self.max_coupled_lines = 12
+            self.return_current_distribution = False
+        else:
+            self.include_coplane_coupling = True
+            self.include_inter_plane_coupling = False
+            self.include_split_plane_coupling = True
+            self.include_fringe_coupling = True
+            self.include_trace_coupling = True
+            self.max_coupled_lines = 40
+            self.return_current_distribution = True
         self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
         self._edb_sim_setup_info.SimulationSettings.SISliderPos = value
         self._update_setup()
