@@ -62,7 +62,7 @@ _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
-_recognized_keywords = ["CurvesInfo", "Sweep Operations", "PropDisplayMap"]
+_recognized_keywords = ["CurvesInfo", "Sweep Operations", "PropDisplayMap", "Cells", "Active", "Rotation"]
 _recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC("]
 
 # global variables
@@ -139,7 +139,7 @@ def _decode_recognized_subkeys(sk, d):
     Returns
     -------
     bool
-        Returns ``True`` if it finds and decode a recognized value.
+        Returns ``True`` if it finds and decodes a recognized value, ``False`` otherwise.
 
     """
     if sk.startswith(_recognized_subkeys[0]):  # 'simple(' is at the beginning of the value
@@ -180,7 +180,7 @@ def _decode_recognized_subkeys(sk, d):
 
 
 def _decode_recognized_key(keyword, line, d):
-    """Special decodings for keys belonging to  _recognized_keywords
+    """Special decodings for keys belonging to _recognized_keywords
 
     Parameters
     ----------
@@ -188,14 +188,18 @@ def _decode_recognized_key(keyword, line, d):
         dictionary key recognized
 
     line : str
-        Line.
+        The line following the recognized key
 
     d : dict
         Active dictionary.
 
+    Returns
     -------
+    bool
+        Returns ``True`` if it confirms and decodes a recognized key, ``False`` otherwise.
 
     """
+    global _count
     if keyword == _recognized_keywords[0]:  # 'CurvesInfo'
         m = re.search(r"\'(\d+)\'\((.*)\)$", line)
         if m:
@@ -204,9 +208,10 @@ def _decode_recognized_key(keyword, line, d):
             v2 = v.replace("\\'", '"')
             v3 = _separate_list_elements(v2)
             d[k] = v3
+        else:
+            return False
     elif keyword == _recognized_keywords[1]:  # 'Sweep Operations'
         d["add"] = []
-        global _count
         line = _all_lines[_count + 1]
         while line.startswith("add("):
             d["add"].append(line.replace("add", "").translate({ord(i): None for i in " ()'"}).split(","))
@@ -225,8 +230,22 @@ def _decode_recognized_key(keyword, line, d):
         temp_list.append("ExtentRect:=")
         temp_list.append([_parse_value(i) for i in match.group(3).split(", ")])
         d["Name"].append(temp_list)
+    elif keyword == _recognized_keywords[3]:  # Cells
+        line_m = _all_lines[_count]
+        line_n = _all_lines[_count + 1]
+        if line_m[:2] != "m=" or line_n[:2] != "n=":
+            return False
+        m = int(re.search(r"[m|n]=(\d+)", line_m).group(1))
+        n = int(re.search(r"[m|n]=(\d+)", line_n).group(1))
+        i = j = 0
+        while i < m:
+            i += 1
+            while j < n:
+                j += 1
+        pass
     else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
+    return True
 
 
 def _decode_subkey(line, d):
@@ -346,7 +365,10 @@ def _walk_through_structure(keyword, save_dict):
                 nextlvl_begin_key = b.group(1)
                 _walk_through_structure(nextlvl_begin_key, save_dict[keyword])
             elif keyword in _recognized_keywords:
-                _decode_recognized_key(keyword, line, save_dict[keyword])
+                confirmed = _decode_recognized_key(keyword, line, save_dict[keyword])
+                if not confirmed:
+                    # decode the line normally, since recognized key is not successful
+                    _decode_subkey(line, save_dict[keyword])
             else:  # decode key
                 _decode_subkey(line, save_dict[keyword])
         _count += 1

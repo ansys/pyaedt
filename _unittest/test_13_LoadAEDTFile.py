@@ -171,3 +171,8 @@ class TestClass:
         assert newmat.youngs_modulus.value == "195000000000"
         assert newmat.poissons_ratio.value == "0.3"
         assert newmat.thermal_expansion_coefficient.value == "1.08e-05"
+
+    def test_09_3dcomponents_array(self):
+        array_file = os.path.join(local_path, "example_models", test_subfolder, "phased_array.aedt")
+        dd = load_entire_aedt_file(array_file)
+        pass
