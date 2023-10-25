@@ -1091,15 +1091,24 @@ class Analysis(Design, object):
         return list(setups)
 
     @pyaedt_function_handler()
-    def get_nominal_variation(self):
+    def get_nominal_variation(self, with_values=False):
         """Retrieve the nominal variation.
+
+        Parameters
+        ----------
+        with_values : bool
+            Whether to return nominal variation or nominal variation with values.
+            The default is ``False``.
 
         Returns
         -------
         list of str
             List of nominal variations.
         """
-        return self.available_variations.nominal
+        if not with_values:
+            return self.available_variations.nominal
+        else:
+            return self.available_variations.nominal_w_values
 
     @pyaedt_function_handler()
     def get_sweeps(self, name):
