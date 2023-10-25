@@ -459,6 +459,13 @@ class TestClass:
         self.edbapp.siwave.place_voltage_probe(
             "vprobe_2", "1V0", ["112mm", "24mm"], "1_Top", "GND", ["112mm", "27mm"], "Inner1(GND1)"
         )
+        vprobe_2 = self.edbapp.probes["vprobe_2"]
+        ref_term = vprobe_2.ref_terminal
+        assert isinstance(ref_term.location, list)
+        ref_term.location = [0, 0]
+        assert ref_term.layer
+        ref_term.layer = "1_Top"
+
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"
@@ -1603,6 +1610,8 @@ class TestClass:
         port_ver = edb.ports["port_ver"]
         assert not port_ver.is_null
         assert port_ver.hfss_type == "Gap"
+        port_hori = edb.ports["port_hori"]
+        assert port_hori.ref_terminal
 
         args = {
             "layer_name": "1_Top",

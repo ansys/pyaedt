@@ -136,12 +136,12 @@ class Terminal(Connectable):
 
     @boundary_type.setter
     def boundary_type(self, value):
-        if not value in [i.name for i in BoundaryType]:  # pragma : no cover
-            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))
+        if not value in [i.name for i in BoundaryType]:
+            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))  # pragma : no cover
         if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
             temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
-        else:  # pragma : no cover
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary
+        else:
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary  # pragma : no cover
         self._edb_object.SetBoundaryType(temp)
 
     @property
@@ -158,17 +158,13 @@ class Terminal(Connectable):
         """Get reference terminal."""
 
         terminal = Terminal(self._pedb, self._edb_object.GetReferenceTerminal())
-        if not terminal.is_null():
+        if not terminal.is_null:
             if terminal.terminal_type == TerminalType.PointTerminal.name:
                 return PointTerminal(self._pedb, terminal._edb_object)
             elif terminal.terminal_type == TerminalType.EdgeTerminal.name:
                 return EdgeTerminal(self._pedb, terminal._edb_object)
-            elif terminal.terminal_type == TerminalType.PadstackInstanceTerminal.name:
-                return PadstackInstanceTerminal(self._pedb, terminal._edb_object)
             elif terminal.terminal_type == TerminalType.InvalidTerminal.name:
-                return False
-        else:
-            return False
+                return None  # pragma : no cover
 
     @ref_terminal.setter
     def ref_terminal(self, value):
@@ -528,9 +524,9 @@ class PointTerminal(Terminal):
     def location(self):
         """Get location of the terminal."""
         point_data = self._pedb.point_data(0, 0)
-        layer = ""
+        layer = list(self._pedb.stackup.layers.values())[0]._edb_layer
         if self._edb_object.GetParameters(point_data, layer):
-            return point_data.X.ToDouble(), point_data.Y.ToDouble()
+            return [point_data.X.ToDouble(), point_data.Y.ToDouble()]
 
     @location.setter
     def location(self, value):
@@ -541,11 +537,12 @@ class PointTerminal(Terminal):
     def layer(self):
         """Get layer of the terminal."""
         point_data = self._pedb.point_data(0, 0)
-        layer = ""
+        layer = list(self._pedb.stackup.layers.values())[0]._edb_layer
         if self._edb_object.GetParameters(point_data, layer):
             return layer
 
     @layer.setter
     def layer(self, value):
-        point_data = self._pedb.point_data(self.location)
-        self._edb_object.SetParameters(point_data, value)
+        layer = self._pedb.stackup.layers[value]._edb_layer
+        point_data = self._pedb.point_data(*self.location)
+        self._edb_object.SetParameters(point_data, layer)
