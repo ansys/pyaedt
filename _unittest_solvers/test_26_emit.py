@@ -222,6 +222,17 @@ class TestClass:
             stop_freq = 40000000
             radio.set_band_stop_frequency(band, stop_freq)
             assert radio.band_stop_frequency(band, units='Hz') == stop_freq
+            # test corner cases for band start and stop frequencies
+            start_freq = 10
+            stop_freq = 9
+            units = 'Hz'
+            radio.set_band_start_frequency(band, start_freq, units=units)
+            radio.set_band_stop_frequency(band, stop_freq, units=units)
+            assert radio.band_start_frequency(band, units="Hz") == 8
+            units = 'wrong'
+            radio.set_band_stop_frequency(band, 10, units=units)
+            assert radio.band_stop_frequency(band, units='Hz') == 10
+
             # test power unit conversions
             band_power = radio.band_tx_power(band)
             assert band_power == 40.0

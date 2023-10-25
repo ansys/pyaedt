@@ -748,9 +748,12 @@ class EmitRadioComponent(EmitComponent):
 
         Parameters
         ----------
-        band_node : Instance of the band node
+        band_node : pyaedt.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
+            Instance of the band node
         band_start_freq : float
+            Start frequency of the band.
         units : str, optional
+            Units of the start frequency. If invalid or no units specified, ``Hz`` is assumed.
 
         Returns
         ------
@@ -771,19 +774,31 @@ class EmitRadioComponent(EmitComponent):
 
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
+
         # convert to Hz
-        freq_string = "{}".format(consts.unit_converter(band_start_freq, "Freq", units, "Hz"))
-        prop_list = {"StartFrequency": freq_string}
-        band_node._set_prop_value(prop_list)
+        freq_float_in_Hz = consts.unit_converter(band_start_freq, "Freq", units, "Hz")
+        freq_string = "{}".format(freq_float_in_Hz)
+        if not(1 <= freq_float_in_Hz <= 100000000000):
+            raise ValueError("Frequency should be within 1Hz to 100 GHz.")
+        if float(band_node.props['StopFrequency']) < freq_float_in_Hz:
+            stop_freq = freq_float_in_Hz+1
+            band_node._set_prop_value({'StopFrequency': str(stop_freq)})
+        else:
+            prop_list = {"StartFrequency": freq_string}
+            band_node._set_prop_value(prop_list)
+
 
     def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
         """Set stop frequency of a given band.
 
         Parameters
         ----------
-        band_node : Instance of the band node
+        band_node : pyaedt.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
+            Instance of the band node
         band_stop_freq : float
+            Stop frequency of the band.
         units : str, optional
+            Units of the stop frequency. If invalid or no units specified, ``Hz`` is assumed.
 
         Returns
         ------
@@ -804,7 +819,15 @@ class EmitRadioComponent(EmitComponent):
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         # convert to Hz
-        freq_string = "{}".format(consts.unit_converter(band_stop_freq, "Freq", units, "Hz"))
+        freq_float_in_Hz = consts.unit_converter(band_stop_freq, "Freq", units, "Hz")
+        if not (1 <= freq_float_in_Hz <= 100000000000):
+            raise ValueError("Frequency should be within 1Hz to 100 GHz.")
+        if float(band_node.props["StartFrequency"]) > freq_float_in_Hz:
+            if freq_float_in_Hz>1:
+               band_node._set_prop_value({"StartFrequency": str(freq_float_in_Hz-1)})
+            else:
+                raise ValueError("Band stop frequency is less than start frequency.")
+        freq_string = "{}".format(freq_float_in_Hz)
         prop_list = {"StopFrequency": freq_string}
         band_node._set_prop_value(prop_list)
 
