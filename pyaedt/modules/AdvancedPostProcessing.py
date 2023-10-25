@@ -775,7 +775,9 @@ class PostProcessor(Post):
                     ]
                 )
             fields_to_add.append(
-                self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
+                self.export_field_plot(
+                    plotname, project_path, plotname + variation_variable + str(el), file_format="case"
+                )
             )
 
         model = self.get_model_plotter_geometries(generate_mesh=False)

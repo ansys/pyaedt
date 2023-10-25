@@ -2643,6 +2643,8 @@ class PostProcessor(PostProcessorCommon, object):
                 self.logger.warning("case file is not supported for this plot. Switching to aedtplt")
                 file_path = os.path.join(filepath, filename + ".aedtplt")
                 self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
+        else:
+            self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
         if settings.remote_rpc_session_temp_folder:
             local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
             file_path = check_and_download_file(local_path, file_path)
