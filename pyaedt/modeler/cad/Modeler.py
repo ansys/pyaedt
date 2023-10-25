@@ -2829,9 +2829,7 @@ class GeometryModeler(Modeler, object):
             if name in cs_names:
                 name = cs.name + generate_unique_name("_RefToGlobal")
             face_cs = FaceCoordinateSystem(self, props=cs.props, name=name, face_id=cs.props["FaceID"])
-            obj = [
-                obj for obj in self.object_list for face in obj.faces if face.id == face_cs.props["FaceID"]
-            ][0]
+            obj = [obj for obj in self.object_list for face in obj.faces if face.id == face_cs.props["FaceID"]][0]
             face = [face for face in obj.faces if face.id == face_cs.props["FaceID"]][0]
             if face_cs.props["Origin"]["PositionType"] == "FaceCenter":
                 origin = face
