@@ -4,8 +4,8 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
-from pyaedt.edb_core.edb_data.ports import BundleWavePort
-from pyaedt.edb_core.edb_data.ports import WavePort
+from pyaedt.edb_core.edb_data.ports_sources import BundleWavePort
+from pyaedt.edb_core.edb_data.ports_sources import WavePort
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list

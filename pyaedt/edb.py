@@ -22,12 +22,12 @@ from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.ports import BundleWavePort
-from pyaedt.edb_core.edb_data.ports import CoaxPort
-from pyaedt.edb_core.edb_data.ports import ExcitationProbes
-from pyaedt.edb_core.edb_data.ports import ExcitationSources
-from pyaedt.edb_core.edb_data.ports import GapPort
-from pyaedt.edb_core.edb_data.ports import WavePort
+from pyaedt.edb_core.edb_data.ports_sources import BundleWavePort
+from pyaedt.edb_core.edb_data.ports_sources import CoaxPort
+from pyaedt.edb_core.edb_data.ports_sources import VoltageProbe
+from pyaedt.edb_core.edb_data.ports_sources import ExcitationSources
+from pyaedt.edb_core.edb_data.ports_sources import GapPort
+from pyaedt.edb_core.edb_data.ports_sources import WavePort
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
@@ -425,7 +425,7 @@ class Edb(Database):
     def probes(self):
         """Get all layout sources."""
         terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) in [8]]
-        return {ter.GetName(): ExcitationProbes(self, ter) for ter in terms}
+        return {ter.GetName(): VoltageProbe(self, ter) for ter in terms}
 
     @pyaedt_function_handler()
     def open_edb(self):
