@@ -230,19 +230,39 @@ def _decode_recognized_key(keyword, line, d):
         temp_list.append("ExtentRect:=")
         temp_list.append([_parse_value(i) for i in match.group(3).split(", ")])
         d["Name"].append(temp_list)
-    elif keyword == _recognized_keywords[3]:  # Cells
-        line_m = _all_lines[_count]
-        line_n = _all_lines[_count + 1]
+    elif keyword in _recognized_keywords[3:6]:  # Cells, Active, Rotation
+        d[keyword] = []
+        li = _count
+        line_m = _all_lines[li]
+        li += 1
+        line_n = _all_lines[li]
         if line_m[:2] != "m=" or line_n[:2] != "n=":
             return False
         m = int(re.search(r"[m|n]=(\d+)", line_m).group(1))
         n = int(re.search(r"[m|n]=(\d+)", line_n).group(1))
-        i = j = 0
-        while i < m:
-            i += 1
-            while j < n:
-                j += 1
-        pass
+        for i in range(m):
+            li += 1
+            r = re.search(r"\$begin 'r(\d+)'", _all_lines[li])
+            if not r or i != int(r.group(1)):
+                return False  # there should be a row definition
+            d[keyword].append([])
+            for j in range(n):
+                li += 1
+                c = re.search(r"c\((.+)\)", _all_lines[li])
+                if not c:
+                    return False  # there should be a column definition
+                if keyword == "Cells":
+                    c = int(c.group(1))
+                elif keyword == "Active":
+                    c = c.group(1).lower() == "true"
+                elif keyword == "Rotation":
+                    c = int(c.group(1)) * 90
+                d[keyword][i].append(c)
+            li += 1
+            r = re.search(r"\$end 'r(\d+)'", _all_lines[li])
+            if not r or i != int(r.group(1)):
+                return False  # there should be a row definition
+        _count = li
     else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
     return True

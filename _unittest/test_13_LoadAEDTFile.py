@@ -175,4 +175,31 @@ class TestClass:
     def test_09_3dcomponents_array(self):
         array_file = os.path.join(local_path, "example_models", test_subfolder, "phased_array.aedt")
         dd = load_entire_aedt_file(array_file)
+        cells = [
+            [3, 4, 4, 4, 4, 4, 4, 3],
+            [4, 2, 2, 2, 2, 2, 2, 4],
+            [4, 2, 1, 1, 1, 1, 2, 4],
+            [4, 2, 1, 1, 1, 1, 2, 4],
+            [4, 2, 1, 3, 1, 1, 2, 4],
+            [4, 2, 1, 1, 1, 1, 2, 4],
+            [4, 2, 2, 2, 2, 2, 2, 4],
+        ]
+        active = [
+            [True, True, True, True, True, True, False, False],
+            [True, True, True, True, True, True, True, False],
+            [True, True, False, False, False, False, True, False],
+            [False, True, False, False, False, False, True, False],
+            [False, True, True, True, True, True, True, False],
+            [False, False, False, True, True, True, False, False],
+            [False, False, False, False, False, False, False, False],
+        ]
+        rotation = [
+            [90, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [0, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+        ]
         pass
