@@ -24,9 +24,9 @@ from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.ports_sources import BundleWavePort
 from pyaedt.edb_core.edb_data.ports_sources import CoaxPort
-from pyaedt.edb_core.edb_data.ports_sources import VoltageProbe
 from pyaedt.edb_core.edb_data.ports_sources import ExcitationSources
 from pyaedt.edb_core.edb_data.ports_sources import GapPort
+from pyaedt.edb_core.edb_data.ports_sources import VoltageProbe
 from pyaedt.edb_core.edb_data.ports_sources import WavePort
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
