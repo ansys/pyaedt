@@ -2830,7 +2830,7 @@ class GeometryModeler(Modeler, object):
                 name = cs.name + generate_unique_name("_RefToGlobal")
             face_cs = FaceCoordinateSystem(self, props=cs.props, name=name, face_id=cs.props["FaceID"])
             obj = [
-                obj for obj in self._app.modeler.object_list for face in obj.faces if face.id == face_cs.props["FaceID"]
+                obj for obj in self.object_list for face in obj.faces if face.id == face_cs.props["FaceID"]
             ][0]
             face = [face for face in obj.faces if face.id == face_cs.props["FaceID"]][0]
             if face_cs.props["Origin"]["PositionType"] == "FaceCenter":
@@ -2873,7 +2873,12 @@ class GeometryModeler(Modeler, object):
             if name in cs_names:
                 name = cs.name + generate_unique_name("_RefToGlobal")
             obj_cs = ObjectCoordinateSystem(self, props=cs.props, name=name, entity_id=cs.entity_id)
-            obj = [obj for obj in self.object_list if obj.part_coordinate_system == cs.name][0]
+            objs_by_name_list = [obj for obj in self.object_list if obj.part_coordinate_system == cs.name]
+            objs_by_id_list = [o for o in self.object_list if o.id == cs.entity_id]
+            if objs_by_name_list:
+                obj = objs_by_name_list[0]
+            elif objs_by_id_list:
+                obj = [o for o in self.object_list if o.id == cs.entity_id][0]
             if cs.props["Origin"]["PositionType"] != "AbsolutePosition":
                 if cs.props["Origin"]["PositionType"] == "FaceCenter":
                     origin = [f for f in obj.faces if f.id == cs.props["Origin"]["EntityID"]][0]
