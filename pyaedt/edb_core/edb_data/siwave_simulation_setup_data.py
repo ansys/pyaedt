@@ -768,9 +768,6 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @pi_slider_postion.setter
     def pi_slider_postion(self, value):
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
-        self._edb_sim_setup_info.SimulationSettings.PISliderPos = value
-        self._update_setup()
         if value == 0:
             self.include_coplane_coupling = False
             self.include_inter_plane_coupling = False
@@ -792,6 +789,9 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self.include_fringe_coupling = True
             self.include_trace_coupling = True
             self.max_coupled_lines = 40
+        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
+        self._edb_sim_setup_info.SimulationSettings.PISliderPos = value
+        self._update_setup()
 
     @property
     def si_slider_postion(self):
@@ -800,9 +800,6 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @si_slider_postion.setter
     def si_slider_postion(self, value):
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
-        self._edb_sim_setup_info.SimulationSettings.SISliderPos = value
-        self._update_setup()
         if value == 0:
             self.include_coplane_coupling = False
             self.include_inter_plane_coupling = False
@@ -827,7 +824,9 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self.include_trace_coupling = True
             self.max_coupled_lines = 40
             self.return_current_distribution = True
-
+        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
+        self._edb_sim_setup_info.SimulationSettings.SISliderPos = value
+        self._update_setup()
 
     @property
     def use_custom_settings(self):
