@@ -7,8 +7,6 @@ import time
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
-
-# from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.sources import CircuitPort
 from pyaedt.edb_core.edb_data.sources import CurrentSource
 from pyaedt.edb_core.edb_data.sources import DCTerminal
@@ -16,6 +14,7 @@ from pyaedt.edb_core.edb_data.sources import PinGroup
 from pyaedt.edb_core.edb_data.sources import ResistorSource
 from pyaedt.edb_core.edb_data.sources import VoltageSource
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.general import BoundaryType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -1388,3 +1387,16 @@ class EdbSiwave(object):
         neg_terminal.SetName(name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
+
+    @pyaedt_function_handler
+    def place_voltage_probe(self, name, positive_net_name, positive_location, positive_layer, negative_net_name, negative_location, negative_layer):
+        from pyaedt.edb_core.edb_data.terminals import PointTerminal
+        point_terminal = PointTerminal(self._pedb)
+        p_terminal = point_terminal.create(name, positive_net_name, positive_location, positive_layer)
+        p_terminal.boundary_type = BoundaryType.kVoltageProbe.name
+
+        n_terminal = point_terminal.create(name+"_ref", negative_net_name, negative_location, negative_layer)
+        n_terminal.boundary_type = BoundaryType.kVoltageProbe.name
+        p_terminal.ref_terminal = n_terminal
+
+

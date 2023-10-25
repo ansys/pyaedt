@@ -4,8 +4,8 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
-from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.general import TerminalType
 from pyaedt.generic.general_methods import generate_unique_name
 
 
@@ -133,6 +133,20 @@ class Terminal(Connectable):
         """
         return self._edb_object.GetBoundaryType()
 
+    @boundary_type.setter
+    def boundary_type(self, value):
+        if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
+        elif value == self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary.ToString():
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary
+        elif value == self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal.ToString():
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal
+        elif value == self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary.ToString():
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary
+        else:
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary
+        self._edb_object.SetBoundaryType(temp)
+
     @property
     def impedance(self):
         """Impedance of the port."""
@@ -141,6 +155,27 @@ class Terminal(Connectable):
     @impedance.setter
     def impedance(self, value):
         self._edb_object.SetImpedance(self._pedb.edb_value(value))
+
+    @property
+    def ref_terminal(self):
+        """Get reference terminal."""
+
+        terminal = Terminal(self._pedb, self._edb_object.GetReferenceTerminal())
+        if not terminal.is_null():
+            if terminal.terminal_type == TerminalType.PointTerminal.name:
+                return PointTerminal(self._pedb, terminal._edb_object)
+            elif terminal.terminal_type == TerminalType.EdgeTerminal.name:
+                return EdgeTerminal(self._pedb, terminal._edb_object)
+            elif terminal.terminal_type == TerminalType.PadstackInstanceTerminal.name:
+                return PadstackInstanceTerminal(self._pedb, terminal._edb_object)
+            elif terminal.terminal_type == TerminalType.InvalidTerminal.name:
+                return False
+        else:
+            return False
+
+    @ref_terminal.setter
+    def ref_terminal(self, value):
+        self._edb_object.SetReferenceTerminal(value._edb_object)
 
     @property
     def reference_object(self):  # pragma : no cover
@@ -452,3 +487,51 @@ class PadstackInstanceTerminal(Terminal):
         terminal = PadstackInstanceTerminal(self._pedb, terminal)
 
         return terminal if not terminal.is_null else False
+
+
+class PointTerminal(Terminal):
+    """Manages point terminal properties."""
+
+    def __init__(self, pedb, edb_object=None):
+        super().__init__(pedb, edb_object)
+
+    @pyaedt_function_handler
+    def create(self, name, net, location, layer, is_ref=False):
+
+        terminal = self._pedb.edb_api.cell.terminal.PointTerminal.Create(
+            self._pedb.active_layout,
+            self._pedb.nets[net].net_object,
+            name,
+            self._pedb.point_data(*location),
+            self._pedb.stackup[layer]._edb_layer,
+            is_ref
+        )
+        terminal = PointTerminal(self._pedb, terminal)
+        return terminal if not terminal.is_null else False
+
+    @property
+    def location(self):
+        point_data = self._pedb.point_data(0, 0)
+        layer = ""
+        if self._edb_object.GetParameters(point_data, layer):
+            return point_data.X.ToDouble(), point_data.Y.ToDouble()
+
+    @location.setter
+    def location(self, value):
+        layer = self.layer
+        self._edb_object.SetParameters(
+            self._pedb.point_data(*value),
+            layer
+        )
+
+    @property
+    def layer(self):
+        point_data = self._pedb.point_data(0, 0)
+        layer = ""
+        if self._edb_object.GetParameters(point_data, layer):
+            return layer
+
+    @layer.setter
+    def layer(self,value):
+        point_data = self._pedb.point_data(self.location)
+        self._edb_object.SetParameters(point_data, value)
