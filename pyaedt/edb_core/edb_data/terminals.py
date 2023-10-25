@@ -66,6 +66,10 @@ class Terminal(Connectable):
         """Whether it is a circuit port."""
         return self._edb_object.GetIsCircuitPort()
 
+    @is_circuit_port.setter
+    def is_circuit_port(self, value):
+        self._edb_object.SetIsCircuitPort(value)
+
     @property
     def _port_post_processing_prop(self):
         """Get port post processing properties."""
