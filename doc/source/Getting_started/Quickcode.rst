@@ -1,4 +1,4 @@
-Quick Code
+Quick code
 ==========
 
 Documentation and issues
