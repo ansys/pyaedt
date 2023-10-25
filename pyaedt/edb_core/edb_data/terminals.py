@@ -5,8 +5,8 @@ from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.general import BoundaryType
-from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import TerminalType
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
 
 
@@ -519,7 +519,7 @@ class PointTerminal(Terminal):
             name,
             self._pedb.point_data(*location),
             self._pedb.stackup[layer]._edb_layer,
-            is_ref
+            is_ref,
         )
         terminal = PointTerminal(self._pedb, terminal)
         return terminal if not terminal.is_null else False
@@ -535,10 +535,7 @@ class PointTerminal(Terminal):
     @location.setter
     def location(self, value):
         layer = self.layer
-        self._edb_object.SetParameters(
-            self._pedb.point_data(*value),
-            layer
-        )
+        self._edb_object.SetParameters(self._pedb.point_data(*value), layer)
 
     @property
     def layer(self):
@@ -549,6 +546,6 @@ class PointTerminal(Terminal):
             return layer
 
     @layer.setter
-    def layer(self,value):
+    def layer(self, value):
         point_data = self._pedb.point_data(self.location)
         self._edb_object.SetParameters(point_data, value)

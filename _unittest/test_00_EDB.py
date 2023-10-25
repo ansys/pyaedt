@@ -456,7 +456,9 @@ class TestClass:
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A14", "A15"], group_name="vp_neg")
         assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
         assert self.edbapp.probes["vprobe"]
-        self.edbapp.siwave.place_voltage_probe("vprobe_2", "1V0", ["112mm", "24mm"], "1_Top", "GND", ["112mm", "27mm"], "Inner1(GND1)")
+        self.edbapp.siwave.place_voltage_probe(
+            "vprobe_2", "1V0", ["112mm", "24mm"], "1_Top", "GND", ["112mm", "27mm"], "Inner1(GND1)"
+        )
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"
