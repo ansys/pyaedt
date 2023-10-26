@@ -144,8 +144,8 @@ class Terminal(Connectable):
             self._pedb.logger.warning("Invalid Boundary Type={}".format(value))
         if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
             temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
-        else:
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary  # pragma : no cover
+        else:  # pragma : no cover
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary
         self._edb_object.SetBoundaryType(temp)
 
     @property
@@ -172,8 +172,8 @@ class Terminal(Connectable):
                 return PointTerminal(self._pedb, terminal._edb_object)
             elif terminal.terminal_type == TerminalType.EdgeTerminal.name:
                 return EdgeTerminal(self._pedb, terminal._edb_object)
-            elif terminal.terminal_type == TerminalType.InvalidTerminal.name:
-                return None  # pragma : no cover
+            elif terminal.terminal_type == TerminalType.InvalidTerminal.name:  # pragma : no cover
+                return None
 
     @ref_terminal.setter
     def ref_terminal(self, value):
@@ -277,7 +277,7 @@ class Terminal(Connectable):
                     return EDBPadstackInstance(refTermPSI, self._pedb)
                 except AttributeError:
                     return None
-        return None  # pragma: no cover
+        return None
 
     @pyaedt_function_handler()
     def get_edge_terminal_reference_primitive(self):  # pragma : no cover
@@ -301,7 +301,7 @@ class Terminal(Connectable):
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
                     return cast(primitive, self._pedb)
-        return None  # pragma: no cover
+        return None
 
     @pyaedt_function_handler()
     def get_point_terminal_reference_primitive(self):  # pragma : no cover
@@ -364,11 +364,11 @@ class Terminal(Connectable):
         else:
             power_ground_net_names = [net for net in self._pedb.nets.power_nets.keys()]
         comp_ref_pins = [i for i in pin_list if i.GetNet().GetName() in power_ground_net_names]
-        if len(comp_ref_pins) == 0:
+        if len(comp_ref_pins) == 0:  # pragma: no cover
             self._pedb.logger.error(
                 "Terminal with PadStack Instance Name {} component has no reference pins.".format(ref_pin.GetName())
-            )  # pragma: no cover
-            return None  # pragma: no cover
+            )
+            return None
         closest_pin_distance = None
         pin_obj = None
         for pin in comp_ref_pins:  # find the distance to all the pins to the terminal pin
