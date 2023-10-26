@@ -75,7 +75,7 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        self._refresh_solids()
+        # self._refresh_solids()
         return [self[name] for name in self.solid_names if self[name]]
 
     @property
@@ -87,7 +87,7 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        self._refresh_sheets()
+        # self._refresh_sheets()
         return [self[name] for name in self.sheet_names if self[name]]
 
     @property
@@ -99,7 +99,7 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        self._refresh_lines()
+        # self._refresh_lines()
         return [self[name] for name in self.line_names if self[name]]
 
     @property
@@ -111,8 +111,8 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        self._refresh_points()
-        return [self.points[name] for name in self._points]
+        # self._refresh_points()
+        return [self.points[name] for name in self.point_names]
 
     @property
     def unclassified_objects(self):
@@ -123,8 +123,8 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        self._refresh_unclassified()
-        return [self[name] for name in self._unclassified if name is not None]
+        # self._refresh_unclassified()
+        return [self[name] for name in self.unclassified_names if name is not None]
 
     @property
     def object_list(self):
@@ -2859,14 +2859,18 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0):
+    def _create_object(self, name, pid=0, use_cached=False):
+        if use_cached:
+            line_names = self._lines
+        else:
+            line_names = self.line_names
         if name in self._points:
             o = Point(self, name)
             self.points[name] = o
         elif name in self.planes.keys():
             o = Plane(self, name)
             self.planes[name] = o
-        elif name in self.line_names:
+        elif name in line_names:
             o = Object3d(self, name)
             if pid:
                 new_id = pid
@@ -2959,7 +2963,7 @@ class Primitives(object):
                         pid = operations["Operation"][0]["ParentPartID"]
                     except:
                         pass
-                o = self._create_object(name=attribs["Name"], pid=pid)
+                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
