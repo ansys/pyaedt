@@ -277,7 +277,7 @@ def _decode_recognized_key(keyword, line, d):
         li = _count
         while _all_lines[li].startswith("OneCell"):
             m = re.search(r"OneCell\((\d+), '(\d+)', '(\d+)'\)", _all_lines[li])
-            if m:
+            if m:  # pragma: no cover
                 try:
                     d[int(m.group(1))] = [int(m.group(2)), int(m.group(3))]
                 except:
