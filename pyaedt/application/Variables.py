@@ -1218,8 +1218,6 @@ class VariableManager(object):
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if var_name.lower() in lower_case_vars:
-            if self.used_variable(var_name):
-                return False
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1239,7 +1237,7 @@ class VariableManager(object):
         return False
 
     @pyaedt_function_handler()
-    def used_variable(self, var_name):
+    def is_used_variable(self, var_name):
         """Find if a variable is used.
 
         Parameters
@@ -1275,8 +1273,8 @@ class VariableManager(object):
 
         Parameters
         ----------
-        history : str
-            Name of the variable.
+        history : :class:`pyaedt.modeler.cad.elements3d.BinaryTree`
+            Object history.
 
         var_name : str
             Name of the variable.
@@ -1299,7 +1297,7 @@ class VariableManager(object):
 
     @pyaedt_function_handler()
     def delete_unused_variables(self):
-        """Delete design and project unused variables.
+        """Delete unused design and project variables.
 
         Returns
         -------
@@ -1309,7 +1307,7 @@ class VariableManager(object):
         var_list = self.variable_names
 
         for var in var_list[:]:
-            if not self.used_variable(var):
+            if not self.is_used_variable(var):
                 self.delete_variable(var)
         return True
 
