@@ -141,7 +141,7 @@ class Terminal(Connectable):
     @boundary_type.setter
     def boundary_type(self, value):
         if not value in [i.name for i in BoundaryType]:
-            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))  # pragma : no cover
+            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))
         if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
             temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
         else:
