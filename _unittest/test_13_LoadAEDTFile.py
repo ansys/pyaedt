@@ -203,6 +203,7 @@ class TestClass:
             [270, 0, 0, 0, 0, 0, 0, 90],
             [270, 0, 0, 0, 0, 0, 0, 90],
         ]
+        onecell = {5: [3, 5], 84: [3, 2], 190: [1, 1], 258: [4, 1]}
         assert dd_array["Cells"]["rows"] == 7
         assert dd_array["Cells"]["columns"] == 8
         assert dd_array["Cells"]["matrix"] == cells
@@ -212,3 +213,4 @@ class TestClass:
         assert dd_array["Rotation"]["rows"] == 7
         assert dd_array["Rotation"]["columns"] == 8
         assert dd_array["Rotation"]["matrix"] == rotation
+        assert dd_array["PostProcessingCells"] == onecell

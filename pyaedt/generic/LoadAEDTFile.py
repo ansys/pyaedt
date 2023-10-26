@@ -62,7 +62,15 @@ _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
-_recognized_keywords = ["CurvesInfo", "Sweep Operations", "PropDisplayMap", "Cells", "Active", "Rotation"]
+_recognized_keywords = [
+    "CurvesInfo",
+    "Sweep Operations",
+    "PropDisplayMap",
+    "Cells",
+    "Active",
+    "Rotation",
+    "PostProcessingCells",
+]
 _recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC("]
 
 # global variables
@@ -265,6 +273,17 @@ def _decode_recognized_key(keyword, line, d):
             if not r or i != int(r.group(1)):
                 return False  # there should be a row definition
         _count = li
+    elif keyword == _recognized_keywords[6]:  # PostProcessingCells
+        li = _count
+        while _all_lines[li].startswith("OneCell"):
+            m = re.search(r"OneCell\((\d+), '(\d+)', '(\d+)'\)", _all_lines[li])
+            if m:
+                try:
+                    d[int(m.group(1))] = [int(m.group(2)), int(m.group(3))]
+                except:
+                    pass
+            li += 1
+        _count = li - 1
     else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
     return True
