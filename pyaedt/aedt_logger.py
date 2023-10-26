@@ -517,6 +517,9 @@ class AedtLogger(object):
 
         >>> hfss.clear_messages(level=3)
 
+        Clear all messages.
+
+        >>> hfss.clear_messages(proj_name="", des_name="", level=3)
         """
         if self._log_on_desktop:
             if proj_name is None:

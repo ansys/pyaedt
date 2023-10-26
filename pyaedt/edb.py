@@ -3367,6 +3367,8 @@ class Edb(Database):
         if name in self.setups:
             return False
         setup = SiwaveSYZSimulationSetup(self, name)
+        setup.si_slider_postion = 1
+        setup.pi_slider_postion = 1
         self._setups[name] = setup
         return setup
 
