@@ -216,7 +216,7 @@ def _decode_recognized_key(keyword, line, d):
             v2 = v.replace("\\'", '"')
             v3 = _separate_list_elements(v2)
             d[k] = v3
-        else:
+        else:  # pragma: no cover
             return False
     elif keyword == _recognized_keywords[1]:  # 'Sweep Operations'
         d["add"] = []
