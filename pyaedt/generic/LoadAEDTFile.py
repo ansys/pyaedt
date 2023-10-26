@@ -253,7 +253,7 @@ def _decode_recognized_key(keyword, line, d):
         for i in range(m):
             li += 1
             r = re.search(r"\$begin 'r(\d+)'", _all_lines[li])
-            if not r or i != int(r.group(1)):
+            if not r or i != int(r.group(1)):  # pragma: no cover
                 return False  # there should be a row definition
             d["matrix"].append([])
             for j in range(n):
