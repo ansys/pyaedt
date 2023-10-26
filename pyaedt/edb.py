@@ -2026,6 +2026,7 @@ class Edb(Database):
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
+        reference_paths = []
         for i in self.padstacks.instances.values():
             net_name = i.net_name
             id = i.id
@@ -2039,7 +2040,10 @@ class Edb(Database):
                 if net_name not in all_list:
                     i.delete()
                 elif net_name in reference_list and not i.is_void:
-                    reference_prims.append(i)
+                    if i.type == "Path":
+                        reference_paths.append(i)
+                    else:
+                        reference_prims.append(i)
         self.logger.info_timer("Net clean up")
         self.logger.reset_timer()
 
@@ -2087,6 +2091,12 @@ class Edb(Database):
         def subtract(poly, voids):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
+        def clip_path(path):
+            result = path._edb_object.SetClipInfo(_poly, True)
+            if not result:
+                self.logger.info("Failed to clip path {}. Clipping as polygon.".format(path.id))
+                reference_prims.append(path)
+
         def clean_prim(prim_1):  # pragma: no cover
             pdata = prim_1.polygon_data.edb_api
             int_data = _poly.GetIntersectionType(pdata)
@@ -2131,6 +2141,9 @@ class Edb(Database):
 
         self.logger.info_timer("Padstack Instances removal completed")
         self.logger.reset_timer()
+
+        with ThreadPoolExecutor(number_of_threads) as pool:
+            pool.map(lambda item: clip_path(item), reference_paths)
 
         with ThreadPoolExecutor(number_of_threads) as pool:
             pool.map(lambda item: clean_prim(item), reference_prims)
