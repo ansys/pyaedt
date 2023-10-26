@@ -270,7 +270,7 @@ def _decode_recognized_key(keyword, line, d):
                 d["matrix"][i].append(c)
             li += 1
             r = re.search(r"\$end 'r(\d+)'", _all_lines[li])
-            if not r or i != int(r.group(1)):
+            if not r or i != int(r.group(1)):  # pragma: no cover
                 return False  # there should be a row definition
         _count = li
     elif keyword == _recognized_keywords[6]:  # PostProcessingCells
