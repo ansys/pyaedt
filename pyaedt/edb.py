@@ -1660,7 +1660,7 @@ class Edb(Database):
         keep_lines_as_path : bool, optional
             Whether to keep the lines as Path after they are cutout or convert them to PolygonData.
             This feature works only in Electronics Desktop (3D Layout).
-            If the flag is set to True it can cause issues in SiWave once the Edb is imported.
+            If the flag is set to ``True`` it can cause issues in SiWave once the Edb is imported.
             Default is ``False`` to generate PolygonData of cut lines.
 
         Returns
