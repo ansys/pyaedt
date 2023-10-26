@@ -280,7 +280,7 @@ def _decode_recognized_key(keyword, line, d):
             if m:
                 try:
                     d[int(m.group(1))] = [int(m.group(2)), int(m.group(3))]
-                except Exception::  # pragma: no cover
+                except Exception:  # pragma: no cover
                     pass
             li += 1
         _count = li - 1
