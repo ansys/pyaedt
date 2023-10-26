@@ -1102,10 +1102,10 @@ class CommonMaterial(object):
         else:
             self._props = OrderedDict()
         if "CoordinateSystemType" in self._props:
-            self.coordinate_system = self._props["CoordinateSystemType"]
+            self._coordinate_system = self._props["CoordinateSystemType"]
         else:
             self._props["CoordinateSystemType"] = "Cartesian"
-            self.coordinate_system = "Cartesian"
+            self._coordinate_system = "Cartesian"
         if "BulkOrSurfaceType" in self._props:
             self.bulkorsurface = self._props["BulkOrSurfaceType"]
         else:
