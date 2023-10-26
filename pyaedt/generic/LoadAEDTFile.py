@@ -256,7 +256,7 @@ def _decode_recognized_key(keyword, line, d):
             if not r or i != int(r.group(1)):  # pragma: no cover
                 return False  # there should be a row definition
             d["matrix"].append([])
-            for j in range(n):
+            for _ in range(n):
                 li += 1
                 c = re.search(r"c\((.+)\)", _all_lines[li])
                 if not c:  # pragma: no cover
