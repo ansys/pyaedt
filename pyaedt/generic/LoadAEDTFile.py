@@ -259,7 +259,7 @@ def _decode_recognized_key(keyword, line, d):
             for j in range(n):
                 li += 1
                 c = re.search(r"c\((.+)\)", _all_lines[li])
-                if not c:
+                if not c:  # pragma: no cover
                     return False  # there should be a column definition
                 if keyword == "Cells":
                     c = int(c.group(1))
