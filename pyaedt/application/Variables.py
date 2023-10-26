@@ -1218,6 +1218,8 @@ class VariableManager(object):
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if var_name.lower() in lower_case_vars:
+            if self.used_variable(var_name):
+                return False
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1235,6 +1237,81 @@ class VariableManager(object):
                 self._cleanup_variables()
                 return True
         return False
+
+    @pyaedt_function_handler()
+    def used_variable(self, var_name):
+        """Find if a variable is used.
+
+        Parameters
+        ----------
+        var_name : str
+            Name of the variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        used = False
+        # Modeler
+        for obj in self._app.modeler.objects.values():
+            used = self._find_used_variable_history(obj.history(), var_name)
+        if used:
+            self._logger.warning("{} used in modeler.".format(var_name))
+            return used
+
+        # Material
+        for mat in self._app.materials.material_keys.values():
+            for p, v in mat._props.items():
+                if isinstance(v, str) and var_name in re.findall("[$a-zA-Z0-9_]+", v):
+                    used = True
+                    self._logger.warning("{} used in the material: {}.".format(var_name, mat.name))
+                    return used
+        return used
+
+    def _find_used_variable_history(self, history, var_name):
+        """Find if a variable is used.
+
+        Parameters
+        ----------
+        history : str
+            Name of the variable.
+
+        var_name : str
+            Name of the variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        used = False
+        for p, v in history.props.items():
+            if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
+                return True
+        for el in history.children.values():
+            used = self._find_used_variable_history(el, var_name)
+            if used:
+                return True
+        return used
+
+    @pyaedt_function_handler()
+    def delete_unused_variables(self):
+        """Delete design and project unused variables.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        var_list = self.variable_names
+
+        for var in var_list[:]:
+            if not self.used_variable(var):
+                self.delete_variable(var)
+        return True
 
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):

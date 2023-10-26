@@ -435,8 +435,9 @@ class TestClass:
     def test_14_intrinsics(self):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1.0
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == "GHz"
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == self.aedtapp.odesktop.GetDefaultUnit(
+            "Frequency"
+        )
 
     def test_15_arrays(self):
         self.aedtapp["arr_index"] = 0
@@ -658,3 +659,20 @@ class TestClass:
         validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
         assert len(validation_errors) == 1
+
+    def test_32_delete_unused_variables(self):
+        self.aedtapp.insert_design("used_variables")
+        self.aedtapp["used_var"] = "1mm"
+        self.aedtapp["unused_var"] = "1mm"
+        self.aedtapp["$project_used_var"] = "1"
+        self.aedtapp.modeler.create_rectangle(0, ["used_var", "used_var", "used_var"], [10, 20])
+        mat1 = self.aedtapp.materials.add_material("new_copper2")
+        mat1.permittivity = "$project_used_var"
+        assert self.aedtapp.variable_manager.delete_variable("unused_var")
+        assert not self.aedtapp.variable_manager.delete_variable("used_var")
+        assert not self.aedtapp.variable_manager.delete_variable("$project_used_var")
+        self.aedtapp["unused_var"] = "1mm"
+        number_of_variables = len(self.aedtapp.variable_manager.variable_names)
+        assert self.aedtapp.variable_manager.delete_unused_variables()
+        new_number_of_variables = len(self.aedtapp.variable_manager.variable_names)
+        assert number_of_variables != new_number_of_variables
