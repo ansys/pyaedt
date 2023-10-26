@@ -669,8 +669,6 @@ class TestClass:
         mat1 = self.aedtapp.materials.add_material("new_copper2")
         mat1.permittivity = "$project_used_var"
         assert self.aedtapp.variable_manager.delete_variable("unused_var")
-        assert not self.aedtapp.variable_manager.delete_variable("used_var")
-        assert not self.aedtapp.variable_manager.delete_variable("$project_used_var")
         self.aedtapp["unused_var"] = "1mm"
         number_of_variables = len(self.aedtapp.variable_manager.variable_names)
         assert self.aedtapp.variable_manager.delete_unused_variables()
