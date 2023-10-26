@@ -746,7 +746,7 @@ class PathDotNet(PrimitiveDotNet):
 
             **end_cap2** : End cap style of path end end cap.
         """
-        return self.prim_obj.GetEndCapStyle()
+        return self._edb_object.GetEndCapStyle()
 
     @end_cap_style.setter
     def end_cap_style(self, end_cap1, end_cap2):
@@ -759,7 +759,7 @@ class PathDotNet(PrimitiveDotNet):
         end_cap2: :class:`PathEndCapType`
             End cap style of path end end cap.
         """
-        self.prim_obj.SetEndCapStyle(end_cap1, end_cap2)
+        self._edb_object.SetEndCapStyle(end_cap1, end_cap2)
 
     @property
     def get_clip_info(self):
@@ -777,7 +777,7 @@ class PathDotNet(PrimitiveDotNet):
 
             **keep_inside** : Indicates whether the part of the path inside the polygon is preserved.
         """
-        return self.prim_obj.GetClipInfo()
+        return self._edb_object.GetClipInfo()
 
     @get_clip_info.setter
     def get_clip_info(self, clipping_poly, keep_inside=True):
@@ -790,7 +790,7 @@ class PathDotNet(PrimitiveDotNet):
         keep_inside: bool
             Indicates whether the part of the path inside the polygon should be preserved.
         """
-        self.prim_obj.SetClipInfo(
+        self._edb_object.SetClipInfo(
             clipping_poly,
             keep_inside,
         )
