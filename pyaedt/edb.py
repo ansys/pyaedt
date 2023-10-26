@@ -2101,18 +2101,15 @@ class Edb(Database):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
         def clip_path(path):
+            pdata = path.polygon_data.edb_api
+            int_data = _poly.GetIntersectionType(pdata)
+            if int_data == 0:
+                prims_to_delete.append(path)
+                return
             result = path._edb_object.SetClipInfo(_poly, True)
             if not result:
                 self.logger.info("Failed to clip path {}. Clipping as polygon.".format(path.id))
                 reference_prims.append(path)
-            else:
-                center_points = list(path._edb_object.GetCenterLine().Points)
-                new_points = []
-                for i in range(len(center_points)):
-                    if _poly.PointInPolygon(center_points[i]):
-                        new_points.append(i)
-                if not new_points:
-                    prims_to_delete.append(path)
 
         def clean_prim(prim_1):  # pragma: no cover
             pdata = prim_1.polygon_data.edb_api
