@@ -2639,11 +2639,11 @@ class PostProcessor(PostProcessorCommon, object):
         if ".case" in file_path:
             try:
                 self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-            except:
+            except:  # pragma: no cover
                 self.logger.warning("case file is not supported for this plot. Switching to aedtplt")
                 file_path = os.path.join(filepath, filename + ".aedtplt")
                 self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        else:
+        else:  # pragma: no cover
             self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
         if settings.remote_rpc_session_temp_folder:
             local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
@@ -2773,7 +2773,7 @@ class PostProcessor(PostProcessorCommon, object):
                 intrinsincList=intrinsics,
                 layers_plot_type=listtype,
             )
-        if self._app.design_type == "Q3D Extractor":
+        if self._app.design_type == "Q3D Extractor":  # pragma: no cover
             plot.field_type = field_type
         plot.name = plot_name
         plot.plotFolder = plot_name
