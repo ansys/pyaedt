@@ -1263,7 +1263,7 @@ class VariableManager(object):
 
         # Material
         for mat in self._app.materials.material_keys.values():
-            for p, v in mat._props.items():
+            for _, v in mat._props.items():
                 if isinstance(v, str) and var_name in re.findall("[$a-zA-Z0-9_]+", v):
                     used = True
                     self._logger.warning("{} used in the material: {}.".format(var_name, mat.name))
@@ -1288,7 +1288,7 @@ class VariableManager(object):
 
         """
         used = False
-        for p, v in history.props.items():
+        for _, v in history.props.items():
             if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
                 return True
         for el in history.children.values():
