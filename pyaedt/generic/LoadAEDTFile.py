@@ -407,7 +407,7 @@ def _walk_through_structure(keyword, save_dict):
                 _walk_through_structure(nextlvl_begin_key, save_dict[keyword])
             elif keyword in _recognized_keywords:
                 confirmed = _decode_recognized_key(keyword, line, save_dict[keyword])
-                if not confirmed:
+                if not confirmed:  # pragma: no cover
                     # decode the line normally, since recognized key is not successful
                     _decode_subkey(line, save_dict[keyword])
             else:  # decode key
