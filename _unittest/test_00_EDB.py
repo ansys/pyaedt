@@ -729,16 +729,26 @@ class TestClass:
         edbapp.nets.nets
         assert edbapp.cutout(
             signal_list=["1V0"],
-            reference_list=["GND"],
+            reference_list=[
+                "GND",
+                "LVDS_CH08_N",
+                "LVDS_CH08_P",
+                "LVDS_CH10_N",
+                "LVDS_CH10_P",
+                "LVDS_CH04_P",
+                "LVDS_CH04_N",
+            ],
             extent_type="Bounding",
             number_of_threads=4,
             extent_defeature=0.001,
             preserve_components_with_model=True,
+            keep_lines_as_path=True,
         )
         assert "A0_N" not in edbapp.nets.nets
         assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
         assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
         assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
+
         edbapp.close()
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
