@@ -243,7 +243,7 @@ def _decode_recognized_key(keyword, line, d):
         line_m = _all_lines[li]
         li += 1
         line_n = _all_lines[li]
-        if line_m[:2] != "m=" or line_n[:2] != "n=":
+        if line_m[:2] != "m=" or line_n[:2] != "n=":  # pragma: no cover
             return False
         m = int(re.search(r"[m|n]=(\d+)", line_m).group(1))
         d["rows"] = m
