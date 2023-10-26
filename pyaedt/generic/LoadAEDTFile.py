@@ -281,7 +281,7 @@ def _decode_recognized_key(keyword, line, d):
                 try:
                     d[int(m.group(1))] = [int(m.group(2)), int(m.group(3))]
                 except ValueError:  # pragma: no cover
-                    pass
+                    continue
             li += 1
         _count = li - 1
     else:  # pragma: no cover
