@@ -681,6 +681,8 @@ class TestClass:
         assert o.edges[0].fillet()
         self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
+        r = self.create_rectangle(name="MyRect")
+        assert not r.edges[0].fillet()
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler

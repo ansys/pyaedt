@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 import time
@@ -191,7 +192,20 @@ class TestClass:
         )
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
-        self.icepak_app.export_summary(self.icepak_app.working_directory)
+
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A") # check usage of deprecated arguments
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B")
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C")
+        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]), ("C_Temperature.csv", ["box"])]:
+            with open(os.path.join(self.icepak_app.working_directory, file_name), 'r', newline='') as csv_file:
+                csv_reader = csv.reader(csv_file)
+                for _ in range(4):
+                    _ = next(csv_reader)
+                header = next(csv_reader)
+                entity_index = header.index("Entity")
+                csv_entities=[row[entity_index] for row in csv_reader]
+                assert all(e in csv_entities for e in entities)
+
         box = [i.id for i in self.icepak_app.modeler["box"].faces]
         assert os.path.exists(
             self.icepak_app.eval_surface_quantity_from_field_summary(box, savedir=self.icepak_app.working_directory)

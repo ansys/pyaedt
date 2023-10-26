@@ -953,7 +953,11 @@ class TestClass:
         assert self.edbapp.modeler.unite_polygons_on_layer("1_Top")
 
     def test_076_create_solder_ball_on_component(self):
-        assert self.edbapp.components.set_solder_ball("U1")
+        assert self.edbapp.components.set_solder_ball("U1", shape="Spheroid")
+        assert self.edbapp.components.set_solder_ball("U6", sball_height=None)
+        assert self.edbapp.components.set_solder_ball(
+            "U6", sball_height="100um", auto_reference_size=False, chip_orientation="chip_up"
+        )
 
     def test_077_add_void(self):
         plane_shape = self.edbapp.modeler.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
@@ -1383,6 +1387,8 @@ class TestClass:
         gap_port.name = "gap_port"
         assert gap_port.name == "gap_port"
         assert isinstance(gap_port.renormalize_z0, tuple)
+        gap_port.is_circuit_port = True
+        assert gap_port.is_circuit_port
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -2273,6 +2279,12 @@ class TestClass:
         assert sweep.save_rad_fields_only
         assert sweep.use_q3d_for_dc
 
+        setup1.pi_slider_postion = 0
+        setup1.pi_slider_postion = 1
+        setup1.pi_slider_postion = 2
+        setup1.si_slider_postion = 0
+        setup1.si_slider_postion = 1
+        setup1.si_slider_postion = 2
         assert setup1.automatic_mesh
         assert setup1.enabled
         assert setup1.dc_settings
@@ -2285,16 +2297,14 @@ class TestClass:
         assert setup1.include_trace_coupling
         assert not setup1.include_vi_sources
         assert setup1.infinite_ground_location == "0"
-        assert setup1.max_coupled_lines == 12
+        assert setup1.max_coupled_lines == 40
         assert setup1.mesh_frequency == "4GHz"
         assert setup1.min_pad_area_to_mesh == "1mm2"
         assert setup1.min_plane_area_to_mesh == "6.25e-6mm2"
         assert setup1.min_void_area == "2mm2"
         assert setup1.name == "AC1"
         assert setup1.perform_erc
-        assert setup1.pi_slider_postion == 1
-        assert setup1.si_slider_postion == 1
-        assert not setup1.return_current_distribution
+        assert setup1.return_current_distribution
         assert setup1.snap_length_threshold == "2.5um"
         assert setup1.use_si_settings
         assert setup1.use_custom_settings
@@ -2319,8 +2329,6 @@ class TestClass:
         setup1.min_void_area = "1mm2"
         setup1.name = "AC2"
         setup1.perform_erc = False
-        setup1.pi_slider_postion = 0
-        setup1.si_slider_postion = 2
         setup1.return_current_distribution = True
         setup1.snap_length_threshold = "3.5um"
         setup1.use_si_settings = False
@@ -2345,8 +2353,6 @@ class TestClass:
         assert setup1.min_void_area == "1mm2"
         assert setup1.name == "AC2"
         assert not setup1.perform_erc
-        assert setup1.pi_slider_postion == 0
-        assert setup1.si_slider_postion == 2
         assert setup1.return_current_distribution
         assert setup1.snap_length_threshold == "3.5um"
         assert not setup1.use_si_settings
