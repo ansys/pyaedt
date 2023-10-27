@@ -3654,11 +3654,13 @@ class Edb(Database):
                    class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
         ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
                    optional
+            Negative terminal of the port.
         is_circuit_port : bool, optional
             Whether it is a circuit port. The default is ``False``.
 
