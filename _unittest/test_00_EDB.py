@@ -8,6 +8,7 @@ import sys
 from unittest.mock import mock_open
 
 from mock import MagicMock
+from mock import PropertyMock
 from mock import patch
 import pytest
 
@@ -3012,10 +3013,12 @@ class TestClass:
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()
 
+    @patch("pyaedt.edb_core.materials.Materials.materials", new_callable=PropertyMock)
     @patch.object(builtins, "open", new_callable=mock_open, read_data=MATERIALS)
-    def test_149_materials_read_materials(self, mock_file_open):
+    def test_149_materials_read_materials(self, mock_file_open, mock_materials_property):
         """Read materials from an AMAT file."""
-        materials = Materials(MagicMock(materials=["copper"]))
+        mock_materials_property.return_value = ["copper"]
+        materials = Materials(MagicMock())
         expected_res = {
             "Polyflon CuFlon (tm)": {"permittivity": 2.1, "tangent_delta": 0.00045},
             "Water(@360K)": {
