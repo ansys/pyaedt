@@ -6,7 +6,7 @@ if os.name == "nt":
 
 pyaedt_path = os.path.dirname(__file__)
 
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 
 version = __version__
 import pyaedt.downloads as downloads
