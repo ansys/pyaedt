@@ -1455,7 +1455,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
 
     @property
     def name(self):
-        """Padstack Instance Name."""
+        """Padstack instance name."""
         return self._edb_padstackinstance.GetName()
 
     @name.setter
