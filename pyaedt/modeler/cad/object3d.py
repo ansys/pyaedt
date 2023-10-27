@@ -1395,8 +1395,8 @@ class Object3d(object):
         >>> oEditor.Unite
 
         """
-        unite_list = [self.name] + self._primitives.modeler.convert_to_selections(object_list, return_list=True)
-        self._primitives.modeler.unite(unite_list)
+        unite_list = [self.name] + self._primitives.convert_to_selections(object_list, return_list=True)
+        self._primitives.unite(unite_list)
         return self
 
     @pyaedt_function_handler()
@@ -1420,8 +1420,8 @@ class Object3d(object):
 
         >>> oEditor.Intersect
         """
-        theList = [self.name] + self._primitives.modeler.convert_to_selections(theList, return_list=True)
-        self._primitives.modeler.intersect(theList, keep_originals)
+        theList = [self.name] + self._primitives.convert_to_selections(theList, return_list=True)
+        self._primitives.intersect(theList, keep_originals)
         return self
 
     @pyaedt_function_handler()
@@ -1448,7 +1448,7 @@ class Object3d(object):
 
         >>> oEditor.Split
         """
-        return self._primitives.modeler.split(self.name, plane, sides)
+        return self._primitives.split(self.name, plane, sides)
 
     @pyaedt_function_handler()
     def mirror(self, position, vector, duplicate=False):
@@ -1474,7 +1474,7 @@ class Object3d(object):
 
         >>> oEditor.Mirror
         """
-        if self._primitives.modeler.mirror(self.id, position=position, vector=vector, duplicate=duplicate):
+        if self._primitives.mirror(self.id, position=position, vector=vector, duplicate=duplicate):
             return self
         return False
 
@@ -1503,7 +1503,7 @@ class Object3d(object):
 
         >>> oEditor.Rotate
         """
-        if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+        if self._primitives.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
             return self
         return False
 
@@ -1529,7 +1529,7 @@ class Object3d(object):
         ----------
         >>> oEditor.Move
         """
-        if self._primitives.modeler.move(self.id, vector=vector):
+        if self._primitives.move(self.id, vector=vector):
             return self
         return False
 
@@ -1558,9 +1558,7 @@ class Object3d(object):
         >>> oEditor.DuplicateAroundAxis
 
         """
-        ret, added_objects = self._primitives.modeler.duplicate_around_axis(
-            self, cs_axis, angle, nclones, create_new_objects
-        )
+        ret, added_objects = self._primitives.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
         return added_objects
 
     @pyaedt_function_handler()
@@ -1587,7 +1585,7 @@ class Object3d(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        ret, added_objects = self._primitives.modeler.duplicate_along_line(self, vector, nclones, attachObject)
+        ret, added_objects = self._primitives.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
 
     @pyaedt_function_handler()
@@ -1615,7 +1613,7 @@ class Object3d(object):
         >>> oEditor.SweepAlongVector
 
         """
-        self._primitives.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
+        self._primitives.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
 
     @pyaedt_function_handler()
@@ -1649,7 +1647,7 @@ class Object3d(object):
         >>> oEditor.SweepAlongPath
 
         """
-        self._primitives.modeler.sweep_along_path(
+        self._primitives.sweep_along_path(
             self, sweep_object, draft_angle, draft_type, is_check_face_intersection, twist_angle
         )
         return self
@@ -1678,7 +1676,7 @@ class Object3d(object):
         >>> oEditor.SweepAroundAxis
 
         """
-        self._primitives.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        self._primitives.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
 
     @pyaedt_function_handler()
@@ -1705,7 +1703,7 @@ class Object3d(object):
         >>> oEditor.Section
 
         """
-        self._primitives.modeler.section(self, plane, create_new, section_cross_object)
+        self._primitives.section(self, plane, create_new, section_cross_object)
         return self
 
     @pyaedt_function_handler()
@@ -1723,7 +1721,7 @@ class Object3d(object):
         >>> oEditor.Clone
 
         """
-        new_obj_tuple = self._primitives.modeler.clone(self.id)
+        new_obj_tuple = self._primitives.clone(self.id)
         success = new_obj_tuple[0]
         assert success, "Could not clone the object {}.".format(self.name)
         new_name = new_obj_tuple[1][0]
@@ -1752,7 +1750,7 @@ class Object3d(object):
         >>> oEditor.Subtract
 
         """
-        self._primitives.modeler.subtract(self.name, tool_list, keep_originals)
+        self._primitives.subtract(self.name, tool_list, keep_originals)
         return self
 
     @pyaedt_function_handler()
