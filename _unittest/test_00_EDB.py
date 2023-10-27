@@ -3014,7 +3014,7 @@ class TestClass:
 
     @patch.object(builtins, "open", new_callable=mock_open, read_data=MATERIALS)
     def test_149_materials_read_materials(self, mock_file_open):
-        """Read materials from an amat file."""
+        """Read materials from an AMAT file."""
         materials = Materials(MagicMock(materials=["copper"]))
         expected_res = {
             "Polyflon CuFlon (tm)": {"permittivity": 2.1, "tangent_delta": 0.00045},
@@ -3029,7 +3029,7 @@ class TestClass:
         assert mats == expected_res
 
     def test_150_material_load_syslib_amat(self):
-        """Load material from an amat file."""
+        """Load material from an AMAT file."""
         assert self.edbapp.materials.load_syslib_amat()
         material_list = list(self.edbapp.materials.materials.keys())
         assert material_list

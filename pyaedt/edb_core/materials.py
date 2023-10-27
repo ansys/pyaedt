@@ -827,7 +827,7 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def add_material_from_aedt(self, material_name):
-        """Add a material read from ``syslib amat`` library.
+        """Add a material read from ``syslib AMAT`` library.
 
         Parameters
         ----------
@@ -862,12 +862,12 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def load_syslib_amat(self, filename="Materials.amat"):
-        """Load materials from an amat file located in the project system library.
+        """Load materials from an AMAT file located in the project system library.
 
         Parameters
         ----------
         filename : str
-            Name of the amat file.
+            Name of the AMAT file.
 
         Returns
         -------
@@ -898,12 +898,12 @@ class Materials(object):
     @staticmethod
     @pyaedt_function_handler()
     def read_materials(mat_file):
-        """Read materials from an amat file.
+        """Read materials from an AMAT file.
 
         Parameters
         ----------
         filename : str
-            Name of the amat file.
+            Name of the AMAT file.
 
         Returns
         -------
