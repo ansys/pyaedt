@@ -3660,7 +3660,7 @@ class Edb(Database):
                    class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
                    optional
         is_circuit_port : bool, optional
-            Whether it is a circuit port.
+            Whether it is a circuit port. The default is ``False``.
 
         Returns
         -------
