@@ -576,7 +576,7 @@ class PinGroupTerminal(Terminal):
         pin_group_name : str,
             Name of the pin group.
         is_ref : bool, optional
-            Whether it is a reference terminal.
+            Whether it is a reference terminal. The default is ``False``.
 
         Returns
         -------
