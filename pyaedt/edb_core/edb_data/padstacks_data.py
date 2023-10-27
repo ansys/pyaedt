@@ -1190,7 +1190,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
 
     @property
     def pin(self):
-        """Return Edb padstack object."""
+        """EDB padstack object."""
         warnings.warn("`pin` is deprecated.", DeprecationWarning)
         return self._edb_padstackinstance
 
