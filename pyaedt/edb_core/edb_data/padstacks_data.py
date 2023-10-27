@@ -1033,7 +1033,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
             Name of the port.
         reference : class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`,
                     class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
-                    class:`pyaedt.edb_core.edb_data.sources.PinGroup`,
+                    class:`pyaedt.edb_core.edb_data.sources.PinGroup`, optional
 
         is_circuit_port : bool, optional
             Whether it is a circuit port.
