@@ -908,7 +908,7 @@ class Materials(object):
         Returns
         -------
         dict
-            {material name: dict of material property to value}
+            {material name: dict of material property to value}.
         """
 
         def get_line_float_value(line):
