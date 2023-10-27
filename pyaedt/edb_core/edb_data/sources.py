@@ -277,7 +277,7 @@ class PinGroup(object):
 
     @property
     def terminal(self):
-        """Get terminal."""
+        """Terminal."""
         from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
 
         term = PinGroupTerminal(self._pedb, self._edb_pin_group.GetPinGroupTerminal())
