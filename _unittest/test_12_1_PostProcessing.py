@@ -556,6 +556,10 @@ class TestClass:
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
         )
         assert os.path.exists(obj.image_file)
+        obj2 = self.aedtapp.post.plot_model_obj(
+            show=False, export_path=os.path.join(self.local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
+        )
+        assert os.path.exists(obj2.image_file)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self):

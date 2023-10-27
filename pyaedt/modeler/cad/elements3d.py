@@ -598,6 +598,7 @@ class FacePrimitive(object):
         try:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
         except:  # pragma: no cover
+            self.logger.clear_messages()
             vtx = self.vertices[:]
             if len(vtx) > 1:
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
