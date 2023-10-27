@@ -2408,7 +2408,7 @@ class TestClass:
         port.is_circuit_port = True
         _, pin_group = edbapp.siwave.create_pin_group_on_net(
             reference_designator="U7", net_name="GND", group_name="U7_GND"
-                                              )
+        )
         U7.pins["F7"].create_port(reference=pin_group)
         edbapp.close()
 

@@ -23,8 +23,8 @@ from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.ports import BundleWavePort
-from pyaedt.edb_core.edb_data.ports import CoaxPort
 from pyaedt.edb_core.edb_data.ports import CircuitPort
+from pyaedt.edb_core.edb_data.ports import CoaxPort
 from pyaedt.edb_core.edb_data.ports import ExcitationSources
 from pyaedt.edb_core.edb_data.ports import GapPort
 from pyaedt.edb_core.edb_data.ports import WavePort
@@ -3649,13 +3649,16 @@ class Edb(Database):
         """"""
         if not ref_terminal:
             from pyaedt.edb_core.edb_data.ports import CoaxPort
+
             port = CoaxPort(self, terminal._edb_object)
         else:
             if is_circuit_port:
                 from pyaedt.edb_core.edb_data.ports import CircuitPort
+
                 port = CircuitPort(self, terminal._edb_object)
             else:
                 from pyaedt.edb_core.edb_data.ports import GapPort
+
                 port = GapPort(self, terminal._edb_object)
             port.ref_terminal = ref_terminal
             port.is_circuit_port = is_circuit_port

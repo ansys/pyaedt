@@ -73,7 +73,6 @@ class CircuitPort(GapPort):
         super().__init__(pedb, edb_object)
 
 
-
 class WavePort(EdgeTerminal):
     """Manages wave port properties.
 

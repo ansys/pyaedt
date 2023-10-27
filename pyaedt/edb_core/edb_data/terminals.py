@@ -588,6 +588,6 @@ class PinGroupTerminal(Terminal):
             name,
             self._pedb.siwave.pin_groups[pin_group_name]._edb_object,
             is_ref,
-            )
+        )
         term = PinGroupTerminal(self._pedb, term)
         return term if not term.is_null else False

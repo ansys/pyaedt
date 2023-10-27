@@ -279,6 +279,7 @@ class PinGroup(object):
     def terminal(self):
         """Get terminal."""
         from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+
         term = PinGroupTerminal(self._pedb, self._edb_pin_group.GetPinGroupTerminal())
         return term if not term.is_null else None
 
@@ -303,6 +304,7 @@ class PinGroup(object):
             return pg_term
         else:
             from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+
             term = PinGroupTerminal(self._pedb)
 
             term = term.create(name, self.net_name, self.name)
