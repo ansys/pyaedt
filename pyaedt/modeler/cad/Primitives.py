@@ -2164,6 +2164,9 @@ class Primitives(object):
         >>> oEditor.GetBodyNamesByPosition
 
         """
+        if not isinstance(position, list):
+            # self.logger.error("A list of point has to be provided")
+            return []
         XCenter, YCenter, ZCenter = self._pos_with_arg(position, units)
         vArg1 = ["NAME:Parameters"]
         vArg1.append("XPosition:="), vArg1.append(XCenter)
@@ -3230,6 +3233,10 @@ class Primitives(object):
             Returns None if the part ID or the object name is not found.
 
         """
+        if isinstance(partId, (int, str)) and not (
+            partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
+        ):
+            self.refresh_all_ids()
         if isinstance(partId, int):
             if partId in self.objects:
                 return self.objects[partId]

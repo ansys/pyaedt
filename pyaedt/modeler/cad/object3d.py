@@ -82,6 +82,8 @@ class Object3d(object):
         self._object_type = None
         self._mass = 0.0
         self._volume = 0.0
+        self._faces = []
+        self._face_ids = []
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -363,11 +365,15 @@ class Object3d(object):
         """
         if self.object_type == "Unclassified":
             return []
-        faces = []
+        face_ids = list(self._oeditor.GetFaceIDs(self.name))
+        if set(face_ids) == set(self._face_ids):
+            return self._faces
+        self._face_ids = face_ids
+        self._faces = []
         for face in list(self._oeditor.GetFaceIDs(self.name)):
             face = int(face)
-            faces.append(FacePrimitive(self, face))
-        return faces
+            self._faces.append(FacePrimitive(self, face))
+        return self._faces
 
     @property
     def faces_on_bounding_box(self):
