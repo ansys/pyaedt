@@ -1455,13 +1455,8 @@ class EDBPadstackInstance(EDBPrimitivesMain):
 
     @property
     def name(self):
-        """Padstack Instance Name. If it is a pin, the syntax will be like in AEDT ComponentName-PinName."""
-        if self.is_pin:
-            comp_name = self._edb_padstackinstance.GetComponent().GetName()
-            pin_name = self._edb_padstackinstance.GetName()
-            return "-".join([comp_name, pin_name])
-        else:
-            return self._edb_padstackinstance.GetName()
+        """Padstack Instance Name."""
+        return self._edb_padstackinstance.GetName()
 
     @name.setter
     def name(self, value):
@@ -1504,6 +1499,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
     @property
     def pin_number(self):
         """Get pin number."""
+        warnings.warn("`pin_number` is deprecated. Use `name` property instead.", DeprecationWarning)
         return self._edb_padstackinstance.GetName()
 
     @property
