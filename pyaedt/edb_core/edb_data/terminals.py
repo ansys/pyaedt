@@ -516,7 +516,7 @@ class PointTerminal(Terminal):
 
         Returns
         -------
-
+        :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`
         """
         terminal = self._pedb.edb_api.cell.terminal.PointTerminal.Create(
             self._pedb.active_layout,
@@ -562,3 +562,32 @@ class PinGroupTerminal(Terminal):
 
     def __init__(self, pedb, edb_object=None):
         super().__init__(pedb, edb_object)
+
+    @pyaedt_function_handler
+    def create(self, name, net_name, pin_group_name, is_ref=False):
+        """Create a pin group terminal.
+
+        Parameters
+        ----------
+        name : str
+            Name of the terminal.
+        net_name : str
+            Name of the net.
+        pin_group_name : str,
+            Name of the pin group.
+        is_ref : bool, optional
+            Whether it is a reference terminal.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`
+        """
+        term = self._pedb.edb_api.cell.terminal.PinGroupTerminal.Create(
+            self._pedb.active_layout,
+            self._pedb.nets[net_name].net_object,
+            name,
+            self._pedb.siwave.pin_groups[pin_group_name]._edb_object,
+            is_ref,
+            )
+        term = PinGroupTerminal(self._pedb, term)
+        return term if not term.is_null else False

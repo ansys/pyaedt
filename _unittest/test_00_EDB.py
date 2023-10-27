@@ -278,7 +278,7 @@ class TestClass:
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
-        assert self.edbapp.differential_pairs.items
+        assert self.edbapp.differential_pairs["new_pair1"]
 
         assert self.edbapp.net_classes.items
         assert self.edbapp.net_classes.create("DDR4_ADD", ["DDR4_A0", "DDR4_A1"])
@@ -448,12 +448,12 @@ class TestClass:
         )
 
         self.edbapp.siwave.create_pin_group(
-            reference_designator="U1", pin_numbers=["A14", "A15"], group_name="sink_pos"
+            reference_designator="U1", pin_numbers=["R23", "P23"], group_name="sink_pos"
         )
 
         assert self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", name="vrm_voltage_source")
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A27", "A28"], group_name="vp_pos")
-        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A14", "A15"], group_name="vp_neg")
+        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["R23", "P23"], group_name="vp_neg")
         assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
         assert self.edbapp.probes["vprobe"]
         self.edbapp.siwave.place_voltage_probe(
@@ -2402,6 +2402,14 @@ class TestClass:
         edbapp.siwave.create_port_between_pin_and_layer(
             component_name="U1", pins_name="A27", layer_name="16_Bottom", reference_net="GND"
         )
+        U7 = edbapp.components["U7"]
+        U7.pins["G7"].create_port()
+        port = U7.pins["F7"].create_port(reference=U7.pins["E7"])
+        port.is_circuit_port = True
+        _, pin_group = edbapp.siwave.create_pin_group_on_net(
+            reference_designator="U7", net_name="GND", group_name="U7_GND"
+                                              )
+        U7.pins["F7"].create_port(reference=pin_group)
         edbapp.close()
 
     def test_134_siwave_source_setter(self):

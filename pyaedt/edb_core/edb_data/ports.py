@@ -54,6 +54,26 @@ class GapPort(EdgeTerminal):
         )
 
 
+class CircuitPort(GapPort):
+    """Manages gap port properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_object : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from EDB.
+
+    Examples
+    --------
+    This example shows how to access the ``GapPort`` class.
+    """
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
+
+
+
 class WavePort(EdgeTerminal):
     """Manages wave port properties.
 
