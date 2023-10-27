@@ -3646,7 +3646,26 @@ class Edb(Database):
 
     @pyaedt_function_handler
     def create_port(self, terminal, ref_terminal=None, is_circuit_port=False):
-        """"""
+        """Create a port between two terminals.
+
+        Parameters
+        ----------
+        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+                   optional
+        is_circuit_port : bool, optional
+            Whether it is a circuit port.
+
+        Returns
+        -------
+
+        """
         if not ref_terminal:
             port = CoaxPort(self, terminal._edb_object)
         else:

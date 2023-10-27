@@ -1035,7 +1035,8 @@ class EDBPadstackInstance(EDBPrimitivesMain):
                     class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
                     class:`pyaedt.edb_core.edb_data.sources.PinGroup`,
 
-        is_circuit_port
+        is_circuit_port : bool, optional
+            Whether it is a circuit port.
 
         Returns
         -------
