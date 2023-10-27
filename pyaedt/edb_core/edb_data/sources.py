@@ -290,7 +290,8 @@ class PinGroup(object):
         Parameters
         ----------
         name : str, optional
-            Name of the terminal.
+            Name of the terminal. The default is ``None``, in which case a name is
+            automatically assigned.
 
         Returns
         -------
