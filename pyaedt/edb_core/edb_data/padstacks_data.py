@@ -1030,7 +1030,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
         Parameters
         ----------
         name : str, optional
-            Name of the port.
+            Name of the port. The default is ``None``, in which case a name is automatically assigned.
         reference : class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`,
                     class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
                     class:`pyaedt.edb_core.edb_data.sources.PinGroup`, optional
