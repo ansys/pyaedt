@@ -3648,8 +3648,6 @@ class Edb(Database):
     def create_port(self, terminal, ref_terminal=None, is_circuit_port=False):
         """"""
         if not ref_terminal:
-            from pyaedt.edb_core.edb_data.ports import CoaxPort
-
             port = CoaxPort(self, terminal._edb_object)
         else:
             if is_circuit_port:
