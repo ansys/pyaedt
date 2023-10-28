@@ -911,6 +911,11 @@ class Materials(object):
         """
 
         def get_line_float_value(line):
+            """Retrieve the float value expected in the line of an AMAT file.
+            The associated string is expected to follow one of the following cases:
+            - simple('permittivity', 12.)
+            - permittivity='12'.
+            """
             try:
                 return float(re.split(",|=", line)[-1].strip(")'"))
             except ValueError:
