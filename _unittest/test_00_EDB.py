@@ -3031,9 +3031,10 @@ class TestClass:
         mats = materials.read_materials("some path")
         assert mats == expected_res
 
-    def test_150_material_load_syslib_amat(self):
+    def test_150_material_load_amat(self):
         """Load material from an AMAT file."""
-        assert self.edbapp.materials.load_syslib_amat()
+        mat_file = os.path.join(self.edbapp.base_path, "syslib", "Materials.amat")
+        assert self.edbapp.materials.load_amat(mat_file)
         material_list = list(self.edbapp.materials.materials.keys())
         assert material_list
         assert len(material_list) > 0

@@ -861,22 +861,21 @@ class Materials(object):
             return True
 
     @pyaedt_function_handler()
-    def load_syslib_amat(self, filename="Materials.amat"):
-        """Load materials from an AMAT file located in the project system library.
+    def load_amat(self, amat_file):
+        """Load materials from an AMAT file.
 
         Parameters
         ----------
-        filename : str
-            Name of the AMAT file.
+        amat_file : str
+            Full path to the amat file to read and add to the Edb.
 
         Returns
         -------
         bool
         """
-        mat_file = os.path.join(self._syslib, filename)
-        if not os.path.exists(mat_file):
-            self._pedb.logger.error("File path {} does not exist.".format(mat_file))
-        material_dict = self.read_materials(mat_file)
+        if not os.path.exists(amat_file):
+            self._pedb.logger.error("File path {} does not exist.".format(amat_file))
+        material_dict = self.read_materials(amat_file)
         for material_name, material in material_dict.items():
             if not material_name in list(self.materials.keys()):
                 new_material = self.add_material(name=material_name)
@@ -897,13 +896,13 @@ class Materials(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def read_materials(mat_file):
+    def read_materials(amat_file):
         """Read materials from an AMAT file.
 
         Parameters
         ----------
-        filename : str
-            Name of the AMAT file.
+        amat_file : str
+            Full path to the amat file to read.
 
         Returns
         -------
@@ -941,7 +940,7 @@ class Materials(object):
             "mass_density",
         ]
 
-        with open(mat_file, "r") as amat_fh:
+        with open(amat_file, "r") as amat_fh:
             raw_lines = amat_fh.read().splitlines()
             mat_found = ""
             for line in raw_lines:
