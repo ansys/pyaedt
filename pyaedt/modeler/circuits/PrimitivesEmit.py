@@ -753,7 +753,8 @@ class EmitRadioComponent(EmitComponent):
         band_start_freq : float
             Start frequency of the band.
         units : str, optional
-            Units of the start frequency. If invalid or no units specified, ``Hz`` is assumed.
+            Units of the start frequency. If no units are specified or the units
+            specified are invalid, then `"Hz"`` is assumed.
 
         Returns
         ------
