@@ -1201,7 +1201,7 @@ class GeometryModeler(Modeler):
             * If ``mode="view"``, specify the ``view`` parameter.
             * If ``mode="zxz"`` or ``mode="zyz"``, specify the ``phi``, ``theta``,
               and ``psi`` parameters.
-            
+
 
             Parameters not needed by the specified mode are ignored.
             The default mode, ``"axis"``, is a coordinate system parallel to the
@@ -1278,7 +1278,7 @@ class GeometryModeler(Modeler):
         self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
         """Create a face coordinate system.
-        
+
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
 
@@ -1289,12 +1289,12 @@ class GeometryModeler(Modeler):
         origin : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Coordinate system origin. The origin must belong to the face where the
             coordinate system is defined.
-            
+
             - If a face is specified, the origin is placed on the face center. It must be
               the same as the ``face`` parameter.
             - If an edge is specified, the origin is placed on the edge midpoint.
             - If a vertex is specified, the origin is placed on the vertex.
-            
+
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify where the X or Y axis is pointing. The position must belong to the face where the
             coordinate system is defined.
@@ -2343,18 +2343,24 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Split
         """
-        if not plane and not tool or plane and tool:
+        if plane is None and not tool or plane and tool:
             self.logger.info("One method to split the objects has to be defined.")
             return False
         objects = self.convert_to_selections(objects)
         all_objs = [i for i in self.object_names]
+        selections = []
+        planes = "Dummy"
+        tool_type = "PlaneTool"
+        tool_entity_id = -1
         if self._is3d:
-            if plane and not tool:
+            obj_name = None
+            obj = []
+            if plane is not None and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
-            elif tool and not plane:
+            elif tool and plane is None:
                 if isinstance(tool, str):
                     obj = [f for f in self.object_list if f.name == tool][0]
                     obj_name = obj.name
@@ -2369,7 +2375,7 @@ class GeometryModeler(Modeler):
                     if tool in self.objects.keys():
                         obj = self.objects[tool]
                     else:
-                        # check whether tool is an Id of an object face
+                        # check whether tool is an ID of an object face
                         objs = [o for o in self.object_list for f in o.faces if f.id == tool]
                         if objs:
                             obj = objs[0]
@@ -2420,10 +2426,10 @@ class GeometryModeler(Modeler):
                     obj_name,
                 ]
         else:
-            if not plane and tool or not plane:
+            if plane is None and tool or not plane:
                 self.logger.info("For 2D design types only planes can be defined.")
                 return False
-            elif plane:
+            elif plane is not None:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
