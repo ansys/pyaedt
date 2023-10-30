@@ -1125,9 +1125,11 @@ class GeometryModeler(Modeler):
         ----------
         selection : str, int
             Polyline object to cover.
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
