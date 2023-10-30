@@ -5485,7 +5485,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         id : int
-            Id of the face to retrieve.
+            ID of the face to retrieve.
 
         Returns
         -------
