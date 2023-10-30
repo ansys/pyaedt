@@ -1084,6 +1084,13 @@ class GeometryModeler(Modeler):
         ----------
 
         >>> oEditor.FitAll
+
+        Examples
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> point_object = hfss.modeler.fit_all
         """
         self.oeditor.FitAll()
 
@@ -5805,6 +5812,26 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _create_region(self, pad_percent=300, is_percentage=True):
+        """Create an air region.
+
+        Parameters
+        ----------
+        pad_percent : float, str, list of floats or list of str, optional
+            Same padding is applied if not a list. The default is ``300``.
+            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
+        is_percentage : bool, optional
+            Region definition in percentage or absolute value. The default is `True``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Region object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
+        """
         if "Region" in self.object_names:
             return None
         if not isinstance(pad_percent, list):
