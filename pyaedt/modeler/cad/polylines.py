@@ -198,7 +198,7 @@ class Polyline(Object3d):
             if not isinstance(position_list, list):
                 raise TypeError("The position_list argument must be a list of positions with at least one point.")
             # convert the points if they are defined as modeler.Position
-            if isinstance(position_list[0], self._primitives._app.modeler.Position):
+            if isinstance(position_list[0], self._primitives.Position):
                 position_list = [[i for i in j] for j in position_list]
             if not segment_type:
                 if len(position_list) < 2:
