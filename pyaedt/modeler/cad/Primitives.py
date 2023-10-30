@@ -76,7 +76,7 @@ class GeometryModeler(Modeler):
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Returns None if the part ID or the object name is not found.
+            Returns ``None`` if the part ID or the object name is not found.
 
         """
         if isinstance(partId, (int, str)) and not (
