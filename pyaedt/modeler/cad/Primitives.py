@@ -857,7 +857,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def get_objects_by_material(self, materialname=None):
-        """Retrieve a list of objects either of a specified material or classified by material.
+        """Get a list of objects either of a specified material or classified by material.
 
         Parameters
         ----------
