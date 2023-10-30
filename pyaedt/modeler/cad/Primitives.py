@@ -1151,6 +1151,7 @@ class GeometryModeler(Modeler):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
