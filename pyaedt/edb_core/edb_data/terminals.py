@@ -4,6 +4,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
+from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
@@ -64,6 +65,10 @@ class Terminal(Connectable):
     def is_circuit_port(self):
         """Whether it is a circuit port."""
         return self._edb_object.GetIsCircuitPort()
+
+    @is_circuit_port.setter
+    def is_circuit_port(self, value):
+        self._edb_object.SetIsCircuitPort(value)
 
     @property
     def _port_post_processing_prop(self):
@@ -131,7 +136,17 @@ class Terminal(Connectable):
         -------
         int
         """
-        return self._edb_object.GetBoundaryType()
+        return self._edb_object.GetBoundaryType().ToString()
+
+    @boundary_type.setter
+    def boundary_type(self, value):
+        if not value in [i.name for i in BoundaryType]:  # pragma : no cover
+            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))
+        if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
+        else:  # pragma : no cover
+            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary
+        self._edb_object.SetBoundaryType(temp)
 
     @property
     def impedance(self):
@@ -141,6 +156,28 @@ class Terminal(Connectable):
     @impedance.setter
     def impedance(self, value):
         self._edb_object.SetImpedance(self._pedb.edb_value(value))
+
+    @property
+    def is_reference_terminal(self):
+        """Whether it is a reference terminal."""
+        return self._edb_object.IsReferenceTerminal()
+
+    @property
+    def ref_terminal(self):
+        """Get reference terminal."""
+
+        terminal = Terminal(self._pedb, self._edb_object.GetReferenceTerminal())
+        if not terminal.is_null:
+            if terminal.terminal_type == TerminalType.PointTerminal.name:
+                return PointTerminal(self._pedb, terminal._edb_object)
+            elif terminal.terminal_type == TerminalType.EdgeTerminal.name:
+                return EdgeTerminal(self._pedb, terminal._edb_object)
+            elif terminal.terminal_type == TerminalType.InvalidTerminal.name:  # pragma : no cover
+                return None
+
+    @ref_terminal.setter
+    def ref_terminal(self, value):
+        self._edb_object.SetReferenceTerminal(value._edb_object)
 
     @property
     def reference_object(self):  # pragma : no cover
@@ -240,7 +277,7 @@ class Terminal(Connectable):
                     return EDBPadstackInstance(refTermPSI, self._pedb)
                 except AttributeError:
                     return None
-        return None  # pragma: no cover
+        return None
 
     @pyaedt_function_handler()
     def get_edge_terminal_reference_primitive(self):  # pragma : no cover
@@ -264,7 +301,7 @@ class Terminal(Connectable):
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
                     return cast(primitive, self._pedb)
-        return None  # pragma: no cover
+        return None
 
     @pyaedt_function_handler()
     def get_point_terminal_reference_primitive(self):  # pragma : no cover
@@ -327,11 +364,11 @@ class Terminal(Connectable):
         else:
             power_ground_net_names = [net for net in self._pedb.nets.power_nets.keys()]
         comp_ref_pins = [i for i in pin_list if i.GetNet().GetName() in power_ground_net_names]
-        if len(comp_ref_pins) == 0:
+        if len(comp_ref_pins) == 0:  # pragma: no cover
             self._pedb.logger.error(
                 "Terminal with PadStack Instance Name {} component has no reference pins.".format(ref_pin.GetName())
-            )  # pragma: no cover
-            return None  # pragma: no cover
+            )
+            return None
         closest_pin_distance = None
         pin_obj = None
         for pin in comp_ref_pins:  # find the distance to all the pins to the terminal pin
@@ -452,3 +489,76 @@ class PadstackInstanceTerminal(Terminal):
         terminal = PadstackInstanceTerminal(self._pedb, terminal)
 
         return terminal if not terminal.is_null else False
+
+
+class PointTerminal(Terminal):
+    """Manages point terminal properties."""
+
+    def __init__(self, pedb, edb_object=None):
+        super().__init__(pedb, edb_object)
+
+    @pyaedt_function_handler
+    def create(self, name, net, location, layer, is_ref=False):
+        """Create a point terminal.
+
+        Parameters
+        ----------
+        name : str
+            Name of the terminal.
+        net : str
+            Name of the net.
+        location : list
+            Location of the terminal.
+        layer : str
+            Name of the layer.
+        is_ref : bool, optional
+            Whether it is a reference terminal.
+
+        Returns
+        -------
+
+        """
+        terminal = self._pedb.edb_api.cell.terminal.PointTerminal.Create(
+            self._pedb.active_layout,
+            self._pedb.nets[net].net_object,
+            name,
+            self._pedb.point_data(*location),
+            self._pedb.stackup[layer]._edb_layer,
+            is_ref,
+        )
+        terminal = PointTerminal(self._pedb, terminal)
+        return terminal if not terminal.is_null else False
+
+    @property
+    def location(self):
+        """Get location of the terminal."""
+        point_data = self._pedb.point_data(0, 0)
+        layer = list(self._pedb.stackup.layers.values())[0]._edb_layer
+        if self._edb_object.GetParameters(point_data, layer):
+            return [point_data.X.ToDouble(), point_data.Y.ToDouble()]
+
+    @location.setter
+    def location(self, value):
+        layer = self.layer
+        self._edb_object.SetParameters(self._pedb.point_data(*value), layer)
+
+    @property
+    def layer(self):
+        """Get layer of the terminal."""
+        point_data = self._pedb.point_data(0, 0)
+        layer = list(self._pedb.stackup.layers.values())[0]._edb_layer
+        if self._edb_object.GetParameters(point_data, layer):
+            return layer
+
+    @layer.setter
+    def layer(self, value):
+        layer = self._pedb.stackup.layers[value]._edb_layer
+        point_data = self._pedb.point_data(*self.location)
+        self._edb_object.SetParameters(point_data, layer)
+
+
+class PinGroupTerminal(Terminal):
+    """Manages pin group terminal properties."""
+
+    def __init__(self, pedb, edb_object=None):
+        super().__init__(pedb, edb_object)

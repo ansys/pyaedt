@@ -5770,8 +5770,8 @@ class Hfss(FieldAnalysis3D, object):
             self.logger.info("Far field sphere %s is created.", setup_name)
 
         component_name = None
-        if self.solution_type == "SBR+" and self.modeler.modeler.user_defined_component_names:
-            antenna = self.modeler.user_defined_components[self.modeler.modeler.user_defined_component_names[0]]
+        if self.solution_type == "SBR+" and self.modeler.user_defined_component_names:
+            antenna = self.modeler.user_defined_components[self.modeler.user_defined_component_names[0]]
             if antenna.native_properties["Type"] == "Linked Antenna":
                 component_name = antenna.name
 

@@ -322,6 +322,7 @@ class PostProcessor(Post):
         show_grid=False,
         show_bounding=False,
         show_legend=True,
+        plot_as_separate_objects=True,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -367,6 +368,8 @@ class PostProcessor(Post):
             Whether to display the axes bounding box or not. The default is ``False``.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
 
         Returns
         -------
@@ -381,8 +384,12 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        file_to_add = self.export_field_plot(plotname, self._app.working_directory)
-        model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
+        file_to_add = self.export_field_plot(plotname, self._app.working_directory, file_format="case")
+        model = self.get_model_plotter_geometries(
+            generate_mesh=False,
+            get_objects_from_aedt=plot_cad_objs,
+            plot_as_separate_objects=plot_as_separate_objects,
+        )
         model.show_legend = show_legend
         model.off_screen = not show
         if dark_mode:
@@ -391,7 +398,10 @@ class PostProcessor(Post):
         model.show_grid = show_grid
         if file_to_add:
             model.add_field_from_file(
-                file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
+                file_to_add,
+                coordinate_units=self.modeler.model_units,
+                show_edges=meshplot,
+                log_scale=log_scale,
             )
             if plot_label:
                 model.fields[0].label = plot_label
@@ -427,7 +437,7 @@ class PostProcessor(Post):
         scale_min=None,
         scale_max=None,
         plot_cad_objs=True,
-        log_scale=True,
+        log_scale=False,
         export_path="",
         imageformat="jpg",
         keep_plot_after_generation=False,
@@ -436,6 +446,7 @@ class PostProcessor(Post):
         show_grid=False,
         show_legend=True,
         filter_objects=[],
+        plot_as_separate_objects=True,
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -471,7 +482,7 @@ class PostProcessor(Post):
         plot_cad_objs : bool, optional
             Whether to include objects in the plot. The default is ``True``.
         log_scale : bool, optional
-            Whether to plot fields in log scale. The default is ``True``.
+            Whether to plot fields in log scale. The default is ``False``.
         export_path : str, optional
             Image export path. Default is ``None`` to not export the image.
         imageformat : str, optional
@@ -490,6 +501,8 @@ class PostProcessor(Post):
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
 
         Returns
         -------
@@ -534,6 +547,7 @@ class PostProcessor(Post):
             show_grid=show_grid,
             show_bounding=show_bounding,
             show_legend=show_legend,
+            plot_as_separate_objects=plot_as_separate_objects,
         )
         if not keep_plot_after_generation:
             plotf.delete()
@@ -652,7 +666,7 @@ class PostProcessor(Post):
                     object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format="case")
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
@@ -761,7 +775,9 @@ class PostProcessor(Post):
                     ]
                 )
             fields_to_add.append(
-                self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
+                self.export_field_plot(
+                    plotname, project_path, plotname + variation_variable + str(el), file_format="case"
+                )
             )
 
         model = self.get_model_plotter_geometries(generate_mesh=False)
