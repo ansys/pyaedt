@@ -869,7 +869,7 @@ class GeometryModeler(Modeler):
         list of class:`pyaedt.modeler.cad.object3d.Object3d`
             If a material name is not provided, the method returns
             a list of dictionaries where keys are material names
-            of conductors, dielectrics, gases and liquids respectively
+            of conductors, dielectrics, gases, and liquids respectively
             in the design and values are objects assigned to these materials.
             If a material name is provided, the method returns a list
             of objects assigned to the material.
