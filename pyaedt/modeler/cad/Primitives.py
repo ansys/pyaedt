@@ -5390,23 +5390,23 @@ class GeometryModeler(Modeler):
         input_objects_list : str
             List of object names to simplify.
         simplify_type : str, optional
-            Simplify type. Default value is ``Polygon Fit``.
-            Available values are ``Polygon Fit`` ``Primitive Fit`` or ``Bounding Box``.
+            Simplify type. The default is ``"Polygon Fit"``. Options are
+            ``"Bounding Box"``, ``"Polygon Fit"``, and ``"Primitive Fit"`.
         extrusion_axis : str, optional
-            Extrusion axis. Default value is ``Auto``.
-            Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
+            Extrusion axis. The default is ``"Auto"``.
+            Options are ``"Auto"``, ``"X"``, ``"Y"``, and ``"Z"``.
         clean_up : bool, optional
-            Clean up. The default is ``True``.
+            Whether to clean up. The default is ``True``.
         allow_splitting : bool, optional
-            Allow splitting. The default is ``True``.
+            Whether to allow splitting. The default is ``True``.
         separate_bodies : bool, optional
-            Separate bodies. The default is ``True``.
+            Whether to separate bodies. The default is ``True``.
         clone_body : bool, optional
-            Clone body. The default is ``True``.
+            Whether to clone the body. The default is ``True``.
         generate_primitive_history : bool, optional
-            Generate primitive history.
-            This option will purge the history for selected objects.
-            The default is ``False``.
+            Whether to generate primitive history. The default is ``False``.
+            If ``True``, the history for the selected objects is purged.
+            ```
         interior_points_on_arc : float, optional
             Number points on curve. The default is ``5``.
         length_threshold_percentage : float, optional
