@@ -1188,7 +1188,7 @@ class GeometryModeler(Modeler):
         reference_cs : str, optional
             Name of the reference coordinate system. The default is
             ``"Global"``.
-        name : str
+        name : str, optional
             Name of the coordinate system. The default is ``None``.
         mode : str, optional
             Definition mode. Options are ``"view"``, ``"axis"``,
