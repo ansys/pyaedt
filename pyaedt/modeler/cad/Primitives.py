@@ -1181,7 +1181,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        origin : list
+        origin : list, optional
             List of ``[x, y, z]`` coordinates for the origin of the
             coordinate system.  The default is ``None``, in which case
             ``[0, 0, 0]`` is used.
