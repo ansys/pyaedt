@@ -246,7 +246,7 @@ class GeometryModeler(Modeler):
 
     @property
     def oeditor(self):
-        """Aedt oEditor Module.
+        """AEDT ``oEditor`` module.
 
         References
         ----------
