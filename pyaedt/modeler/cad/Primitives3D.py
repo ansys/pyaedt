@@ -23,11 +23,11 @@ from pyaedt.modeler.advanced_cad.actors import Person
 from pyaedt.modeler.advanced_cad.actors import Vehicle
 from pyaedt.modeler.advanced_cad.multiparts import Environment
 from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent
-from pyaedt.modeler.cad.Primitives import Primitives
+from pyaedt.modeler.cad.Primitives import GeometryModeler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Primitives3D(Primitives, object):
+class Primitives3D(GeometryModeler):
     """Manages primitives in 3D tools.
 
     This class is inherited in the caller application and is
@@ -36,7 +36,7 @@ class Primitives3D(Primitives, object):
 
     Parameters
     ----------
-    application : str
+    application : object
         Name of the application.
 
     Examples
@@ -48,8 +48,8 @@ class Primitives3D(Primitives, object):
     >>> prim = aedtapp.modeler
     """
 
-    def __init__(self):
-        Primitives.__init__(self)
+    def __init__(self, application):
+        GeometryModeler.__init__(self, application, is3d=True)
         self.multiparts = []
 
     @pyaedt_function_handler()
@@ -1140,52 +1140,6 @@ class Primitives3D(Primitives, object):
         return self._create_object(polyline_name)
 
     @pyaedt_function_handler()
-    def convert_segments_to_line(self, object_name):
-        """Convert a CreatePolyline list of segments to lines.
-
-        This method applies to splines and 3-point arguments.
-
-        Parameters
-        ----------
-        object_name : int, str, or :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Specified for the object.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful, ``False`` if it fails.
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-
-        >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> edge_object = aedtapp.modeler.create_object_from_edge("my_edge")
-        >>> aedtapp.modeler.generate_object_history(edge_object)
-        >>> aedtapp.modeler.convert_segments_to_line(edge_object.name)
-
-        """
-        this_object = self._resolve_object(object_name)
-        edges = this_object.edges
-        for i in reversed(range(len(edges))):
-            self.oeditor.ChangeProperty(
-                [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:Geometry3DPolylineTab",
-                        ["NAME:PropServers", this_object.name + ":CreatePolyline:1:Segment" + str(i)],
-                        ["NAME:ChangedProps", ["NAME:Segment Type", "Value:=", "Line"]],
-                    ],
-                ]
-            )
-        return True
-
-    @pyaedt_function_handler()
     def create_udm(
         self,
         udmfullname,
@@ -1383,8 +1337,8 @@ class Primitives3D(Primitives, object):
             os.rmdir(temp_folder)
             phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
             cs_name = udm_obj.name + "_" + wcs + "_ref"
-            if cs_name not in [i.name for i in self.modeler.coordinate_systems]:
-                self.modeler.create_coordinate_system(
+            if cs_name not in [i.name for i in self.coordinate_systems]:
+                self.create_coordinate_system(
                     mode="zxz",
                     origin=o,
                     name=cs_name,
@@ -1745,7 +1699,7 @@ class Primitives3D(Primitives, object):
 
             aedt_component_name = self._app.o_component_manager.Add(compInfo)
 
-        if not name or name in self.modeler.user_defined_component_names:
+        if not name or name in self.user_defined_component_names:
             name = generate_unique_name("LC")
 
         # Open Layout component and get information
