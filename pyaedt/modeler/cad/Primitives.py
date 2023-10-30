@@ -212,7 +212,7 @@ class GeometryModeler(Modeler):
 
     @property
     def coordinate_systems(self):
-        """Coordinate Systems."""
+        """Coordinate systems."""
         if settings.aedt_version > "2022.2":
             cs_names = [i for i in self.oeditor.GetChildNames("CoordinateSystems") if i != "Global"]
             for cs_name in cs_names:
