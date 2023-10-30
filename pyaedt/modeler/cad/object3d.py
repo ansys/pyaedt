@@ -1558,7 +1558,7 @@ class Object3d(object):
         >>> oEditor.DuplicateAroundAxis
 
         """
-        ret, added_objects = self._primitives.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
+        _, added_objects = self._primitives.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
         return added_objects
 
     @pyaedt_function_handler()
@@ -1585,7 +1585,7 @@ class Object3d(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        ret, added_objects = self._primitives.duplicate_along_line(self, vector, nclones, attachObject)
+        _, added_objects = self._primitives.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
 
     @pyaedt_function_handler()
