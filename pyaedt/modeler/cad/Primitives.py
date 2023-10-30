@@ -1119,7 +1119,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def cover_lines(self, selection):
-        """Cover a closed line and transform it to sheet.
+        """Cover closed lines and transform them to a sheet
 
         Parameters
         ----------
