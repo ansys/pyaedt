@@ -1292,8 +1292,9 @@ class GeometryModeler(Modeler):
             
             - If a face is specified, the origin is placed on the face center. It must be
               the same as the ``face`` parameter.
-            If an edge is specified, the origin is placed on the edge midpoint.
-            If a vertex is specified, the origin is placed on the vertex.
+            - If an edge is specified, the origin is placed on the edge midpoint.
+            - If a vertex is specified, the origin is placed on the vertex.
+            
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify where the X or Y axis is pointing. The position must belong to the face where the
             coordinate system is defined.
