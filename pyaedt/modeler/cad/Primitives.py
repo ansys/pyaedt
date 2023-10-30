@@ -232,7 +232,7 @@ class GeometryModeler(Modeler):
 
     @property
     def user_lists(self):
-        """User Lists."""
+        """User lists."""
         if not self._user_lists:
             self._user_lists = self._get_lists_data()
         return self._user_lists
