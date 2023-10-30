@@ -1191,9 +1191,10 @@ class GeometryModeler(Modeler):
         name : str, optional
             Name of the coordinate system. The default is ``None``.
         mode : str, optional
-            Definition mode. Options are ``"view"``, ``"axis"``,
-            ``"zxz"``, ``"zyz"``, and ``"axisrotation"``. The default
-            is ``"axis"``.  Enumerator ``pyaedt.generic.constants.CSMODE`` can be used.
+            Definition mode. Options are ``"axis"``, ``"axisrotation"``,
+            ``"view"``, ``"zxz"``, and ``"zyz"`` The default
+            is ``"axis"``.  You can also use the ``pyaedt.generic.constants.CSMODE``
+            enumerator.
 
             * If ``mode="view"``, specify ``view``.
             * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
