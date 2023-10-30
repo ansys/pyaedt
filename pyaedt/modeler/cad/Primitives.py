@@ -5410,7 +5410,7 @@ class GeometryModeler(Modeler):
         interior_points_on_arc : float, optional
             Number points on curve. The default is ``5``.
         length_threshold_percentage : float, optional
-            Number points on curve. The default is ``25``.
+            Length threshold percentage. The default is ``25``.
         create_group_for_new_objects : bool, optional
             Create group for new objects. The default is ``False``.
 
