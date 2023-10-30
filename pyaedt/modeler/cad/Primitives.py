@@ -5480,7 +5480,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler
     def get_face_by_id(self, id):
-        """Give the face object given its Id.
+        """Get the face object given its ID.
 
         Parameters
         ----------
