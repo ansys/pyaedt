@@ -3521,18 +3521,18 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Split
         """
-        if not plane and not tool or plane and tool:
+        if plane is None and not tool or plane and tool:
             self.logger.info("One method to split the objects has to be defined.")
             return False
         objects = self.convert_to_selections(objects)
         all_objs = [i for i in self.object_names]
         if self._is3d:
-            if plane and not tool:
+            if plane is not None and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
                 selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
-            elif tool and not plane:
+            elif tool and plane is None:
                 if isinstance(tool, str):
                     obj = [f for f in self.object_list if f.name == tool][0]
                     obj_name = obj.name
@@ -3598,10 +3598,10 @@ class GeometryModeler(Modeler, object):
                     obj_name,
                 ]
         else:
-            if not plane and tool or not plane:
+            if plane is None and tool or not plane:
                 self.logger.info("For 2D design types only planes can be defined.")
                 return False
-            elif plane:
+            elif plane is not None:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
