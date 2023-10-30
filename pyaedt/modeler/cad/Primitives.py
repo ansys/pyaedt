@@ -1252,7 +1252,7 @@ class GeometryModeler(Modeler):
         if name:
             cs_names = [i.name for i in self.coordinate_systems]
             if name in cs_names:
-                raise AttributeError("A coordinate system with the specified name already exists!")
+                raise AttributeError("A coordinate system with the specified name already exists.")
 
         cs = CoordinateSystem(self)
         if cs:
