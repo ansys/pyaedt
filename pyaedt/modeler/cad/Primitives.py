@@ -1289,7 +1289,9 @@ class GeometryModeler(Modeler):
         origin : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify the coordinate system origin. The origin must belong to the face where the
             coordinate system is defined.
-            If a face is specified, the origin is placed on the face center. It must be the same as ``face``.
+            
+            - If a face is specified, the origin is placed on the face center. It must be
+              the same as the ``face`` parameter.
             If an edge is specified, the origin is placed on the edge midpoint.
             If a vertex is specified, the origin is placed on the vertex.
         axis_position : int, FacePrimitive, EdgePrimitive, VertexPrimitive
