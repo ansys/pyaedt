@@ -353,7 +353,7 @@ class GeometryModeler(Modeler):
 
     @property
     def solid_bodies(self):
-        """List of Object Names.
+        """List of object names.
 
         .. note::
             Non-model objects are also returned.
