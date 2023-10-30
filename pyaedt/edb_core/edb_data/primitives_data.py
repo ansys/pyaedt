@@ -1053,8 +1053,8 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
 
 class EdbText(EDBPrimitivesMain, TextDotNet):
     def __init__(self, raw_primitive, core_app):
-        TextDotNet.__init__(self, self._app, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
+        TextDotNet.__init__(self, self._app, raw_primitive)
 
 
 class EdbBondwire(EDBPrimitivesMain, BondwireDotNet):
