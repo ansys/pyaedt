@@ -1278,6 +1278,7 @@ class GeometryModeler(Modeler):
         self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
         """Create a face coordinate system.
+        
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
 
