@@ -1196,10 +1196,12 @@ class GeometryModeler(Modeler):
             is ``"axis"``.  You can also use the ``pyaedt.generic.constants.CSMODE``
             enumerator.
 
-            * If ``mode="view"``, specify ``view``.
-            * If ``mode="axis"``, specify ``x_pointing`` and ``y_pointing``.
-            * If ``mode="zxz"`` or ``mode="zyz"``, specify ``phi``, ``theta``, and ``psi``.
-            * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
+            * If ``mode="axis"``, specify the ``x_pointing`` and ``y_pointing`` parameters.
+            * If ``mode="axisrotation"``, specify the ``theta`` and ``u`` parameters.
+            * If ``mode="view"``, specify the ``view`` parameter.
+            * If ``mode="zxz"`` or ``mode="zyz"``, specify the ``phi``, ``theta``,
+              and ``psi`` parameters.
+            
 
             Parameters not needed by the specified mode are ignored.
             The default mode, ``"axis"``, is a coordinate system parallel to the
