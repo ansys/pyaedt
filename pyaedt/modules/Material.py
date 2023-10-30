@@ -18,8 +18,15 @@ import itertools
 import warnings
 
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt import is_ironpython
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
+if not is_ironpython:
+    try:
+        import numpy as np
+    except ImportError:
+        pass
 
 
 class MatProperties(object):
@@ -1980,53 +1987,117 @@ class Material(CommonMaterial, object):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_electrical_steel_coreloss(self,
-                                      kh=0,
-                                      kc=0,
-                                      ke=0,
-                                      kdc=0,
-                                      cut_depth=0.001,
-                                      is_coreloss_at_freq=False,
-                                      thickness="0.5mm",
-                                      conductivity=0,
-                                      is_coreloss_vs_freq=False,
-                                      points_list_at_frequencies={}):
-        """Set Electrical Steel Type Core Loss.
+    def get_core_loss_coefficients(self,
+                                   points_list_at_freq,
+                                   core_loss_model_type="Electrical Steel",
+                                   thickness="0.5mm",
+                                   conductivity=0,
+                                   coefficient_setup="w_per_cubic_meter"):
+        """Compute core loss coefficients from the loss characteristics (B-P Curve) at a given frequency.
 
         Parameters
         ----------
-        kh : float
-            Hysteresis core loss coefficient
-        kc : float
-            Eddy-current core loss coefficient
-        ke : float
-            Excess core loss coefficient
+        points_list_at_freq : dict
+            points_list_at_freq is a dictionary of BP values for a given frequency.
+            Key is the frequency and values are the list of points (BP curve).
+        core_loss_model_type : str, optional
+            Core loss model type. It can be ``Electrical Steel`` or ``Power Ferrite``.
+            The default value is ``Electrical Steel``.
+        thickness : str, optional
+            Thickness provided as value + unit.
+            The default value is ``0.5mm``.
+        conductivity : float, optional
+            Material conductivity.
+            The default value is ``0``.
+        coefficient_setup : str, optional
+            Core loss unit.
+            Possible values are: ``w_per_cubic_meter``, ``kw_per_cubic_meter``, ``w_per_lb``, ``w_per_kg``.
+            The default value is ``w_per_cubic_meter``.
+
+        Returns
+        -------
+        list
+            List of core loss coefficients.
+            Returns Kh, Kc, Ke coefficients if core loss model is ``Electrical Steel``.
+            Returns Cm, X, Y if core loss model is ``Power Ferrite``.
+
+        Examples
+        --------
+        This example shows how to get core loss coefficients for Electrical Steel core loss model.
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box.material = "magnesium"
+        >>> coefficients = m3d.materials["magnesium"].get_core_loss_coefficients(
+        ...                                                        points_list_at_freq={60 : [[0, 0], [1, 3], [2, 7]]},
+        ...                                                        thickness="0.5mm",
+        ...                                                        conductivity=0)
+        >>> print(coefficients)
+        >>> m3d.release_desktop(True, True)
+        """
+        if not isinstance(points_list_at_freq, dict):
+            self.logger.error("Points list at frequency must be provided as a dictionary.")
+            return False
+        props = OrderedDict({})
+        if len(points_list_at_freq.keys()) == 1:
+            props["CoefficientSetupData"] = OrderedDict({})
+            props["CoefficientSetupData"]["property_data"] = "coreloss_data"
+            props["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
+            frequency = list(points_list_at_freq.keys())[0]
+            props["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
+            props["CoefficientSetupData"]["Thickness"] = thickness
+            props["CoefficientSetupData"]["Conductivity"] = str(conductivity)
+            points = list(itertools.chain(*[v for v in list(points_list_at_freq.values())[0]]))
+            props["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""],
+                                                                        "Points": points})
+        elif len(points_list_at_freq.keys()) > 1:
+            props["CoreLossMultiCurveData"] = OrderedDict({})
+            props["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
+            props["CoreLossMultiCurveData"]["coreloss_unit"] = "w_per_cubic_meter"
+
+            props["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
+            props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
+            for freq in list(points_list_at_freq.keys()):
+                points = list(itertools.chain(*[v for v in points_list_at_freq[freq]]))
+                one_curve = OrderedDict({"Frequency": "{}Hz".format(freq), "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points})})
+                props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
+
+        props = args = self._get_args(props)
+        props.pop(0)
+        coefficients = self.odefinition_manager.ComputeCoreLossCoefficients(core_loss_model_type,
+                                                                            self.mass_density.evaluated_value,
+                                                                            props[0])
+        return coefficients
+
+    @pyaedt_function_handler()
+    def set_electrical_steel_coreloss_at_frequency(self,
+                                                   kdc=0,
+                                                   cut_depth=0.001,
+                                                   is_coreloss_at_freq=False,
+                                                   thickness="0.5mm",
+                                                   conductivity=0,
+                                                   points_list_at_freq={}):
+        """Set Electrical Steel Core Loss Model at one single frequency or at multiple frequencies.
+
+        Parameters
+        ----------
         kdc : float
             Coefficient considering the DC flux bias effects
         cut_depth : float
             Equivalent cut depth.
             The manufacturing effects on core loss computation can be considered by using this parameter.
             The default value is ``1mm``.
-        is_coreloss_at_freq : bool
-            Material properties can be calculated either for ``Core Loss at One Frequency`` or ``Core Loss versus
-            Frequency``.
-            If ``True`` material properties are calculated for ``Core Loss at One Frequency``.
-            The default value is ``False``.
         thickness : str
             Thickness specified in terms of value + unit.
             The default value is ``0.5mm``.
         conductivity : float
             Conductivity. The unit is S/m.
             The default value is ``0S/m``.
-        is_coreloss_vs_freq : bool
-            Material properties can be calculated either for ``Core Loss at One Frequency`` or ``Core Loss versus
-            Frequency``.
-            If ``True`` material properties are calculated for ``Core Loss versus Frequency``.
-            The default value is ``False``.
-        points_list_at_frequencies : dict or list
-            If is_coreloss_at_one_freq is ``True``, points_list_at_frequencies has to be provided as a dictionary where
+        points_list_at_freq : dict
+            If is_coreloss_at_one_freq is ``True``, points_list_at_freq has to be provided as a dictionary where
             the key is the single frequency and the value is a list of list of points (BP curve).
-            If is_coreloss_vs_freq is ``True``, points_list_at_frequencies has to be provided as a dictionary
+            If is_coreloss_vs_freq is ``True``, points_list_at_freq has to be provided as a dictionary
             where the keys are the frequencies and values are list of list of points (BP curve) for each frequency.
 
         Returns
@@ -2050,8 +2121,8 @@ class Material(CommonMaterial, object):
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_electrical_steel_coreloss(
-                                                    ... is_coreloss_at_freq=True,
-                                                    ... points_list_at_frequencies={60 : [[0,0], [1,3.5], [2,7.4]]}
+                                                    ... is_coreloss_vs_freq=False,
+                                                    ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
 
@@ -2063,13 +2134,16 @@ class Material(CommonMaterial, object):
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_electrical_steel_coreloss(
                                                     ... is_coreloss_vs_freq=True,
-                                                    ... points_list_at_frequencies=[{60 : [[0,0], [1,3.5], [2,7.4]]},
-                                                    ...                             {100 : [[0,0], [1,8], [2,9]]},
-                                                    ...                             {150 : [[0,0], [1,10], [2,19]]}]
+                                                    ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]],
+                                                    ...                      100 : [[0,0], [1,8], [2,9]],
+                                                    ...                      150 : [[0,0], [1,10], [2,19]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
 
         """
+        if not isinstance(points_list_at_freq, dict):
+            self.logger.error("Points list at frequencies must be provided as a list of dictionaries.")
+            return False
         if "core_loss_type" not in self._props:
             self._props["core_loss_type"] = OrderedDict(
                 {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"})
@@ -2082,52 +2156,36 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_hkc", None)
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = "Electrical Steel"
-        if is_coreloss_at_freq:
-            if not isinstance(points_list_at_frequencies, dict):
-                self.logger.error("Points list at frequency must be provided as a dictionary.")
-                return False
+        if len(points_list_at_freq.keys()) == 1:
             self._props["AttachedData"]["CoefficientSetupData"] = OrderedDict({})
             self._props["AttachedData"]["CoefficientSetupData"]["property_data"] = "coreloss_data"
             self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = "w_per_cubic_meter"
-            self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = "{}Hz".format(
-                list(points_list_at_frequencies.keys())[0])
+            frequency = list(points_list_at_freq.keys())[0]
+            self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
             self._props["AttachedData"]["CoefficientSetupData"]["Thickness"] = thickness
             self._props["AttachedData"]["CoefficientSetupData"]["Conductivity"] = str(conductivity)
 
-            self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = (
-                OrderedDict({"DimUnits": ["", ""],
-                             "Points": list(itertools.chain(*[v for v in list(points_list_at_frequencies.values())[0]]))
-                             }
-                            )
-            )
-            #points_list = OrderedDict({"Points": list(itertools.chain(*[v for v in list(points_list_at_frequencies.values())[0]]))})
-            # self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"]["Points"] = OrderedDict({})
-            # points = OrderedDict({})
-            # for pairs in list(points_list_at_frequencies.values())[0]:
-            #     points[pairs[0]] = pairs[1]
-            # self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"]["Points"] = points
-        elif is_coreloss_vs_freq:
-            if not isinstance(points_list_at_frequencies, dict):
-                self.logger.error("Points list at frequencies must be provided as a list of dictionaries.")
-                return False
+            points = list(itertools.chain(*[v for v in list(points_list_at_freq.values())[0]]))
+            self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""],
+                                                                                              "Points": points})
+        elif len(points_list_at_freq.keys()) > 1:
             self._props["AttachedData"]["CoreLossMultiCurveData"] = OrderedDict({})
             self._props["AttachedData"]["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
             self._props["AttachedData"]["CoreLossMultiCurveData"]["coreloss_unit"] = "w_per_cubic_meter"
 
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
-            for freq in list(points_list_at_frequencies.keys()):
-                self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = OrderedDict({})
-                self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"]["Frequency"] = freq
-                self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][
-                    "Coordinates"] = OrderedDict({})
-                self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"]["Coordinates"][
-                    "Points"] = []
-                self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"]["Coordinates"][
-                    "Points"].append(itertools.chain(points_list_at_frequencies[freq]))
+            self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
+            for freq in list(points_list_at_freq.keys()):
+                points = list(itertools.chain(*[v for v in points_list_at_freq[freq]]))
+                one_curve = OrderedDict({"Frequency": "{}Hz".format(freq),
+                                         "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points})})
+                self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
 
-        self._props["core_loss_kh"] = str(kh)
-        self._props["core_loss_kc"] = str(kc)
-        self._props["core_loss_ke"] = str(ke)
+        coefficients = self.get_core_loss_coefficients(points_list_at_freq, thickness=thickness,
+                                                       conductivity=conductivity)
+        self._props["core_loss_kh"] = str(coefficients[0])
+        self._props["core_loss_kc"] = str(coefficients[1])
+        self._props["core_loss_ke"] = str(coefficients[2])
         self._props["core_loss_kdc"] = str(kdc)
         self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
         return self.update()
