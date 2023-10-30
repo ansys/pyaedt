@@ -268,7 +268,7 @@ class GeometryModeler(Modeler):
 
     @property
     def model_units(self):
-        """Model units as a string. For example ``"mm"``.
+        """Model units as a string. For example, ``"mm"``.
 
         References
         ----------
