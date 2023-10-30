@@ -1209,9 +1209,9 @@ class GeometryModeler(Modeler):
 
         view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
-            are ``"XY"``, ``"XZ"``, ``"XY"``, ``"iso"``, ``None``, and
-            ``"rotate"`` (obsolete). The default is ``"iso"``.
-            Enumerator ``pyaedt.generic.constants.VIEW`` can be used.
+            are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
+            default is ``"iso"``. the ``"rotate"`` option is obsolete. You can
+            also use the ``pyaedt.generic.constants.VIEW`` enumerator.
 
             .. note::
               For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
