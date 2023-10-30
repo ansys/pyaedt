@@ -1058,7 +1058,7 @@ class GeometryModeler(Modeler):
         return design_lists
 
     def _get_planes_data(self):
-        """Retrieve planes data.
+        """Get the plane's data.
 
         Returns
         -------
