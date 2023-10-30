@@ -1142,7 +1142,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def cover_faces(self, selection):
-        """Cover a sheet.
+        """Cover a face.
 
         Parameters
         ----------
