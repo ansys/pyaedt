@@ -2317,7 +2317,7 @@ class Material(CommonMaterial, object):
         cond = "{} + 2 * pi * Freq * e0 * ({}) * (atan(Freq / ({})) - atan(Freq / {}))".format(
             sigma_dc, K, freq_low, freq_hi
         )
-        #ds_tande = "{} / (e0 * {} * 2 * pi * Freq)".format(cond, ds_er)
+        # ds_tande = "{} / (e0 * {} * 2 * pi * Freq)".format(cond, ds_er)
 
         self.conductivity = cond
         self.permittivity = ds_er
