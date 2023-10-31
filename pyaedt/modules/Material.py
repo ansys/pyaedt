@@ -2085,10 +2085,11 @@ class Material(CommonMaterial, object):
     @pyaedt_function_handler()
     def set_electrical_steel_coreloss_at_frequency(self,
                                                    kdc=0,
-                                                   cut_depth=0.001,
-                                                   is_coreloss_at_freq=False,
+                                                   cut_depth="1mm",
                                                    thickness="0.5mm",
                                                    conductivity=0,
+                                                   coefficient_setup="w_per_cubic_meter",
+                                                   core_loss_model_type="Electrical Steel",
                                                    points_list_at_freq={}):
         """Set Electrical Steel Core Loss Model at one single frequency or at multiple frequencies.
 
@@ -2096,7 +2097,7 @@ class Material(CommonMaterial, object):
         ----------
         kdc : float
             Coefficient considering the DC flux bias effects
-        cut_depth : float
+        cut_depth : str
             Equivalent cut depth.
             The manufacturing effects on core loss computation can be considered by using this parameter.
             The default value is ``1mm``.
@@ -2106,11 +2107,15 @@ class Material(CommonMaterial, object):
         conductivity : float
             Conductivity. The unit is S/m.
             The default value is ``0S/m``.
+        coefficient_setup : str, optional
+            Core loss unit.
+            Possible values are: ``w_per_cubic_meter``, ``kw_per_cubic_meter``, ``w_per_lb``, ``w_per_kg``.
+            The default value is ``w_per_cubic_meter``.
         points_list_at_freq : dict
-            If is_coreloss_at_one_freq is ``True``, points_list_at_freq has to be provided as a dictionary where
-            the key is the single frequency and the value is a list of list of points (BP curve).
-            If is_coreloss_vs_freq is ``True``, points_list_at_freq has to be provided as a dictionary
-            where the keys are the frequencies and values are list of list of points (BP curve) for each frequency.
+            Dictionary where keys are the frequencies (in Hz) and values are lists of points (BP curve).
+            If the core loss model is calculated at one frequency points_list_at_freq has to be provided as a
+            dictionary with one key (single frequency in Hz) and values are lists of points at
+            that specific freq (BP curve).
 
         Returns
         -------
@@ -2125,7 +2130,7 @@ class Material(CommonMaterial, object):
         Examples
         --------
         This example shows how to set a core loss model for a material in case material properties are calculated for
-        core losses at one frequency or core losses versus frequencies.
+        core losses at one frequency or core losses versus frequencies (core losses multi curve data).
         The first case shows how to set properties for core losses at one frequency:
 
         >>> from pyaedt import Maxwell3d
@@ -2133,7 +2138,6 @@ class Material(CommonMaterial, object):
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_electrical_steel_coreloss(
-                                                    ... is_coreloss_vs_freq=False,
                                                     ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
@@ -2145,7 +2149,6 @@ class Material(CommonMaterial, object):
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_electrical_steel_coreloss(
-                                                    ... is_coreloss_vs_freq=True,
                                                     ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]],
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
@@ -2167,11 +2170,11 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_br", None)
             self._props.pop("core_loss_hkc", None)
             self._props.pop("core_loss_curves", None)
-            self._props["core_loss_type"]["Choice"] = "Electrical Steel"
+            self._props["core_loss_type"]["Choice"] = core_loss_model_type
         if len(points_list_at_freq.keys()) == 1:
             self._props["AttachedData"]["CoefficientSetupData"] = OrderedDict({})
             self._props["AttachedData"]["CoefficientSetupData"]["property_data"] = "coreloss_data"
-            self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = "w_per_cubic_meter"
+            self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
             frequency = list(points_list_at_freq.keys())[0]
             self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
             self._props["AttachedData"]["CoefficientSetupData"]["Thickness"] = thickness
@@ -2199,7 +2202,7 @@ class Material(CommonMaterial, object):
         self._props["core_loss_kc"] = str(coefficients[1])
         self._props["core_loss_ke"] = str(coefficients[2])
         self._props["core_loss_kdc"] = str(kdc)
-        self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
+        self._props["core_loss_equiv_cut_depth"] = cut_depth
         return self.update()
 
     @pyaedt_function_handler()

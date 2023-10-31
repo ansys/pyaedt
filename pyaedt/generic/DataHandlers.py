@@ -101,7 +101,12 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
                 arg_out.append(arg)
-        elif type(v) is list and len(v) > 0 and all(isinstance(n, int) for n in v) or all(isinstance(n, float) for n in v):
+        elif type(v) is list and len(v) > 0 and all(isinstance(n, int) for n in v):
+            arg = ["NAME:" + k]
+            for el in v:
+                arg.append(el)
+            arg_out.append(arg)
+        elif type(v) is list and len(v) > 0 and all(isinstance(n, float) for n in v):
             arg = ["NAME:" + k]
             for el in v:
                 arg.append(el)
