@@ -364,7 +364,7 @@ class Design(AedtObjects):
 
     @property
     def excitations_by_type(self):
-        """Design excitations by tupe.
+        """Design excitations by type.
 
         Returns
         -------
@@ -3195,6 +3195,17 @@ class Design(AedtObjects):
         >>> oDesign.ChangeProperty
         """
         return self.variable_manager.delete_variable(sVarName)
+
+    @pyaedt_function_handler()
+    def delete_unused_variables(self):
+        """Delete design and project unused variables.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        return self.variable_manager.delete_unused_variables()
 
     @pyaedt_function_handler()
     def insert_design(self, design_name=None, solution_type=None):

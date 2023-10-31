@@ -170,17 +170,10 @@ class TestClass:
         assert o.material_name == "copper"
         assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
+        assert not self.aedtapp.modeler.create_box([0, 0], [10, 10, 10], "MyCreatedBox_12", "Copper")
+        assert not self.aedtapp.modeler.create_box([0, 0, 0], [10, 10], "MyCreatedBox_12", "Copper")
 
-    def test_03_create_box_assertions(self):
-        try:
-            invalid_entry = "Frank"
-            self.aedtapp.modeler.create_box([0, 0, 0], invalid_entry, "MyCreatedBox", "Copper")
-        except ValueError:
-            pass
-        else:
-            assert False
-
-    def test_04_create_polyhedron(self):
+    def test_03_create_polyhedron(self):
         o1 = self.aedtapp.modeler.create_polyhedron()
         assert o1.id > 0
         assert o1.name.startswith("New")
@@ -207,6 +200,37 @@ class TestClass:
         assert o1.name in self.aedtapp.modeler.solid_names
         assert o2.name in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
+
+        assert not self.aedtapp.modeler.create_polyhedron(
+            cs_axis=AXIS.Z,
+            center_position=[0, 0],
+            start_position=[0, 1, 0],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+
+        assert not self.aedtapp.modeler.create_polyhedron(
+            cs_axis=AXIS.Z,
+            center_position=[0, 0, 0],
+            start_position=[0, 1],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+
+        assert not self.aedtapp.modeler.create_polyhedron(
+            cs_axis=AXIS.Z,
+            center_position=[0, 0, 0],
+            start_position=[0, 0, 0],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+
         pass
 
     def test_05_center_and_centroid(self):
@@ -276,6 +300,8 @@ class TestClass:
         assert o.name.startswith("MySphere")
         assert o.object_type == "Solid"
         assert o.is3d is True
+        assert not self.aedtapp.modeler.create_sphere([10, 10], radius, "MySphere", "Copper")
+        assert not self.aedtapp.modeler.create_sphere(udp, -5, "MySphere", "Copper")
 
     def test_15_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
@@ -287,6 +313,8 @@ class TestClass:
         assert o.name.startswith("MyCyl")
         assert o.object_type == "Solid"
         assert o.is3d is True
+        assert not self.aedtapp.modeler.create_cylinder(axis, [2, 2], radius, height, 8, "MyCyl", "Copper")
+        assert not self.aedtapp.modeler.create_cylinder(axis, udp, -0.1, height, 8, "MyCyl", "Copper")
         pass
 
     def test_16_create_ellipse(self):
@@ -414,6 +442,7 @@ class TestClass:
         assert o.name.startswith("MyRectangle")
         assert o.object_type == "Sheet"
         assert o.is3d is False
+        assert not self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5, 10], name="MyRectangle", matname="Copper")
 
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -423,6 +452,11 @@ class TestClass:
         assert o.name.startswith("MyCone")
         assert o.object_type == "Solid"
         assert o.is3d is True
+        assert not self.aedtapp.modeler.create_cone(axis, [1, 1], 20, 10, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, -20, 20, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, -20, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, -5, name="MyCone", matname="Copper")
 
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -647,6 +681,8 @@ class TestClass:
         assert o.edges[0].fillet()
         self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
+        r = self.create_rectangle(name="MyRect")
+        assert not r.edges[0].fillet()
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
@@ -1071,6 +1107,12 @@ class TestClass:
             name="low",
         )
         assert b6
+        assert not self.aedtapp.modeler.create_bondwire(
+            [0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+        )
+        assert not self.aedtapp.modeler.create_bondwire(
+            [0, 0, 0], [10, 10], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+        )
 
     def test_56_create_group(self):
         assert self.aedtapp.modeler.create_group(["jedec51", "jedec41"], "mygroup")
@@ -1269,11 +1311,12 @@ class TestClass:
         assert torus.is3d is True
 
     def test_70_create_torus_exceptions(self):
-        with pytest.raises(ValueError) as excinfo:
-            self.aedtapp.modeler.create_torus(
-                [30, 30], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
-            )
-            assert "Center argument must be a valid 3 element sequence." in str(excinfo.value)
+        assert self.aedtapp.modeler.create_torus(
+            [30, 30, 0], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+        )
+        assert not self.aedtapp.modeler.create_torus(
+            [30, 30], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+        )
 
     def test_71_create_point(self):
         name = "mypoint"
@@ -1517,20 +1560,22 @@ class TestClass:
             right_hand=False,
         )
 
-        # Test that an exception is raised if the name of the polyline is not provided.
-        # We can't use with.pytest.raises pattern below because IronPython does not support pytest.
-        try:
-            self.aedtapp.modeler.create_helix(
-                polyline_name="",
-                position=[0, 0, 0],
-                x_start_dir=1.0,
-                y_start_dir=1.0,
-                z_start_dir=1.0,
-            )
-        except ValueError as exc_info:
-            assert "The name of the polyline cannot be an empty string." in str(exc_info.args[0])
-        else:
-            assert False
+        assert not self.aedtapp.modeler.create_helix(
+            polyline_name="",
+            position=[0, 0, 0],
+            x_start_dir=1.0,
+            y_start_dir=1.0,
+            z_start_dir=1.0,
+        )
+
+        assert not self.aedtapp.modeler.create_helix(
+            polyline_name=polyline_left.name,
+            position=[0, 0],
+            x_start_dir=1.0,
+            y_start_dir=1.0,
+            z_start_dir=1.0,
+            right_hand=False,
+        )
 
     def test_78_get_touching_objects(self):
         box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], matname="copper")
@@ -1725,7 +1770,7 @@ class TestClass:
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
         assert isinstance(comp, UserDefinedComponent)
-        assert len(self.aedtapp.modeler.modeler.user_defined_components[comp.name].parts) == 3
+        assert len(self.aedtapp.modeler.user_defined_components[comp.name].parts) == 3
         comp2 = self.aedtapp.modeler.insert_layout_component(
             self.layout_component, name="new_layout", parameter_mapping=True
         )
@@ -1746,3 +1791,43 @@ class TestClass:
         assert comp2.layout_component.display_mode == 1
         comp2.layout_component.layers["Trace"] = [True, True, 90]
         assert comp2.layout_component.update_visibility()
+
+    def test_87_set_mesh_fusion_settings(self):
+        self.aedtapp.insert_design("MeshFusionSettings")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box1.name],
+        )
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [100, 20, 30])
+        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box2.name],
+        )
+        assert self.aedtapp.set_mesh_fusion_settings(component=obj2_3dcomp.name, volume_padding=None, priority=None)
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name, "Dummy"], volume_padding=None, priority=None
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name],
+            volume_padding=[[0, 5, 0, 0, 0, 1], [0, 0, 0, 2, 0, 0]],
+            priority=None,
+        )
+        assert not self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=[[0, 0, 0, 2, 0, 0]], priority=None
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=None, priority=[obj2_3dcomp.name, "Dummy"]
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name],
+            volume_padding=[[0, 5, 0, 0, 0, 1], [10, 0, 0, 2, 0, 0]],
+            priority=[obj_3dcomp.name],
+        )
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=None,
+            volume_padding=None,
+            priority=None,
+        )

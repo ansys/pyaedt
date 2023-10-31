@@ -3,6 +3,7 @@ import math
 from pyaedt.edb_core.dotnet.primitive import BondwireDotNet
 from pyaedt.edb_core.dotnet.primitive import CircleDotNet
 from pyaedt.edb_core.dotnet.primitive import PathDotNet
+from pyaedt.edb_core.dotnet.primitive import PolygonDataDotNet
 from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
 from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
 from pyaedt.edb_core.dotnet.primitive import TextDotNet
@@ -81,11 +82,7 @@ class EDBPrimitivesMain(Connectable):
         -------
         str
         """
-        types = ["Circle", "Path", "Polygon", "Rectangle", "Bondwire"]
-        str_type = self.primitive_type.ToString().split(".")
-        if str_type[-1] in types:
-            return str_type[-1]
-        return None
+        return self._edb_object.GetPrimitiveType().ToString()
 
     @property
     def net_name(self):
@@ -148,6 +145,15 @@ class EDBPrimitivesMain(Connectable):
         bool
         """
         return self._edb_object.IsVoid()
+
+    def get_connected_objects(self):
+        """Get connected objects.
+
+        Returns
+        -------
+        list
+        """
+        return self._pedb.get_connected_objects(self._layout_obj_instance)
 
 
 class EDBPrimitives(EDBPrimitivesMain):
@@ -348,12 +354,6 @@ class EDBPrimitives(EDBPrimitivesMain):
         layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
         layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)  # 2nd arg was []
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
-
-    @pyaedt_function_handler()
-    def _get_connected_object_obj_set(self):
-        layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
-        layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)
-        return list([loi.GetLayoutObj() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items])
 
     @pyaedt_function_handler()
     def convert_to_polygon(self):
@@ -717,6 +717,27 @@ class EdbPath(EDBPrimitives, PathDotNet):
         return length
 
     @pyaedt_function_handler
+    def add_point(self, x, y, incremental=False):
+        """Add a point at the end of the path.
+
+        Parameters
+        ----------
+        x: str, int, float
+            X coordinate.
+        y: str, in, float
+            Y coordinate.
+        incremental: bool
+            Add point incrementally. If True, coordinates of the added point is incremental to the last point.
+            The default value is ``False``.
+        Returns
+        -------
+        bool
+        """
+        center_line = PolygonDataDotNet(self._pedb, self._edb_object.GetCenterLine())
+        center_line.add_point(x, y, incremental)
+        return self._edb_object.SetCenterLine(center_line.edb_api)
+
+    @pyaedt_function_handler
     def get_center_line(self, to_string=False):
         """Get the center line of the trace.
 
@@ -813,6 +834,113 @@ class EdbPath(EDBPrimitives, PathDotNet):
             )
         else:
             return self._app.hfss.create_edge_port_vertical(self.id, pos, name, 50, reference_layer)
+
+    pyaedt_function_handler()
+
+    def create_via_fence(self, distance, gap, padstack_name):
+        """Create via fences on both sides of the trace.
+
+        Parameters
+        ----------
+        distance: str, float
+            Distance between via fence and trace center line.
+        gap: str, float
+            Gap between vias.
+        padstack_name: str
+            Name of the via padstack.
+
+        Returns
+        -------
+
+        """
+
+        def getAngle(v1, v2):  # pragma: no cover
+            v1_mag = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
+            v2_mag = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
+            dotsum = v1[0] * v2[0] + v1[1] * v2[1]
+            if v1[0] * v2[1] - v1[1] * v2[0] > 0:
+                scale = 1
+            else:
+                scale = -1
+            dtheta = scale * math.acos(dotsum / (v1_mag * v2_mag))
+
+            return dtheta
+
+        def getLocations(line, gap):  # pragma: no cover
+            location = [line[0]]
+            residual = 0
+
+            for n in range(len(line) - 1):
+                x0, y0 = line[n]
+                x1, y1 = line[n + 1]
+                length = math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
+                dx, dy = (x1 - x0) / length, (y1 - y0) / length
+                x = x0 - dx * residual
+                y = y0 - dy * residual
+                length = length + residual
+                while length >= gap:
+                    x += gap * dx
+                    y += gap * dy
+                    location.append((x, y))
+                    length -= gap
+
+                residual = length
+            return location
+
+        def getParalletLines(pts, distance):  # pragma: no cover
+            leftline = []
+            rightline = []
+
+            x0, y0 = pts[0]
+            x1, y1 = pts[1]
+            vector = (x1 - x0, y1 - y0)
+            orientation1 = getAngle((1, 0), vector)
+
+            leftturn = orientation1 + math.pi / 2
+            righrturn = orientation1 - math.pi / 2
+            leftPt = (x0 + distance * math.cos(leftturn), y0 + distance * math.sin(leftturn))
+            leftline.append(leftPt)
+            rightPt = (x0 + distance * math.cos(righrturn), y0 + distance * math.sin(righrturn))
+            rightline.append(rightPt)
+
+            for n in range(1, len(pts) - 1):
+                x0, y0 = pts[n - 1]
+                x1, y1 = pts[n]
+                x2, y2 = pts[n + 1]
+
+                v1 = (x1 - x0, y1 - y0)
+                v2 = (x2 - x1, y2 - y1)
+                dtheta = getAngle(v1, v2)
+                orientation1 = getAngle((1, 0), v1)
+
+                leftturn = orientation1 + dtheta / 2 + math.pi / 2
+                righrturn = orientation1 + dtheta / 2 - math.pi / 2
+
+                distance2 = distance / math.sin((math.pi - dtheta) / 2)
+                leftPt = (x1 + distance2 * math.cos(leftturn), y1 + distance2 * math.sin(leftturn))
+                leftline.append(leftPt)
+                rightPt = (x1 + distance2 * math.cos(righrturn), y1 + distance2 * math.sin(righrturn))
+                rightline.append(rightPt)
+
+            x0, y0 = pts[-2]
+            x1, y1 = pts[-1]
+
+            vector = (x1 - x0, y1 - y0)
+            orientation1 = getAngle((1, 0), vector)
+            leftturn = orientation1 + math.pi / 2
+            righrturn = orientation1 - math.pi / 2
+            leftPt = (x1 + distance * math.cos(leftturn), y1 + distance * math.sin(leftturn))
+            leftline.append(leftPt)
+            rightPt = (x1 + distance * math.cos(righrturn), y1 + distance * math.sin(righrturn))
+            rightline.append(rightPt)
+            return leftline, rightline
+
+        distance = self._pedb.edb_value(distance).ToDouble()
+        gap = self._pedb.edb_value(gap).ToDouble()
+        center_line = self.get_center_line()
+        leftline, rightline = getParalletLines(center_line, distance)
+        for x, y in getLocations(rightline, gap) + getLocations(leftline, gap):
+            self._pedb.padstacks.place([x, y], padstack_name)
 
 
 class EdbRectangle(EDBPrimitives, RectangleDotNet):
@@ -925,14 +1053,14 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
 
 class EdbText(EDBPrimitivesMain, TextDotNet):
     def __init__(self, raw_primitive, core_app):
-        TextDotNet.__init__(self, self._app, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
+        TextDotNet.__init__(self, self._app, raw_primitive)
 
 
 class EdbBondwire(EDBPrimitivesMain, BondwireDotNet):
     def __init__(self, raw_primitive, core_app):
-        BondwireDotNet.__init__(self, self._app, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
+        BondwireDotNet.__init__(self, core_app, raw_primitive)
 
 
 class EDBArcs(object):

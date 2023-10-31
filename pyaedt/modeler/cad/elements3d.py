@@ -69,7 +69,7 @@ class EdgeTypePrimitive(object):
 
     @pyaedt_function_handler()
     def fillet(self, radius=0.1, setback=0.0):
-        """Add a fillet to the selected edge.
+        """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
         ----------
@@ -98,7 +98,7 @@ class EdgeTypePrimitive(object):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Filet is possible only on a vertex in 2D designs.")
+                self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
                 return False
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
@@ -116,7 +116,7 @@ class EdgeTypePrimitive(object):
 
     @pyaedt_function_handler()
     def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
-        """Add a chamfer to the selected edge.
+        """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
         ----------
@@ -267,10 +267,12 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         -------
             list
                 Segment info if available."""
+        autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
         try:
             self.oeditor.GetChildNames()
         except:  # pragma: no cover
             return {}
+        self._object3d._primitives._app.autosave_disable()
         ll = list(self.oeditor.GetObjectsInGroup("Lines"))
         self.oeditor.CreateObjectFromEdges(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel"],
@@ -296,6 +298,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
                     segment[prop] = val
         self._object3d._primitives._odesign.Undo()
         self._object3d._primitives._odesign.Undo()
+        self._object3d._primitives._app.odesktop.EnableAutoSave(True if autosave else False)
         return segment
 
     @property
@@ -342,13 +345,6 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0.5)]
-        # if len(self.vertices) == 2:
-        #     midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
-        #     return list(midpoint)
-        # elif len(self.vertices) == 1:
-        #     return self.vertices[0].position
-        # else:
-        #     return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
 
     @property
     def length(self):
@@ -440,6 +436,7 @@ class FacePrimitive(object):
         """
         self._id = obj_id
         self._object3d = object3d
+        self._is_planar = None
 
     @property
     def oeditor(self):
@@ -567,11 +564,15 @@ class FacePrimitive(object):
         -------
         bool
         """
-
+        if self._is_planar is not None:
+            return self._is_planar
         try:
             self.oeditor.GetFaceCenter(self.id)
+            self._is_planar = True
             return True
         except:
+            self.logger.clear_messages()
+            self._is_planar = False
             return False
 
     @property
@@ -595,9 +596,10 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceCenter
 
         """
-        try:
+        if self.is_planar:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
-        except:  # pragma: no cover
+        else:  # pragma: no cover
+            # self.logger.clear_messages()
             vtx = self.vertices[:]
             if len(vtx) > 1:
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
@@ -606,7 +608,7 @@ class FacePrimitive(object):
                 try:
                     edge = self.edges[0]
                 except IndexError:
-                    self.logger.error("At least one edge is needed to compute face center.")
+                    # self.logger.error("At least one edge is needed to compute face center.")
                     return
                 centroid = GeometryOperators.get_polygon_centroid(
                     [
@@ -756,7 +758,7 @@ class FacePrimitive(object):
         """
         b = [float(i) for i in list(self.oeditor.GetModelBoundingBox())]
         c = self.center
-        if (
+        if c and (
             abs(c[0] - b[0]) < tol
             or abs(c[1] - b[1]) < tol
             or abs(c[2] - b[2]) < tol

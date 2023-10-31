@@ -130,7 +130,7 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3.11", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "numpy": ("https://numpy.org/devdocs", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
@@ -158,7 +158,7 @@ numpydoc_validation_checks = {
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
     "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."'
+    "RT05", # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -166,7 +166,7 @@ numpydoc_validation_checks = {
     "SS04",  # Summary contains heading whitespaces
     "SS05",  # Summary must start with infinitive verb, not third person
     # Parameters
-    "PR10",  # Parameter "{param_name}" requires a space before the colon '
+    "PR10",  # Parameter "{param_name}" requires a space before the colon
     # separating the parameter name and type",
 }
 
@@ -337,6 +337,7 @@ html_theme_options = {
         "version_match": get_version_match(__version__),
     },
     "collapse_navigation": True,
+    "navigation_with_keys": True,
     "use_meilisearch": {
         "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
