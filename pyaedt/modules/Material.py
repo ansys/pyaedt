@@ -2294,13 +2294,14 @@ class Material(CommonMaterial, object):
             ``True`` if successful, ``False`` otherwise.
         """
 
-        K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
-        epsilon_inf = f"({dk} - {K} / 2 * ln({freq_hi}**2 / {i_freq}**2 + 1))"
-        freq_low = f"({freq_hi} / exp(10 * {df} * {epsilon_inf} / ({K})))"
+        #K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
+        K = "({} * {} - {} / (2 * pi * {} * e0)) / atan({} / {})".format(dk, df, sigma_dc, i_freq, freq_hi, i_freq)
+        epsilon_inf = "({} - {} / 2 * ln({}**2 / {}**2 + 1))".format(dk, K, freq_hi, i_freq)
+        freq_low = "({} / exp(10 * {} * {} / ({})))".format(freq_hi, df, epsilon_inf, K)
 
-        ds_er = f"{epsilon_inf} + {K} / 2 * ln(({freq_hi}**2 + Freq**2) / ({freq_low}**2 + Freq**2))"
-        cond = f"{sigma_dc} + 2 * pi * Freq * e0 * ({K}) * (atan(Freq / ({freq_low})) - atan(Freq / {freq_hi}))"
-        ds_tande = f"{cond} / (e0 * {ds_er} * 2 * pi * Freq)"
+        ds_er = "{} + {} / 2 * ln(({}**2 + Freq**2) / ({}**2 + Freq**2))".format(epsilon_inf, K, freq_hi, freq_low)
+        cond = "{} + 2 * pi * Freq * e0 * ({}) * (atan(Freq / ({})) - atan(Freq / {}))".format(sigma_dc, K, freq_low, freq_hi)
+        ds_tande = "{} / (e0 * {} * 2 * pi * Freq)".format(cond, ds_er)
 
         self.conductivity = cond
         self.permittivity = ds_er
