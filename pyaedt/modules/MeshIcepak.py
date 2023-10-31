@@ -697,7 +697,7 @@ class IcepakMesh(object):
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
-            prio = [
+            prio_3d = [
                 "NAME:PriorityListParameters",
                 "EntityType:=",
                 "Component",
@@ -708,10 +708,22 @@ class IcepakMesh(object):
                 "PriorityListType:=",
                 "3D",
             ]
-            self._priorities_args.append(prio)
+            prio_2d = [
+                "NAME:PriorityListParameters",
+                "EntityType:=",
+                "Component",
+                "EntityList:=",
+                comp_name,
+                "PriorityNumber:=",
+                i,
+                "PriorityListType:=",
+                "2D",
+            ]
+            self._priorities_args.append(prio_3d)
+            self._priorities_args.append(prio_2d)
             args += self._priorities_args
-        self.modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
-        self.modeler.oeditor.UpdatePriorityList(args)
+        self.modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"]) # resetting the list, why do we need this?
+        self.modeler.oeditor.UpdatePriorityList(args) # for the second time, it is having older data, does it need to remember the operation ?
         return True
 
     @pyaedt_function_handler()
