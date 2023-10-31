@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import os
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
+from pyaedt.generic.general_methods import read_csv
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
 
 class ComponentArrayProps(OrderedDict):
@@ -72,7 +75,18 @@ class ComponentArray(object):
 
         self._oarray = self._app.get_oo_object(self._omodel, name)
 
+        # Data that can not be obtained from CSV
+
         self._cs_id = props["ReferenceCSID"]
+
+        self._array_info_path = None
+        self._array_props = None
+        if self._app.settings.aedt_version > "2023.2":
+            self.export_array_info(array_path=None)
+            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+
+        if self._array_info_path and os.path.exists(self._array_info_path):
+            self._array_props = self.array_info_parser(self._array_info_path)
 
         # Everything inside components ?
         self._component_names = None
@@ -324,6 +338,101 @@ class ComponentArray(object):
         self._app.omodelsetup.DeleteArray()
         del self._app.component_array[self.name]
         self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
+
+    @pyaedt_function_handler()
+    def export_array_info(self, array_path=None):
+        """Export array information to CSV file.
+
+        References
+        ----------
+
+        >>> oModule.ExportArray
+
+        """
+        if not array_path:
+            array_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+        self._app.omodelsetup.ExportArray(self.name, array_path)
+        return True
+
+    @pyaedt_function_handler()
+    def array_info_parser(self, array_path):
+        """Parse array information CSV file.
+
+        References
+        ----------
+
+        >>> oModule.ExportArray
+
+        """
+        info = read_csv(array_path)
+        if not info:
+            self._logger.error("Data from CSV not loaded.")
+            return False
+
+        array_info = OrderedDict()
+        components = []
+        array_matrix = []
+        array_matrix_rotation = []
+        array_matrix_active = []
+
+        # Components
+        start_str = ["Component Index", "Component Name"]
+        end_str = ["Source Row", "Source Column", "Source Name", "Magnitude", "Phase"]
+
+        capture_data = False
+        line_cont = 0
+        for el in info:
+            if el == end_str:
+                break
+            if capture_data:
+                components.append(el[1])
+            if el == start_str:
+                capture_data = True
+            line_cont += 1
+        array_info["components"] = components
+
+        # Array matrix
+        start_str = ["Array", "Format: Component_index:Rotation_angle:Active_or_Passive"]
+        capture_data = False
+        row = []
+        for el in info[line_cont + 1 :]:
+            if el == end_str:
+                break
+            if capture_data:
+                component_index = []
+                rotation = []
+                active_passive = []
+
+                for element in el:
+                    split_elements = element.split(":")
+
+                    # Check for non-empty strings
+                    if split_elements[0]:
+                        component_index.append(int(split_elements[0]))
+
+                    # Some elements might not have the rotation and active/passive status, so we check for their
+                    # existence
+                    if len(split_elements) > 1:
+                        rot = go.parse_dim_arg(split_elements[1])
+                        rotation.append(int(rot))
+                    else:
+                        rotation.append(0)
+
+                    if len(split_elements) > 2:
+                        if split_elements[2] == 0:
+                            active_passive.append(True)
+                        else:
+                            active_passive.append(False)
+                    else:
+                        active_passive.append(True)
+
+                array_matrix.append(component_index)
+                array_matrix_rotation.append(rotation)
+                array_matrix_active.append(active_passive)
+
+            if el == start_str:
+                capture_data = True
+        return True
 
     @pyaedt_function_handler()
     def _get_coordinate_system_id(self):
