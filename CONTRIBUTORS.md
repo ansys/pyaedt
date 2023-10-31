@@ -12,8 +12,8 @@
 * [Giulia Malinverno](https://github.com/gmalinve)
 * [Hui Zhou](https://github.com/ring630)
 * [Devin Crawford](https://github.com/dcrawforAtAnsys)
-* [Maxime Rey](https://github.com/MaxJPRey)
 * [Kathy Pippert](https://github.com/PipKat)
 * [Lorenzo Vecchietti](https://github.com/lorenzovecchietti)
+* [Maxime Rey](https://github.com/MaxJPRey)
 * [Sébastien Morais](https://github.com/SMoraisAnsys)
 
