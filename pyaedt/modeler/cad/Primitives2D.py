@@ -1,8 +1,8 @@
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.cad.Primitives import Primitives
+from pyaedt.modeler.cad.Primitives import GeometryModeler
 
 
-class Primitives2D(Primitives, object):
+class Primitives2D(GeometryModeler, object):
     """Manages primitives in 2D tools.
 
     This class is inherited in the caller application and is accessible through the primitives variable part
@@ -27,8 +27,8 @@ class Primitives2D(Primitives, object):
                 plane = "Y"
         return plane
 
-    def __init__(self):
-        Primitives.__init__(self)
+    def __init__(self, application):
+        GeometryModeler.__init__(self, application, is3d=False)
 
     @pyaedt_function_handler()
     def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None, non_model=False):
@@ -289,4 +289,4 @@ class Primitives2D(Primitives, object):
             if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
                 pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
 
-        return Primitives.create_region(self, pad_percent, is_percentage)
+        return self._create_region(pad_percent, is_percentage)
