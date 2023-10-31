@@ -17,8 +17,8 @@ import copy
 import itertools
 import warnings
 
-from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt import is_ironpython
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -458,8 +458,8 @@ class MatProperty(object):
 
         """
         if (
-                "ModifierData" not in self._material._props
-                or "ThermalModifierData" not in self._material._props["ModifierData"]
+            "ModifierData" not in self._material._props
+            or "ThermalModifierData" not in self._material._props["ModifierData"]
         ):
             tm = OrderedDict(
                 {
@@ -471,8 +471,8 @@ class MatProperty(object):
                 }
             )
             if (
-                    "ModifierData" in self._material._props
-                    and "SpatialModifierData" in self._material._props["ModifierData"]
+                "ModifierData" in self._material._props
+                and "SpatialModifierData" in self._material._props["ModifierData"]
             ):
                 self._material._props["ModifierData"] = OrderedDict(
                     {
@@ -500,8 +500,7 @@ class MatProperty(object):
         else:
             for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
-                        list
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list
                 ):
                     found = False
                     for tm in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
@@ -530,16 +529,14 @@ class MatProperty(object):
                             tmname
                         ].append(tm)
                 elif (
-                        self.name
-                        ==
-                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
-                            "Property:"
-                        ]
-                        and index
-                        ==
-                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
-                            "Index:"
-                        ]
+                    self.name
+                    == self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                        "Property:"
+                    ]
+                    and index
+                    == self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                        "Index:"
+                    ]
                 ):
                     self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
                         "use_free_form"
@@ -650,8 +647,7 @@ class MatProperty(object):
 
     @pyaedt_function_handler()
     def add_thermal_modifier_closed_form(
-            self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000,
-            index=0
+        self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000, index=0
     ):
         """Add a thermal modifier to a material property using a closed-form formula.
 
@@ -751,12 +747,12 @@ class MatProperty(object):
                 }
             )
         if (
-                "ModifierData" not in self._material._props
-                or "ThermalModifierData" not in self._material._props["ModifierData"]
+            "ModifierData" not in self._material._props
+            or "ThermalModifierData" not in self._material._props["ModifierData"]
         ):
             if (
-                    "ModifierData" in self._material._props
-                    and "SpatialModifierData" in self._material._props["ModifierData"]
+                "ModifierData" in self._material._props
+                and "SpatialModifierData" in self._material._props["ModifierData"]
             ):
                 self._material._props["ModifierData"] = OrderedDict(
                     {
@@ -936,8 +932,8 @@ class MatProperty(object):
 
         """
         if (
-                "ModifierData" not in self._material._props
-                or "SpatialModifierData" not in self._material._props["ModifierData"]
+            "ModifierData" not in self._material._props
+            or "SpatialModifierData" not in self._material._props["ModifierData"]
         ):
             sm = OrderedDict(
                 {
@@ -948,8 +944,8 @@ class MatProperty(object):
                 }
             )
             if (
-                    "ModifierData" in self._material._props
-                    and "ThermalModifierData" in self._material._props["ModifierData"]
+                "ModifierData" in self._material._props
+                and "ThermalModifierData" in self._material._props["ModifierData"]
             ):
                 self._material._props["ModifierData"] = OrderedDict(
                     {
@@ -976,8 +972,7 @@ class MatProperty(object):
         else:
             for smname in self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]:
                 if isinstance(
-                        self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname],
-                        list
+                    self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname], list
                 ):
                     found = False
                     for sm in self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][
@@ -1000,16 +995,14 @@ class MatProperty(object):
                             smname
                         ].append(sm)
                 elif (
-                        self.name
-                        ==
-                        self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
-                            "Property:"
-                        ]
-                        and index
-                        ==
-                        self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
-                            "Index:"
-                        ]
+                    self.name
+                    == self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
+                        "Property:"
+                    ]
+                    and index
+                    == self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
+                        "Index:"
+                    ]
                 ):
                     self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
                         "free_form_value"
@@ -1295,7 +1288,7 @@ class Material(CommonMaterial, object):
             if (materiallib._color_id) > len(vals):
                 materiallib._color_id = 0
             h = vals[materiallib._color_id].lstrip("#")
-            self._material_appearance = list(int(h[i: i + 2], 16) for i in (0, 2, 4))
+            self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
             self._props["AttachedData"] = OrderedDict(
                 {
@@ -1999,12 +1992,14 @@ class Material(CommonMaterial, object):
         return self.update()
 
     @pyaedt_function_handler()
-    def get_core_loss_coefficients(self,
-                                   points_list_at_freq,
-                                   core_loss_model_type="Electrical Steel",
-                                   thickness="0.5mm",
-                                   conductivity=0,
-                                   coefficient_setup="w_per_cubic_meter"):
+    def get_core_loss_coefficients(
+        self,
+        points_list_at_freq,
+        core_loss_model_type="Electrical Steel",
+        thickness="0.5mm",
+        conductivity=0,
+        coefficient_setup="w_per_cubic_meter",
+    ):
         """Compute core loss coefficients from the loss characteristics (B-P Curve) at a given frequency.
 
         Parameters
@@ -2061,8 +2056,7 @@ class Material(CommonMaterial, object):
             props["CoefficientSetupData"]["Thickness"] = thickness
             props["CoefficientSetupData"]["Conductivity"] = str(conductivity)
             points = list(itertools.chain(*[v for v in list(points_list_at_freq.values())[0]]))
-            props["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""],
-                                                                        "Points": points})
+            props["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""], "Points": points})
         elif len(points_list_at_freq.keys()) > 1:
             props["CoreLossMultiCurveData"] = OrderedDict({})
             props["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
@@ -2072,25 +2066,32 @@ class Material(CommonMaterial, object):
             props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
             for freq in list(points_list_at_freq.keys()):
                 points = list(itertools.chain(*[v for v in points_list_at_freq[freq]]))
-                one_curve = OrderedDict({"Frequency": "{}Hz".format(freq), "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points})})
+                one_curve = OrderedDict(
+                    {
+                        "Frequency": "{}Hz".format(freq),
+                        "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points}),
+                    }
+                )
                 props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
 
         props = args = self._get_args(props)
         props.pop(0)
-        coefficients = self.odefinition_manager.ComputeCoreLossCoefficients(core_loss_model_type,
-                                                                            self.mass_density.evaluated_value,
-                                                                            props[0])
+        coefficients = self.odefinition_manager.ComputeCoreLossCoefficients(
+            core_loss_model_type, self.mass_density.evaluated_value, props[0]
+        )
         return coefficients
 
     @pyaedt_function_handler()
-    def set_electrical_steel_coreloss_at_frequency(self,
-                                                   kdc=0,
-                                                   cut_depth="1mm",
-                                                   thickness="0.5mm",
-                                                   conductivity=0,
-                                                   coefficient_setup="w_per_cubic_meter",
-                                                   core_loss_model_type="Electrical Steel",
-                                                   points_list_at_freq={}):
+    def set_electrical_steel_coreloss_at_frequency(
+        self,
+        kdc=0,
+        cut_depth="1mm",
+        thickness="0.5mm",
+        conductivity=0,
+        coefficient_setup="w_per_cubic_meter",
+        core_loss_model_type="Electrical Steel",
+        points_list_at_freq={},
+    ):
         """Set Electrical Steel Core Loss Model at one single frequency or at multiple frequencies.
 
         Parameters
@@ -2161,7 +2162,8 @@ class Material(CommonMaterial, object):
             return False
         if "core_loss_type" not in self._props:
             self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"})
+                {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
+            )
         else:
             self._props.pop("core_loss_cm", None)
             self._props.pop("core_loss_x", None)
@@ -2181,8 +2183,9 @@ class Material(CommonMaterial, object):
             self._props["AttachedData"]["CoefficientSetupData"]["Conductivity"] = str(conductivity)
 
             points = list(itertools.chain(*[v for v in list(points_list_at_freq.values())[0]]))
-            self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""],
-                                                                                              "Points": points})
+            self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = OrderedDict(
+                {"DimUnits": ["", ""], "Points": points}
+            )
         elif len(points_list_at_freq.keys()) > 1:
             self._props["AttachedData"]["CoreLossMultiCurveData"] = OrderedDict({})
             self._props["AttachedData"]["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
@@ -2192,12 +2195,17 @@ class Material(CommonMaterial, object):
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
             for freq in list(points_list_at_freq.keys()):
                 points = list(itertools.chain(*[v for v in points_list_at_freq[freq]]))
-                one_curve = OrderedDict({"Frequency": "{}Hz".format(freq),
-                                         "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points})})
+                one_curve = OrderedDict(
+                    {
+                        "Frequency": "{}Hz".format(freq),
+                        "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points}),
+                    }
+                )
                 self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
 
-        coefficients = self.get_core_loss_coefficients(points_list_at_freq, thickness=thickness,
-                                                       conductivity=conductivity)
+        coefficients = self.get_core_loss_coefficients(
+            points_list_at_freq, thickness=thickness, conductivity=conductivity
+        )
         self._props["core_loss_kh"] = str(coefficients[0])
         self._props["core_loss_kc"] = str(coefficients[1])
         self._props["core_loss_ke"] = str(coefficients[2])
@@ -2329,7 +2337,7 @@ class Material(CommonMaterial, object):
 
     @pyaedt_function_handler()
     def set_bp_curve_coreloss(
-            self, point_list, kdc=0, cut_depth=0.0001, punit="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
+        self, point_list, kdc=0, cut_depth=0.0001, punit="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
     ):
         """Set B-P Type Core Loss.
 
