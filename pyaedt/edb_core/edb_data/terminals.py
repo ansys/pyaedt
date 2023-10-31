@@ -4,7 +4,6 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
-from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
@@ -14,6 +13,19 @@ class Terminal(Connectable):
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
         self._reference_object = None
+
+        self._boundary_type_mapping = {
+            "InvalidBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary,
+        "PortBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary,
+        "PecBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary,
+        "RlcBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary,
+        "kCurrentSource" : self._pedb.edb_api.cell.terminal.BoundaryType.kCurrentSource,
+        "kVoltageSource" : self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageSource,
+        "kNexximGround" : self._pedb.edb_api.cell.terminal.BoundaryType.kNexximGround,
+        "kNexximPort" : self._pedb.edb_api.cell.terminal.BoundaryType.kNexximPort,
+        "kDcTerminal" : self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal,
+        "kVoltageProbe" : self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe,
+        }
 
     @property
     def _hfss_port_property(self):
@@ -130,23 +142,20 @@ class Terminal(Connectable):
 
     @property
     def boundary_type(self):
-        """Boundary Type.
+        """Boundary Type..
+
 
         Returns
         -------
-        int
+        str
+            InvalidBoundary, PortBoundary, PecBoundary, RlcBoundary, kCurrentSource, kVoltageSource kNexximGround,
+            kNexximPort, kDcTerminal, kVoltageProbe
         """
         return self._edb_object.GetBoundaryType().ToString()
 
     @boundary_type.setter
     def boundary_type(self, value):
-        if not value in [i.name for i in BoundaryType]:  # pragma : no cover
-            self._pedb.logger.warning("Invalid Boundary Type={}".format(value))
-        if value == self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe.ToString():
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe
-        else:  # pragma : no cover
-            temp = self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary
-        self._edb_object.SetBoundaryType(temp)
+        self._edb_object.SetBoundaryType(self._boundary_type_mapping[value])
 
     @property
     def impedance(self):

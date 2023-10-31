@@ -151,19 +151,6 @@ class DielectricExtentType(Enum):
     Polygon = 3
 
 
-class BoundaryType(Enum):
-    InvalidBoundary = -1
-    PortBoundary = 0
-    PecBoundary = 1
-    RlcBoundary = 2
-    kCurrentSource = 3
-    kVoltageSource = 4
-    kNexximGround = 5
-    kNexximPort = 6
-    kDcTerminal = 7
-    kVoltageProbe = 8
-
-
 class TerminalType(Enum):
     InvalidTerminal = -1
     EdgeTerminal = 0
