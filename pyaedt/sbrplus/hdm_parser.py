@@ -46,7 +46,7 @@ class Parser:
         return self._parse(self.message["type"])
 
     def _parse(self, type_name):
-        """Generic parser method, dispatches to specialized ones."""
+        """Use a generic parser method, which dispatches to appropriate and specialized parsers."""
         if self.parser_types[type_name]["type"] == "object":
             return self._parse_object(type_name)
         elif self.parser_types[type_name]["type"] == "internal":
