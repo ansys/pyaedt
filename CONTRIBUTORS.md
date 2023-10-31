@@ -16,4 +16,5 @@
 * [Lorenzo Vecchietti](https://github.com/lorenzovecchietti)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [Sébastien Morais](https://github.com/SMoraisAnsys)
-
+* [Matthew Young](https://github.com/myoung301)
+* [Josh Salant](https://github.com/jsalant22)
