@@ -85,19 +85,14 @@ class ComponentArray(object):
             self.export_array_info(array_path=None)
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
 
-        self.components = None
-
-        self._component_colors = None
+        self._cells = None
 
         # Each component should also has the list of cells
 
-        self.cells = []
         # self.cells[0][0] = {"component": x,
         #                     "rotation": False,
         #                     "active": True,
         #                     }
-
-        self.postprocessing_cell = {}
 
         # Methods
 
@@ -126,6 +121,39 @@ class ComponentArray(object):
            List of component names.
         """
         return self._array_props["component"]
+
+    @property
+    def cells(self):
+        """
+
+        Returns
+        -------
+        list
+           List of component names.
+        """
+        cells = [[None] * self.b_size] * self.a_size
+        row = 0
+        for row_cell in range(0, self.a_size):
+            col = 0
+            for col_cell in range(0, self.b_size):
+                component_index = self._array_props["cells"][row][col]
+                component_name = self.component_names[component_index - 1]
+                cells[row][col] = {"component": component_name, "rotation": False, "active": True}
+                col += 1
+            row += 1
+
+        return cells
+
+    @cells.setter
+    def cells(self, val):
+        """
+
+        Returns
+        -------
+        list
+           List of component names.
+        """
+        pass
 
     @property
     def name(self):
