@@ -366,7 +366,7 @@ class MatProperty(object):
     def value(self, val):
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
-            self.set_non_linear()
+            self._set_non_linear()
         elif isinstance(val, list) and self.type != "vector":
             if len(val) == 3:
                 self.type = "anisotropic"
@@ -825,8 +825,9 @@ class MatProperty(object):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def set_non_linear(self, x_unit=None, y_unit=None):
-        """Enable Non Linear Material.
+    def _set_non_linear(self, x_unit=None, y_unit=None):
+        """Enable non-linear material.
+         This is a private method, and should not be used directly.
 
         Parameters
         ----------
@@ -839,6 +840,17 @@ class MatProperty(object):
         -------
         bool
             `True` if succeeded.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2023.2")
+        >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
+        >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
+        >>> mat = hfss.materials.add_material("newMat")
+        >>> b_h_dataset = [[b, h] for b, h in zip(B_value, H_value)]
+        >>> mat.permeability = b_h_dataset
+
         """
         if self.name not in ["permeability", "conductivity", "permittivity"]:
             self.logger.error(
