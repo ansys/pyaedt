@@ -2206,6 +2206,52 @@ class Material(CommonMaterial, object):
         return self.update()
 
     @pyaedt_function_handler()
+    def set_electrical_steel_coreloss(self, kh=0, kc=0, ke=0, kdc=0, cut_depth="1mm"):
+        """Set Electrical Steel Core Loss.
+
+        Parameters
+        ----------
+        kh : float, optional
+            Hysteresis core loss coefficient.
+            The default value is ``0``.
+        kc : float, optional
+            Eddy-current core loss coefficient.
+            The default value is ``0``.
+        ke : float, optional
+            Excess core loss coefficient.
+            The default value is ``0``.
+        kdc : float, optional
+            Coefficient considering the DC flux bias effects.
+            The default value is ``0``.
+        cut_depth : str, optional
+            Equivalent Cut Depth considering manufacturing effects on core loss computation.
+            The default value is ``1mm``.
+
+        Returns
+        -------
+        bool
+        """
+        if "core_loss_type" not in self._props:
+            self._props["core_loss_type"] = OrderedDict(
+                {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
+            )
+        else:
+            self._props.pop("core_loss_cm", None)
+            self._props.pop("core_loss_x", None)
+            self._props.pop("core_loss_y", None)
+            self._props.pop("core_loss_hci", None)
+            self._props.pop("core_loss_br", None)
+            self._props.pop("core_loss_hkc", None)
+            self._props.pop("core_loss_curves", None)
+            self._props["core_loss_type"]["Choice"] = "Electrical Steel"
+        self._props["core_loss_kh"] = str(kh)
+        self._props["core_loss_kc"] = str(kc)
+        self._props["core_loss_ke"] = str(ke)
+        self._props["core_loss_kdc"] = str(kdc)
+        self._props["core_loss_equiv_cut_depth"] = cut_depth
+        return self.update()
+
+    @pyaedt_function_handler()
     def set_hysteresis_coreloss(self, kdc=0, hci=0, br=0, hkc=0, cut_depth=0.0001):
         """Set Hysteresis Type Core Loss.
 
