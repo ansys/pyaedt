@@ -88,7 +88,7 @@ class Parser:
         """
         Parser for vector or list. A vector is interpreted in the linear algebra sense
         and converted to a NumPy array. A list is converted to a Python list. Only simple base types can be
-        interpreted as a numpy array.
+        interpreted as a NumPy array.
         """
         assert base != None
         res = []
