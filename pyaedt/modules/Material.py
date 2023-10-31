@@ -2267,12 +2267,14 @@ class Material(CommonMaterial, object):
         return not self.is_conductor(threshold)
 
     @pyaedt_function_handler
-    def set_djordjevic_sarkar_model(self, dk=4,
-                                    df=0.02,
-                                    i_freq=1e9,
-                                    sigma_dc=1e-12,
-                                    freq_hi=159.15494e9,
-                                    ):
+    def set_djordjevic_sarkar_model(
+        self,
+        dk=4,
+        df=0.02,
+        i_freq=1e9,
+        sigma_dc=1e-12,
+        freq_hi=159.15494e9,
+    ):
         """Set Djordjevic-Sarkar model.
 
         Parameters
