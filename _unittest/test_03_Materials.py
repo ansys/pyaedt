@@ -237,3 +237,9 @@ class TestClass:
         assert self.aedtapp.materials["Aluminum"] == self.aedtapp.materials["aluminum"]
         assert self.aedtapp.materials["Aluminum"].name == "aluminum"
         assert self.aedtapp.materials.add_material("AluMinum") == self.aedtapp.materials["aluminum"]
+
+    def test_12_material_model(self):
+        mat = self.aedtapp.materials.add_material("ds_material")
+        self.aedtapp["$dk"] = 3
+        self.aedtapp["$df"] = 0.01
+        assert mat.set_djordjevic_sarkar_model(dk="$dk", df="$df")

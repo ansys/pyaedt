@@ -2266,6 +2266,47 @@ class Material(CommonMaterial, object):
         """
         return not self.is_conductor(threshold)
 
+    @pyaedt_function_handler
+    def set_djordjevic_sarkar_model(self, dk=4,
+                                    df=0.02,
+                                    i_freq=1e9,
+                                    sigma_dc=1e-12,
+                                    freq_hi=159.15494e9,
+                                    ):
+        """Set Djordjevic-Sarkar model.
+
+        Parameters
+        ----------
+        dk : int, float, str, optional
+            Dielectric constant at input frequency.
+        df : int, float, str, optional
+            Loss tangent at input frequency.
+        i_freq : int, float, optional.
+            Input frequency in Hz.
+        sigma_dc : int, float, optional
+            Conductivity at DC.
+        freq_hi : int, float, optional
+            High Frequency corner in Hz.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` otherwise.
+        """
+
+        K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
+        epsilon_inf = f"({dk} - {K} / 2 * ln({freq_hi}**2 / {i_freq}**2 + 1))"
+        freq_low = f"({freq_hi} / exp(10 * {df} * {epsilon_inf} / ({K})))"
+
+        ds_er = f"{epsilon_inf} + {K} / 2 * ln(({freq_hi}**2 + Freq**2) / ({freq_low}**2 + Freq**2))"
+        cond = f"{sigma_dc} + 2 * pi * Freq * e0 * ({K}) * (atan(Freq / ({freq_low})) - atan(Freq / {freq_hi}))"
+        ds_tande = f"{cond} / (e0 * {ds_er} * 2 * pi * Freq)"
+
+        self.conductivity = cond
+        self.permittivity = ds_er
+
+        return self.update()
+
     @pyaedt_function_handler()
     def update(self):
         """Update the material in AEDT.
