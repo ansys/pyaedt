@@ -63,7 +63,100 @@ class IcepakMesh(object):
         return self._app.omeshmodule
 
     class MeshRegion(object):
-        """Manages Icepak mesh region settings."""
+        """
+        Manages Icepak mesh region settings.
+
+        Attributes:
+            name : str
+                Name of the mesh region.
+            UserSpecifiedSettings : bool
+                Whether to use manual settings. Default is ``False``.
+            ComputeGap : bool
+                Whether to enable minimum gap override. Default is ``True``.
+            Level : int
+                Automatic mesh detail level. Default is 3.
+            MaxElementSizeX : str
+                Maximum element size along the X-axis. Default is 1/20 of the region
+                X-dimension.
+            MaxElementSizeY : str
+                Maximum element size along the Y-axis. Default is 1/20 of the region
+                Y-dimension.
+            MaxElementSizeZ : str
+                Maximum element size along the Z-axis. Default is 1/20 of the region
+                Z-dimension.
+            MinElementsInGap : str
+                Minimum number of elements in gaps between adjacent objects. Default is "3".
+            MinElementsOnEdge : str
+                Minimum number of elements on each edge of each object. Default is "2".
+            MaxSizeRatio : str
+                Maximum ratio of the sizes of adjacent elements. Default is "2".
+            NoOGrids : bool
+                Whether objects will have O-grids around them. Default is ``False``.
+            EnableMLM : bool
+                Enable Multi-Level Mesh (MLM). Default is ``True``.
+            EnforceMLMType : str
+                Type of MLM to use, ``"2D"`` or ``"3D"``. Default is ``"3D"``.
+            MaxLevels : str
+                Maximum number of refinement level for Multi-Level Mesh. Default is ``"0"``.
+            BufferLayers : str
+                Number of buffer layers between refinement level. Default is ``"0"``.
+            UniformMeshParametersType : str
+                Whether to create a creates a uniform mesh with the same mesh size in all
+                coordinate directions (``"Average"``) or different spacing in each
+                direction (``"XYZ Max Sizes"``). Default is ``"Average"``.
+            StairStepMeshing : bool
+                Whether to disable vertices projection step used to obtain conformal mesh.
+                Default is ``False``.
+            DMLMType : str
+                If ``EnforceMLMType`` is ``"2D"``, in which 2D plane mesh refinement is
+                constrained. Available options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
+                ``"2DMLM_XZ"`` or ``"2DMLM_XY"``. Default is ``"2DMLM_None"``
+                which means ``Auto``.
+            MinGapX : str
+                Minimum gap size along the X-axis. Default is ``"1"``.
+            MinGapY : str
+                Minimum gap size along the Y-axis. Default is ``"1"``.
+            MinGapZ : str
+                Minimum gap size along the Z-axis. Default is ``"1"``.
+            Objects : list
+                Objects to which meshing settings are applied.
+            SubModels : bool
+                SubModels to which meshing settings are applied.
+                Default is ``False``, so ``Objects`` attribute will be used.
+            Enable : bool
+                Enable mesh region. Default is ``True``.
+            ProximitySizeFunction : bool
+                Whether to use proximity-based size function. Default is ``True``.
+            CurvatureSizeFunction : bool
+                Whether to use curvature-based size function. Default is ``True``.
+            EnableTransition : bool
+                Whether to enable mesh transition. Default is ``False``.
+            OptimizePCBMesh : bool
+                Whether to optimize PCB mesh. Default is ``True``.
+            Enable2DCutCell : bool
+                Whether to enable 2D cut cell meshing. Default is ``False``.
+            EnforceCutCellMeshing : bool
+                Whether to enforce cut cell meshing. Default is ``False``.
+            Enforce2dot5DCutCell : bool
+                Whether to enforce 2.5D cut cell meshing. Default is ``False``.
+            SlackMinX : str
+                Slack along the negative X-axis. Default is ``"0mm"``.
+            SlackMinY : str
+                Slack along the negative Y-axis. Default is ``"0mm"``.
+            SlackMinZ : str
+                Slack along the negative Z-axis. Default is ``"0mm"``.
+            SlackMaxX : str
+                Slack along the positive X-axis. Default is ``"0mm"``.
+            SlackMaxY : str
+                Slack along the positive Y-axis. Default is ``"0mm"``.
+            SlackMaxZ : str
+                Slack along the positive Z-axis. Default is ``"0mm"``.
+            CoordCS : str
+                Coordinate system of the mesh region. Default is ``"Global"``.
+            virtual_region: bool
+                Whether to use virtual region. In order to use it, Icepak version must be 22R2 or
+                newer and the corresponding beta feature must be enabled.
+        """
 
         def __init__(self, meshmodule, dimension, units, app, name=None):
             if name is None:
@@ -187,7 +280,7 @@ class IcepakMesh(object):
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
-            else:
+            if self.Objects:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
             arg.extend(self._new_versions_fields)
@@ -242,7 +335,7 @@ class IcepakMesh(object):
             if self.SubModels:
                 arg.append("SubModels:=")
                 arg.append(self.SubModels)
-            else:
+            if self.Objects:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
             arg.extend(self._new_versions_fields)
@@ -669,12 +762,23 @@ class IcepakMesh(object):
         except Exception:  # pragma : no cover
             created = False
         if created:
-            objectlist2 = self.modeler.object_names
-            added_obj = [i for i in objectlist2 if i not in all_objs]
-            if not added_obj:
-                added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
-            meshregion.Objects = added_obj
-            meshregion.SubModels = None
+            if virtual_region and self._app.check_beta_option_enabled(
+                "S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"
+            ):  # pragma : no cover
+                if is_submodel:
+                    meshregion.Objects = [i for i in objectlist if i in all_objs]
+                    meshregion.SubModels = [i for i in objectlist if i not in all_objs]
+                else:
+                    meshregion.Objects = objectlist
+                    meshregion.SubModels = None
+            else:
+                objectlist2 = self.modeler.object_names
+                added_obj = [i for i in objectlist2 if i not in all_objs]
+                if not added_obj:
+                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+                meshregion.Objects = added_obj
+                meshregion.SubModels = None
+
             meshregion.update()
             return meshregion
         else:

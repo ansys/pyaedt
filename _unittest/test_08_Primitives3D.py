@@ -681,6 +681,8 @@ class TestClass:
         assert o.edges[0].fillet()
         self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
+        r = self.create_rectangle(name="MyRect")
+        assert not r.edges[0].fillet()
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
@@ -1768,7 +1770,7 @@ class TestClass:
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
         assert isinstance(comp, UserDefinedComponent)
-        assert len(self.aedtapp.modeler.modeler.user_defined_components[comp.name].parts) == 3
+        assert len(self.aedtapp.modeler.user_defined_components[comp.name].parts) == 3
         comp2 = self.aedtapp.modeler.insert_layout_component(
             self.layout_component, name="new_layout", parameter_mapping=True
         )

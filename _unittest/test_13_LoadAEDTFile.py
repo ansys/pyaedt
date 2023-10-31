@@ -171,3 +171,46 @@ class TestClass:
         assert newmat.youngs_modulus.value == "195000000000"
         assert newmat.poissons_ratio.value == "0.3"
         assert newmat.thermal_expansion_coefficient.value == "1.08e-05"
+
+    def test_09_3dcomponents_array(self):
+        array_file = os.path.join(local_path, "example_models", test_subfolder, "phased_array.aedt")
+        dd = load_entire_aedt_file(array_file)
+        dd_array = dd["AnsoftProject"]["HFSSModel"]["ArrayDefinition"]["ArrayObject"]
+        cells = [
+            [3, 4, 4, 4, 4, 4, 4, 3],
+            [4, 2, 2, 2, 2, 2, 2, 4],
+            [4, 2, 1, 1, 1, 1, 2, 4],
+            [4, 2, 1, 1, 1, 1, 2, 4],
+            [4, 2, 1, 3, 1, 1, 2, 4],
+            [4, 2, 1, 1, 1, 1, 2, 4],
+            [4, 2, 2, 2, 2, 2, 2, 4],
+        ]
+        active = [
+            [True, True, True, True, True, True, False, False],
+            [True, True, True, True, True, True, True, False],
+            [True, True, False, False, False, False, True, False],
+            [False, True, False, False, False, False, True, False],
+            [False, True, True, True, True, True, True, False],
+            [False, False, False, True, True, True, False, False],
+            [False, False, False, False, False, False, False, False],
+        ]
+        rotation = [
+            [90, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [0, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+            [270, 0, 0, 0, 0, 0, 0, 90],
+        ]
+        onecell = {5: [3, 5], 84: [3, 2], 190: [1, 1], 258: [4, 1]}
+        assert dd_array["Cells"]["rows"] == 7
+        assert dd_array["Cells"]["columns"] == 8
+        assert dd_array["Cells"]["matrix"] == cells
+        assert dd_array["Active"]["rows"] == 7
+        assert dd_array["Active"]["columns"] == 8
+        assert dd_array["Active"]["matrix"] == active
+        assert dd_array["Rotation"]["rows"] == 7
+        assert dd_array["Rotation"]["columns"] == 8
+        assert dd_array["Rotation"]["matrix"] == rotation
+        assert dd_array["PostProcessingCells"] == onecell

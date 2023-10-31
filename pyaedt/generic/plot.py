@@ -1320,7 +1320,12 @@ class ModelPlotter(CommonPlotter):
                 obj_to_iterate.append(i)
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
-                if ".aedtplt" in field.path:
+                if ".case" in field.path:
+                    reader = pv.get_reader(os.path.abspath(field.path)).read()
+                    field._cached_polydata = reader[reader.keys()[0]].extract_surface()
+                    field.label = field._cached_polydata.point_data.active_scalars_name
+
+                elif ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
                     if self.convert_fields_in_db:
                         scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
@@ -1574,6 +1579,8 @@ class ModelPlotter(CommonPlotter):
                     cmap=field.color_map,
                     opacity=field.opacity,
                     show_edges=field.show_edge,
+                    smooth_shading=True,
+                    split_sharp_edges=True,
                 )
 
         self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
@@ -1584,12 +1591,12 @@ class ModelPlotter(CommonPlotter):
         if self.show_axes:
             self.pv.show_axes()
         if not self.is_notebook and self.show_grid:
-            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.3e")
+            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.2e")
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
-        self.pv.set_focus(self.pv.mesh.center)
 
         if not self.isometric_view:
+            self.pv.set_focus(self.pv.mesh.center)
             if isinstance(self.camera_position, (tuple, list)):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
@@ -1695,19 +1702,7 @@ class ModelPlotter(CommonPlotter):
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
-        if not self.isometric_view:
-            if isinstance(self.camera_position, (tuple, list)):
-                self.pv.camera.position = self.camera_position
-                self.pv.camera.focal_point = self.focal_point
-                self.pv.camera.up = self.view_up
-            else:
-                self.pv.camera_position = self.camera_position
-            self.pv.camera.azimuth += self.azimuth_angle
-            self.pv.camera.roll += self.roll_angle
-            self.pv.camera.elevation += self.elevation_angle
-        else:
-            self.pv.isometric_view()
-        self.pv.zoom = self.zoom
+
         self._animating = True
 
         if self.gif_file:
@@ -1754,11 +1749,6 @@ class ModelPlotter(CommonPlotter):
                 cmap=field.color_map,
                 opacity=field.opacity,
             )
-        # run until q is pressed
-        if self.pv.mesh:
-            self.pv.set_focus(self.pv.mesh.center)
-
-        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
         if self.range_min is not None and self.range_max is not None:
             mins = self.range_min
@@ -1785,6 +1775,24 @@ class ModelPlotter(CommonPlotter):
             name="FieldPlot",
             opacity=self.frames[0].opacity,
         )
+        # run until q is pressed
+        if self.pv.mesh:
+            self.pv.set_focus(self.pv.mesh.center)
+        if not self.isometric_view:
+            if isinstance(self.camera_position, (tuple, list)):
+                self.pv.camera.position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
+                self.pv.camera.up = self.view_up
+            else:
+                self.pv.camera_position = self.camera_position
+            self.pv.camera.azimuth += self.azimuth_angle
+            self.pv.camera.roll += self.roll_angle
+            self.pv.camera.elevation += self.elevation_angle
+        else:
+            self.pv.isometric_view()
+        self.pv.camera.zoom(self.zoom)
+        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+
         start = time.time()
         try:
             self.pv.update(1, force_redraw=True)

@@ -48,7 +48,10 @@ def main():
             check_file(python_exe)
             check_file(pyaedt_script)
             os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
-            os.environ["PYAEDT_SCRIPT_VERSION"] = str(oDesktop.GetVersion()[:6])
+            version = str(oDesktop.GetVersion()[:6])
+            os.environ["PYAEDT_SCRIPT_VERSION"] = version
+            if version > "2022.2":
+                os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
             if is_linux:
                 edt_root = os.path.normpath(oDesktop.GetExeDir())
                 os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root

@@ -10,12 +10,11 @@ from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Modeler3D(GeometryModeler, Primitives3D, object):
+class Modeler3D(Primitives3D):
 
     """Provides the Modeler 3D application interface.
 
@@ -35,8 +34,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
     def __init__(self, application):
         application.logger.reset_timer()
-        GeometryModeler.__init__(self, application, is3d=True)
-        Primitives3D.__init__(self)
+        Primitives3D.__init__(self, application)
         application.logger.info_timer("Modeler3D class has been initialized!")
 
     def __get__(self, instance, owner):
@@ -211,9 +209,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if object_list:
             objs = object_list
         else:
-            native_objs = [
-                obj.name for _, v in self.modeler.user_defined_components.items() for _, obj in v.parts.items()
-            ]
+            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if not native_components and native_objs:
                 self.logger.warning(
@@ -296,7 +292,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
-                        mesh_comp.append(self.modeler.objects[item].name)
+                        mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
@@ -441,9 +437,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if object_list:
             objs = object_list
         else:
-            native_objs = [
-                obj.name for _, v in self.modeler.user_defined_components.items() for _, obj in v.parts.items()
-            ]
+            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if native_objs:
                 self.logger.warning(
@@ -525,7 +519,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
-                        mesh_comp.append(self.modeler.objects[item].name)
+                        mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
@@ -1339,7 +1333,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 segmentation_thickness = obj_axial_length / segments_number
             elif segmentation_thickness:
                 segments_number = round(obj_axial_length / segmentation_thickness)
-            face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
+            face_object = self.create_object_from_face(obj.bottom_face_z)
             # segment sheets
             segment_sheets[obj.name] = face_object.duplicate_along_line(
                 ["0", "0", segmentation_thickness], segments_number
@@ -1427,7 +1421,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 self.logger.error("{} does not exist.".format(region))
                 return False
             create_region_name = region.GetChildNames()[0]
-            self.modeler.oeditor.ChangeProperty(
+            self.oeditor.ChangeProperty(
                 list(
                     [
                         "NAME:AllTabs",

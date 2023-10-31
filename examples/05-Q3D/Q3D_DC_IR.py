@@ -158,11 +158,11 @@ q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
 # Use previously calculated positions to identify faces,
 # select the net "1_Top" and
 # assign sources and sinks on nets.
-
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
 source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
 source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
 source_f3= q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
+sources_objs = [source_f1, source_f2, source_f3]
 q3d.auto_identify_nets()
 
 identified_net = q3d.nets[0]
@@ -173,9 +173,11 @@ source1 = q3d.source(source_f1, net_name=identified_net)
 
 source2 = q3d.source(source_f2, net_name=identified_net)
 source3 = q3d.source(source_f3, net_name=identified_net)
+sources_bounds = [source1, source2, source3]
 
-q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "1.0A",
-                       "{}:{}".format(source2.props["Net"], source2.name): "1.0A"})
+q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "-1.0A",
+                       "{}:{}".format(source2.props["Net"], source2.name): "-1.0A",
+                       "{}:{}".format(source2.props["Net"], source3.name): "-1.0A"})
 
 ###############################################################################
 # Create setup
@@ -192,12 +194,26 @@ setup.props["DC"]["Cond"]["MaxPass"]=3
 setup.analyze()
 
 ###############################################################################
+# Field Calculator
+# ~~~~~~~~~~~~~~~~
+# We will create a named expression using field calculator.
+
+drop_name = "Vdrop3_3"
+fields = q3d.ofieldsreporter
+q3d.ofieldsreporter.CalcStack("clear")
+q3d.ofieldsreporter.EnterQty("Phidc")
+q3d.ofieldsreporter.EnterScalar(3.3)
+q3d.ofieldsreporter.CalcOp("+")
+q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
+
+###############################################################################
 # Phi plot
 # ~~~~~~~~
 # Compute ACL solutions and plot them.
 
-plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"), "Phidc",
+plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"), quantityName=drop_name,
                                           intrinsincDict={"Freq": "1GHz"})
+
 q3d.post.plot_field_from_fieldplot(
     plot1.name,
     project_path=q3d.working_directory,
@@ -208,6 +224,36 @@ q3d.post.plot_field_from_fieldplot(
     plot_cad_objs=False,
     log_scale=False,
 )
+
+
+###############################################################################
+# Computing Voltage on Source Circles
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Using Field Calculator we can compute the voltage on source circles and get the value
+# using get_solution_data method.
+
+curves = []
+for source_circle, source_bound in zip(sources_objs, sources_bounds):
+    source_sheet_name = source_circle.name
+
+    curves.append("V{}".format(source_bound.name))
+
+    q3d.ofieldsreporter.CalcStack("clear")
+    q3d.ofieldsreporter.CopyNamedExprToStack(drop_name)
+    q3d.ofieldsreporter.EnterSurf(source_sheet_name)
+    q3d.ofieldsreporter.CalcOp("Maximum")
+    q3d.ofieldsreporter.AddNamedExpression("V{}".format(source_bound.name), "DC R/L Fields")
+
+
+data = q3d.post.get_solution_data(
+            curves,
+            q3d.nominal_adaptive,
+            variations={"Freq": "1GHz"},
+            report_category="DC R/L Fields",
+        )
+for curve in curves:
+    print(data.data_real(curve))
+
 
 ###############################################################################
 # Close AEDT
