@@ -2,11 +2,11 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import os
+import re
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import read_csv
-from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
 
 class ComponentArrayProps(OrderedDict):
@@ -77,19 +77,13 @@ class ComponentArray(object):
 
         # Data that can not be obtained from CSV
 
-        self._cs_id = props["ReferenceCSID"]
+        self._cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
 
         self._array_info_path = None
-        self._array_props = None
+
         if self._app.settings.aedt_version > "2023.2":
             self.export_array_info(array_path=None)
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
-
-        if self._array_info_path and os.path.exists(self._array_info_path):
-            self._array_props = self.array_info_parser(self._array_info_path)
-
-        # Everything inside components ?
-        self._component_names = None
 
         self.components = None
 
@@ -112,6 +106,28 @@ class ComponentArray(object):
         # GetLatticeVector
 
     @property
+    def _array_props(self):
+        """Name of the object.
+
+        Returns
+        -------
+        str
+           Name of the array.
+        """
+        return self.get_array_props()
+
+    @property
+    def component_names(self):
+        """List of component names.
+
+        Returns
+        -------
+        list
+           List of component names.
+        """
+        return self._array_props["component"]
+
+    @property
     def name(self):
         """Name of the object.
 
@@ -126,14 +142,13 @@ class ComponentArray(object):
     def name(self, array_name):
         if array_name not in self._app.component_array_names:
             if array_name != self._m_name:
-                if self._app.settings.aedt_version < "2024.2":
-                    self._logger.warning("Array rename it is not possible on this AEDT version.")
-                else:  # pragma: no cover
-                    self._oarray.SetPropValue("Name", array_name)
-                    # self._change_array_property("Name", array_name)
-                    self._app.component_array.update({array_name: self})
-                    self._app.component_array_names = list(self._app.omodelsetup.GetArrayNames())
-                    self._m_name = array_name
+                self._oarray.SetPropValue("Name", array_name)
+                self._app.component_array.update({array_name: self})
+                self._app.component_array_names = list(self._app.omodelsetup.GetArrayNames())
+                self._m_name = array_name
+                # if self._app.settings.aedt_version < "2024.2":
+                #     self._logger.warning("Array rename it is not possible on this AEDT version.")
+                # else:  # pragma: no cover
         else:  # pragma: no cover
             self._logger.warning("Name %s already assigned in the design", array_name)
 
@@ -195,6 +210,22 @@ class ComponentArray(object):
             self._logger.warning("Render value not available")
         else:
             self._oarray.SetPropValue("Render", val)
+
+    def _render_id(self):
+        """Array rendering index.
+
+        Returns
+        -------
+        int
+           Rendering ID.
+        """
+        render_choices = self.render_choices
+        rendex_index = 0
+        for choice in render_choices:
+            if self.render == choice:
+                return rendex_index
+            rendex_index += 1
+        return rendex_index
 
     @property
     def a_vector_choices(self):
@@ -324,6 +355,7 @@ class ComponentArray(object):
             self._logger.warning("Coordinate system is not loaded, please save the project.")
         else:
             self._cs_id = cs_dict[name]
+            self.edit_array()
 
     @pyaedt_function_handler()
     def delete(self):
@@ -353,6 +385,16 @@ class ComponentArray(object):
             array_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
         self._app.omodelsetup.ExportArray(self.name, array_path)
         return True
+
+    @pyaedt_function_handler()
+    def get_array_props(self):
+        """ """
+        # From 2024R1, array information can be loaded from a CSV
+        if self._array_info_path and os.path.exists(self._array_info_path):
+            array_props = self.array_info_parser(self._array_info_path)
+        else:
+            array_props = self._get_array_info_from_aedt()
+        return array_props
 
     @pyaedt_function_handler()
     def array_info_parser(self, array_path):
@@ -389,50 +431,192 @@ class ComponentArray(object):
             if el == start_str:
                 capture_data = True
             line_cont += 1
-        array_info["components"] = components
 
         # Array matrix
         start_str = ["Array", "Format: Component_index:Rotation_angle:Active_or_Passive"]
         capture_data = False
-        row = []
+
         for el in info[line_cont + 1 :]:
-            if el == end_str:
-                break
             if capture_data:
+                el = el[:-1]
                 component_index = []
                 rotation = []
                 active_passive = []
 
-                for element in el:
-                    split_elements = element.split(":")
+                for row in el:
+                    split_elements = row.split(":")
 
                     # Check for non-empty strings
                     if split_elements[0]:
                         component_index.append(int(split_elements[0]))
+                    else:
+                        component_index.append(-1)
 
                     # Some elements might not have the rotation and active/passive status, so we check for their
                     # existence
-                    if len(split_elements) > 1:
-                        rot = go.parse_dim_arg(split_elements[1])
-                        rotation.append(int(rot))
-                    else:
-                        rotation.append(0)
-
-                    if len(split_elements) > 2:
-                        if split_elements[2] == 0:
-                            active_passive.append(True)
+                    if split_elements[0] and len(split_elements) > 1:
+                        string_part = re.findall("[a-zA-Z]+", split_elements[1])
+                        if string_part and string_part[0] == "deg":
+                            rot = re.findall(r"[+-]?\d+\.\d+", split_elements[1])
+                            rotation.append(int(float(rot[0])))
+                            if len(split_elements) > 2:
+                                if split_elements[2] == "0":
+                                    active_passive.append(False)
+                                else:
+                                    active_passive.append(True)
+                            else:
+                                active_passive.append(True)
                         else:
                             active_passive.append(False)
-                    else:
+                            rotation.append(0)
+                    elif split_elements[0]:
                         active_passive.append(True)
+                        rotation.append(0)
+                    else:
+                        active_passive.append(False)
+                        rotation.append(0)
 
                 array_matrix.append(component_index)
                 array_matrix_rotation.append(rotation)
                 array_matrix_active.append(active_passive)
-
             if el == start_str:
                 capture_data = True
+
+        array_info["component"] = components
+        array_info["active"] = array_matrix_active
+        array_info["rotation"] = array_matrix_rotation
+        array_info["cells"] = array_matrix
+        return array_info
+
+    @pyaedt_function_handler()
+    def edit_array(self):
+        """
+
+        References
+        ----------
+
+        >>> oModule.EditArray
+
+        """
+        args = [
+            "NAME:" + self.name,
+            "Name:=",
+            self.name,
+            "UseAirObjects:=",
+            True,
+            "RowPrimaryBnd:=",
+            self.a_vector_name,
+            "ColumnPrimaryBnd:=",
+            self.b_vector_name,
+            "RowDimension:=",
+            self.a_size,
+            "ColumnDimension:=",
+            self.b_size,
+            "Visible:=",
+            self.visible,
+            "ShowCellNumber:=",
+            self.show_cell_number,
+            "RenderType:=",
+            self._render_id(),
+            "Padding:=",
+            self.padding_cells,
+            "ReferenceCSID:=",
+            self._cs_id,
+        ]
+
+        cells = ["NAME:Cells"]
+        component_info = {}
+        row = 1
+        for row_info in self._array_props["cells"]:
+            col = 1
+            for col_info in row_info:
+                name = self._array_props["component"][col_info - 1]
+                if name not in component_info.keys():
+                    component_info[name] = [[row, col]]
+                else:
+                    component_info[name].append([row, col])
+                col += 1
+            row += 1
+
+        for component_name, component_cells in component_info.items():
+            cells.append(component_name + ":=")
+            component_cells_str = [str(item) for item in component_cells]
+            component_cells_str = ", ".join(component_cells_str)
+            cells.append([component_cells_str])
+
+        rotations = ["NAME:Rotation"]
+        component_rotation = {}
+        row = 1
+        for row_info in self._array_props["rotation"]:
+            col = 1
+            for col_info in row_info:
+                if float(col_info) != 0.0:
+                    if col_info not in component_rotation.keys():
+                        component_rotation[col_info] = [[row, col]]
+                    else:
+                        component_rotation[col_info].append([row, col])
+                col += 1
+            row += 1
+
+        for rotation, rotation_cells in component_rotation.items():
+            rotations.append(str(rotation) + " deg:=")
+            component_cells_str = [str(item) for item in rotation_cells]
+            component_cells_str = ", ".join(component_cells_str)
+            rotations.append([component_cells_str])
+
+        args.append(cells)
+        args.append(rotations)
+
+        args.append("Active:=")
+
+        component_active = []
+        row = 1
+        for row_info in self._array_props["active"]:
+            col = 1
+            for col_info in row_info:
+                if col_info:
+                    component_active.append([row, col])
+                col += 1
+            row += 1
+
+        if component_active:
+            component_active_str = [str(item) for item in component_active]
+            args.append(", ".join(component_active_str))
+        else:
+            args.append("All")
+
+        post = ["NAME:PostProcessingCells"]
+        args.append(post)
+        args.append("Colors:=")
+        col = []
+        args.append(col)
+        self._app.omodelsetup.EditArray(args)
+
         return True
+
+    @pyaedt_function_handler()
+    def _get_array_info_from_aedt(self):
+        props = self._app.design_properties
+        component_id = {}
+        user_defined_models = (props)["ModelSetup"]["GeometryCore"]["GeometryOperations"]["UserDefinedModels"][
+            "UserDefinedModel"
+        ]
+        for component_defined in user_defined_models:
+            component_id[component_defined["ID"]] = component_defined["Attributes"]["Name"]
+
+        components_map = props["ArrayDefinition"]["ArrayObject"]["ComponentMap"]
+        components = [None] * len(components_map)
+        for comp in props["ArrayDefinition"]["ArrayObject"]["ComponentMap"]:
+            key, value = comp.split("=")
+            key = int(key.strip("'"))
+            value = int(value)
+            components[key - 1] = component_id[value]
+        array_props = OrderedDict()
+        array_props["component"] = components
+        array_props["active"] = props["ArrayDefinition"]["ArrayObject"]["Active"]["matrix"]
+        array_props["rotation"] = props["ArrayDefinition"]["ArrayObject"]["Rotation"]["matrix"]
+        array_props["cells"] = props["ArrayDefinition"]["ArrayObject"]["Cells"]["matrix"]
+        return array_props
 
     @pyaedt_function_handler()
     def _get_coordinate_system_id(self):
