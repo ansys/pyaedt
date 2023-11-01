@@ -3758,10 +3758,7 @@ class Edb(Database):
         return self.sources[term.name]
 
     @pyaedt_function_handler
-    def get_point_terminal(self, name, net_name,
-        location,
-        layer
-        ):
+    def get_point_terminal(self, name, net_name, location, layer):
         """Place a voltage probe between two points.
 
         Parameters
