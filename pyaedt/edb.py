@@ -3667,7 +3667,7 @@ class Edb(Database):
 
         return self.ports[term.name]
 
-    def create_voltage_probe(self, terminal, ref_terminal=None):
+    def create_voltage_probe(self, terminal, ref_terminal):
         """Create a voltage probe.
 
         Parameters
@@ -3681,8 +3681,7 @@ class Edb(Database):
                    class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
                    class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
-                   optional
-            Negative terminal of the port.
+            Negative terminal of the probe.
 
         Returns
         -------
@@ -3696,3 +3695,61 @@ class Edb(Database):
 
         term.ref_terminal = ref_terminal
         return self.probes[term.name]
+
+    def create_voltage_source(self, terminal, ref_terminal):
+        """Create a voltage source.
+
+        Parameters
+        ----------
+        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
+        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Negative terminal of the source.
+
+        Returns
+        -------
+
+        """
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "kVoltageSource"
+
+        ref_term = Terminal(self, ref_terminal._edb_object)
+        ref_term.boundary_type = "kVoltageProbe"
+
+        term.ref_terminal = ref_terminal
+        return self.sources[term.name]
+
+    def create_current_source(self, terminal, ref_terminal):
+        """Create a current source.
+
+        Parameters
+        ----------
+        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
+        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Negative terminal of the source.
+
+        Returns
+        -------
+
+        """
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "kCurrentSource"
+
+        ref_term = Terminal(self, ref_terminal._edb_object)
+        ref_term.boundary_type = "kCurrentSource"
+
+        term.ref_terminal = ref_terminal
+        return self.sources[term.name]
