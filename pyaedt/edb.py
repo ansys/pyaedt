@@ -3667,6 +3667,7 @@ class Edb(Database):
 
         return self.ports[terminal.name]
 
+    @pyaedt_function_handler
     def create_voltage_probe(self, terminal, ref_terminal):
         """Create a voltage probe.
 
@@ -3696,6 +3697,7 @@ class Edb(Database):
         term.ref_terminal = ref_terminal
         return self.probes[term.name]
 
+    @pyaedt_function_handler
     def create_voltage_source(self, terminal, ref_terminal):
         """Create a voltage source.
 
@@ -3725,6 +3727,7 @@ class Edb(Database):
         term.ref_terminal = ref_terminal
         return self.sources[term.name]
 
+    @pyaedt_function_handler
     def create_current_source(self, terminal, ref_terminal):
         """Create a current source.
 
@@ -3753,3 +3756,26 @@ class Edb(Database):
 
         term.ref_terminal = ref_terminal
         return self.sources[term.name]
+
+    @pyaedt_function_handler
+    def get_point_terminal(self, name, net_name,
+        location,
+        layer
+        ):
+        """Place a voltage probe between two points.
+
+        Parameters
+        ----------
+        name : str,
+            Name of the terminal.
+        net_name : str
+            Name of the net.
+        location : list
+            Location of the terminal.
+        layer : str,
+            Layer of the terminal.
+        """
+        from pyaedt.edb_core.edb_data.terminals import PointTerminal
+
+        point_terminal = PointTerminal(self)
+        return point_terminal.create(name, net_name, location, layer)

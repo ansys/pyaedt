@@ -1417,9 +1417,8 @@ class EdbSiwave(object):
         negative_layer : str
             Layer of the negative terminal.
         """
-        from pyaedt.edb_core.edb_data.terminals import PointTerminal
 
-        point_terminal = PointTerminal(self._pedb)
-        p_terminal = point_terminal.create(name, positive_net_name, positive_location, positive_layer)
-        n_terminal = point_terminal.create(name + "_ref", negative_net_name, negative_location, negative_layer)
+
+        p_terminal = self._pedb.get_point_terminal(name, positive_net_name, positive_location, positive_layer)
+        n_terminal = self._pedb.get_point_terminal(name + "_ref", negative_net_name, negative_location, negative_layer)
         return self._pedb.create_voltage_probe(p_terminal, n_terminal)
