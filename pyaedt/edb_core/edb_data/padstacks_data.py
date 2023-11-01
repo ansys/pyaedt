@@ -1006,6 +1006,7 @@ class EDBPadstackInstance(EDBPrimitivesMain):
             term = self._create_terminal(name)
         else:
             from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
             term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
         if not term.is_null:
             return term
