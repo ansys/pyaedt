@@ -3324,15 +3324,16 @@ class Edb(Database):
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
 
         """
+        setups = {}
         for i in list(self.active_cell.SimulationSetups):
             if i.GetName() not in self._setups:
                 if i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kHFSS:
-                    self._setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
+                    setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
                 elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWave:
-                    self._setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
+                    setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
                 elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWaveDCIR:
-                    self._setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
-        return self._setups
+                    setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
+        return setups
 
     @property
     def hfss_setups(self):
@@ -3414,11 +3415,11 @@ class Edb(Database):
             name = generate_unique_name("Siwave_SYZ")
         if name in self.setups:
             return False
-        setup = SiwaveSYZSimulationSetup(self, name)
-        setup.si_slider_postion = 1
-        setup.pi_slider_postion = 1
-        self._setups[name] = setup
-        return setup
+        setup_info = SiwaveSYZSimulationSetup(self).create(name)
+        setup = self.edb_api.utility.utility.SIWaveSimulationSetup(setup_info._edb_object)
+        self.layout.cell.AddSimulationSetup(setup)
+        print(self.setups)
+        return setup_info
 
     @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):

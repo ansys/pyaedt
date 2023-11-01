@@ -4,6 +4,7 @@ from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.edb_core.edb_data.sim_setup_info import SimSetupInfo
 
 
 class SiwaveAdvancedSettings(object):
@@ -13,7 +14,7 @@ class SiwaveAdvancedSettings(object):
     @property
     def sim_setup_info(self):
         """EDB internal simulation setup object."""
-        return self._parent._edb_sim_setup_info
+        return self._parent._edb_object
 
     @property
     def include_inter_plane_coupling(self):
@@ -365,7 +366,7 @@ class SiwaveDCAdvancedSettings(object):
     def sim_setup_info(self):
         """EDB internal simulation setup object."""
 
-        return self._parent._edb_sim_setup_info
+        return self._parent._edb_object
 
     @property
     def min_void_area(self):
@@ -684,34 +685,33 @@ class SiwaveDCAdvancedSettings(object):
         self._parent._update_setup()
 
 
-class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
+class SiwaveSYZSimulationSetup(SimSetupInfo, SiwaveAdvancedSettings):
     """Manages EDB methods for HFSS simulation setup."""
 
-    def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
-        self._edb = edb
-        self._sweep_data_list = {}
-        self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-            self._edb.simsetupdata.SIwave.SIWSimulationSettings
-        ]()
-        if edb_siwave_sim_setup:
-            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
-        else:
-            if not name:
-                self._edb_sim_setup_info.Name = generate_unique_name("siwave")
-            else:
-                self._edb_sim_setup_info.Name = name
-            self._update_setup()
-        self.setup_type = "kSIWave"
+    def __init__(self, pedb, edb_object=None):
+        super().__init__(pedb, edb_object)
+        self._edb = self._pedb
+        #self._sweep_data_list = {}
+
+        if edb_object:
+            _get_edb_setup_info(edb_object, self._edb_object)
+
         SiwaveAdvancedSettings.__init__(self, self)
 
-    @property
-    def edb_sim_setup_info(self):
-        """EDB internal simulation setup object."""
-        return self._edb_sim_setup_info
+    @pyaedt_function_handler()
+    def create(self, name=None):
+        edb_object = self._edb.simsetupdata.SimSetupInfo[self._edb.simsetupdata.SIwave.SIWSimulationSettings]()
+        setup_info = SiwaveSYZSimulationSetup(self._pedb, edb_object)
+        if not name:
+            self._name = generate_unique_name(name)
+        setup_info.name = self._name
+        setup_info.si_slider_postion = 1
+        setup_info.pi_slider_postion = 1
+        return setup_info
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        self._edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveSimulationSetup(self._edb_object)
         if self.name in self._edb.setups:
             self._edb.layout.cell.DeleteSimulationSetup(self.name)
         self._edb.layout.cell.AddSimulationSetup(self._edb_sim_setup)
@@ -728,43 +728,19 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         return SiwaveDCAdvancedSettings(self)
 
     @property
-    def frequency_sweeps(self):
-        """Get frequency sweep list."""
-        if self._sweep_data_list:
-            return self._sweep_data_list
-        self._sweep_data_list = {}
-        for i in list(self._edb_sim_setup_info.SweepDataList):
-            self._sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
-        return self._sweep_data_list
-
-    @property
-    def name(self):
-        """Setup name."""
-        return self._edb_sim_setup_info.Name
-
-    @name.setter
-    def name(self, value):
-        """Set name of the setup."""
-        legacy_name = self._edb_sim_setup_info.Name
-        self._edb_sim_setup_info.Name = value
-        self._update_setup()
-        if legacy_name in self._edb.setups:
-            del self._edb._setups[legacy_name]
-
-    @property
     def enabled(self):
         """Whether the setup is enabled."""
-        return self._edb_sim_setup_info.SimulationSettings.Enabled
+        return self._edb_object.SimulationSettings.Enabled
 
     @enabled.setter
     def enabled(self, value):
-        self._edb_sim_setup_info.SimulationSettings.Enabled = value
+        self._edb_object.SimulationSettings.Enabled = value
         self._update_setup()
 
     @property
     def pi_slider_postion(self):
         """PI solider position. Values are from ``1`` to ``3``."""
-        return self._edb_sim_setup_info.SimulationSettings.PISliderPos
+        return self._edb_object.SimulationSettings.PISliderPos
 
     @pi_slider_postion.setter
     def pi_slider_postion(self, value):
@@ -789,14 +765,14 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self.include_fringe_coupling = True
             self.include_trace_coupling = True
             self.max_coupled_lines = 40
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
-        self._edb_sim_setup_info.SimulationSettings.PISliderPos = value
+        self._edb_object.SimulationSettings.UseCustomSettings = False
+        self._edb_object.SimulationSettings.PISliderPos = value
         self._update_setup()
 
     @property
     def si_slider_postion(self):
         """SI solider position. Values are from ``1`` to ``3``."""
-        return self._edb_sim_setup_info.SimulationSettings.SISliderPos
+        return self._edb_object.SimulationSettings.SISliderPos
 
     @si_slider_postion.setter
     def si_slider_postion(self, value):
@@ -824,8 +800,8 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self.include_trace_coupling = True
             self.max_coupled_lines = 40
             self.return_current_distribution = True
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
-        self._edb_sim_setup_info.SimulationSettings.SISliderPos = value
+        self._edb_object.SimulationSettings.UseCustomSettings = False
+        self._edb_object.SimulationSettings.SISliderPos = value
         self._update_setup()
 
     @property
@@ -836,11 +812,11 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         -------
         bool
         """
-        return self._edb_sim_setup_info.SimulationSettings.UseCustomSettings
+        return self._edb_object.SimulationSettings.UseCustomSettings
 
     @use_custom_settings.setter
     def use_custom_settings(self, value):
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = value
+        self._edb_object.SimulationSettings.UseCustomSettings = value
         self._update_setup()
 
     @property
@@ -851,12 +827,12 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         -------
         bool
         """
-        return self._edb_sim_setup_info.SimulationSettings.UseSISettings
+        return self._edb_object.SimulationSettings.UseSISettings
 
     @use_si_settings.setter
     def use_si_settings(self, value):
-        self._edb_sim_setup_info.SimulationSettings.UseCustomSettings = False
-        self._edb_sim_setup_info.SimulationSettings.UseSISettings = value
+        self._edb_object.SimulationSettings.UseCustomSettings = False
+        self._edb_object.SimulationSettings.UseSISettings = value
         self._update_setup()
 
     @pyaedt_function_handler()
@@ -888,7 +864,6 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         if not name:
             name = generate_unique_name("sweep")
         sweep = EdbFrequencySweep(self, frequency_sweep, name)
-        self._sweep_data_list[name] = sweep
         return sweep
 
 
@@ -977,17 +952,17 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
         self._mesh_operations = {}
-        self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+        self._edb_object = self._edb.simsetupdata.SimSetupInfo[
             self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
         ]()
         if edb_siwave_sim_setup:
-            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
+            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_object)
 
         else:
             if not name:
-                self._edb_sim_setup_info.Name = generate_unique_name("siwave")
+                self._edb_object.Name = generate_unique_name("siwave")
             else:
-                self._edb_sim_setup_info.Name = name
+                self._edb_object.Name = name
             self._update_setup()
         self.setup_type = "kSIWaveDCIR"
 
@@ -996,11 +971,11 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     @property
     def edb_sim_setup_info(self):
         """EDB internal simulation setup object."""
-        return self._edb_sim_setup_info
+        return self._edb_object
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveDCIRSimulationSetup(self._edb_sim_setup_info)
+        edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveDCIRSimulationSetup(self._edb_object)
         if self.name in self._edb.setups:
             self._edb.layout.cell.DeleteSimulationSetup(self.name)
         self._edb.active_cell.AddSimulationSetup(edb_sim_setup)
@@ -1009,13 +984,13 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     @property
     def name(self):
         """Setup name."""
-        return self._edb_sim_setup_info.Name
+        return self._edb_object.Name
 
     @name.setter
     def name(self, value):
         """Set name of the setup."""
-        legacy_name = self._edb_sim_setup_info.Name
-        self._edb_sim_setup_info.Name = value
+        legacy_name = self._edb_object.Name
+        self._edb_object.Name = value
         self._update_setup()
         if legacy_name in self._edb.setups:
             del self._edb._setups[legacy_name]
@@ -1023,11 +998,11 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     @property
     def enabled(self):
         """Whether setup is enabled."""
-        return self._edb_sim_setup_info.SimulationSettings.Enabled
+        return self._edb_object.SimulationSettings.Enabled
 
     @enabled.setter
     def enabled(self, value):
-        self._edb_sim_setup_info.SimulationSettings.Enabled = value
+        self._edb_object.SimulationSettings.Enabled = value
         self._update_setup()
 
     @property
@@ -1040,7 +1015,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
 
         """
-        return convert_netdict_to_pydict(self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround)
+        return convert_netdict_to_pydict(self._edb_object.SimulationSettings.DCIRSettings.SourceTermsToGround)
 
     @pyaedt_function_handler()
     def add_source_terminal_to_ground(self, source_name, terminal=0):
@@ -1064,7 +1039,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
         """
         terminals = self.source_terms_to_ground
         terminals[source_name] = terminal
-        self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
+        self._edb_object.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
             terminals
         )
         return self._update_setup()

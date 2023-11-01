@@ -24,10 +24,10 @@ class EdbFrequencySweep(object):
     @pyaedt_function_handler()
     def _update_sweep(self):
         """Update sweep."""
-        self._sim_setup._edb_sim_setup_info.SweepDataList.Clear()
+        self._sim_setup._edb_object.SweepDataList.Clear()
         for el in list(self._sim_setup.frequency_sweeps.values()):
-            self._sim_setup._edb_sim_setup_info.SweepDataList.Add(el._edb_sweep_data)
-        self._sim_setup._edb_sim_setup_info.SweepDataList.Add(self._edb_sweep_data)
+            self._sim_setup._edb_object.SweepDataList.Add(el._edb_sweep_data)
+        self._sim_setup._edb_object.SweepDataList.Add(self._edb_sweep_data)
         return self._sim_setup._update_setup()
 
     @property
@@ -752,7 +752,7 @@ class HfssPortSettings(object):
 
     @property
     def _hfss_port_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
+        return self._parent._edb_object.SimulationSettings.HFSSPortSettings
 
     @property
     def max_delta_z0(self):
@@ -824,7 +824,7 @@ class HfssSolverSettings(object):
 
     @property
     def _hfss_solver_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
+        return self._parent._edb_object.SimulationSettings.HFSSSolverSettings
 
     @property
     def enhanced_low_freq_accuracy(self):
@@ -993,7 +993,7 @@ class AdaptiveSettings(object):
         -------
         :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveSettings`
         """
-        return self._parent._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        return self._parent._edb_object.SimulationSettings.AdaptiveSettings
 
     @property
     def adaptive_frequency_data_list(self):
@@ -1233,7 +1233,7 @@ class DefeatureSettings(object):
 
     @property
     def _defeature_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.DefeatureSettings
+        return self._parent._edb_object.SimulationSettings.DefeatureSettings
 
     @property
     def defeature_abs_length(self):
@@ -1401,7 +1401,7 @@ class ViaSettings(object):
 
     @property
     def _via_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.ViaSettings
+        return self._parent._edb_object.SimulationSettings.ViaSettings
 
     @property
     def via_density(self):
@@ -1478,7 +1478,7 @@ class AdvancedMeshSettings(object):
 
     @property
     def _advanced_mesh_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
+        return self._parent._edb_object.SimulationSettings.AdvancedMeshSettings
 
     @property
     def layer_snap_tol(self):
@@ -1537,7 +1537,7 @@ class CurveApproxSettings(object):
 
     @property
     def _curve_approx_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
+        return self._parent._edb_object.SimulationSettings.CurveApproxSettings
 
     @property
     def arc_angle(self):
@@ -1623,7 +1623,7 @@ class DcrSettings(object):
 
     @property
     def _dcr_settings(self):
-        return self._parent._edb_sim_setup_info.SimulationSettings.DCRSettings
+        return self._parent._edb_object.SimulationSettings.DCRSettings
 
     @property
     def conduction_max_passes(self):
@@ -1711,35 +1711,35 @@ class HfssSimulationSetup(object):
 
         if edb_hfss_sim_setup:
             self._edb_sim_setup = edb_hfss_sim_setup
-            self._edb_sim_setup_info = edb_hfss_sim_setup.GetSimSetupInfo()
+            self._edb_object = edb_hfss_sim_setup.GetSimSetupInfo()
             self._name = edb_hfss_sim_setup.GetName()
         else:
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+            self._edb_object = self._edb.simsetupdata.SimSetupInfo[
                 self._edb.simsetupdata.HFSSSimulationSettings
             ]()
             if not name:
-                self._edb_sim_setup_info.Name = generate_unique_name("hfss")
+                self._edb_object.Name = generate_unique_name("hfss")
             else:
-                self._edb_sim_setup_info.Name = name
+                self._edb_object.Name = name
             self._name = name
             self.hfss_solver_settings.order_basis = "mixed"
 
-            self._edb_sim_setup = self._edb.edb_api.utility.utility.HFSSSimulationSetup(self._edb_sim_setup_info)
+            self._edb_sim_setup = self._edb.edb_api.utility.utility.HFSSSimulationSetup(self._edb_object)
             self._update_setup()
 
     @property
     def edb_sim_setup_info(self):
         """EDB internal simulation setup object."""
-        return self._edb_sim_setup_info
+        return self._edb_object
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        mesh_operations = self._edb_sim_setup_info.SimulationSettings.MeshOperations
+        mesh_operations = self._edb_object.SimulationSettings.MeshOperations
         mesh_operations.Clear()
         for mop in self.mesh_operations.values():
             mesh_operations.Add(mop.mesh_operation)
 
-        self._edb_sim_setup = self._edb.edb_api.utility.utility.HFSSSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb_api.utility.utility.HFSSSimulationSetup(self._edb_object)
 
         if self._name in self._edb.setups:
             self._edb.active_cell.DeleteSimulationSetup(self._name)
@@ -1747,7 +1747,7 @@ class HfssSimulationSetup(object):
         self._edb.active_cell.AddSimulationSetup(self._edb_sim_setup)
         for i in list(self._edb.active_cell.SimulationSetups):
             if i.GetSimSetupInfo().Name == self._name:
-                self._edb_sim_setup_info = i.GetSimSetupInfo()
+                self._edb_object = i.GetSimSetupInfo()
                 return True
         return False
 
@@ -1760,19 +1760,19 @@ class HfssSimulationSetup(object):
         List of :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep`
         """
         sweep_data_list = {}
-        for i in list(self._edb_sim_setup_info.SweepDataList):
+        for i in list(self._edb_object.SweepDataList):
             sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
         return sweep_data_list
 
     @property
     def name(self):
         """Name of the setup."""
-        return self._edb_sim_setup_info.Name
+        return self._edb_object.Name
 
     @name.setter
     def name(self, value):
         legacy_name = self._name
-        self._edb_sim_setup_info.Name = value
+        self._edb_object.Name = value
         self._update_setup()
         if legacy_name in self._edb.setups:
             del self._edb._setups[legacy_name]
@@ -1791,34 +1791,34 @@ class HfssSimulationSetup(object):
         -------
         str
         """
-        return self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.ToString()
+        return self._edb_object.SimulationSettings.TSolveSliderType.ToString()
 
     @solver_slider_type.setter
     def solver_slider_type(self, value):
         """Set solver slider type."""
         solver_types = {
-            "kFast": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaWirebond,
-            "kMedium": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaRibbon,
-            "kAccurate": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaMesh,
-            "kNumSliderTypes": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaField,
+            "kFast": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaWirebond,
+            "kMedium": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaRibbon,
+            "kAccurate": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaMesh,
+            "kNumSliderTypes": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaField,
         }
-        self._edb_sim_setup_info.SimulationSettings.TSolveSliderType = solver_types[value]
+        self._edb_object.SimulationSettings.TSolveSliderType = solver_types[value]
         self._update_setup()
 
     @property
     def is_auto_setup(self):
         """Whether if auto setup is enabled."""
-        return self._edb_sim_setup_info.SimulationSettings.IsAutoSetup
+        return self._edb_object.SimulationSettings.IsAutoSetup
 
     @is_auto_setup.setter
     def is_auto_setup(self, value):
-        self._edb_sim_setup_info.SimulationSettings.IsAutoSetup = value
+        self._edb_object.SimulationSettings.IsAutoSetup = value
         self._update_setup()
 
     @property
     def setup_type(self):
         """Setup type."""
-        return self._edb_sim_setup_info.SimulationSettings.SetupType
+        return self._edb_object.SimulationSettings.SetupType
 
     @property
     def hfss_solver_settings(self):
@@ -1919,7 +1919,7 @@ class HfssSimulationSetup(object):
         """
         if self._mesh_operations:
             return self._mesh_operations
-        settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
+        settings = self._edb_object.SimulationSettings.MeshOperations
         self._mesh_operations = {}
         for i in list(settings):
             if i.MeshOpType == i.TMeshOpType.kMeshSetupLength:
