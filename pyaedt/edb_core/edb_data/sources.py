@@ -1,3 +1,4 @@
+import pyaedt
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import SourceType
@@ -275,12 +276,15 @@ class PinGroup(object):
     def net_name(self):
         return self._edb_pin_group.GetNet().GetName()
 
-    @property
-    def terminal(self):
+    @pyaedt_function_handler
+    def get_terminal(self, name=None, create_new_terminal=False):
         """Terminal."""
-        from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
 
-        term = PinGroupTerminal(self._pedb, self._edb_pin_group.GetPinGroupTerminal())
+        if create_new_terminal:
+            term = self._create_terminal(name)
+        else:
+            from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+            term = PinGroupTerminal(self._pedb, self._edb_pin_group.GetPinGroupTerminal())
         return term if not term.is_null else None
 
     @pyaedt_function_handler()
@@ -297,19 +301,19 @@ class PinGroup(object):
         -------
         :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`
         """
-        pg_term = self.terminal
+        terminal = self.get_terminal()
+        if terminal:
+            return terminal
+
         if not name:
-            name = self.name
+            name = pyaedt.generate_unique_name(self.name)
 
-        if pg_term:
-            return pg_term
-        else:
-            from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+        from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
 
-            term = PinGroupTerminal(self._pedb)
+        term = PinGroupTerminal(self._pedb)
 
-            term = term.create(name, self.net_name, self.name)
-            return term
+        term = term.create(name, self.net_name, self.name)
+        return term
 
     @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):

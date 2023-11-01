@@ -998,12 +998,15 @@ class EDBPadstackInstance(EDBPrimitivesMain):
         self._position = []
         self._pdef = None
 
-    @property
-    def terminal(self):
+    @pyaedt_function_handler
+    def get_terminal(self, name=None, create_new_terminal=False):
         """Return PadstackInstanceTerminal object."""
-        from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 
-        term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        if create_new_terminal:
+            term = self._create_terminal(name)
+        else:
+            from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+            term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
         if not term.is_null:
             return term
 

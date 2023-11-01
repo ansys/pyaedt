@@ -38,7 +38,6 @@ from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
-from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import LayoutObjType
 from pyaedt.edb_core.general import Primitives
 from pyaedt.edb_core.general import TerminalType
@@ -433,7 +432,7 @@ class Edb(Database):
         """Get all layout sources."""
         temp = {}
         for name, val in self.terminals.items():
-            if val.boundary_type == BoundaryType.kVoltageProbe.name:
+            if val.boundary_type == "kVoltageProbe":
                 if not val.is_reference_terminal:
                     temp[name] = val
         return temp
