@@ -1018,12 +1018,39 @@ class EDBPadstackInstance(EDBPrimitivesMain):
     @pyaedt_function_handler
     def create_coax_port(self, name=None, radial_extent_factor=0):
         """Create a coax port."""
-        from pyaedt.edb_core.edb_data.ports import CoaxPort
 
-        term = self._create_terminal(name)
-        coax = CoaxPort(self._pedb, term._edb_object)
-        coax.radial_extent_factor = radial_extent_factor
-        return coax
+        port = self.create_port(name)
+        port.radial_extent_factor = radial_extent_factor
+        return port
+
+    @pyaedt_function_handler
+    def create_port(self, name=None, reference=None, is_circuit_port=False):
+        """Create a port on the padstack.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the port. The default is ``None``, in which case a name is automatically assigned.
+        reference : class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`,
+                    class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+                    class:`pyaedt.edb_core.edb_data.sources.PinGroup`, optional
+            Negative terminal of the port.
+        is_circuit_port : bool, optional
+            Whether it is a circuit port.
+
+        Returns
+        -------
+
+        """
+        terminal = self._create_terminal(name)
+        if reference:
+            ref_terminal = reference._create_terminal(terminal.name + "_ref")
+            if reference._edb_object.ToString() == "PinGroup":
+                is_circuit_port = True
+        else:
+            ref_terminal = None
+
+        return self._pedb.create_port(terminal, ref_terminal, is_circuit_port)
 
     @property
     def _em_properties(self):
@@ -1163,7 +1190,8 @@ class EDBPadstackInstance(EDBPrimitivesMain):
 
     @property
     def pin(self):
-        """Return Edb padstack object."""
+        """EDB padstack object."""
+        warnings.warn("`pin` is deprecated.", DeprecationWarning)
         return self._edb_padstackinstance
 
     @property
