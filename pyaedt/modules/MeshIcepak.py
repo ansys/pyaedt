@@ -697,33 +697,64 @@ class IcepakMesh(object):
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
-            prio_3d = [
-                "NAME:PriorityListParameters",
-                "EntityType:=",
-                "Component",
-                "EntityList:=",
-                comp_name,
-                "PriorityNumber:=",
-                i,
-                "PriorityListType:=",
-                "3D",
-            ]
-            prio_2d = [
-                "NAME:PriorityListParameters",
-                "EntityType:=",
-                "Component",
-                "EntityList:=",
-                comp_name,
-                "PriorityNumber:=",
-                i,
-                "PriorityListType:=",
-                "2D",
-            ]
-            self._priorities_args.append(prio_3d)
-            self._priorities_args.append(prio_2d)
+            o = self.modeler.user_defined_components[comp_name]
+            if (all(part.is3d for part in o.parts.values()) is False) and (
+                any(part.is3d for part in o.parts.values()) is True
+            ):
+                prio_3d = [
+                    "NAME:PriorityListParameters",
+                    "EntityType:=",
+                    "Component",
+                    "EntityList:=",
+                    comp_name,
+                    "PriorityNumber:=",
+                    i,
+                    "PriorityListType:=",
+                    "3D",
+                ]
+                prio_2d = [
+                    "NAME:PriorityListParameters",
+                    "EntityType:=",
+                    "Component",
+                    "EntityList:=",
+                    comp_name,
+                    "PriorityNumber:=",
+                    i,
+                    "PriorityListType:=",
+                    "2D",
+                ]
+                self._priorities_args.append(prio_3d)
+                self._priorities_args.append(prio_2d)
+            elif all(part.is3d for part in o.parts.values()) is True:
+                prio_3d = [
+                    "NAME:PriorityListParameters",
+                    "EntityType:=",
+                    "Component",
+                    "EntityList:=",
+                    comp_name,
+                    "PriorityNumber:=",
+                    i,
+                    "PriorityListType:=",
+                    "3D",
+                ]
+                self._priorities_args.append(prio_3d)
+            else:
+                prio_2d = [
+                    "NAME:PriorityListParameters",
+                    "EntityType:=",
+                    "Component",
+                    "EntityList:=",
+                    comp_name,
+                    "PriorityNumber:=",
+                    i,
+                    "PriorityListType:=",
+                    "2D",
+                ]
+                self._priorities_args.append(prio_2d)
+
             args += self._priorities_args
-        self.modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"]) # resetting the list, why do we need this?
-        self.modeler.oeditor.UpdatePriorityList(args) # for the second time, it is having older data, does it need to remember the operation ?
+        self.modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
+        self.modeler.oeditor.UpdatePriorityList(args)
         return True
 
     @pyaedt_function_handler()
