@@ -36,11 +36,11 @@ from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
 from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+from pyaedt.edb_core.edb_data.terminals import PointTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import LayoutObjType
 from pyaedt.edb_core.general import Primitives
-from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
@@ -357,18 +357,10 @@ class Edb(Database):
     def terminals(self):
         """Get terminals belonging to active layout."""
         temp = {}
+        terminal_mapping = Terminal(self)._terminal_mapping
         for i in self.layout.terminals:
             terminal_type = i.ToString().split(".")[-1]
-            if terminal_type == TerminalType.EdgeTerminal.name:
-                ter = EdgeTerminal(self, i)
-            elif terminal_type == TerminalType.BundleTerminal.name:
-                ter = BundleTerminal(self, i)
-            elif terminal_type == TerminalType.PadstackInstanceTerminal.name:
-                ter = PadstackInstanceTerminal(self, i)
-            elif terminal_type == TerminalType.PinGroupTerminal.name:
-                ter = PinGroupTerminal(self, i)
-            else:
-                ter = Terminal(self, i)
+            ter = terminal_mapping[terminal_type](self, i)
             temp[ter.name] = ter
 
         return temp
@@ -400,15 +392,18 @@ class Edb(Database):
         ports = {}
         for t in temp:
             t2 = Terminal(self, t)
+            if not t2.boundary_type == "PortBoundary":
+                continue
+
             if t2.is_circuit_port:
                 port = CircuitPort(self, t)
                 ports[port.name] = port
-            elif t2.terminal_type == TerminalType.BundleTerminal.name:
+            elif t2.terminal_type == "BundleTerminal":
                 port = BundleWavePort(self, t)
                 ports[port.name] = port
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
-            elif t2.terminal_type == TerminalType.PadstackInstanceTerminal.name:
+            elif t2.terminal_type == "PadstackInstanceTerminal":
                 ports[t2.name] = CoaxPort(self, t)
             else:
                 ports[t2.name] = GapPort(self, t)
@@ -3645,7 +3640,7 @@ class Edb(Database):
 
     @pyaedt_function_handler
     def create_port(self, terminal, ref_terminal=None, is_circuit_port=False):
-        """Create a port between two terminals.
+        """Create a port.
 
         Parameters
         ----------
@@ -3667,13 +3662,43 @@ class Edb(Database):
         -------
 
         """
-        if not ref_terminal:
-            port = CoaxPort(self, terminal._edb_object)
-        else:
-            if is_circuit_port:
-                port = CircuitPort(self, terminal._edb_object)
-            else:
-                port = GapPort(self, terminal._edb_object)
-            port.ref_terminal = ref_terminal
-            port.is_circuit_port = is_circuit_port
-        return port
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "PortBoundary"
+        term.is_circuit_port = is_circuit_port
+
+        if ref_terminal:
+            ref_terminal.boundary_type = "PortBoundary"
+            term.ref_terminal = ref_terminal
+
+        return self.ports[term.name]
+
+    def create_voltage_probe(self, terminal, ref_terminal=None):
+        """Create a voltage probe.
+
+        Parameters
+        ----------
+        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
+        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+                   optional
+            Negative terminal of the port.
+
+        Returns
+        -------
+
+        """
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "kVoltageProbe"
+
+        ref_term = Terminal(self, ref_terminal._edb_object)
+        ref_term.boundary_type = "kVoltageProbe"
+
+        term.ref_terminal = ref_terminal
+        return self.probes[term.name]
+

@@ -4,13 +4,12 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.connectable import Connectable
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
-from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
 
 
 class Terminal(Connectable):
-    def __init__(self, pedb, edb_object):
+    def __init__(self, pedb, edb_object=None):
         super().__init__(pedb, edb_object)
         self._reference_object = None
 
@@ -25,6 +24,24 @@ class Terminal(Connectable):
         "kNexximPort" : self._pedb.edb_api.cell.terminal.BoundaryType.kNexximPort,
         "kDcTerminal" : self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal,
         "kVoltageProbe" : self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe,
+        }
+
+        self._terminal_type_mapping = {
+            "InvalidTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.InvalidTerminal,
+            "EdgeTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.EdgeTerminal,
+            "PointTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.PointTerminal,
+            "TerminalInstanceTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.TerminalInstanceTerminal,
+            "PadstackInstanceTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal,
+            "BundleTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.BundleTerminal,
+            "PinGroupTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal,
+        }
+
+        self._terminal_mapping = {
+            "EdgeTerminal" : EdgeTerminal,
+            "PointTerminal" : PointTerminal,
+            "PadstackInstanceTerminal" : PadstackInstanceTerminal,
+            "BundleTerminal" : BundleTerminal,
+            "PinGroupTerminal" : PinGroupTerminal,
         }
 
     @property
@@ -140,15 +157,19 @@ class Terminal(Connectable):
         """
         return self._edb_object.GetTerminalType().ToString()
 
+    @terminal_type.setter
+    def terminal_type(self, value):
+        self._edb_object.GetTerminalType(self._terminal_type_mapping[value])
+
     @property
     def boundary_type(self):
-        """Boundary Type..
+        """Boundary Type.
 
 
         Returns
         -------
         str
-            InvalidBoundary, PortBoundary, PecBoundary, RlcBoundary, kCurrentSource, kVoltageSource kNexximGround,
+            InvalidBoundary, PortBoundary, PecBoundary, RlcBoundary, kCurrentSource, kVoltageSource, kNexximGround,
             kNexximPort, kDcTerminal, kVoltageProbe
         """
         return self._edb_object.GetBoundaryType().ToString()
@@ -177,12 +198,7 @@ class Terminal(Connectable):
 
         terminal = Terminal(self._pedb, self._edb_object.GetReferenceTerminal())
         if not terminal.is_null:
-            if terminal.terminal_type == TerminalType.PointTerminal.name:
-                return PointTerminal(self._pedb, terminal._edb_object)
-            elif terminal.terminal_type == TerminalType.EdgeTerminal.name:
-                return EdgeTerminal(self._pedb, terminal._edb_object)
-            elif terminal.terminal_type == TerminalType.InvalidTerminal.name:  # pragma : no cover
-                return None
+            return self._terminal_mapping[terminal.terminal_type](self._pedb, terminal._edb_object)
 
     @ref_terminal.setter
     def ref_terminal(self, value):
@@ -208,11 +224,11 @@ class Terminal(Connectable):
                     self._reference_object = self.get_pad_edge_terminal_reference_pin()
                 else:
                     self._reference_object = self.get_edge_terminal_reference_primitive()
-            elif self.terminal_type == TerminalType.PinGroupTerminal.name:
+            elif self.terminal_type == "PinGroupTerminal":
                 self._reference_object = self.get_pin_group_terminal_reference_pin()
-            elif self.terminal_type == TerminalType.PointTerminal.name:
+            elif self.terminal_type == "PointTerminal":
                 self._reference_object = self.get_point_terminal_reference_primitive()
-            elif self.terminal_type == TerminalType.PadstackInstanceTerminal.name:
+            elif self.terminal_type == "PadstackInstanceTerminal":
                 self._reference_object = self.get_padstack_terminal_reference_pin()
             else:
                 self._pedb.logger.warning("Invalid Terminal Type={}".format(term.GetTerminalType()))
@@ -480,7 +496,10 @@ class PadstackInstanceTerminal(Terminal):
         Edb.Cell.Terminal.EdgeTerminal
         """
         if not name:
-            name = generate_unique_name("Terminal")
+            pin_name = padstack_instance._edb_object.GetName()
+            refdes = padstack_instance.component.refdes
+            name = "{}_{}".format(refdes, pin_name)
+            name = generate_unique_name(name)
 
         if not layer:
             layer = padstack_instance.start_layer
@@ -541,10 +560,9 @@ class PointTerminal(Terminal):
     @property
     def location(self):
         """Get location of the terminal."""
-        point_data = self._pedb.point_data(0, 0)
         layer = list(self._pedb.stackup.layers.values())[0]._edb_layer
-        if self._edb_object.GetParameters(point_data, layer):
-            return [point_data.X.ToDouble(), point_data.Y.ToDouble()]
+        _, point_data, _ = self._edb_object.GetParameters(None, layer)
+        return [point_data.X.ToDouble(), point_data.Y.ToDouble()]
 
     @location.setter
     def location(self, value):

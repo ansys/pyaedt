@@ -1421,9 +1421,5 @@ class EdbSiwave(object):
 
         point_terminal = PointTerminal(self._pedb)
         p_terminal = point_terminal.create(name, positive_net_name, positive_location, positive_layer)
-        p_terminal.boundary_type = "kVoltageProbe"
-
         n_terminal = point_terminal.create(name + "_ref", negative_net_name, negative_location, negative_layer)
-        n_terminal.boundary_type = "kVoltageProbe"
-        p_terminal.ref_terminal = n_terminal
-        return self._pedb.probes[name]
+        return self._pedb.create_voltage_probe(p_terminal, n_terminal)

@@ -151,16 +151,6 @@ class DielectricExtentType(Enum):
     Polygon = 3
 
 
-class TerminalType(Enum):
-    InvalidTerminal = -1
-    EdgeTerminal = 0
-    PointTerminal = 1
-    TerminalInstanceTerminal = 2
-    PadstackInstanceTerminal = 3
-    BundleTerminal = 4
-    PinGroupTerminal = 5
-
-
 class Primitives(Enum):
     Rectangle = 0
     Circle = 1
