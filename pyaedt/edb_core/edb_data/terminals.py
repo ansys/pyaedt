@@ -14,34 +14,34 @@ class Terminal(Connectable):
         self._reference_object = None
 
         self._boundary_type_mapping = {
-            "InvalidBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary,
-        "PortBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary,
-        "PecBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary,
-        "RlcBoundary" : self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary,
-        "kCurrentSource" : self._pedb.edb_api.cell.terminal.BoundaryType.kCurrentSource,
-        "kVoltageSource" : self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageSource,
-        "kNexximGround" : self._pedb.edb_api.cell.terminal.BoundaryType.kNexximGround,
-        "kNexximPort" : self._pedb.edb_api.cell.terminal.BoundaryType.kNexximPort,
-        "kDcTerminal" : self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal,
-        "kVoltageProbe" : self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe,
+            "InvalidBoundary": self._pedb.edb_api.cell.terminal.BoundaryType.InvalidBoundary,
+            "PortBoundary": self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary,
+            "PecBoundary": self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary,
+            "RlcBoundary": self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary,
+            "kCurrentSource": self._pedb.edb_api.cell.terminal.BoundaryType.kCurrentSource,
+            "kVoltageSource": self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageSource,
+            "kNexximGround": self._pedb.edb_api.cell.terminal.BoundaryType.kNexximGround,
+            "kNexximPort": self._pedb.edb_api.cell.terminal.BoundaryType.kNexximPort,
+            "kDcTerminal": self._pedb.edb_api.cell.terminal.BoundaryType.kDcTerminal,
+            "kVoltageProbe": self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe,
         }
 
         self._terminal_type_mapping = {
-            "InvalidTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.InvalidTerminal,
-            "EdgeTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.EdgeTerminal,
-            "PointTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.PointTerminal,
-            "TerminalInstanceTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.TerminalInstanceTerminal,
-            "PadstackInstanceTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal,
-            "BundleTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.BundleTerminal,
-            "PinGroupTerminal" : self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal,
+            "InvalidTerminal": self._pedb.edb_api.cell.terminal.TerminalType.InvalidTerminal,
+            "EdgeTerminal": self._pedb.edb_api.cell.terminal.TerminalType.EdgeTerminal,
+            "PointTerminal": self._pedb.edb_api.cell.terminal.TerminalType.PointTerminal,
+            "TerminalInstanceTerminal": self._pedb.edb_api.cell.terminal.TerminalType.TerminalInstanceTerminal,
+            "PadstackInstanceTerminal": self._pedb.edb_api.cell.terminal.TerminalType.PadstackInstanceTerminal,
+            "BundleTerminal": self._pedb.edb_api.cell.terminal.TerminalType.BundleTerminal,
+            "PinGroupTerminal": self._pedb.edb_api.cell.terminal.TerminalType.PinGroupTerminal,
         }
 
         self._terminal_mapping = {
-            "EdgeTerminal" : EdgeTerminal,
-            "PointTerminal" : PointTerminal,
-            "PadstackInstanceTerminal" : PadstackInstanceTerminal,
-            "BundleTerminal" : BundleTerminal,
-            "PinGroupTerminal" : PinGroupTerminal,
+            "EdgeTerminal": EdgeTerminal,
+            "PointTerminal": PointTerminal,
+            "PadstackInstanceTerminal": PadstackInstanceTerminal,
+            "BundleTerminal": BundleTerminal,
+            "PinGroupTerminal": PinGroupTerminal,
         }
 
     @property

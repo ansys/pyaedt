@@ -3701,4 +3701,3 @@ class Edb(Database):
 
         term.ref_terminal = ref_terminal
         return self.probes[term.name]
-

@@ -284,6 +284,7 @@ class PinGroup(object):
             term = self._create_terminal(name)
         else:
             from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+
             term = PinGroupTerminal(self._pedb, self._edb_pin_group.GetPinGroupTerminal())
         return term if not term.is_null else None
 
