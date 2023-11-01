@@ -435,6 +435,7 @@ class TestClass:
         assert list(self.edbapp.sources.values())[0].magnitude == 3.3
         list(self.edbapp.sources.values())[0].phase = 1
         assert list(self.edbapp.sources.values())[0].phase == 1
+        u6 = self.edbapp.components["U6"]
         self.edbapp.create_voltage_source(
             u6.pins["F2"].get_terminal(create_new_terminal=True), u6.pins["F1"].get_terminal(create_new_terminal=True)
         )

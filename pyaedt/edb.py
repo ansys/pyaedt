@@ -3657,15 +3657,15 @@ class Edb(Database):
         -------
 
         """
-        term = Terminal(self, terminal._edb_object)
-        term.boundary_type = "PortBoundary"
-        term.is_circuit_port = is_circuit_port
+
+        terminal.boundary_type = "PortBoundary"
+        terminal.is_circuit_port = is_circuit_port
 
         if ref_terminal:
             ref_terminal.boundary_type = "PortBoundary"
-            term.ref_terminal = ref_terminal
+            terminal.ref_terminal = ref_terminal
 
-        return self.ports[term.name]
+        return self.ports[terminal.name]
 
     def create_voltage_probe(self, terminal, ref_terminal):
         """Create a voltage probe.
