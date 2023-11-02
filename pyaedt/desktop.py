@@ -1020,6 +1020,8 @@ class Desktop(object):
                 else:
                     installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
 
+            print(installer, non_graphical, self.port, student_version)
+            exit()
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
