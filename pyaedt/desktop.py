@@ -81,6 +81,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             ) as p:
                 p.wait()
 
+    print(">>>>> launch_aedt", full_path, non_graphical, port, student_version, first_run)
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
@@ -98,6 +99,8 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             if first_run:
                 port = _find_free_port()
                 return launch_aedt(full_path, non_graphical, port, student_version, first_run=False)
+            print(">>>>> launch_aedt", full_path, non_graphical, port, student_version, first_run)
+            exit("MISSSS")
             return False, _find_free_port()
         time.sleep(1)
         k += 1
@@ -1021,7 +1024,7 @@ class Desktop(object):
                     installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
 
             print(installer, non_graphical, self.port, student_version)
-            exit()
+            # exit()
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
