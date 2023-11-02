@@ -246,13 +246,22 @@ class TestClass:
 
     def test_13_get_coreloss_coefficients(self):
         mat = self.aedtapp.materials.add_material("mat_test")
-        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]})
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
-        assert not self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]])
-        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]], 100: [[0, 0],[1, 8],[2, 9]], 150: [[0, 0], [1, 10], [2, 19]]})
+        assert not self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+        )
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={
+                60: [[0, 0], [1, 3.5], [2, 7.4]],
+                100: [[0, 0], [1, 8], [2, 9]],
+                150: [[0, 0], [1, 10], [2, 19]],
+            }
+        )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
-

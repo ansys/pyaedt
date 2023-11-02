@@ -2513,12 +2513,12 @@ class Material(CommonMaterial, object):
 
     @pyaedt_function_handler
     def set_djordjevic_sarkar_model(
-            self,
-            dk=4,
-            df=0.02,
-            i_freq=1e9,
-            sigma_dc=1e-12,
-            freq_hi=159.15494e9,
+        self,
+        dk=4,
+        df=0.02,
+        i_freq=1e9,
+        sigma_dc=1e-12,
+        freq_hi=159.15494e9,
     ):
         """Set Djordjevic-Sarkar model.
         Parameters
@@ -2544,7 +2544,9 @@ class Material(CommonMaterial, object):
         epsilon_inf = "({} - {} / 2 * ln({}**2 / {}**2 + 1))".format(dk, K, freq_hi, i_freq)
         freq_low = "({} / exp(10 * {} * {} / ({})))".format(freq_hi, df, epsilon_inf, K)
         ds_er = "{} + {} / 2 * ln(({}**2 + Freq**2) / ({}**2 + Freq**2))".format(epsilon_inf, K, freq_hi, freq_low)
-        cond = "{} + 2 * pi * Freq * e0 * ({}) * (atan(Freq / ({})) - atan(Freq / {}))".format(sigma_dc, K, freq_low, freq_hi)
+        cond = "{} + 2 * pi * Freq * e0 * ({}) * (atan(Freq / ({})) - atan(Freq / {}))".format(
+            sigma_dc, K, freq_low, freq_hi
+        )
         # ds_tande = "{} / (e0 * {} * 2 * pi * Freq)".format(cond, ds_er)
 
         self.conductivity = cond
