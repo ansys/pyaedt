@@ -1038,8 +1038,8 @@ class EdbSiwave(object):
                 simsetup_info.SimulationSettings.AdvancedSettings.IgnoreNonFunctionalPads = (
                     simulation_setup.ignore_non_functional_pads
                 )
-            if simulation_setup.dc_min_void_area:  # pragma: no cover
-                simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.dc_min_void_area
+            if simulation_setup.min_void_area:  # pragma: no cover
+                simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.min_void_area
             try:
                 if simulation_setup.add_frequency_sweep:
                     self._logger.info("Adding frequency sweep")
