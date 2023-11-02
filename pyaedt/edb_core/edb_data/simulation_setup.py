@@ -1,5 +1,4 @@
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySweep
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.edb_core.general import convert_netdict_to_pydict
@@ -42,12 +41,7 @@ def _parse_value(v):
 class BaseSimulationSetup(object):
     def __init__(self, pedb, edb_setup=None):
         self._pedb = pedb
-        self._setup_type = None
-        if edb_setup:
-            self._edb_object = self._get_edb_setup_info(edb_setup)
-        else:
-            self._edb_object = None
-        self._name = ""
+
         self._setup_type_mapping = {
             "kHFSS": self._pedb.simsetupdata.HFSSSimulationSettings,
             "kPEM": None,
@@ -66,12 +60,19 @@ class BaseSimulationSetup(object):
             "kNumSetupTypes": None,
         }
 
+        if edb_setup:
+            self._edb_object = self._get_edb_setup_info(edb_setup)
+        else:
+            self._edb_object = None
+        self._name = ""
+
+
 
     @pyaedt_function_handler()
     def _get_edb_setup_info(self, edb_setup):
 
         if self._setup_type == "kSIwave":
-            edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self.setup_type]]()
+            edb_sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
 
             string = edb_setup.ToString().replace("\t", "").split("\r\n")
             if is_linux:
@@ -135,8 +136,10 @@ class BaseSimulationSetup(object):
 
     @name.setter
     def name(self, value):
+        self._pedb.layout.cell.DeleteSimulationSetup(self.name)
         self._edb_object.Name = value
         self._name = value
+        self._update_setup()
 
     @property
     def position(self):
@@ -194,8 +197,496 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
+        if self._setup_type == "kHFSS":
+            mesh_operations = self._edb_object.SimulationSettings.MeshOperations
+            mesh_operations.Clear()
+            for mop in self.mesh_operations.values():
+                mesh_operations.Add(mop.mesh_operation)
+
         edb_setup = self._generate_edb_setup()
         if self.name in self._pedb.setups:
             self._pedb.layout.cell.DeleteSimulationSetup(self.name)
         self._pedb.layout.cell.AddSimulationSetup(edb_setup)
         return True
+
+
+class EdbFrequencySweep(object):
+    """Manages EDB methods for frequency sweep."""
+
+    def __init__(self, sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
+        self._sim_setup = sim_setup
+
+        if edb_sweep_data:
+            self._edb_sweep_data = edb_sweep_data
+            self._name = self._edb_sweep_data.Name
+        else:
+            if not name:
+                self._name = generate_unique_name("sweep")
+            else:
+                self._name = name
+            self._edb_sweep_data = self._pedb.simsetupdata.SweepData(self._name)
+            self.set_frequencies(frequency_sweep)
+
+    @property
+    def _pedb(self):
+        return self._sim_setup._pedb
+
+    @pyaedt_function_handler()
+    def _update_sweep(self):
+        """Update sweep."""
+        self._sim_setup._edb_object.SweepDataList.Clear()
+        for el in list(self._sim_setup.frequency_sweeps.values()):
+            self._sim_setup._edb_object.SweepDataList.Add(el._edb_sweep_data)
+        self._sim_setup._edb_object.SweepDataList.Add(self._edb_sweep_data)
+        return self._sim_setup._update_setup()
+
+    @property
+    def name(self):
+        """Name of the sweep."""
+        return self._edb_sweep_data.Name
+
+    @name.setter
+    def name(self, value):
+        """Set name of this sweep"""
+        self._edb_sweep_data.Name = value
+        self._update_sweep()
+
+    @property
+    def sweep_type(self):
+        """Sweep type."""
+        return
+
+    @property
+    def frequencies(self):
+        """List of frequencies points."""
+        return list(self._edb_sweep_data.Frequencies)
+
+    @property
+    def adaptive_sampling(self):
+        """Whether adaptive sampling is used.
+
+        Returns
+        -------
+        bool
+            ``True`` if adaptive sampling is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.AdaptiveSampling
+
+    @property
+    def adv_dc_extrapolation(self):
+        """Whether to turn on advanced DC Extrapolation.
+
+        Returns
+        -------
+        bool
+            ``True`` if advanced DC Extrapolation is used, ``False`` otherwise.
+
+        """
+        return self._edb_sweep_data.AdvDCExtrapolation
+
+    @property
+    def auto_s_mat_only_solve(self):
+        """Whether to turn on Auto/Manual SMatrix only solve.
+
+        Returns
+        -------
+        bool
+            ``True`` if Auto/Manual SMatrix only solve is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.AutoSMatOnlySolve
+
+    @property
+    def enforce_causality(self):
+        """Whether to enforce causality during interpolating sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` if enforce causality is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.EnforceCausality
+
+    @property
+    def enforce_dc_and_causality(self):
+        """Whether to enforce DC point and causality.
+
+        Returns
+        -------
+        bool
+            ``True`` if enforce dc point and causality is used, ``False`` otherwise.
+
+        """
+        return self._edb_sweep_data.EnforceDCAndCausality
+
+    @property
+    def enforce_passivity(self):
+        """Whether to enforce passivity during interpolating sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` if enforce passivity is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.EnforcePassivity
+
+    @property
+    def freq_sweep_type(self):
+        """Sweep type.
+        Options are:
+        - ``kInterpolatingSweep``.
+        - ``kDiscreteSweep``.
+        - ``kBroadbandFastSweep``.
+
+        Returns
+        -------
+        str
+        """
+        return self._edb_sweep_data.FreqSweepType.ToString()
+
+    @property
+    def interp_use_full_basis(self):
+        """Whether to use Full basis elements.
+
+        Returns
+        -------
+        bool
+            ``True`` if full basis interpolation is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.InterpUseFullBasis
+
+    @property
+    def interp_use_port_impedance(self):
+        """Whether to turn on the port impedance interpolation.
+
+        Returns
+        -------
+        bool
+            ``True`` if port impedance is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.InterpUsePortImpedance
+
+    @property
+    def interp_use_prop_const(self):
+        """Whether to use propagation constants.
+
+        Returns
+        -------
+        bool
+            ``True`` if propagation constants are used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.InterpUsePropConst
+
+    @property
+    def interp_use_s_matrix(self):
+        """Whether to use S matrix.
+
+        Returns
+        -------
+        bool
+            ``True`` if S matrix are used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.InterpUseSMatrix
+
+    @property
+    def max_solutions(self):
+        """Number of aximum solutions.
+
+        Returns
+        -------
+        int
+        """
+        return self._edb_sweep_data.MaxSolutions
+
+    @property
+    def min_freq_s_mat_only_solve(self):
+        """Minimum frequency SMatrix only solve.
+
+        Returns
+        -------
+        str
+            Frequency with units.
+        """
+        return self._edb_sweep_data.MinFreqSMatOnlySolve
+
+    @property
+    def min_solved_freq(self):
+        """Minimum solved frequency.
+
+        Returns
+        -------
+        str
+            Frequency with units.
+        """
+        return self._edb_sweep_data.MinSolvedFreq
+
+    @property
+    def passivity_tolerance(self):
+        """Tolerance for passivity enforcement.
+
+        Returns
+        -------
+        float
+        """
+        return self._edb_sweep_data.PassivityTolerance
+
+    @property
+    def relative_s_error(self):
+        """Specify S-parameter error tolerance for interpolating sweep.
+
+        Returns
+        -------
+        float
+        """
+        return self._edb_sweep_data.RelativeSError
+
+    @property
+    def save_fields(self):
+        """Whether to turn on or off the extraction of surface current data.
+
+        Returns
+        -------
+        bool
+            ``True`` if save fields is enabled, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.SaveFields
+
+    @property
+    def save_rad_fields_only(self):
+        """Whether to turn on save radiated fields only.
+
+        Returns
+        -------
+        bool
+            ``True`` if save radiated field only is used, ``False`` otherwise.
+
+        """
+        return self._edb_sweep_data.SaveRadFieldsOnly
+
+    @property
+    def use_q3d_for_dc(self):
+        """Whether to enable Q3D solver for DC point extraction .
+
+        Returns
+        -------
+        bool
+            ``True`` if Q3d for DC point is used, ``False`` otherwise.
+        """
+        return self._edb_sweep_data.UseQ3DForDC
+
+    @adaptive_sampling.setter
+    def adaptive_sampling(self, value):
+        self._edb_sweep_data.AdaptiveSampling = value
+        self._update_sweep()
+
+    @adv_dc_extrapolation.setter
+    def adv_dc_extrapolation(self, value):
+        self._edb_sweep_data.AdvDCExtrapolation = value
+        self._update_sweep()
+
+    @auto_s_mat_only_solve.setter
+    def auto_s_mat_only_solve(self, value):
+        self._edb_sweep_data.AutoSMatOnlySolve = value
+        self._update_sweep()
+
+    @enforce_causality.setter
+    def enforce_causality(self, value):
+        self._edb_sweep_data.EnforceCausality = value
+        self._update_sweep()
+
+    @enforce_dc_and_causality.setter
+    def enforce_dc_and_causality(self, value):
+        self._edb_sweep_data.EnforceDCAndCausality = value
+        self._update_sweep()
+
+    @enforce_passivity.setter
+    def enforce_passivity(self, value):
+        self._edb_sweep_data.EnforcePassivity = value
+        self._update_sweep()
+
+    @freq_sweep_type.setter
+    def freq_sweep_type(self, value):
+        edb_freq_sweep_type = self._edb_sweep_data.TFreqSweepType
+        if value in [0, "kInterpolatingSweep"]:
+            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kInterpolatingSweep
+        elif value in [1, "kDiscreteSweep"]:
+            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kDiscreteSweep
+        elif value in [2, "kBroadbandFastSweep"]:
+            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kBroadbandFastSweep
+        elif value in [3, "kNumSweepTypes"]:
+            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kNumSweepTypes
+        self._edb_sweep_data.FreqSweepType.ToString()
+
+    @interp_use_full_basis.setter
+    def interp_use_full_basis(self, value):
+        self._edb_sweep_data.InterpUseFullBasis = value
+        self._update_sweep()
+
+    @interp_use_port_impedance.setter
+    def interp_use_port_impedance(self, value):
+        self._edb_sweep_data.InterpUsePortImpedance = value
+        self._update_sweep()
+
+    @interp_use_prop_const.setter
+    def interp_use_prop_const(self, value):
+        self._edb_sweep_data.InterpUsePropConst = value
+        self._update_sweep()
+
+    @interp_use_s_matrix.setter
+    def interp_use_s_matrix(self, value):
+        self._edb_sweep_data.InterpUseSMatrix = value
+        self._update_sweep()
+
+    @max_solutions.setter
+    def max_solutions(self, value):
+        self._edb_sweep_data.MaxSolutions = value
+        self._update_sweep()
+
+    @min_freq_s_mat_only_solve.setter
+    def min_freq_s_mat_only_solve(self, value):
+        self._edb_sweep_data.MinFreqSMatOnlySolve = value
+        self._update_sweep()
+
+    @min_solved_freq.setter
+    def min_solved_freq(self, value):
+        self._edb_sweep_data.MinSolvedFreq = value
+        self._update_sweep()
+
+    @passivity_tolerance.setter
+    def passivity_tolerance(self, value):
+        self._edb_sweep_data.PassivityTolerance = value
+        self._update_sweep()
+
+    @relative_s_error.setter
+    def relative_s_error(self, value):
+        self._edb_sweep_data.RelativeSError = value
+        self._update_sweep()
+
+    @save_fields.setter
+    def save_fields(self, value):
+        self._edb_sweep_data.SaveFields = value
+        self._update_sweep()
+
+    @save_rad_fields_only.setter
+    def save_rad_fields_only(self, value):
+        self._edb_sweep_data.SaveRadFieldsOnly = value
+        self._update_sweep()
+
+    @use_q3d_for_dc.setter
+    def use_q3d_for_dc(self, value):
+        self._edb_sweep_data.UseQ3DForDC = value
+        self._update_sweep()
+
+    @pyaedt_function_handler()
+    def _set_frequencies(self, freq_sweep_string="Linear Step: 0GHz to 20GHz, step=0.05GHz"):
+        self._edb_sweep_data.SetFrequencies(freq_sweep_string)
+        self._update_sweep()
+
+    @pyaedt_function_handler()
+    def set_frequencies_linear_scale(self, start="0.1GHz", stop="20GHz", step="50MHz"):
+        """Set a linear scale frequency sweep.
+
+        Parameters
+        ----------
+        start : str, float
+            Start frequency.
+        stop : str, float
+            Stop frequency.
+        step : str, float
+            Step frequency.
+
+        Returns
+        -------
+        bool
+            ``True`` if correctly executed, ``False`` otherwise.
+
+        """
+        self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, step)
+        return self._update_sweep()
+
+    @pyaedt_function_handler()
+    def set_frequencies_linear_count(self, start="1kHz", stop="0.1GHz", count=10):
+        """Set a linear count frequency sweep.
+
+        Parameters
+        ----------
+        start : str, float
+            Start frequency.
+        stop : str, float
+            Stop frequency.
+        count : int
+            Step frequency.
+
+        Returns
+        -------
+        bool
+            ``True`` if correctly executed, ``False`` otherwise.
+
+        """
+        start = self._sim_setup._pedb.arg_to_dim(start, "Hz")
+        stop = self._sim_setup._pedb.arg_to_dim(stop, "Hz")
+        self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, count)
+        return self._update_sweep()
+
+    @pyaedt_function_handler()
+    def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
+        """Set a log count frequency sweep.
+
+        Parameters
+        ----------
+        start : str, float
+            Start frequency.
+        stop : str, float
+            Stop frequency.
+        samples : int
+            Step frequency.
+
+        Returns
+        -------
+        bool
+            ``True`` if correctly executed, ``False`` otherwise.
+        """
+        start = self._sim_setup._pedb.arg_to_dim(start, "Hz")
+        stop = self._sim_setup._pedb.arg_to_dim(stop, "Hz")
+        self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetLogFrequencies(start, stop, samples)
+        return self._update_sweep()
+
+    @pyaedt_function_handler()
+    def set_frequencies(self, frequency_list=None):
+        """Set frequency list to the sweep frequencies.
+
+        Parameters
+        ----------
+        frequency_list : list, optional
+            List of lists with four elements. Each list must contain:
+
+              1- frequency type (``"linear count"``, ``"log scale"`` or ``"linear scale"``)
+              2- start frequency
+              3- stop frequency
+              4- step frequency or count
+
+        Returns
+        -------
+        bool
+            ``True`` if correctly executed, ``False`` otherwise.
+
+        """
+        if not frequency_list:
+            frequency_list = [
+                ["linear count", "0", "1kHz", 1],
+                ["log scale", "1kHz", "0.1GHz", 10],
+                ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+            ]
+        temp = []
+        for i in frequency_list:
+            if i[0] == "linear count":
+                temp.extend(list(self._edb_sweep_data.SetFrequencies(i[1], i[2], i[3])))
+            elif i[0] == "linear scale":
+                temp.extend(list(self._edb_sweep_data.SetFrequencies(i[1], i[2], i[3])))
+            elif i[0] == "log scale":
+                temp.extend(list(self._edb_sweep_data.SetLogFrequencies(i[1], i[2], i[3])))
+            else:
+                return False
+        self._edb_sweep_data.Frequencies.Clear()
+        for i in temp:
+            self._edb_sweep_data.Frequencies.Add(i)
+        return self._update_sweep()

@@ -1,4 +1,4 @@
-from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySweep
+from pyaedt.edb_core.edb_data.simulation_setup import EdbFrequencySweep
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
@@ -688,11 +688,9 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
     """Manages EDB methods for HFSS simulation setup."""
 
     def __init__(self, pedb, edb_setup=None):
-        super().__init__(pedb, edb_setup)
         self._setup_type = "kSIwave"
+        super().__init__(pedb, edb_setup)
         self._edb = self._pedb
-        #self._sweep_data_list = {}
-
 
         SiwaveAdvancedSettings.__init__(self, self)
 

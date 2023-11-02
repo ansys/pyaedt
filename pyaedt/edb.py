@@ -3326,7 +3326,7 @@ class Edb(Database):
         setups = {}
         for i in list(self.active_cell.SimulationSetups):
             if i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kHFSS:
-                setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
+                setups[i.GetName()] = HfssSimulationSetup(self, i)
             elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWave:
                 setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i)
             elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWaveDCIR:
@@ -3383,7 +3383,7 @@ class Edb(Database):
         """
         if name in self.setups:
             return False
-        setup = HfssSimulationSetup(self, name)
+        setup = HfssSimulationSetup(self).create(name)
         return setup
 
     @pyaedt_function_handler()
@@ -3438,7 +3438,7 @@ class Edb(Database):
             name = generate_unique_name("Siwave_DC")
         if name in self.setups:
             return False
-        setup = SiwaveDCSimulationSetup(self, name)
+        setup = SiwaveDCSimulationSetup(self).create(name)
         return setup
 
     @pyaedt_function_handler()
