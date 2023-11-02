@@ -82,7 +82,7 @@ class TestClass:
 
         assert mat1.set_electrical_steel_coreloss(1, 2, 3, 4, 0.002)
         assert mat1.get_curve_coreloss_type() == "Electrical Steel"
-        assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == "0.002meter"
+        assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == 0.002
         assert mat1.set_hysteresis_coreloss(1, 2, 3, 4, 0.002)
         assert mat1.get_curve_coreloss_type() == "Hysteresis Model"
         assert mat1.set_bp_curve_coreloss([[0, 0], [10, 10], [20, 20]])
@@ -243,3 +243,16 @@ class TestClass:
         self.aedtapp["$dk"] = 3
         self.aedtapp["$df"] = 0.01
         assert mat.set_djordjevic_sarkar_model(dk="$dk", df="$df")
+
+    def test_13_get_coreloss_coefficients(self):
+        mat = self.aedtapp.materials.add_material("mat_test")
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]})
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+        assert not self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]])
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]], 100: [[0, 0],[1, 8],[2, 9]], 150: [[0, 0], [1, 10], [2, 19]]})
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+
