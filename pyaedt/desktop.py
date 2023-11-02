@@ -87,7 +87,9 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     _aedt_process_thread.start()
     timeout = settings.desktop_launch_timeout
     k = 0
+    timeout = 20
     while not _check_grpc_port(port):
+        print(k)
         if k > timeout:  # pragma: no cover
             active_s = active_sessions(student_version=student_version)
             for pid in active_s:
