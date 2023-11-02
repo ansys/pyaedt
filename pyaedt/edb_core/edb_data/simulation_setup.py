@@ -1,8 +1,8 @@
-from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_linux
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 def _parse_value(v):
@@ -68,8 +68,6 @@ class BaseSimulationSetup(object):
             self._edb_object = None
         self._name = ""
 
-
-
     @pyaedt_function_handler()
     def _get_edb_setup_info(self, edb_setup):
         """Read simulation information from setup."""
@@ -91,7 +89,9 @@ class BaseSimulationSetup(object):
                     for v in val:
                         source = v.split("=")
                         sources[source[0]] = source[1]
-                    edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(sources)
+                    edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
+                        sources
+                    )
                     break
             for k in keys:
                 value = _parse_value(values[keys.index(k)])

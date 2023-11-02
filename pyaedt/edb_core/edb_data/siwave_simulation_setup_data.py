@@ -1,11 +1,11 @@
 import warnings
 
+from pyaedt.edb_core.edb_data.simulation_setup import BaseSimulationSetup
 from pyaedt.edb_core.edb_data.simulation_setup import EdbFrequencySweep
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.edb_core.edb_data.simulation_setup import BaseSimulationSetup
 
 
 class SiwaveAdvancedSettings(object):
@@ -916,7 +916,5 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup, SiwaveDCAdvancedSettings
         """
         terminals = self.source_terms_to_ground
         terminals[source_name] = terminal
-        self._edb_object.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
-            terminals
-        )
+        self._edb_object.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(terminals)
         return self._update_setup()
