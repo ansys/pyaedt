@@ -229,7 +229,7 @@ port_name = edb.padstacks.create_coax_port(con_pin)
 # Plot the geometry.
 
 
-edb.nets.plot()
+# edb.nets.plot()
 
 
 ###############################################################################
