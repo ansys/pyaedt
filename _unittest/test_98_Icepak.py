@@ -1307,3 +1307,18 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_68_mesh_priority_3d_comp(self, add_app):
+        app = add_app(
+            application=Icepak,
+            project_name="3d_comp_mesh_prio_test",
+            design_name="IcepakDesign1",
+            subfolder=test_subfolder,
+        )
+        assert app.mesh.add_priority(entity_type=2, comp_name="IcepakDesign1_1", priority=3)
+
+        assert app.mesh.add_priority(entity_type=2, comp_name="all_2d_objects1", priority=2)
+
+        assert app.mesh.add_priority(entity_type=2, comp_name="all_3d_objects1", priority=2)
+
+        app.close_project(name="3d_comp_mesh_prio_test", save_project=False)

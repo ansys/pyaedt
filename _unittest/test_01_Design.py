@@ -129,6 +129,9 @@ class TestClass:
 
     def test_14_get_nominal_variation(self):
         assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
+        assert isinstance(self.aedtapp.get_nominal_variation(), list)
+        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), list)
+        assert self.aedtapp.get_nominal_variation(with_values=True) != []
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("non_valid1", False)
