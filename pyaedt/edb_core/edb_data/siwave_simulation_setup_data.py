@@ -848,9 +848,6 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
         return sweep
 
 
-
-
-
 class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup, SiwaveDCAdvancedSettings):
     """Manages EDB methods for HFSS simulation setup."""
 
