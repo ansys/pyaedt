@@ -2180,7 +2180,7 @@ class TestClass:
         assert setup1.mesh_bondwires
         assert setup1.mesh_vias
         assert setup1.min_plane_area == "0.25mm2"
-        assert setup1.min_void_area == "0.01mm2"
+        assert setup1.dc_min_void_area_to_mesh == "0.01mm2"
         assert setup1.num_bondwire_sides == 8
         assert setup1.num_via_sides == 8
         assert setup1.percent_local_refinement == 20.0

@@ -1,3 +1,5 @@
+import warnings
+
 from pyaedt.edb_core.edb_data.simulation_setup import EdbFrequencySweep
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
@@ -375,6 +377,17 @@ class SiwaveDCAdvancedSettings(object):
         -------
         float
         """
+        warnings.warn("`min_void_area` is deprecated. Use `dc_min_void_area` property instead.", DeprecationWarning)
+        return self.dc_min_void_area_to_mesh
+
+    @property
+    def dc_min_void_area_to_mesh(self):
+        """Minimum area below which voids are ignored.
+
+        Returns
+        -------
+        float
+        """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh
 
     @property
@@ -597,10 +610,14 @@ class SiwaveDCAdvancedSettings(object):
         self.sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = value
         self._parent._update_setup()
 
-    @min_void_area.setter
-    def min_void_area(self, value):
+    @dc_min_void_area_to_mesh.setter
+    def dc_min_void_area_to_mesh(self, value):
         self.sim_setup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = value
         self._parent._update_setup()
+
+    @min_void_area.setter
+    def min_void_area(self, value):
+        self.dc_min_void_area_to_mesh = value
 
     @min_plane_area.setter
     def min_plane_area(self, value):
