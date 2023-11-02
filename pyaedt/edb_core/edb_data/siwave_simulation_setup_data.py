@@ -702,7 +702,7 @@ class SiwaveDCAdvancedSettings(object):
 
 
 class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
-    """Manages EDB methods for HFSS simulation setup."""
+    """Manages EDB methods for SIwave simulation setup."""
 
     def __init__(self, pedb, edb_setup=None):
         self._setup_type = "kSIwave"

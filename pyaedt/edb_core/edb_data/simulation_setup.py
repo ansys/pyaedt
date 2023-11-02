@@ -39,6 +39,8 @@ def _parse_value(v):
 
 
 class BaseSimulationSetup(object):
+    """Ansys.Ansoft.SimSetupData.Data.BaseSimulationSettings."""
+
     def __init__(self, pedb, edb_setup=None):
         self._pedb = pedb
 
@@ -70,6 +72,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler()
     def _get_edb_setup_info(self, edb_setup):
+        """Read simulation information from setup."""
 
         if self._setup_type == "kSIwave":
             edb_sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
@@ -132,6 +135,7 @@ class BaseSimulationSetup(object):
 
     @property
     def name(self):
+        """Name of the Setup."""
         return self._edb_object.Name
 
     @name.setter
@@ -143,6 +147,7 @@ class BaseSimulationSetup(object):
 
     @property
     def position(self):
+        """Position in the setup list."""
         return self._edb_object.Position
 
     @position.setter
@@ -151,11 +156,12 @@ class BaseSimulationSetup(object):
 
     @property
     def setup_type(self):
+        """Type of the setup."""
         return self._edb_object.SimSetupType.ToString()
 
     @property
     def frequency_sweeps(self):
-        """Get frequency sweep list."""
+        """list of frequency sweep."""
         temp = {}
         for i in list(self._edb_object.SweepDataList):
             temp[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
@@ -163,6 +169,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _create(self, name=None):
+        """Create a new setup."""
         if not name:
             name = generate_unique_name(self.setup_type)
             self._name = name
@@ -176,6 +183,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _generate_edb_setup(self):
+        """Generate convert simulation setup information into the format Edb can import."""
         setup_type_mapping = {
             "kHFSS": self._pedb.edb_api.utility.utility.HFSSSimulationSetup,
             "kPEM": None,
@@ -197,6 +205,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
+        """Update setup into Edb."""
         if self._setup_type == "kHFSS":
             mesh_operations = self._edb_object.SimulationSettings.MeshOperations
             mesh_operations.Clear()
@@ -229,6 +238,7 @@ class EdbFrequencySweep(object):
 
     @property
     def _pedb(self):
+        """Edb."""
         return self._sim_setup._pedb
 
     @pyaedt_function_handler()
