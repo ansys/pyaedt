@@ -42,7 +42,7 @@ class BaseSimulationSetup(object):
 
     def __init__(self, pedb, edb_setup=None):
         self._pedb = pedb
-        self._edb_setup = edb_setup
+        self._edb_object = edb_setup
 
         self._setup_type_mapping = {
             "kHFSS": self._pedb.simsetupdata.HFSSSimulationSettings,
@@ -61,8 +61,8 @@ class BaseSimulationSetup(object):
             "kQ3D": None,
             "kNumSetupTypes": None,
         }
-        if self._edb_setup:
-            self._name = self._edb_setup.GetName()
+        if self._edb_object:
+            self._name = self._edb_object.GetName()
 
     @pyaedt_function_handler
     def _create(self, name=None):
@@ -72,14 +72,14 @@ class BaseSimulationSetup(object):
             self._name = name
 
         edb_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
+        edb_setup_info.Name = name
         self._update_edb_setup(edb_setup_info)
-        self._edb_setup_info.Name = name
         self._update_setup()
 
     @property
     def _edb_setup_info(self):
         """Read simulation information from setup."""
-        edb_setup = self._edb_setup
+        edb_setup = self._edb_object
 
         if self._setup_type == "kSIwave":
             edb_sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
@@ -150,7 +150,7 @@ class BaseSimulationSetup(object):
             "kDDRwizard": None,
             "kQ3D": None,
             "kNumSetupTypes": None}
-        self._edb_setup = setup_type_mapping[self._setup_type](edb_setup_info)
+        self._edb_object = setup_type_mapping[self._setup_type](edb_setup_info)
 
     @pyaedt_function_handler()
     def _update_setup(self):
@@ -163,7 +163,7 @@ class BaseSimulationSetup(object):
 
         if self.name in self._pedb.setups:
             self._pedb.layout.cell.DeleteSimulationSetup(self.name)
-        return self._pedb.layout.cell.AddSimulationSetup(self._edb_setup)
+        return self._pedb.layout.cell.AddSimulationSetup(self._edb_object)
 
     @property
     def enabled(self):
@@ -172,15 +172,15 @@ class BaseSimulationSetup(object):
 
     @enabled.setter
     def enabled(self, value):
-        edb_setup_info = self._edb_setup_info.SimulationSettings
-        edb_setup_info.Enabled = value
+        edb_setup_info = self._edb_setup_info
+        edb_setup_info.SimulationSettings.Enabled = value
         self._update_edb_setup(edb_setup_info)
         self._update_setup()
 
     @property
     def name(self):
         """Name of the Setup."""
-        return self._edb_setup.GetName()
+        return self._edb_object.GetName()
 
     @name.setter
     def name(self, value):
@@ -216,7 +216,9 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _add_frequency_sweep(self, sweep_data):
-        self._edb_setup_info.SweepDataList.Add(sweep_data._edb_setup_info)
+        edb_setup_info = self._edb_setup_info
+        edb_setup_info.SweepDataList.Add(sweep_data._edb_object)
+        self._update_edb_setup(edb_setup_info)
 
     @pyaedt_function_handler
     def delete_frequency_sweep(self, name):

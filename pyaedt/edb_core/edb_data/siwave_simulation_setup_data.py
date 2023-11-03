@@ -15,7 +15,7 @@ class SiwaveAdvancedSettings(object):
     @property
     def sim_setup_info(self):
         """EDB internal simulation setup object."""
-        return self._parent._edb_object
+        return self._parent._edb_setup_info
 
     @property
     def include_inter_plane_coupling(self):
@@ -367,7 +367,7 @@ class SiwaveDCAdvancedSettings(object):
     def sim_setup_info(self):
         """EDB internal simulation setup object."""
 
-        return self._parent._edb_object
+        return self._parent._edb_setup_info
 
     @property
     def min_void_area(self):
@@ -761,14 +761,14 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
             self.include_fringe_coupling = True
             self.include_trace_coupling = True
             self.max_coupled_lines = 40
-        self._edb_object.SimulationSettings.UseCustomSettings = False
-        self._edb_object.SimulationSettings.PISliderPos = value
+        self._edb_setup_info.SimulationSettings.UseCustomSettings = False
+        self._edb_setup_info.SimulationSettings.PISliderPos = value
         self._update_setup()
 
     @property
     def si_slider_postion(self):
         """SI solider position. Values are from ``1`` to ``3``."""
-        return self._edb_object.SimulationSettings.SISliderPos
+        return self._edb_setup_info.SimulationSettings.SISliderPos
 
     @si_slider_postion.setter
     def si_slider_postion(self, value):
@@ -796,8 +796,8 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
             self.include_trace_coupling = True
             self.max_coupled_lines = 40
             self.return_current_distribution = True
-        self._edb_object.SimulationSettings.UseCustomSettings = False
-        self._edb_object.SimulationSettings.SISliderPos = value
+        self._edb_setup_info.SimulationSettings.UseCustomSettings = False
+        self._edb_setup_info.SimulationSettings.SISliderPos = value
         self._update_setup()
 
     @property
@@ -808,11 +808,11 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
         -------
         bool
         """
-        return self._edb_object.SimulationSettings.UseCustomSettings
+        return self._edb_setup_info.SimulationSettings.UseCustomSettings
 
     @use_custom_settings.setter
     def use_custom_settings(self, value):
-        self._edb_object.SimulationSettings.UseCustomSettings = value
+        self._edb_setup_info.SimulationSettings.UseCustomSettings = value
         self._update_setup()
 
     @property
@@ -823,12 +823,12 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
         -------
         bool
         """
-        return self._edb_object.SimulationSettings.UseSISettings
+        return self._edb_setup_info.SimulationSettings.UseSISettings
 
     @use_si_settings.setter
     def use_si_settings(self, value):
-        self._edb_object.SimulationSettings.UseCustomSettings = False
-        self._edb_object.SimulationSettings.UseSISettings = value
+        self._edb_setup_info.SimulationSettings.UseCustomSettings = False
+        self._edb_setup_info.SimulationSettings.UseSISettings = value
         self._update_setup()
 
 
@@ -839,7 +839,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup, SiwaveDCAdvancedSettings
         super().__init__(pedb, edb_object)
         self._edb = pedb
         self._mesh_operations = {}
-        self._edb_object = self._edb.simsetupdata.SimSetupInfo[
+        self._edb_setup_info = self._edb.simsetupdata.SimSetupInfo[
             self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
         ]()
 
@@ -861,7 +861,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup, SiwaveDCAdvancedSettings
             {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
 
         """
-        return convert_netdict_to_pydict(self._edb_object.SimulationSettings.DCIRSettings.SourceTermsToGround)
+        return convert_netdict_to_pydict(self._edb_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround)
 
     @pyaedt_function_handler()
     def add_source_terminal_to_ground(self, source_name, terminal=0):
@@ -885,5 +885,5 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup, SiwaveDCAdvancedSettings
         """
         terminals = self.source_terms_to_ground
         terminals[source_name] = terminal
-        self._edb_object.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(terminals)
+        self._edb_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(terminals)
         return self._update_setup()
