@@ -78,6 +78,13 @@ jobs:
 #            testenv\Scripts\Activate.ps1
 #            .\doc\make.bat pdf
 
+      # TODO: update upload action once path exclusion is implemented (if ever)
+      # see https://github.com/actions/upload-pages-artifact/issues/33
+      - name: Remove files to not upload
+        run: |
+          echo "Removing files not wanted in the uploaded artifact"
+          Remove-Item doc/_build/html/.doctrees -Recurse -Force
+
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v3
         with:
@@ -92,20 +99,6 @@ jobs:
           path: doc/_build/html/EDBAPI
           retention-days: 7
 
-#      - name: Upload PDF documentation artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: documentation-pdf
-#          path: doc/_build/pdf
-#          retention-days: 7
-
-#      - name: Release
-#        uses: softprops/action-gh-release@v1
-#        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-#        with:
-#          generate_release_notes: true
-#          files: |
-#            doc/_build/pdf
 
   doc-deploy-stable:
     name: Deploy stable documentation
