@@ -204,7 +204,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        """Update setup into Edb."""
+        """Update setup in EDB."""
         if self._setup_type == "kHFSS":
             mesh_operations = self._edb_object.SimulationSettings.MeshOperations
             mesh_operations.Clear()
