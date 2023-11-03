@@ -81,12 +81,13 @@ class ComponentArray(object):
 
         self._array_info_path = None
 
+        self._update_cells = True
+
         if self._app.settings.aedt_version > "2023.2":
             self.export_array_info(array_path=None)
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
 
         self._cells = None
-
         # Each component should also has the list of cells
 
         # self.cells[0][0] = {"component": x,
@@ -131,29 +132,24 @@ class ComponentArray(object):
         list
            List of component names.
         """
-        cells = [[None] * self.b_size] * self.a_size
+
+        if not self._update_cells:
+            return self._cells
+
+        if self._app.settings.aedt_version > "2023.2":
+            self.export_array_info(array_path=None)
+            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+
+        cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
         row = 0
         for row_cell in range(0, self.a_size):
             col = 0
             for col_cell in range(0, self.b_size):
-                component_index = self._array_props["cells"][row][col]
-                component_name = self.component_names[component_index - 1]
-                cells[row][col] = {"component": component_name, "rotation": False, "active": True}
+                cells[row][col] = CellArray(row, col, self)
                 col += 1
             row += 1
-
-        return cells
-
-    @cells.setter
-    def cells(self, val):
-        """
-
-        Returns
-        -------
-        list
-           List of component names.
-        """
-        pass
+        self._cells = cells
+        return self._cells
 
     @property
     def name(self):
@@ -421,6 +417,7 @@ class ComponentArray(object):
         if self._array_info_path and os.path.exists(self._array_info_path):
             array_props = self.array_info_parser(self._array_info_path)
         else:
+            self._app.save_project()
             array_props = self._get_array_info_from_aedt()
         return array_props
 
@@ -555,10 +552,10 @@ class ComponentArray(object):
         cells = ["NAME:Cells"]
         component_info = {}
         row = 1
-        for row_info in self._array_props["cells"]:
+        for row_info in self.cells[:]:
             col = 1
             for col_info in row_info:
-                name = self._array_props["component"][col_info - 1]
+                name = col_info.component
                 if name not in component_info.keys():
                     component_info[name] = [[row, col]]
                 else:
@@ -575,14 +572,14 @@ class ComponentArray(object):
         rotations = ["NAME:Rotation"]
         component_rotation = {}
         row = 1
-        for row_info in self._array_props["rotation"]:
+        for row_info in self.cells[:]:
             col = 1
             for col_info in row_info:
-                if float(col_info) != 0.0:
-                    if col_info not in component_rotation.keys():
-                        component_rotation[col_info] = [[row, col]]
+                if float(col_info.rotation) != 0.0:
+                    if col_info.rotation not in component_rotation.keys():
+                        component_rotation[col_info.rotation] = [[row, col]]
                     else:
-                        component_rotation[col_info].append([row, col])
+                        component_rotation[col_info.rotation].append([row, col])
                 col += 1
             row += 1
 
@@ -599,10 +596,10 @@ class ComponentArray(object):
 
         component_active = []
         row = 1
-        for row_info in self._array_props["active"]:
+        for row_info in self.cells:
             col = 1
             for col_info in row_info:
-                if col_info:
+                if col_info.active:
                     component_active.append([row, col])
                 col += 1
             row += 1
@@ -698,3 +695,72 @@ class ComponentArray(object):
     #         else:
     #             d[k] = v
     #     return d
+
+
+class CellArray(object):
+    """Manages object attributes for 3DComponent and User Defined Model."""
+
+    def __init__(self, row, col, array_obj):
+        self.row = row
+        self.col = col
+        self._array_obj = array_obj
+        self._cell_props = OrderedDict(
+            {
+                "component": self._array_obj._array_props["cells"][row][col],
+                "active": self._array_obj._array_props["active"][row][col],
+                "rotation": self._array_obj._array_props["rotation"][row][col],
+            }
+        )
+        self._rotation = self._cell_props["rotation"]
+        self._is_active = self._cell_props["active"]
+
+        component_index = self._cell_props["component"]
+        if component_index == -1:
+            self._component = None
+        else:
+            self._component = self._array_obj.component_names[component_index - 1]
+
+    @property
+    def rotation(self):
+        """ """
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, val):
+        if val in [0, 90, 180, 270]:
+            self._rotation = val
+            self._array_obj._update_cells = False
+            self._array_obj.edit_array()
+            self._array_obj._update_cells = True
+        else:
+            self._array_obj._logger.error("Rotation must be an integer. 0, 90, 180 and 270 degrees are available.")
+
+    @property
+    def component(self):
+        """ """
+        return self._component
+
+    @component.setter
+    def component(self, val):
+        if val in self._array_obj.component_names or val is None:
+            self._component = val
+            self._array_obj._update_cells = False
+            self._array_obj.edit_array()
+            self._array_obj._update_cells = True
+        else:
+            self._array_obj._logger.error("Component must be defined.")
+
+    @property
+    def is_active(self):
+        """ """
+        return self._is_active
+
+    @is_active.setter
+    def is_active(self, val):
+        if isinstance(val, bool):
+            self._is_active = val
+            self._array_obj._update_cells = False
+            self._array_obj.edit_array()
+            self._array_obj._update_cells = True
+        else:
+            self._array_obj._logger.error("Only bool type allowed.")
