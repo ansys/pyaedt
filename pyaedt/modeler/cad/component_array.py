@@ -88,6 +88,9 @@ class ComponentArray(object):
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
 
         self._cells = None
+
+        self._post_processing_cells = []
+
         # Each component should also has the list of cells
 
         # self.cells[0][0] = {"component": x,
@@ -564,10 +567,11 @@ class ComponentArray(object):
             row += 1
 
         for component_name, component_cells in component_info.items():
-            cells.append(component_name + ":=")
-            component_cells_str = [str(item) for item in component_cells]
-            component_cells_str = ", ".join(component_cells_str)
-            cells.append([component_cells_str])
+            if component_name:
+                cells.append(component_name + ":=")
+                component_cells_str = [str(item) for item in component_cells]
+                component_cells_str = ", ".join(component_cells_str)
+                cells.append([component_cells_str])
 
         rotations = ["NAME:Rotation"]
         component_rotation = {}
@@ -596,10 +600,10 @@ class ComponentArray(object):
 
         component_active = []
         row = 1
-        for row_info in self.cells:
+        for row_info in self.cells[:]:
             col = 1
             for col_info in row_info:
-                if col_info.active:
+                if col_info.is_active:
                     component_active.append([row, col])
                 col += 1
             row += 1
