@@ -831,37 +831,6 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup, SiwaveAdvancedSettings):
         self._edb_object.SimulationSettings.UseSISettings = value
         self._update_setup()
 
-    @pyaedt_function_handler()
-    def add_frequency_sweep(self, name=None, frequency_sweep=None):
-        """Add frequency sweep.
-
-        Parameters
-        ----------
-        name : str, optional
-            Name of the frequency sweep.
-        frequency_sweep : list, optional
-            List of frequency points.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.EdbFrequencySweep`
-
-        Examples
-        --------
-        >>> setup1 = edbapp.create_siwave_syz_setup("setup1")
-        >>> setup1.add_frequency_sweep(frequency_sweep=[
-        ...                           ["linear count", "0", "1kHz", 1],
-        ...                           ["log scale", "1kHz", "0.1GHz", 10],
-        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
-        ...                           ])
-        """
-        if name in self.frequency_sweeps:
-            return False
-        if not name:
-            name = generate_unique_name("sweep")
-        sweep = EdbFrequencySweep(self, frequency_sweep, name)
-        return sweep
-
 
 class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup, SiwaveDCAdvancedSettings):
     """Manages EDB methods for HFSS simulation setup."""

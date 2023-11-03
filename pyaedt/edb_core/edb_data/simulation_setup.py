@@ -167,6 +167,59 @@ class BaseSimulationSetup(object):
         return temp
 
     @pyaedt_function_handler
+    def _add_frequency_sweep(self, sweep_data):
+        self._edb_object.SweepDataList.Add(sweep_data._edb_object)
+
+    @pyaedt_function_handler
+    def delete_frequency_sweep(self, name):
+        fsweep = []
+        for k, val in self.frequency_sweeps.items():
+            if not k == name:
+                fsweep.append(val)
+        self._edb_object.SweepDataList.Clear()
+        for i in fsweep:
+            self._edb_object.SweepDataList.Add(i._edb_object)
+        self._update_setup()
+        return True if name in self.frequency_sweeps else False
+
+    @pyaedt_function_handler()
+    def add_frequency_sweep(self, name=None, frequency_sweep=None):
+        """Add frequency sweep.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the frequency sweep.
+        frequency_sweep : list, optional
+            List of frequency points.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.EdbFrequencySweep`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_syz_setup("setup1")
+        >>> setup1.add_frequency_sweep(frequency_sweep=[
+        ...                           ["linear count", "0", "1kHz", 1],
+        ...                           ["log scale", "1kHz", "0.1GHz", 10],
+        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ...                           ])
+        """
+        if name in self.frequency_sweeps:
+            return False
+
+        if not frequency_sweep:
+            frequency_sweep = [["linear scale", "0.1GHz", "10GHz", "0.1GHz"]]
+
+        if not name:
+            name = generate_unique_name("sweep")
+        sweep = EdbFrequencySweep(self, frequency_sweep, name)
+        self._add_frequency_sweep(sweep)
+        self._update_setup()
+        return sweep
+
+    @pyaedt_function_handler
     def _create(self, name=None):
         """Create a new setup."""
         if not name:
@@ -214,8 +267,7 @@ class BaseSimulationSetup(object):
         edb_setup = self._generate_edb_setup()
         if self.name in self._pedb.setups:
             self._pedb.layout.cell.DeleteSimulationSetup(self.name)
-        self._pedb.layout.cell.AddSimulationSetup(edb_setup)
-        return True
+        return self._pedb.layout.cell.AddSimulationSetup(edb_setup)
 
 
 class EdbFrequencySweep(object):
@@ -233,7 +285,11 @@ class EdbFrequencySweep(object):
             else:
                 self._name = name
             self._edb_sweep_data = self._pedb.simsetupdata.SweepData(self._name)
-            self.set_frequencies(frequency_sweep)
+            self.set_frequencies(frequency_sweep, False)
+
+    @property
+    def _edb_object(self):
+        return self._edb_sweep_data
 
     @property
     def _pedb(self):
@@ -243,11 +299,9 @@ class EdbFrequencySweep(object):
     @pyaedt_function_handler()
     def _update_sweep(self):
         """Update sweep."""
-        self._sim_setup._edb_object.SweepDataList.Clear()
-        for el in list(self._sim_setup.frequency_sweeps.values()):
-            self._sim_setup._edb_object.SweepDataList.Add(el._edb_sweep_data)
-        self._sim_setup._edb_object.SweepDataList.Add(self._edb_sweep_data)
-        return self._sim_setup._update_setup()
+        self._sim_setup.delete_frequency_sweep(self)
+        self._sim_setup._add_frequency_sweep(self)
+        return
 
     @property
     def name(self):
@@ -660,7 +714,7 @@ class EdbFrequencySweep(object):
         return self._update_sweep()
 
     @pyaedt_function_handler()
-    def set_frequencies(self, frequency_list=None):
+    def set_frequencies(self, frequency_list=None, update=True):
         """Set frequency list to the sweep frequencies.
 
         Parameters
@@ -698,4 +752,5 @@ class EdbFrequencySweep(object):
         self._edb_sweep_data.Frequencies.Clear()
         for i in temp:
             self._edb_sweep_data.Frequencies.Add(i)
-        return self._update_sweep()
+        if update:
+            return self._update_sweep()
