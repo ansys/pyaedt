@@ -20,6 +20,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler import cad
+from pyaedt.modeler.cad.component_array import ComponentArray
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -5706,6 +5707,10 @@ class Hfss(FieldAnalysis3D, object):
             self.omodelsetup.EditArray(args)
         else:
             self.omodelsetup.AssignArray(args)
+            if settings.aedt_version < "2024.2":
+                self.save_project()
+            self.component_array[array_name] = ComponentArray(self, array_name, self.design_properties)
+
         return True
 
     @pyaedt_function_handler()

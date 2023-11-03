@@ -8,29 +8,29 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import read_csv
 
-
-class ComponentArrayProps(OrderedDict):
-    """User Defined Component Internal Parameters."""
-
-    def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
-        if self._pyaedt_user_defined_component.auto_update:
-            res = self._pyaedt_user_defined_component.update_native()
-            if not res:
-                self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
-
-    def __init__(self, user_defined_components, props):
-        OrderedDict.__init__(self)
-        if props:
-            for key, value in props.items():
-                if isinstance(value, (dict, OrderedDict)):
-                    OrderedDict.__setitem__(self, key, ComponentArrayProps(user_defined_components, value))
-                else:
-                    OrderedDict.__setitem__(self, key, value)
-        self._pyaedt_user_defined_component = user_defined_components
-
-    def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+# class ComponentArrayProps(OrderedDict):
+#     """User Defined Component Internal Parameters."""
+#
+#     def __setitem__(self, key, value):
+#         OrderedDict.__setitem__(self, key, value)
+#         if self._pyaedt_user_defined_component.auto_update:
+#             res = self._pyaedt_user_defined_component.update_native()
+#             if not res:
+#                 self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments",
+#                 key)
+#
+#     def __init__(self, user_defined_components, props):
+#         OrderedDict.__init__(self)
+#         if props:
+#             for key, value in props.items():
+#                 if isinstance(value, (dict, OrderedDict)):
+#                     OrderedDict.__setitem__(self, key, ComponentArrayProps(user_defined_components, value))
+#                 else:
+#                     OrderedDict.__setitem__(self, key, value)
+#         self._pyaedt_user_defined_component = user_defined_components
+#
+#     def _setitem_without_update(self, key, value):
+#         OrderedDict.__setitem__(self, key, value)
 
 
 class ComponentArray(object):
@@ -76,8 +76,10 @@ class ComponentArray(object):
         self._oarray = self._app.get_oo_object(self._omodel, name)
 
         # Data that can not be obtained from CSV
-
-        self._cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
+        try:
+            self._cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
+        except:
+            self._cs_id = 1
 
         self._array_info_path = None
 
@@ -89,20 +91,7 @@ class ComponentArray(object):
 
         self._cells = None
 
-        self._post_processing_cells = []
-
-        # Each component should also has the list of cells
-
-        # self.cells[0][0] = {"component": x,
-        #                     "rotation": False,
-        #                     "active": True,
-        #                     }
-
-        # Methods
-
-        # Create array airbox and update  array airbox
-        # Delete array
-        # GetLatticeVector
+        self._post_processing_cells = {}
 
     @property
     def _array_props(self):
@@ -173,11 +162,39 @@ class ComponentArray(object):
                 self._app.component_array.update({array_name: self})
                 self._app.component_array_names = list(self._app.omodelsetup.GetArrayNames())
                 self._m_name = array_name
-                # if self._app.settings.aedt_version < "2024.2":
-                #     self._logger.warning("Array rename it is not possible on this AEDT version.")
-                # else:  # pragma: no cover
         else:  # pragma: no cover
             self._logger.warning("Name %s already assigned in the design", array_name)
+
+    @property
+    def post_processing_cells(self):
+        """ """
+        if not self._post_processing_cells:
+            self._post_processing_cells = {}
+            component_info = {}
+            row = 1
+            for row_info in self.cells[:]:
+                col = 1
+                for col_info in row_info:
+                    name = col_info.component
+                    if name not in component_info.keys():
+                        component_info[name] = [[row, col]]
+                    else:
+                        component_info[name].append([row, col])
+                    col += 1
+                row += 1
+
+            for component_name, component_cells in component_info.items():
+                if component_name not in self._post_processing_cells.keys() and component_name is not None:
+                    self._post_processing_cells[component_name] = component_cells[0]
+
+        return self._post_processing_cells
+
+    @post_processing_cells.setter
+    def post_processing_cells(self, val):
+        if isinstance(val, dict):
+            pass
+        else:  # pragma: no cover
+            self._logger.error("Dictionary with component names and cell not correct")
 
     @property
     def visible(self):
@@ -615,6 +632,11 @@ class ComponentArray(object):
             args.append("All")
 
         post = ["NAME:PostProcessingCells"]
+        for post_processing_cell in self.post_processing_cells:
+            post.append(post_processing_cell + ":=")
+            row = self.post_processing_cells[post_processing_cell][0]
+            col = self.post_processing_cells[post_processing_cell][1]
+            post.append([str(row), str(col)])
         args.append(post)
         args.append("Colors:=")
         col = []
@@ -622,6 +644,35 @@ class ComponentArray(object):
         self._app.omodelsetup.EditArray(args)
 
         return True
+
+    @pyaedt_function_handler()
+    def get_cell(self, row, col):
+        """
+
+        References
+        ----------
+
+        >>> oModule.EditArray
+
+        """
+        if row > self.a_size or col > self.b_size:
+            self._logger.error("Specified cell does not exist.")
+            return False
+        if row <= 0 or col <= 0:
+            self._logger.error("Row and column index start with ``1``.")
+        return self.cells[row - 1][col - 1]
+
+    @pyaedt_function_handler()
+    def lattice_vector(self):
+        """
+
+        References
+        ----------
+
+        >>> oModule.GetLatticeVectors()
+
+        """
+        return self._app.omodelsetup.GetLatticeVectors()
 
     @pyaedt_function_handler()
     def _get_array_info_from_aedt(self):
@@ -705,8 +756,8 @@ class CellArray(object):
     """Manages object attributes for 3DComponent and User Defined Model."""
 
     def __init__(self, row, col, array_obj):
-        self.row = row
-        self.col = col
+        self.row = row + 1
+        self.col = col + 1
         self._array_obj = array_obj
         self._cell_props = OrderedDict(
             {
@@ -746,9 +797,21 @@ class CellArray(object):
 
     @component.setter
     def component(self, val):
+        self._array_obj._update_cells = False
         if val in self._array_obj.component_names or val is None:
+            if val is None:
+                for post_processing_cell in self._array_obj.post_processing_cells:
+                    if (
+                        self._array_obj.post_processing_cells[post_processing_cell][0] == self.row
+                        and self._array_obj.post_processing_cells[post_processing_cell][1] == self.col
+                    ):
+                        flat_cell_list = [item for sublist in self._array_obj.cells for item in sublist]
+                        for cell in flat_cell_list:
+                            if cell.component == self.component and cell.col != self.col or cell.row != self.row:
+                                self._array_obj.post_processing_cells[self.component] = [cell.row, cell.col]
+                                break
+                        break
             self._component = val
-            self._array_obj._update_cells = False
             self._array_obj.edit_array()
             self._array_obj._update_cells = True
         else:
