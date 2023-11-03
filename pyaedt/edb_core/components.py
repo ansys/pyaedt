@@ -1869,10 +1869,10 @@ class Components(object):
         cmp_property.SetSolderBallProperty(solder_ball_prop)
 
         port_prop = cmp_property.GetPortProperty().Clone()
+        port_prop.SetReferenceHeight(self._pedb.edb_value(reference_height))
         port_prop.SetReferenceSizeAuto(auto_reference_size)
         if not auto_reference_size:
             port_prop.SetReferenceSize(self._pedb.edb_value(reference_size_x), self._pedb.edb_value(reference_size_y))
-            port_prop.SetReferenceHeight(self._pedb.edb_value(reference_height))
         cmp_property.SetPortProperty(port_prop)
         edb_cmp.SetComponentProperty(cmp_property)
         return True
