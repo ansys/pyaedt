@@ -551,6 +551,22 @@ class GeometryModeler(Modeler):
         return new_obs3d
 
     @property
+    def layout_component_names(self):
+        """List of the names of all Layout component objects.
+
+        Returns
+        -------
+        list
+            Layout component names.
+        """
+        lc_names = []
+        if self.user_defined_components:
+            for name, value in self.user_defined_components.items():
+                if value.layout_component:
+                    lc_names.append(name)
+        return lc_names
+
+    @property
     def _oproject(self):
         """Project."""
         return self._app.oproject
