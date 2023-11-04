@@ -2169,6 +2169,7 @@ class TestClass:
     def test_130_siwave_dc_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_dc_setup("DC1")
         assert setup1.name == "DC1"
+        self.edbapp.setups["DC1"].dc_settings.compute_inductance = True
 
         for p in [0, 1, 2]:
             setup1.set_dc_slider(p)
