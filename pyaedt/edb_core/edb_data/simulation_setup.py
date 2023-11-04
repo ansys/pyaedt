@@ -71,7 +71,8 @@ class BaseSimulationSetup(object):
             name = generate_unique_name(self.setup_type)
             self._name = name
 
-        edb_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
+        setup_type = self._setup_type_mapping[self._setup_type]
+        edb_setup_info = self._pedb.simsetupdata.SimSetupInfo[setup_type]()
         edb_setup_info.Name = name
         self._update_edb_setup(edb_setup_info)
         self._update_setup()
@@ -264,10 +265,20 @@ class BaseSimulationSetup(object):
 
         if not name:
             name = generate_unique_name("sweep")
-        sweep = EdbFrequencySweep(self, frequency_sweep, name)
-        self._add_frequency_sweep(sweep)
+        #sweep = EdbFrequencySweep(self, frequency_sweep, name)
+        self._edb_object.ToString()
+
+        #self._add_frequency_sweep(sweep)
+        edb_sweep_data = self._pedb.simsetupdata.SweepData(name)
+        edb_sweep_data.Frequencies.Clear()
+        edb_sweep_data.Frequencies.Add("1")
+        #edb_sweep_data.Frequencies.Add("2e9")
+        edb_setup_info = self._edb_setup_info
+        #edb_setup_info.SweepDataList.Add(edb_sweep_data)
+        self._edb_object = self._pedb.edb_api.utility.utility.SIWaveSimulationSetup(edb_setup_info)
+        self._edb_object.ToString()
         self._update_setup()
-        return sweep
+        return
 
 
 class EdbFrequencySweep(object):
@@ -285,7 +296,7 @@ class EdbFrequencySweep(object):
             else:
                 self._name = name
             self._edb_sweep_data = self._pedb.simsetupdata.SweepData(self._name)
-            self.set_frequencies(frequency_sweep, False)
+            self.set_frequencies(frequency_sweep, True)
 
     @property
     def _edb_object(self):
