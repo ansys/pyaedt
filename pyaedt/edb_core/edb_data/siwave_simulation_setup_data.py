@@ -514,7 +514,7 @@ class DCSettings(SettingsBase):
             #"compute_inductance": [False, False, False],
             "contact_radius": ["0.1mm", "0.1mm", "0.1mm"],
             "dc_slider_position": [0, 1, 2],
-            #"use_dc_custom_settings": [False, False, False],
+            "use_dc_custom_settings": [False, False, False],
             "plot_jv": [True, True, True],
         }
 
@@ -592,6 +592,7 @@ class DCSettings(SettingsBase):
     def use_dc_custom_settings(self, value):
         edb_setup_info = self.sim_setup_info
         edb_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = value
+        self._parent._edb_object = self._parent._set_edb_setup_info(edb_setup_info)
         self._parent._update_setup()
 
     @property
