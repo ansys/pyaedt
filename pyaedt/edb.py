@@ -3194,7 +3194,7 @@ class Edb(Database):
                 self.edbpath = legacy_name
                 self.open_edb()
             return True
-        except:  # pragma: no cover
+        except:
             return False
 
     @pyaedt_function_handler()
@@ -3412,8 +3412,8 @@ class Edb(Database):
             name = generate_unique_name("Siwave_SYZ")
         if name in self.setups:
             return False
-        setup_info = SiwaveSYZSimulationSetup(self).create(name)
-        return setup_info
+        SiwaveSYZSimulationSetup(self).create(name)
+        return self.setups[name]
 
     @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):

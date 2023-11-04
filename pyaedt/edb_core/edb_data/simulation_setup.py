@@ -1,40 +1,7 @@
+import re
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-
-def _parse_value(v):
-    """
-
-    Parameters
-    ----------
-    v :
-
-
-    Returns
-    -------
-
-    """
-    #  duck typing parse of the value 'v'
-    if v is None or v == "":
-        pv = v
-    elif v == "true":
-        pv = True
-    elif v == "false":
-        pv = False
-    else:
-        try:
-            pv = int(v)
-        except ValueError:
-            try:
-                pv = float(v)
-            except ValueError:
-                if isinstance(v, str) and v[0] == v[-1] == "'":
-                    pv = v[1:-1]
-                else:
-                    pv = v
-    return pv
 
 
 class BaseSimulationSetup(object):
@@ -43,7 +10,7 @@ class BaseSimulationSetup(object):
     def __init__(self, pedb, edb_setup=None):
         self._pedb = pedb
         self._edb_object = edb_setup
-
+        self._setup_type = ""
         self._setup_type_mapping = {
             "kHFSS": self._pedb.simsetupdata.HFSSSimulationSettings,
             "kPEM": None,
@@ -74,67 +41,11 @@ class BaseSimulationSetup(object):
         setup_type = self._setup_type_mapping[self._setup_type]
         edb_setup_info = self._pedb.simsetupdata.SimSetupInfo[setup_type]()
         edb_setup_info.Name = name
-        self._update_edb_setup(edb_setup_info)
+        self._edb_object = self._set_edb_setup_info(edb_setup_info)
         self._update_setup()
 
-    @property
-    def _edb_setup_info(self):
-        """Read simulation information from setup."""
-        edb_setup = self._edb_object
-
-        if self._setup_type == "kSIwave":
-            edb_sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
-
-            string = edb_setup.ToString().replace("\t", "").split("\r\n")
-            if is_linux:
-                string = string[0].split("\n")
-            keys = [i.split("=")[0] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
-            values = [i.split("=")[1] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
-            for val in string:
-                if "SourceTermsToGround()" in val:
-                    break
-                elif "SourceTermsToGround" in val:
-                    sources = {}
-                    val = val.replace("SourceTermsToGround(", "").replace(")", "").split(",")
-                    for v in val:
-                        source = v.split("=")
-                        sources[source[0]] = source[1]
-                    edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
-                        sources
-                    )
-                    break
-            for k in keys:
-                value = _parse_value(values[keys.index(k)])
-                setter = None
-                if k in dir(edb_sim_setup_info.SimulationSettings):
-                    setter = edb_sim_setup_info.SimulationSettings
-                elif k in dir(edb_sim_setup_info.SimulationSettings.AdvancedSettings):
-                    setter = edb_sim_setup_info.SimulationSettings.AdvancedSettings
-
-                elif k in dir(edb_sim_setup_info.SimulationSettings.DCAdvancedSettings):
-                    setter = edb_sim_setup_info.SimulationSettings.DCAdvancedSettings
-                elif "DCIRSettings" in dir(edb_sim_setup_info.SimulationSettings) and k in dir(
-                    edb_sim_setup_info.SimulationSettings.DCIRSettings
-                ):
-                    setter = edb_sim_setup_info.SimulationSettings.DCIRSettings
-                elif k in dir(edb_sim_setup_info.SimulationSettings.DCSettings):
-                    setter = edb_sim_setup_info.SimulationSettings.DCSettings
-                elif k in dir(edb_sim_setup_info.SimulationSettings.AdvancedSettings):
-                    setter = edb_sim_setup_info.SimulationSettings.AdvancedSettings
-                if setter:
-                    try:
-                        setter.__setattr__(k, value)
-                    except TypeError:
-                        try:
-                            setter.__setattr__(k, str(value))
-                        except:
-                            pass
-            return edb_sim_setup_info
-        elif self._setup_type == "kHFSS":
-            return edb_setup.GetSimSetupInfo()
-
     @pyaedt_function_handler
-    def _update_edb_setup(self, edb_setup_info):
+    def _set_edb_setup_info(self, edb_setup_info):
         setup_type_mapping = {
             "kHFSS": self._pedb.edb_api.utility.utility.HFSSSimulationSetup,
             "kPEM": None,
@@ -151,31 +62,34 @@ class BaseSimulationSetup(object):
             "kDDRwizard": None,
             "kQ3D": None,
             "kNumSetupTypes": None}
-        self._edb_object = setup_type_mapping[self._setup_type](edb_setup_info)
+        return setup_type_mapping[self._setup_type](edb_setup_info)
 
     @pyaedt_function_handler()
     def _update_setup(self):
         """Update setup into Edb."""
         if self._setup_type == "kHFSS":
-            mesh_operations = self._edb_setup_info.SimulationSettings.MeshOperations
+            mesh_operations = self.get_sim_setup_info.SimulationSettings.MeshOperations
             mesh_operations.Clear()
             for mop in self.mesh_operations.values():
                 mesh_operations.Add(mop.mesh_operation)
 
-        if self.name in self._pedb.setups:
-            self._pedb.layout.cell.DeleteSimulationSetup(self.name)
-        return self._pedb.layout.cell.AddSimulationSetup(self._edb_object)
+        if self._name in self._pedb.setups:
+            self._pedb.layout.cell.DeleteSimulationSetup(self._name)
+        if not self._pedb.layout.cell.AddSimulationSetup(self._edb_object):
+            raise Exception("Updating setup {} failed.".format(self._name))
+        else:
+            return True
 
     @property
     def enabled(self):
         """Whether the setup is enabled."""
-        return self._edb_setup_info.SimulationSettings.Enabled
+        return self.get_sim_setup_info.SimulationSettings.Enabled
 
     @enabled.setter
     def enabled(self, value):
-        edb_setup_info = self._edb_setup_info
+        edb_setup_info = self.get_sim_setup_info
         edb_setup_info.SimulationSettings.Enabled = value
-        self._update_edb_setup(edb_setup_info)
+        self._edb_object = self._set_edb_setup_info(edb_setup_info)
         self._update_setup()
 
     @property
@@ -186,40 +100,43 @@ class BaseSimulationSetup(object):
     @name.setter
     def name(self, value):
         self._pedb.layout.cell.DeleteSimulationSetup(self.name)
-        self._edb_setup_info.Name = value
+        edb_setup_info = self.get_sim_setup_info
+        edb_setup_info.Name = value
         self._name = value
+        self._edb_object = self._set_edb_setup_info(edb_setup_info)
         self._update_setup()
 
     @property
     def position(self):
         """Position in the setup list."""
-        return self._edb_setup_info.Position
+        return self.get_sim_setup_info.Position
 
     @position.setter
     def position(self, value):
-        edb_setup_info = self._edb_setup_info.SimulationSettings
+        edb_setup_info = self.get_sim_setup_info.SimulationSettings
         edb_setup_info.Position = value
-        self._update_edb_setup(edb_setup_info)
+        self._set_edb_setup_info(edb_setup_info)
         self._update_setup()
 
     @property
     def setup_type(self):
         """Type of the setup."""
-        return self._edb_setup_info.SimSetupType.ToString()
+        return self.get_sim_setup_info.SimSetupType.ToString()
 
     @property
     def frequency_sweeps(self):
         """list of frequency sweep."""
         temp = {}
-        for i in list(self._edb_setup_info.SweepDataList):
+        for i in list(self.get_sim_setup_info.SweepDataList):
             temp[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
         return temp
 
     @pyaedt_function_handler
     def _add_frequency_sweep(self, sweep_data):
-        edb_setup_info = self._edb_setup_info
+        edb_setup_info = self.get_sim_setup_info
         edb_setup_info.SweepDataList.Add(sweep_data._edb_object)
-        self._update_edb_setup(edb_setup_info)
+        self._edb_object = self._set_edb_setup_info(edb_setup_info)
+        self._update_setup()
 
     @pyaedt_function_handler
     def delete_frequency_sweep(self, name):
@@ -227,9 +144,9 @@ class BaseSimulationSetup(object):
         for k, val in self.frequency_sweeps.items():
             if not k == name:
                 fsweep.append(val)
-        self._edb_setup_info.SweepDataList.Clear()
+        self.get_sim_setup_info.SweepDataList.Clear()
         for i in fsweep:
-            self._edb_setup_info.SweepDataList.Add(i._edb_setup_info)
+            self.get_sim_setup_info.SweepDataList.Add(i._edb_object)
         self._update_setup()
         return True if name in self.frequency_sweeps else False
 
@@ -265,20 +182,10 @@ class BaseSimulationSetup(object):
 
         if not name:
             name = generate_unique_name("sweep")
-        #sweep = EdbFrequencySweep(self, frequency_sweep, name)
-        self._edb_object.ToString()
-
-        #self._add_frequency_sweep(sweep)
-        edb_sweep_data = self._pedb.simsetupdata.SweepData(name)
-        edb_sweep_data.Frequencies.Clear()
-        edb_sweep_data.Frequencies.Add("1")
-        #edb_sweep_data.Frequencies.Add("2e9")
-        edb_setup_info = self._edb_setup_info
-        #edb_setup_info.SweepDataList.Add(edb_sweep_data)
-        self._edb_object = self._pedb.edb_api.utility.utility.SIWaveSimulationSetup(edb_setup_info)
-        self._edb_object.ToString()
+        sweep = EdbFrequencySweep(self, frequency_sweep, name)
+        self._add_frequency_sweep(sweep)
         self._update_setup()
-        return
+        return sweep
 
 
 class EdbFrequencySweep(object):
@@ -296,7 +203,7 @@ class EdbFrequencySweep(object):
             else:
                 self._name = name
             self._edb_sweep_data = self._pedb.simsetupdata.SweepData(self._name)
-            self.set_frequencies(frequency_sweep, True)
+            self.set_frequencies(frequency_sweep)
 
     @property
     def _edb_object(self):

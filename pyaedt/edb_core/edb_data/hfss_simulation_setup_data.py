@@ -276,7 +276,7 @@ class HfssPortSettings(object):
 
     @property
     def _hfss_port_settings(self):
-        return self._parent._edb_object.SimulationSettings.HFSSPortSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.HFSSPortSettings
 
     @property
     def max_delta_z0(self):
@@ -348,7 +348,7 @@ class HfssSolverSettings(object):
 
     @property
     def _hfss_solver_settings(self):
-        return self._parent._edb_object.SimulationSettings.HFSSSolverSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.HFSSSolverSettings
 
     @property
     def enhanced_low_freq_accuracy(self):
@@ -517,7 +517,7 @@ class AdaptiveSettings(object):
         -------
         :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveSettings`
         """
-        return self._parent._edb_object.SimulationSettings.AdaptiveSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.AdaptiveSettings
 
     @property
     def adaptive_frequency_data_list(self):
@@ -757,7 +757,7 @@ class DefeatureSettings(object):
 
     @property
     def _defeature_settings(self):
-        return self._parent._edb_object.SimulationSettings.DefeatureSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.DefeatureSettings
 
     @property
     def defeature_abs_length(self):
@@ -925,7 +925,7 @@ class ViaSettings(object):
 
     @property
     def _via_settings(self):
-        return self._parent._edb_object.SimulationSettings.ViaSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.ViaSettings
 
     @property
     def via_density(self):
@@ -1002,7 +1002,7 @@ class AdvancedMeshSettings(object):
 
     @property
     def _advanced_mesh_settings(self):
-        return self._parent._edb_object.SimulationSettings.AdvancedMeshSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.AdvancedMeshSettings
 
     @property
     def layer_snap_tol(self):
@@ -1061,7 +1061,7 @@ class CurveApproxSettings(object):
 
     @property
     def _curve_approx_settings(self):
-        return self._parent._edb_object.SimulationSettings.CurveApproxSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.CurveApproxSettings
 
     @property
     def arc_angle(self):
@@ -1147,7 +1147,7 @@ class DcrSettings(object):
 
     @property
     def _dcr_settings(self):
-        return self._parent._edb_object.SimulationSettings.DCRSettings
+        return self._parent.get_sim_setup_info.SimulationSettings.DCRSettings
 
     @property
     def conduction_max_passes(self):
@@ -1229,15 +1229,19 @@ class HfssSimulationSetup(BaseSimulationSetup):
     """Manages EDB methods for HFSS simulation setup."""
 
     def __init__(self, pedb, edb_object=None):
-        self._setup_type = "kHFSS"
         super().__init__(pedb, edb_object)
-
+        self._setup_type = "kHFSS"
         self._mesh_operations = {}
 
     @pyaedt_function_handler()
     def create(self, name=None):
+        self._name = name
         self._create(name)
         return self
+
+    @property
+    def get_sim_setup_info(self):
+        return self._edb_object.GetSimSetupInfo()
 
     @property
     def solver_slider_type(self):
@@ -1252,28 +1256,28 @@ class HfssSimulationSetup(BaseSimulationSetup):
         -------
         str
         """
-        return self._edb_object.SimulationSettings.TSolveSliderType.ToString()
+        return self.get_sim_setup_info.SimulationSettings.TSolveSliderType.ToString()
 
     @solver_slider_type.setter
     def solver_slider_type(self, value):
         """Set solver slider type."""
         solver_types = {
-            "kFast": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaWirebond,
-            "kMedium": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaRibbon,
-            "kAccurate": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaMesh,
-            "kNumSliderTypes": self._edb_object.SimulationSettings.TSolveSliderType.k25DViaField,
+            "kFast": self.get_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaWirebond,
+            "kMedium": self.get_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaRibbon,
+            "kAccurate": self.get_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaMesh,
+            "kNumSliderTypes": self.get_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaField,
         }
-        self._edb_object.SimulationSettings.TSolveSliderType = solver_types[value]
+        self.get_sim_setup_info.SimulationSettings.TSolveSliderType = solver_types[value]
         self._update_setup()
 
     @property
     def is_auto_setup(self):
         """Whether if auto setup is enabled."""
-        return self._edb_object.SimulationSettings.IsAutoSetup
+        return self.get_sim_setup_info.SimulationSettings.IsAutoSetup
 
     @is_auto_setup.setter
     def is_auto_setup(self, value):
-        self._edb_object.SimulationSettings.IsAutoSetup = value
+        self.get_sim_setup_info.SimulationSettings.IsAutoSetup = value
         self._update_setup()
 
     @property
@@ -1375,7 +1379,7 @@ class HfssSimulationSetup(BaseSimulationSetup):
         """
         if self._mesh_operations:
             return self._mesh_operations
-        settings = self._edb_object.SimulationSettings.MeshOperations
+        settings = self.get_sim_setup_info.SimulationSettings.MeshOperations
         self._mesh_operations = {}
         for i in list(settings):
             if i.MeshOpType == i.TMeshOpType.kMeshSetupLength:

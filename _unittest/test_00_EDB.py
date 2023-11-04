@@ -2169,71 +2169,37 @@ class TestClass:
     def test_130_siwave_dc_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_dc_setup("DC1")
         assert setup1.name == "DC1"
-        assert not setup1.compute_inductance
-        assert setup1.contact_radius == "0.1mm"
-        assert setup1.dc_slider_position == 1
-        assert setup1.enabled
-        assert setup1.energy_error == 3.0
-        assert setup1.max_init_mesh_edge_length == "2.5mm"
-        assert setup1.max_num_pass == 5
-        assert setup1.min_num_pass == 1
-        assert setup1.mesh_bondwires
-        assert setup1.mesh_vias
-        assert setup1.min_plane_area == "0.25mm2"
-        assert setup1.dc_min_void_area_to_mesh == "0.01mm2"
-        assert setup1.num_bondwire_sides == 8
-        assert setup1.num_via_sides == 8
-        assert setup1.percent_local_refinement == 20.0
-        assert setup1.perform_adaptive_refinement
-        assert setup1.plot_jv
-        assert not setup1.refine_bondwires
-        assert not setup1.refine_vias
-        setup1.name = "DC2"
-        setup1.compute_inductance = True
-        setup1.contact_radius = "0.2mm"
-        setup1.dc_slider_position = 2
-        setup1.energy_error = 2.0
-        setup1.max_init_mesh_edge_length = "5.5mm"
-        setup1.max_num_pass = 3
-        setup1.min_num_pass = 2
-        setup1.mesh_bondwires = False
-        setup1.mesh_vias = False
-        assert not setup1.mesh_bondwires
-        assert not setup1.mesh_vias
-        setup1.min_plane_area = "0.5mm2"
-        setup1.min_void_area = "0.021mm2"
-        setup1.num_bondwire_sides = 6
-        setup1.num_via_sides = 10
-        setup1.percent_local_refinement = 10.0
-        setup1.perform_adaptive_refinement = False
-        setup1.plot_jv = False
-        setup1.refine_bondwires = True
-        setup1.refine_vias = True
 
-        assert setup1.name == "DC2"
-        assert setup1.compute_inductance
-        assert setup1.contact_radius == "0.2mm"
-        assert setup1.dc_slider_position == 2
-        assert setup1.energy_error == 2.0
-        assert setup1.max_init_mesh_edge_length == "5.5mm"
-        assert setup1.max_num_pass == 3
-        assert setup1.min_num_pass == 2
-        assert setup1.mesh_bondwires
-        assert setup1.mesh_vias
-        assert setup1.min_plane_area == "0.5mm2"
-        assert setup1.min_void_area == "0.021mm2"
-        assert setup1.num_bondwire_sides == 6
-        assert setup1.num_via_sides == 10
-        assert setup1.percent_local_refinement == 10.0
-        assert not setup1.perform_adaptive_refinement
-        assert not setup1.plot_jv
-        assert setup1.refine_bondwires
-        assert setup1.refine_vias
+        for p in [0, 1, 2]:
+            setup1.set_dc_slider(p)
+            settings = self.edbapp.setups["DC1"].get_dict()
+            for k, v in setup1.dc_settings.defaults.items():
+                print(k)
+                assert  settings["dc_settings"][k] == v[p]
+
+            for k, v in setup1.dc_advanced_settings.defaults.items():
+                print(k)
+                assert  settings["dc_advanced_settings"][k] == v[p]
+
+
 
     def test_131_siwave_ac_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_syz_setup("AC1")
         assert setup1.name == "AC1"
         assert setup1.enabled
+
+        for p in [0, 1, 2]:
+            setup1.set_si_slider(p)
+            settings = self.edbapp.setups["AC1"].get_dict()
+            for k, v in setup1.advanced_settings.si_defaults.items():
+                assert  settings["advanced_settings"][k] == v[p]
+
+        for p in [0, 1, 2]:
+            setup1.set_pi_slider(p)
+            settings = self.edbapp.setups["AC1"].get_dict()
+            for k, v in setup1.advanced_settings.pi_defaults.items():
+                assert  settings["advanced_settings"][k] == v[p]
+
         sweep = setup1.add_frequency_sweep(
             "sweep1",
             frequency_sweep=[
@@ -2242,7 +2208,6 @@ class TestClass:
                 ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
             ],
         )
-        assert "sweep1" in setup1.frequency_sweeps
         assert "0" in sweep.frequencies
         assert not sweep.adaptive_sampling
         assert not sweep.adv_dc_extrapolation
@@ -2301,84 +2266,6 @@ class TestClass:
         assert sweep.save_rad_fields_only
         assert sweep.use_q3d_for_dc
 
-        setup1.pi_slider_postion = 0
-        setup1.pi_slider_postion = 1
-        setup1.pi_slider_postion = 2
-        setup1.si_slider_postion = 0
-        setup1.si_slider_postion = 1
-        setup1.si_slider_postion = 2
-        assert setup1.automatic_mesh
-        assert setup1.enabled
-        assert setup1.dc_settings
-        assert setup1.ignore_non_functional_pads
-        assert setup1.include_coplane_coupling
-        assert setup1.include_fringe_coupling
-        assert not setup1.include_infinite_ground
-        assert not setup1.include_inter_plane_coupling
-        assert setup1.include_split_plane_coupling
-        assert setup1.include_trace_coupling
-        assert not setup1.include_vi_sources
-        assert setup1.infinite_ground_location == "0"
-        assert setup1.max_coupled_lines == 40
-        assert setup1.mesh_frequency == "4GHz"
-        assert setup1.min_pad_area_to_mesh == "1mm2"
-        assert setup1.min_plane_area_to_mesh == "6.25e-6mm2"
-        assert setup1.min_void_area == "2mm2"
-        assert setup1.name == "AC1"
-        assert setup1.perform_erc
-        assert setup1.return_current_distribution
-        assert setup1.snap_length_threshold == "2.5um"
-        assert setup1.use_si_settings
-        assert setup1.use_custom_settings
-        assert setup1.xtalk_threshold == "-34"
-
-        setup1.automatic_mesh = False
-        setup1.enabled = False
-        setup1.ignore_non_functional_pads = False
-        setup1.include_coplane_coupling = False
-        setup1.include_fringe_coupling = False
-        setup1.include_infinite_ground = True
-        setup1.include_inter_plane_coupling = True
-        setup1.include_split_plane_coupling = False
-        setup1.include_trace_coupling = False
-        assert setup1.use_custom_settings
-        setup1.include_vi_sources = True
-        setup1.infinite_ground_location = "0.1"
-        setup1.max_coupled_lines = 10
-        setup1.mesh_frequency = "3GHz"
-        setup1.min_pad_area_to_mesh = "2mm2"
-        setup1.min_plane_area_to_mesh = "5.25e-6mm2"
-        setup1.min_void_area = "1mm2"
-        setup1.name = "AC2"
-        setup1.perform_erc = False
-        setup1.return_current_distribution = True
-        setup1.snap_length_threshold = "3.5um"
-        setup1.use_si_settings = False
-        assert not setup1.use_custom_settings
-        setup1.xtalk_threshold = "-44"
-
-        assert not setup1.automatic_mesh
-        assert not setup1.enabled
-        assert not setup1.ignore_non_functional_pads
-        assert not setup1.include_coplane_coupling
-        assert not setup1.include_fringe_coupling
-        assert setup1.include_infinite_ground
-        assert setup1.include_inter_plane_coupling
-        assert not setup1.include_split_plane_coupling
-        assert not setup1.include_trace_coupling
-        assert setup1.include_vi_sources
-        assert setup1.infinite_ground_location == "0.1"
-        assert setup1.max_coupled_lines == 10
-        assert setup1.mesh_frequency == "3GHz"
-        assert setup1.min_pad_area_to_mesh == "2mm2"
-        assert setup1.min_plane_area_to_mesh == "5.25e-6mm2"
-        assert setup1.min_void_area == "1mm2"
-        assert setup1.name == "AC2"
-        assert not setup1.perform_erc
-        assert setup1.return_current_distribution
-        assert setup1.snap_length_threshold == "3.5um"
-        assert not setup1.use_si_settings
-        assert setup1.xtalk_threshold == "-44"
 
     def test_132_via_plating_ratio_check(self):
         assert self.edbapp.padstacks.check_and_fix_via_plating()
@@ -2392,7 +2279,7 @@ class TestClass:
         simconfig.solver_type = SolverType.SiwaveSYZ
         simconfig.mesh_freq = "40.25GHz"
         edbapp.build_simulation_project(simconfig)
-        assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
+        assert edbapp.siwave_ac_setups[simconfig.setup_name].advanced_settings.mesh_frequency == simconfig.mesh_freq
         edbapp.close()
 
     def test_134_create_port_between_pin_and_layer(self):
