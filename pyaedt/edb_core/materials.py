@@ -827,7 +827,7 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def add_material_from_aedt(self, material_name):
-        """Add a material read from ``syslib AMAT`` library.
+        """Add a material read from a ``syslib AMAT`` library.
 
         Parameters
         ----------
@@ -867,7 +867,7 @@ class Materials(object):
         Parameters
         ----------
         amat_file : str
-            Full path to the amat file to read and add to the Edb.
+            Full path to the AMAT file to read and add to the Edb.
 
         Returns
         -------
@@ -902,7 +902,7 @@ class Materials(object):
         Parameters
         ----------
         amat_file : str
-            Full path to the amat file to read.
+            Full path to the AMAT file to read.
 
         Returns
         -------
