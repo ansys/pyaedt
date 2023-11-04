@@ -515,7 +515,7 @@ class DCSettings(SettingsBase):
             "contact_radius": ["0.1mm", "0.1mm", "0.1mm"],
             "dc_slider_position": [0, 1, 2],
             "use_dc_custom_settings": [False, False, False],
-            #"plot_jv": [True, True, True],
+            "plot_jv": [True, True, True],
         }
 
     @property
@@ -897,6 +897,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
         super().__init__(pedb, edb_setup)
         self._edb = self._pedb
         self._setup_type = "kSIwave"
+        self._sim_setup_info = None
 
     @pyaedt_function_handler()
     def create(self, name=None):
@@ -922,8 +923,10 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
     @property
     def get_sim_setup_info(self):
         """Read simulation information from setup."""
-        edb_setup = self._edb_object
+        if self._sim_setup_info:
+            return self._sim_setup_info
 
+        edb_setup = self._edb_object
         edb_sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[self._setup_type_mapping[self._setup_type]]()
         edb_sim_setup_info.Name = edb_setup.GetName()
 
@@ -1054,14 +1057,11 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         self._setup_type = "kSIwaveDCIR"
         self._edb = pedb
         self._mesh_operations = {}
-        self._edb_setup_info = self._edb.simsetupdata.SimSetupInfo[
-            self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-        ]()
 
     def create(self, name=None):
         self._name = name
         self._create(name)
-        self.dc_settings.set_dc_slider(1)
+        self.set_dc_slider(1)
         return self
 
     @pyaedt_function_handler
@@ -1101,7 +1101,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
             {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
 
         """
-        return convert_netdict_to_pydict(self._edb_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround)
+        return convert_netdict_to_pydict(self.get_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround)
 
     @pyaedt_function_handler()
     def add_source_terminal_to_ground(self, source_name, terminal=0):
@@ -1125,5 +1125,5 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         """
         terminals = self.source_terms_to_ground
         terminals[source_name] = terminal
-        self._edb_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(terminals)
+        self.get_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(terminals)
         return self._update_setup()
