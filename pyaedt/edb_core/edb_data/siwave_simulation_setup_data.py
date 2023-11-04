@@ -511,11 +511,11 @@ class DCSettings(SettingsBase):
     def __init__(self, parent):
         self._parent = parent
         self.defaults = {
-            #"compute_inductance": [False, False, False],
+            "compute_inductance": [False, False, False],
             "contact_radius": ["0.1mm", "0.1mm", "0.1mm"],
             "dc_slider_position": [0, 1, 2],
             "use_dc_custom_settings": [False, False, False],
-            "plot_jv": [True, True, True],
+            #"plot_jv": [True, True, True],
         }
 
     @property
@@ -1073,6 +1073,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
 
     @pyaedt_function_handler
     def set_dc_slider(self, value):
+        self.use_custom_settings = False
         self.dc_settings.set_dc_slider(value)
         self.dc_advanced_settings.set_dc_slider(value)
 
