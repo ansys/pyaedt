@@ -30,6 +30,8 @@ def _parse_value(v):
 
 class SettingsBase(object):
     """Provide base settings."""
+    def __init__(self, parent):
+        self._parent = parent
 
     @property
     def sim_setup_info(self):
@@ -74,7 +76,7 @@ class SettingsBase(object):
 
 class AdvancedSettings(SettingsBase):
     def __init__(self, parent):
-        self._parent = parent
+        super().__init__(parent)
         self.defaults = {
             "automatic_mesh": True,
             "ignore_non_functional_pads": True,
@@ -502,7 +504,7 @@ class AdvancedSettings(SettingsBase):
 
 class DCSettings(SettingsBase):
     def __init__(self, parent):
-        self._parent = parent
+        super().__init__(parent)
         self.defaults = {
             "compute_inductance": False,
             "contact_radius": "0.1mm",
@@ -607,7 +609,7 @@ class DCSettings(SettingsBase):
 
 class DCAdvancedSettings(SettingsBase):
     def __init__(self, parent):
-        self._parent = parent
+        super().__init__(parent)
         self.defaults = {
             "dc_min_void_area_to_mesh": "0.001mm2",
             "max_init_mesh_edge_length": "5mm",
