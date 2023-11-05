@@ -1,26 +1,12 @@
-import warnings
-
 from pyaedt.edb_core.edb_data.simulation_setup import BaseSimulationSetup
-from pyaedt.edb_core.edb_data.simulation_setup import EdbFrequencySweep
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
-from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 def _parse_value(v):
-    """
-
-    Parameters
-    ----------
-    v :
-
-
-    Returns
-    -------
-
-    """
+    """Parse value in C sharp format."""
     #  duck typing parse of the value 'v'
     if v is None or v == "":
         pv = v
@@ -43,6 +29,7 @@ def _parse_value(v):
 
 
 class SettingsBase(object):
+    """Provide base settings."""
     @property
     def sim_setup_info(self):
         """EDB internal simulation setup object."""
@@ -656,7 +643,7 @@ class DCAdvancedSettings(SettingsBase):
 
     @property
     def dc_min_void_area_to_mesh(self):
-        """Minimum area below which voids are ignored.
+        """DC minimum area below which voids are ignored.
 
         Returns
         -------
@@ -905,7 +892,15 @@ class DCAdvancedSettings(SettingsBase):
 
 
 class SiwaveSYZSimulationSetup(BaseSimulationSetup):
-    """Manages EDB methods for SIwave simulation setup."""
+    """Manages EDB methods for SIwave simulation setup.
+
+    Parameters
+    ----------
+    pedb : :class:`pyaedt.edb.Edb`
+        Inherited AEDT object.
+    edb_setup : :class:`Ansys.Ansoft.Edb.Utility.SIWaveSimulationSetup`
+        Edb object.
+    """
 
     def __init__(self, pedb, edb_setup=None):
         super().__init__(pedb, edb_setup)
@@ -1067,7 +1062,15 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
 
 class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
-    """Manages EDB methods for HFSS simulation setup."""
+    """Manages EDB methods for SIwave DC simulation setup.
+
+    Parameters
+    ----------
+    pedb : :class:`pyaedt.edb.Edb`
+        Inherited AEDT object.
+    edb_setup : Ansys.Ansoft.Edb.Utility.SIWDCIRSimulationSettings
+        Edb object.
+    """
 
     def __init__(self, pedb, edb_object=None):
         super().__init__(pedb, edb_object)

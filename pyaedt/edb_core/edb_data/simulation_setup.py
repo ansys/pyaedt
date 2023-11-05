@@ -6,7 +6,17 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class BaseSimulationSetup(object):
-    """Ansys.Ansoft.SimSetupData.Data.BaseSimulationSettings."""
+    """Provide base simulation setup.
+
+    Parameters
+    ----------
+    pedb : :class:`pyaedt.edb.Edb`
+        Inherited AEDT object.
+    edb_object : :class:`Ansys.Ansoft.Edb.Utility.SIWaveSimulationSetup`,
+    :class:`Ansys.Ansoft.Edb.Utility.SIWDCIRSimulationSettings`,
+    :class:`Ansys.Ansoft.Edb.Utility.HFSSSimulationSettings`
+        Edb object.
+    """
 
     def __init__(self, pedb, edb_setup=None):
         self._pedb = pedb
@@ -34,7 +44,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _create(self, name=None):
-        """Create a new setup."""
+        """Create a setup."""
         if not name:
             name = generate_unique_name(self.setup_type)
             self._name = name
@@ -97,7 +107,7 @@ class BaseSimulationSetup(object):
 
     @property
     def name(self):
-        """Name of the Setup."""
+        """Name of the setup."""
         return self._edb_object.GetName()
 
     @name.setter
@@ -128,7 +138,7 @@ class BaseSimulationSetup(object):
 
     @property
     def frequency_sweeps(self):
-        """list of frequency sweep."""
+        """list of frequency sweeps."""
         temp = {}
         for i in list(self.get_sim_setup_info.SweepDataList):
             temp[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
@@ -192,7 +202,16 @@ class BaseSimulationSetup(object):
 
 
 class EdbFrequencySweep(object):
-    """Manages EDB methods for frequency sweep."""
+    """Manages EDB methods for frequency sweep.
+
+    Parameters
+    ----------
+    sim_setup : :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+    name : str, optional
+        Name of the frequency sweep.
+    edb_sweep_data : :class:`Ansys.Ansoft.Edb.Utility.SIWDCIRSimulationSettings`, optional
+        Edb object.
+    """
 
     def __init__(self, sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
         self._sim_setup = sim_setup
@@ -214,7 +233,7 @@ class EdbFrequencySweep(object):
 
     @property
     def _pedb(self):
-        """Edb."""
+        """EDB."""
         return self._sim_setup._pedb
 
     @pyaedt_function_handler()
@@ -231,7 +250,6 @@ class EdbFrequencySweep(object):
 
     @name.setter
     def name(self, value):
-        """Set name of this sweep"""
         self._edb_sweep_data.Name = value
         self._update_sweep()
 
@@ -242,7 +260,7 @@ class EdbFrequencySweep(object):
 
     @property
     def frequencies(self):
-        """List of frequencies points."""
+        """List of frequency points."""
         return list(self._edb_sweep_data.Frequencies)
 
     @property
@@ -258,7 +276,7 @@ class EdbFrequencySweep(object):
 
     @property
     def adv_dc_extrapolation(self):
-        """Whether to turn on advanced DC Extrapolation.
+        """Flag indicating if advanced DC extrapolation is turned on.
 
         Returns
         -------
@@ -292,7 +310,7 @@ class EdbFrequencySweep(object):
 
     @property
     def enforce_dc_and_causality(self):
-        """Whether to enforce DC point and causality.
+        """Flag indicating if DC point and causality are enforced.
 
         Returns
         -------
@@ -351,7 +369,7 @@ class EdbFrequencySweep(object):
 
     @property
     def interp_use_prop_const(self):
-        """Whether to use propagation constants.
+        """Flag indicating if propagation constants are used.
 
         Returns
         -------
@@ -362,7 +380,7 @@ class EdbFrequencySweep(object):
 
     @property
     def interp_use_s_matrix(self):
-        """Whether to use S matrix.
+        """Flag indicating if the S matrix is used.
 
         Returns
         -------
@@ -415,7 +433,7 @@ class EdbFrequencySweep(object):
 
     @property
     def relative_s_error(self):
-        """Specify S-parameter error tolerance for interpolating sweep.
+        """S-parameter error tolerance for the interpolating sweep.
 
         Returns
         -------
@@ -425,7 +443,7 @@ class EdbFrequencySweep(object):
 
     @property
     def save_fields(self):
-        """Whether to turn on or off the extraction of surface current data.
+        """Flag indicating if the extraction of surface current data is turned on.
 
         Returns
         -------
@@ -448,7 +466,7 @@ class EdbFrequencySweep(object):
 
     @property
     def use_q3d_for_dc(self):
-        """Whether to enable Q3D solver for DC point extraction .
+        """Flag indicating if The Q3D solver is enabled for DC point extraction.
 
         Returns
         -------
@@ -571,12 +589,12 @@ class EdbFrequencySweep(object):
 
         Parameters
         ----------
-        start : str, float
-            Start frequency.
-        stop : str, float
-            Stop frequency.
-        step : str, float
-            Step frequency.
+        start : str, float, optional
+            Start frequency. The default is ``"0.1GHz"``.
+        stop : str, float, optional
+            Stop frequency. The default is ``"20GHz"``.
+        step : str, float, optional
+            Step frequency. The default is ``"50MHz"``.
 
         Returns
         -------
@@ -613,16 +631,15 @@ class EdbFrequencySweep(object):
 
     @pyaedt_function_handler()
     def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
-        """Set a log count frequency sweep.
-
+        """Set a log-count frequency sweep.
         Parameters
         ----------
-        start : str, float
-            Start frequency.
-        stop : str, float
-            Stop frequency.
-        samples : int
-            Step frequency.
+        start : str, float, optional
+            Start frequency. The default is ``"1kHz"``.
+        stop : str, float, optional
+            Stop frequency. The default is ``"0.1GHz"``.
+        samples : int, optional
+            Step frequency. The default is ``10``.
 
         Returns
         -------
@@ -641,12 +658,11 @@ class EdbFrequencySweep(object):
         Parameters
         ----------
         frequency_list : list, optional
-            List of lists with four elements. Each list must contain:
-
-              1- frequency type (``"linear count"``, ``"log scale"`` or ``"linear scale"``)
-              2- start frequency
-              3- stop frequency
-              4- step frequency or count
+             List of lists with four elements. The default is ``None``. If provided, each list must contain:
+              1 - frequency type (``"linear count"``, ``"log scale"``, or ``"linear scale"``)
+              2 - start frequency
+              3 - stop frequency
+              4 - step frequency or count
 
         Returns
         -------
