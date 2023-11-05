@@ -39,6 +39,8 @@ class BaseSimulationSetup(object):
         if self._edb_object:
             self._name = self._edb_object.GetName()
 
+        self._sweep_list = {}
+
     @pyaedt_function_handler
     def _create(self, name=None):
         """Create a setup."""
@@ -135,7 +137,7 @@ class BaseSimulationSetup(object):
 
     @property
     def frequency_sweeps(self):
-        """list of frequency sweeps."""
+        """List of frequency sweeps."""
         temp = {}
         for i in list(self.get_sim_setup_info.SweepDataList):
             temp[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
@@ -143,13 +145,35 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _add_frequency_sweep(self, sweep_data):
+        """Add a frequency sweep.
+
+        Parameters
+        ----------
+        sweep_data: EdbFrequencySweep
+        """
+        self._sweep_list[sweep_data.name] = sweep_data
         edb_setup_info = self.get_sim_setup_info
-        edb_setup_info.SweepDataList.Add(sweep_data._edb_object)
+
+        if self._setup_type == "kSIwave":
+            for k, v in self._sweep_list.items():
+                edb_setup_info.SweepDataList.Add(v._edb_object)
+
         self._edb_object = self._set_edb_setup_info(edb_setup_info)
         self._update_setup()
 
     @pyaedt_function_handler
-    def delete_frequency_sweep(self, name):
+    def delete_frequency_sweep(self, sweep_data):
+        """Delete a frequency sweep.
+
+        Parameters
+        ----------
+        sweep_data: EdbFrequencySweep
+        """
+        name = sweep_data.name
+        if name in self._sweep_list:
+            self._sweep_list.pop(name)
+
+
         fsweep = []
         for k, val in self.frequency_sweeps.items():
             if not k == name:
@@ -629,6 +653,7 @@ class EdbFrequencySweep(object):
     @pyaedt_function_handler()
     def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
         """Set a log-count frequency sweep.
+
         Parameters
         ----------
         start : str, float, optional

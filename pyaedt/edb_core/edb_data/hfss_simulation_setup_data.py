@@ -1235,12 +1235,14 @@ class HfssSimulationSetup(BaseSimulationSetup):
 
     @pyaedt_function_handler()
     def create(self, name=None):
+        """Create a HFSS setup."""
         self._name = name
         self._create(name)
         return self
 
     @property
     def get_sim_setup_info(self):
+        """Get simulation setup information."""
         return self._edb_object.GetSimSetupInfo()
 
     @property

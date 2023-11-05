@@ -549,22 +549,17 @@ class DCSettings(SettingsBase):
 
     @property
     def dc_slider_position(self):
-        """Slider position for DC.
+        """DC simulation accuracy level slider position. This property only change slider position.
 
-        Returns
-        -------
-        int
-        """
-        return self.sim_setup_info.SimulationSettings.DCSettings.DCSliderPos
-
-    @dc_slider_position.setter
-    def dc_slider_position(self, value):
-        """DC simulation accuracy level slider position.
         Options:
         0- ``optimal speed``
         1- ``balanced``
         2- ``optimal accuracy``.
         """
+        return self.sim_setup_info.SimulationSettings.DCSettings.DCSliderPos
+
+    @dc_slider_position.setter
+    def dc_slider_position(self, value):
         edb_setup_info = self.sim_setup_info
         edb_setup_info.SimulationSettings.DCSettings.DCSliderPos = value
         self._parent._edb_object = self._parent._set_edb_setup_info(edb_setup_info)
@@ -910,6 +905,12 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @pyaedt_function_handler()
     def create(self, name=None):
+        """Create a SIwave SYZ setup.
+
+        Returns
+        -------
+        :class:`SiwaveDCSimulationSetup`
+        """
         self._name = name
         self._create(name)
         self.set_si_slider(1)
@@ -928,6 +929,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @property
     def advanced_settings(self):
+        """SIwave advanced settings class."""
         return AdvancedSettings(self)
 
     @property
@@ -990,6 +992,13 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @pyaedt_function_handler
     def set_pi_slider(self, value):
+        """Set SIwave PI simulation accuracy level.
+
+        Options:
+        0- ``optimal speed``
+        1- ``balanced``
+        2- ``optimal accuracy``.
+        """
         self.use_si_settings = False
         self.use_custom_settings = False
         self.pi_slider_position = value
@@ -997,6 +1006,13 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @pyaedt_function_handler
     def set_si_slider(self, value):
+        """Set SIwave SI simulation accuracy level.
+        
+        Options:
+        0- ``optimal speed``
+        1- ``balanced``
+        2- ``optimal accuracy``.
+        """
         self.use_si_settings = True
         self.use_custom_settings = False
         self.si_slider_position = value
@@ -1028,7 +1044,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @property
     def use_custom_settings(self):
-        """Whether to use custom settings.
+        """Flag indicating if custom settings is turned on.
 
         Returns
         -------
@@ -1079,6 +1095,13 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         self._mesh_operations = {}
 
     def create(self, name=None):
+        """Create a SIwave DCIR setup.
+
+
+        Returns
+        -------
+        :class:`SiwaveDCSimulationSetup`
+        """
         self._name = name
         self._create(name)
         self.set_dc_slider(1)
@@ -1086,6 +1109,12 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
 
     @pyaedt_function_handler
     def get_dict(self):
+        """Get settings.
+
+        Returns
+        -------
+        dict
+        """
         return {
             "dc_settings": self.dc_settings.get_dict(),
             "dc_advanced_settings": self.dc_advanced_settings.get_dict(),
@@ -1093,17 +1122,25 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
 
     @pyaedt_function_handler
     def set_dc_slider(self, value):
+        """Set DC simulation accuracy level.
+
+        Options:
+        0- ``optimal speed``
+        1- ``balanced``
+        2- ``optimal accuracy``.
+        """
         self.use_custom_settings = False
         self.dc_settings.dc_slider_position = value
         self.dc_advanced_settings.set_dc_slider(value)
 
     @property
     def dc_settings(self):
+        """SIwave DC setting class."""
         return DCSettings(self)
 
     @property
     def dc_advanced_settings(self):
-        """Siwave DC settings.
+        """Siwave DC advanced settings class.
 
         Returns
         -------
