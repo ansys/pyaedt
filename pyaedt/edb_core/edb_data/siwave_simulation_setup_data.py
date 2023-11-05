@@ -56,8 +56,17 @@ class SettingsBase(object):
         attrs_list = [
             i
             for i in attrs_list
-            if i not in ["get_dict", "sim_setup_info", "defaults", "si_defaults", "pi_defaults", "set_dc_slider",
-                         "set_si_slider", "set_pi_slider"]
+            if i
+            not in [
+                "get_dict",
+                "sim_setup_info",
+                "defaults",
+                "si_defaults",
+                "pi_defaults",
+                "set_dc_slider",
+                "set_si_slider",
+                "set_pi_slider",
+            ]
         ]
         for i in attrs_list:
             temp[i] = self.__getattribute__(i)
@@ -508,7 +517,7 @@ class DCSettings(SettingsBase):
         self.defaults = {
             "compute_inductance": False,
             "contact_radius": "0.1mm",
-            "use_dc_custom_settings":False,
+            "use_dc_custom_settings": False,
             "plot_jv": True,
         }
         self.dc_defaults = {
@@ -917,7 +926,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
         return {
             "pi_slider_postion": self.pi_slider_position,
             "si_slider_postion": self.si_slider_position,
-            "use_custom_settings" : self.use_si_settings,
+            "use_custom_settings": self.use_si_settings,
             "use_si_settings": self.use_si_settings,
             "advanced_settings": self.advanced_settings.get_dict(),
         }
@@ -1133,5 +1142,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         """
         terminals = self.source_terms_to_ground
         terminals[source_name] = terminal
-        self.get_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(terminals)
+        self.get_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
+            terminals
+        )
         return self._update_setup()

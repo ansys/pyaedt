@@ -2236,7 +2236,7 @@ class TestClass:
                 continue
             print(k)
             assert settings["dc_settings"][k] == v
-        
+
         for k, v in setup1.dc_advanced_settings.defaults.items():
             print(k)
             assert settings["dc_advanced_settings"][k] == v
@@ -2246,13 +2246,11 @@ class TestClass:
             settings = self.edbapp.setups["DC1"].get_dict()
             for k, v in setup1.dc_settings.dc_defaults.items():
                 print(k)
-                assert  settings["dc_settings"][k] == v[p]
+                assert settings["dc_settings"][k] == v[p]
 
             for k, v in setup1.dc_advanced_settings.dc_defaults.items():
                 print(k)
-                assert  settings["dc_advanced_settings"][k] == v[p]
-
-
+                assert settings["dc_advanced_settings"][k] == v[p]
 
     def test_131_siwave_ac_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_syz_setup("AC1")
@@ -2264,19 +2262,19 @@ class TestClass:
         for k, v in setup1.advanced_settings.defaults.items():
             if k in ["min_plane_area_to_mesh"]:
                 continue
-            assert  settings["advanced_settings"][k] == v
+            assert settings["advanced_settings"][k] == v
 
         for p in [0, 1, 2]:
             setup1.set_si_slider(p)
             settings = self.edbapp.setups["AC1"].get_dict()
             for k, v in setup1.advanced_settings.si_defaults.items():
-                assert  settings["advanced_settings"][k] == v[p]
+                assert settings["advanced_settings"][k] == v[p]
 
         for p in [0, 1, 2]:
             setup1.set_pi_slider(p)
             settings = self.edbapp.setups["AC1"].get_dict()
             for k, v in setup1.advanced_settings.pi_defaults.items():
-                assert  settings["advanced_settings"][k] == v[p]
+                assert settings["advanced_settings"][k] == v[p]
 
         sweep = setup1.add_frequency_sweep(
             "sweep1",
@@ -2343,7 +2341,6 @@ class TestClass:
         assert sweep.save_fields
         assert sweep.save_rad_fields_only
         assert sweep.use_q3d_for_dc
-
 
     def test_132_via_plating_ratio_check(self):
         assert self.edbapp.padstacks.check_and_fix_via_plating()

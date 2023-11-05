@@ -1,4 +1,5 @@
 import re
+
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -62,7 +63,8 @@ class BaseSimulationSetup(object):
             "kHFSSPI": None,
             "kDDRwizard": None,
             "kQ3D": None,
-            "kNumSetupTypes": None}
+            "kNumSetupTypes": None,
+        }
         return setup_type_mapping[self._setup_type](edb_setup_info)
 
     @pyaedt_function_handler()
