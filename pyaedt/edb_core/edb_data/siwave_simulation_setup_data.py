@@ -39,6 +39,12 @@ class SettingsBase(object):
 
     @pyaedt_function_handler
     def get_dict(self):
+        """Get all attributes.
+
+        Returns
+        -------
+        dict
+        """
         temp = {}
         attrs_list = [i for i in dir(self) if not i.startswith("_")]
         attrs_list = [
@@ -117,11 +123,6 @@ class AdvancedSettings(SettingsBase):
     def set_pi_slider(self, value):
         for k, val in self.pi_defaults.items():
             self.__setattr__(k, val[value])
-
-    @property
-    def sim_setup_info(self):
-        """EDB internal simulation setup object."""
-        return self._parent.get_sim_setup_info
 
     @property
     def include_inter_plane_coupling(self):
@@ -630,12 +631,6 @@ class DCAdvancedSettings(SettingsBase):
     def set_dc_slider(self, value):
         for k, val in self.dc_defaults.items():
             self.__setattr__(k, val[value])
-
-    @property
-    def sim_setup_info(self):
-        """EDB internal simulation setup object."""
-
-        return self._parent.get_sim_setup_info
 
     @property
     def dc_min_void_area_to_mesh(self):

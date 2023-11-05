@@ -56,6 +56,7 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _set_edb_setup_info(self, edb_setup_info):
+        """Create a setup object from setup information object."""
         utility = self._pedb._edb.Utility
         setup_type_mapping = {
             "kHFSS": utility.HFSSSimulationSetup,
@@ -74,7 +75,8 @@ class BaseSimulationSetup(object):
             "kQ3D": None,
             "kNumSetupTypes": None,
         }
-        return setup_type_mapping[self._setup_type](edb_setup_info)
+        setup_utility = setup_type_mapping[self._setup_type]
+        return setup_utility(edb_setup_info)
 
     @pyaedt_function_handler()
     def _update_setup(self):
@@ -154,7 +156,7 @@ class BaseSimulationSetup(object):
         self._sweep_list[sweep_data.name] = sweep_data
         edb_setup_info = self.get_sim_setup_info
 
-        if self._setup_type == "kSIwave":
+        if self._setup_type in ["kSIwave", "kHFSS"]:
             for k, v in self._sweep_list.items():
                 edb_setup_info.SweepDataList.Add(v._edb_object)
 
@@ -475,7 +477,7 @@ class EdbFrequencySweep(object):
 
     @property
     def save_rad_fields_only(self):
-        """Whether to turn on save radiated fields only.
+        """Flag indicating if the saving of only radiated fields is turned on.
 
         Returns
         -------

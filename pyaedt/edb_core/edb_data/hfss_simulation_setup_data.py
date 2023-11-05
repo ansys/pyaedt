@@ -639,7 +639,7 @@ class AdaptiveSettings(object):
 
     @property
     def save_rad_field_only(self):
-        """Whether to turn on save radiated fields only.
+        """Flag indicating if the saving of only radiated fields is turned on.
 
         Returns
         -------
