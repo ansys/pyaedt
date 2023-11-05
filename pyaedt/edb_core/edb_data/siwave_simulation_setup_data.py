@@ -1008,7 +1008,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
     @pyaedt_function_handler
     def set_si_slider(self, value):
         """Set SIwave SI simulation accuracy level.
-        
+
         Options:
         0- ``optimal speed``
         1- ``balanced``
