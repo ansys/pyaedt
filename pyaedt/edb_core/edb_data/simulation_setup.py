@@ -175,7 +175,6 @@ class BaseSimulationSetup(object):
         if name in self._sweep_list:
             self._sweep_list.pop(name)
 
-
         fsweep = []
         for k, val in self.frequency_sweeps.items():
             if not k == name:
