@@ -64,9 +64,52 @@ class SettingsBase(object):
         return temp
 
     @pyaedt_function_handler
-    def set_dc_slider(self, value):
+    def restore_default(self):
         for k, val in self.defaults.items():
-            self.__setattr__(k, val[value])
+            self.__setattr__(k, val)
+
+
+class AdvancedSettings(SettingsBase):
+    def __init__(self, parent):
+        self._parent = parent
+        self.defaults = {
+            "automatic_mesh": True,
+            "ignore_non_functional_pads": True,
+            "include_coplane_coupling": True,
+            "include_fringe_coupling": True,
+            "include_infinite_ground": False,
+            "include_inter_plane_coupling": False,
+            "include_split_plane_coupling": True,
+            "include_trace_coupling": True,
+            "include_vi_sources": False,
+            "infinite_ground_location": "0",
+            "max_coupled_lines": 12,
+            "mesh_frequency": "4GHz",
+            "min_pad_area_to_mesh": "28mm2",
+            "min_plane_area_to_mesh": "5e-5mm2",
+            "min_void_area": "2mm2",
+            "perform_erc": False,
+            "return_current_distribution": False,
+            "snap_length_threshold": "2.5um",
+            "xtalk_threshold": "-34",
+        }
+
+        self.si_defaults = {
+            "include_coplane_coupling": [False, True, True],
+            "include_fringe_coupling": [False, True, True],
+            "include_inter_plane_coupling": [False, False, False],
+            "include_split_plane_coupling": [False, True, True],
+            "max_coupled_lines": [12, 12, 40],
+            "return_current_distribution": [False, False, True],
+        }
+
+        self.pi_defaults = {
+            "include_coplane_coupling": [False, False, True],
+            "include_fringe_coupling": [False, True, True],
+            "include_split_plane_coupling": [False, False, True],
+            "include_trace_coupling": [False, False, True],
+            "max_coupled_lines": [12, 12, 40],
+        }
 
     @pyaedt_function_handler
     def set_si_slider(self, value):
@@ -77,54 +120,6 @@ class SettingsBase(object):
     def set_pi_slider(self, value):
         for k, val in self.pi_defaults.items():
             self.__setattr__(k, val[value])
-
-
-class AdvancedSettings(SettingsBase):
-    def __init__(self, parent):
-        self._parent = parent
-        self.si_defaults = {
-            "automatic_mesh": [True, True, True],
-            "ignore_non_functional_pads": [True, True, True],
-            "include_coplane_coupling": [False, True, True],
-            "include_fringe_coupling": [False, True, True],
-            "include_infinite_ground": [False, False, False],
-            "include_inter_plane_coupling": [False, False, False],
-            "include_split_plane_coupling": [False, True, True],
-            "include_trace_coupling": [True, True, True],
-            "include_vi_sources": [False, False, False],
-            "infinite_ground_location": ["0", "0", "0"],
-            "max_coupled_lines": [12, 12, 40],
-            "mesh_frequency": ["4GHz", "4GHz", "4GHz"],
-            "min_pad_area_to_mesh": ["28mm2", "28mm2", "28mm2"],
-            #"min_plane_area_to_mesh": ["5e-5mm2", "5e-5mm2", "5e-5mm2"],
-            "min_void_area": ["2mm2", "2mm2", "2mm2"],
-            "perform_erc": [False, False, False],
-            "return_current_distribution": [False, False, True],
-            "snap_length_threshold": ["2.5um", "2.5um", "2.5um"],
-            "xtalk_threshold": ["-34", "-34", "-34"],
-        }
-
-        self.pi_defaults = {
-            "automatic_mesh": [True, True, True],
-            "ignore_non_functional_pads": [True, True, True],
-            "include_coplane_coupling": [False, False, True],
-            "include_fringe_coupling": [False, True, True],
-            "include_infinite_ground": [False, False, False],
-            "include_inter_plane_coupling": [False, False, False],
-            "include_split_plane_coupling": [False, False, True],
-            "include_trace_coupling": [False, False, True],
-            "include_vi_sources": [False, False, False],
-            "infinite_ground_location": ["0", "0", "0"],
-            "max_coupled_lines": [12, 12, 40],
-            "mesh_frequency": ["4GHz", "4GHz", "4GHz"],
-            "min_pad_area_to_mesh": ["28mm2", "28mm2", "28mm2"],
-            #"min_plane_area_to_mesh": ["5e-5mm2", "5e-5mm2", "5e-5mm2"],
-            "min_void_area": ["2mm2", "2mm2", "2mm2"],
-            "perform_erc": [False, False, False],
-            "return_current_distribution": [False, False, False],
-            "snap_length_threshold": ["2.5um", "2.5um", "2.5um"],
-            "xtalk_threshold": ["-34", "-34", "-34"],
-        }
 
     @property
     def sim_setup_info(self):
@@ -511,11 +506,13 @@ class DCSettings(SettingsBase):
     def __init__(self, parent):
         self._parent = parent
         self.defaults = {
-            #"compute_inductance": [False, False, False],
-            "contact_radius": ["0.1mm", "0.1mm", "0.1mm"],
+            "compute_inductance": False,
+            "contact_radius": "0.1mm",
+            "use_dc_custom_settings":False,
+            "plot_jv": True,
+        }
+        self.dc_defaults = {
             "dc_slider_position": [0, 1, 2],
-            "use_dc_custom_settings": [False, False, False],
-            #"plot_jv": [True, True, True],
         }
 
     @property
@@ -527,6 +524,7 @@ class DCSettings(SettingsBase):
         bool
             ``True`` if inductances will be computed, ``False`` otherwise.
         """
+
         return self.sim_setup_info.SimulationSettings.DCSettings.ComputeInductance
 
     @compute_inductance.setter
@@ -618,21 +616,28 @@ class DCAdvancedSettings(SettingsBase):
     def __init__(self, parent):
         self._parent = parent
         self.defaults = {
-            "dc_min_void_area_to_mesh": ["0.001mm2", "0.001mm2", "0.001mm2"],
+            "dc_min_void_area_to_mesh": "0.001mm2",
+            "max_init_mesh_edge_length": "5mm",
+            "dc_min_plane_area_to_mesh": "1.5mm2",
+            "num_bondwire_sides": 8,
+            "num_via_sides": 8,
+            "percent_local_refinement": 20.0,
+        }
+        self.dc_defaults = {
             "energy_error": [2, 2, 1],
-            "max_init_mesh_edge_length": ["5mm", "5mm", "5mm"],
             "max_num_pass": [5, 5, 10],
             "mesh_bondwires": [False, True, True],
             "mesh_vias": [False, True, True],
             "min_num_pass": [1, 1, 3],
-            "dc_min_plane_area_to_mesh": ["1.5mm2", "1.5mm2", "1.5mm2"],
-            "num_bondwire_sides": [8, 8, 8],
-            "num_via_sides": [8, 8, 8],
-            "percent_local_refinement": [20.0, 20.0, 20.0],
             "perform_adaptive_refinement": [False, True, True],
             "refine_bondwires": [False, False, True],
             "refine_vias": [False, False, True],
         }
+
+    @pyaedt_function_handler
+    def set_dc_slider(self, value):
+        for k, val in self.dc_defaults.items():
+            self.__setattr__(k, val[value])
 
     @property
     def sim_setup_info(self):
@@ -904,6 +909,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
         self._name = name
         self._create(name)
         self.set_si_slider(1)
+
         return self
 
     @pyaedt_function_handler
@@ -1076,7 +1082,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
     @pyaedt_function_handler
     def set_dc_slider(self, value):
         self.use_custom_settings = False
-        self.dc_settings.set_dc_slider(value)
+        self.dc_settings.dc_slider_position = value
         self.dc_advanced_settings.set_dc_slider(value)
 
     @property

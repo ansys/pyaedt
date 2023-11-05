@@ -2168,16 +2168,28 @@ class TestClass:
 
     def test_130_siwave_dc_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_dc_setup("DC1")
-        self.edbapp.setups["DC1"].dc_settings.use_custom_settings = True
+        setup1.dc_settings.restore_default()
+        setup1.dc_advanced_settings.restore_default()
+
+        settings = self.edbapp.setups["DC1"].get_dict()
+        for k, v in setup1.dc_settings.defaults.items():
+            if k in ["compute_inductance", "plot_jv"]:
+                continue
+            print(k)
+            assert settings["dc_settings"][k] == v
+        
+        for k, v in setup1.dc_advanced_settings.defaults.items():
+            print(k)
+            assert settings["dc_advanced_settings"][k] == v
 
         for p in [0, 1, 2]:
             setup1.set_dc_slider(p)
             settings = self.edbapp.setups["DC1"].get_dict()
-            for k, v in setup1.dc_settings.defaults.items():
+            for k, v in setup1.dc_settings.dc_defaults.items():
                 print(k)
                 assert  settings["dc_settings"][k] == v[p]
 
-            for k, v in setup1.dc_advanced_settings.defaults.items():
+            for k, v in setup1.dc_advanced_settings.dc_defaults.items():
                 print(k)
                 assert  settings["dc_advanced_settings"][k] == v[p]
 
@@ -2187,6 +2199,13 @@ class TestClass:
         setup1 = self.edbapp.create_siwave_syz_setup("AC1")
         assert setup1.name == "AC1"
         assert setup1.enabled
+        setup1.advanced_settings.restore_default()
+
+        settings = self.edbapp.setups["AC1"].get_dict()
+        for k, v in setup1.advanced_settings.defaults.items():
+            if k in ["min_plane_area_to_mesh"]:
+                continue
+            assert  settings["advanced_settings"][k] == v
 
         for p in [0, 1, 2]:
             setup1.set_si_slider(p)
