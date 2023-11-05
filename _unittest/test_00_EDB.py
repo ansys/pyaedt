@@ -1,10 +1,15 @@
+import builtins
 import json
 import os
 
 # Setup paths for module imports
 # Import required modules
 import sys
+from unittest.mock import mock_open
 
+from mock import MagicMock
+from mock import PropertyMock
+from mock import patch
 import pytest
 
 from pyaedt import Edb
@@ -12,6 +17,7 @@ from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.materials import Materials
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.general_methods import check_numeric_equivalence
 
@@ -32,6 +38,59 @@ from pyaedt.generic.constants import SourceType
 #     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
+
+MATERIALS = """
+$begin 'Polyflon CuFlon (tm)'
+  $begin 'AttachedData'
+    $begin 'MatAppearanceData'
+      property_data='appearance_data'
+      Red=230
+      Green=225
+      Blue=220
+    $end 'MatAppearanceData'
+  $end 'AttachedData'
+  simple('permittivity', 2.1)
+  simple('dielectric_loss_tangent', 0.00045)
+  ModTime=1499970477
+$end 'Polyflon CuFlon (tm)'
+$begin 'Water(@360K)'
+  $begin 'MaterialDef'
+    $begin 'Water(@360K)'
+      CoordinateSystemType='Cartesian'
+      BulkOrSurfaceType=1
+      $begin 'PhysicsTypes'
+        set('Thermal')
+      $end 'PhysicsTypes'
+      $begin 'AttachedData'
+        $begin 'MatAppearanceData'
+          property_data='appearance_data'
+          Red=0
+          Green=128
+          Blue=255
+          Transparency=0.8
+        $end 'MatAppearanceData'
+      $end 'AttachedData'
+      thermal_conductivity='0.6743'
+      mass_density='967.4'
+      specific_heat='4206'
+      thermal_expansion_coeffcient='0.0006979'
+      $begin 'thermal_material_type'
+        property_type='ChoiceProperty'
+        Choice='Fluid'
+      $end 'thermal_material_type'
+      $begin 'clarity_type'
+        property_type='ChoiceProperty'
+        Choice='Transparent'
+      $end 'clarity_type'
+      material_refractive_index='1.333'
+      diffusivity='1.657e-007'
+      molecular_mass='0.018015'
+      viscosity='0.000324'
+      ModTime=1592011950
+    $end 'Water(@360K)'
+  $end 'MaterialDef'
+$end 'Water(@360K)'
+"""
 
 
 @pytest.fixture(scope="class")
@@ -2861,14 +2920,57 @@ class TestClass:
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()
 
-    def test_148_load_amat(self):
-        assert "Rogers RO3003 (tm)" in self.edbapp.materials.materials_in_aedt
-        material_file = os.path.join(self.edbapp.materials.syslib, "Materials.amat")
-        assert self.edbapp.materials.add_material_from_aedt("Arnold_Magnetics_N28AH_-40C")
-        assert "Arnold_Magnetics_N28AH_-40C" in self.edbapp.materials.materials.keys()
-        assert self.edbapp.materials.load_amat(material_file)
+    @patch("pyaedt.edb_core.materials.Materials.materials", new_callable=PropertyMock)
+    @patch.object(builtins, "open", new_callable=mock_open, read_data=MATERIALS)
+    def test_149_materials_read_materials(self, mock_file_open, mock_materials_property):
+        """Read materials from an AMAT file."""
+        mock_materials_property.return_value = ["copper"]
+        materials = Materials(MagicMock())
+        expected_res = {
+            "Polyflon CuFlon (tm)": {"permittivity": 2.1, "tangent_delta": 0.00045},
+            "Water(@360K)": {
+                "thermal_conductivity": 0.6743,
+                "mass_density": 967.4,
+                "specific_heat": 4206,
+                "thermal_expansion_coeffcient": 0.0006979,
+            },
+        }
+        mats = materials.read_materials("some path")
+        assert mats == expected_res
+
+    def test_150_material_load_amat(self):
+        """Load material from an AMAT file."""
+        mat_file = os.path.join(self.edbapp.base_path, "syslib", "Materials.amat")
+        assert self.edbapp.materials.load_amat(mat_file)
         material_list = list(self.edbapp.materials.materials.keys())
         assert material_list
         assert len(material_list) > 0
         assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].loss_tangent == 0.0013
         assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].permittivity == 3.0
+
+    def test_151_materials_read_materials(self):
+        """Read materials."""
+        path = os.path.join(local_path, "example_models", "syslib", "Materials.amat")
+        mats = self.edbapp.materials.read_materials(path)
+        key = "FC-78"
+        assert key in mats
+        assert mats[key]["thermal_conductivity"] == 0.062
+        assert mats[key]["mass_density"] == 1700
+        assert mats[key]["specific_heat"] == 1050
+        assert mats[key]["thermal_expansion_coeffcient"] == 0.0016
+        key = "Polyflon CuFlon (tm)"
+        assert key in mats
+        assert mats[key]["permittivity"] == 2.1
+        assert mats[key]["tangent_delta"] == 0.00045
+        key = "Water(@360K)"
+        assert key in mats
+        assert mats[key]["thermal_conductivity"] == 0.6743
+        assert mats[key]["mass_density"] == 967.4
+        assert mats[key]["specific_heat"] == 4206
+        assert mats[key]["thermal_expansion_coeffcient"] == 0.0006979
+        key = "steel_stainless"
+        assert mats[key]["conductivity"] == 1100000
+        assert mats[key]["thermal_conductivity"] == 13.8
+        assert mats[key]["mass_density"] == 8055
+        assert mats[key]["specific_heat"] == 480
+        assert mats[key]["thermal_expansion_coeffcient"] == 1.08e-005
