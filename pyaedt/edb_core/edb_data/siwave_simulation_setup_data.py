@@ -30,6 +30,7 @@ def _parse_value(v):
 
 class SettingsBase(object):
     """Provide base settings."""
+
     @property
     def sim_setup_info(self):
         """EDB internal simulation setup object."""
