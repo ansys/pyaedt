@@ -46,17 +46,18 @@ class BaseSimulationSetup(object):
 
     @pyaedt_function_handler
     def _set_edb_setup_info(self, edb_setup_info):
+        utility = self._pedb._edb.Utility
         setup_type_mapping = {
-            "kHFSS": self._pedb.edb_api.utility.utility.HFSSSimulationSetup,
+            "kHFSS": utility.HFSSSimulationSetup,
             "kPEM": None,
-            "kSIwave": self._pedb.edb_api.utility.utility.SIWaveSimulationSetup,
+            "kSIwave": utility.SIWaveSimulationSetup,
             "kLNA": None,
             "kTransient": None,
             "kQEye": None,
             "kVEye": None,
             "kAMI": None,
             "kAnalysisOption": None,
-            "kSIwaveDCIR": self._pedb.edb_api.utility.utility.SIWaveDCIRSimulationSetup,
+            "kSIwaveDCIR": utility.SIWaveDCIRSimulationSetup,
             "kSIwaveEMI": None,
             "kHFSSPI": None,
             "kDDRwizard": None,
