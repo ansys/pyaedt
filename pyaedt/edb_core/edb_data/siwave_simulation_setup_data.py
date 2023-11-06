@@ -1090,7 +1090,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
     pedb : :class:`pyaedt.edb.Edb`
         Inherited AEDT object.
     edb_setup : Ansys.Ansoft.Edb.Utility.SIWDCIRSimulationSettings
-        Edb object.
+        EDB object. The default is ``None``.
     """
 
     def __init__(self, pedb, edb_object=None):
