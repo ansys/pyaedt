@@ -318,6 +318,7 @@ html_context = {
 # specify the location of your github repo
 html_theme_options = {
     "github_url": "https://github.com/ansys/pyaedt",
+    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,

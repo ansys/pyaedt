@@ -107,10 +107,10 @@ class Design(AedtObjects):
     def _pyaedt_details(self):
         import platform
 
-        from pyaedt import __version__ as release
+        from pyaedt import __version__ as pyaedt_version
 
         _p_dets = {
-            "PyAEDT Version": release,
+            "PyAEDT Version": pyaedt_version,
             "Product": "Ansys Electronics Desktop {}".format(settings.aedt_version),
             "Design Type": self.design_type,
             "Solution Type": self.solution_type,
@@ -156,7 +156,7 @@ class Design(AedtObjects):
 
     @property
     def info(self):
-        """Return the PyAEDT session info.
+        """Dictionary of the PyAEDT session information.
 
         Returns
         -------
