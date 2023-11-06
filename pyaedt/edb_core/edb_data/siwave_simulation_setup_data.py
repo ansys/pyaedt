@@ -940,7 +940,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @property
     def get_sim_setup_info(self):
-        """Read simulation information from setup."""
+        """Get simulation information from the setup."""
         if self._sim_setup_info:
             return self._sim_setup_info
 
