@@ -368,6 +368,7 @@ class EdbFrequencySweep(object):
         Returns
         -------
         str
+            Sweep type.
         """
         return self._edb_sweep_data.FreqSweepType.ToString()
 
