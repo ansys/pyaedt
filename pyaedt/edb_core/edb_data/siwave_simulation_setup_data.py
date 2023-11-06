@@ -1119,6 +1119,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         Returns
         -------
         dict
+            Dictionary of SIwave DC simulation settings.
         """
         return {
             "dc_settings": self.dc_settings.get_configurations(),
