@@ -156,7 +156,7 @@ class Design(AedtObjects):
 
     @property
     def info(self):
-        """Return the PyAEDT session info.
+        """Dictionary of the PyAEDT session information.
 
         Returns
         -------
