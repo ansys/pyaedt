@@ -1013,10 +1013,11 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
     def set_si_slider(self, value):
         """Set SIwave SI simulation accuracy level.
 
-        Options:
-        0- ``optimal speed``
-        1- ``balanced``
-        2- ``optimal accuracy``.
+        Options are:
+
+        - ``0``: Optimal speed
+        - ``1``:  Balanced
+        - ``2``: Optimal accuracy```
         """
         self.use_si_settings = True
         self.use_custom_settings = False
