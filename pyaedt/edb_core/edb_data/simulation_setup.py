@@ -169,7 +169,7 @@ class BaseSimulationSetup(object):
 
         Parameters
         ----------
-        sweep_data: EdbFrequencySweep
+        sweep_data : EdbFrequencySweep
         """
         name = sweep_data.name
         if name in self._sweep_list:
