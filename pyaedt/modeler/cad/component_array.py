@@ -48,7 +48,7 @@ class ComponentArray(object):
         # Data that can not be obtained from CSV
         try:
             self._cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
-        except:
+        except AttributeError:  # pragma: no cover
             self._cs_id = 1
 
         self._array_info_path = None
@@ -91,15 +91,11 @@ class ComponentArray(object):
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
 
         self._cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
-        row = 0
         array_props = self._array_props
         component_names = self.component_names
         for row_cell in range(0, self.a_size):
-            col = 0
             for col_cell in range(0, self.b_size):
-                self._cells[row][col] = CellArray(row, col, array_props, component_names, self)
-                col += 1
-            row += 1
+                self._cells[row_cell][col_cell] = CellArray(row_cell, col_cell, array_props, component_names, self)
         return self._cells
 
     @property
@@ -143,7 +139,7 @@ class ComponentArray(object):
                 col = 1
                 for col_info in row_info:
                     name = col_info.component
-                    if name not in component_info.keys():
+                    if name not in component_info:
                         component_info[name] = [[row, col]]
                     else:
                         component_info[name].append([row, col])
@@ -571,7 +567,7 @@ class ComponentArray(object):
             col = 1
             for col_info in row_info:
                 name = col_info.component
-                if name not in component_info.keys():
+                if name not in component_info:
                     component_info[name] = [[row, col]]
                 else:
                     component_info[name].append([row, col])
@@ -728,7 +724,7 @@ class ComponentArray(object):
                             name = el["Attributes"]["Name"]
                             cs_id = el["ID"]
                             id2name[cs_id] = name
-                except:
+                except AttributeError:
                     pass
             name2id = {v: k for k, v in id2name.items()}
         return name2id
