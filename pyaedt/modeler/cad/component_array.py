@@ -55,7 +55,7 @@ class ComponentArray(object):
 
         self._update_cells = True
 
-        if self._app.settings.aedt_version > "2023.2":
+        if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
             self.export_array_info(array_path=None)
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
 
@@ -86,7 +86,7 @@ class ComponentArray(object):
         if not self._update_cells:
             return self._cells
 
-        if self._app.settings.aedt_version > "2023.2":
+        if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
             self.export_array_info(array_path=None)
             self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
 
@@ -232,7 +232,7 @@ class ComponentArray(object):
         rendex_index = 0
         for choice in render_choices:
             if self.render == choice:
-                return rendex_index
+                break
             rendex_index += 1
         return rendex_index
 
@@ -306,7 +306,8 @@ class ComponentArray(object):
         return int(self._app.get_oo_property_value(self._omodel, self.name, "A Cell Count"))
 
     @a_size.setter
-    def a_size(self, val):
+    def a_size(self, val):  # pragma: no cover
+        # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("A Cell Count", val)
         pass
 
@@ -322,7 +323,8 @@ class ComponentArray(object):
         return int(self._app.get_oo_property_value(self._omodel, self.name, "B Cell Count"))
 
     @b_size.setter
-    def b_size(self, val):
+    def b_size(self, val):  # pragma: no cover
+        # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("B Cell Count", val)
         pass
 
@@ -420,7 +422,7 @@ class ComponentArray(object):
            An ordered dictionary of the properties of the component array.
         """
         # From 2024R1, array information can be loaded from a CSV
-        if self._array_info_path and os.path.exists(self._array_info_path):
+        if self._array_info_path and os.path.exists(self._array_info_path):  # pragma: no cover
             array_props = self.array_info_parser(self._array_info_path)
         else:
             self._app.save_project()
@@ -428,7 +430,7 @@ class ComponentArray(object):
         return array_props
 
     @pyaedt_function_handler()
-    def array_info_parser(self, array_path):
+    def array_info_parser(self, array_path):  # pragma: no cover
         """Parse array CSV file.
 
         Returns
@@ -711,7 +713,7 @@ class ComponentArray(object):
         """
         id2name = {1: "Global"}
         name2id = id2name
-        if self._app.design_properties and "ModelSetup" in self._app.design_properties:
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:  # pragma: no cover
             cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
@@ -817,7 +819,7 @@ class CellArray(object):
             self._component = val
             self._array_obj._edit_array()
             self._array_obj._update_cells = True
-        else:
+        else:  # pragma: no cover
             self._array_obj._logger.error("Component must be defined.")
 
     @property
