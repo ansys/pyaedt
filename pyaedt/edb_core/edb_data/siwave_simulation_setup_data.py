@@ -1145,7 +1145,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
 
     @property
     def dc_settings(self):
-        """SIwave DC setting class."""
+        """SIwave DC setting."""
         return DCSettings(self)
 
     @property
