@@ -224,7 +224,7 @@ class BaseSimulationSetup(object):
 
 
 class EdbFrequencySweep(object):
-    """Manages EDB methods for frequency sweep.
+    """Manages EDB methods for a frequency sweep.
 
     Parameters
     ----------
