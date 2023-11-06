@@ -923,6 +923,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
         Returns
         -------
         dict
+            Dictionary of SIwave SYZ simulation settings.
         """
         return {
             "pi_slider_postion": self.pi_slider_position,
