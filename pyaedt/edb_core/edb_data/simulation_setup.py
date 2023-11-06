@@ -157,7 +157,7 @@ class BaseSimulationSetup(object):
         edb_setup_info = self.get_sim_setup_info
 
         if self._setup_type in ["kSIwave", "kHFSS"]:
-            for k, v in self._sweep_list.items():
+            for _, v in self._sweep_list.items():
                 edb_setup_info.SweepDataList.Add(v._edb_object)
 
         self._edb_object = self._set_edb_setup_info(edb_setup_info)
