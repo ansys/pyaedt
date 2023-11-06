@@ -41,7 +41,7 @@ class SettingsBase(object):
         return self._parent.get_sim_setup_info
 
     @pyaedt_function_handler
-    def get_dict(self):
+    def get_configurations(self):
         """Get all attributes.
 
         Returns
@@ -55,7 +55,7 @@ class SettingsBase(object):
             for i in attrs_list
             if i
             not in [
-                "get_dict",
+                "get_configurations",
                 "sim_setup_info",
                 "defaults",
                 "si_defaults",
@@ -917,13 +917,19 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
         return self
 
     @pyaedt_function_handler
-    def get_dict(self):
+    def get_configurations(self):
+        """Get SIwave configurations.
+
+        Returns
+        -------
+        dict
+        """
         return {
             "pi_slider_postion": self.pi_slider_position,
             "si_slider_postion": self.si_slider_position,
             "use_custom_settings": self.use_si_settings,
             "use_si_settings": self.use_si_settings,
-            "advanced_settings": self.advanced_settings.get_dict(),
+            "advanced_settings": self.advanced_settings.get_configurations(),
         }
 
     @property
@@ -1107,7 +1113,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         return self
 
     @pyaedt_function_handler
-    def get_dict(self):
+    def get_configurations(self):
         """Get settings.
 
         Returns
@@ -1115,8 +1121,8 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
         dict
         """
         return {
-            "dc_settings": self.dc_settings.get_dict(),
-            "dc_advanced_settings": self.dc_advanced_settings.get_dict(),
+            "dc_settings": self.dc_settings.get_configurations(),
+            "dc_advanced_settings": self.dc_advanced_settings.get_configurations(),
         }
 
     @pyaedt_function_handler

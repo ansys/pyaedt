@@ -2230,7 +2230,7 @@ class TestClass:
         setup1.dc_settings.restore_default()
         setup1.dc_advanced_settings.restore_default()
 
-        settings = self.edbapp.setups["DC1"].get_dict()
+        settings = self.edbapp.setups["DC1"].get_configurations()
         for k, v in setup1.dc_settings.defaults.items():
             if k in ["compute_inductance", "plot_jv"]:
                 continue
@@ -2243,7 +2243,7 @@ class TestClass:
 
         for p in [0, 1, 2]:
             setup1.set_dc_slider(p)
-            settings = self.edbapp.setups["DC1"].get_dict()
+            settings = self.edbapp.setups["DC1"].get_configurations()
             for k, v in setup1.dc_settings.dc_defaults.items():
                 print(k)
                 assert settings["dc_settings"][k] == v[p]
@@ -2258,7 +2258,7 @@ class TestClass:
         assert setup1.enabled
         setup1.advanced_settings.restore_default()
 
-        settings = self.edbapp.setups["AC1"].get_dict()
+        settings = self.edbapp.setups["AC1"].get_configurations()
         for k, v in setup1.advanced_settings.defaults.items():
             if k in ["min_plane_area_to_mesh"]:
                 continue
@@ -2266,13 +2266,13 @@ class TestClass:
 
         for p in [0, 1, 2]:
             setup1.set_si_slider(p)
-            settings = self.edbapp.setups["AC1"].get_dict()
+            settings = self.edbapp.setups["AC1"].get_configurations()
             for k, v in setup1.advanced_settings.si_defaults.items():
                 assert settings["advanced_settings"][k] == v[p]
 
         for p in [0, 1, 2]:
             setup1.set_pi_slider(p)
-            settings = self.edbapp.setups["AC1"].get_dict()
+            settings = self.edbapp.setups["AC1"].get_configurations()
             for k, v in setup1.advanced_settings.pi_defaults.items():
                 assert settings["advanced_settings"][k] == v[p]
 
