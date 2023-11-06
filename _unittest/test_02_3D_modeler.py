@@ -1041,3 +1041,44 @@ class TestClass:
         assert isinstance(face, FacePrimitive)
         face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
         assert not face
+
+    def test_62_copy_solid_bodies_udm_3dcomponent(self, add_app):
+        self.aedtapp.insert_design("udm")
+        my_udmPairs = []
+        mypair = ["ILD Thickness (ILD)", "0.006mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Spacing (LS)", "0.004mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Thickness (LT)", "0.005mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Width (LW)", "0.004mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["No. of Turns (N)", 2]
+        my_udmPairs.append(mypair)
+        mypair = ["Outer Diameter (OD)", "0.15mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Substrate Thickness", "0.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = [
+            "Inductor Type",
+            '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
+        ]
+        my_udmPairs.append(mypair)
+        mypair = ["Underpass Thickness (UT)", "0.001mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Via Thickness (VT)", "0.001mm"]
+        my_udmPairs.append(mypair)
+
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
+        )
+
+        compfile = self.aedtapp.components3d["Bowtie_DM"]
+        obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile)
+        dest = add_app(design_name="IcepakDesign1", just_open=True)
+        dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
+        dest.delete_design("IcepakDesign1")
+        dest = add_app(design_name="IcepakDesign2", just_open=True)
+        dest.copy_solid_bodies_from(self.aedtapp)
+        dest2 = add_app(design_name="uUSB")
+        dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])

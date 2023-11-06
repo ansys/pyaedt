@@ -1769,6 +1769,7 @@ class TestClass:
         )
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert comp.name in self.aedtapp.modeler.layout_component_names
         assert isinstance(comp, UserDefinedComponent)
         assert len(self.aedtapp.modeler.user_defined_components[comp.name].parts) == 3
         comp2 = self.aedtapp.modeler.insert_layout_component(
