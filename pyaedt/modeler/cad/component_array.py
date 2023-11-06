@@ -590,7 +590,7 @@ class ComponentArray(object):
             col = 1
             for col_info in row_info:
                 if float(col_info.rotation) != 0.0:
-                    if col_info.rotation not in component_rotation.keys():
+                    if col_info.rotation not in component_rotation:
                         component_rotation[col_info.rotation] = [[row, col]]
                     else:
                         component_rotation[col_info.rotation].append([row, col])
