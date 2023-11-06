@@ -2292,9 +2292,9 @@ class TestClass:
         assert not sweep.enforce_dc_and_causality
         assert sweep.enforce_passivity
         assert sweep.freq_sweep_type == "kInterpolatingSweep"
-        assert sweep.interp_use_full_basis
-        assert sweep.interp_use_port_impedance
-        assert sweep.interp_use_prop_const
+        assert sweep.interpolation_use_full_basis
+        assert sweep.interpolation_use_port_impedance
+        assert sweep.interpolation_use_prop_const
         assert sweep.max_solutions == 250
         assert sweep.min_freq_s_mat_only_solve == "1MHz"
         assert not sweep.min_solved_freq
@@ -2312,9 +2312,9 @@ class TestClass:
         sweep.enforce_dc_and_causality = True
         sweep.enforce_passivity = False
         sweep.freq_sweep_type = "kDiscreteSweep"
-        sweep.interp_use_full_basis = False
-        sweep.interp_use_port_impedance = False
-        sweep.interp_use_prop_const = False
+        sweep.interpolation_use_full_basis = False
+        sweep.interpolation_use_port_impedance = False
+        sweep.interpolation_use_prop_const = False
         sweep.max_solutions = 200
         sweep.min_freq_s_mat_only_solve = "2MHz"
         sweep.min_solved_freq = "1Hz"
@@ -2332,9 +2332,9 @@ class TestClass:
         assert sweep.enforce_dc_and_causality
         assert not sweep.enforce_passivity
         assert sweep.freq_sweep_type == "kDiscreteSweep"
-        assert not sweep.interp_use_full_basis
-        assert not sweep.interp_use_port_impedance
-        assert not sweep.interp_use_prop_const
+        assert not sweep.interpolation_use_full_basis
+        assert not sweep.interpolation_use_port_impedance
+        assert not sweep.interpolation_use_prop_const
         assert sweep.max_solutions == 200
         assert sweep.min_freq_s_mat_only_solve == "2MHz"
         assert sweep.min_solved_freq == "1Hz"

@@ -384,7 +384,7 @@ class EdbFrequencySweep(object):
         return self._edb_sweep_data.InterpUseFullBasis
 
     @property
-    def interp_use_port_impedance(self):
+    def interpolation_use_port_impedance(self):
         """Whether to turn on the port impedance interpolation.
 
         Returns
@@ -395,7 +395,7 @@ class EdbFrequencySweep(object):
         return self._edb_sweep_data.InterpUsePortImpedance
 
     @property
-    def interp_use_prop_const(self):
+    def interpolation_use_prop_const(self):
         """Flag indicating if propagation constants are used.
 
         Returns
@@ -406,7 +406,7 @@ class EdbFrequencySweep(object):
         return self._edb_sweep_data.InterpUsePropConst
 
     @property
-    def interp_use_s_matrix(self):
+    def interpolation_use_s_matrix(self):
         """Flag indicating if the S matrix is used.
 
         Returns
@@ -545,23 +545,23 @@ class EdbFrequencySweep(object):
             self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kNumSweepTypes
         self._edb_sweep_data.FreqSweepType.ToString()
 
-    @interp_use_full_basis.setter
-    def interp_use_full_basis(self, value):
+    @interpolation_use_full_basis.setter
+    def interpolation_use_full_basis(self, value):
         self._edb_sweep_data.InterpUseFullBasis = value
         self._update_sweep()
 
-    @interp_use_port_impedance.setter
-    def interp_use_port_impedance(self, value):
+    @interpolation_use_port_impedance.setter
+    def interpolation_use_port_impedance(self, value):
         self._edb_sweep_data.InterpUsePortImpedance = value
         self._update_sweep()
 
-    @interp_use_prop_const.setter
-    def interp_use_prop_const(self, value):
+    @interpolation_use_prop_const.setter
+    def interpolation_use_prop_const(self, value):
         self._edb_sweep_data.InterpUsePropConst = value
         self._update_sweep()
 
-    @interp_use_s_matrix.setter
-    def interp_use_s_matrix(self, value):
+    @interpolation_use_s_matrix.setter
+    def interpolation_use_s_matrix(self, value):
         self._edb_sweep_data.InterpUseSMatrix = value
         self._update_sweep()
 
