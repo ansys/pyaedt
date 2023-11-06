@@ -935,7 +935,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @property
     def advanced_settings(self):
-        """SIwave advanced settings class."""
+        """SIwave advanced settings."""
         return AdvancedSettings(self)
 
     @property
