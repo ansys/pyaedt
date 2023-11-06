@@ -1129,10 +1129,11 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
     def set_dc_slider(self, value):
         """Set DC simulation accuracy level.
 
-        Options:
-        0- ``optimal speed``
-        1- ``balanced``
-        2- ``optimal accuracy``.
+        Options are:
+
+        - ``0``: Optimal speed
+        - ``1``: Balanced
+        - ``2``: Optimal accuracy
         """
         self.use_custom_settings = False
         self.dc_settings.dc_slider_position = value
