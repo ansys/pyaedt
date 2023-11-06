@@ -232,11 +232,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         except Exception as e:
             return None
 
-    def __repr__(self):
-        return "Vertex " + str(self.id)
-
     def __str__(self):
-        return "Vertex " + str(self.id)
+        return str(self.id)
+
+    def __repr__(self):
+        return str(self.id)
 
 
 class EdgePrimitive(EdgeTypePrimitive, object):
@@ -366,11 +366,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         except:
             return False
 
-    def __repr__(self):
-        return "EdgeId " + str(self.id)
-
     def __str__(self):
-        return "EdgeId " + str(self.id)
+        return str(self.id)
+
+    def __repr__(self):
+        return str(self.id)
 
     @pyaedt_function_handler()
     def create_object(self, non_model=False):
@@ -420,11 +420,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 class FacePrimitive(object):
     """Contains the face object within the AEDT Desktop Modeler."""
 
-    def __repr__(self):
-        return "FaceId " + str(self.id)
-
     def __str__(self):
-        return "FaceId " + str(self.id)
+        return str(self.id)
+
+    def __repr__(self):
+        return str(self.id)
 
     def __init__(self, object3d, obj_id):
         """
