@@ -21,6 +21,7 @@ from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
@@ -70,9 +71,16 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     # return True if exclude else None
 
 
+def remove_doctree(app, exception):
+    """Remove the .doctree directory created during the documentation build.
+    """
+    shutil.rmtree(app.doctreedir)
+
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('build-finished', remove_doctree)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
