@@ -80,7 +80,7 @@ _count = 0
 
 
 def _parse_value(v):
-    """Parse value in C sharp format."""
+    """Parse value in C# format."""
     #  duck typing parse of the value 'v'
     if v is None:
         pv = v
