@@ -260,7 +260,7 @@ class EdbFrequencySweep(object):
 
     @pyaedt_function_handler()
     def _update_sweep(self):
-        """Update sweep."""
+        """Update the sweep."""
         self._sim_setup.delete_frequency_sweep(self)
         self._sim_setup._add_frequency_sweep(self)
         return
@@ -310,13 +310,7 @@ class EdbFrequencySweep(object):
 
     @property
     def auto_s_mat_only_solve(self):
-        """Whether to turn on Auto/Manual SMatrix only solve.
-
-        Returns
-        -------
-        bool
-            ``True`` if Auto/Manual SMatrix only solve is used, ``False`` otherwise.
-        """
+        """Flag indication if Auto SMatrix only solve is turned on."""
         return self._edb_sweep_data.AutoSMatOnlySolve
 
     @property
@@ -355,8 +349,8 @@ class EdbFrequencySweep(object):
 
     @property
     def freq_sweep_type(self):
-        """Sweep type.
-        Options are:
+        """Sweep type. Options are:
+
         - ``kInterpolatingSweep``.
         - ``kDiscreteSweep``.
         - ``kBroadbandFastSweep``.
