@@ -14,13 +14,18 @@ from pyaedt import is_linux
 from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d
-
+from _unittest.conftest import config
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
 original_project_name = "Galileo_t21_231"
 transient = "Transient_StrandedWindings"
+
+if config["desktopVersion"] > "2022.2":
+    component = "Circ_Patch_5GHz_232.a3dcomp"
+else:
+    component = "Circ_Patch_5GHz.a3dcomp"
 
 test_subfolder = "T00"
 
@@ -150,11 +155,31 @@ class TestClass:
         dict_in = json_to_dict(
             os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "array_simple.json"))
         dict_in["Circ_Patch_5GHz1"] = os.path.join(
-            local_path, "../_unittest_solvers/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
+            local_path, "../_unittest_solvers/example_models", test_subfolder, "Circ_Patch_5GHz_232.a3dcomp"
         )
         dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
         assert hfss_app.add_3d_component_array_from_json(dict_in)
         dict_in["cells"][(3, 3)]["rotation"] = 90
+
+        if config["desktopVersion"] > "2023.1":
+            dict_in = json_to_dict(
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple_232.json")
+            )
+            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
+            dict_in["cells"][(3, 3)]["rotation"] = 90
+        else:
+            dict_in = json_to_dict(
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
+            )
+            dict_in["Circ_Patch_5GHz1"] = os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+            dict_in["cells"][(3, 3)]["rotation"] = 90
+
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
         setup = hfss_app.create_setup(setupname="test")
