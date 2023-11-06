@@ -2306,6 +2306,7 @@ class TestClass:
 
         sweep.adaptive_sampling = True
         sweep.adv_dc_extrapolation = True
+        sweep.compute_dc_point = True
         sweep.auto_s_mat_only_solve = False
         sweep.enforce_causality = True
         sweep.enforce_dc_and_causality = True
@@ -2325,6 +2326,7 @@ class TestClass:
 
         assert sweep.adaptive_sampling
         assert sweep.adv_dc_extrapolation
+        assert sweep.compute_dc_point
         assert not sweep.auto_s_mat_only_solve
         assert sweep.enforce_causality
         assert sweep.enforce_dc_and_causality

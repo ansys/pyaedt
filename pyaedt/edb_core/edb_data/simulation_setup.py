@@ -309,6 +309,16 @@ class EdbFrequencySweep(object):
         return self._edb_sweep_data.AdvDCExtrapolation
 
     @property
+    def compute_dc_point(self):
+        """Flag indication if compute exact dc point is turned on."""
+        return self._edb_sweep_data.ComputeDCPoint
+
+    @compute_dc_point.setter
+    def compute_dc_point(self, value):
+        self._edb_sweep_data.ComputeDCPoint = value
+        self._update_sweep()
+
+    @property
     def auto_s_mat_only_solve(self):
         """Flag indication if Auto SMatrix only solve is turned on."""
         return self._edb_sweep_data.AutoSMatOnlySolve
