@@ -372,7 +372,7 @@ class EdbFrequencySweep(object):
         return self._edb_sweep_data.FreqSweepType.ToString()
 
     @property
-    def interp_use_full_basis(self):
+    def interpolation_use_full_basis(self):
         """Whether to use Full basis elements.
 
         Returns
