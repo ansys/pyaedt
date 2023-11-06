@@ -309,7 +309,7 @@ class ComponentArray(object):
     def a_size(self, val):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
         # self.__oarray.SetPropValue("A Cell Count", val)
-        raise Exception("AEDT (2024.1) does not yet allow to change the cell count.")
+        self.logger.error("AEDT (2024.1) does not yet allow to change the cell count.")
 
     @property
     def b_size(self):
@@ -326,7 +326,7 @@ class ComponentArray(object):
     def b_size(self, val):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
         # self.__oarray.SetPropValue("B Cell Count", val)
-        raise Exception("AEDT (2024.1) does not yet allow to change the cell count.")
+        self.logger.error("AEDT (2024.1) does not yet allow to change the cell count.")
 
     @property
     def padding_cells(self):
