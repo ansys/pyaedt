@@ -235,6 +235,9 @@ class VertexPrimitive(EdgeTypePrimitive, object):
     def __str__(self):
         return str(self.id)
 
+    def __repr__(self):
+        return str(self.id)
+
 
 class EdgePrimitive(EdgeTypePrimitive, object):
     """Contains the edge object within the AEDT Desktop Modeler.
@@ -366,6 +369,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     def __str__(self):
         return str(self.id)
 
+    def __repr__(self):
+        return str(self.id)
+
     @pyaedt_function_handler()
     def create_object(self, non_model=False):
         """Return a new object from the selected edge.
@@ -415,6 +421,9 @@ class FacePrimitive(object):
     """Contains the face object within the AEDT Desktop Modeler."""
 
     def __str__(self):
+        return str(self.id)
+
+    def __repr__(self):
         return str(self.id)
 
     def __init__(self, object3d, obj_id):
