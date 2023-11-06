@@ -918,7 +918,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @pyaedt_function_handler
     def get_configurations(self):
-        """Get SIwave configurations.
+        """Get SIwave SYZ simulation settings.
 
         Returns
         -------
@@ -1114,7 +1114,7 @@ class SiwaveDCSimulationSetup(SiwaveSYZSimulationSetup):
 
     @pyaedt_function_handler
     def get_configurations(self):
-        """Get settings.
+        """Get SIwave DC simulation settings.
 
         Returns
         -------
