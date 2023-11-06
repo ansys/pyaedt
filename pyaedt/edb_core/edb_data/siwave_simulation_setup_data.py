@@ -30,6 +30,7 @@ def _parse_value(v):
 
 class SettingsBase(object):
     """Provide base settings."""
+
     def __init__(self, parent):
         self._parent = parent
 
