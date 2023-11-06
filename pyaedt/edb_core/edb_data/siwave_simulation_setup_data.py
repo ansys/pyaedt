@@ -1049,7 +1049,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
 
     @property
     def use_custom_settings(self):
-        """Flag indicating if custom settings is turned on.
+        """Custom settings to use.
 
         Returns
         -------
