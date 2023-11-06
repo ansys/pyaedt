@@ -32,36 +32,71 @@ class ComponentArray(object):
     """
 
     def __init__(self, app, name=None, props=None):
-        if name:
-            self._m_name = name
-        else:
-            self._m_name = _uname("Array_")
+        # Public attributes
+        self.logger = app.logger
+        self.update_cells = True
 
-        self._app = app
-
-        self._logger = app.logger
-
-        self._omodel = self._app.get_oo_object(self._app.odesign, "Model")
-
-        self._oarray = self._app.get_oo_object(self._omodel, name)
-
+        # Private attributes
+        self.__app = app
+        if name is None:
+            name = _uname("Array_")
+        self.__name = name
         # Data that can not be obtained from CSV
         try:
-            self._cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
+            self.__cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
         except AttributeError:  # pragma: no cover
-            self._cs_id = 1
+            self.__cs_id = 1
 
-        self._array_info_path = None
+        self.__omodel = self.__app.get_oo_object(self.__app.odesign, "Model")
+        self.__oarray = self.__app.get_oo_object(self.__omodel, name)
+        self.__array_info_path = None
+        self.__cells = None
+        self.__post_processing_cells = {}
 
-        self._update_cells = True
-
-        if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
+        # Leverage csv file if possible (aedt version > 2023.2)
+        if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
             self.export_array_info(array_path=None)
-            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+            self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
 
-        self._cells = None
+    @property
+    def name(self):
+        """Name of the array.
 
-        self._post_processing_cells = {}
+        Returns
+        -------
+        str
+           Name of the array.
+        """
+        return self.__name
+
+    @name.setter
+    def name(self, array_name):
+        if array_name not in self.__app.component_array_names:
+            if array_name != self.__name:
+                self.__oarray.SetPropValue("Name", array_name)
+                self.__app.component_array.update({array_name: self})
+                self.__app.component_array_names = list(self.__app.omodelsetup.GetArrayNames())
+                del self.__app.component_array[self.__name]
+                self.__name = array_name
+        else:  # pragma: no cover
+            self.logger.warning("Name %s already assigned in the design", array_name)
+
+    @property
+    def properties(self):
+        """Retrieve the properties of the component array.
+
+        Returns
+        -------
+        dict
+           An ordered dictionary of the properties of the component array.
+        """
+        # From 2024R1, array information can be loaded from a CSV
+        if self.__array_info_path and os.path.exists(self.__array_info_path):  # pragma: no cover
+            res = self.parse_array_info_from_csv(self.__array_info_path)
+        else:
+            self.__app.save_project()
+            res = self.__get_properties_from_aedt()
+        return res
 
     @property
     def component_names(self):
@@ -71,7 +106,7 @@ class ComponentArray(object):
         -------
         list
         """
-        return self._array_props["component"]
+        return self.properties["component"]
 
     @property
     def cells(self):
@@ -83,44 +118,20 @@ class ComponentArray(object):
             List of :class:`pyaedt.modeler.cad.component_array.CellArray`
         """
 
-        if not self._update_cells:
-            return self._cells
+        if not self.update_cells:
+            return self.__cells
 
-        if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
+        if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
             self.export_array_info(array_path=None)
-            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+            self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
 
-        self._cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
-        array_props = self._array_props
+        self.__cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
+        array_props = self.properties
         component_names = self.component_names
         for row_cell in range(0, self.a_size):
             for col_cell in range(0, self.b_size):
-                self._cells[row_cell][col_cell] = CellArray(row_cell, col_cell, array_props, component_names, self)
-        return self._cells
-
-    @property
-    def name(self):
-        """Name of the array.
-
-        Returns
-        -------
-        str
-           Name of the array.
-        """
-        return self._m_name
-
-    @name.setter
-    def name(self, array_name):
-        if array_name not in self._app.component_array_names:
-            if array_name != self._m_name:
-                self._oarray.SetPropValue("Name", array_name)
-                self._app.component_array.update({array_name: self})
-                self._app.component_array_names = list(self._app.omodelsetup.GetArrayNames())
-                del self._app.component_array[self._m_name]
-                self._m_name = array_name
-
-        else:  # pragma: no cover
-            self._logger.warning("Name %s already assigned in the design", array_name)
+                self.__cells[row_cell][col_cell] = CellArray(row_cell, col_cell, array_props, component_names, self)
+        return self.__cells
 
     @property
     def post_processing_cells(self):
@@ -131,35 +142,28 @@ class ComponentArray(object):
         dict
            Postprocessing cells of each component.
         """
-        if not self._post_processing_cells:
-            self._post_processing_cells = {}
+        if not self.__post_processing_cells:
+            self.__post_processing_cells = {}
             component_info = {}
-            row = 1
-            for row_info in self.cells[:]:
-                col = 1
-                for col_info in row_info:
+            for row, row_info in enumerate(self.cells, start=1):
+                for col, col_info in enumerate(row_info, start=1):
                     name = col_info.component
-                    if name not in component_info:
-                        component_info[name] = [[row, col]]
-                    else:
-                        component_info[name].append([row, col])
-                    col += 1
-                row += 1
+                    component_info.setdefault(name, []).append([row, col])
 
             for component_name, component_cells in component_info.items():
-                if component_name not in self._post_processing_cells.keys() and component_name is not None:
-                    self._post_processing_cells[component_name] = component_cells[0]
+                if component_name not in self.__post_processing_cells.keys() and component_name is not None:
+                    self.__post_processing_cells[component_name] = component_cells[0]
 
-        return self._post_processing_cells
+        return self.__post_processing_cells
 
     @post_processing_cells.setter
     def post_processing_cells(self, val):
         if isinstance(val, dict):
-            self._post_processing_cells = val
-            self._edit_array()
+            self.__post_processing_cells = val
+            self.edit_array()
 
         else:  # pragma: no cover
-            self._logger.error("Dictionary with component names and cell not correct")
+            self.logger.error("Dictionary with component names and cell not correct")
 
     @property
     def visible(self):
@@ -170,11 +174,11 @@ class ComponentArray(object):
         bool
            Array visibility.
         """
-        return self._app.get_oo_property_value(self._omodel, self.name, "Visible")
+        return self.__app.get_oo_property_value(self.__omodel, self.name, "Visible")
 
     @visible.setter
     def visible(self, val):
-        self._oarray.SetPropValue("Visible", val)
+        self.__oarray.SetPropValue("Visible", val)
 
     @property
     def show_cell_number(self):
@@ -185,11 +189,11 @@ class ComponentArray(object):
         bool
            Cell number visibility.
         """
-        return self._app.get_oo_property_value(self._omodel, self.name, "Show Cell Number")
+        return self.__app.get_oo_property_value(self.__omodel, self.name, "Show Cell Number")
 
     @show_cell_number.setter
     def show_cell_number(self, val):
-        self._oarray.SetPropValue("Show Cell Number", val)
+        self.__oarray.SetPropValue("Show Cell Number", val)
 
     @property
     def render_choices(self):
@@ -200,7 +204,7 @@ class ComponentArray(object):
         list
            Render names.
         """
-        return list(self._oarray.GetPropValue("Render/Choices"))
+        return list(self.__oarray.GetPropValue("Render/Choices"))
 
     @property
     def render(self):
@@ -211,16 +215,17 @@ class ComponentArray(object):
         str
            Rendering type.
         """
-        return self._app.get_oo_property_value(self._omodel, self.name, "Render")
+        return self.__app.get_oo_property_value(self.__omodel, self.name, "Render")
 
     @render.setter
     def render(self, val):
         if val not in self.render_choices:
-            self._logger.warning("Render value not available")
+            self.logger.warning("Render value not available")
         else:
-            self._oarray.SetPropValue("Render", val)
+            self.__oarray.SetPropValue("Render", val)
 
-    def _render_id(self):
+    @property
+    def render_id(self):
         """Array rendering index.
 
         Returns
@@ -228,13 +233,8 @@ class ComponentArray(object):
         int
            Rendering ID.
         """
-        render_choices = self.render_choices
-        rendex_index = 0
-        for choice in render_choices:
-            if self.render == choice:
-                break
-            rendex_index += 1
-        return rendex_index
+        res = self.render_choices.index(self.render)
+        return res
 
     @property
     def a_vector_choices(self):
@@ -245,7 +245,7 @@ class ComponentArray(object):
         list
            Lattice vector names.
         """
-        return list(self._app.get_oo_property_value(self._omodel, self.name, "A Vector/Choices"))
+        return list(self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector/Choices"))
 
     @property
     def b_vector_choices(self):
@@ -256,7 +256,7 @@ class ComponentArray(object):
         list
            Lattice vector names.
         """
-        return list(self._app.get_oo_property_value(self._omodel, self.name, "B Vector/Choices"))
+        return list(self.__app.get_oo_property_value(self.__omodel, self.name, "B Vector/Choices"))
 
     @property
     def a_vector_name(self):
@@ -267,14 +267,14 @@ class ComponentArray(object):
         str
            Lattice vector name.
         """
-        return self._app.get_oo_property_value(self._omodel, self.name, "A Vector")
+        return self.__app.get_oo_property_value(self.__omodel, self.name, "A Vector")
 
     @a_vector_name.setter
     def a_vector_name(self, val):
         if val in self.a_vector_choices:
-            self._oarray.SetPropValue("A Vector", val)
+            self.__oarray.SetPropValue("A Vector", val)
         else:
-            self._logger.warning("A vector name not available")
+            self.logger.warning("A vector name not available")
 
     @property
     def b_vector_name(self):
@@ -285,14 +285,14 @@ class ComponentArray(object):
         str
            Lattice vector name.
         """
-        return self._oarray.GetPropValue("B Vector")
+        return self.__oarray.GetPropValue("B Vector")
 
     @b_vector_name.setter
     def b_vector_name(self, val):
         if val in self.b_vector_choices:
-            self._oarray.SetPropValue("B Vector", val)
+            self.__oarray.SetPropValue("B Vector", val)
         else:
-            self._logger.warning("B vector name not available")
+            self.logger.warning("B vector name not available")
 
     @property
     def a_size(self):
@@ -303,13 +303,13 @@ class ComponentArray(object):
         int
            Number of cells in A direction.
         """
-        return int(self._app.get_oo_property_value(self._omodel, self.name, "A Cell Count"))
+        return int(self.__app.get_oo_property_value(self.__omodel, self.name, "A Cell Count"))
 
     @a_size.setter
     def a_size(self, val):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
-        # self._oarray.SetPropValue("A Cell Count", val)
-        pass
+        # self.__oarray.SetPropValue("A Cell Count", val)
+        raise Exception("AEDT (2024.1) does not yet allow to change the cell count.")
 
     @property
     def b_size(self):
@@ -320,13 +320,13 @@ class ComponentArray(object):
         int
            Number of cells in B direction.
         """
-        return int(self._app.get_oo_property_value(self._omodel, self.name, "B Cell Count"))
+        return int(self.__app.get_oo_property_value(self.__omodel, self.name, "B Cell Count"))
 
     @b_size.setter
     def b_size(self, val):  # pragma: no cover
         # Bug in 2024.1, not possible to change cell count.
-        # self._oarray.SetPropValue("B Cell Count", val)
-        pass
+        # self.__oarray.SetPropValue("B Cell Count", val)
+        raise Exception("AEDT (2024.1) does not yet allow to change the cell count.")
 
     @property
     def padding_cells(self):
@@ -337,11 +337,11 @@ class ComponentArray(object):
         int
            Number of padding cells.
         """
-        return int(self._app.get_oo_property_value(self._omodel, self.name, "Padding"))
+        return int(self.__app.get_oo_property_value(self.__omodel, self.name, "Padding"))
 
     @padding_cells.setter
     def padding_cells(self, val):
-        self._oarray.SetPropValue("Padding", val)
+        self.__oarray.SetPropValue("Padding", val)
 
     @property
     def coordinate_system(self):
@@ -352,32 +352,38 @@ class ComponentArray(object):
         str
            Coordinate system name.
         """
-        cs_dict = self._get_coordinate_system_id()
-        if self._cs_id not in cs_dict.values():
-            self._logger.warning("Coordinate system is not loaded, please save the project.")
-            return "Global"
-        else:
-            return [cs for cs in cs_dict if cs_dict[cs] == self._cs_id][0]
+        cs_dict = self.__map_coordinate_system_to_id()
+        res = "Global"
+        for name, id in cs_dict.items():
+            if id == self.__cs_id:
+                res = name
+        if res == "Global":
+            self.logger.warning("Coordinate system is not loaded, please save the project.")
+        return res
 
     @coordinate_system.setter
     def coordinate_system(self, name):
-        cs_dict = self._get_coordinate_system_id()
+        cs_dict = self.__map_coordinate_system_to_id()
         if name not in cs_dict.keys():
-            self._logger.warning("Coordinate system is not loaded, please save the project.")
+            self.logger.warning("Coordinate system is not loaded, please save the project.")
         else:
-            self._cs_id = cs_dict[name]
-            self._edit_array()
+            self.__cs_id = cs_dict[name]
+            self.edit_array()
 
     @property
-    def _array_props(self):
-        """Retrieve the properties of the component array.
+    def lattice_vector(self):
+        """Get model lattice vector.
 
         Returns
         -------
-        dict
-           An ordered dictionary of the properties of the component array.
+        list
+
+        References
+        ----------
+        >>> oModule.GetLatticeVectors()
+
         """
-        return self.get_array_props()
+        return self.__app.omodelsetup.GetLatticeVectors()
 
     @pyaedt_function_handler()
     def delete(self):
@@ -387,11 +393,10 @@ class ComponentArray(object):
         ----------
 
         >>> oModule.DeleteArray
-
         """
-        self._app.omodelsetup.DeleteArray()
-        del self._app.component_array[self.name]
-        self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
+        self.__app.omodelsetup.DeleteArray()
+        del self.__app.component_array[self.name]
+        self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
 
     @pyaedt_function_handler()
     def export_array_info(self, array_path=None):
@@ -401,36 +406,18 @@ class ComponentArray(object):
         ----------
 
         >>> oModule.ExportArray
-
         """
-        if self._app.settings.aedt_version < "2024.1":  # pragma: no cover
-            self._logger.warning("This feature is not available in " + str(self._app.settings.aedt_version))
+        if self.__app.settings.aedt_version < "2024.1":  # pragma: no cover
+            self.logger.warning("This feature is not available in " + str(self.__app.settings.aedt_version))
             return False
 
         if not array_path:  # pragma: no cover
-            array_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
-        self._app.omodelsetup.ExportArray(self.name, array_path)
+            array_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
+        self.__app.omodelsetup.ExportArray(self.name, array_path)
         return True
 
     @pyaedt_function_handler()
-    def get_array_props(self):
-        """Retrieve the properties of the component array.
-
-        Returns
-        -------
-        dict
-           An ordered dictionary of the properties of the component array.
-        """
-        # From 2024R1, array information can be loaded from a CSV
-        if self._array_info_path and os.path.exists(self._array_info_path):  # pragma: no cover
-            array_props = self.array_info_parser(self._array_info_path)
-        else:
-            self._app.save_project()
-            array_props = self._get_array_info_from_aedt()
-        return array_props
-
-    @pyaedt_function_handler()
-    def array_info_parser(self, array_path):  # pragma: no cover
+    def parse_array_info_from_csv(self, csv_file):  # pragma: no cover
         """Parse array CSV file.
 
         Returns
@@ -439,12 +426,11 @@ class ComponentArray(object):
            An ordered dictionary of the properties of the component array.
         """
 
-        info = read_csv(array_path)
+        info = read_csv(csv_file)
         if not info:
-            self._logger.error("Data from CSV not loaded.")
+            self.logger.error("Data from CSV not loaded.")
             return False
 
-        array_info = OrderedDict()
         components = []
         array_matrix = []
         array_matrix_rotation = []
@@ -453,30 +439,28 @@ class ComponentArray(object):
         # Components
         start_str = ["Component Index", "Component Name"]
         end_str = ["Source Row", "Source Column", "Source Name", "Magnitude", "Phase"]
-
         capture_data = False
         line_cont = 0
-        for el in info:
-            if el == end_str:
-                break
-            if capture_data:
-                components.append(el[1])
-            if el == start_str:
+        for element_data in info:
+            if element_data == start_str:
                 capture_data = True
+            elif element_data == end_str:
+                break
+            elif capture_data:
+                components.append(element_data[1])
             line_cont += 1
 
         # Array matrix
         start_str = ["Array", "Format: Component_index:Rotation_angle:Active_or_Passive"]
         capture_data = False
-
-        for el in info[line_cont + 1 :]:
+        for element_data in info[line_cont + 1 :]:
             if capture_data:
-                el = el[:-1]
+                rows = element_data[:-1]
                 component_index = []
                 rotation = []
                 active_passive = []
 
-                for row in el:
+                for row in rows:
                     split_elements = row.split(":")
 
                     # Check for non-empty strings
@@ -493,10 +477,7 @@ class ComponentArray(object):
                             rot = re.findall(r"[+-]?\d+\.\d+", split_elements[1])
                             rotation.append(int(float(rot[0])))
                             if len(split_elements) > 2:
-                                if split_elements[2] == "0":
-                                    active_passive.append(False)
-                                else:
-                                    active_passive.append(True)
+                                active_passive.append(bool(int(split_elements[2])))
                             else:
                                 active_passive.append(True)
                         else:
@@ -512,17 +493,18 @@ class ComponentArray(object):
                 array_matrix.append(component_index)
                 array_matrix_rotation.append(rotation)
                 array_matrix_active.append(active_passive)
-            if el == start_str:
+            elif element_data == start_str:
                 capture_data = True
 
-        array_info["component"] = components
-        array_info["active"] = array_matrix_active
-        array_info["rotation"] = array_matrix_rotation
-        array_info["cells"] = array_matrix
-        return array_info
+        res = OrderedDict()
+        res["component"] = components
+        res["active"] = array_matrix_active
+        res["rotation"] = array_matrix_rotation
+        res["cells"] = array_matrix
+        return res
 
     @pyaedt_function_handler()
-    def _edit_array(self):
+    def edit_array(self):
         """Edit array.
 
         Returns
@@ -555,86 +537,62 @@ class ComponentArray(object):
             "ShowCellNumber:=",
             self.show_cell_number,
             "RenderType:=",
-            self._render_id(),
+            self.render_id,
             "Padding:=",
             self.padding_cells,
             "ReferenceCSID:=",
-            self._cs_id,
+            self.__cs_id,
         ]
 
         cells = ["NAME:Cells"]
         component_info = {}
-        row = 1
-        for row_info in self.cells[:]:
-            col = 1
-            for col_info in row_info:
+        for row, row_info in enumerate(self.cells, start=1):
+            for col, col_info in enumerate(row_info, start=1):
                 name = col_info.component
-                if name not in component_info:
-                    component_info[name] = [[row, col]]
-                else:
-                    component_info[name].append([row, col])
-                col += 1
-            row += 1
+                component_info.setdefault(name, []).append([row, col])
 
         for component_name, component_cells in component_info.items():
             if component_name:
                 cells.append(component_name + ":=")
-                component_cells_str = [str(item) for item in component_cells]
-                component_cells_str = ", ".join(component_cells_str)
+                component_cells_str = ", ".join(str(item) for item in component_cells)
                 cells.append([component_cells_str])
 
         rotations = ["NAME:Rotation"]
         component_rotation = {}
-        row = 1
-        for row_info in self.cells[:]:
-            col = 1
-            for col_info in row_info:
-                if float(col_info.rotation) != 0.0:
-                    if col_info.rotation not in component_rotation:
-                        component_rotation[col_info.rotation] = [[row, col]]
-                    else:
-                        component_rotation[col_info.rotation].append([row, col])
-                col += 1
-            row += 1
+        for row, row_info in enumerate(self.cells, start=1):
+            for col, col_info in enumerate(row_info, start=1):
+                component_rotation.setdefault(col_info.rotation, []).append([row, col])
 
         for rotation, rotation_cells in component_rotation.items():
             rotations.append(str(rotation) + " deg:=")
-            component_cells_str = [str(item) for item in rotation_cells]
-            component_cells_str = ", ".join(component_cells_str)
+            component_cells_str = ", ".join(str(item) for item in rotation_cells)
+            #
             rotations.append([component_cells_str])
 
         args.append(cells)
         args.append(rotations)
-
         args.append("Active:=")
 
         component_active = []
-        row = 1
-        for row_info in self.cells[:]:
-            col = 1
-            for col_info in row_info:
+        for row, row_info in enumerate(self.cells, start=1):
+            for col, col_info in enumerate(row_info, start=1):
                 if col_info.is_active:
                     component_active.append([row, col])
-                col += 1
-            row += 1
-
         if component_active:
-            component_active_str = [str(item) for item in component_active]
-            args.append(", ".join(component_active_str))
+            args.append(", ".join(str(item) for item in component_active))
         else:
             args.append("All")
 
         post = ["NAME:PostProcessingCells"]
-        for post_processing_cell in self.post_processing_cells:
-            post.append(post_processing_cell + ":=")
-            row = self.post_processing_cells[post_processing_cell][0]
-            col = self.post_processing_cells[post_processing_cell][1]
-            post.append([str(row), str(col)])
+        for component_name, values in self.post_processing_cells.items():
+            post.append(component_name + ":=")
+            post.append([str(values[0]), str(values[1])])
         args.append(post)
+
         args.append("Colors:=")
         col = []
         args.append(col)
-        self._app.omodelsetup.EditArray(args)
+        self.__app.omodelsetup.EditArray(args)
 
         return True
 
@@ -648,30 +606,15 @@ class ComponentArray(object):
 
         """
         if row > self.a_size or col > self.b_size:
-            self._logger.error("Specified cell does not exist.")
+            self.logger.error("Specified cell does not exist.")
             return False
         if row <= 0 or col <= 0:
-            self._logger.error("Row and column index start with ``1``.")
+            self.logger.error("Row and column index start with ``1``.")
             return False
         return self.cells[row - 1][col - 1]
 
     @pyaedt_function_handler()
-    def lattice_vector(self):
-        """Get model lattice vector.
-
-        Returns
-        -------
-        list
-
-        References
-        ----------
-        >>> oModule.GetLatticeVectors()
-
-        """
-        return self._app.omodelsetup.GetLatticeVectors()
-
-    @pyaedt_function_handler()
-    def _get_array_info_from_aedt(self):
+    def __get_properties_from_aedt(self):
         """Get array properties from AEDT file.
 
         Returns
@@ -679,7 +622,7 @@ class ComponentArray(object):
         dict
 
         """
-        props = self._app.design_properties
+        props = self.__app.design_properties
         component_id = {}
         user_defined_models = props["ModelSetup"]["GeometryCore"]["GeometryOperations"]["UserDefinedModels"][
             "UserDefinedModel"
@@ -696,40 +639,36 @@ class ComponentArray(object):
             key = int(key.strip("'"))
             value = int(value)
             components[key - 1] = component_id[value]
-        array_props = OrderedDict()
-        array_props["component"] = components
-        array_props["active"] = props["ArrayDefinition"]["ArrayObject"]["Active"]["matrix"]
-        array_props["rotation"] = props["ArrayDefinition"]["ArrayObject"]["Rotation"]["matrix"]
-        array_props["cells"] = props["ArrayDefinition"]["ArrayObject"]["Cells"]["matrix"]
-        return array_props
+
+        res = OrderedDict()
+        res["component"] = components
+        res["active"] = props["ArrayDefinition"]["ArrayObject"]["Active"]["matrix"]
+        res["rotation"] = props["ArrayDefinition"]["ArrayObject"]["Rotation"]["matrix"]
+        res["cells"] = props["ArrayDefinition"]["ArrayObject"]["Cells"]["matrix"]
+        return res
 
     @pyaedt_function_handler()
-    def _get_coordinate_system_id(self):
-        """Find coordinate system ID.
+    def __map_coordinate_system_to_id(self):
+        """Map coordinate system to ID.
 
         Returns
         -------
-        int
+        Dict[str, int]
         """
-        id2name = {1: "Global"}
-        name2id = id2name
-        if self._app.design_properties and "ModelSetup" in self._app.design_properties:  # pragma: no cover
-            cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
-            for ds in cs:
+        res = {"Global": 1}
+        if self.__app.design_properties and "ModelSetup" in self.__app.design_properties:  # pragma: no cover
+            cs = self.__app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+            for key, val in cs.items():
                 try:
-                    if isinstance(cs[ds], (OrderedDict, dict)):
-                        name = cs[ds]["Attributes"]["Name"]
-                        cs_id = cs[ds]["ID"]
-                        id2name[cs_id] = name
-                    elif isinstance(cs[ds], list):
-                        for el in cs[ds]:
-                            name = el["Attributes"]["Name"]
-                            cs_id = el["ID"]
-                            id2name[cs_id] = name
+                    if isinstance(val, dict):
+                        val = [val]
+                    for ite in val:
+                        name = ite["Attributes"]["Name"]
+                        cs_id = ite["ID"]
+                        res[name] = cs_id
                 except AttributeError:
                     pass
-            name2id = {v: k for k, v in id2name.items()}
-        return name2id
+        return res
 
 
 class CellArray(object):
@@ -751,24 +690,24 @@ class CellArray(object):
     """
 
     def __init__(self, row, col, array_props, component_names, array_obj):
-        self.row = row + 1
-        self.col = col + 1
-        self._array_obj = array_obj
-        self._cell_props = OrderedDict(
+        self.__row = row + 1
+        self.__col = col + 1
+        self.__array_obj = array_obj
+        self.__cell_props = OrderedDict(
             {
                 "component": array_props["cells"][row][col],
                 "active": array_props["active"][row][col],
                 "rotation": array_props["rotation"][row][col],
             }
         )
-        self._rotation = self._cell_props["rotation"]
-        self._is_active = self._cell_props["active"]
+        self.__rotation = self.__cell_props["rotation"]
+        self.__is_active = self.__cell_props["active"]
 
-        component_index = self._cell_props["component"]
+        component_index = self.__cell_props["component"]
         if component_index == -1:
-            self._component = None
+            self.__component = None
         else:
-            self._component = component_names[component_index - 1]
+            self.__component = component_names[component_index - 1]
 
     @property
     def rotation(self):
@@ -778,17 +717,17 @@ class CellArray(object):
         -------
         int
         """
-        return self._rotation
+        return self.__rotation
 
     @rotation.setter
     def rotation(self, val):
         if val in [0, 90, 180, 270]:
-            self._rotation = val
-            self._array_obj._update_cells = False
-            self._array_obj._edit_array()
-            self._array_obj._update_cells = True
+            self.__rotation = val
+            self.__array_obj.update_cells = False
+            self.__array_obj.edit_array()
+            self.__array_obj.update_cells = True
         else:
-            self._array_obj._logger.error("Rotation must be an integer. 0, 90, 180 and 270 degrees are available.")
+            self.__array_obj._logger.error("Rotation must be an integer. 0, 90, 180 and 270 degrees are available.")
 
     @property
     def component(self):
@@ -798,29 +737,26 @@ class CellArray(object):
         -------
         str
         """
-        return self._component
+        return self.__component
 
     @component.setter
     def component(self, val):
-        self._array_obj._update_cells = False
-        if val in self._array_obj.component_names or val is None:
+        self.__array_obj.update_cells = False
+        if val in self.__array_obj.component_names or val is None:
             if val is None:
-                for post_processing_cell in self._array_obj.post_processing_cells:
-                    if (
-                        self._array_obj.post_processing_cells[post_processing_cell][0] == self.row
-                        and self._array_obj.post_processing_cells[post_processing_cell][1] == self.col
-                    ):
-                        flat_cell_list = [item for sublist in self._array_obj.cells for item in sublist]
+                for _, values in self.__array_obj.post_processing_cells.keys():
+                    if (values[0], values[1]) == (self.__row, self.__col):
+                        flat_cell_list = [item for sublist in self.__array_obj.cells for item in sublist]
                         for cell in flat_cell_list:
-                            if cell.component == self.component and cell.col != self.col or cell.row != self.row:
-                                self._array_obj.post_processing_cells[self.component] = [cell.row, cell.col]
+                            if cell.component == self.component and cell.col != self.__col or cell.row != self.__row:
+                                self.__array_obj.post_processing_cells[self.component] = [cell.row, cell.col]
                                 break
                         break
-            self._component = val
-            self._array_obj._edit_array()
-            self._array_obj._update_cells = True
+            self.__component = val
+            self.__array_obj.edit_array()
+            self.__array_obj.update_cells = True
         else:  # pragma: no cover
-            self._array_obj._logger.error("Component must be defined.")
+            self.__array_obj._logger.error("Component must be defined.")
 
     @property
     def is_active(self):
@@ -830,14 +766,14 @@ class CellArray(object):
         -------
         bool
         """
-        return self._is_active
+        return self.__is_active
 
     @is_active.setter
     def is_active(self, val):
         if isinstance(val, bool):
-            self._is_active = val
-            self._array_obj._update_cells = False
-            self._array_obj._edit_array()
-            self._array_obj._update_cells = True
+            self.__is_active = val
+            self.__array_obj.update_cells = False
+            self.__array_obj.edit_array()
+            self.__array_obj.update_cells = True
         else:
-            self._array_obj._logger.error("Only bool type allowed.")
+            self.__array_obj._logger.error("Only bool type allowed.")
