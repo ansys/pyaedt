@@ -381,7 +381,6 @@ class ComponentArray(object):
         References
         ----------
         >>> oModule.GetLatticeVectors()
-
         """
         return self.__app.omodelsetup.GetLatticeVectors()
 
@@ -391,7 +390,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.DeleteArray
         """
         self.__app.omodelsetup.DeleteArray()
@@ -404,7 +402,6 @@ class ComponentArray(object):
 
         References
         ----------
-
         >>> oModule.ExportArray
         """
         if self.__app.settings.aedt_version < "2024.1":  # pragma: no cover
@@ -510,12 +507,12 @@ class ComponentArray(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.EditArray
+
         """
 
         args = [
