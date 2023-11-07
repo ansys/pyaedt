@@ -17,7 +17,7 @@ class ComponentArray(object):
     app : :class:`pyaedt.Hfss`
         HFSS PyAEDT object.
     name : str, optional
-        Array name. The default value is ``None``.
+        Array name. The default is ``None``, in which case a random name is assigned.
     props : dict, optional
         Dictionary of properties. The default value is ``None``.
 
