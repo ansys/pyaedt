@@ -246,8 +246,8 @@ class ComponentArray(object):
         """Coordinate system name."""
         cs_dict = self.__map_coordinate_system_to_id()
         res = "Global"
-        for name, id in cs_dict.items():
-            if id == self.__cs_id:
+        for name, cs_id in cs_dict.items():
+            if cs_id == self.__cs_id:
                 res = name
         if res == "Global":
             self.logger.warning("Coordinate system is not loaded. Save the project.")
@@ -256,7 +256,7 @@ class ComponentArray(object):
     @coordinate_system.setter
     def coordinate_system(self, name):
         cs_dict = self.__map_coordinate_system_to_id()
-        if name not in cs_dict.keys():
+        if name not in cs_dict:
             self.logger.warning("Coordinate system is not loaded. Save the project.")
         else:
             self.__cs_id = cs_dict[name]
@@ -574,7 +574,7 @@ class ComponentArray(object):
         res = {"Global": 1}
         if self.__app.design_properties and "ModelSetup" in self.__app.design_properties:  # pragma: no cover
             cs = self.__app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
-            for key, val in cs.items():
+            for _, val in cs.items():
                 try:
                     if isinstance(val, dict):
                         val = [val]
