@@ -679,7 +679,7 @@ class ComponentArray(object):
         Returns
         -------
         list
-
+            List of starting point coordinates paired with ending point coordinates.
         References
         ----------
         >>> oModule.GetLatticeVectors()
@@ -694,6 +694,7 @@ class ComponentArray(object):
         Returns
         -------
         dict
+            Ordered dictionary of the properties of the component array.
 
         """
         props = self._app.design_properties
