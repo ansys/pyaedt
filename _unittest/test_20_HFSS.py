@@ -1501,8 +1501,10 @@ class TestClass:
         array = hfss_array.component_array["A1"]
         assert array.name == hfss_array.component_array_names[0]
 
-        cell = array.get_cell(1, 1)
-        assert cell.rotation == 0
+        cell1 = array.get_cell(1, 1)
+        cell2 = array[1, 1]
+        assert cell2
+        assert cell1.rotation == 0
 
         assert not array.get_cell(0, 0)
         assert not array.get_cell(10, 0)
