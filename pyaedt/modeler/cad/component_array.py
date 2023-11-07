@@ -45,7 +45,7 @@ class ComponentArray(object):
 
         self._oarray = self._app.get_oo_object(self._omodel, name)
 
-        # Data that can not be obtained from CSV
+        # Data that cannot be obtained from CSV
         try:
             self._cs_id = props["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
         except AttributeError:  # pragma: no cover
