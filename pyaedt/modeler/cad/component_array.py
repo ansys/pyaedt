@@ -523,7 +523,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def _edit_array(self):
-        """Edit array.
+        """Edit component array.
 
         Returns
         -------
