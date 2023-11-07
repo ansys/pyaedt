@@ -404,7 +404,7 @@ class ComponentArray(object):
 
         """
         if self._app.settings.aedt_version < "2024.1":  # pragma: no cover
-            self._logger.warning("This feature is not available in " + str(self._app.settings.aedt_version))
+            self._logger.warning("This feature is not available in {}.".format(str(self._app.settings.aedt_version)))
             return False
 
         if not array_path:  # pragma: no cover
