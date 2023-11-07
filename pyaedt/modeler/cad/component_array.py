@@ -672,7 +672,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def _get_array_info_from_aedt(self):
-        """Get array properties from AEDT file.
+        """Get array properties from an AEDT file.
 
         Returns
         -------
