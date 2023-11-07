@@ -95,7 +95,7 @@ class ComponentArray(object):
             return self.__cells
 
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
+            self.__array_info_path = self.export_array_info(array_path=None)
         else:
             self.__app.save_project()
 
@@ -287,6 +287,26 @@ class ComponentArray(object):
             self.edit_array()
 
     @pyaedt_function_handler()
+    def update_properties(self):
+        """Update component array properties.
+
+        Returns
+        -------
+        dict
+           Ordered dictionary of the properties of the component array.
+        """
+        # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
+        if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
+            self.__array_info_path = self.export_array_info(array_path=None)
+        else:
+            self.__app.save_project()
+        new_properties = self.properties
+        if len(new_properties["component"]) != len(self.post_processing_cells):
+            self.__post_processing_cells = {}
+            new_properties = self.properties
+        return new_properties
+
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the component array.
 
@@ -353,7 +373,7 @@ class ComponentArray(object):
             self.logger.error("Data from CSV file is not loaded.")
             return False
 
-        components = []
+        components = {}
         array_matrix = []
         array_matrix_rotation = []
         array_matrix_active = []
@@ -370,7 +390,7 @@ class ComponentArray(object):
             elif element_data == end_str:
                 break
             elif capture_data:
-                components.append(element_data[1])
+                components[int(float(element_data[0]))] = element_data[1]
             line_cont += 1
 
         # Array matrix
@@ -567,12 +587,10 @@ class ComponentArray(object):
             component_id[component_defined["ID"]] = component_defined["Attributes"]["Name"]
 
         components_map = props["ArrayDefinition"]["ArrayObject"]["ComponentMap"]
-        components = [None] * len(components_map)
-        for comp in props["ArrayDefinition"]["ArrayObject"]["ComponentMap"]:
-            key, value = comp.split("=")
-            key = int(key.strip("'"))
-            value = int(value)
-            components[key - 1] = component_id[value]
+        components = {}
+        for c in components_map:
+            m = re.search(r"'(\d+)'=(\d+)", c)
+            components[int(m.group(1))] = component_id[int(m.group(2))]
         res = OrderedDict()
         res["component"] = components
         res["active"] = props["ArrayDefinition"]["ArrayObject"]["Active"]["matrix"]
@@ -641,7 +659,7 @@ class CellArray(object):
         if component_index == -1:
             self.__component = None
         else:
-            self.__component = component_names[component_index - 1]
+            self.__component = component_names[component_index]
 
     @property
     def rotation(self):
@@ -665,7 +683,8 @@ class CellArray(object):
 
     @component.setter
     def component(self, val):
-        if val in self.__array_obj.component_names or val is None:
+        component_names = self.__array_obj.component_names
+        if val in component_names.values() or val is None:
             self.__array_obj.update_cells = False
             if val is None:
                 post_processing_cells = self.__array_obj.post_processing_cells

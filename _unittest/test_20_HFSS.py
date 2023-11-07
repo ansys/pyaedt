@@ -1533,11 +1533,11 @@ class TestClass:
         array.cells[1][1].is_active = 1
         assert not array.cells[1][1].is_active
 
-        assert array.cells[1][2].component == array.component_names[1]
+        assert array.cells[1][2].component == array.component_names[2]
         assert not array.cells[1][2].component == "test"
 
-        array.cells[0][1].component = array.component_names[2]
-        assert array.cells[0][1].component == array.component_names[2]
+        array.cells[0][1].component = array.component_names[3]
+        assert array.cells[0][1].component == array.component_names[3]
 
         hfss_array.component_array["A1"].name = "Array_new"
         assert hfss_array.component_array_names[0] == "Array_new"
@@ -1592,6 +1592,17 @@ class TestClass:
         assert array.coordinate_system == "Global"
         array.coordinate_system = "Corner"
         array.coordinate_system = "Global"
+
+        array_csv = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_info.csv")
+        array_info = array.parse_array_info_from_csv(array_csv)
+        assert len(array_info) == 4
+        assert array_info["component"][1] == "02_Patch1"
+
+        # Delete 3D Component
+        hfss_array.modeler.user_defined_components["03_Radome_Side1"].delete()
+        array.update_properties()
+        assert len(array.component_names) == 3
+        assert len(array.post_processing_cells) == 3
 
         array.delete()
         assert not hfss_array.component_array
