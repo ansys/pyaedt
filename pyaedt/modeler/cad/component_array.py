@@ -370,7 +370,7 @@ class ComponentArray(object):
 
     @property
     def _array_props(self):
-        """Retrieve the properties of the component array.
+        """Ordered dictionary of the properties of the component array.
 
         Returns
         -------
