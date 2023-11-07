@@ -122,7 +122,7 @@ class Modeler3D(Primitives3D):
             The default is ``UserSuppliedPassword``.
         hide_contents : bool or list, optional
             List of object names to hide when the component is encrypted.
-            The default is ``False``, in which case all included objects are visible.
+            If set to an empty list or ``False``, all objects are visible.
         replace_names : bool, optional
             Whether to replace objects and material names.
             The default is ``False``.
@@ -162,10 +162,7 @@ class Modeler3D(Primitives3D):
             return False
         if component_outline not in ["BoundingBox", "None"]:
             return False
-        if is_encrypted and isinstance(hide_contents, list):
-            hide_contents_flag = True
-        else:
-            hide_contents_flag = False
+        hide_contents_flag = is_encrypted and isinstance(hide_contents, list)
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
