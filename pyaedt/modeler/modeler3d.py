@@ -120,8 +120,9 @@ class Modeler3D(Primitives3D):
         password_type : str, optional
             Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
             The default is ``UserSuppliedPassword``.
-        hide_contents : bool, optional
-            Whether to hide contents. The default is ``False``.
+        hide_contents : bool or list, optional
+            List of object names to hide when the component is encrypted.
+            If set to an empty list or ``False``, all objects are visible.
         replace_names : bool, optional
             Whether to replace objects and material names.
             The default is ``False``.
@@ -161,6 +162,7 @@ class Modeler3D(Primitives3D):
             return False
         if component_outline not in ["BoundingBox", "None"]:
             return False
+        hide_contents_flag = is_encrypted and isinstance(hide_contents, list)
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -200,7 +202,7 @@ class Modeler3D(Primitives3D):
             "PasswordType:=",
             password_type,
             "HideContents:=",
-            hide_contents,
+            hide_contents_flag,
             "ReplaceNames:=",
             replace_names,
             "ComponentOutline:=",
@@ -220,7 +222,11 @@ class Modeler3D(Primitives3D):
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
-        arg.append("HiddenParts:="), arg.append([])
+        arg.append("HiddenParts:=")
+        if not hide_contents_flag:
+            arg.append([])
+        else:
+            arg.append(hide_contents)
         if included_cs:
             allcs = included_cs
         else:
