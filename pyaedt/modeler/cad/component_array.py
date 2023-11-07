@@ -825,7 +825,7 @@ class CellArray(object):
 
     @property
     def is_active(self):
-        """Gets if the cell object is active or passive.
+        """Flag indicating if the cell object is active or passive.
 
         Returns
         -------
