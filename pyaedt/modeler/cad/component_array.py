@@ -710,6 +710,7 @@ class ComponentArray(object):
         Returns
         -------
         int
+            Coordinate system ID.
         """
         id2name = {1: "Global"}
         name2id = id2name
