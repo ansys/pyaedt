@@ -345,7 +345,7 @@ class ComponentArray(object):
 
     @property
     def coordinate_system(self):
-        """Coordinate system.
+        """Coordinate system name.
 
         Returns
         -------
