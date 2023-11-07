@@ -841,4 +841,4 @@ class CellArray(object):
             self._array_obj._edit_array()
             self._array_obj._update_cells = True
         else:
-            self._array_obj._logger.error("Only bool type allowed.")
+            self._array_obj._logger.error("Only Boolean type is allowed.")
