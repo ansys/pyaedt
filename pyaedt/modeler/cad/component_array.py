@@ -789,7 +789,7 @@ class CellArray(object):
             self._array_obj._edit_array()
             self._array_obj._update_cells = True
         else:
-            self._array_obj._logger.error("Rotation must be an integer. 0, 90, 180 and 270 degrees are available.")
+            self._array_obj._logger.error("Rotation must be an integer. 0, 90, 180, and 270 degrees are available.")
 
     @property
     def component(self):
