@@ -196,7 +196,7 @@ class Hfss(FieldAnalysis3D, object):
         self.component_array = {}
         self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
         for component_array in self.component_array_names:
-            self.component_array[component_array] = ComponentArray(self, component_array, self.design_properties)
+            self.component_array[component_array] = ComponentArray(self, component_array)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -5716,7 +5716,7 @@ class Hfss(FieldAnalysis3D, object):
             self.omodelsetup.AssignArray(args)
             if settings.aedt_version < "2024.1":
                 self.save_project()
-            self.component_array[array_name] = ComponentArray(self, array_name, self.design_properties)
+            self.component_array[array_name] = ComponentArray(self, array_name)
         self.component_array_names = [array_name]
         return self.component_array[array_name]
 
