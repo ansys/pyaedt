@@ -34,7 +34,7 @@ class ComponentArray(object):
     def __init__(self, app, name=None, props=None):
         if name:
             self._m_name = name
-        else:
+        else:  # pragma: no cover
             self._m_name = _uname("Array_")
 
         self._app = app
@@ -64,24 +64,12 @@ class ComponentArray(object):
 
     @property
     def component_names(self):
-        """List of component names.
-
-        Returns
-        -------
-        list
-        """
+        """List of component names."""
         return self._array_props["component"]
 
     @property
     def cells(self):
-        """List of cell objects.
-
-        Returns
-        -------
-        list
-            List of :class:`pyaedt.modeler.cad.component_array.CellArray`
-        """
-
+        """List of :class:`pyaedt.modeler.cad.component_array.CellArray` objects."""
         if not self._update_cells:
             return self._cells
 
@@ -98,13 +86,7 @@ class ComponentArray(object):
 
     @property
     def name(self):
-        """Name of the array.
-
-        Returns
-        -------
-        str
-           Name of the array.
-        """
+        """Name of the array."""
         return self._m_name
 
     @name.setter
@@ -118,17 +100,11 @@ class ComponentArray(object):
                 self._m_name = array_name
 
         else:  # pragma: no cover
-            self._logger.warning("Name %s already assigned in the design", array_name)
+            self._logger.warning("Name %s is already assigned in the design.", array_name)
 
     @property
     def post_processing_cells(self):
-        """Postprocessing cells.
-
-        Returns
-        -------
-        dict
-           Postprocessing cells of each component.
-        """
+        """Dictionary of each component's postprocessing cells."""
         if not self._post_processing_cells:
             self._post_processing_cells = {}
             component_info = {}
@@ -157,17 +133,11 @@ class ComponentArray(object):
             self._edit_array()
 
         else:  # pragma: no cover
-            self._logger.error("Dictionary with component names and cell not correct")
+            self._logger.error("Dictionary with component names and cell is not correct.")
 
     @property
     def visible(self):
-        """Array visibility.
-
-        Returns
-        -------
-        bool
-           Array visibility.
-        """
+        """Flag indicating if the array is visible."""
         return self._app.get_oo_property_value(self._omodel, self.name, "Visible")
 
     @visible.setter
@@ -176,13 +146,7 @@ class ComponentArray(object):
 
     @property
     def show_cell_number(self):
-        """Show array cell number.
-
-        Returns
-        -------
-        bool
-           Cell number visibility.
-        """
+        """Flag indicating if the array cell number is shown."""
         return self._app.get_oo_property_value(self._omodel, self.name, "Show Cell Number")
 
     @show_cell_number.setter
@@ -191,41 +155,23 @@ class ComponentArray(object):
 
     @property
     def render_choices(self):
-        """Render name choices.
-
-        Returns
-        -------
-        list
-           Render names.
-        """
+        """List of rendered name choices."""
         return list(self._oarray.GetPropValue("Render/Choices"))
 
     @property
     def render(self):
-        """Array rendering.
-
-        Returns
-        -------
-        str
-           Rendering type.
-        """
+        """Array rendering."""
         return self._app.get_oo_property_value(self._omodel, self.name, "Render")
 
     @render.setter
     def render(self, val):
         if val not in self.render_choices:
-            self._logger.warning("Render value not available")
+            self._logger.warning("Render value is not available.")
         else:
             self._oarray.SetPropValue("Render", val)
 
     def _render_id(self):
-        """Array rendering index.
-
-        Returns
-        -------
-        int
-           Rendering ID.
-        """
+        """Array rendering ID."""
         render_choices = self.render_choices
         rendex_index = 0
         for choice in render_choices:
@@ -236,35 +182,17 @@ class ComponentArray(object):
 
     @property
     def a_vector_choices(self):
-        """A vector name choices.
-
-        Returns
-        -------
-        list
-           Lattice vector names.
-        """
+        """List of name choices for vector A."""
         return list(self._app.get_oo_property_value(self._omodel, self.name, "A Vector/Choices"))
 
     @property
     def b_vector_choices(self):
-        """B vector name choices.
-
-        Returns
-        -------
-        list
-           Lattice vector names.
-        """
+        """List of name choices for vector B."""
         return list(self._app.get_oo_property_value(self._omodel, self.name, "B Vector/Choices"))
 
     @property
     def a_vector_name(self):
-        """A vector name.
-
-        Returns
-        -------
-        str
-           Lattice vector name.
-        """
+        """Name of vector A."""
         return self._app.get_oo_property_value(self._omodel, self.name, "A Vector")
 
     @a_vector_name.setter
@@ -276,13 +204,7 @@ class ComponentArray(object):
 
     @property
     def b_vector_name(self):
-        """B vector name.
-
-        Returns
-        -------
-        str
-           Lattice vector name.
-        """
+        """Name of vector B."""
         return self._oarray.GetPropValue("B Vector")
 
     @b_vector_name.setter
@@ -294,13 +216,7 @@ class ComponentArray(object):
 
     @property
     def a_size(self):
-        """A cell count.
-
-        Returns
-        -------
-        int
-           Number of cells in A direction.
-        """
+        """Number of cells in the vector A direction."""
         return int(self._app.get_oo_property_value(self._omodel, self.name, "A Cell Count"))
 
     @a_size.setter
@@ -311,13 +227,7 @@ class ComponentArray(object):
 
     @property
     def b_size(self):
-        """Number of cells in the vector B direction.
-
-        Returns
-        -------
-        int
-           Number of cells in B direction.
-        """
+        """Number of cells in the vector B direction."""
         return int(self._app.get_oo_property_value(self._omodel, self.name, "B Cell Count"))
 
     @b_size.setter
@@ -328,13 +238,7 @@ class ComponentArray(object):
 
     @property
     def padding_cells(self):
-        """Number of padding cells.
-
-        Returns
-        -------
-        int
-           Number of padding cells.
-        """
+        """Number of padding cells."""
         return int(self._app.get_oo_property_value(self._omodel, self.name, "Padding"))
 
     @padding_cells.setter
@@ -343,15 +247,9 @@ class ComponentArray(object):
 
     @property
     def coordinate_system(self):
-        """Coordinate system name.
-
-        Returns
-        -------
-        str
-           Coordinate system name.
-        """
+        """Coordinate system name."""
         cs_dict = self._get_coordinate_system_id()
-        if self._cs_id not in cs_dict.values():
+        if self._cs_id not in cs_dict.values():  # pragma: no cover
             self._logger.warning("Coordinate system is not loaded. Save the project.")
             return "Global"
         else:
@@ -368,13 +266,7 @@ class ComponentArray(object):
 
     @property
     def _array_props(self):
-        """Ordered dictionary of the properties of the component array.
-
-        Returns
-        -------
-        dict
-           An ordered dictionary of the properties of the component array.
-        """
+        """Ordered dictionary of the properties of the component array."""
         return self.get_array_props()
 
     @pyaedt_function_handler()
@@ -392,7 +284,7 @@ class ComponentArray(object):
         self._app.component_array_names = list(self._app.get_oo_name(self._app.odesign, "Model"))
 
     @pyaedt_function_handler()
-    def export_array_info(self, array_path=None):
+    def export_array_info(self, array_path=None):  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns
@@ -638,7 +530,7 @@ class ComponentArray(object):
         if component_active:
             component_active_str = [str(item) for item in component_active]
             args.append(", ".join(component_active_str))
-        else:
+        else:  # pragma: no cover
             args.append("All")
 
         post = ["NAME:PostProcessingCells"]
