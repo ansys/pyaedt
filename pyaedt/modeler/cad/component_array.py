@@ -313,7 +313,7 @@ class ComponentArray(object):
 
     @property
     def b_size(self):
-        """B cell count.
+        """Number of cells in the vector B direction.
 
         Returns
         -------
