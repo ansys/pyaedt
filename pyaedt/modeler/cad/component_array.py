@@ -773,7 +773,7 @@ class CellArray(object):
 
     @property
     def rotation(self):
-        """Gets the rotation value of the cell object.
+        """Rotation value of the cell object.
 
         Returns
         -------
