@@ -441,7 +441,7 @@ class ComponentArray(object):
 
         info = read_csv(array_path)
         if not info:
-            self._logger.error("Data from CSV not loaded.")
+            self._logger.error("Data from CSV file is not loaded.")
             return False
 
         array_info = OrderedDict()
