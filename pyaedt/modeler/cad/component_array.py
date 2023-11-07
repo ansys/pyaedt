@@ -59,6 +59,30 @@ class ComponentArray(object):
         self.__cells = None
         self.__post_processing_cells = {}
 
+    @pyaedt_function_handler()
+    def __getitem__(self, key):
+        """Get cell object corresponding to a key (row, column).
+
+        Parameters
+        ----------
+        key : tuple(int,int)
+            Row and column associated to the cell.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.component_array.CellArray`
+        """
+
+        if key[0] > self.a_size or key[1] > self.b_size:
+            self.logger.error("Specified cell does not exist.")
+            return False
+
+        if key[0] <= 0 or key[1] <= 0:
+            self.logger.error("Row and column index start with ``1``.")
+            return False
+
+        return self.cells[key[0] - 1][key[1] - 1]
+
     @property
     def component_names(self):
         """List of component names."""
@@ -505,30 +529,6 @@ class ComponentArray(object):
 
         """
         return self[row, col]
-
-    @pyaedt_function_handler()
-    def __getitem__(self, key):
-        """Get cell object corresponding to a key (row, column).
-
-        Parameters
-        ----------
-        key : tuple(int,int)
-            Row and column associated to the cell.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.cad.component_array.CellArray`
-        """
-
-        if key[0] > self.a_size or key[1] > self.b_size:
-            self.logger.error("Specified cell does not exist.")
-            return False
-
-        if key[0] <= 0 or key[1] <= 0:
-            self.logger.error("Row and column index start with ``1``.")
-            return False
-
-        return self.cells[key[0] - 1][key[1] - 1]
 
     @pyaedt_function_handler()
     def lattice_vector(self):
