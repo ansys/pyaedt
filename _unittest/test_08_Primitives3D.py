@@ -1185,6 +1185,13 @@ class TestClass:
             is_encrypted=True,
             password="password_test",
         )
+        assert self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+            hide_contents=["Solid"],
+        )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
             included_cs="Global",
