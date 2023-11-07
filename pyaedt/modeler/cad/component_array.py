@@ -381,7 +381,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete the array.
+        """Delete the component array.
 
         References
         ----------
