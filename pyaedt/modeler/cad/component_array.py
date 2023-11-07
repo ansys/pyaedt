@@ -647,8 +647,8 @@ class CellArray(object):
 
     @component.setter
     def component(self, val):
-        self.__array_obj.update_cells = False
         if val in self.__array_obj.component_names or val is None:
+            self.__array_obj.update_cells = False
             if val is None:
                 post_processing_cells = self.__array_obj.post_processing_cells
                 for values in post_processing_cells:
