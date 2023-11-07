@@ -734,7 +734,7 @@ class ComponentArray(object):
 
 
 class CellArray(object):
-    """Manages object attributes for 3DComponent and User Defined Model.
+    """Manages object attributes for a 3D component and a user-defined model.
 
     Parameters
     ----------
