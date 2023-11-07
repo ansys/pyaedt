@@ -15,7 +15,7 @@ class ComponentArray(object):
     Parameters
     ----------
     app : :class:`pyaedt.Hfss`
-        Hfss pyaedt object.
+        HFSS PyAEDT object.
     name : str, optional
         Array name. The default value is ``None``.
     props : dict, optional
