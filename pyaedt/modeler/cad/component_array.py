@@ -56,8 +56,7 @@ class ComponentArray(object):
         self._update_cells = True
 
         if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
-            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+            self._array_info_path = self.export_array_info(array_path=None)
 
         self._cells = None
 
@@ -87,8 +86,7 @@ class ComponentArray(object):
             return self._cells
 
         if self._app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
-            self._array_info_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
+            self._array_info_path = self.export_array_info(array_path=None)
 
         self._cells = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
         array_props = self._array_props
@@ -397,6 +395,11 @@ class ComponentArray(object):
     def export_array_info(self, array_path=None):
         """Export array information to a CSV file.
 
+        Returns
+        -------
+        str
+           Path of the CSV file.
+
         References
         ----------
 
@@ -410,7 +413,7 @@ class ComponentArray(object):
         if not array_path:  # pragma: no cover
             array_path = os.path.join(self._app.toolkit_directory, "array_info.csv")
         self._app.omodelsetup.ExportArray(self.name, array_path)
-        return True
+        return array_path
 
     @pyaedt_function_handler()
     def get_array_props(self):
@@ -431,12 +434,26 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def array_info_parser(self, array_path):  # pragma: no cover
-        """Parse array CSV file.
+        """Parse component array information from the CSV file.
+
+        Parameters
+        ----------
+        array_path : str
+             Name of the CSV file.
 
         Returns
         -------
         dict
-           An ordered dictionary of the properties of the component array.
+           Ordered dictionary of the properties of the component array.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss(projectname="Array.aedt")
+        >>> array_names = aedtapp.component_array_names[0]
+        >>> array = aedtapp.component_array[array_names[0]]
+        >>> array_csv = array.export_array_info()
+        >>> array_info = array.array_info_parser(array_csv)
         """
 
         info = read_csv(array_path)
