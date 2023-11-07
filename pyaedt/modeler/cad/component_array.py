@@ -363,7 +363,7 @@ class ComponentArray(object):
     def coordinate_system(self, name):
         cs_dict = self._get_coordinate_system_id()
         if name not in cs_dict.keys():
-            self._logger.warning("Coordinate system is not loaded, please save the project.")
+            self._logger.warning("Coordinate system is not loaded. Save the project.")
         else:
             self._cs_id = cs_dict[name]
             self._edit_array()
