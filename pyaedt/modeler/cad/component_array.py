@@ -395,7 +395,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def export_array_info(self, array_path=None):
-        """Export array information to CSV file.
+        """Export array information to a CSV file.
 
         References
         ----------
