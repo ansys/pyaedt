@@ -739,15 +739,15 @@ class CellArray(object):
     Parameters
     ----------
     row : int
-        The row index of the cell.
+        Row index of the cell.
     col : int
-        The column index of the cell.
+        Column index of the cell.
     array_props : dict
         Dictionary containing the properties of the array.
     component_names : list
         List of component names in the array.
     array_obj : class:`pyaedt.modeler.cad.component_array.ComponentArray`
-        The instance of the array containing the cell.
+        Instance of the array containing the cell.
 
     """
 
