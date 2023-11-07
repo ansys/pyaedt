@@ -504,7 +504,7 @@ class ComponentArray(object):
         :class:`pyaedt.modeler.cad.component_array.CellArray`
 
         """
-        return self.__getitem__((row, col))
+        return self[row, col]
 
     @pyaedt_function_handler()
     def __getitem__(self, key):
