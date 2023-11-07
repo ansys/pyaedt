@@ -705,7 +705,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def _get_coordinate_system_id(self):
-        """Find coordinate system ID.
+        """Get the coordinate system ID.
 
         Returns
         -------
