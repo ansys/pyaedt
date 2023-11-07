@@ -793,7 +793,7 @@ class CellArray(object):
 
     @property
     def component(self):
-        """Gets the component name of the cell object.
+        """Component name of the cell object.
 
         Returns
         -------
