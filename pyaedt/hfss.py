@@ -5627,7 +5627,7 @@ class Hfss(FieldAnalysis3D, object):
                 def_names = self.oeditor.Get3DComponentDefinitionNames()
                 if v["name"] not in def_names and v["name"][:-1] not in def_names and v["name"][:-2] not in def_names:
                     if v["name"] not in json_dict:
-                        self.logger.error("a3dcomp is not present in design and not define correctly in json.")
+                        self.logger.error("a3dcomp is not present in design and not defined correctly in the JSON file.")
                         return False
 
                     geometryparams = self.get_components3d_vars(json_dict[v["name"]])
