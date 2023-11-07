@@ -458,7 +458,7 @@ class ComponentArray(object):
 
         info = read_csv(array_path)
         if not info:
-            self._logger.error("Data from CSV not loaded.")
+            self._logger.error("Data from CSV file is not loaded.")
             return False
 
         array_info = OrderedDict()
@@ -540,7 +540,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def _edit_array(self):
-        """Edit array.
+        """Edit component array.
 
         Returns
         -------
@@ -689,7 +689,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def _get_array_info_from_aedt(self):
-        """Get array properties from AEDT file.
+        """Get array properties from an AEDT file.
 
         Returns
         -------
@@ -723,11 +723,12 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def _get_coordinate_system_id(self):
-        """Find coordinate system ID.
+        """Get the coordinate system ID.
 
         Returns
         -------
         int
+            Coordinate system ID.
         """
         id2name = {1: "Global"}
         name2id = id2name
@@ -751,20 +752,20 @@ class ComponentArray(object):
 
 
 class CellArray(object):
-    """Manages object attributes for 3DComponent and User Defined Model.
+    """Manages object attributes for a 3D component and a user-defined model.
 
     Parameters
     ----------
     row : int
-        The row index of the cell.
+        Row index of the cell.
     col : int
-        The column index of the cell.
+        Column index of the cell.
     array_props : dict
         Dictionary containing the properties of the array.
     component_names : list
         List of component names in the array.
     array_obj : class:`pyaedt.modeler.cad.component_array.ComponentArray`
-        The instance of the array containing the cell.
+        Instance of the array containing the cell.
 
     """
 
@@ -790,7 +791,7 @@ class CellArray(object):
 
     @property
     def rotation(self):
-        """Gets the rotation value of the cell object.
+        """Rotation value of the cell object.
 
         Returns
         -------
@@ -806,11 +807,11 @@ class CellArray(object):
             self._array_obj._edit_array()
             self._array_obj._update_cells = True
         else:
-            self._array_obj._logger.error("Rotation must be an integer. 0, 90, 180 and 270 degrees are available.")
+            self._array_obj._logger.error("Rotation must be an integer. 0, 90, 180, and 270 degrees are available.")
 
     @property
     def component(self):
-        """Gets the component name of the cell object.
+        """Component name of the cell object.
 
         Returns
         -------
@@ -842,7 +843,7 @@ class CellArray(object):
 
     @property
     def is_active(self):
-        """Gets if the cell object is active or passive.
+        """Flag indicating if the cell object is active or passive.
 
         Returns
         -------
@@ -858,4 +859,4 @@ class CellArray(object):
             self._array_obj._edit_array()
             self._array_obj._update_cells = True
         else:
-            self._array_obj._logger.error("Only bool type allowed.")
+            self._array_obj._logger.error("Only Boolean type is allowed.")
