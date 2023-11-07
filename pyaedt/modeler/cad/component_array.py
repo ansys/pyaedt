@@ -354,7 +354,7 @@ class ComponentArray(object):
         """
         cs_dict = self._get_coordinate_system_id()
         if self._cs_id not in cs_dict.values():
-            self._logger.warning("Coordinate system is not loaded, please save the project.")
+            self._logger.warning("Coordinate system is not loaded. Save the project.")
             return "Global"
         else:
             return [cs for cs in cs_dict if cs_dict[cs] == self._cs_id][0]
