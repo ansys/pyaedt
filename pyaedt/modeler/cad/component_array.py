@@ -419,7 +419,7 @@ class ComponentArray(object):
         Returns
         -------
         dict
-           An ordered dictionary of the properties of the component array.
+           Ordered dictionary of the properties of the component array.
         """
         # From 2024R1, array information can be loaded from a CSV
         if self._array_info_path and os.path.exists(self._array_info_path):  # pragma: no cover
