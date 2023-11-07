@@ -359,7 +359,7 @@ class EdbFrequencySweep(object):
 
     @property
     def freq_sweep_type(self):
-        """Sweep type. Options are:
+        """Sweep type. Options are.
 
         - ``"kInterpolatingSweep"``
         - ``"kDiscreteSweep"``
