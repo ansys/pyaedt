@@ -10,12 +10,12 @@ from pyaedt.generic.general_methods import read_csv
 
 
 class ComponentArray(object):
-    """Manages object attributes for 3DComponent array.
+    """Manages object attributes for a 3D component array.
 
     Parameters
     ----------
     app : :class:`pyaedt.Hfss`
-        Hfss pyaedt object.
+        HFSS PyAEDT object.
     name : str, optional
         Array name. The default value is ``None``.
     props : dict, optional
@@ -313,7 +313,7 @@ class ComponentArray(object):
 
     @property
     def b_size(self):
-        """B cell count.
+        """Number of cells in the vector B direction.
 
         Returns
         -------
@@ -345,7 +345,7 @@ class ComponentArray(object):
 
     @property
     def coordinate_system(self):
-        """Coordinate system.
+        """Coordinate system name.
 
         Returns
         -------
@@ -354,7 +354,7 @@ class ComponentArray(object):
         """
         cs_dict = self._get_coordinate_system_id()
         if self._cs_id not in cs_dict.values():
-            self._logger.warning("Coordinate system is not loaded, please save the project.")
+            self._logger.warning("Coordinate system is not loaded. Save the project.")
             return "Global"
         else:
             return [cs for cs in cs_dict if cs_dict[cs] == self._cs_id][0]
@@ -363,14 +363,14 @@ class ComponentArray(object):
     def coordinate_system(self, name):
         cs_dict = self._get_coordinate_system_id()
         if name not in cs_dict.keys():
-            self._logger.warning("Coordinate system is not loaded, please save the project.")
+            self._logger.warning("Coordinate system is not loaded. Save the project.")
         else:
             self._cs_id = cs_dict[name]
             self._edit_array()
 
     @property
     def _array_props(self):
-        """Retrieve the properties of the component array.
+        """Ordered dictionary of the properties of the component array.
 
         Returns
         -------
@@ -381,7 +381,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete the array.
+        """Delete the component array.
 
         References
         ----------
@@ -395,7 +395,7 @@ class ComponentArray(object):
 
     @pyaedt_function_handler()
     def export_array_info(self, array_path=None):
-        """Export array information to CSV file.
+        """Export array information to a CSV file.
 
         References
         ----------
