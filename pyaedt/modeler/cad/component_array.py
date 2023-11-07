@@ -10,7 +10,7 @@ from pyaedt.generic.general_methods import read_csv
 
 
 class ComponentArray(object):
-    """Manages object attributes for 3DComponent array.
+    """Manages object attributes for a 3D component array.
 
     Parameters
     ----------
