@@ -3365,7 +3365,7 @@ class Edb(Database):
         return {name: i for name, i in self.setups.items() if isinstance(i, SiwaveSYZSimulationSetup)}
 
     def create_hfss_setup(self, name=None):
-        """Create a setup from a template.
+        """Create an HFSS simulation setup from a template.
 
         Parameters
         ----------
