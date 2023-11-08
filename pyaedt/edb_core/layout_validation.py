@@ -1,3 +1,5 @@
+import re
+
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.generic.general_methods import generate_unique_name
@@ -211,3 +213,38 @@ class LayoutValidation:
         self._pedb._logger.info_timer("Disjoint Cleanup Completed.", timer_start)
 
         return new_nets
+
+    def illegal_net_names(self, fix=False):
+        """Find and fix illegal net names."""
+        pattern = r"[\(\)\\\/:;*?<>\'\"|`~$]"
+
+        nets = self._pedb.nets.nets
+
+        renamed_nets = []
+        for net, val in nets.items():
+            if re.findall(pattern, net):
+                renamed_nets.append(net)
+                if fix:
+                    new_name = re.sub(pattern, "_", net)
+                    val.name = new_name
+
+        self._pedb._logger.info("Found {} illegal net names.".format(len(renamed_nets)))
+        return
+
+    def illegal_rlc_values(self, fix=False):
+        """Find and fix rlc illegal values."""
+        inductors = self._pedb.components.inductors
+
+        temp = []
+        for k, v in inductors.items():
+            componentProperty = v.edbcomponent.GetComponentProperty()
+            model = componentProperty.GetModel().Clone()
+            pinpairs = model.PinPairs
+
+            if not len(list(pinpairs)):  # pragma: no cover
+                temp.append(k)
+                if fix:
+                    v.rlc_values = [0, 1, 0]
+
+        self._pedb._logger.info("Found {} inductors have no value.".format(len(temp)))
+        return

@@ -59,10 +59,10 @@ Run this script directly from AEDT and pass the wheelhouse file name as an argum
 Run PyAEDT
 ~~~~~~~~~~
 
-COM vs gRPC
------------
-Prior to the 2022R2 release CPython automation in AEDT used
-`COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_  which
+COM and gRPC
+------------
+Prior to the 2022 R2 release, CPython automation in AEDT used
+`COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_ , which
 requires all interfaces to be registered in the Windows Registry.
 Communication between Python and the AEDT API were translated through an intermediate layer using
 `pywin32 <https://github.com/mhammond/pywin32>`_ and  `PythonNET <https://pythonnet.github.io/pythonnet/>`_.
@@ -135,11 +135,12 @@ Failure connecting to the gRPC server
 On Linux, PyAEDT may fail to initialize a new instance of the gRPC server
 or connect to an existing server session.
 This may be due to:
- - Firewall
- - Proxy
- - Permissions
- - License
- - Scheduler (for example if the gRPC server was started from LSF or Slurm)
+
+- Firewall
+- Proxy
+- Permissions
+- License
+- Scheduler (for example if the gRPC server was started from LSF or Slurm)
 
 For issues related to use of a proxy server, you may set the following environment variable to
 disable the proxy server for the *localhost*.

@@ -66,6 +66,8 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
         command = [full_path, "-grpcsrv", str(port)]
         if non_graphical:
             command.append("-ng")
+        if settings.wait_for_license:
+            command.append("-waitforlicense")
         my_env = os.environ.copy()
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
@@ -131,6 +133,8 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         ]
     if non_graphical:
         command.append("-ng")
+    if settings.wait_for_license:
+        command.append("-waitforlicense")
     print(command)
     p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     timeout = settings.lsf_timeout
@@ -651,7 +655,8 @@ class Desktop(object):
             sys.path.append(
                 os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
             )
-
+        if "GetGrpcServerPort" in dir(self.odesktop):
+            self.port = self.odesktop.GetGrpcServerPort()
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
 

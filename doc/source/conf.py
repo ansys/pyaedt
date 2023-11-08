@@ -21,6 +21,7 @@ from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
@@ -70,9 +71,16 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     # return True if exclude else None
 
 
+def remove_doctree(app, exception):
+    """Remove the .doctree directory created during the documentation build.
+    """
+    shutil.rmtree(app.doctreedir)
+
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('build-finished', remove_doctree)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -130,7 +138,7 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3.11", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "numpy": ("https://numpy.org/devdocs", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
@@ -318,6 +326,7 @@ html_context = {
 # specify the location of your github repo
 html_theme_options = {
     "github_url": "https://github.com/ansys/pyaedt",
+    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
@@ -337,6 +346,7 @@ html_theme_options = {
         "version_match": get_version_match(__version__),
     },
     "collapse_navigation": True,
+    "navigation_with_keys": True,
     "use_meilisearch": {
         "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {

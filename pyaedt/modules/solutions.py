@@ -2771,6 +2771,7 @@ class FieldPlot:
         self.SeedingPointsNumber = 15
         self.FractionOfMaximum = 0.8
         self._filter_boxes = []
+        self.field_type = None
 
     @property
     def filter_boxes(self):
@@ -2981,7 +2982,7 @@ class FieldPlot:
             List of surface plot settings.
 
         """
-        return [
+        out = [
             "NAME:" + self.name,
             "SolutionName:=",
             self.solutionName,
@@ -2989,26 +2990,33 @@ class FieldPlot:
             self.quantityName,
             "PlotFolder:=",
             self.plotFolder,
-            "UserSpecifyName:=",
-            1,
-            "UserSpecifyFolder:=",
-            1,
-            "StreamlinePlot:=",
-            False,
-            "AdjacentSidePlot:=",
-            False,
-            "FullModelPlot:=",
-            False,
-            "IntrinsicVar:=",
-            self.intrinsicVar,
-            "PlotGeomInfo:=",
-            self.plotGeomInfo,
-            "FilterBoxes:=",
-            [len(self.filter_boxes)] + self.filter_boxes,
-            self.plotsettings,
-            "EnableGaussianSmoothing:=",
-            False,
         ]
+        if self.field_type:
+            out.extend(["FieldType:=", self.field_type])
+        out.extend(
+            [
+                "UserSpecifyName:=",
+                1,
+                "UserSpecifyFolder:=",
+                1,
+                "StreamlinePlot:=",
+                False,
+                "AdjacentSidePlot:=",
+                False,
+                "FullModelPlot:=",
+                False,
+                "IntrinsicVar:=",
+                self.intrinsicVar,
+                "PlotGeomInfo:=",
+                self.plotGeomInfo,
+                "FilterBoxes:=",
+                [len(self.filter_boxes)] + self.filter_boxes,
+                self.plotsettings,
+                "EnableGaussianSmoothing:=",
+                False,
+            ]
+        )
+        return out
 
     @property
     def surfacePlotInstructionLineTraces(self):
@@ -3023,7 +3031,7 @@ class FieldPlot:
             List of plot settings for line traces.
 
         """
-        return [
+        out = [
             "NAME:" + self.name,
             "SolutionName:=",
             self.solutionName,
@@ -3035,45 +3043,52 @@ class FieldPlot:
             "QuantityName_FieldLineTrace",
             "PlotFolder:=",
             self.plotFolder,
-            "IntrinsicVar:=",
-            self.intrinsicVar,
-            "Trace Step Length:=",
-            self.TraceStepLength,
-            "Use Adaptive Step:=",
-            self.UseAdaptiveStep,
-            "Seeding Faces:=",
-            self.seeding_faces,
-            "Seeding Markers:=",
-            [0],
-            "Surface Tracing Objects:=",
-            self.surfaces_indexes,
-            "Volume Tracing Objects:=",
-            self.volume_indexes,
-            "Seeding Sampling Option:=",
-            self.SeedingSamplingOption,
-            "Seeding Points Number:=",
-            self.SeedingPointsNumber,
-            "Fractional of Maximal:=",
-            self.FractionOfMaximum,
-            "Discrete Seeds Option:=",
-            "Marker Point",
-            [
-                "NAME:InceptionEvaluationSettings",
-                "Gas Type:=",
-                0,
-                "Gas Pressure:=",
-                1,
-                "Use Inception:=",
-                True,
-                "Potential U0:=",
-                0,
-                "Potential K:=",
-                0,
-                "Potential A:=",
-                1,
-            ],
-            self.field_line_trace_plot_settings,
         ]
+        if self.field_type:
+            out.extend(["FieldType:=", self.field_type])
+        out.extend(
+            [
+                "IntrinsicVar:=",
+                self.intrinsicVar,
+                "Trace Step Length:=",
+                self.TraceStepLength,
+                "Use Adaptive Step:=",
+                self.UseAdaptiveStep,
+                "Seeding Faces:=",
+                self.seeding_faces,
+                "Seeding Markers:=",
+                [0],
+                "Surface Tracing Objects:=",
+                self.surfaces_indexes,
+                "Volume Tracing Objects:=",
+                self.volume_indexes,
+                "Seeding Sampling Option:=",
+                self.SeedingSamplingOption,
+                "Seeding Points Number:=",
+                self.SeedingPointsNumber,
+                "Fractional of Maximal:=",
+                self.FractionOfMaximum,
+                "Discrete Seeds Option:=",
+                "Marker Point",
+                [
+                    "NAME:InceptionEvaluationSettings",
+                    "Gas Type:=",
+                    0,
+                    "Gas Pressure:=",
+                    1,
+                    "Use Inception:=",
+                    True,
+                    "Potential U0:=",
+                    0,
+                    "Potential K:=",
+                    0,
+                    "Potential A:=",
+                    1,
+                ],
+                self.field_line_trace_plot_settings,
+            ]
+        )
+        return out
 
     @property
     def field_plot_settings(self):
