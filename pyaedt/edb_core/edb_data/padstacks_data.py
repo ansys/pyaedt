@@ -1054,10 +1054,6 @@ class EDBPadstackInstance(EDBPrimitivesMain):
             Negative terminal of the port.
         is_circuit_port : bool, optional
             Whether it is a circuit port.
-
-        Returns
-        -------
-
         """
         terminal = self._create_terminal(name)
         if reference:
