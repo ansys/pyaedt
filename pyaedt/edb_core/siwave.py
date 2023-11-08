@@ -838,7 +838,7 @@ class EdbSiwave(object):
         third_arg = int(decade_count)
         if sweeptype == 0:
             third_arg = self._pedb.number_with_units(step_freq, "Hz")
-        setup.si_slider_postion = int(accuracy_level)
+        setup.si_slider_position = int(accuracy_level)
         sweep = setup.add_frequency_sweep(
             frequency_sweep=[
                 [sweep, start_freq, stop_freq, third_arg],
