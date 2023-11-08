@@ -46,6 +46,7 @@ class ComponentArray(object):
             self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
         else:
             self.__app.save_project()
+            self.__array_info_path = None
 
         # Data that cannot be obtained from CSV
         try:
@@ -55,7 +56,6 @@ class ComponentArray(object):
 
         self.__omodel = self.__app.get_oo_object(self.__app.odesign, "Model")
         self.__oarray = self.__app.get_oo_object(self.__omodel, name)
-        self.__array_info_path = None
         self.__cells = None
         self.__post_processing_cells = {}
 
@@ -95,7 +95,7 @@ class ComponentArray(object):
             return self.__cells
 
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.__array_info_path = self.export_array_info(array_path=None)
+            self.export_array_info(array_path=None)
         else:
             self.__app.save_project()
 
@@ -297,7 +297,7 @@ class ComponentArray(object):
         """
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.__array_info_path = self.export_array_info(array_path=None)
+            self.export_array_info(array_path=None)
         else:
             self.__app.save_project()
         new_properties = self.properties
