@@ -157,7 +157,7 @@ class ComponentArray(object):
             self.__post_processing_cells = val
             self.edit_array()
         else:  # pragma: no cover
-            self.logger.error("Dictionary with component names and cell not correct")
+            self.logger.error("Dictionary with component names and cell is not correct.")
 
     @property
     def visible(self):
@@ -190,7 +190,7 @@ class ComponentArray(object):
     @render.setter
     def render(self, val):
         if val not in self.render_choices:
-            self.logger.warning("Render value not available")
+            self.logger.warning("Render value is not available.")
         else:
             self.__oarray.SetPropValue("Render", val)
 
