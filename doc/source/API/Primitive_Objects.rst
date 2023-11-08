@@ -61,6 +61,7 @@ They contain all getters and setters to simplify object manipulation.
    cad.elements3d.VertexPrimitive
    cad.polylines.PolylineSegment
    cad.polylines.Polyline
+   cad.component_array.ComponentArray
    cad.components_3d.UserDefinedComponent
    cad.elements3d.Point
    cad.elements3d.Plane
