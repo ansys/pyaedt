@@ -32,16 +32,10 @@ from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfigur
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import SourceType
-from pyaedt.edb_core.edb_data.terminals import BundleTerminal
-from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
-from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
-from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 from pyaedt.edb_core.edb_data.variables import Variable
-from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import LayoutObjType
 from pyaedt.edb_core.general import Primitives
-from pyaedt.edb_core.general import TerminalType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
@@ -274,7 +268,6 @@ class Edb(Database):
         self._siwave = None
         self._hfss = None
         self._nets = None
-        self._setups = {}
         self._layout_instance = None
         self._variables = None
         self._active_cell = None
@@ -358,18 +351,10 @@ class Edb(Database):
     def terminals(self):
         """Get terminals belonging to active layout."""
         temp = {}
+        terminal_mapping = Terminal(self)._terminal_mapping
         for i in self.layout.terminals:
             terminal_type = i.ToString().split(".")[-1]
-            if terminal_type == TerminalType.EdgeTerminal.name:
-                ter = EdgeTerminal(self, i)
-            elif terminal_type == TerminalType.BundleTerminal.name:
-                ter = BundleTerminal(self, i)
-            elif terminal_type == TerminalType.PadstackInstanceTerminal.name:
-                ter = PadstackInstanceTerminal(self, i)
-            elif terminal_type == TerminalType.PinGroupTerminal.name:
-                ter = PinGroupTerminal(self, i)
-            else:
-                ter = Terminal(self, i)
+            ter = terminal_mapping[terminal_type](self, i)
             temp[ter.name] = ter
 
         return temp
@@ -401,15 +386,18 @@ class Edb(Database):
         ports = {}
         for t in temp:
             t2 = Terminal(self, t)
+            if not t2.boundary_type == "PortBoundary":
+                continue
+
             if t2.is_circuit_port:
                 port = CircuitPort(self, t)
                 ports[port.name] = port
-            elif t2.terminal_type == TerminalType.BundleTerminal.name:
+            elif t2.terminal_type == "BundleTerminal":
                 port = BundleWavePort(self, t)
                 ports[port.name] = port
             elif t2.hfss_type == "Wave":
                 ports[t2.name] = WavePort(self, t)
-            elif t2.terminal_type == TerminalType.PadstackInstanceTerminal.name:
+            elif t2.terminal_type == "PadstackInstanceTerminal":
                 ports[t2.name] = CoaxPort(self, t)
             else:
                 ports[t2.name] = GapPort(self, t)
@@ -433,7 +421,7 @@ class Edb(Database):
         """Get all layout sources."""
         temp = {}
         for name, val in self.terminals.items():
-            if val.boundary_type == BoundaryType.kVoltageProbe.name:
+            if val.boundary_type == "kVoltageProbe":
                 if not val.is_reference_terminal:
                     temp[name] = val
         return temp
@@ -3195,7 +3183,7 @@ class Edb(Database):
                 self.edbpath = legacy_name
                 self.open_edb()
             return True
-        except:  # pragma: no cover
+        except:
             return False
 
     @pyaedt_function_handler()
@@ -3324,15 +3312,15 @@ class Edb(Database):
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
 
         """
+        setups = {}
         for i in list(self.active_cell.SimulationSetups):
-            if i.GetName() not in self._setups:
-                if i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kHFSS:
-                    self._setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
-                elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWave:
-                    self._setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
-                elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWaveDCIR:
-                    self._setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
-        return self._setups
+            if i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kHFSS:
+                setups[i.GetName()] = HfssSimulationSetup(self, i)
+            elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWave:
+                setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i)
+            elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWaveDCIR:
+                setups[i.GetName()] = SiwaveDCSimulationSetup(self, i)
+        return setups
 
     @property
     def hfss_setups(self):
@@ -3353,7 +3341,7 @@ class Edb(Database):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`]
         """
-        return {name: i for name, i in self.setups.items() if i.setup_type == "kSIWaveDCIR"}
+        return {name: i for name, i in self.setups.items() if isinstance(i, SiwaveDCSimulationSetup)}
 
     @property
     def siwave_ac_setups(self):
@@ -3363,10 +3351,10 @@ class Edb(Database):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
         """
-        return {name: i for name, i in self.setups.items() if i.setup_type == "kSIWave"}
+        return {name: i for name, i in self.setups.items() if isinstance(i, SiwaveSYZSimulationSetup)}
 
     def create_hfss_setup(self, name=None):
-        """Create a setup from a template.
+        """Create an HFSS simulation setup from a template.
 
         Parameters
         ----------
@@ -3384,8 +3372,7 @@ class Edb(Database):
         """
         if name in self.setups:
             return False
-        setup = HfssSimulationSetup(self, name)
-        self._setups[name] = setup
+        setup = HfssSimulationSetup(self).create(name)
         return setup
 
     @pyaedt_function_handler()
@@ -3414,11 +3401,8 @@ class Edb(Database):
             name = generate_unique_name("Siwave_SYZ")
         if name in self.setups:
             return False
-        setup = SiwaveSYZSimulationSetup(self, name)
-        setup.si_slider_postion = 1
-        setup.pi_slider_postion = 1
-        self._setups[name] = setup
-        return setup
+        SiwaveSYZSimulationSetup(self).create(name)
+        return self.setups[name]
 
     @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):
@@ -3443,8 +3427,7 @@ class Edb(Database):
             name = generate_unique_name("Siwave_DC")
         if name in self.setups:
             return False
-        setup = SiwaveDCSimulationSetup(self, name)
-        self._setups[name] = setup
+        setup = SiwaveDCSimulationSetup(self).create(name)
         return setup
 
     @pyaedt_function_handler()
@@ -3646,7 +3629,7 @@ class Edb(Database):
 
     @pyaedt_function_handler
     def create_port(self, terminal, ref_terminal=None, is_circuit_port=False):
-        """Create a port between two terminals.
+        """Create a port.
 
         Parameters
         ----------
@@ -3668,13 +3651,126 @@ class Edb(Database):
         -------
 
         """
-        if not ref_terminal:
-            port = CoaxPort(self, terminal._edb_object)
-        else:
-            if is_circuit_port:
-                port = CircuitPort(self, terminal._edb_object)
-            else:
-                port = GapPort(self, terminal._edb_object)
-            port.ref_terminal = ref_terminal
-            port.is_circuit_port = is_circuit_port
-        return port
+
+        terminal.boundary_type = "PortBoundary"
+        terminal.is_circuit_port = is_circuit_port
+
+        if ref_terminal:
+            ref_terminal.boundary_type = "PortBoundary"
+            terminal.ref_terminal = ref_terminal
+
+        return self.ports[terminal.name]
+
+    @pyaedt_function_handler
+    def create_voltage_probe(self, terminal, ref_terminal):
+        """Create a voltage probe.
+
+        Parameters
+        ----------
+        terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
+        ref_terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Negative terminal of the probe.
+
+        Returns
+        -------
+
+        """
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "kVoltageProbe"
+
+        ref_term = Terminal(self, ref_terminal._edb_object)
+        ref_term.boundary_type = "kVoltageProbe"
+
+        term.ref_terminal = ref_terminal
+        return self.probes[term.name]
+
+    @pyaedt_function_handler
+    def create_voltage_source(self, terminal, ref_terminal):
+        """Create a voltage source.
+
+        Parameters
+        ----------
+        terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
+        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Negative terminal of the source.
+
+        Returns
+        -------
+        class:`pyaedt.edb_core.edb_data.ports.ExcitationSources`
+        """
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "kVoltageSource"
+
+        ref_term = Terminal(self, ref_terminal._edb_object)
+        ref_term.boundary_type = "kVoltageProbe"
+
+        term.ref_terminal = ref_terminal
+        return self.sources[term.name]
+
+    @pyaedt_function_handler
+    def create_current_source(self, terminal, ref_terminal):
+        """Create a current source.
+
+        Parameters
+        ----------
+        terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Positive terminal of the port.
+        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+            Negative terminal of the source.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.ports.ExcitationSources`
+        """
+        term = Terminal(self, terminal._edb_object)
+        term.boundary_type = "kCurrentSource"
+
+        ref_term = Terminal(self, ref_terminal._edb_object)
+        ref_term.boundary_type = "kCurrentSource"
+
+        term.ref_terminal = ref_terminal
+        return self.sources[term.name]
+
+    @pyaedt_function_handler
+    def get_point_terminal(self, name, net_name, location, layer):
+        """Place a voltage probe between two points.
+
+        Parameters
+        ----------
+        name : str,
+            Name of the terminal.
+        net_name : str
+            Name of the net.
+        location : list
+            Location of the terminal.
+        layer : str,
+            Layer of the terminal.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`
+        """
+        from pyaedt.edb_core.edb_data.terminals import PointTerminal
+
+        point_terminal = PointTerminal(self)
+        return point_terminal.create(name, net_name, location, layer)
