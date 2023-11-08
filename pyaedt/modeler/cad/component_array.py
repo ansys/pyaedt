@@ -301,6 +301,8 @@ class ComponentArray(object):
         else:
             self.__app.save_project()
         new_properties = self.properties
+        # TODO : post_processing_cells property can not be retrieved, so if the length of the components and the
+        #  property is different, the method will reset the property.
         if len(new_properties["component"]) != len(self.post_processing_cells):
             self.__post_processing_cells = {}
             new_properties = self.properties
