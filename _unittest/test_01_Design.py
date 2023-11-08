@@ -98,6 +98,8 @@ class TestClass:
         print(self.aedtapp.logger)
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
+        print(self.aedtapp)
+        assert self.aedtapp.info
 
     def test_09_set_objects_deformation(self):
         assert self.aedtapp.modeler.set_objects_deformation(["inner"])
