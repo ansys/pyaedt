@@ -135,11 +135,12 @@ Failure connecting to the gRPC server
 On Linux, PyAEDT may fail to initialize a new instance of the gRPC server
 or connect to an existing server session.
 This may be due to:
- - Firewall
- - Proxy
- - Permissions
- - License
- - Scheduler (for example if the gRPC server was started from LSF or Slurm)
+
+- Firewall
+- Proxy
+- Permissions
+- License
+- Scheduler (for example if the gRPC server was started from LSF or Slurm)
 
 For issues related to use of a proxy server, you may set the following environment variable to
 disable the proxy server for the *localhost*.
