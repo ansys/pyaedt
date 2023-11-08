@@ -705,6 +705,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
     
+    @property
     def license_session(self):
         """Get a license_session object.
 
@@ -715,7 +716,7 @@ class Revision:
 
         Examples
         --------
-        with revision.license_session():
+        with revision.license_session:
             domain = aedtapp.interaction_domain()
             revision.run(domain)
         """
