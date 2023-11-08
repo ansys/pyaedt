@@ -3673,15 +3673,15 @@ class Edb(Database):
 
         Parameters
         ----------
-        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+        terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
             Positive terminal of the port.
-        ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+        ref_terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
             Negative terminal of the probe.
 
         Returns
@@ -3703,20 +3703,20 @@ class Edb(Database):
 
         Parameters
         ----------
-        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+        terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
             Positive terminal of the port.
         ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
             Negative terminal of the source.
 
         Returns
         -------
-
+        class:`pyaedt.edb_core.edb_data.ports.ExcitationSources`
         """
         term = Terminal(self, terminal._edb_object)
         term.boundary_type = "kVoltageSource"
@@ -3733,20 +3733,20 @@ class Edb(Database):
 
         Parameters
         ----------
-        terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+        terminal : :class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
             Positive terminal of the port.
         ref_terminal : class:`pyaedt.edb_core.edb_data.terminals.EdgeTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
-                   class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PadstackInstanceTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`,
+                   :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`,
             Negative terminal of the source.
 
         Returns
         -------
-
+        :class:`pyaedt.edb_core.edb_data.ports.ExcitationSources`
         """
         term = Terminal(self, terminal._edb_object)
         term.boundary_type = "kCurrentSource"
@@ -3771,6 +3771,10 @@ class Edb(Database):
             Location of the terminal.
         layer : str,
             Layer of the terminal.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.terminals.PointTerminal`
         """
         from pyaedt.edb_core.edb_data.terminals import PointTerminal
 

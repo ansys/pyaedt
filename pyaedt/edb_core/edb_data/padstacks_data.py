@@ -1000,7 +1000,20 @@ class EDBPadstackInstance(EDBPrimitivesMain):
 
     @pyaedt_function_handler
     def get_terminal(self, name=None, create_new_terminal=False):
-        """Return PadstackInstanceTerminal object."""
+        """Return PadstackInstanceTerminal object.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the terminal. Only applicable when create_new_terminal is True.
+        create_new_terminal : bool, optional
+            Whether to create a new terminal.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.terminals`
+
+        """
 
         if create_new_terminal:
             term = self._create_terminal(name)

@@ -46,6 +46,7 @@ class Terminal(Connectable):
 
     @property
     def _hfss_port_property(self):
+        """HFSS port property."""
         hfss_prop = re.search(r"HFSS\(.*?\)", self._edb_properties)
         p = {}
         if hfss_prop:
@@ -163,7 +164,7 @@ class Terminal(Connectable):
 
     @property
     def boundary_type(self):
-        """Boundary Type.
+        """Boundary type.
 
 
         Returns
@@ -559,7 +560,7 @@ class PointTerminal(Terminal):
 
     @property
     def location(self):
-        """Get location of the terminal."""
+        """Location of the terminal."""
         layer = list(self._pedb.stackup.layers.values())[0]._edb_layer
         _, point_data, _ = self._edb_object.GetParameters(None, layer)
         return [point_data.X.ToDouble(), point_data.Y.ToDouble()]
