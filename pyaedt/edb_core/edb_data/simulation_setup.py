@@ -214,6 +214,8 @@ class BaseSimulationSetup(object):
 
         if not frequency_sweep:
             frequency_sweep = [["linear scale", "0.1GHz", "10GHz", "0.1GHz"]]
+        elif not isinstance(frequency_sweep[0], list):
+            frequency_sweep = [frequency_sweep]
 
         if not name:
             name = generate_unique_name("sweep")
