@@ -724,5 +724,3 @@ class Revision:
             raise RuntimeError("This function is only supported in AEDT version 2024 R2 and later.")
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
-
-
