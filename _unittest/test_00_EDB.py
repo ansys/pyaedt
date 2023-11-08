@@ -173,7 +173,7 @@ class TestClass:
         coax_port.radial_extent_factor = 3
         assert coax_port.radial_extent_factor == 3
         assert coax_port.component
-        assert self.edbapp.components["U6"].pins["R3"].terminal
+        assert self.edbapp.components["U6"].pins["R3"].get_terminal()
         assert self.edbapp.components["U6"].pins["R3"].id
         assert self.edbapp.terminals
         assert self.edbapp.ports
@@ -494,6 +494,10 @@ class TestClass:
         assert list(self.edbapp.sources.values())[0].magnitude == 3.3
         list(self.edbapp.sources.values())[0].phase = 1
         assert list(self.edbapp.sources.values())[0].phase == 1
+        u6 = self.edbapp.components["U6"]
+        self.edbapp.create_voltage_source(
+            u6.pins["F2"].get_terminal(create_new_terminal=True), u6.pins["F1"].get_terminal(create_new_terminal=True)
+        )
 
     def test_042_create_current_source(self):
         assert self.edbapp.siwave.create_current_source_on_net("U1", "USB3_D_N", "U1", "GND", 0.1, 0) != ""
@@ -524,6 +528,10 @@ class TestClass:
         ref_term.location = [0, 0]
         assert ref_term.layer
         ref_term.layer = "1_Top"
+        u6 = self.edbapp.components["U6"]
+        self.edbapp.create_current_source(
+            u6.pins["H8"].get_terminal(create_new_terminal=True), u6.pins["G9"].get_terminal(create_new_terminal=True)
+        )
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"

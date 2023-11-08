@@ -13,7 +13,6 @@ from pyaedt.edb_core.edb_data.sources import DCTerminal
 from pyaedt.edb_core.edb_data.sources import PinGroup
 from pyaedt.edb_core.edb_data.sources import ResistorSource
 from pyaedt.edb_core.edb_data.sources import VoltageSource
-from pyaedt.edb_core.general import BoundaryType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
@@ -1418,13 +1417,7 @@ class EdbSiwave(object):
         negative_layer : str
             Layer of the negative terminal.
         """
-        from pyaedt.edb_core.edb_data.terminals import PointTerminal
 
-        point_terminal = PointTerminal(self._pedb)
-        p_terminal = point_terminal.create(name, positive_net_name, positive_location, positive_layer)
-        p_terminal.boundary_type = BoundaryType.kVoltageProbe.name
-
-        n_terminal = point_terminal.create(name + "_ref", negative_net_name, negative_location, negative_layer)
-        n_terminal.boundary_type = BoundaryType.kVoltageProbe.name
-        p_terminal.ref_terminal = n_terminal
-        return self._pedb.probes[name]
+        p_terminal = self._pedb.get_point_terminal(name, positive_net_name, positive_location, positive_layer)
+        n_terminal = self._pedb.get_point_terminal(name + "_ref", negative_net_name, negative_location, negative_layer)
+        return self._pedb.create_voltage_probe(p_terminal, n_terminal)
