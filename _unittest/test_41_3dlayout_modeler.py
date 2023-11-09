@@ -1,4 +1,5 @@
 import os
+import tempfile
 import time
 
 from _unittest.conftest import config
@@ -678,12 +679,14 @@ class TestClass:
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
-        assert test.post.create_fieldplot_layers_nets(
+        pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
-            "Mag_Volume_Force_Density",
-            intrinsics={"Time": "1ms"},
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
             plot_name="Test_Layers",
         )
+        assert pl1
+        assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
         self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")

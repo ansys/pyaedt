@@ -1333,7 +1333,7 @@ class Stackup3D(object):
 
     @property
     def objects(self):
-        """List of obects created.
+        """List of objects created.
 
         Returns
         -------

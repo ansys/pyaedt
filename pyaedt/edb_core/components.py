@@ -1240,7 +1240,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def _is_top_component(self, cmp):
-        """Test the component placment layer.
+        """Test the component placement layer.
 
         Parameters
         ----------
@@ -1775,11 +1775,15 @@ class Components(object):
     def set_solder_ball(
         self,
         component="",
-        sball_diam="100um",
-        sball_height="150um",
+        sball_diam=None,
+        sball_height=None,
         shape="Cylinder",
         sball_mid_diam=None,
         chip_orientation="chip_down",
+        auto_reference_size=True,
+        reference_size_x=0,
+        reference_size_y=0,
+        reference_height=0,
     ):
         """Set cylindrical solder balls on a given component.
 
@@ -1799,7 +1803,14 @@ class Components(object):
         chip_orientation : str, optional
             Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
             IC model.
-
+        auto_reference_size : bool, optional
+            Whether to automatically set reference size.
+        reference_size_x : int, str, float, optional
+            X size of the reference. Applicable when auto_reference_size is False.
+        reference_size_y : int, str, float, optional
+            Y size of the reference. Applicable when auto_reference_size is False.
+        reference_height : int, str, float, optional
+            Height of the reference. Applicable when auto_reference_size is False.
         Returns
         -------
         bool
@@ -1816,52 +1827,55 @@ class Components(object):
         if not isinstance(component, self._pedb.edb_api.cell.hierarchy.component):
             edb_cmp = self.get_component_by_name(component)
             cmp = self.instances[component]
-        else:
+        else:  # pragma: no cover
             edb_cmp = component
             cmp = self.instances[edb_cmp.GetName()]
-        if edb_cmp:
-            cmp_type = edb_cmp.GetComponentType()
-            if not sball_diam:
-                pin1 = list(cmp.pins.values())[0].pin
-                pin_layers = pin1.GetPadstackDef().GetData().GetLayerNames()
-                pad_params = self._padstack.get_pad_parameters(pin=pin1, layername=pin_layers[0], pad_type=0)
-                _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
-                sball_diam = _sb_diam
-            sball_height = round(self._edb.utility.Value(sball_diam).ToDouble(), 9) / 2
-            if not sball_mid_diam:
-                sball_mid_diam = sball_diam
 
-            if shape == "Cylinder":
-                sball_shape = self._edb.definition.SolderballShape.Cylinder
-            else:
-                sball_shape = self._edb.definition.SolderballShape.Spheroid
-
-            cmp_property = edb_cmp.GetComponentProperty().Clone()
-            if cmp_type == self._edb.definition.ComponentType.IC:
-                ic_die_prop = cmp_property.GetDieProperty().Clone()
-                ic_die_prop.SetType(self._edb.definition.DieType.FlipChip)
-                if chip_orientation.lower() == "chip_down":
-                    ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipDown)
-                if chip_orientation.lower() == "chip_up":
-                    ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipUp)
-                else:
-                    ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipDown)
-                cmp_property.SetDieProperty(ic_die_prop)
-
-            solder_ball_prop = cmp_property.GetSolderBallProperty().Clone()
-            solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_mid_diam))
-            solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
-
-            solder_ball_prop.SetShape(sball_shape)
-            cmp_property.SetSolderBallProperty(solder_ball_prop)
-
-            port_prop = cmp_property.GetPortProperty().Clone()
-            port_prop.SetReferenceSizeAuto(True)
-            cmp_property.SetPortProperty(port_prop)
-            edb_cmp.SetComponentProperty(cmp_property)
-            return True
+        cmp_type = edb_cmp.GetComponentType()
+        if not sball_diam:
+            pin1 = list(cmp.pins.values())[0].pin
+            pin_layers = pin1.GetPadstackDef().GetData().GetLayerNames()
+            pad_params = self._padstack.get_pad_parameters(pin=pin1, layername=pin_layers[0], pad_type=0)
+            _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
+            sball_diam = _sb_diam
+        if sball_height:
+            sball_height = round(self._edb.utility.Value(sball_height).ToDouble(), 9)
         else:
-            return False
+            sball_height = round(self._edb.utility.Value(sball_diam).ToDouble(), 9) / 2
+
+        if not sball_mid_diam:
+            sball_mid_diam = sball_diam
+
+        if shape == "Cylinder":
+            sball_shape = self._edb.definition.SolderballShape.Cylinder
+        else:
+            sball_shape = self._edb.definition.SolderballShape.Spheroid
+
+        cmp_property = edb_cmp.GetComponentProperty().Clone()
+        if cmp_type == self._edb.definition.ComponentType.IC:
+            ic_die_prop = cmp_property.GetDieProperty().Clone()
+            ic_die_prop.SetType(self._edb.definition.DieType.FlipChip)
+            if chip_orientation.lower() == "chip_up":
+                ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipUp)
+            else:
+                ic_die_prop.SetOrientation(self._edb.definition.DieOrientation.ChipDown)
+            cmp_property.SetDieProperty(ic_die_prop)
+
+        solder_ball_prop = cmp_property.GetSolderBallProperty().Clone()
+        solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_mid_diam))
+        solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
+
+        solder_ball_prop.SetShape(sball_shape)
+        cmp_property.SetSolderBallProperty(solder_ball_prop)
+
+        port_prop = cmp_property.GetPortProperty().Clone()
+        port_prop.SetReferenceHeight(self._pedb.edb_value(reference_height))
+        port_prop.SetReferenceSizeAuto(auto_reference_size)
+        if not auto_reference_size:
+            port_prop.SetReferenceSize(self._pedb.edb_value(reference_size_x), self._pedb.edb_value(reference_size_y))
+        cmp_property.SetPortProperty(port_prop)
+        edb_cmp.SetComponentProperty(cmp_property)
+        return True
 
     @pyaedt_function_handler()
     def set_component_rlc(

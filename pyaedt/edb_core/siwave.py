@@ -7,8 +7,6 @@ import time
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
-
-# from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.sources import CircuitPort
 from pyaedt.edb_core.edb_data.sources import CurrentSource
 from pyaedt.edb_core.edb_data.sources import DCTerminal
@@ -839,7 +837,7 @@ class EdbSiwave(object):
         third_arg = int(decade_count)
         if sweeptype == 0:
             third_arg = self._pedb.number_with_units(step_freq, "Hz")
-        setup.si_slider_postion = int(accuracy_level)
+        setup.si_slider_position = int(accuracy_level)
         sweep = setup.add_frequency_sweep(
             frequency_sweep=[
                 [sweep, start_freq, stop_freq, third_arg],
@@ -1388,3 +1386,38 @@ class EdbSiwave(object):
         neg_terminal.SetName(name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
+
+    @pyaedt_function_handler
+    def place_voltage_probe(
+        self,
+        name,
+        positive_net_name,
+        positive_location,
+        positive_layer,
+        negative_net_name,
+        negative_location,
+        negative_layer,
+    ):
+        """Place a voltage probe between two points.
+
+        Parameters
+        ----------
+        name : str,
+            Name of the probe.
+        positive_net_name : str
+            Name of the positive net.
+        positive_location : list
+            Location of the positive terminal.
+        positive_layer : str,
+            Layer of the positive terminal.
+        negative_net_name : str,
+            Name of the negative net.
+        negative_location : list
+            Location of the negative terminal.
+        negative_layer : str
+            Layer of the negative terminal.
+        """
+
+        p_terminal = self._pedb.get_point_terminal(name, positive_net_name, positive_location, positive_layer)
+        n_terminal = self._pedb.get_point_terminal(name + "_ref", negative_net_name, negative_location, negative_layer)
+        return self._pedb.create_voltage_probe(p_terminal, n_terminal)

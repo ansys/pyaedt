@@ -65,7 +65,7 @@ class AedtObjects(object):
 
     @property
     def o_symbol_manager(self):
-        """Aedt Simbol Manager.
+        """Aedt Symbol Manager.
 
         References
         ----------
