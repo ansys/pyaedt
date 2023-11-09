@@ -104,10 +104,12 @@ class TouchstoneData(rf.Network):
         """
         temp_list = []
         freq_idx = 0
+        s_db = self.s_db[freq_idx, :, :]
         for i in self.port_tuples:
-            loss = self.s_db[freq_idx, i[0], i[1]]
-            if loss > threshold:
-                temp_list.append(i)
+            if i[0] != i[1]:
+                loss = s_db[i[0], i[1]]
+                if loss > threshold:
+                    temp_list.append(i)
         return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
@@ -128,10 +130,13 @@ class TouchstoneData(rf.Network):
         """
         temp_list = []
         freq_idx = 0
+        freq_idx = 0
+        s_db = self.s_db[freq_idx, :, :]
         for i in self.port_tuples:
-            loss = self.s_db[freq_idx, i[0], i[1]]
-            if loss > threshold:
-                temp_list.append(i)
+            if i[0] != i[1]:
+                loss = s_db[i[0], i[1]]
+                if loss > threshold:
+                    temp_list.append(i)
 
         if plot:  # pragma: no cover
             for i in temp_list:
