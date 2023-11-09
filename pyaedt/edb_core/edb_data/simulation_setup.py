@@ -235,10 +235,10 @@ class EdbFrequencySweep(object):
 
         freq_sweep_type = self._pedb.simsetupdata.SweepData.TFreqSweepType
         self._sweep_type_mapping = {
-            "kInterpolatingSweep" : freq_sweep_type.kInterpolatingSweep,
-            "kDiscreteSweep" : freq_sweep_type.kInterpolatingSweep,
-            "kBroadbandFastSweep" : freq_sweep_type.kInterpolatingSweep,
-            "kNumSweepTypes" : freq_sweep_type.kInterpolatingSweep,
+            "kInterpolatingSweep": freq_sweep_type.kInterpolatingSweep,
+            "kDiscreteSweep": freq_sweep_type.kInterpolatingSweep,
+            "kBroadbandFastSweep": freq_sweep_type.kInterpolatingSweep,
+            "kNumSweepTypes": freq_sweep_type.kInterpolatingSweep,
         }
 
         if edb_sweep_data:
