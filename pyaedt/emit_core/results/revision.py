@@ -735,7 +735,7 @@ class Revision:
 
     @property
     def license_session(self):
-        """Get a license_session object.
+        ""License session object.
 
         A license session can be started with checkout(), and ended with checkin().
         The `with` keyword can also be used, where checkout() is called on enter, and checkin() is called on exit.
