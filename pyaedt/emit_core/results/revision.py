@@ -741,7 +741,8 @@ class Revision:
         ``checkin()`` method. You can also use the ``with`` keyword, where the ``checkout()``
         method is called on enter and the ``checkin()`` method is called on exit.
 
-        Avoids having to wait for license checkin and checkout when doing many runs.
+        Using a license session avoids having to wait for license checkin and
+        checkout when doing many runs.
 
         Examples
         --------
