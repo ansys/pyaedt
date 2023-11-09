@@ -39,8 +39,6 @@ class BaseSimulationSetup(object):
         if self._edb_object:
             self._name = self._edb_object.GetName()
 
-        self._sweep_list = {}
-
     @pyaedt_function_handler
     def _create(self, name=None):
         """Create a setup."""
@@ -153,13 +151,8 @@ class BaseSimulationSetup(object):
         ----------
         sweep_data: EdbFrequencySweep
         """
-        self._sweep_list[sweep_data.name] = sweep_data
         edb_setup_info = self.get_sim_setup_info
-
-        if self._setup_type in ["kSIwave", "kHFSS"]:
-            for _, v in self._sweep_list.items():
-                edb_setup_info.SweepDataList.Add(v._edb_object)
-
+        edb_setup_info.SweepDataList.Add(sweep_data._edb_object)
         self._edb_object = self._set_edb_setup_info(edb_setup_info)
         self._update_setup()
 
@@ -172,16 +165,16 @@ class BaseSimulationSetup(object):
         sweep_data : EdbFrequencySweep
         """
         name = sweep_data.name
-        if name in self._sweep_list:
-            self._sweep_list.pop(name)
-
         fsweep = []
         for k, val in self.frequency_sweeps.items():
             if not k == name:
                 fsweep.append(val)
-        self.get_sim_setup_info.SweepDataList.Clear()
+
+        setup_info = self.get_sim_setup_info
+        setup_info.SweepDataList.Clear()
         for i in fsweep:
-            self.get_sim_setup_info.SweepDataList.Add(i._edb_object)
+            setup_info.SweepDataList.Add(i._edb_object)
+        self._edb_object = self._set_edb_setup_info(setup_info)
         self._update_setup()
         return True if name in self.frequency_sweeps else False
 
@@ -239,6 +232,14 @@ class EdbFrequencySweep(object):
 
     def __init__(self, sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
         self._sim_setup = sim_setup
+
+        freq_sweep_type = self._pedb.simsetupdata.SweepData.TFreqSweepType
+        self._sweep_type_mapping = {
+            "kInterpolatingSweep" : freq_sweep_type.kInterpolatingSweep,
+            "kDiscreteSweep" : freq_sweep_type.kInterpolatingSweep,
+            "kBroadbandFastSweep" : freq_sweep_type.kInterpolatingSweep,
+            "kNumSweepTypes" : freq_sweep_type.kInterpolatingSweep,
+        }
 
         if edb_sweep_data:
             self._edb_sweep_data = edb_sweep_data

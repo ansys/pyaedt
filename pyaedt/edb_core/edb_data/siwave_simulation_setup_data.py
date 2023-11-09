@@ -1,3 +1,5 @@
+import re
+
 from pyaedt.edb_core.edb_data.simulation_setup import BaseSimulationSetup
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
@@ -994,6 +996,31 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
                     except:
                         pass
 
+        temp = edb_setup.ToString().replace("\t", "").replace("\n", "")
+        sweep_list_string = re.search(r"\$begin 'SweepDataList'(.*)\$end 'SweepDataList'", temp).groups()[0]
+        for sweep_data_string in re.findall(r"\$begin 'SweepData'(.*)\$end 'SweepData'", sweep_list_string):
+            sweep_data = self._pedb.simsetupdata.SweepData()
+            for sweep_data_row in sweep_data_string.split("\r"):
+                match = re.search(r"(.*)=(.*)", sweep_data_row)
+                if match:
+                    k, val = match.groups()
+                    val = _parse_value(val)
+                    if k == "FreqSweepType":
+                        sweep_type_mapping = {
+                            "kInterpolatingSweep": sweep_data.TFreqSweepType.kInterpolatingSweep,
+                            "kDiscreteSweep": sweep_data.TFreqSweepType.kInterpolatingSweep,
+                            "kBroadbandFastSweep": sweep_data.TFreqSweepType.kInterpolatingSweep,
+                            "kNumSweepTypes": sweep_data.TFreqSweepType.kInterpolatingSweep,
+                        }
+                        val = sweep_type_mapping[val]
+                    sweep_data.__setattr__(k, val)
+
+                frequencies = re.findall(r"Frequencies\((.*?)\)", sweep_data_row)
+                if frequencies:
+                    for i in frequencies[0].split(","):
+                        sweep_data.Frequencies.Add(i)
+
+            edb_sim_setup_info.SweepDataList.Add(sweep_data)
         return edb_sim_setup_info
 
     @pyaedt_function_handler
