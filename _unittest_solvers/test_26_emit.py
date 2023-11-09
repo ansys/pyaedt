@@ -1134,7 +1134,7 @@ class TestClass:
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024.2"
+        config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2."
     )
     def test_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
