@@ -1198,7 +1198,7 @@ class TestClass:
                                 return [best_band, best_freq]
             return [best_band, best_freq]
         
-        # Warmup incase something isn't solved
+        # Warmup in case something isn't solved
         best_case_rx_ch = {}
         for rx in [receivers[0]]:
             best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
