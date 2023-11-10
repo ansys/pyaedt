@@ -733,6 +733,7 @@ class Components(object):
         impedance : Port impedance
             str, float
         port_name : Port Name (Optional) when provided will overwrite the default naming convention
+            str
 
         Returns
         -------
@@ -821,7 +822,7 @@ class Components(object):
             False will take the closest reference pin and generate one port per signal pin.
         refnet : string or list of string.
             list of the reference net.
-        port_name : string
+        port_name : str
             Port name for overwriting the default port-naming convention,
             which is ``[component][net][pin]``. The port name must be unique.
             If a port with the specified name already exists, the
@@ -940,6 +941,9 @@ class Components(object):
         Parameters
         ----------
         pin : Edb padstack instance.
+
+        term_name : Terminal name (Optional).
+            str.
 
         Returns
         -------
