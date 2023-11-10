@@ -130,7 +130,7 @@ edb.siwave.create_voltage_source_on_net("U1", "AVCC_1V3", "U1", "GND", 1.3, 0, "
 edb.siwave.create_current_source_on_net("IC2", "NetD3_2", "IC2", "GND", 1.0, 0, "I1")
 setup = edb.siwave.add_siwave_dc_analysis("myDCIR_4")
 setup.use_dc_custom_settings = True
-setup.dc_slider_position = 0
+setup.set_dc_slider = 0
 setup.add_source_terminal_to_ground("V1", 1)
 
 

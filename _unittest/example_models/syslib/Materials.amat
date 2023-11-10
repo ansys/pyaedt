@@ -1,0 +1,123 @@
+$begin '$base_index$'
+  $begin 'properties'
+    all_levels=000000000000
+    time(year=000000002021, month=000000000009, day=000000000001, hour=000000000015, min=000000000032, sec=000000000052)
+    version=000000000000
+  $end 'properties'
+  $begin '$base_index$'
+    $index$(pos=000000318773, lin=000000011311, lvl=000000000000)
+  $end '$base_index$'
+$end '$base_index$'
+$begin 'FC-78'
+  $begin 'MaterialDef'
+    $begin 'FC-78'
+      CoordinateSystemType='Cartesian'
+      BulkOrSurfaceType=1
+      $begin 'PhysicsTypes'
+        set('Thermal')
+      $end 'PhysicsTypes'
+      $begin 'AttachedData'
+        $begin 'MatAppearanceData'
+          property_data='appearance_data'
+          Red=0
+          Green=128
+          Blue=255
+          Transparency=0.8
+        $end 'MatAppearanceData'
+      $end 'AttachedData'
+      thermal_conductivity='0.062'
+      mass_density='1700'
+      specific_heat='1050'
+      thermal_expansion_coeffcient='0.0016'
+      $begin 'thermal_material_type'
+        property_type='ChoiceProperty'
+        Choice='Fluid'
+      $end 'thermal_material_type'
+      $begin 'clarity_type'
+        property_type='ChoiceProperty'
+        Choice='Transparent'
+      $end 'clarity_type'
+      molecular_mass='0.001'
+      viscosity='0.000462'
+      ModTime=1592011950
+    $end 'FC-78'
+  $end 'MaterialDef'
+$end 'FC-78'
+$begin 'Polyflon CuFlon (tm)'
+  $begin 'AttachedData'
+    $begin 'MatAppearanceData'
+      property_data='appearance_data'
+      Red=230
+      Green=225
+      Blue=220
+    $end 'MatAppearanceData'
+  $end 'AttachedData'
+  simple('permittivity', 2.1)
+  simple('dielectric_loss_tangent', 0.00045)
+  ModTime=1499970477
+$end 'Polyflon CuFlon (tm)'
+$begin 'Water(@360K)'
+  $begin 'MaterialDef'
+    $begin 'Water(@360K)'
+      CoordinateSystemType='Cartesian'
+      BulkOrSurfaceType=1
+      $begin 'PhysicsTypes'
+        set('Thermal')
+      $end 'PhysicsTypes'
+      $begin 'AttachedData'
+        $begin 'MatAppearanceData'
+          property_data='appearance_data'
+          Red=0
+          Green=128
+          Blue=255
+          Transparency=0.8
+        $end 'MatAppearanceData'
+      $end 'AttachedData'
+      thermal_conductivity='0.6743'
+      mass_density='967.4'
+      specific_heat='4206'
+      thermal_expansion_coeffcient='0.0006979'
+      $begin 'thermal_material_type'
+        property_type='ChoiceProperty'
+        Choice='Fluid'
+      $end 'thermal_material_type'
+      $begin 'clarity_type'
+        property_type='ChoiceProperty'
+        Choice='Transparent'
+      $end 'clarity_type'
+      material_refractive_index='1.333'
+      diffusivity='1.657e-007'
+      molecular_mass='0.018015'
+      viscosity='0.000324'
+      ModTime=1592011950
+    $end 'Water(@360K)'
+  $end 'MaterialDef'
+$end 'Water(@360K)'
+$begin 'steel_stainless'
+  $begin 'AttachedData'
+    $begin 'MatAppearanceData'
+      property_data='appearance_data'
+      Red=176
+      Green=154
+      Blue=176
+    $end 'MatAppearanceData'
+  $end 'AttachedData'
+  simple('conductivity', 1100000)
+  simple('thermal_conductivity', 13.8)
+  simple('mass_density', 8055)
+  simple('specific_heat', 480)
+  simple('youngs_modulus', 195000000000)
+  simple('poissons_ratio', 0.3)
+  simple('thermal_expansion_coeffcient', 1.08e-005)
+  ModTime=1499970477
+$end 'steel_stainless'
+$begin '$index$'
+	$begin '$index$'
+		steel_stainless(pos=1224, lin=48, lvl=0)
+		'Polyflon CuFlon (tm)'(pos=22164, lin=814, lvl=0)
+		'FC-78'(pos=126130, lin=4842, lvl=0)
+    'Water(@360K)'(pos=118115, lin=4556, lvl=0)
+		$base_index$(pos=0, lin=1, lvl=0)
+		$index$(pos=318773, lin=11311, lvl=0)
+	$end '$index$'
+$end '$index$'
