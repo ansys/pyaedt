@@ -789,7 +789,7 @@ class EmitRadioComponent(EmitComponent):
             band_node._set_prop_value(prop_list)
 
     def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
-        """Set stop frequency of a given band.
+        """Set stop frequency of the band.
 
         Parameters
         ----------
