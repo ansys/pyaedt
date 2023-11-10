@@ -128,16 +128,7 @@ class TouchstoneData(rf.Network):
         list
             List of tuples representing insertion loss excitations.
         """
-        temp_list = []
-        freq_idx = 0
-        freq_idx = 0
-        s_db = self.s_db[freq_idx, :, :]
-        for i in self.port_tuples:
-            if i[0] != i[1]:
-                loss = s_db[i[0], i[1]]
-                if loss > threshold:
-                    temp_list.append(i)
-
+        temp_list = self.get_insertion_loss_index(threshold=threshold)
         if plot:  # pragma: no cover
             for i in temp_list:
                 self.plot_s_db(*i, logx=self.log_x)
