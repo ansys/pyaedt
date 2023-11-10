@@ -1228,15 +1228,16 @@ class Components(object):
 
         isref : bool
 
+        term_name : Terminal name (Optional). If not provided default name is Component name, Pin name, Net name.
+            str.
+
         Returns
         -------
         Edb pin group terminal.
         """
         pin = list(pingroup.GetPins())[0]
         if term_name is None:
-            term_name = "{}.{}.{}".format(
-                pin.GetComponent().GetName(), pin.GetComponent().GetName(), pin.GetNet().GetName()
-            )
+            term_name = "{}.{}.{}".format(pin.GetComponent().GetName(), pin.GetName(), pin.GetNet().GetName())
         for t in list(self._pedb.active_layout.Terminals):
             if t.GetName() == term_name:
                 return t
