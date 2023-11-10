@@ -4869,3 +4869,151 @@ class Icepak(FieldAnalysis3D):
                 raise SystemExit
         except (GrpcApiError, SystemExit):
             return None
+
+    @pyaedt_function_handler()
+    def assign_recirculation_opening(self, face_list, extract_face, thermal_specification="Temperature",
+                                     assignment_value="0cel", conductance_external_temperature=None,
+                                     flow_specification="Mass Flow", flow_assignment="0kg_per_s_m2",
+                                     flow_direction=None, start_time=None, end_time=None, boundary_name=None):
+        """Assign recirculation faces.
+
+        Parameters
+        ----------
+        face_list : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        extract_face : modeler.cad.elements3d.FacePrimitive, int
+             Face of the face on the extract side.
+        thermal_specification : str, optional
+            Type of the thermal assignment across the two recirculation
+            faces. Options are ``"Conductance"``, ``"Heat Input"`` and
+            ``"Temperature"``. Default is ``"Temperature"``.
+        assignment_value : str or dict, optional
+            String with value and units of the thermal assignment. For a
+            transient assignment, a dictionary can be used. The dictionary
+            should contain two keys: ``"Function"`` and ``"Values"``.
+            - For the ``"Function"`` key, acceptable values are
+            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
+            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, a list of strings containing the
+            parameters required by the ``"Function"`` key selection. For
+            example, when``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+            The parameters must contain the units where needed.
+            The default value is ``"0cel"``.
+        conductance_external_temperature : str, optional
+            External temperature value, needed if ``thermal_specification``
+            is set to ``"Conductance"``. Default is ``None``.
+        flow_specification: str, optional
+            Flow specification for the recirculation zone. Available
+            options are: ``"Mass Flow"``, ``"Mass Flux"``, and
+            ``"Volume Flow"``. The default value is ``"Mass Flow"``.
+        flow_assignment: str or dict, optional
+            String with value and units of the flow assignment. For a
+            transient assignment, a dictionary can be used. The dictionary
+            should contain two keys: ``"Function"`` and ``"Values"``.
+            - For the ``"Function"`` key, acceptable values are
+            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
+            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, a list of strings containing the
+            parameters required by the ``"Function"`` key selection. For
+            example, when``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+            The parameters must contain the units where needed.
+            The default value is ``"0kg_per_s_m2"``.
+        flow_direction : list, optional
+            Flow direction enforced at the recirculation zone. The default value
+            is ``None`` in which case the normal direction is used.
+        start_time : str, optional
+            Start of the time interval. Relevant only if the simulation is
+            transient. The default value is ``"0s"``.
+        end_time : str, optional
+            End of the time interval. Relevant only if the simulation is
+            transient. The default value is ``"0s"``.
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignRecircBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.solution_type = "Transient"
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box.solve_inside = False
+        >>> block = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
+        >>>                                          flow_assignment="10kg_per_s_m2")
+
+        """
+        if not len(face_list) == 2:
+            self.logger.error("Recirculation boundary condition must be assigned to two faces.")
+            return False
+        if conductance_external_temperature is not None and thermal_specification is not "Conductance":
+            self.logger.warning(
+                '``conductance_external_temperature`` will not have any effect unless the ``thermal_specification`` '
+                'is ``"Conductance"``')
+        if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
+            self.logger.warning(
+                '``start_time`` and ``end_time`` will not have any effect unless for steady-state simulations')
+        elif self.solution_type == "Transient" and not (start_time and end_time):
+            self.logger.warning(
+                '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s"')
+            start_time = "0s"
+            end_time = "0s"
+        assignment_dict = {
+            "Conductance": "Conductance",
+            "Heat Input": "Heat Flow",
+            "Temperature": "Temperature Change"
+        }
+        props = {}
+        if not isinstance(face_list[0], int):
+            face_list = [f.id for f in face_list]
+        props["Faces"] = face_list
+        if isinstance(extract_face, int):
+            extract_face = [extract_face]
+        else:
+            extract_face = [f.id for f in extract_face]
+        props["ExtractFace"] = extract_face
+        props["Thermal Condition"] = thermal_specification
+        props[assignment_dict[thermal_specification]] = assignment_value
+        if thermal_specification == "Conductance":
+            props["External Temp"] = conductance_external_temperature
+        props[flow_specification + " Rate"] = flow_assignment
+        if flow_direction is None:
+            props["Supply Flow Direction"] = "Normal"
+        else:
+            props["Supply Flow Direction"] = "Specified"
+            if not (isinstance(flow_direction, list)):
+                self.logger.error("``flow_direction`` can be only ``None`` or a list of strings or floats.")
+                return False
+            for direction, val in zip(["X", "Y", "Z"], flow_direction):
+                props[direction] = str(val)
+        if self.solution_type == "Transient":
+            props["Start"] = start_time
+            props["End"] = end_time
+        if not boundary_name:
+            boundary_name = generate_unique_name("Recirculating")
+
+        bound = BoundaryObject(self, boundary_name, props, "Recirculating")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):
+            return None
