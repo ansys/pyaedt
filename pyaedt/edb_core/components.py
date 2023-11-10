@@ -769,6 +769,8 @@ class Components(object):
         if not len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]) == len(pins):
             self._logger.error("Pin list must contain only pins instances")
             return
+        if not port_name:
+            port_name = "Port_{}_{}".format(pins[0].net_name, pins[0].name)
         if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
             ref_cmp_pins = []
             for ref_pin_name in reference_pins:
