@@ -4989,10 +4989,34 @@ class Icepak(FieldAnalysis3D):
             extract_face = [f.id for f in extract_face]
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
-        props[assignment_dict[thermal_specification]] = assignment_value
+        if isinstance(assignment_value, dict):
+            if not self.solution_type == "Transient":
+                self.logger.error("Transient assignment is supported only in transient designs.")
+                return None
+            assignment = self._parse_variation_data(
+                assignment_dict[thermal_specification],
+                "Transient",
+                variation_value=assignment_value["Values"],
+                function=assignment_value["Function"],
+            )
+            props.update(assignment)
+        else:
+            props[assignment_dict[thermal_specification]] = assignment_value
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
-        props[flow_specification + " Rate"] = flow_assignment
+        if isinstance(flow_assignment, dict):
+            if not self.solution_type == "Transient":
+                self.logger.error("Transient assignment is supported only in transient designs.")
+                return None
+            assignment = self._parse_variation_data(
+                flow_specification + " Rate",
+                "Transient",
+                variation_value=flow_assignment["Values"],
+                function=flow_assignment["Function"],
+            )
+            props.update(assignment)
+        else:
+            props[flow_specification + " Rate"] = flow_assignment
         if flow_direction is None:
             props["Supply Flow Direction"] = "Normal"
         else:
