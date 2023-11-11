@@ -1,7 +1,7 @@
-from copy import deepcopy as copy
 import itertools
 import os
 import re
+from copy import deepcopy as copy
 
 from pyaedt import is_ironpython
 
@@ -460,7 +460,7 @@ class TouchstoneData(rf.Network):
 
 @pyaedt_function_handler()
 def read_touchstone(file_path):
-    """Load the contents of a Touchstone file into an NPort
+    """Load the contents of a Touchstone file into an NPort.
 
     Parameters
     ----------
