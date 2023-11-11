@@ -1300,10 +1300,13 @@ class TestClass:
             thermal_specification="Conductance",
             flow_direction=[1],
         )
+
+        temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
+        flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
         assert self.aedtapp.assign_recirculation_opening(
             [box.top_face_x.id, box.bottom_face_x.id],
             box.top_face_x.id,
-            thermal_specification="Conductance",
-            assignment_value="1W_per_cel",
-            flow_direction=[1, 0, 0],
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
         )
