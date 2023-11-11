@@ -4955,7 +4955,7 @@ class Icepak(FieldAnalysis3D):
         >>> ipk.solution_type = "Transient"
         >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
         >>> box.solve_inside = False
-        >>> block = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
+        >>> recirc = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
         >>>                                          flow_assignment="10kg_per_s_m2")
 
         """
