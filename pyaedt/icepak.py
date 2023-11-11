@@ -5048,3 +5048,162 @@ class Icepak(FieldAnalysis3D):
                 raise SystemExit
         except (GrpcApiError, SystemExit):
             return None
+
+    @pyaedt_function_handler()
+    def assign_blower_type1(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W", blade_rpm=0,
+                            blade_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
+                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+        """Assign blower type 1.
+
+        Parameters
+        ----------
+        faces : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+             Inlet faces.
+        fan_curve_pressure : list
+            List of the fan curve pressure values. Only floats should
+            be included in the list as their unit can be modified with
+            fan_curve_pressure_unit argument.
+        fan_curve_flow : list
+            List of the fan curve flow value. Only floats should be
+            included in the list as their unit can be modified with
+            fan_curve_flow_unit argument.
+        blower_power : str, optional
+            blower power expressed as a string containing the value and unit.
+            Default is "0W".
+        blade_rpm : float, optional
+            Blade RPM value. Default is 0.
+        blade_angle : str, optional
+            Blade angle expressed as a string containing value and the unit.
+            Default is "0rad".
+        fan_curve_pressure_unit : str, optional
+            Fan curve pressure unit. Default is "n_per_meter_sq".
+        fan_curve_flow_unit : str, optional
+            Fan curve flow unit. Default is "m3_per_s".
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlowerBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0,0,0], radius=10, height=1)
+        >>> curved_face = [f for f in cylinder.faces if not f.is_planar]
+        >>> planar_faces = [f for f in cylinder.faces if f.is_planar]
+        >>> cylinder.solve_inside=False
+        >>> blower = self.aedtapp.assign_blower_type1([f.id for f in curved_face+planar_faces],
+        >>>                                           [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4])
+
+        """
+        props = {}
+        props["Blade RPM"] = blade_rpm
+        props["Fan Blade Angle"] = blade_angle
+        props["Blower Type"] = "Type 1"
+        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
+                                          fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+
+    @pyaedt_function_handler()
+    def assign_blower_type2(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W",
+                            exhaust_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
+                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+        """Assign blower type 2.
+
+        Parameters
+        ----------
+        faces : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+             Inlet faces.
+        fan_curve_pressure : list
+            List of the fan curve pressure values. Only floats should
+            be included in the list as their unit can be modified with
+            fan_curve_pressure_unit argument.
+        fan_curve_flow : list
+            List of the fan curve flow value. Only floats should be
+            included in the list as their unit can be modified with
+            fan_curve_flow_unit argument.
+        blower_power : str, optional
+            blower power expressed as a string containing the value and unit.
+            Default is "0W".
+        exhaust_angle : float, optional
+            Exhaust angle expressed as a string containing value and the unit.
+            Default is "0rad".
+        fan_curve_pressure_unit : str, optional
+            Fan curve pressure unit. Default is "n_per_meter_sq".
+        fan_curve_flow_unit : str, optional
+            Fan curve flow unit. Default is "m3_per_s".
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlowerBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box.solve_inside=False
+        >>> blower = self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]],
+        >>>                                           [box.faces[0]], [10, 5, 0], [0, 2, 4])
+
+        """
+        props = {}
+        props["Exhaust Exit Angle"] = exhaust_angle
+        props["Blower Type"] = "Type 2"
+        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
+                                   fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+
+    @pyaedt_function_handler()
+    def _assign_blower(self, props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit, fan_curve_flow,
+                       fan_curve_pressure, blower_power, boundary_name):
+        if isinstance(faces[0], int):
+            props["Faces"] = faces
+        else:
+            props["Faces"] = [f.id for f in faces]
+        if not isinstance(inlet_face, list):
+            inlet_face = [inlet_face]
+        if not isinstance(inlet_face[0], int):
+            props["InletFace"] = [f.id for f in inlet_face]
+        props["Blower Power"] = blower_power
+        props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
+        if len(fan_curve_flow) != len(fan_curve_pressure):
+            self.logger.error("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
+            return False
+        props["X"] = [str(pt) for pt in fan_curve_flow]
+        props["Y"] = [str(pt) for pt in fan_curve_pressure]
+        if not boundary_name:
+            boundary_name = generate_unique_name("Blower")
+        bound = BoundaryObject(self, boundary_name, props, "Blower")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):
+            return None
