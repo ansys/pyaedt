@@ -4965,13 +4965,17 @@ class Icepak(FieldAnalysis3D):
         if conductance_external_temperature is not None and thermal_specification is not "Conductance":
             self.logger.warning(
                 '``conductance_external_temperature`` will not have any effect unless the ``thermal_specification`` '
-                'is ``"Conductance"``')
+                'is ``"Conductance"``.')
+        if conductance_external_temperature is not None and thermal_specification is not "Conductance":
+            self.logger.warning(
+                '``conductance_external_temperature`` needs to be specified when ``thermal_specification`` '
+                'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.')
         if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
             self.logger.warning(
-                '``start_time`` and ``end_time`` will not have any effect unless for steady-state simulations')
+                '``start_time`` and ``end_time`` will not have any effect unless for steady-state simulations.')
         elif self.solution_type == "Transient" and not (start_time and end_time):
             self.logger.warning(
-                '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s"')
+                '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
             start_time = "0s"
             end_time = "0s"
         assignment_dict = {
@@ -4986,7 +4990,7 @@ class Icepak(FieldAnalysis3D):
         if isinstance(extract_face, int):
             extract_face = [extract_face]
         else:
-            extract_face = [f.id for f in extract_face]
+            extract_face = [extract_face.id]
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
         if isinstance(assignment_value, dict):
@@ -5023,6 +5027,9 @@ class Icepak(FieldAnalysis3D):
             props["Supply Flow Direction"] = "Specified"
             if not (isinstance(flow_direction, list)):
                 self.logger.error("``flow_direction`` can be only ``None`` or a list of strings or floats.")
+                return False
+            elif len(flow_direction) != 3:
+                self.logger.error("``flow_direction`` must have only three components.")
                 return False
             for direction, val in zip(["X", "Y", "Z"], flow_direction):
                 props[direction] = str(val)
