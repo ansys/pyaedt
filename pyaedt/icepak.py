@@ -4906,11 +4906,11 @@ class Icepak(FieldAnalysis3D):
         conductance_external_temperature : str, optional
             External temperature value, needed if ``thermal_specification``
             is set to ``"Conductance"``. Default is ``None``.
-        flow_specification: str, optional
+        flow_specification : str, optional
             Flow specification for the recirculation zone. Available
             options are: ``"Mass Flow"``, ``"Mass Flux"``, and
             ``"Volume Flow"``. The default value is ``"Mass Flow"``.
-        flow_assignment: str or dict, optional
+        flow_assignment : str or dict, optional
             String with value and units of the flow assignment. For a
             transient assignment, a dictionary can be used. The dictionary
             should contain two keys: ``"Function"`` and ``"Values"``.
