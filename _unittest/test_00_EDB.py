@@ -1118,8 +1118,10 @@ class TestClass:
         assert comp.type == "Other"
 
     def test_087_deactivate_rlc(self):
-        assert self.edbapp.components.deactivate_rlc_component(component="C1", create_circuit_port=True)
+        assert self.edbapp.components.deactivate_rlc_component(component="C1", create_circuit_port=False)
+        assert self.edbapp.ports["C1"]
         assert self.edbapp.components["C1"].is_enabled is False
+        assert self.edbapp.components.deactivate_rlc_component(component="C2", create_circuit_port=True)
         self.edbapp.components["C2"].is_enabled = False
         assert self.edbapp.components["C2"].is_enabled is False
         self.edbapp.components["C2"].is_enabled = True
