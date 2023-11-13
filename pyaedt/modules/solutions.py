@@ -1225,6 +1225,8 @@ class FfdSolutionData(object):
         if isinstance(self.frequency, str):
             frequency, units = decompose_variable_value(self.frequency)
             return unit_converter(frequency, "Freq", units, "Hz")
+        else:
+            return float(self.frequency)
 
     @property
     def phase_offset(self):
@@ -1302,7 +1304,7 @@ class FfdSolutionData(object):
         if self._is_array:
             for port in self.all_port_names:
                 try:
-                    str1 = port.split("[", 1)[0]
+                    str1 = port_name.split("[", 1)[1].split("]", 1)[0]
                     self._port_indexes[port] = [int(i) for i in str1.split(",")]
                 except:
                     return False
@@ -1632,136 +1634,6 @@ class FfdSolutionData(object):
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rEPhi"], 2)) / incident_power / 377
         self.all_qtys["RealizedGain_Phi"] = real_gain
         self.all_qtys["Element_Location"] = array_positions
-        return self.all_qtys
-
-    @pyaedt_function_handler()
-    def beamform_2beams(self, phi_scan1=0, theta_scan1=0, phi_scan2=0, theta_scan2=0):
-        """Compute the far field pattern calculated for a specific phi/scan angle requested.
-        This is calculated based on the lattice vector spacing and the embedded element
-        patterns of a ca-ddm or fa-ddm array in HFSS.
-
-        Parameters
-        ----------
-        phi_scan1 : int, float
-            Spherical cs for desired scan angle of beam.
-        theta_scan1: : int, float
-            Spherical cs for desired scan angle of beam.
-        phi_scan2 : int, float
-            Spherical cs for desired scan angle of second beam.
-        theta_scan2 : int, float
-            Spherical cs for desired scan angle of second beam.
-
-        Returns
-        -------
-        dict
-            Updated quantities dictionary.
-        """
-        num_ports = len(self.all_port_names)
-        self.array_center_and_edge()
-
-        c = 299792458
-        k = (2 * math.pi * self._frequency_value) / c
-
-        # ---------------------- METHOD : CalculatePhaseShifts -------------------
-        # Calculates phase shifts between array elements in A and B directions,
-        # PhaseShiftA and PhaseShiftB, given Wave Vector (k), lattice vectors
-        # (Ax, Ay, Bx, By), Scan angles (theta, phi) using formula below
-        # Phase Shift A = - (Ax*k*sin(theta)*cos(phi) + Ay*k*sin(theta)*sin(phi))
-        # Phase Shift B = - (Bx*k*sin(theta)*cos(phi) + By*k*sin(theta)*sin(phi))
-        # ------------------------------------------------------------------------
-
-        theta_scan1 = math.radians(theta_scan1)
-        phi_scan1 = math.radians(phi_scan1)
-
-        theta_scan2 = math.radians(theta_scan2)
-        phi_scan2 = math.radians(phi_scan2)
-
-        phase_shift_A_rad1 = -1 * (
-            (self.Ax * k * math.sin(theta_scan1) * math.cos(phi_scan1))
-            + (self.Ay * k * math.sin(theta_scan1) * math.sin(phi_scan1))
-        )
-        phase_shift_B_rad1 = -1 * (
-            (self.Bx * k * math.sin(theta_scan1) * math.cos(phi_scan1))
-            + (self.By * k * math.sin(theta_scan1) * math.sin(phi_scan1))
-        )
-
-        phase_shift_A_rad2 = -1 * (
-            (self.Ax * k * math.sin(theta_scan2) * math.cos(phi_scan2))
-            + (self.Ay * k * math.sin(theta_scan2) * math.sin(phi_scan2))
-        )
-        phase_shift_B_rad2 = -1 * (
-            (self.Bx * k * math.sin(theta_scan2) * math.cos(phi_scan2))
-            + (self.By * k * math.sin(theta_scan2) * math.sin(phi_scan2))
-        )
-
-        w_dict = {}
-        w_dict_ang = {}
-        w_dict_mag = {}
-        array_positions = {}
-        port_count = 0
-        for port_name in self.all_port_names:
-            index_str = self.get_array_index(port_name)
-            a = index_str[0]
-            b = index_str[1]
-            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_count)), 3)
-            w_ang1 = a * phase_shift_A_rad1 + b * phase_shift_B_rad1
-
-            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_count)), 3)
-            w_ang2 = a * phase_shift_A_rad2 + b * phase_shift_B_rad2
-
-            w_dict[port_name] = np.sqrt(w_mag1) * np.exp(1j * w_ang1) + np.sqrt(w_mag2) * np.exp(1j * w_ang2)
-            w_dict_ang[port_name] = np.angle(w_dict[port_name])
-            w_dict_mag[port_name] = np.abs(w_dict[port_name])
-
-            array_positions[port_name] = self.element_location(a, b)
-            port_count += 1
-
-        length_of_ff_data = len(self.data_dict[self.all_port_names[0]]["rETheta"])
-        rEtheta_fields = np.zeros((num_ports, length_of_ff_data), dtype=complex)
-        rEphi_fields = np.zeros((num_ports, length_of_ff_data), dtype=complex)
-        w = np.zeros((1, num_ports), dtype=complex)
-        # create port mapping
-        for n, port in enumerate(self.all_port_names):
-            re_theta = self.data_dict[port]["rETheta"]  # this is re_theta index of loaded data
-            re_phi = self.data_dict[port]["rEPhi"]  # this is re_ohi index of loaded data
-
-            w[0][n] = w_dict[port]  # build 1xNumPorts array of weights
-
-            rEtheta_fields[n] = re_theta
-            rEphi_fields[n] = re_phi
-
-            theta_range = self.data_dict[port]["Theta"]
-            phi_range = self.data_dict[port]["Phi"]
-            Ntheta = len(theta_range)
-            Nphi = len(phi_range)
-
-        rEtheta_fields_sum = np.dot(w, rEtheta_fields)
-        rEtheta_fields_sum = np.reshape(rEtheta_fields_sum, (Ntheta, Nphi))
-
-        rEphi_fields_sum = np.dot(w, rEphi_fields)
-        rEphi_fields_sum = np.reshape(rEphi_fields_sum, (Ntheta, Nphi))
-
-        self.all_qtys = {}
-        self.all_qtys["rEPhi"] = rEphi_fields_sum
-        self.all_qtys["rETheta"] = rEtheta_fields_sum
-        self.all_qtys["rETotal"] = np.sqrt(
-            np.power(np.abs(rEphi_fields_sum), 2) + np.power(np.abs(rEtheta_fields_sum), 2)
-        )
-        self.all_qtys["Theta"] = theta_range
-        self.all_qtys["Phi"] = phi_range
-        self.all_qtys["nPhi"] = Nphi
-        self.all_qtys["nTheta"] = Ntheta
-        pin = np.sum(np.power(np.abs(w), 2))
-        self.all_qtys["Pincident"] = pin
-        self.logger.info("Incident Power: %s", pin)
-        real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
-        self.all_qtys["RealizedGain"] = real_gain
-        self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
-        self.max_gain = np.max(10 * np.log10(real_gain))
-        self.min_gain = np.min(10 * np.log10(real_gain))
-        self.logger.info("Peak Realized Gain: %s dB", self.max_gain)
-        self.all_qtys["Element_Location"] = array_positions
-
         return self.all_qtys
 
     @pyaedt_function_handler()
@@ -2265,163 +2137,6 @@ class FfdSolutionData(object):
             return True
         return p
 
-    @pyaedt_function_handler()
-    def polar_plot_3d_pyvista_2beams(
-        self,
-        qty_str="RealizedGain",
-        quantity_format="dB10",
-        position=None,
-        rotation=None,
-        export_image_path=None,
-        show=True,
-        **kwargs,
-    ):  # pragma: no cover
-        """Create a 3d Polar Plot with 2 beams of Geometry with Radiation Pattern in Pyvista.
-
-        Parameters
-        ----------
-        qty_str : str, optional
-            Quantity to plot. Default `"RealizedGain"`.
-        quantity_format : str, optional
-            Conversion data function.
-            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
-        export_image_path : str, optional
-            Full path to image file. Default is None to not export.
-        position : list, optional
-            It can be a list of numpy list of origin of plot. Default is [0,0,0].
-        rotation : list, optional
-            It can be a list of numpy list of origin of plot.
-            Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
-        show : bool, optional
-            Either if the plot has to be shown or not. Default is `True`.
-
-        Returns
-        -------
-        bool or :class:`Pyvista.Plotter`
-            Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
-            In other cases return ``True`` when successful.
-        """
-        if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
-            if kwargs["convert_to_db"]:
-                quantity_format = "dB10"
-            else:
-                quantity_format = "abs"
-        if not position:
-            position = np.zeros(3)
-        elif isinstance(position, (list, tuple)):
-            position = np.array(position)
-        if not rotation:
-            rotation = np.eye(3)
-        elif isinstance(rotation, (list, tuple)):
-            rotation = np.array(rotation)
-        self.beamform_2beams(phi_scan1=0, theta_scan1=0, phi_scan2=0, theta_scan2=0)
-        self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
-
-        uf = Update2BeamForms(self, max_value=self.max_gain)
-        rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-
-        if not export_image_path and not show:
-            off_screen = False
-        else:
-            off_screen = not show
-
-        p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen, window_size=[1024, 768])
-
-        p.add_slider_widget(
-            uf.update_phi1,
-            rng=[0, 360],
-            value=0,
-            title="Phi1",
-            pointa=(0.35, 0.1),
-            pointb=(0.64, 0.1),
-            style="modern",
-            event_type="always",
-        )
-        p.add_slider_widget(
-            uf.update_theta1,
-            rng=[-180, 180],
-            value=0,
-            title="Theta1",
-            pointa=(0.67, 0.1),
-            pointb=(0.98, 0.1),
-            style="modern",
-            event_type="always",
-        )
-
-        p.add_slider_widget(
-            uf.update_phi2,
-            rng=[0, 360],
-            value=0,
-            title="Phi2",
-            pointa=(0.35, 0.25),
-            pointb=(0.64, 0.25),
-            style="modern",
-            event_type="always",
-        )
-        p.add_slider_widget(
-            uf.update_theta2,
-            rng=[-180, 180],
-            value=0,
-            title="Theta2",
-            pointa=(0.67, 0.25),
-            pointb=(0.98, 0.25),
-            style="modern",
-            event_type="always",
-        )
-        sargs = dict(height=0.4, vertical=True, position_x=0.05, position_y=0.5)
-        # ff_mesh_inst = p.add_mesh(uf.output,smooth_shading=True,cmap="jet",scalar_bar_args=sargs,opacity=0.5)
-        # not sure why, but smooth_shading causes this to not update
-        plot_min = self.min_gain
-        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs)
-        cad_mesh = self._get_geometry()
-        if cad_mesh:
-
-            def toggle_vis_ff(flag):
-                ff_mesh_inst.SetVisibility(flag)
-
-            def toggle_vis_cad(flag):
-                for i in cad:
-                    i.SetVisibility(flag)
-
-            def scale(value=1):
-                ff_mesh_inst.SetScale(value, value, value)
-                ff_mesh_inst.SetPosition(position)
-                ff_mesh_inst.SetOrientation(rotation_euler)
-                # p.add_mesh(ff_mesh, smooth_shading=True,cmap="jet")
-                return
-
-            p.add_checkbox_button_widget(toggle_vis_ff, value=True)
-            p.add_text("Show Far Fields", position=(70, 25), color="black", font_size=12)
-            slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
-            if slider_max > 0:
-                slider_min = 0
-                value = slider_max / 3
-            else:
-                slider_min = slider_max
-                slider_max = 0
-                value = slider_min / 3
-            p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=value)
-
-            if "MaterialIds" in cad_mesh.array_names:
-                color_display_type = cad_mesh["MaterialIds"]
-            else:
-                color_display_type = None
-            cad = []
-            for cm in cad_mesh:
-                cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
-            size = int(p.window_size[1] / 40)
-            p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
-            p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
-
-        if export_image_path:
-            p.show(screenshot=export_image_path)
-            return True
-        elif show:
-            p.show()
-            return True
-        return p
-
     @staticmethod
     @pyaedt_function_handler()
     def _find_nearest(array, value):
@@ -2650,51 +2365,6 @@ class UpdateBeamForm:
     def update_theta(self, theta):
         """Update the Pyvista Plot with new theta value."""
         self._theta = theta
-        self._update_both()
-
-
-class Update2BeamForms:
-    def __init__(self, ff, max_value=1):
-        self.max_value = max_value
-        self.output = ff.mesh
-        self._phi1 = 0
-        self._theta1 = 0
-        self._phi2 = 0
-        self._theta2 = 0
-        # default parameters
-        self.ff = ff
-        self.qty_str = "RealizedGain"
-        self.quantity_format = "dB10"
-
-    def _update_both(self):
-        self.ff.beamform_2beams(
-            phi_scan1=self._phi1, theta_scan1=self._theta1, phi_scan2=self._phi2, theta_scan2=self._theta2
-        )
-        self.ff._get_far_field_mesh(self.qty_str, self.quantity_format)
-        current_max = np.max(self.ff.mesh["FarFieldData"])
-        delta = self.max_value - current_max
-        self.ff.mesh["FarFieldData"] = self.ff.mesh["FarFieldData"] - delta
-        self.output.overwrite(self.ff.mesh)
-        return
-
-    def update_phi1(self, phi1):
-        """Update the Pyvista Plot with new phi1 value."""
-        self._phi1 = phi1
-        self._update_both()
-
-    def update_theta1(self, theta1):
-        """Update the Pyvista Plot with new theta1 value."""
-        self._theta1 = theta1
-        self._update_both()
-
-    def update_phi2(self, phi2):
-        """Update the Pyvista Plot with new phi2 value."""
-        self._phi2 = phi2
-        self._update_both()
-
-    def update_theta2(self, theta2):
-        """Updates the Pyvista Plot with new theta2 value."""
-        self._theta2 = theta2
         self._update_both()
 
 
