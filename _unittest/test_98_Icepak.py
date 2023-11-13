@@ -1303,15 +1303,43 @@ class TestClass:
 
         temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
-        assert self.aedtapp.assign_recirculation_opening(
+        recirc = self.aedtapp.assign_recirculation_opening(
             [box.top_face_x.id, box.bottom_face_x.id],
             box.top_face_x.id,
             thermal_specification="Temperature",
             assignment_value=temp_dict,
             flow_assignment=flow_dict,
         )
-
-    def test_70_blower_boundary(self):
+        assert recirc
+        assert recirc.update()
+        self.aedtapp.solution_type = "SteadyState"
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction="Side",
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction=[0, 1, 0],
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_assignment=flow_dict,
+        )
+        
+   def test_70_blower_boundary(self):
         cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
         curved_face = [f for f in cylinder.faces if not f.is_planar]
         planar_faces = [f for f in cylinder.faces if f.is_planar]

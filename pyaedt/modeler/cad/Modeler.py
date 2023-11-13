@@ -431,7 +431,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def _part_name(self):
-        """Internally get the part name which the face belongs to"""
+        """Internally get the part name which the face belongs to."""
         if not self.face_id:
             # face_id has not been defined yet
             return None
@@ -596,7 +596,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
     @pyaedt_function_handler()
     def _get_type_from_id(self, obj_id):
-        """Get the entity type from the id"""
+        """Get the entity type from the id."""
         for obj in self._modeler.objects.values():
             if obj.id == obj_id:
                 return "3dObject"
@@ -613,7 +613,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
     @pyaedt_function_handler()
     def _get_type_from_object(self, obj):
-        """Get the entity type from the object"""
+        """Get the entity type from the object."""
         if type(obj) is FacePrimitive:
             return "Face"
         elif type(obj) is EdgePrimitive:
@@ -1640,7 +1640,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
     @pyaedt_function_handler()
     def _get_type_from_id(self, obj_id):
-        """Get the entity type from the id"""
+        """Get the entity type from the id."""
         for obj in self._modeler.objects.values():
             if obj.id == obj_id:
                 return "3dObject"

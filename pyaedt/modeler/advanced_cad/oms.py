@@ -191,9 +191,9 @@ class BuildingsPrep(object):
 
                     # create closed and filled polygon from outline of building
                     roof = self.create_building_roof(points)
-                    if np.isnan(float(h)) == False:
+                    if np.isnan(float(h)) is False:
                         extrude_h = float(h) * 2
-                    elif np.isnan(float(l)) == False:
+                    elif np.isnan(float(l)) is False:
                         extrude_h = float(l) * 10
                     else:
                         extrude_h = 15.0
