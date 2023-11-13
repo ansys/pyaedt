@@ -1300,7 +1300,6 @@ class TestClass:
             thermal_specification="Conductance",
             flow_direction=[1],
         )
-
         temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
         recirc = self.aedtapp.assign_recirculation_opening(
@@ -1312,3 +1311,23 @@ class TestClass:
         )
         assert recirc
         assert recirc.update()
+        self.aedtapp.solution_type = "SteadyState"
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction="Side",
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction=[0, 1, 0],
+        )

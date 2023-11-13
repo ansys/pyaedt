@@ -5044,7 +5044,7 @@ class Icepak(FieldAnalysis3D):
             if bound.create():
                 self._boundaries[bound.name] = bound
                 return bound
-            else:  # pragma : no cover
+            else:  # pragma: no cover
                 raise SystemExit
-        except (GrpcApiError, SystemExit):
+        except (GrpcApiError, SystemExit):  # pragma: no cover
             return None
