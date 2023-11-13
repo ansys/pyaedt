@@ -5205,5 +5205,5 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except (GrpcApiError, SystemExit):
+        except (GrpcApiError, SystemExit):  # pragma : no cover
             return None
