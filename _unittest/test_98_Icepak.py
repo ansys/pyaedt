@@ -1331,3 +1331,9 @@ class TestClass:
             thermal_specification="Temperature",
             flow_direction=[0, 1, 0],
         )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_assignment=flow_dict,
+        )
