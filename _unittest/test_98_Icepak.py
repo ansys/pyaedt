@@ -1338,7 +1338,7 @@ class TestClass:
             thermal_specification="Temperature",
             flow_assignment=flow_dict,
         )
-        
+
    def test_70_blower_boundary(self):
         cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
         curved_face = [f for f in cylinder.faces if not f.is_planar]
