@@ -4885,7 +4885,8 @@ class Icepak(FieldAnalysis3D):
             The two keys that are always required are ``"RadiateTo"`` and
             ``"Surface Material"``. If the value of ``"RadiateTo"`` is
             ``"RefTemperature"``, then the others required keys are
-            ``"Ref. Temperature"`` and ``"View Factor"``. Default is ``None``,
+            ``"Ref. Temperature"`` and ``"View Factor"``. The other possible
+            value of ``"RadiateTo"`` is ``"AllObjects"``. Default is ``None``
             in which case the radiation on the high side is set to off.
         low_radiation_dict : dictionary, optional
             Dictionary containing the radiation assignment for the low side.
@@ -4901,17 +4902,14 @@ class Icepak(FieldAnalysis3D):
         References
         ----------
 
-        >>> oModule.AssignRecircBoundary
+        >>> oModule.AssignAdiabaticPlateBoundary
 
         Examples
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
-        >>> box.solve_inside = False
-        >>> recirc = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
-        >>>                                          flow_assignment="10kg_per_s_m2")
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        >>> ad_plate = ipk.assign_adiabatic_plate(box.top_face_x, None, {"RadiateTo": "AllObjects"})
 
         """
         if not isinstance(assignment, list):
