@@ -19,6 +19,7 @@ from __future__ import division
 import os
 import re
 import types
+import warnings
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
@@ -1237,7 +1238,7 @@ class VariableManager(object):
         return False
 
     @pyaedt_function_handler()
-    def is_used_variable(self, var_name):
+    def is_used(self, var_name):
         """Find if a variable is used.
 
         Parameters
@@ -1267,6 +1268,27 @@ class VariableManager(object):
                     self._logger.warning("{} used in the material: {}.".format(var_name, mat.name))
                     return used
         return used
+
+    @pyaedt_function_handler()
+    def is_used_variable(self, var_name):
+        """Find if a variable is used.
+
+        .. deprecated:: 0.7.4
+           Use :func:`is_used` method instead.
+
+        Parameters
+        ----------
+        var_name : str
+            Name of the variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        warnings.warn("`is_used_variable` is deprecated. Use `is_used` method instead.", DeprecationWarning)
+        return self.is_used(var_name)
 
     def _find_used_variable_history(self, history, var_name):
         """Find if a variable is used.
@@ -1307,7 +1329,7 @@ class VariableManager(object):
         var_list = self.variable_names
 
         for var in var_list[:]:
-            if not self.is_used_variable(var):
+            if not self.is_used(var):
                 self.delete_variable(var)
         return True
 
