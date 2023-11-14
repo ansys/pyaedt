@@ -4880,44 +4880,45 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         face_list : list
-            List of modeler.cad.elements3d.FacePrimitive or of integers
-            containing faces ids.
+            List of face primitive objects or a list of integers
+            containing faces IDs.
         extract_face : modeler.cad.elements3d.FacePrimitive, int
-             Face of the face on the extract side.
+             ID of the face on the extract side.
         thermal_specification : str, optional
             Type of the thermal assignment across the two recirculation
-            faces. Options are ``"Conductance"``, ``"Heat Input"`` and
-            ``"Temperature"``. Default is ``"Temperature"``.
+            faces. The default is ``"Temperature"``. Options are
+            ``"Conductance"``, ``"Heat Input"``, and ``"Temperature"``.
         assignment_value : str or dict, optional
             String with value and units of the thermal assignment. For a
             transient assignment, a dictionary can be used. The dictionary
             should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, acceptable values are
+            - For the ``"Function"`` key, options are
             ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
             ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, a list of strings containing the
+            - For the ``"Values"`` key, provide a list of strings containing the
             parameters required by the ``"Function"`` key selection. For
-            example, when``"Linear"`` is set as the ``"Function"`` key, two
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
             parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
+            slope of the line. For the parameters required by each ``"Function"``
+            key selection, see the Icepak documentation.
             The parameters must contain the units where needed.
             The default value is ``"0cel"``.
         conductance_external_temperature : str, optional
-            External temperature value, needed if ``thermal_specification``
-            is set to ``"Conductance"``. Default is ``None``.
+            External temperature value, which is needed if
+            ``thermal_specification`` is set to ``"Conductance"``.
+            The default is ``None``.
         flow_specification : str, optional
-            Flow specification for the recirculation zone. Available
-            options are: ``"Mass Flow"``, ``"Mass Flux"``, and
-            ``"Volume Flow"``. The default value is ``"Mass Flow"``.
+            Flow specification for the recirculation zone. The default is
+            ``"Mass Flow"``. Options are: ``"Mass Flow"``, ``"Mass Flux"``,
+            and ``"Volume Flow"``.
         flow_assignment : str or dict, optional
-            String with value and units of the flow assignment. For a
+            String with the value and units of the flow assignment. For a
             transient assignment, a dictionary can be used. The dictionary
             should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, acceptable values are
+            - For the ``"Function"`` key, options are
             ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
             ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, a list of strings containing the
+            - For the ``"Values"`` key, provide a list of strings containing the
             parameters required by the ``"Function"`` key selection. For
             example, when``"Linear"`` is set as the ``"Function"`` key, two
             parameters are required: the value of the variable at t=0 and the
@@ -4927,13 +4928,13 @@ class Icepak(FieldAnalysis3D):
             The default value is ``"0kg_per_s_m2"``.
         flow_direction : list, optional
             Flow direction enforced at the recirculation zone. The default value
-            is ``None`` in which case the normal direction is used.
+            is ``None``, in which case the normal direction is used.
         start_time : str, optional
-            Start of the time interval. Relevant only if the simulation is
-            transient. The default value is ``"0s"``.
+            Start of the time interval. This parameter is relevant only if the
+            simulation is transient. The default value is ``"0s"``.
         end_time : str, optional
-            End of the time interval. Relevant only if the simulation is
-            transient. The default value is ``"0s"``.
+            End of the time interval. This parameter is relevant only if the
+            simulation is transient. The default value is ``"0s"``.
         boundary_name : str, optional
             Name of the recirculation boundary. The default is ``None``, in
             which case the boundary is automatically generated.
@@ -4964,15 +4965,15 @@ class Icepak(FieldAnalysis3D):
             return False
         if conductance_external_temperature is not None and thermal_specification is not "Conductance":
             self.logger.warning(
-                '``conductance_external_temperature`` will not have any effect unless the ``thermal_specification`` '
+                '``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` '
                 'is ``"Conductance"``.')
         if conductance_external_temperature is not None and thermal_specification is not "Conductance":
             self.logger.warning(
-                '``conductance_external_temperature`` needs to be specified when ``thermal_specification`` '
+                '``conductance_external_temperature`` must be specified when ``thermal_specification`` '
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.')
         if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
             self.logger.warning(
-                '``start_time`` and ``end_time`` will not have any effect unless for steady-state simulations.')
+                '``start_time`` and ``end_time`` only effect steady-state simulations.')
         elif self.solution_type == "Transient" and not (start_time and end_time):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
