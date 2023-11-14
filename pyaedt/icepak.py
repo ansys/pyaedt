@@ -11,6 +11,7 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -4868,6 +4869,84 @@ class Icepak(FieldAnalysis3D):
             else:  # pragma : no cover
                 raise SystemExit
         except (GrpcApiError, SystemExit):
+            return None
+
+    @pyaedt_function_handler()
+    def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name=None):
+        """
+        Assign adiabatic plate boundary condition.
+
+        Parameters
+        ----------
+        assignment : list
+            List of strings containing object names, or list of integers
+            containing face ids or list of faces or objects.
+        high_radiation_dict : dictionary, optional
+            Dictionary containing the radiation assignment for the high side.
+            The two keys that are always required are ``"RadiateTo"`` and
+            ``"Surface Material"``. If the value of ``"RadiateTo"`` is
+            ``"RefTemperature"``, then the others required keys are
+            ``"Ref. Temperature"`` and ``"View Factor"``. The other possible
+            value of ``"RadiateTo"`` is ``"AllObjects"``. Default is ``None``
+            in which case the radiation on the high side is set to off.
+        low_radiation_dict : dictionary, optional
+            Dictionary containing the radiation assignment for the low side.
+            The dictionary structure is the same of ``high_radiation_dict``.
+            Default is ``None``, in which case the radiation on the low side
+            is set to off.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignAdiabaticPlateBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        >>> ad_plate = ipk.assign_adiabatic_plate(box.top_face_x, None, {"RadiateTo": "AllObjects"})
+
+        """
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        if isinstance(assignment[0], str):
+            key = "Objects"
+        elif isinstance(assignment[0], int):
+            key = "Faces"
+        elif isinstance(assignment[0], FacePrimitive):
+            key = "Faces"
+            assignment = [f.id for f in assignment]
+        else:
+            key = "Objects"
+            assignment = [o.name for o in assignment]
+        props = {key: assignment}
+        for rad_dict, side in zip([high_radiation_dict, low_radiation_dict], ["HighSide", "LowSide"]):
+            props[side] = {"Radiate": bool(rad_dict)}
+            if rad_dict is not None:
+                for k, v in rad_dict.items():
+                    if side == "HighSide":
+                        if k == "RadiateTo":
+                            v += " - High"
+                        k += " - High"
+                    props[side][k] = v
+
+        if not boundary_name:
+            boundary_name = generate_unique_name("AdiabaticPlate")
+
+        bound = BoundaryObject(self, boundary_name, props, "Adiabatic Plate")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma: no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):  # pragma: no cover
             return None
 
     @pyaedt_function_handler()
