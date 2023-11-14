@@ -404,22 +404,15 @@ class Materials(object):
         return matprop
 
     @pyaedt_function_handler()
-    def add_material_sweep(self, swargs, matname):
+    def add_material_sweep(self, materials_list, material_name):
         """Create a sweep material made of an array of materials.
-
-        If a material needs to have a dataset (thermal modifier), then a
-        dataset is created. Material properties are loaded from the XML file
-        database ``amat.xml``.
 
         Parameters
         ----------
-        swargs : list
+        materials_list : list
             List of materials to merge into a single sweep material.
-        matname : str
+        material_name : str
             Name of the sweep material.
-        enableTM : bool, optional
-            Unavailable currently. Whether to enable the thermal modifier.
-            The default is ``True``.
 
         Returns
         -------
@@ -441,25 +434,26 @@ class Materials(object):
         >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"], "Sweep_copper")
         """
         matsweep = []
-        for args in swargs:
+        for args in materials_list:
             matobj = self.checkifmaterialexists(args)
             if matobj:
                 matsweep.append(matobj)
 
         mat_dict = self._create_mat_project_vars(matsweep)
 
-        newmat = Material(self, matname)
-        index = "$ID" + matname
+        newmat = Material(self, material_name, material_update=False)
+        index = "$ID" + material_name
         newmat.is_sweep_material = True
         self._app[index] = 0
         for el in mat_dict:
             if el in list(mat_dict.keys()):
-                self._app["$" + matname + el] = mat_dict[el]
-                newmat.__dict__["_" + el].value = "$" + matname + el + "[" + index + "]"
-                newmat._update_props(el, "$" + matname + el + "[" + index + "]", False)
+                array_var_name = "$" + material_name + "_" + el
+                self._app[array_var_name] = mat_dict[el]
+                newmat.__dict__["_" + el].value = array_var_name + "[" + index + "]"
+                newmat._update_props(el, array_var_name + "[" + index + "]", False)
 
         newmat.update()
-        self.material_keys[matname.lower()] = newmat
+        self.material_keys[material_name.lower()] = newmat
         return index
 
     @pyaedt_function_handler()
