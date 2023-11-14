@@ -4927,12 +4927,13 @@ class Icepak(FieldAnalysis3D):
         props = {key: assignment}
         for rad_dict, side in zip([high_radiation_dict, low_radiation_dict], ["HighSide", "LowSide"]):
             props[side] = {"Radiate": bool(rad_dict)}
-            for k, v in rad_dict:
-                if side == "HighSide":
-                    if k == "RadiateTo":
-                        v += " - High"
-                    k += " - High"
-                props[side][k] = v
+            if rad_dict is not None:
+                for k, v in rad_dict.items():
+                    if side == "HighSide":
+                        if k == "RadiateTo":
+                            v += " - High"
+                        k += " - High"
+                    props[side][k] = v
 
         if not boundary_name:
             boundary_name = generate_unique_name("AdiabaticPlate")
