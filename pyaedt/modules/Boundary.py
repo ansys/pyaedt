@@ -556,6 +556,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignStationaryWallBoundary(self._get_args())
         elif bound_type == "Symmetry Wall":
             self._app.oboundary.AssignSymmetryWallBoundary(self._get_args())
+        elif bound_type == "Recirculating":
+            self._app.oboundary.AssignRecircBoundary(self._get_args())
         elif bound_type == "Resistance":
             self._app.oboundary.AssignResistanceBoundary(self._get_args())
         elif bound_type == "Conducting Plate":
@@ -728,6 +730,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif bound_type == "Symmetry Wall":
             self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+        elif bound_type == "Recirculating":
+            self._app.oboundary.EditRecircBoundary(self._boundary_name, self._get_args())
         elif bound_type == "Resistance":
             self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif bound_type == "Conducting Plate":

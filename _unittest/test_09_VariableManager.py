@@ -668,6 +668,8 @@ class TestClass:
         self.aedtapp.modeler.create_rectangle(0, ["used_var", "used_var", "used_var"], [10, 20])
         mat1 = self.aedtapp.materials.add_material("new_copper2")
         mat1.permittivity = "$project_used_var"
+        assert self.aedtapp.variable_manager.is_used("used_var")
+        assert not self.aedtapp.variable_manager.is_used("unused_var")
         assert self.aedtapp.variable_manager.delete_variable("unused_var")
         self.aedtapp["unused_var"] = "1mm"
         number_of_variables = len(self.aedtapp.variable_manager.variable_names)
