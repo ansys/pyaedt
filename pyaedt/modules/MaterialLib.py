@@ -434,8 +434,8 @@ class Materials(object):
         >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"], "Sweep_copper")
         """
         matsweep = []
-        for args in materials_list:
-            matobj = self.checkifmaterialexists(args)
+        for mat in materials_list:
+            matobj = self.checkifmaterialexists(mat)
             if matobj:
                 matsweep.append(matobj)
 
