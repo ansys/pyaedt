@@ -4874,6 +4874,7 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler()
     def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name=None):
         """
+        Assign adiabatic plate boundary condition.
 
         Parameters
         ----------
