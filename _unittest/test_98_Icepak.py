@@ -1278,3 +1278,87 @@ class TestClass:
         assert app.mesh.add_priority(entity_type=2, comp_name="all_3d_objects1", priority=2)
 
         app.close_project(name="3d_comp_mesh_prio_test", save_project=False)
+
+    def test_69_recirculation_boundary(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        box.solve_inside = False
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x, box.bottom_face_x, box.bottom_face_y], box.top_face_x, flow_assignment="10kg_per_s_m2"
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x, box.bottom_face_x], box.top_face_x, conductance_external_temperature="25cel"
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x, box.bottom_face_x], box.top_face_x, start_time="0s"
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x)
+        assert self.aedtapp.assign_recirculation_opening([box.top_face_x.id, box.bottom_face_x.id], box.top_face_x.id)
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Conductance",
+            flow_direction=[1],
+        )
+        temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
+        flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
+        recirc = self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
+        )
+        assert recirc
+        assert recirc.update()
+        self.aedtapp.solution_type = "SteadyState"
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction="Side",
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction=[0, 1, 0],
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_assignment=flow_dict,
+        )
+
+    def test_70_blower_boundary(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
+        curved_face = [f for f in cylinder.faces if not f.is_planar]
+        planar_faces = [f for f in cylinder.faces if f.is_planar]
+        assert not self.aedtapp.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])
+        blower = self.aedtapp.assign_blower_type1(
+            [f.id for f in curved_face + planar_faces], [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4]
+        )
+        assert blower
+        assert blower.update()
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        assert self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]], [box.faces[0]], [10, 5, 0], [0, 2, 4])
+
+    def test_71_assign_adiabatic_plate(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [1, 2])
+        assert self.aedtapp.assign_adiabatic_plate(
+            box.top_face_x, {"RadiateTo": "AllObjects"}, {"RadiateTo": "AllObjects"}
+        )
+        assert self.aedtapp.assign_adiabatic_plate(box.top_face_x.id)
+        assert self.aedtapp.assign_adiabatic_plate(rectangle)
+        ad_plate = self.aedtapp.assign_adiabatic_plate(rectangle.name)
+        assert ad_plate
+        assert ad_plate.update()
