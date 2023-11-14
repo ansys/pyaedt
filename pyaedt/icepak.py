@@ -4880,44 +4880,45 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         face_list : list
-            List of modeler.cad.elements3d.FacePrimitive or of integers
-            containing faces ids.
+            List of face primitive objects or a list of integers
+            containing faces IDs.
         extract_face : modeler.cad.elements3d.FacePrimitive, int
-             Face of the face on the extract side.
+             ID of the face on the extract side.
         thermal_specification : str, optional
             Type of the thermal assignment across the two recirculation
-            faces. Options are ``"Conductance"``, ``"Heat Input"`` and
-            ``"Temperature"``. Default is ``"Temperature"``.
+            faces. The default is ``"Temperature"``. Options are
+            ``"Conductance"``, ``"Heat Input"``, and ``"Temperature"``.
         assignment_value : str or dict, optional
             String with value and units of the thermal assignment. For a
             transient assignment, a dictionary can be used. The dictionary
             should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, acceptable values are
+            - For the ``"Function"`` key, options are
             ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
             ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, a list of strings containing the
+            - For the ``"Values"`` key, provide a list of strings containing the
             parameters required by the ``"Function"`` key selection. For
-            example, when``"Linear"`` is set as the ``"Function"`` key, two
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
             parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
+            slope of the line. For the parameters required by each ``"Function"``
+            key selection, see the Icepak documentation.
             The parameters must contain the units where needed.
             The default value is ``"0cel"``.
         conductance_external_temperature : str, optional
-            External temperature value, needed if ``thermal_specification``
-            is set to ``"Conductance"``. Default is ``None``.
+            External temperature value, which is needed if
+            ``thermal_specification`` is set to ``"Conductance"``.
+            The default is ``None``.
         flow_specification : str, optional
-            Flow specification for the recirculation zone. Available
-            options are: ``"Mass Flow"``, ``"Mass Flux"``, and
-            ``"Volume Flow"``. The default value is ``"Mass Flow"``.
+            Flow specification for the recirculation zone. The default is
+            ``"Mass Flow"``. Options are: ``"Mass Flow"``, ``"Mass Flux"``,
+            and ``"Volume Flow"``.
         flow_assignment : str or dict, optional
-            String with value and units of the flow assignment. For a
+            String with the value and units of the flow assignment. For a
             transient assignment, a dictionary can be used. The dictionary
             should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, acceptable values are
+            - For the ``"Function"`` key, options are
             ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
             ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, a list of strings containing the
+            - For the ``"Values"`` key, provide a list of strings containing the
             parameters required by the ``"Function"`` key selection. For
             example, when``"Linear"`` is set as the ``"Function"`` key, two
             parameters are required: the value of the variable at t=0 and the
@@ -4927,13 +4928,13 @@ class Icepak(FieldAnalysis3D):
             The default value is ``"0kg_per_s_m2"``.
         flow_direction : list, optional
             Flow direction enforced at the recirculation zone. The default value
-            is ``None`` in which case the normal direction is used.
+            is ``None``, in which case the normal direction is used.
         start_time : str, optional
-            Start of the time interval. Relevant only if the simulation is
-            transient. The default value is ``"0s"``.
+            Start of the time interval. This parameter is relevant only if the
+            simulation is transient. The default value is ``"0s"``.
         end_time : str, optional
-            End of the time interval. Relevant only if the simulation is
-            transient. The default value is ``"0s"``.
+            End of the time interval. This parameter is relevant only if the
+            simulation is transient. The default value is ``"0s"``.
         boundary_name : str, optional
             Name of the recirculation boundary. The default is ``None``, in
             which case the boundary is automatically generated.
@@ -4964,15 +4965,15 @@ class Icepak(FieldAnalysis3D):
             return False
         if conductance_external_temperature is not None and thermal_specification is not "Conductance":
             self.logger.warning(
-                '``conductance_external_temperature`` will not have any effect unless the ``thermal_specification`` '
+                '``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` '
                 'is ``"Conductance"``.')
         if conductance_external_temperature is not None and thermal_specification is not "Conductance":
             self.logger.warning(
-                '``conductance_external_temperature`` needs to be specified when ``thermal_specification`` '
+                '``conductance_external_temperature`` must be specified when ``thermal_specification`` '
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.')
         if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
             self.logger.warning(
-                '``start_time`` and ``end_time`` will not have any effect unless for steady-state simulations.')
+                '``start_time`` and ``end_time`` only effect steady-state simulations.')
         elif self.solution_type == "Transient" and not (start_time and end_time):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
@@ -5045,6 +5046,165 @@ class Icepak(FieldAnalysis3D):
                 self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma: no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):  # pragma : no cover
+            return None
+
+    @pyaedt_function_handler()
+    def assign_blower_type1(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W", blade_rpm=0,
+                            blade_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
+                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+        """Assign blower type 1.
+
+        Parameters
+        ----------
+        faces : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+             Inlet faces.
+        fan_curve_pressure : list
+            List of the fan curve pressure values. Only floats should
+            be included in the list as their unit can be modified with
+            fan_curve_pressure_unit argument.
+        fan_curve_flow : list
+            List of the fan curve flow value. Only floats should be
+            included in the list as their unit can be modified with
+            fan_curve_flow_unit argument.
+        blower_power : str, optional
+            blower power expressed as a string containing the value and unit.
+            Default is "0W".
+        blade_rpm : float, optional
+            Blade RPM value. Default is 0.
+        blade_angle : str, optional
+            Blade angle expressed as a string containing value and the unit.
+            Default is "0rad".
+        fan_curve_pressure_unit : str, optional
+            Fan curve pressure unit. Default is "n_per_meter_sq".
+        fan_curve_flow_unit : str, optional
+            Fan curve flow unit. Default is "m3_per_s".
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlowerBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0,0,0], radius=10, height=1)
+        >>> curved_face = [f for f in cylinder.faces if not f.is_planar]
+        >>> planar_faces = [f for f in cylinder.faces if f.is_planar]
+        >>> cylinder.solve_inside=False
+        >>> blower = self.aedtapp.assign_blower_type1([f.id for f in curved_face+planar_faces],
+        >>>                                           [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4])
+
+        """
+        props = {}
+        props["Blade RPM"] = blade_rpm
+        props["Fan Blade Angle"] = blade_angle
+        props["Blower Type"] = "Type 1"
+        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
+                                          fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+
+    @pyaedt_function_handler()
+    def assign_blower_type2(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W",
+                            exhaust_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
+                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+        """Assign blower type 2.
+
+        Parameters
+        ----------
+        faces : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+             Inlet faces.
+        fan_curve_pressure : list
+            List of the fan curve pressure values. Only floats should
+            be included in the list as their unit can be modified with
+            fan_curve_pressure_unit argument.
+        fan_curve_flow : list
+            List of the fan curve flow value. Only floats should be
+            included in the list as their unit can be modified with
+            fan_curve_flow_unit argument.
+        blower_power : str, optional
+            blower power expressed as a string containing the value and unit.
+            Default is "0W".
+        exhaust_angle : float, optional
+            Exhaust angle expressed as a string containing value and the unit.
+            Default is "0rad".
+        fan_curve_pressure_unit : str, optional
+            Fan curve pressure unit. Default is "n_per_meter_sq".
+        fan_curve_flow_unit : str, optional
+            Fan curve flow unit. Default is "m3_per_s".
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlowerBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box.solve_inside=False
+        >>> blower = self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]],
+        >>>                                           [box.faces[0]], [10, 5, 0], [0, 2, 4])
+
+        """
+        props = {}
+        props["Exhaust Exit Angle"] = exhaust_angle
+        props["Blower Type"] = "Type 2"
+        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
+                                   fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+
+    @pyaedt_function_handler()
+    def _assign_blower(self, props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit, fan_curve_flow,
+                       fan_curve_pressure, blower_power, boundary_name):
+        if isinstance(faces[0], int):
+            props["Faces"] = faces
+        else:
+            props["Faces"] = [f.id for f in faces]
+        if not isinstance(inlet_face, list):
+            inlet_face = [inlet_face]
+        if not isinstance(inlet_face[0], int):
+            props["InletFace"] = [f.id for f in inlet_face]
+        props["Blower Power"] = blower_power
+        props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
+        if len(fan_curve_flow) != len(fan_curve_pressure):
+            self.logger.error("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
+            return False
+        props["X"] = [str(pt) for pt in fan_curve_flow]
+        props["Y"] = [str(pt) for pt in fan_curve_pressure]
+        if not boundary_name:
+            boundary_name = generate_unique_name("Blower")
+        bound = BoundaryObject(self, boundary_name, props, "Blower")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma : no cover
                 raise SystemExit
         except (GrpcApiError, SystemExit):  # pragma: no cover
             return None
