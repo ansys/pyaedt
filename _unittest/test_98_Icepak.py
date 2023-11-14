@@ -1337,3 +1337,15 @@ class TestClass:
             thermal_specification="Temperature",
             flow_assignment=flow_dict,
         )
+
+    def test_71_assign_adiabatic_plate(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [1, 2])
+        assert self.aedtapp.assign_adiabatic_plate(
+            box.top_face_x, {"RadiateTo": "AllObjects"}, {"RadiateTo": "AllObjects"}
+        )
+        assert self.aedtapp.assign_adiabatic_plate(box.top_face_x.id)
+        assert self.aedtapp.assign_adiabatic_plate(rectangle)
+        ad_plate = self.aedtapp.assign_adiabatic_plate(rectangle.name)
+        assert ad_plate
+        assert ad_plate.update()
