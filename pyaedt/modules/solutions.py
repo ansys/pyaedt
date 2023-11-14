@@ -1959,8 +1959,6 @@ class FfdSolutionData(object):
                         xmax = offset_xyz[0] * 2
                     if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centered, factor of 2
                         ymax = offset_xyz[1] * 2
-                    if np.abs(2 * offset_xyz[2]) > zmax:  # assume array is centered, factor of 2
-                        zmax = offset_xyz[2] * 2
                     translated_mesh.position = offset_xyz
                     translated_mesh.translate(offset_xyz, inplace=True)
                     color_cad = [i / 255 for i in obj.color]
@@ -2214,6 +2212,10 @@ class FfdSolutionDataExporter(FfdSolutionData):
         self.variations = variations
         self.overwrite = overwrite
         self.model_info = []
+        if self._app.desktop_class.is_grpc_api:
+            self._app.set_phase_center_per_port()
+        else:
+            self.logger.warning("Set phase center in port location manually")
         eep_files = self._export_all_ffd()
         self.taper = taper
         FfdSolutionData.__init__(self, self.frequencies, eep_files)
