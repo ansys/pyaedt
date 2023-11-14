@@ -1302,17 +1302,22 @@ class FfdSolutionData(object):
         self._port_indexes = {}
 
         if self._is_array:
-            for port in self.all_port_names:
-                try:
-                    str1 = port_name.split("[", 1)[1].split("]", 1)[0]
-                    self._port_indexes[port] = [int(i) for i in str1.split(",")]
-                except:
-                    return False
+            try:
+                str1 = port_name.split("[", 1)[1].split("]", 1)[0]
+                first_index = port_name.split("[", 1)[1].split("]", 1)[0]
+                index_offset = 0
+                if first_index[0] != "1":
+                    index_offset = int(float(first_index[0])) - 1
+
+                self._port_indexes[port_name] = [int(i) - index_offset for i in str1.split(",")]
+            except:
+                return False
         else:
-            cont = 1
-            for port in self.all_port_names:
-                self._port_indexes[port] = [1, cont]
-                cont += 1
+            if not self._port_indexes:
+                self._port_indexes[port_name] = [1]
+            else:
+                last_value = list(self._port_indexes.values())[-1]
+                self._port_indexes[port_name] = [1, last_value[1] + 1]
 
         if self._port_indexes and port_name in self._port_indexes:
             return self._port_indexes[port_name]
@@ -1549,7 +1554,7 @@ class FfdSolutionData(object):
         w_dict = {}
         w_dict_ang = {}
         w_dict_mag = {}
-        array_positions = {}
+        port_positions = {}
         port_cont = 0
         initial_port = self.all_port_names[0]
         for port_name in self.all_port_names:
@@ -1562,10 +1567,11 @@ class FfdSolutionData(object):
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
             w_dict_mag[port_name] = w_mag
-            if self._is_array:
-                array_positions[port_name] = self.element_location(a, b)
-            else:
-                array_positions[port_name] = self._element_position[port_name]
+            port_positions[port_name] = self._element_position[port_name]
+            # if self._is_array:
+            #     # array_positions[port_name] = self.element_location(a, b)
+            # else:
+            #     array_positions[port_name] = self._element_position[port_name]
             port_cont += 1
 
         length_of_ff_data = len(self.data_dict[initial_port]["rETheta"])
@@ -1597,7 +1603,7 @@ class FfdSolutionData(object):
                 w_dict[port] = np.sqrt(0) * np.exp(1j * 0)
             incident_power += w_dict_mag[port]
 
-            xyz_pos = array_positions[port]
+            xyz_pos = port_positions[port]
             array_factor = (
                 np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * w_dict[port]
             )
@@ -1633,7 +1639,7 @@ class FfdSolutionData(object):
         self.all_qtys["RealizedGain_Theta"] = real_gain
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rEPhi"], 2)) / incident_power / 377
         self.all_qtys["RealizedGain_Phi"] = real_gain
-        self.all_qtys["Element_Location"] = array_positions
+        self.all_qtys["Element_Location"] = port_positions
         return self.all_qtys
 
     @pyaedt_function_handler()
@@ -1745,6 +1751,7 @@ class FfdSolutionData(object):
         quantity_format="dB10",
         export_image_path=None,
         show=True,
+        is_polar=False,
         **kwargs,
     ):
         """Create a 2D plot of specified quantity in matplotlib.
@@ -1777,6 +1784,12 @@ class FfdSolutionData(object):
             If show is `True`, it returns a matplotlib figure instance of the plot.
             If show is `False`, it returns the plotted curves.
         """
+
+        # if is_polar:
+        #     sw = self.to_radians(self.primary_sweep_values)
+        # else:
+        #     sw = self.primary_sweep_values
+
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
             if kwargs["convert_to_db"]:
@@ -1796,6 +1809,8 @@ class FfdSolutionData(object):
             y_key = "Phi"
             x_key = "Theta"
         x = data[x_key]
+        if is_polar:
+            x = [i * 2 * math.pi / 360 for i in x]
         xlabel = x_key
         if x_key == "Phi":
             temp = data_to_plot
@@ -1826,14 +1841,24 @@ class FfdSolutionData(object):
             show_legend = True
             if len(curves) > 15:
                 show_legend = False
-            return plot_2d_chart(
-                curves,
-                xlabel=xlabel,
-                ylabel=qty_str,
-                title=title,
-                snapshot_path=export_image_path,
-                show_legend=show_legend,
-            )
+            if is_polar:
+                return plot_polar_chart(
+                    curves,
+                    xlabel=xlabel,
+                    ylabel=qty_str,
+                    title=title,
+                    snapshot_path=export_image_path,
+                    show_legend=show_legend,
+                )
+            else:
+                return plot_2d_chart(
+                    curves,
+                    xlabel=xlabel,
+                    ylabel=qty_str,
+                    title=title,
+                    snapshot_path=export_image_path,
+                    show_legend=show_legend,
+                )
         else:
             return curves
 
@@ -1922,38 +1947,40 @@ class FfdSolutionData(object):
                 obj_meshes.append([translated_mesh, color_cad, obj.opacity])
             i += 1
 
-        # center = []
-        # if is_antenna_array:
-        #     i = 0
-        #     for obj in model_pv.objects:
-        #         for each in data["Element_Location"]:
-        #             mesh = obj._cached_polydata
-        #             translated_mesh = mesh.copy()
-        #             offset_xyz = [n * sf for n in data["Element_Location"][each]]
-        #             if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
-        #                 xmax = offset_xyz[0] * 2
-        #             if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
-        #                 ymax = offset_xyz[1] * 2
-        #             translated_mesh.position = offset_xyz
-        #             translated_mesh.translate(offset_xyz, inplace=True)
-        #             color_cad = [i / 255 for i in obj.color]
-        #
-        #             if len(obj_meshes) > i:
-        #                 obj_meshes[i][0] += translated_mesh
-        #             else:
-        #                 obj_meshes.append([translated_mesh, color_cad, obj.opacity])
-        #         i += 1
-        #         if not center:
-        #             center = obj_meshes[-1][0].center
-        #         else:
-        #             center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
-        # center = [-k / i for k in center]
-        # all_max = np.max(np.array([xmax, ymax, zmax]))
-        # if all_max > self.all_max:
-        #     self.all_max = all_max
-        #
-        # for mesh in obj_meshes:
-        #     mesh[0].translate(center, inplace=True)
+        center = []
+        if self._is_array:
+            i = 0
+            for obj in model_pv.objects:
+                for each in self.all_qtys["Element_Location"]:
+                    mesh = obj._cached_polydata
+                    translated_mesh = mesh.copy()
+                    offset_xyz = [n * sf for n in self.all_qtys["Element_Location"][each]]
+                    if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centered, factor of 2
+                        xmax = offset_xyz[0] * 2
+                    if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centered, factor of 2
+                        ymax = offset_xyz[1] * 2
+                    if np.abs(2 * offset_xyz[2]) > zmax:  # assume array is centered, factor of 2
+                        zmax = offset_xyz[2] * 2
+                    translated_mesh.position = offset_xyz
+                    translated_mesh.translate(offset_xyz, inplace=True)
+                    color_cad = [i / 255 for i in obj.color]
+
+                    if len(obj_meshes) > i:
+                        obj_meshes[i][0] += translated_mesh
+                    else:
+                        obj_meshes.append([translated_mesh, color_cad, obj.opacity])
+                i += 1
+                if not center:
+                    center = obj_meshes[-1][0].center
+                else:
+                    center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
+        center = [-k / i for k in center]
+        all_max = np.max(np.array([xmax, ymax, zmax]))
+        if all_max > self.all_max:
+            self.all_max = all_max
+
+        for mesh in obj_meshes:
+            mesh[0].translate(center, inplace=True)
         return obj_meshes
 
     @pyaedt_function_handler()
@@ -2316,7 +2343,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
             if os.path.exists(export_path + "/" + exported_name_map):
                 path_dict.append(export_path + "/" + exported_name_map)
                 self.get_lattice_vectors(export_path)
-                obj_list = self._create_geometries(export_path)
+                obj_list = self._create_geometries()
                 metadata_file_name = os.path.join(export_path, "eep.json")
                 items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": frequency}
                 if obj_list:
@@ -2329,7 +2356,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
         return path_dict
 
     @pyaedt_function_handler()
-    def _create_geometries(self, export_path):
+    def _create_geometries(self):
         self._app.logger.info("Exporting Geometry...")
         model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = []
