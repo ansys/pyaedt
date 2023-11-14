@@ -1300,7 +1300,6 @@ class TestClass:
             thermal_specification="Conductance",
             flow_direction=[1],
         )
-
         temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
         recirc = self.aedtapp.assign_recirculation_opening(
@@ -1339,7 +1338,7 @@ class TestClass:
             flow_assignment=flow_dict,
         )
 
-   def test_70_blower_boundary(self):
+    def test_70_blower_boundary(self):
         cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
         curved_face = [f for f in cylinder.faces if not f.is_planar]
         planar_faces = [f for f in cylinder.faces if f.is_planar]
