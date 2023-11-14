@@ -2215,7 +2215,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
         if self._app.desktop_class.is_grpc_api:
             self._app.set_phase_center_per_port()
         else:
-            self.logger.warning("Set phase center in port location manually")
+            self._app.logger.warning("Set phase center in port location manually")
         eep_files = self._export_all_ffd()
         self.taper = taper
         FfdSolutionData.__init__(self, self.frequencies, eep_files)
