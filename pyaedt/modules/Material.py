@@ -2529,6 +2529,7 @@ class Material(CommonMaterial, object):
         freq_hi=159.15494e9,
     ):
         """Set Djordjevic-Sarkar model.
+        
         Parameters
         ----------
         dk : int, float, str, optional
