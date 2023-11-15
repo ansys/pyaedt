@@ -870,3 +870,7 @@ class Materials(object):
             materials_added.append(new_material)
 
         return materials_added
+
+    @pyaedt_function_handler
+    def get_materials_in_design(self):
+        return self.odefinition_manager.GetProjectMaterialNames()
