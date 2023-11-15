@@ -2953,7 +2953,7 @@ class Icepak(FieldAnalysis3D):
             if oo:
                 from pyaedt.modules.Material import SurfaceMaterial
 
-                sm = SurfaceMaterial(self.materials, mat)
+                sm = SurfaceMaterial(self.materials, mat, material_update=False)
                 sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type")
                 props = oo.GetPropNames()
                 if "Surface Emissivity" in props:
@@ -2966,6 +2966,8 @@ class Icepak(FieldAnalysis3D):
                     sm.surface_diffuse_absorptance = oo.GetPropEvaluatedValue("Solar Diffuse Absorptance")
                 if "Solar Normal Absorptance" in props:
                     sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
+                sm.update()
+                sm._material_update = True
                 self.materials.surface_material_keys[mat.lower()] = sm
         return True
 

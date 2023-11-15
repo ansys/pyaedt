@@ -49,7 +49,6 @@ class Materials(object):
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
-        # self.material_keys = self._get_materials()
         self.material_keys = {}
         self._surface_material_keys = {}
         self._load_from_project()
@@ -200,19 +199,6 @@ class Materials(object):
         return False
 
     @pyaedt_function_handler()
-    def _get_materials(self):
-        """Get materials."""
-        mats = {}
-        try:
-            for ds in self._app.project_properties["AnsoftProject"]["Definitions"]["Materials"]:
-                mats[ds.lower()] = Material(
-                    self, ds, self._app.project_properties["AnsoftProject"]["Definitions"]["Materials"][ds]
-                )
-        except:
-            pass
-        return mats
-
-    @pyaedt_function_handler()
     def _get_surface_materials(self):
         mats = {}
         try:
@@ -221,6 +207,7 @@ class Materials(object):
                     self,
                     ds,
                     self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                    material_update=False,
                 )
         except:
             pass
@@ -330,8 +317,8 @@ class Materials(object):
         elif self._get_aedt_case_name(materialname):
             return self._aedmattolibrary(self._get_aedt_case_name(materialname))
         else:
-            material = Material(self, materialname, props)
-            if material.update():
+            material = Material(self, materialname, props, material_update=True)
+            if material:
                 self.logger.info("Material has been added. Edit it to update in Desktop.")
                 self.material_keys[materialname.lower()] = material
                 self._mats.append(materialname)
@@ -375,10 +362,11 @@ class Materials(object):
             self.logger.warning("Warning. The material is already in the database. Change the name or edit it.")
             return self.surface_material_keys[material_name.lower()]
         else:
-            material = SurfaceMaterial(self._app, material_name)
+            material = SurfaceMaterial(self._app, material_name, material_update=False)
             if emissivity:
                 material.emissivity = emissivity
-                material.update()
+            material.update()
+            material._material_update = True
             self.logger.info("Material has been added. Edit it to update in Desktop.")
             self.surface_material_keys[material_name.lower()] = material
             return self.surface_material_keys[material_name.lower()]
@@ -520,8 +508,7 @@ class Materials(object):
 
         if not new_name:
             new_name = material_name + "_clone"
-        new_material = Material(self, new_name, material._props)
-        new_material.update()
+        new_material = Material(self, new_name, material._props, material_update=False)
 
         # Parameterize material properties if these were passed.
         if props:
@@ -537,8 +524,8 @@ class Materials(object):
                         setattr(new_material, p, var_name)
                     except TypeError:
                         print("p = {}".format(p))
-
-            # new_material.update()  # Assign parameter to material property.
+        new_material.update()
+        new_material._material_update = True
         self._mats.append(new_name)
         self.material_keys[new_name.lower()] = new_material
         return new_material
@@ -574,8 +561,9 @@ class Materials(object):
         if not material.lower() in list(self.surface_material_keys.keys()):
             self.logger.error("Material {} is not present".format(material))
             return False
-        newmat = SurfaceMaterial(self, new_name.lower(), self.surface_material_keys[material.lower()]._props)
-        newmat.update()
+        newmat = SurfaceMaterial(
+            self, new_name.lower(), self.surface_material_keys[material.lower()]._props, material_update=True
+        )
         self.surface_material_keys[new_name.lower()] = newmat
         return newmat
 
@@ -805,8 +793,8 @@ class Materials(object):
                 self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
             else:
                 newname = el
-            newmat = Material(self, newname, val)
-            newmat.update()
+            newmat = Material(self, newname, val, material_update=True)
+            # newmat.update()
             self.material_keys[newname] = newmat
             materials_added.append(newmat)
         return materials_added
@@ -858,8 +846,8 @@ class Materials(object):
                     and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
                 ):
                     props[prop] = float(val[keys.index(prop)])
-            new_material = Material(self, newname, props)
-            new_material.update()
+            new_material = Material(self, newname, props, material_update=True)
+            # new_material.update()
             self.material_keys[newname] = new_material
             materials_added.append(new_material)
 
