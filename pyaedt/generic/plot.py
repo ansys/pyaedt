@@ -1306,8 +1306,11 @@ class ModelPlotter(CommonPlotter):
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
             if not cad._cached_polydata and os.path.exists(cad.path):
-                filedata = pv.read(cad.path)
-                cad._cached_polydata = filedata
+                try:
+                    filedata = pv.read(cad.path)
+                    cad._cached_polydata = filedata
+                except:
+                    continue
             color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
             if self.meshes:
