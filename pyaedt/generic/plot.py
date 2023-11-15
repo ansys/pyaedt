@@ -1310,6 +1310,7 @@ class ModelPlotter(CommonPlotter):
                     filedata = pv.read(cad.path)
                     cad._cached_polydata = filedata
                 except:
+                    print(cad.path)
                     continue
             color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
