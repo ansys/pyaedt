@@ -204,6 +204,6 @@ checks = [
 exclude = [
     '\.AEDTMessageManager.add_message$',  # bad SS05
     '\.Modeler3D\.create_choke$',  # bad RT05
-    '\._unittest\',  # missing docstring for tests
+    '\._unittest',  # missing docstring for tests
     'HistoryProps.',  # bad RT05 because of the base class named OrderedDict
 ]
