@@ -1134,6 +1134,14 @@ class CommonMaterial(object):
             del self._props["ModSinceLib"]
 
     @property
+    def is_used(self):
+        """Checks if a project material is in use."""
+        is_used = self._omaterial_manager.IsUsed(self.name)
+        if is_used == 0:
+            return False
+        return True
+
+    @property
     def coordinate_system(self):
         """Material coordinate system."""
         return self._coordinate_system

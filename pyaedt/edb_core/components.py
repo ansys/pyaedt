@@ -713,7 +713,7 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
-    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0):
+    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0, port_name=None):
         """Create circuit port between pins and reference ones.
 
         Parameters
@@ -732,6 +732,8 @@ class Components(object):
             str, [str], EDBPadstackInstance, [EDBPadstackInstance]
         impedance : Port impedance
             str, float
+        port_name : Port Name (Optional) when provided will overwrite the default naming convention
+            str
 
         Returns
         -------
@@ -767,6 +769,8 @@ class Components(object):
         if not len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]) == len(pins):
             self._logger.error("Pin list must contain only pins instances")
             return
+        if not port_name:
+            port_name = "Port_{}_{}".format(pins[0].net_name, pins[0].name)
         if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
             ref_cmp_pins = []
             for ref_pin_name in reference_pins:
@@ -781,17 +785,17 @@ class Components(object):
         if len(pins) > 1:
             group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
-            term = self._create_pin_group_terminal(pingroup=pin_group)
+            term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
 
         else:
-            term = self._create_terminal(pins[0])
+            term = self._create_terminal(pins[0], term_name=port_name)
         term.SetIsCircuitPort(True)
         if len(reference_pins) > 1:
             ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
-            ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group)
+            ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, term_name=port_name + "_ref")
         else:
-            ref_term = self._create_terminal(reference_pins[0])
+            ref_term = self._create_terminal(reference_pins[0], term_name=port_name + "_ref")
         ref_term.SetIsCircuitPort(True)
         term.SetImpedance(self._edb.utility.value(impedance))
         term.SetReferenceTerminal(ref_term)
@@ -820,7 +824,7 @@ class Components(object):
             False will take the closest reference pin and generate one port per signal pin.
         refnet : string or list of string.
             list of the reference net.
-        port_name : string
+        port_name : str
             Port name for overwriting the default port-naming convention,
             which is ``[component][net][pin]``. The port name must be unique.
             If a port with the specified name already exists, the
@@ -933,12 +937,15 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
-    def _create_terminal(self, pin):
+    def _create_terminal(self, pin, term_name=None):
         """Create terminal on component pin.
 
         Parameters
         ----------
         pin : Edb padstack instance.
+
+        term_name : Terminal name (Optional).
+            str.
 
         Returns
         -------
@@ -951,7 +958,8 @@ class Components(object):
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
-        term_name = "{}.{}.{}".format(cmp_name, pin_name, net_name)
+        if term_name is None:
+            term_name = "{}.{}.{}".format(cmp_name, pin_name, net_name)
         for term in list(self._pedb.active_layout.Terminals):
             if term.GetName() == term_name:
                 return term
@@ -1057,7 +1065,7 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edb_file = r'C:\my_edb_file.aedb'
         >>> edb = Edb(edb_file)
-        >>> for cmp in list(edb.components.components.keys()):
+        >>> for cmp in list(edb.components.instances.keys()):
         >>>     edb.components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
         >>> edb.save_edb()
         >>> edb.close_edb()
@@ -1078,12 +1086,10 @@ class Components(object):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
         component.is_enabled = False
-        if create_circuit_port:
-            return self.add_port_on_rlc_component(component.refdes)
-        return True
+        return self.add_port_on_rlc_component(component=component.refdes, circuit_ports=create_circuit_port)
 
     @pyaedt_function_handler()
-    def add_port_on_rlc_component(self, component=None):
+    def add_port_on_rlc_component(self, component=None, circuit_ports=True):
         """Deactivate RLC component and replace it with a circuit port.
         The circuit port supports only 2-pin components.
 
@@ -1091,6 +1097,10 @@ class Components(object):
         ----------
         component : str
             Reference designator of the RLC component.
+
+        circuit_ports : bool
+            ``True`` will replace RLC component by circuit ports, ``False`` gap ports compatible with HFSS 3D modeler
+            export.
 
         Returns
         -------
@@ -1108,35 +1118,43 @@ class Components(object):
             pt = self._pedb.point_data(*pos_pin_loc)
 
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
-            pos_pin_term = self._pedb.edb_api.cell.terminal.PointTerminal.Create(
+            pos_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
                 pins[0].GetNet(),
                 "{}_{}".format(component.refdes, pins[0].GetName()),
-                pt,
+                pins[0],
                 pin_layers[0],
+                False,
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
             neg_pin_loc = self.get_pin_position(pins[1])
             pt = self._pedb.point_data(*neg_pin_loc)
 
-            neg_pin_term = self._pedb.edb_api.cell.terminal.PointTerminal.Create(
+            neg_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
                 pins[1].GetNet(),
                 "{}_{}_ref".format(component.refdes, pins[1].GetName()),
-                pt,
+                pins[1],
                 pin_layers[0],
+                False,
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
             pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
-            pos_pin_term.SetIsCircuitPort(True)
             pos_pin_term.SetName(component.refdes)
             neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
-            neg_pin_term.SetIsCircuitPort(True)
             pos_pin_term.SetReferenceTerminal(neg_pin_term)
+            if circuit_ports:
+                pos_pin_term.SetIsCircuitPort(True)
+                neg_pin_term.SetIsCircuitPort(True)
+            else:
+                pos_pin_term.SetIsCircuitPort(False)
+                neg_pin_term.SetIsCircuitPort(False)
+
             self._logger.info("Component {} has been replaced by port".format(component.refdes))
             return True
+        return False
 
     @pyaedt_function_handler()
     def add_rlc_boundary(self, component=None, circuit_type=True):
@@ -1213,7 +1231,7 @@ class Components(object):
             return True
 
     @pyaedt_function_handler()
-    def _create_pin_group_terminal(self, pingroup, isref=False):
+    def _create_pin_group_terminal(self, pingroup, isref=False, term_name=None):
         """Creates an EDB pin group terminal from a given EDB pin group.
 
         Parameters
@@ -1222,14 +1240,16 @@ class Components(object):
 
         isref : bool
 
+        term_name : Terminal name (Optional). If not provided default name is Component name, Pin name, Net name.
+            str.
+
         Returns
         -------
         Edb pin group terminal.
         """
         pin = list(pingroup.GetPins())[0]
-        term_name = "{}.{}.{}".format(
-            pin.GetComponent().GetName(), pin.GetComponent().GetName(), pin.GetNet().GetName()
-        )
+        if term_name is None:
+            term_name = "{}.{}.{}".format(pin.GetComponent().GetName(), pin.GetName(), pin.GetNet().GetName())
         for t in list(self._pedb.active_layout.Terminals):
             if t.GetName() == term_name:
                 return t

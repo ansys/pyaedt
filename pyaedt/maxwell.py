@@ -800,8 +800,8 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or ``False``
+            Boundary object or bool if not successful.
 
         References
         ----------
