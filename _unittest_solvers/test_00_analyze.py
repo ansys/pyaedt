@@ -106,15 +106,15 @@ class TestClass:
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        # ffdata2.polar_plot_3d_pyvista(
-        #     qty_str="RealizedGain",
-        #     convert_to_db=True,
-        #     show=False,
-        #     position=[-0.11749961434125, -1.68, 0.20457438854331],
-        #     rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-        #     export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
-        # )
-        # assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
+        ffdata2.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            position=[-0.11749961434125, -1.68, 0.20457438854331],
+            rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
+            export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
