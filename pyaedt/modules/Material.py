@@ -2539,7 +2539,7 @@ class Material(CommonMaterial, object):
         i_freq : int, float, optional.
             Input frequency in Hz.
         sigma_dc : int, float, optional
-            Conductivity at DC.
+            Conductivity at DC. The default is ``1e-12``.
         freq_hi : int, float, optional
             High Frequency corner in Hz.
         Returns
