@@ -134,6 +134,7 @@ all = [
     "pandas==2.0.3; python_version == '3.8'",
     "pandas==2.1.1; python_version > '3.9'",
     "osmnx",
+    "vtk==9.2.6",
     "pyvista==0.42.2; python_version > '3.7'",
     "pyvista==0.38.0; python_version <= '3.7'",
     "SRTM.py",

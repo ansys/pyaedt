@@ -1305,7 +1305,7 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
-            if not cad._cached_polydata and os.path.exists(cad.path):
+            if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
@@ -1319,7 +1319,7 @@ class ModelPlotter(CommonPlotter):
             for i in self.frames:
                 obj_to_iterate.append(i)
         for field in obj_to_iterate:
-            if field.path and not field._cached_polydata and os.path.exists(field.path):
+            if field.path and not field._cached_polydata:
                 if ".case" in field.path:
                     reader = pv.get_reader(os.path.abspath(field.path)).read()
                     field._cached_polydata = reader[reader.keys()[0]].extract_surface()
