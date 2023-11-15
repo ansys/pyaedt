@@ -267,3 +267,19 @@ class TestClass:
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
+
+    def test_14_set_core_loss(self):
+        mat = self.aedtapp.materials["mat_test"]
+        assert self.aedtapp.materials["mat_test"].set_electrical_steel_coreloss_at_frequency(
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        assert not self.aedtapp.materials["mat_test"].set_electrical_steel_coreloss_at_frequency(
+            points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+        )
+        assert self.aedtapp.materials["mat_test"].set_electrical_steel_coreloss_at_frequency(
+            points_list_at_freq={
+                60: [[0, 0], [1, 3.5], [2, 7.4]],
+                100: [[0, 0], [1, 8], [2, 9]],
+                150: [[0, 0], [1, 10], [2, 19]],
+            }
+        )
