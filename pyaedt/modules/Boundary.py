@@ -225,7 +225,7 @@ class NativeComponentObject(BoundaryCommon, object):
         Returns
         -------
         str
-            Native Component Coordinate System
+            Native Component Coordinate System.
         """
         if "TargetCS" in list(self.props.keys()):
             return self.props["TargetCS"]
@@ -556,6 +556,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignStationaryWallBoundary(self._get_args())
         elif bound_type == "Symmetry Wall":
             self._app.oboundary.AssignSymmetryWallBoundary(self._get_args())
+        elif bound_type == "Recirculating":
+            self._app.oboundary.AssignRecircBoundary(self._get_args())
         elif bound_type == "Resistance":
             self._app.oboundary.AssignResistanceBoundary(self._get_args())
         elif bound_type == "Conducting Plate":
@@ -568,6 +570,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignGrilleBoundary(self._get_args())
         elif bound_type == "Block":
             self._app.oboundary.AssignBlockBoundary(self._get_args())
+        elif bound_type == "Blower":
+            self._app.oboundary.AssignBlowerBoundary(self._get_args())
         elif bound_type == "SourceIcepak":
             self._app.oboundary.AssignSourceBoundary(self._get_args())
         elif bound_type == "Opening":
@@ -728,6 +732,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif bound_type == "Symmetry Wall":
             self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+        elif bound_type == "Recirculating":
+            self._app.oboundary.EditRecircBoundary(self._boundary_name, self._get_args())
         elif bound_type == "Resistance":
             self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())  # pragma: no cover
         elif bound_type == "Conducting Plate":
@@ -744,6 +750,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())  # pragma: no cover
         elif bound_type == "Block":
             self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
+        elif bound_type == "Blower":
+            self._app.oboundary.EditBlowerBoundary(self._boundary_name, self._get_args())
         elif bound_type == "SourceIcepak":
             self._app.oboundary.EditSourceBoundary(self._boundary_name, self._get_args())
         elif bound_type == "HeatFlux":
@@ -3690,7 +3698,7 @@ class NetworkObject(BoundaryObject):
 
         Parameters
         ----------
-        b: bool
+        b : bool
             Whether to enable auto-update.
 
         """
@@ -3848,7 +3856,7 @@ class NetworkObject(BoundaryObject):
 
         Parameters
         ----------
-        new_network_name: str
+        new_network_name : str
             New name of the network.
         """
         bound_names = [b.name for b in self._app.boundaries]
@@ -3929,11 +3937,11 @@ class NetworkObject(BoundaryObject):
 
         Parameters
         ----------
-        name: str
+        name : str
             Name of the node.
-        assignment_type: str
+        assignment_type : str
             Type assignment. Options are ``"Power"`` and ``"Temperature"``.
-        value: str or float or dict
+        value : str or float or dict
             String, float, or dictionary containing the value of the assignment.
             If a float is passed the ``"W"`` or ``"cel"`` unit is used, depending on
             the selection for the ``assignment_type`` parameter. If ``"Power"`
@@ -3943,7 +3951,7 @@ class NetworkObject(BoundaryObject):
         Returns
         -------
         bool
-            True if successful.
+            ``True`` if successful.
 
         Examples
         --------
@@ -4082,7 +4090,7 @@ class NetworkObject(BoundaryObject):
         Add nodes to the network from dictionary.
 
         Parameters
-        -------
+        ----------
         nodes_dict : list or dict
             A dictionary or list of dictionaries containing nodes to add to the network. Different
             node types require different key and value pairs:
@@ -4431,8 +4439,8 @@ class NetworkObject(BoundaryObject):
             Set properties of the node.
 
             Parameters
-            -------
-            props: dict
+            ----------
+            props : dict
                 Node properties.
             """
             self._props = props

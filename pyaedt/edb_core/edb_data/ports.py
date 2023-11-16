@@ -54,6 +54,25 @@ class GapPort(EdgeTerminal):
         )
 
 
+class CircuitPort(GapPort):
+    """Manages gap port properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_object : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from EDB.
+
+    Examples
+    --------
+    This example shows how to access the ``GapPort`` class.
+    """
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
+
+
 class WavePort(EdgeTerminal):
     """Manages wave port properties.
 
@@ -174,30 +193,6 @@ class ExcitationSources(Terminal):
     @phase.setter
     def phase(self, value):
         self._edb_object.SetSourcePhase(self._edb.utility.value(value))
-
-
-class ExcitationProbes(Terminal):
-    """Manage probes properties.
-
-    Parameters
-    ----------
-    pedb : pyaedt.edb.Edb
-        Edb object from Edblib.
-    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from Edb.
-
-
-    Examples
-    --------
-    This example shows how to access this class.
-    >>> from pyaedt import Edb
-    >>> edb = Edb("myaedb.aedb")
-    >>> probes = edb.probes
-    >>> print(probes["Probe1"].name)
-    """
-
-    def __init__(self, pedb, edb_terminal):
-        Terminal.__init__(self, pedb, edb_terminal)
 
 
 class BundleWavePort(BundleTerminal):

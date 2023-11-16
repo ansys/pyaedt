@@ -1587,7 +1587,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            ``True`` when succeessful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------

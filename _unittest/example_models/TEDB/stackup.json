@@ -1,0 +1,92 @@
+{
+  "materials": {
+    "copper": {
+      "name": "copper",
+      "conductivity": 58000000.0
+    },
+    "fr4_epoxy": {
+      "name": "fr4_epoxy",
+      "loss_tangent": 0.02,
+      "permittivity": 4.4
+    },
+    "solder_mask": {
+      "name": "solder_mask",
+      "loss_tangent": 0.035,
+      "permittivity": 3.1
+    }
+  },
+  "layers": {
+    "TOP": {
+      "name": "TOP",
+      "type": "signal",
+      "material": "copper",
+      "dielectric_fill": "copper",
+      "thickness": 5.000000000000004e-05
+    },
+    "D1": {
+      "name": "D1",
+      "type": "dielectric",
+      "material": "fr4_epoxy",
+      "thickness": 0.0001
+    },
+    "L2": {
+      "name": "L2",
+      "type": "signal",
+      "material": "copper",
+      "dielectric_fill": "copper",
+      "thickness": 3.5000000000000004e-05
+    },
+    "D2": {
+      "name": "D2",
+      "type": "dielectric",
+      "material": "fr4_epoxy",
+      "thickness": 0.0001
+    },
+    "L3": {
+      "name": "L3",
+      "type": "signal",
+      "material": "copper",
+      "dielectric_fill": "copper",
+      "thickness": 3.5000000000000004e-05
+    },
+    "D3": {
+      "name": "D3",
+      "type": "dielectric",
+      "material": "fr4_epoxy",
+      "thickness": 0.0001
+    },
+    "L4": {
+      "name": "L4",
+      "type": "signal",
+      "material": "copper",
+      "dielectric_fill": "copper",
+      "thickness": 3.5000000000000004e-05
+    },
+    "D4": {
+      "name": "D4",
+      "type": "dielectric",
+      "material": "fr4_epoxy",
+      "thickness": 0.0001
+    },
+    "L5": {
+      "name": "L5",
+      "type": "signal",
+      "material": "copper",
+      "dielectric_fill": "copper",
+      "thickness": 3.5000000000000004e-05
+    },
+    "D5": {
+      "name": "D5",
+      "type": "dielectric",
+      "material": "fr4_epoxy",
+      "thickness": 0.0001
+    },
+    "BOT": {
+      "name": "BOT",
+      "type": "signal",
+      "material": "copper",
+      "dielectric_fill": "copper",
+      "thickness": 5.000000000000004e-05
+    }
+  }
+}

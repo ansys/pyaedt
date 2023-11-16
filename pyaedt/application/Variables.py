@@ -19,6 +19,7 @@ from __future__ import division
 import os
 import re
 import types
+import warnings
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
@@ -263,7 +264,7 @@ def decompose_variable_value(variable_value, full_variables={}):
     Returns
     -------
     tuples
-        tuples made of the float value of the variable and the units exposed as a string.
+        Tuples made of the float value of the variable and the units exposed as a string.
     """
     # set default return values - then check for valid units
     float_value = variable_value
@@ -323,7 +324,7 @@ def generate_validation_errors(property_names, expected_settings, actual_setting
         List of property names.
     expected_settings : List[str]
         List of the expected settings.
-    actual_settings: List[str]
+    actual_settings : List[str]
         List of actual settings.
 
     Returns
@@ -1237,6 +1238,102 @@ class VariableManager(object):
         return False
 
     @pyaedt_function_handler()
+    def is_used(self, var_name):
+        """Find if a variable is used.
+
+        Parameters
+        ----------
+        var_name : str
+            Name of the variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        used = False
+        # Modeler
+        for obj in self._app.modeler.objects.values():
+            used = self._find_used_variable_history(obj.history(), var_name)
+        if used:
+            self._logger.warning("{} used in modeler.".format(var_name))
+            return used
+
+        # Material
+        for mat in self._app.materials.material_keys.values():
+            for _, v in mat._props.items():
+                if isinstance(v, str) and var_name in re.findall("[$a-zA-Z0-9_]+", v):
+                    used = True
+                    self._logger.warning("{} used in the material: {}.".format(var_name, mat.name))
+                    return used
+        return used
+
+    @pyaedt_function_handler()
+    def is_used_variable(self, var_name):
+        """Find if a variable is used.
+
+        .. deprecated:: 0.7.4
+           Use :func:`is_used` method instead.
+
+        Parameters
+        ----------
+        var_name : str
+            Name of the variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        warnings.warn("`is_used_variable` is deprecated. Use `is_used` method instead.", DeprecationWarning)
+        return self.is_used(var_name)
+
+    def _find_used_variable_history(self, history, var_name):
+        """Find if a variable is used.
+
+        Parameters
+        ----------
+        history : :class:`pyaedt.modeler.cad.elements3d.BinaryTree`
+            Object history.
+
+        var_name : str
+            Name of the variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        used = False
+        for _, v in history.props.items():
+            if isinstance(v, str) and var_name in re.findall("[a-zA-Z0-9_]+", v):
+                return True
+        for el in history.children.values():
+            used = self._find_used_variable_history(el, var_name)
+            if used:
+                return True
+        return used
+
+    @pyaedt_function_handler()
+    def delete_unused_variables(self):
+        """Delete unused design and project variables.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        var_list = self.variable_names
+
+        for var in var_list[:]:
+            if not self.is_used(var):
+                self.delete_variable(var)
+        return True
+
+    @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):
         var_list = []
         if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
@@ -1761,7 +1858,7 @@ class Variable(object):
         """Multiply the variable with a number or another variable and return a new object.
 
                 Parameters
-                ---------
+                ----------
                 other : numbers.Number or variable
                     Object to be multiplied.
 
@@ -1820,7 +1917,7 @@ class Variable(object):
         """Add the variable to another variable to return a new object.
 
         Parameters
-        ---------
+        ----------
         other : class:`pyaedt.application.Variables.Variable`
             Object to be multiplied.
 
@@ -1861,7 +1958,7 @@ class Variable(object):
         """Subtract another variable from the variable to return a new object.
 
         Parameters
-        ---------
+        ----------
         other : class:`pyaedt.application.Variables.Variable`
             Object to be subtracted.
 
@@ -1904,7 +2001,7 @@ class Variable(object):
         """Divide the variable by a number or another variable to return a new object.
 
         Parameters
-        ---------
+        ----------
         other : numbers.Number or variable
             Object by which to divide.
 
@@ -1948,7 +2045,7 @@ class Variable(object):
         """Divide another object by this object.
 
         Parameters
-        ---------
+        ----------
         other : numbers.Number or variable
             Object to divide by.
 

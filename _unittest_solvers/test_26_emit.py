@@ -1134,7 +1134,7 @@ class TestClass:
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024.2"
+        config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2."
     )
     def test_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
@@ -1198,7 +1198,7 @@ class TestClass:
                                 return [best_band, best_freq]
             return [best_band, best_freq]
         
-        # Warmup incase something isn't solved
+        # Warmup in case something isn't solved
         best_case_rx_ch = {}
         for rx in [receivers[0]]:
             best_case_rx_ch[rx] = get_best_rx_channel(results, rx)

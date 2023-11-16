@@ -1,3 +1,4 @@
+import pyaedt
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import SourceType
@@ -229,6 +230,7 @@ class PinGroup(object):
         self._component = ""
         self._node_pins = []
         self._net = ""
+        self._edb_object = self._edb_pin_group
 
     @property
     def _active_layout(self):
@@ -274,26 +276,49 @@ class PinGroup(object):
     def net_name(self):
         return self._edb_pin_group.GetNet().GetName()
 
-    @pyaedt_function_handler()
-    def _create_pin_group_terminal(self, is_reference=False):
-        pg_term = self._edb_pin_group.GetPinGroupTerminal()
-        pin_group_net = self._edb_pin_group.GetNet()
-        if pin_group_net.IsNull():  # pragma: no cover
-            pin_group_net = list(self._edb_pin_group.GetPins())[0].GetNet()
-        if pg_term.IsNull():
-            return self._pedb.edb_api.cell.terminal.PinGroupTerminal.Create(
-                self._active_layout,
-                pin_group_net,
-                self.name,
-                self._edb_pin_group,
-                is_reference,
-            )
+    @pyaedt_function_handler
+    def get_terminal(self, name=None, create_new_terminal=False):
+        """Terminal."""
+
+        if create_new_terminal:
+            term = self._create_terminal(name)
         else:
-            return pg_term
+            from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+
+            term = PinGroupTerminal(self._pedb, self._edb_pin_group.GetPinGroupTerminal())
+        return term if not term.is_null else None
+
+    @pyaedt_function_handler()
+    def _create_terminal(self, name=None):
+        """Create a terminal on the pin group.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the terminal. The default is ``None``, in which case a name is
+            automatically assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.terminals.PinGroupTerminal`
+        """
+        terminal = self.get_terminal()
+        if terminal:
+            return terminal
+
+        if not name:
+            name = pyaedt.generate_unique_name(self.name)
+
+        from pyaedt.edb_core.edb_data.terminals import PinGroupTerminal
+
+        term = PinGroupTerminal(self._pedb)
+
+        term = term.create(name, self.net_name, self.name)
+        return term
 
     @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):
-        terminal = self._create_pin_group_terminal()
+        terminal = self._create_terminal()._edb_object
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kCurrentSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb_api.utility.value(phase))
@@ -301,7 +326,7 @@ class PinGroup(object):
 
     @pyaedt_function_handler()
     def create_voltage_source_terminal(self, magnitude=1, phase=0, impedance=0.001):
-        terminal = self._create_pin_group_terminal()
+        terminal = self._create_terminal()._edb_object
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb_api.utility.value(phase))
@@ -310,14 +335,14 @@ class PinGroup(object):
 
     @pyaedt_function_handler()
     def create_voltage_probe_terminal(self, impedance=1000000):
-        terminal = self._create_pin_group_terminal()
+        terminal = self._create_terminal()._edb_object
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe)
         terminal.SetImpedance(self._pedb.edb_value(impedance))
         return terminal
 
     @pyaedt_function_handler()
     def create_port_terminal(self, impedance=50):
-        terminal = self._create_pin_group_terminal()
+        terminal = self._create_terminal()._edb_object
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
         terminal.SetImpedance(self._pedb.edb_value(impedance))
         terminal.SetIsCircuitPort(True)

@@ -23,11 +23,11 @@ from pyaedt.modeler.advanced_cad.actors import Person
 from pyaedt.modeler.advanced_cad.actors import Vehicle
 from pyaedt.modeler.advanced_cad.multiparts import Environment
 from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent
-from pyaedt.modeler.cad.Primitives import Primitives
+from pyaedt.modeler.cad.Primitives import GeometryModeler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Primitives3D(Primitives, object):
+class Primitives3D(GeometryModeler):
     """Manages primitives in 3D tools.
 
     This class is inherited in the caller application and is
@@ -36,7 +36,7 @@ class Primitives3D(Primitives, object):
 
     Parameters
     ----------
-    application : str
+    application : object
         Name of the application.
 
     Examples
@@ -48,8 +48,8 @@ class Primitives3D(Primitives, object):
     >>> prim = aedtapp.modeler
     """
 
-    def __init__(self):
-        Primitives.__init__(self)
+    def __init__(self, application):
+        GeometryModeler.__init__(self, application, is3d=True)
         self.multiparts = []
 
     @pyaedt_function_handler()
@@ -72,8 +72,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -82,19 +82,32 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        This example shows how to create a box in HFSS.
+        The required parameters are ``position`` that provides the origin of the
+        box and ``dimensions_list`` that provide the box sizes.
+        The optional parameter ``matname`` allows you to set the material name of the box.
+        The optional parameter ``name`` allows you to assign a name to the box.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
 
         >>> from pyaedt import hfss
         >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
-        >>> #Material and name are not mandatory fields
-        >>> box_object = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
+        >>> box_object = hfss.modeler.primivites.create_box(position=origin,
+        ...                                                 dimensions_list=dimensions,
+        ...                                                 name="mybox",
+        ...                                                 matname="copper")
 
         """
         if len(position) != 3:
-            raise ValueError("Position argument must be a valid three-element list.")
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
         if len(dimensions_list) != 3:
-            raise ValueError("Dimension argument must be a valid 3 element List")
+            self.logger.error("The ``dimension_list`` argument must be a valid three-element list.")
+            return False
+
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)
         XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
         vArg1 = ["NAME:BoxParameters"]
@@ -130,13 +143,13 @@ class Primitives3D(Primitives, object):
             Name of the cylinder. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
-            Name of the material. The default is ''None``, in which case the
+            Name of the material. The default is ``None``, in which case the
             default material is assigned.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -145,15 +158,31 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        This example shows how to create a cylinder in HFSS.
+        The required parameters are ``cs_axis``, ``position``, ``radius``, and ``height``. The
+        ``cs_axis`` parameter provides the direction axis of the cylinder. The ``position``
+        parameter provides the origin of the cylinder. The other two parameters provide
+        the radius and height of the cylinder.
+
+        The optional parameter ``matname`` allows you to set the material name of the cylinder.
+        The optional parameter ``name`` allows to assign a name to the cylinder.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cylinder_object = aedtapp.modeler..create_cylinder(cs_axis='Z', position=[0,0,0],
+        >>> cylinder_object = aedtapp.modeler.create_cylinder(cs_axis='Z', position=[0,0,0],
         ...                                                   radius=2, height=3, name="mycyl",
         ...                                                   matname="vacuum")
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
-            raise ValueError("Radius must be greater than 0.")
+            self.logger.error("The ``radius`` argument must be greater than 0.")
+            return False
+        if len(position) != 3:
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
 
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
@@ -177,8 +206,8 @@ class Primitives3D(Primitives, object):
     def create_polyhedron(
         self,
         cs_axis=None,
-        center_position=(0.0, 0.0, 0.0),
-        start_position=(0.0, 1.0, 0.0),
+        center_position=[0.0, 0.0, 0.0],
+        start_position=[0.0, 1.0, 0.0],
         height=1.0,
         num_sides=12,
         name=None,
@@ -210,8 +239,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -220,15 +249,32 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        The following examples shows how to create a regular polyhedron in HFSS.
+        The required parameters are cs_axis that provides the direction axis of the polyhedron,
+        center_position that provides the center of the polyhedron, start_position of the polyhedron,
+        height of the polyhedron and num_sides to determine the number of sides.
+        The parameter matname is optional and allows to set the material name of the polyhedron.
+        The parameter name is optional and allows to give a name to the polyhedron.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, Mechanical.
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_obj = aedtapp.modeler.create_polyhedron(cs_axis='X', center_position=[0, 0, 0],
         ...                                             start_position=[0,5,0], height=0.5,
         ...                                              num_sides=8, name="mybox", matname="copper")
-
         """
         test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
+        if len(center_position) != 3:
+            self.logger.error("The ``center_position`` argument must be a valid three-element list.")
+            return False
+        if len(start_position) != 3:
+            self.logger.error("The ``start_position`` argument must be a valid three-element list.")
+            return False
+        if center_position == start_position:
+            self.logger.error("The ``center_position`` and ``start_position`` arguments must be different.")
+            return False
+
         x_center, y_center, z_center = self._pos_with_arg(center_position)
         x_start, y_start, z_start = self._pos_with_arg(start_position)
 
@@ -257,7 +303,7 @@ class Primitives3D(Primitives, object):
         cs_axis : str
             Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
-        center_position : list, optional
+        position : list, optional
             List of ``[x, y, z]`` coordinates for the center position
             of the bottom of the cone.
         bottom_radius : float
@@ -275,8 +321,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -285,6 +331,19 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        This example shows how to create a cone in HFSS.
+        The required parameters are ``cs_axis``, ``position``, ``bottom_radius``, and
+        ``top_radius``. The ``cs_axis`` parameter provides the direction axis of
+        the cone. The ``position`` parameter provides the starting point of the
+        cone. The ``bottom_radius`` and ``top_radius`` parameters provide the
+        radius and `eight of the cone.
+
+        The optional parameter ``matname`` allows you to set the material name of the cone.
+        The optional parameter ``name`` allows you to assign a name to the cone.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> cone_object = aedtapp.modeler.create_cone(cs_axis='Z', position=[0, 0, 0],
@@ -293,13 +352,20 @@ class Primitives3D(Primitives, object):
 
         """
         if bottom_radius == top_radius:
-            raise ValueError("Bottom radius and top radius must have different values.")
+            self.logger.error("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
+            return False
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
-            raise ValueError("Bottom radius must be greater than 0.")
+            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
+            return False
         if isinstance(top_radius, (int, float)) and top_radius < 0:
-            raise ValueError("Top radius must be greater than 0.")
+            self.logger.error("The ``top_radius`` argument must be greater than 0.")
+            return False
         if isinstance(height, (int, float)) and height <= 0:
-            raise ValueError("Height must be greater than 0.")
+            self.logger.error("The ``height`` argument must be greater than 0.")
+            return False
+        if len(position) != 3:
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         szAxis = GeometryOperators.cs_axis_str(cs_axis)
@@ -339,8 +405,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -349,16 +415,26 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
+        This example shows how to create a sphere in HFSS.
+        The required parameters are ``position``, which provides the center of the sphere, and
+        ``radius``, which is the radius of the sphere. The optional parameter ``matname``
+        allows you to set the material name of the sphere. The optional parameter
+        ``name``  allows to assign a name to the sphere.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
+
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
         >>> ret_object = aedtapp.modeler.create_sphere(position=[0,0,0], radius=2,
         ...                                            name="mysphere", matname="copper")
-
         """
         if len(position) != 3:
-            raise ValueError("Position argument must be a valid 3 elements List.")
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
         if isinstance(radius, (int, float)) and radius < 0:
-            raise ValueError("Radius must be greater than 0.")
+            self.logger.error("The ``radius`` argument must be greater than 0.")
+            return False
 
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
 
@@ -398,8 +474,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
@@ -409,17 +485,23 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         Create a torus named ``"mytorus"`` about the Z axis with a major
-        radius of 1, minor radius of 0.5, and a material of ``"copper"``.
+        radius of 1 , minor radius of 0.5, and a material of ``"copper"``.
+        The optional parameter ``matname`` allows you to set the material name of the sphere.
+        The optional parameter ``name`` allows you to give a name to the sphere.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
+
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = [0, 0, 0]
-        >>> torus = hfss.modeler.create_torus(origin, major_radius=1,
+        >>> torus = hfss.modeler.create_torus(center=origin, major_radius=1,
         ...                                   minor_radius=0.5, axis="Z",
         ...                                    name="mytorus", material_name="copper")
-
         """
         if len(center) != 3:
-            raise ValueError("Center argument must be a valid 3 element sequence.")
+            self.logger.error("The ``center`` argument must be a valid three-element list.")
+            return False
         # if major_radius <= 0 or minor_radius <= 0:
         #     raise ValueError("Both major and minor radius must be greater than 0.")
         # if minor_radius >= major_radius:
@@ -525,11 +607,14 @@ class Primitives3D(Primitives, object):
         >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                          bond_type=0, name="mybox", matname="copper")
         """
+        if len(start_position) != 3:
+            self.logger.error("The ``start_position`` argument must be a valid three-Element List")
+            return False
         x_position, y_position, z_position = self._pos_with_arg(start_position)
+        if len(end_position) != 3:
+            self.logger.error("The ``end_position`` argument must be a valid three-Element List")
+            return False
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
-
-        if x_position is None or y_position is None or z_position is None:
-            raise AttributeError("Position Argument must be a valid 3 Element List")
 
         cont = 0
         x_length = None
@@ -549,8 +634,6 @@ class Primitives3D(Primitives, object):
                 z_length = "(" + str(n) + ") - (" + str(m) + ")"
             cont += 1
 
-        if x_length is None or y_length is None or z_length is None:
-            raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
             bondwire = "JEDEC_5Points"
         elif bond_type == 1:
@@ -623,15 +706,17 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
 
         >>> oEditor.CreateRectangle
-
         """
+        if len(dimension_list) != 2:
+            self.logger.error("The ``dimension_list`` argument must be a valid two-element list.")
+            return False
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
         XStart, YStart, ZStart = self._pos_with_arg(position)
 
@@ -686,6 +771,27 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.CreateCircle
 
+        Examples
+        --------
+        The following example shows how to create a circle in HFSS.
+        The required parameters are ``cs_plane``, ``position``, ``radius``,
+        and ``num_sides``. The ``cs_plane`` parameter provides the plane
+        that the circle is designed on. The ``position`` parameter provides
+        the origin of the  circle.  The ``radius`` and ``num_sides`` parameters
+        provide the radius and number of discrete sides of the circle,
+
+        The optional parameter ``matname`` allows you to set the material name
+        of the circle. The optional parameter ``name`` allows you to assign a name
+        to the circle.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
+        and Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> circle_object = aedtapp.modeler.create_circle(cs_plane='Z', position=[0,0,0],
+        ...                                                   radius=2, num_sides=8, name="mycyl",
+        ...                                                   matname="vacuum")
         """
         non_model_flag = ""
         if non_model:
@@ -740,6 +846,31 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.CreateEllipse
+
+        Examples
+        --------
+        The following example shows how to create an ellipse in HFSS.
+        The required parameters are ``cs_plane``, ``position``,  ``major_radius``,
+        ``ratio``, and ``is_covered``. The ``cs_plane`` parameter provides
+        the plane that the ellipse is designed on. The ``position`` parameter
+        provides the origin of the ellipse. The ``major_radius`` parameter provides
+        the radius of the ellipse. The ``ratio`` parameter is a ratio between the
+        major radius and minor radius of the ellipse. The ``is_covered`` parameter
+        is a flag indicating if the ellipse is covered.
+
+        The optional parameter ``matname`` allows you to set the material name
+        of the ellipse. The optional parameter ``name`` allows you to assign a name
+        to the ellipse.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
+        and Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> ellipse = aedtapp.modeler.create_ellipse(cs_plane='Z', position=[0,0,0],
+        ...                                          major_radius=2, ratio=2, is_covered=True, name="myell",
+        ...                                          matname="vacuum")
+
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
@@ -833,6 +964,33 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.CreateEquationCurve
 
+        Examples
+        --------
+        The following example shows how to create an equation- based curve in HFSS.
+        The required parameters are ``cs_plane``, ``position``, ``major_radius``,
+        ``ratio``, and ``is_covered``. The ``cs_plane`` parameter provides
+        the plane that the ellipse is designed on. The ``position`` parameter
+        provides the origin of the ellipse. The ``major_radius`` parameter provides
+        the radius of the ellipse. The ``ratio`` parameter is a ratio between the
+        major radius and minor radius of the ellipse. The ``is_covered`` parameter
+        is a flag indicating if the ellipse is covered.
+
+        The optional parameter ``matname`` allows you to set the material name
+        of the ellipse. The optional parameter ``name`` allows you to assign a name
+        to the ellipse.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
+        and Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> eq_xsection = self.aedtapp.modeler.create_equationbased_curve(x_t="_t",
+        ...                                                               y_t="_t*2",
+        ...                                                               num_points=200,
+        ...                                                               z_t=0,
+        ...                                                               t_start=0.2,
+        ...                                                               t_end=1.2,
+        ...                                                               xsection_type="Circle")
         """
         x_section = self._crosssection_arguments(
             type=xsection_type,
@@ -905,18 +1063,49 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
+        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object or ``False`` if it fails.
 
         References
         ----------
 
         >>> oEditor.CreateHelix
 
+        Examples
+        --------
+        The following example shows how to create a polyline and then create an helix from the polyline.
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D, and
+        Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> udp1 = [0, 0, 0]
+        >>> udp2 = [5, 0, 0]
+        >>> udp3 = [10, 5, 0]
+        >>> udp4 = [15, 3, 0]
+        >>> polyline = aedtapp.modeler.create_polyline(
+        ...     [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline"
+        ... )
+
+        >>> helix_right_turn = aedtapp.modeler.create_helix(
+        ...     polyline_name=polyline.name,
+        ...     position=[0, 0, 0],
+        ...     x_start_dir=0,
+        ...     y_start_dir=1.0,
+        ...     z_start_dir=1.0,
+        ...     num_thread=1,
+        ...     right_hand=True,
+        ...     radius_increment=0.0,
+        ...     thread=1.0,
+        ... )
         """
         if not polyline_name or polyline_name == "":
-            raise ValueError("The name of the polyline cannot be an empty string.")
+            self.logger.error("The name of the polyline cannot be an empty string.")
+            return False
 
+        if len(position) != 3:
+            self.logger.error("The ``position`` argument must be a valid three-element list.")
+            return False
         x_center, y_center, z_center = self._pos_with_arg(position)
 
         vArg1 = ["NAME:Selections"]
@@ -951,43 +1140,6 @@ class Primitives3D(Primitives, object):
         return self._create_object(polyline_name)
 
     @pyaedt_function_handler()
-    def convert_segments_to_line(self, object_name):
-        """Convert a CreatePolyline list of segments to lines.
-
-        This method applies to splines and 3-point arguments.
-
-        Parameters
-        ----------
-        object_name : int, str, or Object3d
-            Specified for the object.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-
-        """
-        this_object = self._resolve_object(object_name)
-        edges = this_object.edges
-        for i in reversed(range(len(edges))):
-            self.oeditor.ChangeProperty(
-                [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:Geometry3DPolylineTab",
-                        ["NAME:PropServers", this_object.name + ":CreatePolyline:1:Segment" + str(i)],
-                        ["NAME:ChangedProps", ["NAME:Segment Type", "Value:=", "Line"]],
-                    ],
-                ]
-            )
-        return True
-
-    @pyaedt_function_handler()
     def create_udm(
         self,
         udmfullname,
@@ -1010,8 +1162,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
-            User-defined component object.
+        bool, :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+            User-defined component object or ``False`` if it fails.
 
         References
         ----------
@@ -1117,11 +1269,15 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Polyline`
-            Polyline object.
+        bool, :class:`pyaedt.modeler.Object3d.Polyline`
+            Polyline object or ``False`` if it fails.
         """
-        assert internal_radius > 0, "Internal Radius must be greater than 0."
-        assert faces > 0, "Faces must be greater than 0."
+        if internal_radius < 0:
+            self.logger.error("The ``internal_radius`` argument must be greater than 0.")
+            return False
+        if faces < 0:
+            self.logger.error("The ``faces`` argument must be greater than 0.")
+            return False
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
@@ -1181,8 +1337,8 @@ class Primitives3D(Primitives, object):
             os.rmdir(temp_folder)
             phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
             cs_name = udm_obj.name + "_" + wcs + "_ref"
-            if cs_name not in [i.name for i in self.modeler.coordinate_systems]:
-                self.modeler.create_coordinate_system(
+            if cs_name not in [i.name for i in self.coordinate_systems]:
+                self.create_coordinate_system(
                     mode="zxz",
                     origin=o,
                     name=cs_name,
@@ -1543,7 +1699,7 @@ class Primitives3D(Primitives, object):
 
             aedt_component_name = self._app.o_component_manager.Add(compInfo)
 
-        if not name or name in self.modeler.user_defined_component_names:
+        if not name or name in self.user_defined_component_names:
             name = generate_unique_name("LC")
 
         # Open Layout component and get information

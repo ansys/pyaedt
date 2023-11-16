@@ -1,9 +1,15 @@
+import builtins
+import json
 import os
 
 # Setup paths for module imports
 # Import required modules
 import sys
+from unittest.mock import mock_open
 
+from mock import MagicMock
+from mock import PropertyMock
+from mock import patch
 import pytest
 
 from pyaedt import Edb
@@ -11,6 +17,7 @@ from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.materials import Materials
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.general_methods import check_numeric_equivalence
 
@@ -31,6 +38,59 @@ from pyaedt.generic.constants import SourceType
 #     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
+
+MATERIALS = """
+$begin 'Polyflon CuFlon (tm)'
+  $begin 'AttachedData'
+    $begin 'MatAppearanceData'
+      property_data='appearance_data'
+      Red=230
+      Green=225
+      Blue=220
+    $end 'MatAppearanceData'
+  $end 'AttachedData'
+  simple('permittivity', 2.1)
+  simple('dielectric_loss_tangent', 0.00045)
+  ModTime=1499970477
+$end 'Polyflon CuFlon (tm)'
+$begin 'Water(@360K)'
+  $begin 'MaterialDef'
+    $begin 'Water(@360K)'
+      CoordinateSystemType='Cartesian'
+      BulkOrSurfaceType=1
+      $begin 'PhysicsTypes'
+        set('Thermal')
+      $end 'PhysicsTypes'
+      $begin 'AttachedData'
+        $begin 'MatAppearanceData'
+          property_data='appearance_data'
+          Red=0
+          Green=128
+          Blue=255
+          Transparency=0.8
+        $end 'MatAppearanceData'
+      $end 'AttachedData'
+      thermal_conductivity='0.6743'
+      mass_density='967.4'
+      specific_heat='4206'
+      thermal_expansion_coeffcient='0.0006979'
+      $begin 'thermal_material_type'
+        property_type='ChoiceProperty'
+        Choice='Fluid'
+      $end 'thermal_material_type'
+      $begin 'clarity_type'
+        property_type='ChoiceProperty'
+        Choice='Transparent'
+      $end 'clarity_type'
+      material_refractive_index='1.333'
+      diffusivity='1.657e-007'
+      molecular_mass='0.018015'
+      viscosity='0.000324'
+      ModTime=1592011950
+    $end 'Water(@360K)'
+  $end 'MaterialDef'
+$end 'Water(@360K)'
+"""
 
 
 @pytest.fixture(scope="class")
@@ -113,10 +173,11 @@ class TestClass:
         coax_port.radial_extent_factor = 3
         assert coax_port.radial_extent_factor == 3
         assert coax_port.component
-        assert self.edbapp.components["U6"].pins["R3"].terminal
+        assert self.edbapp.components["U6"].pins["R3"].get_terminal()
         assert self.edbapp.components["U6"].pins["R3"].id
         assert self.edbapp.terminals
         assert self.edbapp.ports
+        assert self.edbapp.components["U6"].pins["R3"].get_connected_objects()
 
     def test_004_get_properties(self):
         assert len(self.edbapp.components.components) > 0
@@ -276,7 +337,7 @@ class TestClass:
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
-        assert self.edbapp.differential_pairs.items
+        assert self.edbapp.differential_pairs["new_pair1"]
 
         assert self.edbapp.net_classes.items
         assert self.edbapp.net_classes.create("DDR4_ADD", ["DDR4_A0", "DDR4_A1"])
@@ -433,6 +494,10 @@ class TestClass:
         assert list(self.edbapp.sources.values())[0].magnitude == 3.3
         list(self.edbapp.sources.values())[0].phase = 1
         assert list(self.edbapp.sources.values())[0].phase == 1
+        u6 = self.edbapp.components["U6"]
+        self.edbapp.create_voltage_source(
+            u6.pins["F2"].get_terminal(create_new_terminal=True), u6.pins["F1"].get_terminal(create_new_terminal=True)
+        )
 
     def test_042_create_current_source(self):
         assert self.edbapp.siwave.create_current_source_on_net("U1", "USB3_D_N", "U1", "GND", 0.1, 0) != ""
@@ -446,14 +511,27 @@ class TestClass:
         )
 
         self.edbapp.siwave.create_pin_group(
-            reference_designator="U1", pin_numbers=["A14", "A15"], group_name="sink_pos"
+            reference_designator="U1", pin_numbers=["R23", "P23"], group_name="sink_pos"
         )
 
         assert self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", name="vrm_voltage_source")
         self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A27", "A28"], group_name="vp_pos")
-        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A14", "A15"], group_name="vp_neg")
+        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["R23", "P23"], group_name="vp_neg")
         assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
         assert self.edbapp.probes["vprobe"]
+        self.edbapp.siwave.place_voltage_probe(
+            "vprobe_2", "1V0", ["112mm", "24mm"], "1_Top", "GND", ["112mm", "27mm"], "Inner1(GND1)"
+        )
+        vprobe_2 = self.edbapp.probes["vprobe_2"]
+        ref_term = vprobe_2.ref_terminal
+        assert isinstance(ref_term.location, list)
+        ref_term.location = [0, 0]
+        assert ref_term.layer
+        ref_term.layer = "1_Top"
+        u6 = self.edbapp.components["U6"]
+        self.edbapp.create_current_source(
+            u6.pins["H8"].get_terminal(create_new_terminal=True), u6.pins["G9"].get_terminal(create_new_terminal=True)
+        )
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U1", "DDR4_DQ40", "dc_terminal1") == "dc_terminal1"
@@ -718,16 +796,26 @@ class TestClass:
         edbapp.nets.nets
         assert edbapp.cutout(
             signal_list=["1V0"],
-            reference_list=["GND"],
+            reference_list=[
+                "GND",
+                "LVDS_CH08_N",
+                "LVDS_CH08_P",
+                "LVDS_CH10_N",
+                "LVDS_CH10_P",
+                "LVDS_CH04_P",
+                "LVDS_CH04_N",
+            ],
             extent_type="Bounding",
             number_of_threads=4,
             extent_defeature=0.001,
             preserve_components_with_model=True,
+            keep_lines_as_path=True,
         )
         assert "A0_N" not in edbapp.nets.nets
         assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
         assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
         assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
+
         edbapp.close()
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
@@ -884,6 +972,11 @@ class TestClass:
         assert trace
         assert isinstance(trace.get_center_line(), list)
         assert isinstance(trace.get_center_line(True), list)
+        self.edbapp["delta_x"] = "1mm"
+        assert trace.add_point("delta_x", "1mm", True)
+        assert trace.get_center_line(True)[-1][0] == "(delta_x)+(0.025)"
+        assert trace.add_point(0.001, 0.002)
+        assert trace.get_center_line()[-1] == [0.001, 0.002]
 
     def test_070_create_outline(self):
         edbapp = Edb(
@@ -946,7 +1039,11 @@ class TestClass:
         assert self.edbapp.modeler.unite_polygons_on_layer("1_Top")
 
     def test_076_create_solder_ball_on_component(self):
-        assert self.edbapp.components.set_solder_ball("U1")
+        assert self.edbapp.components.set_solder_ball("U1", shape="Spheroid")
+        assert self.edbapp.components.set_solder_ball("U6", sball_height=None)
+        assert self.edbapp.components.set_solder_ball(
+            "U6", sball_height="100um", auto_reference_size=False, chip_orientation="chip_up"
+        )
 
     def test_077_add_void(self):
         plane_shape = self.edbapp.modeler.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
@@ -1021,8 +1118,10 @@ class TestClass:
         assert comp.type == "Other"
 
     def test_087_deactivate_rlc(self):
-        assert self.edbapp.components.deactivate_rlc_component(component="C1", create_circuit_port=True)
+        assert self.edbapp.components.deactivate_rlc_component(component="C1", create_circuit_port=False)
+        assert self.edbapp.ports["C1"]
         assert self.edbapp.components["C1"].is_enabled is False
+        assert self.edbapp.components.deactivate_rlc_component(component="C2", create_circuit_port=True)
         self.edbapp.components["C2"].is_enabled = False
         assert self.edbapp.components["C2"].is_enabled is False
         self.edbapp.components["C2"].is_enabled = True
@@ -1376,6 +1475,8 @@ class TestClass:
         gap_port.name = "gap_port"
         assert gap_port.name == "gap_port"
         assert isinstance(gap_port.renormalize_z0, tuple)
+        gap_port.is_circuit_port = True
+        assert gap_port.is_circuit_port
         edb.close()
 
     def test_108_create_dc_simulation(self):
@@ -1589,6 +1690,8 @@ class TestClass:
         port_ver = edb.ports["port_ver"]
         assert not port_ver.is_null
         assert port_ver.hfss_type == "Gap"
+        port_hori = edb.ports["port_hori"]
+        assert port_hori.ref_terminal
 
         args = {
             "layer_name": "1_Top",
@@ -1840,6 +1943,18 @@ class TestClass:
         assert layer.material == "copper"
         edbapp.close()
 
+    def test_125d_stackup(self):
+        fpath = os.path.join(local_path, "example_models", test_subfolder, "stackup.json")
+        stackup_json = json.load(open(fpath, "r"))
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(fpath)
+        edbapp.close()
+
+        edbapp = Edb(edbversion=desktop_version)
+        edbapp.stackup.load(stackup_json)
+        edbapp.close()
+
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
@@ -1955,6 +2070,7 @@ class TestClass:
         setup1.hfss_solver_settings.relative_residual = 0.0002
         setup1.hfss_solver_settings.use_shell_elements = True
 
+        setup1b = edbapp.setups["setup1"]
         hfss_solver_settings = edbapp.setups["setup1"].hfss_solver_settings
         assert hfss_solver_settings.order_basis == "first"
         assert hfss_solver_settings.relative_residual == 0.0002
@@ -2121,72 +2237,55 @@ class TestClass:
 
     def test_130_siwave_dc_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_dc_setup("DC1")
-        assert setup1.name == "DC1"
-        assert not setup1.compute_inductance
-        assert setup1.contact_radius == "0.1mm"
-        assert setup1.dc_slider_position == 1
-        assert setup1.enabled
-        assert setup1.energy_error == 3.0
-        assert setup1.max_init_mesh_edge_length == "2.5mm"
-        assert setup1.max_num_pass == 5
-        assert setup1.min_num_pass == 1
-        assert setup1.mesh_bondwires
-        assert setup1.mesh_vias
-        assert setup1.min_plane_area == "0.25mm2"
-        assert setup1.min_void_area == "0.01mm2"
-        assert setup1.num_bondwire_sides == 8
-        assert setup1.num_via_sides == 8
-        assert setup1.percent_local_refinement == 20.0
-        assert setup1.perform_adaptive_refinement
-        assert setup1.plot_jv
-        assert not setup1.refine_bondwires
-        assert not setup1.refine_vias
-        setup1.name = "DC2"
-        setup1.compute_inductance = True
-        setup1.contact_radius = "0.2mm"
-        setup1.dc_slider_position = 2
-        setup1.energy_error = 2.0
-        setup1.max_init_mesh_edge_length = "5.5mm"
-        setup1.max_num_pass = 3
-        setup1.min_num_pass = 2
-        setup1.mesh_bondwires = False
-        setup1.mesh_vias = False
-        assert not setup1.mesh_bondwires
-        assert not setup1.mesh_vias
-        setup1.min_plane_area = "0.5mm2"
-        setup1.min_void_area = "0.021mm2"
-        setup1.num_bondwire_sides = 6
-        setup1.num_via_sides = 10
-        setup1.percent_local_refinement = 10.0
-        setup1.perform_adaptive_refinement = False
-        setup1.plot_jv = False
-        setup1.refine_bondwires = True
-        setup1.refine_vias = True
+        setup1.dc_settings.restore_default()
+        setup1.dc_advanced_settings.restore_default()
 
-        assert setup1.name == "DC2"
-        assert setup1.compute_inductance
-        assert setup1.contact_radius == "0.2mm"
-        assert setup1.dc_slider_position == 2
-        assert setup1.energy_error == 2.0
-        assert setup1.max_init_mesh_edge_length == "5.5mm"
-        assert setup1.max_num_pass == 3
-        assert setup1.min_num_pass == 2
-        assert setup1.mesh_bondwires
-        assert setup1.mesh_vias
-        assert setup1.min_plane_area == "0.5mm2"
-        assert setup1.min_void_area == "0.021mm2"
-        assert setup1.num_bondwire_sides == 6
-        assert setup1.num_via_sides == 10
-        assert setup1.percent_local_refinement == 10.0
-        assert not setup1.perform_adaptive_refinement
-        assert not setup1.plot_jv
-        assert setup1.refine_bondwires
-        assert setup1.refine_vias
+        settings = self.edbapp.setups["DC1"].get_configurations()
+        for k, v in setup1.dc_settings.defaults.items():
+            if k in ["compute_inductance", "plot_jv"]:
+                continue
+            print(k)
+            assert settings["dc_settings"][k] == v
+
+        for k, v in setup1.dc_advanced_settings.defaults.items():
+            print(k)
+            assert settings["dc_advanced_settings"][k] == v
+
+        for p in [0, 1, 2]:
+            setup1.set_dc_slider(p)
+            settings = self.edbapp.setups["DC1"].get_configurations()
+            for k, v in setup1.dc_settings.dc_defaults.items():
+                print(k)
+                assert settings["dc_settings"][k] == v[p]
+
+            for k, v in setup1.dc_advanced_settings.dc_defaults.items():
+                print(k)
+                assert settings["dc_advanced_settings"][k] == v[p]
 
     def test_131_siwave_ac_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_syz_setup("AC1")
         assert setup1.name == "AC1"
         assert setup1.enabled
+        setup1.advanced_settings.restore_default()
+
+        settings = self.edbapp.setups["AC1"].get_configurations()
+        for k, v in setup1.advanced_settings.defaults.items():
+            if k in ["min_plane_area_to_mesh"]:
+                continue
+            assert settings["advanced_settings"][k] == v
+
+        for p in [0, 1, 2]:
+            setup1.set_si_slider(p)
+            settings = self.edbapp.setups["AC1"].get_configurations()
+            for k, v in setup1.advanced_settings.si_defaults.items():
+                assert settings["advanced_settings"][k] == v[p]
+
+        for p in [0, 1, 2]:
+            setup1.set_pi_slider(p)
+            settings = self.edbapp.setups["AC1"].get_configurations()
+            for k, v in setup1.advanced_settings.pi_defaults.items():
+                assert settings["advanced_settings"][k] == v[p]
+
         sweep = setup1.add_frequency_sweep(
             "sweep1",
             frequency_sweep=[
@@ -2195,7 +2294,6 @@ class TestClass:
                 ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
             ],
         )
-        assert "sweep1" in setup1.frequency_sweeps
         assert "0" in sweep.frequencies
         assert not sweep.adaptive_sampling
         assert not sweep.adv_dc_extrapolation
@@ -2204,9 +2302,9 @@ class TestClass:
         assert not sweep.enforce_dc_and_causality
         assert sweep.enforce_passivity
         assert sweep.freq_sweep_type == "kInterpolatingSweep"
-        assert sweep.interp_use_full_basis
-        assert sweep.interp_use_port_impedance
-        assert sweep.interp_use_prop_const
+        assert sweep.interpolation_use_full_basis
+        assert sweep.interpolation_use_port_impedance
+        assert sweep.interpolation_use_prop_const
         assert sweep.max_solutions == 250
         assert sweep.min_freq_s_mat_only_solve == "1MHz"
         assert not sweep.min_solved_freq
@@ -2218,14 +2316,15 @@ class TestClass:
 
         sweep.adaptive_sampling = True
         sweep.adv_dc_extrapolation = True
+        sweep.compute_dc_point = True
         sweep.auto_s_mat_only_solve = False
         sweep.enforce_causality = True
         sweep.enforce_dc_and_causality = True
         sweep.enforce_passivity = False
         sweep.freq_sweep_type = "kDiscreteSweep"
-        sweep.interp_use_full_basis = False
-        sweep.interp_use_port_impedance = False
-        sweep.interp_use_prop_const = False
+        sweep.interpolation_use_full_basis = False
+        sweep.interpolation_use_port_impedance = False
+        sweep.interpolation_use_prop_const = False
         sweep.max_solutions = 200
         sweep.min_freq_s_mat_only_solve = "2MHz"
         sweep.min_solved_freq = "1Hz"
@@ -2237,14 +2336,15 @@ class TestClass:
 
         assert sweep.adaptive_sampling
         assert sweep.adv_dc_extrapolation
+        assert sweep.compute_dc_point
         assert not sweep.auto_s_mat_only_solve
         assert sweep.enforce_causality
         assert sweep.enforce_dc_and_causality
         assert not sweep.enforce_passivity
         assert sweep.freq_sweep_type == "kDiscreteSweep"
-        assert not sweep.interp_use_full_basis
-        assert not sweep.interp_use_port_impedance
-        assert not sweep.interp_use_prop_const
+        assert not sweep.interpolation_use_full_basis
+        assert not sweep.interpolation_use_port_impedance
+        assert not sweep.interpolation_use_prop_const
         assert sweep.max_solutions == 200
         assert sweep.min_freq_s_mat_only_solve == "2MHz"
         assert sweep.min_solved_freq == "1Hz"
@@ -2253,85 +2353,6 @@ class TestClass:
         assert sweep.save_fields
         assert sweep.save_rad_fields_only
         assert sweep.use_q3d_for_dc
-
-        assert setup1.automatic_mesh
-        assert setup1.enabled
-        assert setup1.dc_settings
-        assert setup1.ignore_non_functional_pads
-        assert setup1.include_coplane_coupling
-        assert setup1.include_fringe_coupling
-        assert not setup1.include_infinite_ground
-        assert not setup1.include_inter_plane_coupling
-        assert setup1.include_split_plane_coupling
-        assert setup1.include_trace_coupling
-        assert not setup1.include_vi_sources
-        assert setup1.infinite_ground_location == "0"
-        assert setup1.max_coupled_lines == 12
-        assert setup1.mesh_frequency == "4GHz"
-        assert setup1.min_pad_area_to_mesh == "1mm2"
-        assert setup1.min_plane_area_to_mesh == "6.25e-6mm2"
-        assert setup1.min_void_area == "2mm2"
-        assert setup1.name == "AC1"
-        assert setup1.perform_erc
-        assert setup1.pi_slider_postion == 1
-        assert setup1.si_slider_postion == 1
-        assert not setup1.return_current_distribution
-        assert setup1.snap_length_threshold == "2.5um"
-        assert setup1.use_si_settings
-        assert setup1.use_custom_settings
-        assert setup1.xtalk_threshold == "-34"
-
-        setup1.automatic_mesh = False
-        setup1.enabled = False
-        setup1.ignore_non_functional_pads = False
-        setup1.include_coplane_coupling = False
-        setup1.include_fringe_coupling = False
-        setup1.include_infinite_ground = True
-        setup1.include_inter_plane_coupling = True
-        setup1.include_split_plane_coupling = False
-        setup1.include_trace_coupling = False
-        assert setup1.use_custom_settings
-        setup1.include_vi_sources = True
-        setup1.infinite_ground_location = "0.1"
-        setup1.max_coupled_lines = 10
-        setup1.mesh_frequency = "3GHz"
-        setup1.min_pad_area_to_mesh = "2mm2"
-        setup1.min_plane_area_to_mesh = "5.25e-6mm2"
-        setup1.min_void_area = "1mm2"
-        setup1.name = "AC2"
-        setup1.perform_erc = False
-        setup1.pi_slider_postion = 0
-        setup1.si_slider_postion = 2
-        setup1.return_current_distribution = True
-        setup1.snap_length_threshold = "3.5um"
-        setup1.use_si_settings = False
-        assert not setup1.use_custom_settings
-        setup1.xtalk_threshold = "-44"
-
-        assert not setup1.automatic_mesh
-        assert not setup1.enabled
-        assert not setup1.ignore_non_functional_pads
-        assert not setup1.include_coplane_coupling
-        assert not setup1.include_fringe_coupling
-        assert setup1.include_infinite_ground
-        assert setup1.include_inter_plane_coupling
-        assert not setup1.include_split_plane_coupling
-        assert not setup1.include_trace_coupling
-        assert setup1.include_vi_sources
-        assert setup1.infinite_ground_location == "0.1"
-        assert setup1.max_coupled_lines == 10
-        assert setup1.mesh_frequency == "3GHz"
-        assert setup1.min_pad_area_to_mesh == "2mm2"
-        assert setup1.min_plane_area_to_mesh == "5.25e-6mm2"
-        assert setup1.min_void_area == "1mm2"
-        assert setup1.name == "AC2"
-        assert not setup1.perform_erc
-        assert setup1.pi_slider_postion == 0
-        assert setup1.si_slider_postion == 2
-        assert setup1.return_current_distribution
-        assert setup1.snap_length_threshold == "3.5um"
-        assert not setup1.use_si_settings
-        assert setup1.xtalk_threshold == "-44"
 
     def test_132_via_plating_ratio_check(self):
         assert self.edbapp.padstacks.check_and_fix_via_plating()
@@ -2345,7 +2366,7 @@ class TestClass:
         simconfig.solver_type = SolverType.SiwaveSYZ
         simconfig.mesh_freq = "40.25GHz"
         edbapp.build_simulation_project(simconfig)
-        assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
+        assert edbapp.siwave_ac_setups[simconfig.setup_name].advanced_settings.mesh_frequency == simconfig.mesh_freq
         edbapp.close()
 
     def test_134_create_port_between_pin_and_layer(self):
@@ -2356,6 +2377,14 @@ class TestClass:
         edbapp.siwave.create_port_between_pin_and_layer(
             component_name="U1", pins_name="A27", layer_name="16_Bottom", reference_net="GND"
         )
+        U7 = edbapp.components["U7"]
+        U7.pins["G7"].create_port()
+        port = U7.pins["F7"].create_port(reference=U7.pins["E7"])
+        port.is_circuit_port = True
+        _, pin_group = edbapp.siwave.create_pin_group_on_net(
+            reference_designator="U7", net_name="GND", group_name="U7_GND"
+        )
+        U7.pins["F7"].create_port(reference=pin_group)
         edbapp.close()
 
     def test_134_siwave_source_setter(self):
@@ -2461,6 +2490,11 @@ class TestClass:
         assert pad_instance3.dcir_equipotential_region
         pad_instance3.dcir_equipotential_region = False
         assert not pad_instance3.dcir_equipotential_region
+
+        trace = edb.modeler.create_trace([[0, 0], [0, 10e-3]], "1_Top", "0.1mm", "trace_with_via_fence")
+        edb.padstacks.create_padstack("via_0")
+        trace.create_via_fence("1mm", "1mm", "via_0")
+
         edb.close()
 
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
@@ -2841,6 +2875,7 @@ class TestClass:
         assert self.edbapp.nets["1.2V_DVDDL"].primitives[0].arcs[0].height
 
     def test_145_via_volume(self):
+        #
         vias = [
             via
             for via in list(self.edbapp.padstacks.padstack_instances.values())
@@ -2879,10 +2914,72 @@ class TestClass:
         target_path = os.path.join(self.local_scratch.path, "test_dc_shorts", "ANSYS-HSD_V1_dc_shorts.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        dc_shorts = edbapp.nets.find_dc_shorts()
+        dc_shorts = edbapp.layout_validation.dc_shorts()
         assert dc_shorts
+        edbapp.nets.nets["DDR4_A0"].name = "DDR4$A0"
+        edbapp.layout_validation.illegal_net_names(True)
+        edbapp.layout_validation.illegal_rlc_values(True)
+
         # assert len(dc_shorts) == 20
         assert ["LVDS_CH09_N", "GND"] in dc_shorts
         assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
         assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
+        edbapp.nets["DDR4_DM3"].find_dc_short(True)
+        assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()
+
+    @patch("pyaedt.edb_core.materials.Materials.materials", new_callable=PropertyMock)
+    @patch.object(builtins, "open", new_callable=mock_open, read_data=MATERIALS)
+    def test_149_materials_read_materials(self, mock_file_open, mock_materials_property):
+        """Read materials from an AMAT file."""
+        mock_materials_property.return_value = ["copper"]
+        materials = Materials(MagicMock())
+        expected_res = {
+            "Polyflon CuFlon (tm)": {"permittivity": 2.1, "tangent_delta": 0.00045},
+            "Water(@360K)": {
+                "thermal_conductivity": 0.6743,
+                "mass_density": 967.4,
+                "specific_heat": 4206,
+                "thermal_expansion_coeffcient": 0.0006979,
+            },
+        }
+        mats = materials.read_materials("some path")
+        assert mats == expected_res
+
+    def test_150_material_load_amat(self):
+        """Load material from an AMAT file."""
+        mat_file = os.path.join(self.edbapp.base_path, "syslib", "Materials.amat")
+        assert self.edbapp.materials.load_amat(mat_file)
+        material_list = list(self.edbapp.materials.materials.keys())
+        assert material_list
+        assert len(material_list) > 0
+        assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].loss_tangent == 0.0013
+        assert self.edbapp.materials.materials["Rogers RO3003 (tm)"].permittivity == 3.0
+
+    def test_151_materials_read_materials(self):
+        """Read materials."""
+        path = os.path.join(local_path, "example_models", "syslib", "Materials.amat")
+        mats = self.edbapp.materials.read_materials(path)
+        key = "FC-78"
+        assert key in mats
+        assert mats[key]["thermal_conductivity"] == 0.062
+        assert mats[key]["mass_density"] == 1700
+        assert mats[key]["specific_heat"] == 1050
+        assert mats[key]["thermal_expansion_coeffcient"] == 0.0016
+        key = "Polyflon CuFlon (tm)"
+        assert key in mats
+        assert mats[key]["permittivity"] == 2.1
+        assert mats[key]["tangent_delta"] == 0.00045
+        key = "Water(@360K)"
+        assert key in mats
+        assert mats[key]["thermal_conductivity"] == 0.6743
+        assert mats[key]["mass_density"] == 967.4
+        assert mats[key]["specific_heat"] == 4206
+        assert mats[key]["thermal_expansion_coeffcient"] == 0.0006979
+        key = "steel_stainless"
+        assert mats[key]["conductivity"] == 1100000
+        assert mats[key]["thermal_conductivity"] == 13.8
+        assert mats[key]["mass_density"] == 8055
+        assert mats[key]["specific_heat"] == 480
+        assert mats[key]["thermal_expansion_coeffcient"] == 1.08e-005

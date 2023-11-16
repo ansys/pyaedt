@@ -20,6 +20,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler import cad
+from pyaedt.modeler.cad.component_array import ComponentArray
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -192,6 +193,10 @@ class Hfss(FieldAnalysis3D, object):
             aedt_process_id,
         )
         self._field_setups = []
+        self.component_array = {}
+        self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
+        for component_array in self.component_array_names:
+            self.component_array[component_array] = ComponentArray(self, component_array)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -240,7 +245,8 @@ class Hfss(FieldAnalysis3D, object):
 
     @hybrid.setter
     def hybrid(self, value):
-        self.design_solutions.hybrid = value
+        if value != self.design_solutions.hybrid and isinstance(value, bool):
+            self.design_solutions.hybrid = value
 
     @property
     def composite(self):
@@ -321,7 +327,7 @@ class Hfss(FieldAnalysis3D, object):
         """Create a boundary.
 
         Parameters
-        ---------
+        ----------
         name : str
             Name of the boundary.
         props : list
@@ -5555,8 +5561,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        class:`pyaedt.modeler.cad.component_array.ComponentArray`
 
         Examples
         --------
@@ -5594,9 +5599,8 @@ class Hfss(FieldAnalysis3D, object):
         >>> from pyaedt.generic.DataHandlers import json_to_dict
         >>> hfss_app = Hfss()
         >>> dict_in = json_to_dict(path\to\json_file)
-        >>> hfss_app.add_3d_component_array_from_json(dict_in)
+        >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
-
         self.hybrid = True
         if isinstance(json_file, dict):
             json_dict = json_file
@@ -5621,9 +5625,11 @@ class Hfss(FieldAnalysis3D, object):
                 cells_names[v["name"]].append(k1)
             else:
                 def_names = self.oeditor.Get3DComponentDefinitionNames()
-                if v["name"] not in def_names and v["name"][:-1] not in def_names:
+                if v["name"] not in def_names and v["name"][:-1] not in def_names and v["name"][:-2] not in def_names:
                     if v["name"] not in json_dict:
-                        self.logger.error("a3comp is not present in design and not define correctly in json.")
+                        self.logger.error(
+                            "3D component array is not present in design and not defined correctly in the JSON file."
+                        )
                         return False
 
                     geometryparams = self.get_components3d_vars(json_dict[v["name"]])
@@ -5704,9 +5710,15 @@ class Hfss(FieldAnalysis3D, object):
         args.append(col)
         if self.omodelsetup.IsArrayDefined():
             self.omodelsetup.EditArray(args)
+            if settings.aedt_version < "2024.1":
+                self.save_project()
         else:
             self.omodelsetup.AssignArray(args)
-        return True
+            if settings.aedt_version < "2024.1":
+                self.save_project()
+            self.component_array[array_name] = ComponentArray(self, array_name)
+        self.component_array_names = [array_name]
+        return self.component_array[array_name]
 
     @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
@@ -5770,8 +5782,8 @@ class Hfss(FieldAnalysis3D, object):
             self.logger.info("Far field sphere %s is created.", setup_name)
 
         component_name = None
-        if self.solution_type == "SBR+" and self.modeler.modeler.user_defined_component_names:
-            antenna = self.modeler.user_defined_components[self.modeler.modeler.user_defined_component_names[0]]
+        if self.solution_type == "SBR+" and self.modeler.user_defined_component_names:
+            antenna = self.modeler.user_defined_components[self.modeler.user_defined_component_names[0]]
             if antenna.native_properties["Type"] == "Linked Antenna":
                 component_name = antenna.name
 
@@ -6466,4 +6478,86 @@ class Hfss(FieldAnalysis3D, object):
             ``True`` when successful, ``False`` when failed.
         """
         self.oradfield.EditRadiatedPowerCalculationMethod(method)
+        return True
+
+    @pyaedt_function_handler()
+    def set_mesh_fusion_settings(self, component=None, volume_padding=None, priority=None):
+        # type: (list|str, list, list) -> bool
+
+        """Set mesh fusion settings in Hfss.
+
+        component : list, optional
+            List of active 3D Components.
+            The default is ``None``, in which case components are disabled.
+        volume_padding : list, optional
+            List of mesh envelope padding, the format is ``[+x, -x, +y, -y, +z, -z]``.
+            The default is ``None``, in which case all zeros are applied.
+        priority : list, optional
+            List of components with the priority flag enabled. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDoMeshAssembly
+
+        Examples
+        --------
+
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss()
+        >>> app.set_mesh_fusion_settings(component=["Comp1", "Comp2"],
+         ... volume_padding=[[0,0,0,0,0,0], [0,0,5,0,0,0]],
+         ... priority=["Comp1"])
+        """
+        arg = ["NAME:AllSettings"]
+        arg2 = ["NAME:MeshAssembly"]
+        arg3 = ["NAME:Priority Components"]
+
+        if component and not isinstance(component, list):
+            component = [component]
+
+        if not volume_padding and component:
+            for comp in component:
+                if comp in self.modeler.user_defined_component_names:
+                    mesh_assembly_arg = ["NAME:" + comp]
+                    mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
+                    mesh_assembly_arg.append(["0", "0", "0", "0", "0", "0"])
+                    arg2.append(mesh_assembly_arg)
+                else:
+                    self.logger.warning(comp + " does not exist.")
+
+        elif component and isinstance(volume_padding, list) and len(volume_padding) == len(component):
+            count = 0
+            for comp in component:
+                padding = [str(pad) for pad in volume_padding[count]]
+                if comp in self.modeler.user_defined_component_names:
+                    mesh_assembly_arg = ["NAME:" + comp]
+                    mesh_assembly_arg.append("MeshAssemblyBoundingVolumePadding:=")
+                    mesh_assembly_arg.append(padding)
+                    arg2.append(mesh_assembly_arg)
+                else:
+                    self.logger.warning("{0} does not exist".format(str(comp)))
+                count += 1
+        elif component and isinstance(volume_padding, list) and len(volume_padding) != len(component):
+            self.logger.error("Volume padding length is different than component list length.")
+            return False
+
+        if priority and not isinstance(priority, list):
+            priority = [priority]
+
+        if component and priority:
+            for p in priority:
+                if p in self.modeler.user_defined_component_names:
+                    arg3.append(p)
+                else:
+                    self.logger.warning("{0} does not exist".format(str(p)))
+
+        arg.append(arg2)
+        arg.append(arg3)
+        self.odesign.SetDoMeshAssembly(arg)
         return True
