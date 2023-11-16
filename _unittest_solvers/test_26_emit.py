@@ -1214,7 +1214,7 @@ class TestClass:
         # Get the time using the license session
         start = time.perf_counter()
         best_case_rx_ch = {}
-        with revision.license_session:
+        with revision.get_license_session():
             for rx in [receivers[0]]:
                 best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
         end = time.perf_counter()
