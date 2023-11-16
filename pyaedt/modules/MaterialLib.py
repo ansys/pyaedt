@@ -872,12 +872,17 @@ class Materials(object):
         return materials_added
 
     @pyaedt_function_handler
-    def get_materials_in_design(self):
+    def get_used_project_materials(self):
         """Get list of material names in current design.
 
         Returns
         -------
         List of str
-            List of material names in current design
+            List of material names in current design.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.GetInUseProjectMaterialNames
         """
-        return self.odefinition_manager.GetProjectMaterialNames()
+        return self.odefinition_manager.GetInUseProjectMaterialNames()
