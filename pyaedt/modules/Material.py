@@ -2027,8 +2027,8 @@ class Material(CommonMaterial, object):
         -------
         list
             List of core loss coefficients.
-            Returns Kh, Kc, Ke coefficients if core loss model is ``Electrical Steel``.
-            Returns Cm, X, Y if core loss model is ``Power Ferrite``.
+            Returns Kh, Kc, and Ke coefficients if the core loss model is ``"Electrical Steel"``.
+            Returns Cm, X, and Y if the core loss model is ``"Power Ferrite"``.
 
         Examples
         --------
