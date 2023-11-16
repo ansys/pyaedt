@@ -2103,22 +2103,22 @@ class Material(CommonMaterial, object):
         cut_depth : str
             Equivalent cut depth.
             You use this parameter to consider the manufacturing effects on core loss computation.
-            The default value is ``1mm``.
+            The default value is ``"1mm"``.
         thickness : str
-            Thickness specified in terms of value + unit.
-            The default value is ``0.5mm``.
+            Thickness specified in terms of the value plus the unit.
+            The default is ``"0.5mm"``.
         conductivity : float
             Conductivity. The unit is S/m.
-            The default value is ``0S/m``.
+            The default is ``"0S/m"``.
         coefficient_setup : str, optional
-            Core loss unit.
-            Possible values are: ``w_per_cubic_meter``, ``kw_per_cubic_meter``, ``w_per_lb``, ``w_per_kg``.
-            The default value is ``w_per_cubic_meter``.
+            Core loss unit. The default is ``"w_per_cubic_meter"``.
+            Options are ``"kw_per_cubic_meter"``, ``"w_per_cubic_meter"``, ``"w_per_kg"``,
+            and ``"w_per_lb"``.
         points_list_at_freq : dict
             Dictionary where keys are the frequencies (in Hz) and values are lists of points (BP curve).
-            If the core loss model is calculated at one frequency points_list_at_freq has to be provided as a
+            If the core loss model is calculated at one frequency, this parameter must be provided as a
             dictionary with one key (single frequency in Hz) and values are lists of points at
-            that specific freq (BP curve).
+            that specific frequency (BP curve).
 
         Returns
         -------
