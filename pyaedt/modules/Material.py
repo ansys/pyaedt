@@ -2001,26 +2001,27 @@ class Material(CommonMaterial, object):
         conductivity=0,
         coefficient_setup="w_per_cubic_meter",
     ):
-        """Compute core loss coefficients from the loss characteristics (B-P Curve) at a given frequency.
+        """Compute core loss coefficients from the loss characteristics (BP curve) at a given frequency.
 
         Parameters
         ----------
         points_list_at_freq : dict
-            points_list_at_freq is a dictionary of BP values for a given frequency.
-            Key is the frequency and values are the list of points (BP curve).
+            Dictionary of BP values for a given frequency. The key is the
+            frequency, and the values are the list of points (BP curve).
         core_loss_model_type : str, optional
-            Core loss model type. It can be ``Electrical Steel`` or ``Power Ferrite``.
-            The default value is ``Electrical Steel``.
+            Core loss model type. The default value is ``"Electrical Steel"``.
+            Options are ``"Electrical Steel"`` and ``"Power Ferrite"``.
         thickness : str, optional
-            Thickness provided as value + unit.
-            The default value is ``0.5mm``.
+            Thickness provided as the value plus the unit.
+            The default is ``0.5mm``.
         conductivity : float, optional
             Material conductivity.
-            The default value is ``0``.
+            The default is ``0``.
         coefficient_setup : str, optional
-            Core loss unit.
-            Possible values are: ``w_per_cubic_meter``, ``kw_per_cubic_meter``, ``w_per_lb``, ``w_per_kg``.
-            The default value is ``w_per_cubic_meter``.
+            Core loss unit. The default is ``"w_per_cubic_meter"``.
+            Options are ``"kw_per_cubic_meter"``, ``"w_per_cubic_meter"``, ``"w_per_kg"``,
+            and ``"w_per_lb"``.
+
 
         Returns
         -------
@@ -2101,7 +2102,7 @@ class Material(CommonMaterial, object):
             Coefficient considering the DC flux bias effects
         cut_depth : str
             Equivalent cut depth.
-            The manufacturing effects on core loss computation can be considered by using this parameter.
+            You use this parameter to consider the manufacturing effects on core loss computation.
             The default value is ``1mm``.
         thickness : str
             Thickness specified in terms of value + unit.
@@ -2122,7 +2123,7 @@ class Material(CommonMaterial, object):
         Returns
         -------
         bool
-            ``True`` if successful or ``False`` if it fails.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -2216,25 +2217,25 @@ class Material(CommonMaterial, object):
 
     @pyaedt_function_handler()
     def set_electrical_steel_coreloss(self, kh=0, kc=0, ke=0, kdc=0, cut_depth="1mm"):
-        """Set Electrical Steel Core Loss.
+        """Set electrical steel core loss.
 
         Parameters
         ----------
         kh : float, optional
             Hysteresis core loss coefficient.
-            The default value is ``0``.
+            The default is ``0``.
         kc : float, optional
             Eddy-current core loss coefficient.
-            The default value is ``0``.
+            The default is ``0``.
         ke : float, optional
             Excess core loss coefficient.
-            The default value is ``0``.
+            The default is ``0``.
         kdc : float, optional
             Coefficient considering the DC flux bias effects.
-            The default value is ``0``.
+            The default is ``0``.
         cut_depth : str, optional
-            Equivalent Cut Depth considering manufacturing effects on core loss computation.
-            The default value is ``1mm``.
+            Equivalent cut depth considering manufacturing effects on core loss computation.
+            The default value is ``"1mm"``.
 
         Returns
         -------
