@@ -2543,7 +2543,7 @@ class Material(CommonMaterial, object):
             Conductivity at DC. The default is ``1e-12``.
         freq_hi : int, float, optional
             High-frequency corner in Hz. The default is ``159.15494e9``.
-        
+
         Returns
         -------
         bool
