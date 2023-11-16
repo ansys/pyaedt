@@ -1241,118 +1241,6 @@ class FfdSolutionData(object):
             self.farfield_data = self.combine_farfields()
 
     @pyaedt_function_handler()
-    def array_min_max_values(self):
-        """Array bounding box.
-
-        Returns
-        -------
-        list of float
-        """
-        rows = []
-        cols = []
-        for portstring in self.all_port_names:
-            index_str = self.get_array_index(portstring)
-            rows.append(index_str[1])
-            cols.append(index_str[0])
-
-        row_min = np.min(rows)
-        row_max = np.max(rows)
-        col_min = np.min(cols)
-        col_max = np.max(cols)
-        return [col_min, col_max, row_min, row_max]
-
-    # @pyaedt_function_handler()
-    # def array_center_and_edge(self):
-    #     """
-    #     Find the center and edge of our array, assuming all ports in far field
-    #     mapping file are active ports.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #     """
-    #     AMax = 0
-    #     BMax = 0
-    #     RMax = 0
-    #     XMax = 0
-    #     YMax = 0
-    #     CenterA = 0
-    #     CenterB = 0
-    #     CenterX = 0
-    #     CenterY = 0
-    #
-    #     # collecting all active cells inside the specified region
-    #     activeCells = []
-    #
-    #     for i in range(0, len(self.all_port_names)):
-    #         index_str = self.get_array_index(self.all_port_names[i])
-    #         row = index_str[1]
-    #         col = index_str[0]
-    #         a = row
-    #         b = col
-    #
-    #         activeCells.append((a, b))  # because ffd is assuming all ffd files are active
-    #     if len(activeCells) == 0:
-    #         return
-    #
-    #     [a_min, a_max, b_min, b_max] = self.array_min_max_values()
-    #
-    #     CenterA = (a_min + a_max) / 2
-    #     CenterB = (b_min + b_max) / 2
-    #     CenterX = (CenterA + 0.5) * self.Ax + (CenterB + 0.5) * self.Bx
-    #     CenterY = (CenterA + 0.5) * self.Ay + (CenterB + 0.5) * self.By
-    #
-    #     self.CenterA = CenterA
-    #     self.CenterB = CenterB
-    #     self.CenterX = CenterX
-    #     self.CenterY = CenterY
-    #     # find the distance from the edge to the center
-    #     AMax = a_max - a_min
-    #     BMax = b_max - b_min
-    #
-    #     self.AMax = AMax
-    #     self.BMax = BMax
-    #     for a, b in activeCells:
-    #         x = (a + 0.5) * self.Ax + (b + 0.5) * self.Bx
-    #         y = (a + 0.5) * self.Ay + (b + 0.5) * self.By
-    #         x_dis = abs(x - CenterX)
-    #         y_dis = abs(y - CenterY)
-    #         distance = math.sqrt(x_dis**2 + y_dis**2)
-    #         XMax = max(XMax, x_dis)
-    #         YMax = max(YMax, y_dis)
-    #         RMax = max(RMax, distance)
-    #
-    #     self.RMax = RMax
-    #     self.XMax = XMax
-    #     self.YMax = YMax
-    #     self.RMax *= 2
-    #     self.XMax *= 2
-    #     self.YMax *= 2
-    #     return True
-
-    # @pyaedt_function_handler()
-    # def element_location(self, a, b):
-    #     """Element location in the array.
-    #
-    #     Parameters
-    #     ----------
-    #     a : int
-    #     b : int
-    #
-    #     Returns
-    #     -------
-    #     list of float
-    #     """
-    #     a = int(a)
-    #     b = int(b)
-    #
-    #     x = (a + 0.5) * self.Ax + (b + 0.5) * self.Bx
-    #     y = (a + 0.5) * self.Ay + (b + 0.5) * self.By
-    #     x_dis = x - self.CenterX
-    #     y_dis = y - self.CenterY
-    #     return np.array([x_dis, y_dis, 0])
-
-    @pyaedt_function_handler()
     def assign_weight(self, a, b, taper="flat", port_index=0):
         """Assign weight to array.
 
@@ -1426,36 +1314,6 @@ class FfdSolutionData(object):
             return 0
 
         return w1 * w2 * self.mag_offset[port_index]
-
-    def get_array_center(self):
-        x_coords = [pos[0] for pos in self.port_position.values()]
-        y_coords = [pos[1] for pos in self.port_position.values()]
-        z_coords = [pos[2] for pos in self.port_position.values()]
-
-        center_x = sum(x_coords) / len(x_coords)
-        center_y = sum(y_coords) / len(y_coords)
-        center_z = sum(z_coords) / len(z_coords)
-
-        return center_x, center_y, center_z
-
-    def relative_phase(self, port, theta, phi):
-        c = 299792458
-        k = (2 * math.pi * self.frequency_value) / c
-        pos = self.port_position[port]
-        theta = np.deg2rad(theta)
-        phi = np.deg2rad(phi)
-
-        xVector = pos * np.sin(theta) * np.cos(phi)
-        yVector = pos * np.sin(theta) * np.sin(phi)
-        zVector = pos * np.cos(theta)
-        # if self._is_array[self._freq_index]:
-        #     zVector = -0 * np.cos(theta)
-        # else:
-        #     zVector = -pos[2] * np.cos(theta)
-
-        phase_shift = k * (xVector + yVector + zVector)
-
-        return np.rad2deg(phase_shift)
 
     def phase_shift_steering(self, a, b, theta, phi):
         c = 299792458
@@ -1881,8 +1739,7 @@ class FfdSolutionData(object):
             background = [255, 255, 255]
             text_color = "black"
         self.farfield_data = self.combine_farfields(phi_scan=0, theta_scan=0)
-        plot_min = -40
-        self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
+        self.mesh = self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -1899,7 +1756,7 @@ class FfdSolutionData(object):
         else:
             p = pyvista_object
 
-        uf = UpdateBeamForm(self)
+        uf = UpdateBeamForm(self, qty_str, quantity_format)
 
         default_background = [255, 255, 255]
         axes_color = [i / 255 for i in default_background]
@@ -1955,7 +1812,7 @@ class FfdSolutionData(object):
 
         cad_mesh = self._get_geometry()
         max_data = np.max(10 * np.log10(self.farfield_data[qty_str]))
-        min_data = np.max(10 * np.log10(self.farfield_data[qty_str]))
+        min_data = np.min(10 * np.log10(self.farfield_data[qty_str]))
         ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[min_data, max_data], scalar_bar_args=sargs)
 
         if cad_mesh:
@@ -1975,8 +1832,7 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
-            # slider_max = int(np.ceil(self.all_max / 2 / max_gain))
-            slider_max = np.ceil(max_data / 2)
+            slider_max = int(np.ceil(np.max(p.bounds) / 2 / max_data))
             if slider_max > 0:
                 slider_min = 0
                 value = slider_max / 3
@@ -2063,7 +1919,7 @@ class FfdSolutionData(object):
         theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
         phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
-        self.mesh = mesh
+        return mesh
 
     @pyaedt_function_handler()
     def _read_eep_files(self, eep_path):
@@ -2438,20 +2294,19 @@ class FfdSolutionDataExporter(FfdSolutionData):
 
 
 class UpdateBeamForm:
-    def __init__(self, ff):
+    def __init__(self, ff, qty_str, quantity_format):
         self.output = ff.mesh
         self._phi = 0
         self._theta = 0
         # default parameters
         self.ff = ff
-        self.qty_str = "RealizedGain"
-        self.quantity_format = "dB10"
+        self.qty_str = qty_str
+        self.quantity_format = quantity_format
 
     def _update_both(self):
-        self.ff.combine_farfields(phi_scan=self._phi, theta_scan=self._theta)
-        # perc_of_maxgain= self.ff.max_gain/self.max_value
+        self.ff.farfield_data = self.ff.combine_farfields(phi_scan=self._phi, theta_scan=self._theta)
 
-        self.ff._get_far_field_mesh(self.qty_str, self.quantity_format)
+        self.ff.mesh = self.ff._get_far_field_mesh(self.qty_str, self.quantity_format)
 
         self.output.overwrite(self.ff.mesh)
         return
