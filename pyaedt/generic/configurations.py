@@ -1060,8 +1060,8 @@ class Configurations(object):
                     self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self._app, el, val)
-                if newmat.update():
+                newmat = Material(self._app, el, val, material_update=True)
+                if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
                     self.results.import_materials = False

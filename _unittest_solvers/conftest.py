@@ -131,6 +131,7 @@ def local_scratch(init_scratch):
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+    d.odesktop.SetTempDirectory(tempfile.gettempdir())
     d.disable_autosave()
 
     yield d
