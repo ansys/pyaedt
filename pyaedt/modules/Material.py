@@ -2006,8 +2006,10 @@ class Material(CommonMaterial, object):
         Parameters
         ----------
         points_list_at_freq : dict
-            Dictionary of BP values for a given frequency. The key is the
-            frequency, and the values are the list of points (BP curve).
+            Dictionary where keys are the frequencies (in Hz) and values are lists of points (BP curve).
+            If the core loss model is calculated at one frequency, this parameter must be provided as a
+            dictionary with one key (single frequency in Hz) and values are lists of points at
+            that specific frequency (BP curve).
         core_loss_model_type : str, optional
             Core loss model type. The default value is ``"Electrical Steel"``.
             Options are ``"Electrical Steel"`` and ``"Power Ferrite"``.
@@ -2094,7 +2096,7 @@ class Material(CommonMaterial, object):
         core_loss_model_type="Electrical Steel",
         points_list_at_freq={},
     ):
-        """Set Electrical Steel Core Loss Model at one single frequency or at multiple frequencies.
+        """Set electrical steel core loss model at one single frequency or at multiple frequencies.
 
         Parameters
         ----------
