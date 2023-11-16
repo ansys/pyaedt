@@ -595,7 +595,7 @@ class ComponentArray(object):
         return lattice_vectors
 
     @pyaedt_function_handler()
-    def get_component_center(self):
+    def get_component_objects(self):
         """Get 3D component center.
 
         Returns
@@ -633,24 +633,25 @@ class ComponentArray(object):
         cell_info = [[None for _ in range(self.a_size)] for _ in range(self.b_size)]
         lattice_vector = self.lattice_vector()
         if lattice_vector[0] != 0:
-            x_spacing = lattice_vector[0]
+            y_spacing = lattice_vector[0]
         else:
-            x_spacing = lattice_vector[1]
+            y_spacing = lattice_vector[1]
 
         if lattice_vector[3] != 0:
-            y_spacing = lattice_vector[3]
+            x_spacing = lattice_vector[3]
         else:
-            y_spacing = lattice_vector[4]
+            x_spacing = lattice_vector[4]
 
         cells = self.cells
         for row_cell in range(0, self.a_size):
             for col_cell in range(0, self.b_size):
-                x_position = row_cell * x_spacing
-                y_position = col_cell * y_spacing
+                y_position = row_cell * x_spacing
+                x_position = col_cell * y_spacing
                 cell_info[row_cell][col_cell] = [
                     cells[row_cell][col_cell].component,
-                    [x_position, y_position],
+                    [x_position, y_position, 0.0],
                     cells[row_cell][col_cell].rotation,
+                    [row_cell + 1, col_cell + 1],
                 ]
         return cell_info
 

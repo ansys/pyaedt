@@ -1122,12 +1122,11 @@ class FfdSolutionData(object):
 
         self.model_info = []
         self._is_array = []
-        self._component_position = []
+        self._component_objects = []
         self._array_dimension = []
         self._cell_position = []
         self._lattice_vector = []
 
-        cont = 0
         for eep in eep_files:
             metadata_file = os.path.join(os.path.dirname(eep), "eep.json")
             if os.path.exists(metadata_file):
@@ -1135,15 +1134,14 @@ class FfdSolutionData(object):
                     # Load JSON data from file
                     metadata = json.load(f)
                 self.model_info.append(metadata["model_info"])
-                if "array_dimension" in metadata and "component_position" in metadata and "cell_position" in metadata:
+                if "array_dimension" in metadata and "component_objects" in metadata and "cell_position" in metadata:
                     self._is_array.append(True)
-                    self._component_position.append(metadata["component_position"])
+                    self._component_objects.append(metadata["component_objects"])
                     self._array_dimension.append(metadata["array_dimension"])
                     self._cell_position.append(metadata["cell_position"])
                     self._lattice_vector.append(metadata["lattice_vector"])
                 else:
                     self._is_array.append(False)
-            cont += 1
 
         self.port_index = self._get_port_index()
         if not self._get_port_index:
@@ -1956,8 +1954,9 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        max_gain = np.max(10 * np.log10(self.farfield_data[qty_str]))
-        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, max_gain], scalar_bar_args=sargs)
+        max_data = np.max(10 * np.log10(self.farfield_data[qty_str]))
+        min_data = np.max(10 * np.log10(self.farfield_data[qty_str]))
+        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[min_data, max_data], scalar_bar_args=sargs)
 
         if cad_mesh:
 
@@ -1976,7 +1975,8 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
-            slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
+            # slider_max = int(np.ceil(self.all_max / 2 / max_gain))
+            slider_max = np.ceil(max_data / 2)
             if slider_max > 0:
                 slider_min = 0
                 value = slider_max / 3
@@ -2089,65 +2089,92 @@ class FfdSolutionData(object):
     def _get_geometry(self):
         from pyaedt.generic.plot import ModelPlotter
 
-        model_pv = ModelPlotter()
-        # metadata_file = os.path.join(eep_dir, "eep.json")
-        sf = AEDT_UNITS["Length"]["meter"]
-        if self.model_info:
-            model_pv.off_screen = True
-            for object_in in self.model_info:
-                model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
-                sf = AEDT_UNITS["Length"][object_in[3]]
-        else:
-            self.logger.warning("Geometry objects not defined")
-            return False
-
-        self._model_units = sf
-        model_pv.generate_geometry_mesh()
-        obj_meshes = []
-        i = 0
-        for obj in model_pv.objects:
-            mesh = obj._cached_polydata
-            translated_mesh = mesh.copy()
-            color_cad = [i / 255 for i in obj.color]
-
-            if len(obj_meshes) > i:
-                obj_meshes[i][0] += translated_mesh
-            else:
-                obj_meshes.append([translated_mesh, color_cad, obj.opacity])
-            i += 1
-
-        center = []
+        # sf = AEDT_UNITS["Length"]["meter"]
         if self._is_array:
+            model_info = self.model_info[self._freq_index]
+            components_info = self._component_objects[self._freq_index]
+            array_dimension = self._array_dimension[self._freq_index]
+            first_key = list(model_info.keys())[0]
+            first_value = model_info[first_key]
+            sf = AEDT_UNITS["Length"][first_value[3]]
+            self._model_units = sf
+            cell_info = self._cell_position[self._freq_index]
+            obj_meshes = []
+
+            for cell_row in cell_info:
+                for cell_col in cell_row:
+                    # Initialize an empty mesh for this component
+                    model_pv = ModelPlotter()
+                    component_name = cell_col[0]
+                    component_info = components_info[component_name]
+                    rotation = cell_col[2]
+                    for component_obj in component_info[1:]:
+                        if component_obj in model_info:
+                            model_pv.add_object(
+                                model_info[component_obj][0],
+                                model_info[component_obj][1],
+                                model_info[component_obj][2],
+                                model_info[component_obj][3],
+                            )
+
+                    model_pv.generate_geometry_mesh()
+                    comp_meshes = []
+                    row, col = cell_col[3]
+                    pos_y = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
+                    pos_x = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
+                    i = 0
+                    for obj in model_pv.objects:
+                        mesh = obj._cached_polydata
+                        translated_mesh = mesh.copy()
+                        color_cad = [i / 255 for i in obj.color]
+                        # Move the origin
+                        translated_mesh.translate(
+                            [-component_info[0][0] / sf, -component_info[0][1] / sf, -component_info[0][2] / sf],
+                            inplace=True,
+                        )
+                        if rotation != 0:
+                            translated_mesh.rotate_z(rotation, inplace=True)
+                        # Translate the mesh to its position
+                        translated_mesh.translate([pos_x / sf, pos_y / sf, component_info[0][2] / sf], inplace=True)
+
+                        if len(comp_meshes) > i:
+                            comp_meshes[i][0] += translated_mesh
+                        else:
+                            comp_meshes.append([translated_mesh, color_cad, obj.opacity])
+                        i += 1
+
+                    obj_meshes.append(comp_meshes)
+
+            obj_meshes = [item for sublist in obj_meshes for item in sublist]
+
+        else:
+            model_pv = ModelPlotter()
+            first_key = list(self.model_info.keys())[0]
+            first_value = self.model_info[first_key]
+            sf = AEDT_UNITS["Length"][first_value[3]]
+            if self.model_info:
+                model_pv.off_screen = True
+                for object_in in self.model_info:
+                    model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
+            else:
+                self.logger.warning("Geometry objects not defined")
+                return False
+
+            self._model_units = sf
+            model_pv.generate_geometry_mesh()
+            obj_meshes = []
             i = 0
             for obj in model_pv.objects:
-                for each in self.farfield_data["Element_Location"]:
-                    mesh = obj._cached_polydata
-                    translated_mesh = mesh.copy()
-                    offset_xyz = [n * sf for n in self.farfield_data["Element_Location"][each]]
-                    if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centered, factor of 2
-                        xmax = offset_xyz[0] * 2
-                    if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centered, factor of 2
-                        ymax = offset_xyz[1] * 2
-                    translated_mesh.position = offset_xyz
-                    translated_mesh.translate(offset_xyz, inplace=True)
-                    color_cad = [i / 255 for i in obj.color]
+                mesh = obj._cached_polydata
+                translated_mesh = mesh.copy()
+                color_cad = [i / 255 for i in obj.color]
 
-                    if len(obj_meshes) > i:
-                        obj_meshes[i][0] += translated_mesh
-                    else:
-                        obj_meshes.append([translated_mesh, color_cad, obj.opacity])
-                i += 1
-                if not center:
-                    center = obj_meshes[-1][0].center
+                if len(obj_meshes) > i:
+                    obj_meshes[i][0] += translated_mesh
                 else:
-                    center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
-        center = [-k / i for k in center]
-        all_max = np.max(np.array([xmax, ymax, zmax]))
-        if all_max > self.all_max:
-            self.all_max = all_max
+                    obj_meshes.append([translated_mesh, color_cad, obj.opacity])
+                i += 1
 
-        for mesh in obj_meshes:
-            mesh[0].translate(center, inplace=True)
         return obj_meshes
 
     @pyaedt_function_handler()
@@ -2384,9 +2411,14 @@ class FfdSolutionDataExporter(FfdSolutionData):
 
                 if self._app.component_array:
                     component_array = self._app.component_array[self._app.component_array_names[0]]
-                    items["component_position"] = component_array.get_component_center()
+                    items["component_objects"] = component_array.get_component_objects()
                     items["cell_position"] = component_array.get_cell_position()
-                    items["array_dimension"] = [component_array.a_length, component_array.b_length]
+                    items["array_dimension"] = [
+                        component_array.a_length,
+                        component_array.b_length,
+                        component_array.a_length / component_array.a_size,
+                        component_array.b_length / component_array.b_size,
+                    ]
                     items["lattice_vector"] = component_array.lattice_vector()
 
                 with open(metadata_file_name, "w") as f:
