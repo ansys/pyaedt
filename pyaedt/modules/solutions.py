@@ -1125,6 +1125,7 @@ class FfdSolutionData(object):
         self._component_position = []
         self._array_dimension = []
         self._cell_position = []
+        self._lattice_vector = []
 
         cont = 0
         for eep in eep_files:
@@ -1139,6 +1140,7 @@ class FfdSolutionData(object):
                     self._component_position.append(metadata["component_position"])
                     self._array_dimension.append(metadata["array_dimension"])
                     self._cell_position.append(metadata["cell_position"])
+                    self._lattice_vector.append(metadata["lattice_vector"])
                 else:
                     self._is_array.append(False)
             cont += 1
@@ -1148,22 +1150,6 @@ class FfdSolutionData(object):
             raise Exception("Wrong port index load.")
         self.all_max = 1
         self.frequency = self.frequencies[0]
-
-        # # Array props
-        # if self.__is_array:
-        #     self.Ax = float(self.lattice_vectors[0])
-        #     self.Ay = float(self.lattice_vectors[1])
-        #     self.Bx = float(self.lattice_vectors[3])
-        #     self.By = float(self.lattice_vectors[4])
-        # else:
-        #     self.Ax = 0
-        #     self.Ay = 0
-        #     self.Bx = 0
-        #     self.By = 0
-        #     self.AMax = 0
-        #     self.BMax = 0
-        #     self.CenterA = 0
-        #     self.CenterB = 0
 
     @property
     def frequency(self):
@@ -1178,10 +1164,6 @@ class FfdSolutionData(object):
     @frequency.setter
     def frequency(self, val):
         if val in self.frequencies:
-            # frequency_hz = val
-            # if isinstance(val, str):
-            #     frequency, units = decompose_variable_value(val)
-            #     frequency_hz = unit_converter(frequency, "Freq", units, "Hz")
             freq_index = self.frequencies.index(val)
             eep_file_info = self._eep_file_info_list[freq_index]
             init_flag = self._init_ffd(eep_file_info)
@@ -1281,74 +1263,74 @@ class FfdSolutionData(object):
         col_max = np.max(cols)
         return [col_min, col_max, row_min, row_max]
 
-    @pyaedt_function_handler()
-    def array_center_and_edge(self):
-        """
-        Find the center and edge of our array, assuming all ports in far field
-        mapping file are active ports.
-
-        Returns
-        -------
-        bool
-        """
-        AMax = 0
-        BMax = 0
-        RMax = 0
-        XMax = 0
-        YMax = 0
-        CenterA = 0
-        CenterB = 0
-        CenterX = 0
-        CenterY = 0
-
-        # collecting all active cells inside the specified region
-        activeCells = []
-
-        for i in range(0, len(self.all_port_names)):
-            index_str = self.get_array_index(self.all_port_names[i])
-            row = index_str[1]
-            col = index_str[0]
-            a = row
-            b = col
-
-            activeCells.append((a, b))  # because ffd is assuming all ffd files are active
-        if len(activeCells) == 0:
-            return
-
-        [a_min, a_max, b_min, b_max] = self.array_min_max_values()
-
-        CenterA = (a_min + a_max) / 2
-        CenterB = (b_min + b_max) / 2
-        CenterX = (CenterA + 0.5) * self.Ax + (CenterB + 0.5) * self.Bx
-        CenterY = (CenterA + 0.5) * self.Ay + (CenterB + 0.5) * self.By
-
-        self.CenterA = CenterA
-        self.CenterB = CenterB
-        self.CenterX = CenterX
-        self.CenterY = CenterY
-        # find the distance from the edge to the center
-        AMax = a_max - a_min
-        BMax = b_max - b_min
-
-        self.AMax = AMax
-        self.BMax = BMax
-        for a, b in activeCells:
-            x = (a + 0.5) * self.Ax + (b + 0.5) * self.Bx
-            y = (a + 0.5) * self.Ay + (b + 0.5) * self.By
-            x_dis = abs(x - CenterX)
-            y_dis = abs(y - CenterY)
-            distance = math.sqrt(x_dis**2 + y_dis**2)
-            XMax = max(XMax, x_dis)
-            YMax = max(YMax, y_dis)
-            RMax = max(RMax, distance)
-
-        self.RMax = RMax
-        self.XMax = XMax
-        self.YMax = YMax
-        self.RMax *= 2
-        self.XMax *= 2
-        self.YMax *= 2
-        return True
+    # @pyaedt_function_handler()
+    # def array_center_and_edge(self):
+    #     """
+    #     Find the center and edge of our array, assuming all ports in far field
+    #     mapping file are active ports.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #     """
+    #     AMax = 0
+    #     BMax = 0
+    #     RMax = 0
+    #     XMax = 0
+    #     YMax = 0
+    #     CenterA = 0
+    #     CenterB = 0
+    #     CenterX = 0
+    #     CenterY = 0
+    #
+    #     # collecting all active cells inside the specified region
+    #     activeCells = []
+    #
+    #     for i in range(0, len(self.all_port_names)):
+    #         index_str = self.get_array_index(self.all_port_names[i])
+    #         row = index_str[1]
+    #         col = index_str[0]
+    #         a = row
+    #         b = col
+    #
+    #         activeCells.append((a, b))  # because ffd is assuming all ffd files are active
+    #     if len(activeCells) == 0:
+    #         return
+    #
+    #     [a_min, a_max, b_min, b_max] = self.array_min_max_values()
+    #
+    #     CenterA = (a_min + a_max) / 2
+    #     CenterB = (b_min + b_max) / 2
+    #     CenterX = (CenterA + 0.5) * self.Ax + (CenterB + 0.5) * self.Bx
+    #     CenterY = (CenterA + 0.5) * self.Ay + (CenterB + 0.5) * self.By
+    #
+    #     self.CenterA = CenterA
+    #     self.CenterB = CenterB
+    #     self.CenterX = CenterX
+    #     self.CenterY = CenterY
+    #     # find the distance from the edge to the center
+    #     AMax = a_max - a_min
+    #     BMax = b_max - b_min
+    #
+    #     self.AMax = AMax
+    #     self.BMax = BMax
+    #     for a, b in activeCells:
+    #         x = (a + 0.5) * self.Ax + (b + 0.5) * self.Bx
+    #         y = (a + 0.5) * self.Ay + (b + 0.5) * self.By
+    #         x_dis = abs(x - CenterX)
+    #         y_dis = abs(y - CenterY)
+    #         distance = math.sqrt(x_dis**2 + y_dis**2)
+    #         XMax = max(XMax, x_dis)
+    #         YMax = max(YMax, y_dis)
+    #         RMax = max(RMax, distance)
+    #
+    #     self.RMax = RMax
+    #     self.XMax = XMax
+    #     self.YMax = YMax
+    #     self.RMax *= 2
+    #     self.XMax *= 2
+    #     self.YMax *= 2
+    #     return True
 
     # @pyaedt_function_handler()
     # def element_location(self, a, b):
@@ -1458,27 +1440,42 @@ class FfdSolutionData(object):
 
         return center_x, center_y, center_z
 
-    def calc_relative_phase(self, port, theta, phi):
+    def relative_phase(self, port, theta, phi):
         c = 299792458
         k = (2 * math.pi * self.frequency_value) / c
         pos = self.port_position[port]
         theta = np.deg2rad(theta)
         phi = np.deg2rad(phi)
 
-        # center = [0, 0, 0.000762]
-        center = self.get_array_center()
-        # Subtract center position to get relative position
-        rel_pos = [p - c for p, c in zip(pos, center)]
-
-        xVector = -rel_pos[0] * np.sin(theta) * np.cos(phi)
-        yVector = -rel_pos[1] * np.sin(theta) * np.sin(phi)
-        zVector = -rel_pos[2] * np.cos(theta)
+        xVector = pos * np.sin(theta) * np.cos(phi)
+        yVector = pos * np.sin(theta) * np.sin(phi)
+        zVector = pos * np.cos(theta)
         # if self._is_array[self._freq_index]:
         #     zVector = -0 * np.cos(theta)
         # else:
         #     zVector = -pos[2] * np.cos(theta)
 
         phase_shift = k * (xVector + yVector + zVector)
+
+        return np.rad2deg(phase_shift)
+
+    def phase_shift_steering(self, a, b, theta, phi):
+        c = 299792458
+        k = (2 * math.pi * self.frequency_value) / c
+        a = int(a)
+        b = int(b)
+        theta = np.deg2rad(theta)
+        phi = np.deg2rad(phi)
+
+        lattice_vector = self._lattice_vector[self._freq_index]
+
+        Ax, Ay, Bx, By = [lattice_vector[0], lattice_vector[1], lattice_vector[3], lattice_vector[4]]
+
+        phase_shift_A = -((Ax * k * np.sin(theta) * np.cos(phi)) + (Ay * k * np.sin(theta) * np.sin(phi)))
+
+        phase_shift_B = -((Bx * k * np.sin(theta) * np.cos(phi)) + (By * k * np.sin(theta) * np.sin(phi)))
+
+        phase_shift = a * phase_shift_A + b * phase_shift_B
 
         return np.rad2deg(phase_shift)
 
@@ -1511,14 +1508,15 @@ class FfdSolutionData(object):
         port_positions = {}
         port_cont = 0
         initial_port = self.all_port_names[0]
+
         # Obtain weights for each port
         for port_name in self.all_port_names:
             index_str = self.port_index[port_name]
-            phase_shift = self.calc_relative_phase(port_name, theta_scan, phi_scan)
             a = index_str[0] - 1
             b = index_str[1] - 1
+            phase_shift = self.phase_shift_steering(a, b, theta_scan, phi_scan)
             w_mag = np.round(np.abs(self.assign_weight(a=a, b=b, port_index=port_cont, taper=self.taper)), 3)
-            w_ang = self.phase_offset[port_cont] + phase_shift
+            w_ang = np.deg2rad(self.phase_offset[port_cont] + phase_shift)
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
             w_dict_mag[port_name] = w_mag
@@ -1527,13 +1525,11 @@ class FfdSolutionData(object):
 
         # Combine farfield of each port
         length_of_ff_data = len(self._raw_data[initial_port]["rETheta"])
-
         theta_range = self._raw_data[initial_port]["Theta"]
         phi_range = self._raw_data[initial_port]["Phi"]
         Ntheta = len(theta_range)
         Nphi = len(phi_range)
         incident_power = 0
-
         ph, th = np.meshgrid(self._raw_data[initial_port]["Phi"], self._raw_data[initial_port]["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
@@ -1542,42 +1538,34 @@ class FfdSolutionData(object):
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
-
         kx_flat = kx_grid.ravel()
         ky_flat = ky_grid.ravel()
         kz_flat = kz_grid.ravel()
-
         rEphi_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
         rETheta_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
+
+        # Farfield superposition
         for n, port in enumerate(self.all_port_names):
             if port not in w_dict.keys():
                 w_dict[port] = np.sqrt(0) * np.exp(1j * 0)
             incident_power += w_dict_mag[port]
-
             xyz_pos = port_positions[port]
-
-            center = self.get_array_center()
-            # Subtract center position to get relative position
-            rel_pos = [p - c for p, c in zip(xyz_pos, center)]
-
             array_factor = (
-                np.exp(1j * (rel_pos[0] * kx_flat + rel_pos[1] * ky_flat + rel_pos[2] * kz_flat)) * w_dict[port]
+                np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * w_dict[port]
             )
             rEphi_fields_sum += array_factor * self._raw_data[port]["rEPhi"]
             rETheta_fields_sum += array_factor * self._raw_data[port]["rETheta"]
 
-        center = self.get_array_center()
-        # Subtract center position to get relative position
-        rel_pos = [p - c for p, c in zip(self.origin, center)]
-
-        array_factor = np.exp(-1j * (rel_pos[0] * kx_flat + rel_pos[1] * ky_flat + rel_pos[2] * kz_flat))
+        # Farfield origin sift
+        origin = self.origin
+        array_factor = np.exp(-1j * (origin[0] * kx_flat + origin[1] * ky_flat + origin[2] * kz_flat))
         rETheta_fields_sum = array_factor * rETheta_fields_sum
         rEphi_fields_sum = array_factor * rEphi_fields_sum
 
         rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (Ntheta, Nphi))
         rEphi_fields_sum = np.reshape(rEphi_fields_sum, (Ntheta, Nphi))
 
-        farfield_data = {}
+        farfield_data = OrderedDict()
         farfield_data["rEPhi"] = rEphi_fields_sum
         farfield_data["rETheta"] = rEtheta_fields_sum
         farfield_data["rETotal"] = np.sqrt(
@@ -1968,7 +1956,8 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs)
+        max_gain = np.max(10 * np.log10(self.farfield_data[qty_str]))
+        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, max_gain], scalar_bar_args=sargs)
 
         if cad_mesh:
 
@@ -2398,6 +2387,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                     items["component_position"] = component_array.get_component_center()
                     items["cell_position"] = component_array.get_cell_position()
                     items["array_dimension"] = [component_array.a_length, component_array.b_length]
+                    items["lattice_vector"] = component_array.lattice_vector()
 
                 with open(metadata_file_name, "w") as f:
                     json.dump(items, f, indent=2)
