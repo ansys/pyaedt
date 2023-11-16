@@ -1832,14 +1832,13 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
-            slider_max = int(np.ceil(np.max(p.bounds) / 2 / max_data))
-            if slider_max > 0:
-                slider_min = 0
-                value = slider_max / 3
-            else:
-                slider_min = slider_max
-                slider_max = 0
-                value = slider_min / 3
+            slider_max = int(np.ceil(np.max(p.bounds) / 2 / abs(max_data)))
+            slider_min = 0
+            value = slider_max / 3
+            # else:
+            #     slider_min = 0
+            #     slider_max = -slider_max
+            #     value = slider_max / 3
 
             p.add_slider_widget(
                 scale,
