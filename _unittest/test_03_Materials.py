@@ -165,23 +165,23 @@ class TestClass:
         assert self.aedtapp.materials.remove_material("copper3")
         assert not self.aedtapp.materials.remove_material("copper4")
 
-    # def test_06_surface_material(self, add_app):
-    #     ipk = add_app(application=Icepak)
-    #     mat2 = ipk.materials.add_surface_material("Steel")
-    #     mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
-    #     mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(
-    #         aedtname="surface_diffuse_absorptance"
-    #     )
-    #     mat2.surface_roughness.value = SurfMatProperties.get_defaultvalue(aedtname="surface_roughness")
-    #
-    #     assert mat2.emissivity.value == SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
-    #     assert mat2.coordinate_system
-    #     assert mat2.surface_diffuse_absorptance.value == SurfMatProperties.get_defaultvalue(
-    #         aedtname="surface_diffuse_absorptance"
-    #     )
-    #     assert mat2.surface_roughness.value == SurfMatProperties.get_defaultvalue(aedtname="surface_roughness")
-    #     assert ipk.materials.duplicate_surface_material("Steel", "Steel2")
-    #     assert not ipk.materials.duplicate_surface_material("Steel4", "Steel2")
+    def test_06_surface_material(self, add_app):
+        ipk = add_app(application=Icepak)
+        mat2 = ipk.materials.add_surface_material("Steel")
+        mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
+        mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(
+            aedtname="surface_diffuse_absorptance"
+        )
+        mat2.surface_roughness.value = SurfMatProperties.get_defaultvalue(aedtname="surface_roughness")
+
+        assert mat2.emissivity.value == SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
+        assert mat2.coordinate_system
+        assert mat2.surface_diffuse_absorptance.value == SurfMatProperties.get_defaultvalue(
+            aedtname="surface_diffuse_absorptance"
+        )
+        assert mat2.surface_roughness.value == SurfMatProperties.get_defaultvalue(aedtname="surface_roughness")
+        assert ipk.materials.duplicate_surface_material("Steel", "Steel2")
+        assert not ipk.materials.duplicate_surface_material("Steel4", "Steel2")
 
     def test_07_export_materials(self):
         assert self.aedtapp.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "materials.json"))
