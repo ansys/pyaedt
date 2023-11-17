@@ -460,7 +460,7 @@ class TouchstoneData(rf.Network):
 
 @pyaedt_function_handler()
 def read_touchstone(file_path):
-    """Load the contents of a Touchstone file into an NPort
+    """Load the contents of a Touchstone file into an NPort.
 
     Parameters
     ----------

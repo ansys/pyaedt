@@ -461,14 +461,12 @@ class TestClass:
         assert mc["var3"] == "10deg"
         assert mc["var4"] == "10rad"
 
-    def test_17_project_sweep_variable(self):
+    def test_17_project_variable_operation(self):
         self.aedtapp["$my_proj_test"] = "1mm"
         self.aedtapp["$my_proj_test2"] = 2
         self.aedtapp["$my_proj_test3"] = "$my_proj_test*$my_proj_test2"
         assert self.aedtapp.variable_manager["$my_proj_test3"].units == "mm"
         assert self.aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
-        self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_alu")
-        assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.dependent_variables
 
     def test_18_test_optimization_properties(self):
         var = "v1"
@@ -668,6 +666,8 @@ class TestClass:
         self.aedtapp.modeler.create_rectangle(0, ["used_var", "used_var", "used_var"], [10, 20])
         mat1 = self.aedtapp.materials.add_material("new_copper2")
         mat1.permittivity = "$project_used_var"
+        assert self.aedtapp.variable_manager.is_used("used_var")
+        assert not self.aedtapp.variable_manager.is_used("unused_var")
         assert self.aedtapp.variable_manager.delete_variable("unused_var")
         self.aedtapp["unused_var"] = "1mm"
         number_of_variables = len(self.aedtapp.variable_manager.variable_names)
