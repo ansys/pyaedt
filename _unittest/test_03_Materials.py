@@ -269,7 +269,7 @@ class TestClass:
         self.aedtapp["$df"] = 0.01
         assert mat.set_djordjevic_sarkar_model(dk="$dk", df="$df")
 
-    def test_13_get_materials_in_design(self):
+    def test_13_get_materials_in_project(self):
         used_materials = self.aedtapp.materials.get_used_project_materials()
         assert isinstance(used_materials, list)
         for m in [mat for mat in self.aedtapp.materials if mat.is_used]:
