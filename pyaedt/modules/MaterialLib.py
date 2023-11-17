@@ -873,7 +873,7 @@ class Materials(object):
 
     @pyaedt_function_handler
     def get_used_project_materials(self):
-        """Get list of material names in current design.
+        """Get list of material names in current project.
 
         Returns
         -------
