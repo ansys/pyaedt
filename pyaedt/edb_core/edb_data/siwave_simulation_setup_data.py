@@ -1012,7 +1012,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
            Use :property:`pi_slider_position` property instead.
 
         """
-        warnings.warn("`set_pi_slider` is deprecated. Use `pi_slider_position` method instead.", DeprecationWarning)
+        warnings.warn("`set_pi_slider` is deprecated. Use `pi_slider_position` property instead.", DeprecationWarning)
         self.pi_slider_position = value
 
     @pyaedt_function_handler
