@@ -860,7 +860,7 @@ class Materials(object):
         Returns
         -------
         List of str
-            List of material names in current design.
+            List of material names used in the current project.
 
         References
         ----------
