@@ -1029,7 +1029,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
            Use :property:`si_slider_position` property instead.
 
         """
-        warnings.warn("`set_si_slider` is deprecated. Use `si_slider_position` method instead.", DeprecationWarning)
+        warnings.warn("`set_si_slider` is deprecated. Use `si_slider_position` property instead.", DeprecationWarning)
 
         self.si_slider_position = value
 
