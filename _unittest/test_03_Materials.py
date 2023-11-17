@@ -232,8 +232,31 @@ class TestClass:
         assert app.materials.material_keys["mymat2"].is_used
 
     def test_10_add_material_sweep(self):
-        assert self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_copper")
-        assert "sweep_copper" in list(self.aedtapp.materials.material_keys.keys())
+        material_name = "sweep_material"
+        assert self.aedtapp.materials.add_material_sweep(["copper", "aluminum", "FR4_epoxy"], material_name)
+        assert material_name in list(self.aedtapp.materials.material_keys.keys())
+        properties_to_check = [
+            "permittivity",
+            "permeability",
+            "conductivity",
+            "dielectric_loss_tangent",
+            "thermal_conductivity",
+            "mass_density",
+            "specific_heat",
+            "thermal_expansion_coefficient",
+            "youngs_modulus",
+            "poissons_ratio",
+        ]
+        # check if the variables are correctly created
+        assert "$ID" + material_name in self.aedtapp.variable_manager.variable_names
+        for prop in properties_to_check:
+            var_name = "$" + material_name + "_" + prop
+            assert var_name in self.aedtapp.variable_manager.variable_names
+        # check if the material properties are correct
+        for prop in properties_to_check:
+            var_name = "$" + material_name + "_" + prop
+            mat_prop = getattr(self.aedtapp.materials[material_name], prop).value
+            assert mat_prop == var_name + "[$ID" + material_name + "]"
 
     def test_11_material_case(self):
         assert self.aedtapp.materials["Aluminum"] == self.aedtapp.materials["aluminum"]
@@ -245,3 +268,9 @@ class TestClass:
         self.aedtapp["$dk"] = 3
         self.aedtapp["$df"] = 0.01
         assert mat.set_djordjevic_sarkar_model(dk="$dk", df="$df")
+
+    def test_13_get_materials_in_project(self):
+        used_materials = self.aedtapp.materials.get_used_project_material_names()
+        assert isinstance(used_materials, list)
+        for m in [mat for mat in self.aedtapp.materials if mat.is_used]:
+            assert m.name in used_materials
