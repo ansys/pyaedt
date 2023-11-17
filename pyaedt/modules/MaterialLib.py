@@ -854,7 +854,7 @@ class Materials(object):
         return materials_added
 
     @pyaedt_function_handler
-    def get_used_project_materials(self):
+    def get_used_project_material_names(self):
         """Get list of material names in current project.
 
         Returns
