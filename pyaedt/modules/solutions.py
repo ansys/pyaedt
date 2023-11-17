@@ -4,10 +4,10 @@ import json
 import logging
 import math
 import os
+import shutil
 import sys
 import time
 
-from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
@@ -1146,7 +1146,7 @@ class FfdSolutionData(object):
         self.port_index = self._get_port_index()
         if not self._get_port_index:
             raise Exception("Wrong port index load.")
-        self.all_max = 1
+        self.__model_units = "meter"
         self.frequency = self.frequencies[0]
 
     @property
@@ -1811,8 +1811,9 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        max_data = np.max(10 * np.log10(self.farfield_data[qty_str]))
-        min_data = np.min(10 * np.log10(self.farfield_data[qty_str]))
+        data = conversion_function(self.farfield_data[qty_str], function_str=quantity_format)
+        max_data = np.max(data)
+        min_data = np.min(data)
         ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[min_data, max_data], scalar_bar_args=sargs)
 
         if cad_mesh:
@@ -1826,19 +1827,17 @@ class FfdSolutionData(object):
 
             def scale(value=1):
                 ff_mesh_inst.SetScale(value, value, value)
-                ff_mesh_inst.SetPosition(self.origin)
+                sf = AEDT_UNITS["Length"][self.__model_units]
+                ff_mesh_inst.SetPosition(np.divide(self.origin, sf))
                 ff_mesh_inst.SetOrientation(rotation_euler)
                 return
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
-            slider_max = int(np.ceil(np.max(p.bounds) / 2 / abs(max_data)))
+            np.max(self._array_dimension)
+            slider_max = int(np.ceil((np.max(self._array_dimension) / 2 / np.min(np.abs(p.bounds)))))
             slider_min = 0
             value = slider_max / 3
-            # else:
-            #     slider_min = 0
-            #     slider_max = -slider_max
-            #     value = slider_max / 3
 
             p.add_slider_widget(
                 scale,
@@ -1907,6 +1906,28 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def _get_far_field_mesh(self, qty_str="RealizedGain", quantity_format="dB10", **kwargs):
+        """
+        :param qty_str: a string specifying the quantity to be plotted (default is "RealizedGain")
+        :param quantity_format: a string specifying the format of the quantity data (default is "dB10")
+        :param kwargs: additional keyword arguments
+        :return: a pyvista UnstructuredGrid object representing the far field mesh
+
+        This method is used to generate a pyvista UnstructuredGrid object that represents the far field mesh
+         of the solution data. The far field data is obtained from the "farfield_data" attribute of the class.
+         The quantity to be plotted is specified by the "qty_str" parameter, which defaults to "RealizedGain".
+          The format of the quantity data can be specified using the "quantity_format" parameter,
+          which defaults to "dB10".
+
+        The method first checks if the "convert_to_db" keyword argument is present in the "kwargs" dictionary.
+        If present, it raises a warning indicating that this argument is deprecated since version 0.7.0 and should
+        be replaced with the "quantity_format" argument. If "convert_to_db" is True, "quantity_format" is set to "dB10",
+        otherwise it is set to "abs".
+
+        The far field data is then converted to the specified quantity format using the conversion_function() method.
+        The theta and phi angles are converted from degrees to radians using np.deg2rad(). The structured mesh for the
+        far field data is obtained using the get_structured_mesh() method from the generic.plot module.
+        The resulting structured mesh is returned as a pyvista UnstructuredGrid object.
+        """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
             if kwargs["convert_to_db"]:
@@ -1918,6 +1939,8 @@ class FfdSolutionData(object):
         theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
         phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
+        # translated_mesh = mesh.copy()
+        # translated_mesh.translate(self.origin)
         return mesh
 
     @pyaedt_function_handler()
@@ -1944,7 +1967,6 @@ class FfdSolutionData(object):
     def _get_geometry(self):
         from pyaedt.generic.plot import ModelPlotter
 
-        # sf = AEDT_UNITS["Length"]["meter"]
         if self._is_array:
             model_info = self.model_info[self._freq_index]
             components_info = self._component_objects[self._freq_index]
@@ -1952,7 +1974,7 @@ class FfdSolutionData(object):
             first_key = list(model_info.keys())[0]
             first_value = model_info[first_key]
             sf = AEDT_UNITS["Length"][first_value[3]]
-            self._model_units = sf
+            self.__model_units = first_value[3]
             cell_info = self._cell_position[self._freq_index]
             obj_meshes = []
 
@@ -2015,7 +2037,7 @@ class FfdSolutionData(object):
                 self.logger.warning("Geometry objects not defined")
                 return False
 
-            self._model_units = sf
+            self.__model_units = first_value[3]
             model_pv.generate_geometry_mesh()
             obj_meshes = []
             i = 0
@@ -2132,78 +2154,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
         FfdSolutionData.__init__(self, self.frequencies, eep_files)
 
     @pyaedt_function_handler()
-    def get_lattice_vectors(self):
-        """Compute Lattice vectors for Antenna Arrays or return default array in case of simple antenna analysis.
-
-        Returns
-        -------
-        list of float
-        """
-        if self.sbr_comp and self.sbr_comp in self._app.modeler.user_defined_components:
-            component_props = "NativeComponentDefinitionProvider"
-            comp_obj = self._app.modeler.user_defined_components[self.sbr_comp]
-            if "Project" in list(comp_obj.native_properties.keys()):
-                # Project opened
-                project = comp_obj.native_properties["Project"]
-                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
-                close = False
-                if proj_name not in self._app.project_list:
-                    close = True
-                    self._app.odesktop.OpenProject(project)
-                comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
-                comp_units = comp.modeler.model_units
-                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
-                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
-                for port in source_names:
-                    try:
-                        str1 = port.split("[", 1)[1].split("]", 1)[0]
-                        self._native_indexes.append([int(i) for i in str1.split(",")])
-                    except:
-                        self._native_indexes.append([1, 1])
-                if close:
-                    comp.close_project()
-            else:
-                # Project not opened
-                project = comp_obj.native_properties[component_props]["Project"]
-                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
-                close = False
-                if proj_name not in self._app.project_list:
-                    close = True
-                    self._app.odesktop.OpenProject(project)
-                comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
-                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
-                comp_units = comp.modeler.model_units
-                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
-                for port in source_names:
-                    try:
-                        str1 = port.split("[", 1)[1].split("]", 1)[0]
-                        self._native_indexes.append([int(i) for i in str1.split(",")])
-                    except:
-                        self._native_indexes.append([1, 1])
-                if close:
-                    comp.close_project(save_project=False)
-
-            lattice_vectors = [
-                str(x)
-                for x in unit_converter(
-                    values=[float(i) for i in lattice_vectors],
-                    unit_system="Length",
-                    input_units=comp_units,
-                    output_units=self._app.modeler.model_units,
-                )
-            ]
-        else:
-            try:
-                lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
-                lattice_vectors = [
-                    float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
-                ]
-            except:
-                lattice_vectors = [0, 0, 0, 0, 0, 0]
-        # write_csv(os.path.join(export_path, "eep.latvec"), [lattice_vectors])
-        return lattice_vectors
-
-    @pyaedt_function_handler()
     def _export_all_ffd(self):
         exported_name_base = "eep"
         exported_name_map = exported_name_base + ".txt"
@@ -2259,7 +2209,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 metadata_file_name = os.path.join(export_path, "eep.json")
                 items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": frequency}
 
-                obj_list = self._create_geometries()
+                obj_list = self._create_geometries(export_path)
                 if obj_list:
                     items["model_info"] = obj_list
                     self.model_info.append(obj_list)
@@ -2283,12 +2233,24 @@ class FfdSolutionDataExporter(FfdSolutionData):
         return path_dict
 
     @pyaedt_function_handler()
-    def _create_geometries(self):
+    def _create_geometries(self, export_path):
         self._app.logger.info("Exporting Geometry...")
         model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = {}
         for obj in model_pv.objects:
-            obj_list[obj.name] = [obj.path, obj.color, obj.opacity, obj.units]
+            object_name = os.path.basename(obj.path)
+            name = os.path.splitext(object_name)[0]
+            original_path = os.path.dirname(obj.path)
+            new_path = os.path.join(export_path, object_name)
+
+            if not os.path.exists(new_path):
+                new_path = shutil.move(obj.path, export_path)
+            if os.path.exists(os.path.join(original_path, name + ".mtl")):
+                try:
+                    os.remove(os.path.join(original_path, name + ".mtl"))
+                except SystemExit:
+                    self.logger.warning("File can not be removed.")
+            obj_list[obj.name] = [new_path, obj.color, obj.opacity, obj.units]
         return obj_list
 
 

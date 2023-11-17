@@ -5728,7 +5728,6 @@ class Hfss(FieldAnalysis3D, object):
         sphere_name=None,
         variations=None,
         overwrite=True,
-        taper="flat",
     ):
         """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionDataExporter`` object.
         For phased array cases, only one phased array will be calculated.
