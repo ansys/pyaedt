@@ -1026,7 +1026,7 @@ class SiwaveSYZSimulationSetup(BaseSimulationSetup):
         - ``2``: Optimal accuracy```
 
         .. deprecated:: 0.7.5
-           Use :property:`si_slider_position` method instead.
+           Use :property:`si_slider_position` property instead.
 
         """
         warnings.warn("`set_si_slider` is deprecated. Use `si_slider_position` method instead.", DeprecationWarning)
