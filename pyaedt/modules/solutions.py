@@ -1075,12 +1075,37 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Contains Hfss Far Field Solution Data (ffd)."""
+    """Contains information from the far field solution data.
+    Load far field data from the element pattern files.
+
+    Parameters
+    ----------
+    eep_files : list
+        List of element pattern files for each frequency.
+    frequencies : list
+        List of frequencies.
+
+    Examples
+    --------
+
+    >>> import pyaedt
+    >>> from pyaedt.modules.solutions import FfdSolutionData
+    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> setup_name = "Setup1 : LastAdaptive"
+    >>> frequencies = [77e9]
+    >>> sphere = "3D"
+    >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+    >>> eep_files = data.eep_files
+    >>> frequencies = data.frequencies
+    >>> app.release_desktop()
+    >>> farfield_data = FfdSolutionData(frequencies=frequencies, eep_files=eep_files)
+    >>> farfield_data.polar_plot_3d_pyvista(qty_str="rETotal", quantity_format="dB10")
+    """
 
     def __init__(
         self,
-        frequencies,
         eep_files,
+        frequencies,
     ):
         self.logger = logging.getLogger(__name__)
 
@@ -1096,9 +1121,9 @@ class FfdSolutionData(object):
 
         if isinstance(eep_files, str):
             eep_files = [eep_files]
-        self._eep_files = eep_files
+        self.eep_files = eep_files
 
-        if len(self._eep_files) != len(self.frequencies):
+        if len(self.eep_files) != len(self.frequencies):
             raise Exception("Number of frequencies are different than the number of EEP files.")
 
         for eep in eep_files:
@@ -1112,13 +1137,12 @@ class FfdSolutionData(object):
             raise Exception("Wrong farfield file load.")
 
         self.eep_file_info = self._eep_file_info_list[0]
-        self.taper = "flat"
         self.all_port_names = list(self.eep_file_info.keys())
 
         self._phase_offset = [0] * len(self.all_port_names)
         self._mag_offset = [1] * len(self.all_port_names)
         self._origin = [0, 0, 0]
-        # self.lattice_vectors = None
+        self._taper = "flat"
 
         self.model_info = []
         self._is_array = []
@@ -1126,6 +1150,7 @@ class FfdSolutionData(object):
         self._array_dimension = []
         self._cell_position = []
         self._lattice_vector = []
+        self.mesh = None
 
         for eep in eep_files:
             metadata_file = os.path.join(os.path.dirname(eep), "eep.json")
@@ -1149,14 +1174,20 @@ class FfdSolutionData(object):
         self.__model_units = "meter"
         self.frequency = self.frequencies[0]
 
+        self.a_min = 9999999999
+        self.a_max = 0
+        self.b_min = 9999999999
+        self.b_max = 0
+        if self.port_index:
+            for row, col in self.port_index.values():
+                self.a_min = min(self.a_min, row - 1)
+                self.a_max = max(self.a_max, row - 1)
+                self.b_min = min(self.b_min, col - 1)
+                self.b_max = max(self.b_max, col - 1)
+
     @property
     def frequency(self):
-        """Get/set the Active Frequency.
-
-        Returns
-        -------
-        float
-        """
+        """Active frequency."""
         return self._frequency
 
     @frequency.setter
@@ -1169,7 +1200,7 @@ class FfdSolutionData(object):
                 self._frequency = val
                 self._freq_index = self.frequencies.index(val)
                 self.eep_file_info = self._eep_file_info_list[self._freq_index]
-                self.farfield_data = self.combine_farfields()
+                self.farfield_data = self.combine_farfield()
             else:
                 self.logger.error("Wrong farfield information.")
         else:
@@ -1177,12 +1208,7 @@ class FfdSolutionData(object):
 
     @property
     def frequency_value(self):
-        """Frequency value in Hz.
-
-        Returns
-        -------
-        float
-        """
+        """Frequency value in Hz."""
         if isinstance(self.frequency, str):
             frequency, units = decompose_variable_value(str(self.frequency))
             return unit_converter(frequency, "Freq", units, "Hz")
@@ -1191,12 +1217,7 @@ class FfdSolutionData(object):
 
     @property
     def phase_offset(self):
-        """Additional phase offset in degrees on each port. Useful when element has more than one port.
-
-        Returns
-        -------
-        list
-        """
+        """List of additional phase offset in degrees on each port. Useful when element has more than one port."""
         return self._phase_offset
 
     @phase_offset.setter
@@ -1208,16 +1229,11 @@ class FfdSolutionData(object):
             for phase in phases:
                 phases_to_rad.append(math.radians(phase))
             self._phase_offset = phases_to_rad
-            self.farfield_data = self.combine_farfields()
+            self.farfield_data = self.combine_farfield()
 
     @property
     def mag_offset(self):
-        """Additional magnitude on each port. Useful when element has more than one port.
-
-        Returns
-        -------
-        list
-        """
+        """List of additional magnitudes on each port. Useful when element has more than one port."""
         return self._mag_offset
 
     @mag_offset.setter
@@ -1226,10 +1242,31 @@ class FfdSolutionData(object):
             self.logger.error("Number of magnitude must be equal to number of ports")
         else:
             self._mag_offset = mags
-            self.farfield_data = self.combine_farfields()
+            self.farfield_data = self.combine_farfield()
+
+    @property
+    def taper(self):
+        """Taper type.
+
+        Options are:
+        - "flat"
+        - "uniform"
+        - "cosine"
+        - "triangular"
+        - "hamming"
+        """
+        return self._taper
+
+    @taper.setter
+    def taper(self, val):
+        if val.lower() in ("flat", "uniform", "cosine", "triangular", "hamming"):
+            self._taper = val
+        else:
+            self.logger.error("This taper is not implemented")
 
     @property
     def origin(self):
+        """Far field origin."""
         return self._origin
 
     @origin.setter
@@ -1238,33 +1275,31 @@ class FfdSolutionData(object):
             self.logger.error("Wrong origin")
         else:
             self._origin = vals
-            self.farfield_data = self.combine_farfields()
+            self.farfield_data = self.combine_farfield()
 
     @pyaedt_function_handler()
-    def assign_weight(self, a, b, taper="flat", port_index=0):
+    def _assign_weight(self, a, b):
         """Assign weight to array.
 
         Parameters
         ----------
         a : int
-            Inndex of array, column.
+            Index of array, column.
         b : int
-            Inndex of array, row.
-        taper : string, optional
-            This is the type of taper we want to apply. The default is 'flat'.
-            It can be ``"cosine"``, ``"triangular"``, ``"hamming"`` or ``"flat"``.
-        port_index
+            Index of array, row.
 
         Returns
         -------
         float
             Weight to applied to specific index of array.
         """
+        taper = self.taper
+
+        if taper.lower() in ("flat", "uniform") or not self._is_array:
+            return 1
 
         a = int(a)
         b = int(b)
-        if taper.lower() == "flat" or not self._is_array:
-            return self.mag_offset[port_index]
 
         cosinePow = 1
         edgeTaper_dB = -200
@@ -1274,10 +1309,17 @@ class FfdSolutionData(object):
         threshold = 1e-10
 
         # find the distance between current cell and array center in terms of index
-        length_in_direction1 = a - self.CenterA
-        length_in_direction2 = b - self.CenterB
-        max_length_in_dir1 = self.AMax
-        max_length_in_dir2 = self.BMax
+        lattice_vector = self._lattice_vector[self._freq_index]
+        if not lattice_vector or not len(lattice_vector) == 6:
+            return 1
+
+        center_a = (self.a_min + self.a_max) / 2
+        center_b = (self.b_min + self.b_max) / 2
+
+        length_in_direction1 = a - center_a
+        length_in_direction2 = b - center_b
+        max_length_in_dir1 = self.a_max - self.a_min
+        max_length_in_dir2 = self.b_max - self.b_min
 
         if taper.lower() == "cosine":  # Cosine
             if max_length_in_dir1 < threshold:
@@ -1313,9 +1355,28 @@ class FfdSolutionData(object):
         else:
             return 0
 
-        return w1 * w2 * self.mag_offset[port_index]
+        return w1 * w2
 
-    def phase_shift_steering(self, a, b, theta, phi):
+    def _phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
+        """Element phase shift for a specific theta and phi scan angle in degrees.
+        Calculates phase shifts between array elements in A and B directions given the lattice vector.
+
+        Parameters
+        ----------
+        a : int
+            Index of array, column.
+        b : int
+            Index of array, row.
+        theta : float
+            Theta scan angle in degree. Default `0.0`.
+        phi : float
+            Phi scan angle in degree. Default `0.0`.
+
+        Returns
+        -------
+        float
+            Phase shift in degrees.
+        """
         c = 299792458
         k = (2 * math.pi * self.frequency_value) / c
         a = int(a)
@@ -1336,27 +1397,20 @@ class FfdSolutionData(object):
         return np.rad2deg(phase_shift)
 
     @pyaedt_function_handler()
-    def combine_farfields(self, phi_scan=0, theta_scan=0):
-        """Compute the far field pattern calculated for a specific phi/scan angle requested.
-        This is calculated based on the lattice vector spacing and the embedded element
-        patterns of a ca-ddm or fa-ddm array in HFSS.
-        Calculates phase shifts between array elements in A and B directions,
-        PhaseShiftA and PhaseShiftB, given Wave Vector (k), lattice vectors
-        (Ax, Ay, Bx, By), Scan angles (theta, phi) using formula below
-        Phase Shift A = - (Ax*k*sin(theta)*cos(phi) + Ay*k*sin(theta)*sin(phi))
-        Phase Shift B = - (Bx*k*sin(theta)*cos(phi) + By*k*sin(theta)*sin(phi)).
+    def combine_farfield(self, phi_scan=0, theta_scan=0):
+        """Compute the far field pattern calculated for a specific phi and theta scan angle requested.
 
         Parameters
         ----------
-        phi_scan : int, float
-            Spherical cs for desired scan angle of beam.
-        theta_scan: : int, float
-            Spherical cs for desired scan angle of beam.
+        phi_scan : float
+            Phi scan angle in degree. Default `0.0`.
+        theta_scan : float
+            Theta scan angle in degree. Default `0.0`.
 
         Returns
         -------
         dict
-            Updated quantities dictionary.
+            Far field data dictionary.
         """
         w_dict = {}
         w_dict_ang = {}
@@ -1370,8 +1424,9 @@ class FfdSolutionData(object):
             index_str = self.port_index[port_name]
             a = index_str[0] - 1
             b = index_str[1] - 1
-            phase_shift = self.phase_shift_steering(a, b, theta_scan, phi_scan)
-            w_mag = np.round(np.abs(self.assign_weight(a=a, b=b, port_index=port_cont, taper=self.taper)), 3)
+            phase_shift = self._phase_shift_steering(a, b, theta_scan, phi_scan)
+            magnitude = self._assign_weight(a=a, b=b)
+            w_mag = magnitude * self.mag_offset[port_cont]
             w_ang = np.deg2rad(self.phase_offset[port_cont] + phase_shift)
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
@@ -1446,77 +1501,103 @@ class FfdSolutionData(object):
     @pyaedt_function_handler()
     def plot_farfield_contour(
         self,
-        qty_str="RealizedGain",
+        farfield_quantity="RealizedGain",
         phi_scan=0,
         theta_scan=0,
         title="RectangularPlot",
-        quantity_format="dB10",
+        format_quantity="dB10",
         export_image_path=None,
         levels=64,
+        show=True,
         **kwargs,
     ):
         """Create a Contour plot of specified quantity.
 
         Parameters
         ----------
-        qty_str : str, optional
-            Quantity to plot. Default `"RealizedGain"`.
+        farfield_quantity : str, optional
+            Far field quantity to plot. The default is`"RealizedGain"`.
+            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
+            `"rETheta"`, `"rEPhi"`.
         phi_scan : float, int, optional
-            Phi Scan Angle in degree. Default `0`.
+            Phi scan angle in degree. Default `0`.
         theta_scan : float, int, optional
-            Theta Scan Angle in degree. Default `0`.
+            Theta scan angle in degree. Default `0`.
         title : str, optional
             Plot title. Default `"RectangularPlot"`.
-        quantity_format : str, optional
+        format_quantity : str, optional
             Conversion data function.
             Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         levels : int, optional
                 Colormap levels. Default is `64`.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is `True`.
+
         Returns
         -------
         :class:`matplotlib.plt`
-            Matplotlib fig object.
+            If show is `True`, it returns a matplotlib figure instance of the plot.
+            If show is `False`, it returns the plotted curve.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> setup_name = "Setup1 : LastAdaptive"
+        >>> frequencies = [77e9]
+        >>> sphere = "3D"
+        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data.plot_farfield_contour()
+
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
             if kwargs["convert_to_db"]:
-                quantity_format = "dB10"
+                format_quantity = "dB10"
             else:
-                quantity_format = "abs"
-        data = self.combine_farfields(phi_scan, theta_scan)
-        if qty_str == "":
-            qty_to_plot = data
-            qty_str = "Data"
-        else:
-            qty_to_plot = data[qty_str]
-        qty_to_plot = np.reshape(qty_to_plot, (data["nTheta"], data["nPhi"]))
+                format_quantity = "abs"
+        if "qty_str" in kwargs:  # pragma: no cover
+            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
+            farfield_quantity = kwargs["qty_str"]
+
+        data = self.combine_farfield(phi_scan, theta_scan)
+        if farfield_quantity not in data:
+            self.logger.error("Far field quantity not available")
+            return False
+
+        data_to_plot = data[farfield_quantity]
+        data_to_plot = conversion_function(data_to_plot, format_quantity)
+        if not isinstance(data_to_plot, np.ndarray):
+            self.logger.error("Wrong format quantity")
+            return False
+        data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
         th, ph = np.meshgrid(data["Theta"], data["Phi"])
-
-        qty_to_plot = conversion_function(qty_to_plot, quantity_format)
-
-        return plot_contour(
-            x=th,
-            y=ph,
-            qty_to_plot=qty_to_plot,
-            xlabel="Theta (degree)",
-            ylabel="Phi (degree)",
-            title=title,
-            levels=levels,
-            snapshot_path=export_image_path,
-        )
+        if show:
+            return plot_contour(
+                x=th,
+                y=ph,
+                qty_to_plot=data_to_plot,
+                xlabel="Theta (degree)",
+                ylabel="Phi (degree)",
+                title=title,
+                levels=levels,
+                snapshot_path=export_image_path,
+            )
+        else:
+            return data_to_plot
 
     @pyaedt_function_handler()
     def plot_2d_cut(
         self,
-        qty_str="RealizedGain",
+        farfield_quantity="RealizedGain",
         primary_sweep="phi",
         secondary_sweep_value=0,
         phi_scan=0,
         theta_scan=0,
         title="Far Field Cut",
-        quantity_format="dB10",
+        format_quantity="dB10",
         export_image_path=None,
         show=True,
         is_polar=False,
@@ -1526,48 +1607,64 @@ class FfdSolutionData(object):
 
         Parameters
         ----------
-        qty_str : str, optional
+        farfield_quantity : str, optional
             Quantity to plot. Default `"RealizedGain"`.
+            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
+            `"rETheta"`, `"rEPhi"`.
         primary_sweep : str, optional.
             X Axis variable. Default is `"phi"`. Option is  `"theta"`.
         secondary_sweep_value : float, list, string, optional
             List of cuts on secondary sweep to plot. Options are `"all"`, single value float or list of float.
         phi_scan : float, int, optional
-            Phi Scan Angle in degree. Default `0`.
+            Phi scan angle in degree. Default `0`.
         theta_scan : float, int, optional
-            Theta Scan Angle in degree. Default `0`.
+            Theta scan angle in degree. Default `0`.
         title : str, optional
             Plot title. Default `"RectangularPlot"`.
-        quantity_format : str, optional
+        format_quantity : str, optional
             Conversion data function.
             Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is `True`.
+        is_polar : bool, optional
+            Set to `True` if this is a polar plot.
 
         Returns
         -------
         :class:`matplotlib.plt`
             If show is `True`, it returns a matplotlib figure instance of the plot.
             If show is `False`, it returns the plotted curves.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> setup_name = "Setup1 : LastAdaptive"
+        >>> frequencies = [77e9]
+        >>> sphere = "3D"
+        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data.plot_2d_cut(theta_scan=20)
+
         """
 
-        # if is_polar:
-        #     sw = self.to_radians(self.primary_sweep_values)
-        # else:
-        #     sw = self.primary_sweep_values
-
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
             if kwargs["convert_to_db"]:
-                quantity_format = "dB10"
+                format_quantity = "dB10"
             else:
-                quantity_format = "abs"
+                format_quantity = "abs"
+        if "qty_str" in kwargs:  # pragma: no cover
+            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
+            farfield_quantity = kwargs["qty_str"]
 
-        data = self.combine_farfields(phi_scan, theta_scan)
+        data = self.combine_farfield(phi_scan, theta_scan)
+        if farfield_quantity not in data:
+            self.logger.error("Far field quantity not available")
+            return False
 
-        data_to_plot = data[qty_str]
+        data_to_plot = data[farfield_quantity]
 
         curves = []
         if primary_sweep == "phi":
@@ -1588,7 +1685,10 @@ class FfdSolutionData(object):
             for el in data[y_key]:
                 idx = self._find_nearest(data[y_key], el)
                 y = temp[idx]
-                y = conversion_function(y, quantity_format)
+                y = conversion_function(y, format_quantity)
+                if not isinstance(y, np.ndarray):  # pragma: no cover
+                    self.logger.error("Wrong format quantity")
+                    return False
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
@@ -1596,13 +1696,19 @@ class FfdSolutionData(object):
                 theta_idx = self._find_nearest(data[y_key], el)
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
-                    y = conversion_function(y, quantity_format)
+                    y = conversion_function(y, format_quantity)
+                    if not isinstance(y, np.ndarray):  # pragma: no cover
+                        self.logger.error("Wrong format quantity")
+                        return False
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
-            y = conversion_function(y, quantity_format)
+            y = conversion_function(y, format_quantity)
+            if not isinstance(y, np.ndarray):  # pragma: no cover
+                self.logger.error("Wrong format quantity")
+                return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
         if show:
@@ -1613,7 +1719,7 @@ class FfdSolutionData(object):
                 return plot_polar_chart(
                     curves,
                     xlabel=xlabel,
-                    ylabel=qty_str,
+                    ylabel=farfield_quantity,
                     title=title,
                     snapshot_path=export_image_path,
                     show_legend=show_legend,
@@ -1622,7 +1728,7 @@ class FfdSolutionData(object):
                 return plot_2d_chart(
                     curves,
                     xlabel=xlabel,
-                    ylabel=qty_str,
+                    ylabel=farfield_quantity,
                     title=title,
                     snapshot_path=export_image_path,
                     show_legend=show_legend,
@@ -1633,42 +1739,74 @@ class FfdSolutionData(object):
     @pyaedt_function_handler()
     def polar_plot_3d(
         self,
-        qty_str="RealizedGain",
+        farfield_quantity="RealizedGain",
         phi_scan=0,
         theta_scan=0,
         title="3D Plot",
-        quantity_format="dB10",
+        format_quantity="dB10",
         export_image_path=None,
+        show=True,
         **kwargs,
     ):
         """Create a 3d plot of specified quantity.
 
         Parameters
         ----------
-        qty_str : str, optional
-            Quantity to plot. Default `"RealizedGain"`.
+        farfield_quantity : str, optional
+            Far field quantity to plot. The default is`"RealizedGain"`.
+            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
+            `"rETheta"`, `"rEPhi"`.
         phi_scan : float, int, optional
-            Phi Scan Angle in degree. Default `0`.
+            Phi scan angle in degree. Default `0`.
         theta_scan : float, int, optional
-            Theta Scan Angle in degree. Default `0`.
+            Theta scan angle in degree. Default `0`.
         title : str, optional
             Plot title. Default `"3D Plot"`.
-        quantity_format : str, optional
+        format_quantity : str, optional
             Conversion data function.
             Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is `True`.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+            If show is `True`, it returns a matplotlib figure instance of the plot.
+            If show is `False`, it returns the x, y ,z coordinates of the 3d far field.
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> setup_name = "Setup1 : LastAdaptive"
+        >>> frequencies = [77e9]
+        >>> sphere = "3D"
+        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data.polar_plot_3d(theta_scan=10)
 
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
             if kwargs["convert_to_db"]:
-                quantity_format = "dB10"
+                format_quantity = "dB10"
             else:
-                quantity_format = "abs"
-        data = self.combine_farfields(phi_scan, theta_scan)
+                format_quantity = "abs"
+        if "qty_str" in kwargs:  # pragma: no cover
+            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
+            farfield_quantity = kwargs["qty_str"]
 
-        ff_data = conversion_function(data[qty_str], quantity_format)
+        data = self.combine_farfield(phi_scan, theta_scan)
+        if farfield_quantity not in data:
+            self.logger.error("Far field quantity not available")
+            return False
+
+        ff_data = conversion_function(data[farfield_quantity], format_quantity)
+        if not isinstance(ff_data, np.ndarray):  # pragma: no cover
+            self.logger.error("Wrong format quantity")
+            return False
+
         # renormalize to 0 and 1
         ff_max = np.max(ff_data)
         ff_min = np.min(ff_data)
@@ -1682,29 +1820,36 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=export_image_path)
+        if show:
+            plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=export_image_path)
+        else:
+            return x, y, z
 
     @pyaedt_function_handler()
     def polar_plot_3d_pyvista(
         self,
-        qty_str="RealizedGain",
-        quantity_format="dB10",
+        farfield_quantity="RealizedGain",
+        format_quantity="dB10",
         rotation=None,
         export_image_path=None,
         show=True,
         show_as_standalone=False,
         pyvista_object=None,
         background=None,
+        scale_farfield=None,
         show_beam_slider=True,
+        show_geometry=True,
         **kwargs,
     ):
         """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
 
         Parameters
         ----------
-        qty_str : str, optional
+        farfield_quantity : str, optional
             Quantity to plot. Default `"RealizedGain"`.
-        quantity_format : str, optional
+            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
+            `"rETheta"`, `"rEPhi"`.
+        format_quantity : str, optional
             Conversion data function.
             Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
         export_image_path : str, optional
@@ -1716,6 +1861,16 @@ class FfdSolutionData(object):
             Either if the plot has to be shown or not. Default is `True`.
         show_as_standalone : bool, optional
             Either if the plot has to be shown as standalone or not. Default is `True`.
+        pyvista_object : :class:`Pyvista.Plotter`, optional
+            Pyvista instance defined externally.
+        background : list or str, optional
+            Background color if a list passed or background picture if string passed.
+        scale_farfield : list, optional
+            List with minimum and maximum value of the scale slider.
+        show_beam_slider : bool, optional
+            Whether the theta and phi scan slider is active or not.
+        show_geometry :
+            Whether the show geometry check box is active or not.
 
         Returns
         -------
@@ -1723,13 +1878,27 @@ class FfdSolutionData(object):
             Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
             In other cases return ``True`` when successful.
 
+        Examples
+        --------
+        >>> import pyaedt
+        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> setup_name = "Setup1 : LastAdaptive"
+        >>> frequencies = [77e9]
+        >>> sphere = "3D"
+        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data.polar_plot_3d_pyvista(qty_str="RealizedGain", format_quantity="dB10")
+
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
             if kwargs["convert_to_db"]:
-                quantity_format = "dB10"
+                format_quantity = "dB10"
             else:
-                quantity_format = "abs"
+                format_quantity = "abs"
+        if "qty_str" in kwargs:  # pragma: no cover
+            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
+            farfield_quantity = kwargs["qty_str"]
+
         if not rotation:
             rotation = np.eye(3)
         elif isinstance(rotation, (list, tuple)):
@@ -1738,8 +1907,15 @@ class FfdSolutionData(object):
         if background is None:
             background = [255, 255, 255]
             text_color = "black"
-        self.farfield_data = self.combine_farfields(phi_scan=0, theta_scan=0)
-        self.mesh = self._get_far_field_mesh(qty_str=qty_str, quantity_format=quantity_format)
+
+        farfield_data = self.combine_farfield(phi_scan=0, theta_scan=0)
+        if farfield_quantity not in farfield_data:
+            self.logger.error("Far field quantity not available")
+            return False
+        self.farfield_data = farfield_data
+
+        self.mesh = self.get_far_field_mesh(qty_str=farfield_quantity, quantity_format=format_quantity)
+
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -1756,7 +1932,7 @@ class FfdSolutionData(object):
         else:
             p = pyvista_object
 
-        uf = UpdateBeamForm(self, qty_str, quantity_format)
+        uf = UpdateBeamForm(self, farfield_quantity, format_quantity)
 
         default_background = [255, 255, 255]
         axes_color = [i / 255 for i in default_background]
@@ -1811,7 +1987,10 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self.farfield_data[qty_str], function_str=quantity_format)
+        data = conversion_function(self.farfield_data[farfield_quantity], function_str=format_quantity)
+        if not isinstance(data, np.ndarray):  # pragma: no cover
+            self.logger.error("Wrong format quantity")
+            return False
         max_data = np.max(data)
         min_data = np.min(data)
         ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[min_data, max_data], scalar_bar_args=sargs)
@@ -1834,9 +2013,12 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
-            np.max(self._array_dimension)
-            slider_max = int(np.ceil((np.max(self._array_dimension) / 2 / np.min(np.abs(p.bounds)))))
-            slider_min = 0
+            if not scale_farfield:
+                slider_max = int(np.ceil((np.max(self._array_dimension) / 2 / np.min(np.abs(p.bounds)))))
+                slider_min = 0
+            else:
+                slider_max = scale_farfield[1]
+                slider_min = scale_farfield[0]
             value = slider_max / 3
 
             p.add_slider_widget(
@@ -1853,7 +2035,13 @@ class FfdSolutionData(object):
             cad = []
             for cm in cad_mesh:
                 cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
-            p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
+
+            if not show_geometry:
+                p.add_checkbox_button_widget(toggle_vis_cad, value=False, position=(10, 70), size=30)
+                toggle_vis_cad(False)
+            else:
+                p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
+
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
         if export_image_path:
@@ -1866,6 +2054,19 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def _init_ffd(self, eep_file_info):
+        """Load far field information.
+
+        Parameters
+        ----------
+        eep_file_info : dict
+            Information about the far fields imported.
+            The keys of the dictionary represent the port names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         all_ports = self.all_port_names
         valid_ffd = True
 
@@ -1905,37 +2106,42 @@ class FfdSolutionData(object):
         return True
 
     @pyaedt_function_handler()
-    def _get_far_field_mesh(self, qty_str="RealizedGain", quantity_format="dB10", **kwargs):
-        """
-        :param qty_str: a string specifying the quantity to be plotted (default is "RealizedGain")
-        :param quantity_format: a string specifying the format of the quantity data (default is "dB10")
-        :param kwargs: additional keyword arguments
-        :return: a pyvista UnstructuredGrid object representing the far field mesh
+    def get_far_field_mesh(self, farfield_quantity="RealizedGain", format_quantity="dB10", **kwargs):
+        """Generate a PyVista UnstructuredGrid object that represents the far field mesh.
 
-        This method is used to generate a pyvista UnstructuredGrid object that represents the far field mesh
-         of the solution data. The far field data is obtained from the "farfield_data" attribute of the class.
-         The quantity to be plotted is specified by the "qty_str" parameter, which defaults to "RealizedGain".
-          The format of the quantity data can be specified using the "quantity_format" parameter,
-          which defaults to "dB10".
+        Parameters
+        ----------
+        farfield_quantity : str, optional
+            Far field quantity to plot. The default is`"RealizedGain"`.
+            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
+            `"rETheta"`, `"rEPhi"`.
+        format_quantity : str, optional
+            Conversion data function.
+            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
 
-        The method first checks if the "convert_to_db" keyword argument is present in the "kwargs" dictionary.
-        If present, it raises a warning indicating that this argument is deprecated since version 0.7.0 and should
-        be replaced with the "quantity_format" argument. If "convert_to_db" is True, "quantity_format" is set to "dB10",
-        otherwise it is set to "abs".
+        Returns
+        -------
+        :class:`Pyvista.Plotter`
+            UnstructuredGrid object representing the far field mesh
 
-        The far field data is then converted to the specified quantity format using the conversion_function() method.
-        The theta and phi angles are converted from degrees to radians using np.deg2rad(). The structured mesh for the
-        far field data is obtained using the get_structured_mesh() method from the generic.plot module.
-        The resulting structured mesh is returned as a pyvista UnstructuredGrid object.
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
             if kwargs["convert_to_db"]:
-                quantity_format = "dB10"
+                format_quantity = "dB10"
             else:
-                quantity_format = "abs"
+                format_quantity = "abs"
 
-        ff_data = conversion_function(self.farfield_data[qty_str], quantity_format)
+        data = self.farfield_data[farfield_quantity]
+        if farfield_quantity not in data:
+            self.logger.error("Far field quantity not available")
+            return False
+
+        ff_data = conversion_function(data, format_quantity)
+
+        if not isinstance(ff_data, np.ndarray):  # pragma: no cover
+            self.logger.error("Wrong format quantity")
+            return False
         theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
         phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
@@ -1945,6 +2151,19 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def _read_eep_files(self, eep_path):
+        """Reads the EEP file and populates all attributes with information about each port in the file.
+
+        Parameters
+        ----------
+        eep_path : str
+            Path to the EEP file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
         self._eep_file_info_list.append({})
         if os.path.exists(eep_path):
             with open(eep_path, "r") as reader:
@@ -1962,9 +2181,12 @@ class FfdSolutionData(object):
                         pattern[4],
                     ]
                     self.port_position[port] = [float(pattern[2]), float(pattern[3]), float(pattern[4])]
+            return True
+        return False
 
     @pyaedt_function_handler()
     def _get_geometry(self):
+        """Get 3d meshes."""
         from pyaedt.generic.plot import ModelPlotter
 
         if self._is_array:
@@ -1987,12 +2209,15 @@ class FfdSolutionData(object):
                     rotation = cell_col[2]
                     for component_obj in component_info[1:]:
                         if component_obj in model_info:
-                            model_pv.add_object(
-                                model_info[component_obj][0],
-                                model_info[component_obj][1],
-                                model_info[component_obj][2],
-                                model_info[component_obj][3],
-                            )
+                            eep_file_path = os.path.abspath(self.eep_files[self._freq_index])
+                            cad_path = os.path.join(os.path.dirname(eep_file_path), model_info[component_obj][0])
+                            if os.path.exists(cad_path):
+                                model_pv.add_object(
+                                    cad_path,
+                                    model_info[component_obj][1],
+                                    model_info[component_obj][2],
+                                    model_info[component_obj][3],
+                                )
 
                     model_pv.generate_geometry_mesh()
                     comp_meshes = []
@@ -2065,7 +2290,8 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        list of int
+        list
+            Element index.
         """
         port_index = {}
 
@@ -2123,7 +2349,35 @@ class FfdSolutionData(object):
 
 
 class FfdSolutionDataExporter(FfdSolutionData):
-    """ """
+    """Export far field solution data.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.Hfss`
+        HFSS application instance.
+    sphere_name : str
+        Infinite sphere to use.
+    setup_name : str
+        Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+    frequencies : list
+        Frequency list to export. String with units is valid and float in Hertz.
+    variations : dict, optional
+        Dictionary of all families including the primary sweep. The default value is ``None``.
+    overwrite : bool, optional
+        Whether to overwrite the existing far field solution data. The default is ``True``.
+    sbr_3d_comp_name : str, optional
+
+    Examples
+    --------
+    >>> import pyaedt
+    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> setup_name = "Setup1 : LastAdaptive"
+    >>> frequencies = [77e9]
+    >>> sphere = "3D"
+    >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+    >>> data.polar_plot_3d_pyvista(qty_str="rETotal", quantity_format="dB10")
+
+    """
 
     def __init__(
         self,
@@ -2151,10 +2405,11 @@ class FfdSolutionDataExporter(FfdSolutionData):
         else:
             self._app.logger.warning("Set phase center in port location manually")
         eep_files = self._export_all_ffd()
-        FfdSolutionData.__init__(self, self.frequencies, eep_files)
+        FfdSolutionData.__init__(self, eep_files, self.frequencies)
 
     @pyaedt_function_handler()
     def _export_all_ffd(self):
+        """Export far field solution data of each port."""
         exported_name_base = "eep"
         exported_name_map = exported_name_base + ".txt"
         sol_setup_name_str = self.setup_name.replace(":", "_").replace(" ", "")
@@ -2204,12 +2459,15 @@ class FfdSolutionDataExporter(FfdSolutionData):
             local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
             export_path = check_and_download_folder(local_path, export_path)
             if os.path.exists(export_path + "/" + exported_name_map):
-                path_dict.append(os.path.join(export_path, exported_name_map))
+                geometry_path = os.path.join(export_path, "geometry")
+                if not os.path.exists(geometry_path):
+                    os.mkdir(geometry_path)
 
+                path_dict.append(os.path.join(export_path, exported_name_map))
                 metadata_file_name = os.path.join(export_path, "eep.json")
                 items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": frequency}
 
-                obj_list = self._create_geometries(export_path)
+                obj_list = self._create_geometries(geometry_path)
                 if obj_list:
                     items["model_info"] = obj_list
                     self.model_info.append(obj_list)
@@ -2234,6 +2492,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
 
     @pyaedt_function_handler()
     def _create_geometries(self, export_path):
+        """Export geometry in OBJ format."""
         self._app.logger.info("Exporting Geometry...")
         model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = {}
@@ -2241,7 +2500,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
             object_name = os.path.basename(obj.path)
             name = os.path.splitext(object_name)[0]
             original_path = os.path.dirname(obj.path)
-            new_path = os.path.join(export_path, object_name)
+            new_path = os.path.join(os.path.abspath(export_path), object_name)
 
             if not os.path.exists(new_path):
                 new_path = shutil.move(obj.path, export_path)
@@ -2250,35 +2509,57 @@ class FfdSolutionDataExporter(FfdSolutionData):
                     os.remove(os.path.join(original_path, name + ".mtl"))
                 except SystemExit:
                     self.logger.warning("File can not be removed.")
-            obj_list[obj.name] = [new_path, obj.color, obj.opacity, obj.units]
+            obj_list[obj.name] = [
+                os.path.join(os.path.basename(export_path), object_name),
+                obj.color,
+                obj.opacity,
+                obj.units,
+            ]
         return obj_list
 
 
 class UpdateBeamForm:
-    def __init__(self, ff, qty_str, quantity_format):
+    """Update far field data. This class is used to interact with the far field theta and phi scan.
+
+    Parameters
+    ----------
+    ff : :class:`pyaedt.modules.solutions.FfdSolutionData`
+        Far field solution data instance.
+    farfield_quantity : str, optional
+        Quantity to plot. Default `"RealizedGain"`.
+    quantity_format : str, optional
+        Conversion data function.
+        Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+    """
+
+    def __init__(self, ff, farfield_quantity, quantity_format):
         self.output = ff.mesh
         self._phi = 0
         self._theta = 0
         # default parameters
         self.ff = ff
-        self.qty_str = qty_str
+        self.farfield_quantity = farfield_quantity
         self.quantity_format = quantity_format
 
+    @pyaedt_function_handler()
     def _update_both(self):
-        self.ff.farfield_data = self.ff.combine_farfields(phi_scan=self._phi, theta_scan=self._theta)
+        """Update far field."""
+        self.ff.farfield_data = self.ff.combine_farfield(phi_scan=self._phi, theta_scan=self._theta)
 
-        self.ff.mesh = self.ff._get_far_field_mesh(self.qty_str, self.quantity_format)
+        self.ff.mesh = self.ff.get_far_field_mesh(self.farfield_quantity, self.quantity_format)
 
         self.output.overwrite(self.ff.mesh)
         return
 
+    @pyaedt_function_handler()
     def update_phi(self, phi):
-        """Update the Pyvista Plot with new phi value."""
+        """Update new phi value."""
         self._phi = phi
         self._update_both()
 
+    @pyaedt_function_handler()
     def update_theta(self, theta):
-        """Update the Pyvista Plot with new theta value."""
+        """Update new theta value."""
         self._theta = theta
         self._update_both()
 
