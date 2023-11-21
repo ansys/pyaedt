@@ -138,6 +138,7 @@ def desktop():
     for key in keys:
         del _desktop_sessions[key]
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+    d.odesktop.SetTempDirectory(tempfile.gettempdir())
     d.disable_autosave()
     d.odesktop.SetDesktopConfiguration("All")
     d.odesktop.SetSchematicEnvironment(0)

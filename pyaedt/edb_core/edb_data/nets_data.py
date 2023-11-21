@@ -239,7 +239,7 @@ class EDBExtendedNetData(ExtendedNetDotNet):
                 {
                     i: v
                     for i, v in self._app._nets[net].components.items()
-                    if list(set(v.nets).intersection(nets)) != [net]
+                    if list(set(v.nets).intersection(nets)) != [net] and v.type in ["Resistor", "Inductor", "Capacitor"]
                 }
             )
         return comps_common
