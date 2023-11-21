@@ -5777,12 +5777,6 @@ class Hfss(FieldAnalysis3D, object):
             )
             self.logger.info("Far field sphere %s is created.", setup_name)
 
-        component_name = None
-        if self.solution_type == "SBR+" and self.modeler.user_defined_component_names:
-            antenna = self.modeler.user_defined_components[self.modeler.user_defined_component_names[0]]
-            if antenna.native_properties["Type"] == "Linked Antenna":
-                component_name = antenna.name
-
         return FfdSolutionDataExporter(
             self,
             sphere_name=sphere_name,
@@ -5790,7 +5784,6 @@ class Hfss(FieldAnalysis3D, object):
             frequencies=frequencies,
             variations=variations,
             overwrite=overwrite,
-            sbr_3d_comp_name=component_name,
         )
 
     @pyaedt_function_handler()

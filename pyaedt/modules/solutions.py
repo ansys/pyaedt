@@ -2388,7 +2388,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
         Dictionary of all families including the primary sweep. The default value is ``None``.
     overwrite : bool, optional
         Whether to overwrite the existing far field solution data. The default is ``True``.
-    sbr_3d_comp_name : str, optional
 
     Examples
     --------
@@ -2410,12 +2409,10 @@ class FfdSolutionDataExporter(FfdSolutionData):
         frequencies,
         variations=None,
         overwrite=True,
-        sbr_3d_comp_name=None,
     ):
         self._app = app
         self.sphere_name = sphere_name
         self.setup_name = setup_name
-        self.sbr_comp = sbr_3d_comp_name
         if not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
