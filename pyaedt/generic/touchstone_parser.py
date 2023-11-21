@@ -1,4 +1,4 @@
-from copy import deepcopy as copy
+from copy import copy
 import itertools
 import os
 import re
