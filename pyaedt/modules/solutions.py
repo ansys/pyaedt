@@ -1912,6 +1912,7 @@ class FfdSolutionData(object):
         if farfield_quantity not in farfield_data:
             self.logger.error("Far field quantity not available")
             return False
+
         self.farfield_data = farfield_data
 
         self.mesh = self.get_far_field_mesh(qty_str=farfield_quantity, quantity_format=format_quantity)
@@ -2092,15 +2093,11 @@ class FfdSolutionData(object):
                     self._raw_data[port] = temp_dict
                 else:
                     valid_ffd = False
-            if valid_ffd and len(self.port_index) == len(self.all_port_names):
-                # differential area of sphere, based on observation angle
-                self.d_theta = np.abs(theta_range[1] - theta_range[0])
-                self.d_phi = np.abs(phi_range[1] - phi_range[0])
-                self.diff_area = np.radians(self.d_theta) * np.radians(self.d_phi) * np.sin(np.radians(theta_range))
-                self.num_samples = len(temp_dict["rETheta"])
-
         else:
             self.logger.error("Wrong far fields imported")
+            return False
+
+        if not valid_ffd:
             return False
 
         return True
@@ -2132,16 +2129,18 @@ class FfdSolutionData(object):
             else:
                 format_quantity = "abs"
 
-        data = self.farfield_data[farfield_quantity]
-        if farfield_quantity not in data:
+        if farfield_quantity not in self.farfield_data:
             self.logger.error("Far field quantity not available")
             return False
+
+        data = self.farfield_data[farfield_quantity]
 
         ff_data = conversion_function(data, format_quantity)
 
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
+
         theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
         phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
