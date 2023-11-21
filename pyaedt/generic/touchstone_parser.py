@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy
 import itertools
 import os
 import re
@@ -85,18 +85,6 @@ class TouchstoneData(rf.Network):
         elif os.path.exists(touchstone_file):
             rf.Network.__init__(self, touchstone_file)
         self.log_x = True
-
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-
-        for key, value in self.__dict__.items():
-            if key == "solution_data":
-                setattr(result, key, value)
-            else:
-                setattr(result, key, deepcopy(value, memo))
-        return result
 
     @pyaedt_function_handler()
     def get_insertion_loss_index(self, threshold=-3):
@@ -226,7 +214,7 @@ class TouchstoneData(rf.Network):
         TouchstoneData
 
         """
-        ts_diff = deepcopy(self)
+        ts_diff = copy(self)
         port_count = len(ts_diff.port_names)
 
         if num_of_diff_ports is None:
