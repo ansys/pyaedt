@@ -220,6 +220,241 @@ class CommonSetup(PropsManager, object):
         self._setupname = name
         self.props["Name"] = name
 
+    @pyaedt_function_handler()
+    def get_solution_data(
+        self,
+        expressions=None,
+        domain=None,
+        variations=None,
+        primary_sweep_variable=None,
+        report_category=None,
+        context=None,
+        polyline_points=1001,
+        math_formula=None,
+        sweep_name=None,
+    ):
+        """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+        Data to be retrieved from Electronics Desktop are any simulation results available in that
+        specific simulation context.
+        Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
+            Default is `None` which will return all traces.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
+        variations : dict, optional
+            Dictionary of all families including the primary sweep.
+            The default is ``None`` which will use the nominal variations of the setup.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"None"`` which, depending on the context,
+            will internally assign the primary sweep to:
+            1. ``Freq`` for frequency domain results,
+            2. ``Time`` for transient results,
+            3. ``Theta`` for radiation patterns,
+            4. ``distance`` for field plot over a polyline.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            To get the list of available categories user can use method ``available_report_types``.
+        context : str, dict, optional
+            This is the context of the report.
+            The default is ``None``. It can be:
+            1. `None`
+            2. Infinite Sphere name for Far Fields Plot.
+            3. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+        polyline_points : int, optional
+            Number of points on which to create the report for plots on polylines.
+            This parameter is valid for ``Fields`` plot only.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+        sweep_name : str, optional
+            Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.solutions.SolutionData`
+            Solution Data object.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> data1 = aedtapp.post.get_solution_data(
+        ...    "GainTotal",
+        ...    aedtapp.nominal_adaptive,
+        ...    variations=variations,
+        ...    primary_sweep_variable="Phi",
+        ...    secondary_sweep_variable="Theta",
+        ...    context="3D",
+        ...    report_category="Far Fields",
+        ...)
+
+        >>> data2 =aedtapp.post.get_solution_data(
+        ...    "S(1,1)",
+        ...    aedtapp.nominal_sweep,
+        ...    variations=variations,
+        ...)
+        >>> data2.plot()
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> data3 = maxwell_2d.post.get_solution_data(
+        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+        ... )
+        >>> data3.plot("InputCurrent(PHA)")
+
+        >>> from pyaedt import Circuit
+        >>> circuit = Circuit()
+        >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", primary_sweep_variable="Spectrum", domain="Spectral",
+        ...     context=context
+        ...)
+        """
+        if sweep_name:
+            setup_sweep_name = [
+                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep_name in i
+            ]
+        else:
+            setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+        if setup_sweep_name:
+            return self._app.post.get_solution_data(
+                expressions=expressions,
+                domain=domain,
+                variations=variations,
+                primary_sweep_variable=primary_sweep_variable,
+                report_category=report_category,
+                context=context,
+                polyline_points=polyline_points,
+                math_formula=math_formula,
+                setup_sweep_name=setup_sweep_name[0],
+            )
+        return None
+
+    @pyaedt_function_handler()
+    def create_report(
+        self,
+        expressions=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        secondary_sweep_variable=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        plotname=None,
+        sweep_name=None,
+    ):
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep", "Time", "DCIR".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        secondary_sweep_variable : str, optional
+            Name of the secondary sweep variable in 3D Plots.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``.
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
+            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+        polyline_points : int, optional,
+            Number of points on which create the report for plots on polylines.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+        sweep_name : str, optional
+            Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            ``True`` when successful, ``False`` when failed.
+
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> aedtapp.post.setups[0].create_report(
+        ...    "dB(S(1,1))",
+        ...    variations=variations,
+        ...    primary_sweep_variable="Freq",
+        ...)
+
+        >>> aedtapp.post.create_report(
+        ...    "S(1,1)",
+        ...    variations=variations,
+        ...    plot_type="Smith Chart",
+        ...)
+        """
+        if sweep_name:
+            setup_sweep_name = [
+                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep_name in i
+            ]
+        else:
+            setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+        if setup_sweep_name:
+            return self._app.post.create_report(
+                expressions=expressions,
+                domain=domain,
+                variations=variations,
+                primary_sweep_variable=primary_sweep_variable,
+                secondary_sweep_variable=secondary_sweep_variable,
+                report_category=report_category,
+                plot_type=plot_type,
+                context=context,
+                polyline_points=polyline_points,
+                plotname=plotname,
+                setup_sweep_name=setup_sweep_name[0],
+            )
+        return None
+
 
 class Setup(CommonSetup):
     """Initializes, creates, and updates a 3D setup.
@@ -1180,6 +1415,168 @@ class SetupCircuit(CommonSetup):
             setup_name = self.name
         self._odesign.EnableSolutionSetup(setup_name, False)
         return True
+
+    @pyaedt_function_handler()
+    def get_solution_data(
+        self,
+        expressions=None,
+        domain=None,
+        variations=None,
+        primary_sweep_variable=None,
+        report_category=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        math_formula=None,
+    ):
+        """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+        Data to be retrieved from Electronics Desktop are any simulation results available in that
+        specific simulation context.
+        Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
+            Default is `None` which will return all traces.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
+        variations : dict, optional
+            Dictionary of all families including the primary sweep.
+            The default is ``None`` which will use the nominal variations of the setup.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"None"`` which, depending on the context,
+            will internally assign the primary sweep to:
+            1. ``Freq`` for frequency domain results,
+            2. ``Time`` for transient results,
+            3. ``Theta`` for radiation patterns,
+            4. ``distance`` for field plot over a polyline.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            To get the list of available categories user can use method ``available_report_types``.
+        context : str, dict, optional
+            This is the context of the report.
+            The default is ``None``. It can be:
+            1. `None`
+            2. ``"Differential Pairs"``
+            3. Reduce Matrix Name for Q2d/Q3d solution
+            4. Infinite Sphere name for Far Fields Plot.
+            5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+        subdesign_id : int, optional
+            Subdesign ID for exporting a Touchstone file of this subdesign.
+            This parameter is valid for ``Circuit`` only.
+            The default value is ``None``.
+        polyline_points : int, optional
+            Number of points on which to create the report for plots on polylines.
+            This parameter is valid for ``Fields`` plot only.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.solutions.SolutionData`
+            Solution Data object.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        return self._app.post.get_solution_data(
+            expressions=expressions,
+            domain=domain,
+            variations=variations,
+            primary_sweep_variable=primary_sweep_variable,
+            report_category=report_category,
+            context=context,
+            subdesign_id=subdesign_id,
+            polyline_points=polyline_points,
+            math_formula=math_formula,
+            setup_sweep_name=self.name,
+        )
+
+    @pyaedt_function_handler()
+    def create_report(
+        self,
+        expressions=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        secondary_sweep_variable=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        plotname=None,
+    ):
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep", "Time", "DCIR".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        secondary_sweep_variable : str, optional
+            Name of the secondary sweep variable in 3D Plots.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``.
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
+            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+        polyline_points : int, optional,
+            Number of points on which create the report for plots on polylines.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            ``True`` when successful, ``False`` when failed.
+
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+        """
+        return self._app.post.create_report(
+            expressions=expressions,
+            domain=domain,
+            variations=variations,
+            primary_sweep_variable=primary_sweep_variable,
+            secondary_sweep_variable=secondary_sweep_variable,
+            report_category=report_category,
+            plot_type=plot_type,
+            context=context,
+            polyline_points=polyline_points,
+            plotname=plotname,
+            subdesign_id=subdesign_id,
+            setup_sweep_name=self.name,
+        )
 
 
 class Setup3DLayout(CommonSetup):

@@ -889,7 +889,16 @@ class Modeler3D(Primitives3D):
             lines = f.read().splitlines()
             id = 0
             for line in lines:
-                line_split = [line[i : i + 8] for i in range(0, len(line), 8)]
+                if line.startswith("$") or line.startswith("*"):
+                    continue
+                if "*" in line:
+                    line = line.strip()[:-1] + lines[lines.index(line) + 1][8:]
+                    line_split = [line[:8]] + [line[i : i + 16] for i in range(8, len(line), 16)]
+                else:
+                    line_split = [line[i : i + 8] for i in range(0, len(line), 8)]
+
+                line_split = [i for i in line_split if i.replace(" ", "").replace("\t", "")]
+
                 if len(line_split) < 5:
                     continue
                 if line_split[0].startswith("GRID"):
@@ -915,7 +924,16 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][int(line_split[1])] = id
                         id += 1
                     except:
-                        pass
+                        try:
+                            nas_to_dict["Points"][int(line_split[1])] = [
+                                float(line_split[2]),
+                                float(line_split[3]),
+                                float(line_split[4]),
+                            ]
+                            nas_to_dict["PointsId"][int(line_split[1])] = id
+                            id += 1
+                        except:
+                            pass
                 elif line_split[0].startswith("CTRIA3"):
                     if int(line_split[2]) in nas_to_dict["Triangles"]:
                         nas_to_dict["Triangles"][int(line_split[2])].append(
@@ -926,13 +944,16 @@ class Modeler3D(Primitives3D):
                             ]
                         )
                     else:
-                        nas_to_dict["Triangles"][int(line_split[2])] = [
-                            [
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
+                        try:
+                            nas_to_dict["Triangles"][int(line_split[2])] = [
+                                [
+                                    int(line_split[3]),
+                                    int(line_split[4]),
+                                    int(line_split[5]),
+                                ]
                             ]
-                        ]
+                        except:
+                            pass
                 elif line_split[0].startswith("CPENTA"):
                     if int(line_split[2]) in nas_to_dict["Solids"]:
                         nas_to_dict["Solids"][int(line_split[2])].append(
