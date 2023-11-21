@@ -2102,16 +2102,16 @@ class Material(CommonMaterial, object):
         ----------
         kdc : float
             Coefficient considering the DC flux bias effects
-        cut_depth : str
+        cut_depth : str, optional
             Equivalent cut depth.
             You use this parameter to consider the manufacturing effects on core loss computation.
             The default value is ``"1mm"``.
-        thickness : str
+        thickness : str, optional
             Thickness specified in terms of the value plus the unit.
             The default is ``"0.5mm"``.
-        conductivity : float
+        conductivity : float, optional
             Conductivity. The unit is S/m.
-            The default is ``"0S/m"``.
+            The default is ``"0 S/m"``.
         coefficient_setup : str, optional
             Core loss unit. The default is ``"w_per_cubic_meter"``.
             Options are ``"kw_per_cubic_meter"``, ``"w_per_cubic_meter"``, ``"w_per_kg"``,
