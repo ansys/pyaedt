@@ -630,23 +630,32 @@ class ComponentArray(object):
             Dictionary of the center position and part name for all 3D components.
 
         """
-        cell_info = [[None for _ in range(self.a_size)] for _ in range(self.b_size)]
+        cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
         lattice_vector = self.lattice_vector()
+        # Perpendicular lattice vector
+        a_x_dir = True
         if lattice_vector[0] != 0:
-            y_spacing = lattice_vector[0]
+            x_spacing = lattice_vector[0]
         else:
-            y_spacing = lattice_vector[1]
-
-        if lattice_vector[3] != 0:
+            a_x_dir = False
             x_spacing = lattice_vector[3]
+
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
         else:
-            x_spacing = lattice_vector[4]
+            y_spacing = lattice_vector[4]
 
         cells = self.cells
         for row_cell in range(0, self.a_size):
             for col_cell in range(0, self.b_size):
-                y_position = row_cell * x_spacing
-                x_position = col_cell * y_spacing
+                if a_x_dir:
+                    y_position = col_cell * y_spacing
+                    x_position = row_cell * x_spacing
+
+                else:
+                    y_position = row_cell * y_spacing
+                    x_position = col_cell * x_spacing
+
                 cell_info[row_cell][col_cell] = [
                     cells[row_cell][col_cell].component,
                     [x_position, y_position, 0.0],

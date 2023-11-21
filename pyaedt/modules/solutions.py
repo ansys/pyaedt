@@ -1225,10 +1225,7 @@ class FfdSolutionData(object):
         if len(phases) != len(self.all_port_names):
             self.logger.error("Number of phases must be equal to number of ports")
         else:
-            phases_to_rad = []
-            for phase in phases:
-                phases_to_rad.append(math.radians(phase))
-            self._phase_offset = phases_to_rad
+            self._phase_offset = phases
             self.farfield_data = self.combine_farfield()
 
     @property
@@ -1266,7 +1263,7 @@ class FfdSolutionData(object):
 
     @property
     def origin(self):
-        """Far field origin."""
+        """Far field origin in meters."""
         return self._origin
 
     @origin.setter
@@ -1295,7 +1292,7 @@ class FfdSolutionData(object):
         """
         taper = self.taper
 
-        if taper.lower() in ("flat", "uniform") or not self._is_array:
+        if taper.lower() in ("flat", "uniform") or not self._is_array[self._freq_index]:
             return 1
 
         a = int(a)
@@ -1424,8 +1421,12 @@ class FfdSolutionData(object):
             index_str = self.port_index[port_name]
             a = index_str[0] - 1
             b = index_str[1] - 1
-            phase_shift = self._phase_shift_steering(a, b, theta_scan, phi_scan)
-            magnitude = self._assign_weight(a=a, b=b)
+            if self._is_array[self._freq_index]:
+                phase_shift = self._phase_shift_steering(a, b, theta_scan, phi_scan)
+                magnitude = self._assign_weight(a=a, b=b)
+            else:
+                phase_shift = 0
+                magnitude = 1
             w_mag = magnitude * self.mag_offset[port_cont]
             w_ang = np.deg2rad(self.phase_offset[port_cont] + phase_shift)
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
@@ -1945,7 +1946,7 @@ class FfdSolutionData(object):
         elif isinstance(background, str):
             p.add_background_image(background, scale=2.5)
 
-        if show_beam_slider:
+        if show_beam_slider and self._is_array[self._freq_index]:
             p.add_slider_widget(
                 uf.update_phi,
                 rng=[0, 360],
@@ -1956,6 +1957,7 @@ class FfdSolutionData(object):
                 style="modern",
                 event_type="always",
                 title_height=0.02,
+                color=axes_color,
             )
             p.add_slider_widget(
                 uf.update_theta,
@@ -1967,6 +1969,7 @@ class FfdSolutionData(object):
                 style="modern",
                 event_type="always",
                 title_height=0.02,
+                color=axes_color,
             )
 
         sargs = dict(
@@ -2015,7 +2018,12 @@ class FfdSolutionData(object):
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
             if not scale_farfield:
-                slider_max = int(np.ceil((np.max(self._array_dimension) / 2 / np.min(np.abs(p.bounds)))))
+                if self._is_array[self._freq_index]:
+                    slider_max = int(
+                        np.ceil((np.max(self._array_dimension[self._freq_index]) / np.min(np.abs(p.bounds))))
+                    )
+                else:
+                    slider_max = int(np.ceil((np.max(p.bounds) / 2 / np.min(np.abs(p.bounds)))))
                 slider_min = 0
             else:
                 slider_max = scale_farfield[1]
@@ -2031,6 +2039,7 @@ class FfdSolutionData(object):
                 pointb=(0.99, 0.93),
                 style="modern",
                 title_height=0.02,
+                color=axes_color,
             )
 
             cad = []
@@ -2188,8 +2197,11 @@ class FfdSolutionData(object):
         """Get 3d meshes."""
         from pyaedt.generic.plot import ModelPlotter
 
-        if self._is_array:
-            model_info = self.model_info[self._freq_index]
+        eep_file_path = os.path.abspath(self.eep_files[self._freq_index])
+        model_info = self.model_info[self._freq_index]
+        obj_meshes = []
+        if self._is_array[self._freq_index]:
+            non_array_geometry = model_info.copy()
             components_info = self._component_objects[self._freq_index]
             array_dimension = self._array_dimension[self._freq_index]
             first_key = list(model_info.keys())[0]
@@ -2197,7 +2209,6 @@ class FfdSolutionData(object):
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
             cell_info = self._cell_position[self._freq_index]
-            obj_meshes = []
 
             for cell_row in cell_info:
                 for cell_col in cell_row:
@@ -2208,7 +2219,9 @@ class FfdSolutionData(object):
                     rotation = cell_col[2]
                     for component_obj in component_info[1:]:
                         if component_obj in model_info:
-                            eep_file_path = os.path.abspath(self.eep_files[self._freq_index])
+                            if component_obj in non_array_geometry:
+                                del non_array_geometry[component_obj]
+
                             cad_path = os.path.join(os.path.dirname(eep_file_path), model_info[component_obj][0])
                             if os.path.exists(cad_path):
                                 model_pv.add_object(
@@ -2221,49 +2234,60 @@ class FfdSolutionData(object):
                     model_pv.generate_geometry_mesh()
                     comp_meshes = []
                     row, col = cell_col[3]
-                    pos_y = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
-                    pos_x = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
-                    i = 0
+
+                    # Perpendicular lattice vector
+                    if self._lattice_vector[self._freq_index][0] != 0:
+                        pos_x = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
+                        pos_y = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
+                    else:
+                        pos_y = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
+                        pos_x = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
+
                     for obj in model_pv.objects:
                         mesh = obj._cached_polydata
                         translated_mesh = mesh.copy()
                         color_cad = [i / 255 for i in obj.color]
-                        # Move the origin
+
                         translated_mesh.translate(
                             [-component_info[0][0] / sf, -component_info[0][1] / sf, -component_info[0][2] / sf],
                             inplace=True,
                         )
+
                         if rotation != 0:
                             translated_mesh.rotate_z(rotation, inplace=True)
+
                         # Translate the mesh to its position
                         translated_mesh.translate([pos_x / sf, pos_y / sf, component_info[0][2] / sf], inplace=True)
 
-                        if len(comp_meshes) > i:
-                            comp_meshes[i][0] += translated_mesh
-                        else:
-                            comp_meshes.append([translated_mesh, color_cad, obj.opacity])
-                        i += 1
+                        comp_meshes.append([translated_mesh, color_cad, obj.opacity])
 
                     obj_meshes.append(comp_meshes)
 
             obj_meshes = [item for sublist in obj_meshes for item in sublist]
-
         else:
-            model_pv = ModelPlotter()
-            first_key = list(self.model_info.keys())[0]
-            first_value = self.model_info[first_key]
-            sf = AEDT_UNITS["Length"][first_value[3]]
-            if self.model_info:
-                model_pv.off_screen = True
-                for object_in in self.model_info:
-                    model_pv.add_object(object_in[0], object_in[1], object_in[2], object_in[3])
-            else:
-                self.logger.warning("Geometry objects not defined")
-                return False
+            non_array_geometry = model_info
 
+        if non_array_geometry:
+            model_pv = ModelPlotter()
+            first_key = list(non_array_geometry.keys())[0]
+            first_value = non_array_geometry[first_key]
+            sf = AEDT_UNITS["Length"][first_value[3]]
+
+            model_pv.off_screen = True
+            for object_in in non_array_geometry.values():
+                cad_path = os.path.join(os.path.dirname(eep_file_path), object_in[0])
+                if os.path.exists(cad_path):
+                    model_pv.add_object(
+                        cad_path,
+                        object_in[1],
+                        object_in[2],
+                        object_in[3],
+                    )
+                else:
+                    self.logger.warning("Geometry objects not defined")
+                    return False
             self.__model_units = first_value[3]
             model_pv.generate_geometry_mesh()
-            obj_meshes = []
             i = 0
             for obj in model_pv.objects:
                 mesh = obj._cached_polydata
@@ -2315,7 +2339,7 @@ class FfdSolutionData(object):
                     return False
             else:
                 if not port_index:
-                    port_index[port] = [1]
+                    port_index[port] = [1, 1]
                 else:
                     last_value = list(port_index.values())[-1]
                     port_index[port] = [1, last_value[1] + 1]
