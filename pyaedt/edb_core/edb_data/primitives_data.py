@@ -1,5 +1,6 @@
 import math
 
+from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.dotnet.primitive import BondwireDotNet
 from pyaedt.edb_core.dotnet.primitive import CircleDotNet
 from pyaedt.edb_core.dotnet.primitive import PathDotNet
@@ -101,7 +102,10 @@ class EDBPrimitivesMain(Connectable):
             self.primitive_object.SetNet(net)
         else:
             try:
-                self.net = name
+                if isinstance(name, str):
+                    self.net = name
+                elif isinstance(name, NetDotNet):
+                    self.net = name.name
             except:
                 self._app.logger.error("Failed to set net name.")
 
