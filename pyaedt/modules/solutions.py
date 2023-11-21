@@ -1457,8 +1457,8 @@ class FfdSolutionData(object):
         rETheta_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
 
         # Farfield superposition
-        for n, port in enumerate(self.all_port_names):
-            if port not in w_dict.keys():
+        for _, port in enumerate(self.all_port_names):
+            if port not in w_dict:
                 w_dict[port] = np.sqrt(0) * np.exp(1j * 0)
             incident_power += w_dict_mag[port]
             xyz_pos = port_positions[port]

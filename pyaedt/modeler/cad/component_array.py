@@ -609,7 +609,7 @@ class ComponentArray(object):
         for component in component_names.values():
             parts = self.__app.modeler.user_defined_components[component].parts
             for part_name in parts.values():
-                if component not in component_info.keys():
+                if component not in component_info:
                     center = self.__app.modeler.user_defined_components[component].center
                     scaled_center = [
                         float(cen) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for cen in center
