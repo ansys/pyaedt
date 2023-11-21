@@ -1510,7 +1510,7 @@ class FfdSolutionData(object):
         export_image_path=None,
         levels=64,
         show=True,
-        **kwargs
+        **kwargs,
     ):
         """Create a Contour plot of specified quantity.
 
