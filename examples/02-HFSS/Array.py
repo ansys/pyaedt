@@ -93,7 +93,7 @@ ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Infinite Sphere1", setu
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(qty_str='RealizedGain', convert_to_db=True,
+ffdata.plot_farfield_contour(farfield_quantity='RealizedGain', convert_to_db=True,
                              title='Contour at {}Hz'.format(ffdata.frequency))
 
 ##########################################################
@@ -103,12 +103,12 @@ ffdata.plot_farfield_contour(qty_str='RealizedGain', convert_to_db=True,
 # and Phi scan.
 
 ffdata.plot_2d_cut(primary_sweep='theta', secondary_sweep_value=[-180, -75, 75],
-                   qty_str='RealizedGain',
+                   farfield_quantity='RealizedGain',
                    title='Azimuth at {}Hz'.format(ffdata.frequency),
                    quantity_format="dB10")
 
 ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
-                   qty_str='RealizedGain',
+                   farfield_quantity='RealizedGain',
                    title='Elevation',
                    quantity_format="dB10")
 
@@ -118,7 +118,7 @@ ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
 # Generate 3D polar plots in Matplotlib. You can define
 # the Theta scan and Phi scan.
 
-ffdata.polar_plot_3d(qty_str='RealizedGain',
+ffdata.polar_plot_3d(farfield_quantity='RealizedGain',
                      convert_to_db=True)
 
 ##########################################################
@@ -128,7 +128,7 @@ ffdata.polar_plot_3d(qty_str='RealizedGain',
 # scan angles. You can change the easy-to-use interactive plot
 # that is generated on the fly. 
 
-ffdata.polar_plot_3d_pyvista(qty_str='RealizedGain',
+ffdata.polar_plot_3d_pyvista(farfield_quantity='RealizedGain',
                              convert_to_db=True,
                              export_image_path=os.path.join(hfss.working_directory, "picture.jpg"),
                              show=False)
