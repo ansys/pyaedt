@@ -1481,8 +1481,13 @@ class TestClass:
             name="Wave2",
             renormalize=False,
         )
-        assert self.aedtapp.set_phase_center_per_port()
-        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        if self.aedtapp.desktop_class.is_grpc_api:
+            assert self.aedtapp.set_phase_center_per_port()
+            assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        else:
+            assert not self.aedtapp.set_phase_center_per_port()
+            assert not self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
