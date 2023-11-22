@@ -1723,7 +1723,7 @@ class Stackup(object):
 
         Parameters
         ----------
-        fpath : str
+        file_path : str
             File path to the CSV file.
         """
         if not pd:
@@ -1739,17 +1739,17 @@ class Stackup(object):
                 logger.error("{} doesn't exist in csv".format(name))
                 return False
 
-        for name, l in df.iterrows():
-            layer_type = l.Type
+        for name, layer_info in df.iterrows():
+            layer_type = layer_info.Type
             if name in self.layers:
                 layer = self.layers[name]
                 layer.type = layer_type
             else:
                 layer = self.add_layer(name, layer_type=layer_type, material="copper", fillMaterial="copper")
 
-            layer.material = l.Material
-            layer.thickness = l.Thickness
-            layer.dielectric_fill = l.Dielectric_Fill
+            layer.material = layer_info.Material
+            layer.thickness = layer_info.Thickness
+            layer.dielectric_fill = layer_info.Dielectric_Fill
 
         lc_new = self._pedb.edb_api.Cell.LayerCollection()
         for name, _ in df.iterrows():

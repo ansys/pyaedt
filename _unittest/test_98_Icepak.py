@@ -327,58 +327,14 @@ class TestClass:
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
 
-    def test_26_copy_solid_bodies_udm_3dcomponent(self, add_app):
-        my_udmPairs = []
-        mypair = ["ILD Thickness (ILD)", "0.006mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Line Spacing (LS)", "0.004mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Line Thickness (LT)", "0.005mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Line Width (LW)", "0.004mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["No. of Turns (N)", 2]
-        my_udmPairs.append(mypair)
-        mypair = ["Outer Diameter (OD)", "0.15mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Substrate Thickness", "0.2mm"]
-        my_udmPairs.append(mypair)
-        mypair = [
-            "Inductor Type",
-            '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
-        ]
-        my_udmPairs.append(mypair)
-        mypair = ["Underpass Thickness (UT)", "0.001mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Via Thickness (VT)", "0.001mm"]
-        my_udmPairs.append(mypair)
-
-        obj_udm = self.aedtapp.modeler.create_udm(
-            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
-        )
-
-        compfile = self.aedtapp.components3d["ADDA_AB0305MB_GA0"]
-        obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile)
-        dest = add_app(application=Icepak, design_name="IcepakDesign1", just_open=True)
-        dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
-        dest.delete_design("IcepakDesign1")
-        dest = add_app(application=Icepak, design_name="IcepakDesign2", just_open=True)
-        dest.copy_solid_bodies_from(self.aedtapp)
-        dest2 = add_app(design_name="uUSB")
-        dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
-
     def test_27_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
-        assert sorted(conductors) == ["Inductor", "Paddle", "box", "network_box", "network_box2"]
+        assert sorted(conductors) == ["box", "network_box", "network_box2"]
 
     def test_28_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
         assert sorted(dielectrics) == [
-            "ADDA_AB0305MB_GA0_1_Box",
-            "Boundary",
-            "ILD",
             "Region",
-            "Substrate",
             "box2",
             "box3",
             "network_box3",
@@ -1307,3 +1263,102 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_68_mesh_priority_3d_comp(self, add_app):
+        app = add_app(
+            application=Icepak,
+            project_name="3d_comp_mesh_prio_test",
+            design_name="IcepakDesign1",
+            subfolder=test_subfolder,
+        )
+        assert app.mesh.add_priority(entity_type=2, comp_name="IcepakDesign1_1", priority=3)
+
+        assert app.mesh.add_priority(entity_type=2, comp_name="all_2d_objects1", priority=2)
+
+        assert app.mesh.add_priority(entity_type=2, comp_name="all_3d_objects1", priority=2)
+
+        app.close_project(name="3d_comp_mesh_prio_test", save_project=False)
+
+    def test_69_recirculation_boundary(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        box.solve_inside = False
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x, box.bottom_face_x, box.bottom_face_y], box.top_face_x, flow_assignment="10kg_per_s_m2"
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x, box.bottom_face_x], box.top_face_x, conductance_external_temperature="25cel"
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x, box.bottom_face_x], box.top_face_x, start_time="0s"
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x)
+        assert self.aedtapp.assign_recirculation_opening([box.top_face_x.id, box.bottom_face_x.id], box.top_face_x.id)
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Conductance",
+            flow_direction=[1],
+        )
+        temp_dict = {"Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
+        flow_dict = {"Function": "Sinusoidal", "Values": ["0kg_per_s_m2", 1, 1, "1s"]}
+        recirc = self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
+        )
+        assert recirc
+        assert recirc.update()
+        self.aedtapp.solution_type = "SteadyState"
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            assignment_value=temp_dict,
+            flow_assignment=flow_dict,
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction="Side",
+        )
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_direction=[0, 1, 0],
+        )
+        assert not self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            thermal_specification="Temperature",
+            flow_assignment=flow_dict,
+        )
+
+    def test_70_blower_boundary(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
+        curved_face = [f for f in cylinder.faces if not f.is_planar]
+        planar_faces = [f for f in cylinder.faces if f.is_planar]
+        assert not self.aedtapp.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])
+        blower = self.aedtapp.assign_blower_type1(
+            [f.id for f in curved_face + planar_faces], [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4]
+        )
+        assert blower
+        assert blower.update()
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        assert self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]], [box.faces[0]], [10, 5, 0], [0, 2, 4])
+
+    def test_71_assign_adiabatic_plate(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [1, 2])
+        assert self.aedtapp.assign_adiabatic_plate(
+            box.top_face_x, {"RadiateTo": "AllObjects"}, {"RadiateTo": "AllObjects"}
+        )
+        assert self.aedtapp.assign_adiabatic_plate(box.top_face_x.id)
+        assert self.aedtapp.assign_adiabatic_plate(rectangle)
+        ad_plate = self.aedtapp.assign_adiabatic_plate(rectangle.name)
+        assert ad_plate
+        assert ad_plate.update()

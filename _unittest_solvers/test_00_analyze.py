@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 import time
@@ -13,13 +14,18 @@ from pyaedt import is_linux
 from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d
-
+from _unittest.conftest import config
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
 original_project_name = "Galileo_t21_231"
 transient = "Transient_StrandedWindings"
+
+if config["desktopVersion"] > "2022.2":
+    component = "Circ_Patch_5GHz_232.a3dcomp"
+else:
+    component = "Circ_Patch_5GHz.a3dcomp"
 
 test_subfolder = "T00"
 
@@ -146,14 +152,25 @@ class TestClass:
         hfss_app.insert_design("Array_simple_resuts", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
-        dict_in = json_to_dict(
-            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "array_simple.json"))
-        dict_in["Circ_Patch_5GHz1"] = os.path.join(
-            local_path, "../_unittest_solvers/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
-        )
-        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
-        assert hfss_app.add_3d_component_array_from_json(dict_in)
-        dict_in["cells"][(3, 3)]["rotation"] = 90
+        if config["desktopVersion"] > "2023.1":
+            dict_in = json_to_dict(
+                os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json")
+            )
+            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
+                local_path, "example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
+            dict_in["cells"][(3, 3)]["rotation"] = 90
+        else:
+            dict_in = json_to_dict(
+                os.path.join(local_path, "example_models", test_subfolder, "array_simple.json")
+            )
+            dict_in["Circ_Patch_5GHz1"] = os.path.join(
+                local_path, "example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+            dict_in["cells"][(3, 3)]["rotation"] = 90
+        hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
         setup = hfss_app.create_setup(setupname="test")
@@ -191,7 +208,20 @@ class TestClass:
         )
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
-        self.icepak_app.export_summary(self.icepak_app.working_directory)
+
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A") # check usage of deprecated arguments
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B")
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C")
+        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]), ("C_Temperature.csv", ["box"])]:
+            with open(os.path.join(self.icepak_app.working_directory, file_name), 'r', newline='') as csv_file:
+                csv_reader = csv.reader(csv_file)
+                for _ in range(4):
+                    _ = next(csv_reader)
+                header = next(csv_reader)
+                entity_index = header.index("Entity")
+                csv_entities=[row[entity_index] for row in csv_reader]
+                assert all(e in csv_entities for e in entities)
+
         box = [i.id for i in self.icepak_app.modeler["box"].faces]
         assert os.path.exists(
             self.icepak_app.eval_surface_quantity_from_field_summary(box, savedir=self.icepak_app.working_directory)

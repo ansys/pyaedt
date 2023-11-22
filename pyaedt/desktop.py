@@ -655,7 +655,8 @@ class Desktop(object):
             sys.path.append(
                 os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
             )
-
+        if "GetGrpcServerPort" in dir(self.odesktop):
+            self.port = self.odesktop.GetGrpcServerPort()
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
 

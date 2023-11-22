@@ -86,7 +86,8 @@ class EmitComponents(object):
 
     @pyaedt_function_handler()
     def __getitem__(self, compname):
-        """
+        """Get a component by its name.
+
         Parameters
         ----------
         compname : str

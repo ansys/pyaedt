@@ -11,6 +11,7 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -1771,14 +1772,16 @@ class Icepak(FieldAnalysis3D):
         return filename
 
     def export_summary(
-        self,
-        output_dir=None,
-        solution_name=None,
-        type="Object",
-        geometryType="Volume",
-        quantity="Temperature",
-        variation="",
-        variationlist=None,
+            self,
+            output_dir=None,
+            solution_name=None,
+            type="Object",
+            geometry_type="Volume",
+            quantity="Temperature",
+            variation="",
+            variation_list=None,
+            filename="IPKsummaryReport",
+            **kwargs
     ):
         """Export a fields summary of all objects.
 
@@ -1790,17 +1793,19 @@ class Icepak(FieldAnalysis3D):
             is exported to the working directory.
         solution_name : str, optional
             Name of the solution. The default is ``None``, in which case the
-            the default name is used.
+            default solution is used.
         type : string, optional
-            The default is ``"Object"``.
-        geometryType : str, optional
-            Type of the geometry. The default is ``"Volume"``.
+            Entity type, ``"Boundary"`` or ``"Object"``. The default is ``"Object"``.
+        geometry_type : str, optional
+            Geometry type, ``"Volume"`` or ``"Surface"``. The default is ``"Volume"``.
         quantity : str, optional
             The default is ``"Temperature"``.
         variation : str, optional
             The default is ``""``.
-        variationlist : list, optional
+        variation_list : list, optional
             The default is ``None``.
+        filename : str, optional
+            The default is ``"IPKsummaryReport"``.
 
         Returns
         -------
@@ -1813,24 +1818,41 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
-        if variationlist == None:
-            variationlist = []
+        if 'geometryType' in kwargs:
+            warnings.warn("The 'geometryType' argument is deprecated. Use 'geometry_type' instead.",
+                          DeprecationWarning)
 
-        all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
-        all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
-        all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
+        if 'variationlist' in kwargs:
+            warnings.warn("The 'variationlist' argument is deprecated. Use 'variation_list' instead.",
+                          DeprecationWarning)
+
+        geometry_type = kwargs.get('geometryType', geometry_type)
+        variation_list = kwargs.get('variationlist', variation_list)
+
+        if variation_list is None:
+            variation_list = []
+
+        if type == "Object":
+            all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
+            all_objs_non_modeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
+            all_elements = [item for item in all_objs if item not in all_objs_non_modeled]
+            self.logger.info("Objects lists " + str(all_elements))
+        elif type == "Boundary":
+            all_elements = [b.name for b in self.boundaries]
+            self.logger.info("Boundary lists " + str(all_elements))
+        else:
+            self.logger.error("Entity type " + type + " not supported.")
+            return False
         arg = []
-        self.logger.info("Objects lists " + str(all_objs_model))
-        for el in all_objs_model:
+        for el in all_elements:
             try:
                 self.osolution.EditFieldsSummarySetting(
-                    ["Calculation:=", [type, geometryType, el, quantity, "", "Default"]]
+                    ["Calculation:=", [type, geometry_type, el, quantity, "", "Default"]]
                 )
                 arg.append("Calculation:=")
-                arg.append([type, geometryType, el, quantity, "", "Default"])
+                arg.append([type, geometry_type, el, quantity, "", "Default"])
             except Exception as e:
-                self.logger.error("Object " + el + " not added.")
-                self.logger.error(str(e))
+                self.logger.warning("Object " + el + " not added.")
         if not output_dir:
             output_dir = self.working_directory
         self.osolution.EditFieldsSummarySetting(arg)
@@ -1839,7 +1861,7 @@ class Icepak(FieldAnalysis3D):
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:
-            for l in variationlist:
+            for l in variation_list:
                 self.osolution.ExportFieldsSummary(
                     [
                         "SolutionName:=",
@@ -1847,7 +1869,7 @@ class Icepak(FieldAnalysis3D):
                         "DesignVariationKey:=",
                         variation + "='" + str(l) + "'",
                         "ExportFileName:=",
-                        os.path.join(output_dir, "IPKsummaryReport" + quantity + "_" + str(l) + ".csv"),
+                        os.path.join(output_dir, filename + "_" + quantity + "_" + str(l) + ".csv"),
                     ]
                 )
         else:
@@ -1858,7 +1880,7 @@ class Icepak(FieldAnalysis3D):
                     "DesignVariationKey:=",
                     "",
                     "ExportFileName:=",
-                    os.path.join(output_dir, "IPKsummaryReport" + quantity + ".csv"),
+                    os.path.join(output_dir, filename + "_" + quantity + ".csv"),
                 ]
             )
         return True
@@ -2257,6 +2279,7 @@ class Icepak(FieldAnalysis3D):
             custom_x_resolution=None,
             custom_y_resolution=None,
             power_in=0,
+            rad="Nothing",
             **kwargs  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
@@ -2286,7 +2309,16 @@ class Icepak(FieldAnalysis3D):
         custom_y_resolution : int, optional
             The default is ``None``.
         power_in : float, optional
-            Power in in Watt.
+            Power in Watt.
+        rad : str, optional
+            Radiating faces. Options are:
+
+            * ``"Nothing"``
+            * ``"Low"``
+            * ``"High"``
+            * ``"Both"``
+
+            The default is ``"Nothing"``.
 
         Returns
         -------
@@ -2921,7 +2953,7 @@ class Icepak(FieldAnalysis3D):
             if oo:
                 from pyaedt.modules.Material import SurfaceMaterial
 
-                sm = SurfaceMaterial(self.materials, mat)
+                sm = SurfaceMaterial(self.materials, mat, material_update=False)
                 sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type")
                 props = oo.GetPropNames()
                 if "Surface Emissivity" in props:
@@ -2934,6 +2966,8 @@ class Icepak(FieldAnalysis3D):
                     sm.surface_diffuse_absorptance = oo.GetPropEvaluatedValue("Solar Diffuse Absorptance")
                 if "Solar Normal Absorptance" in props:
                     sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
+                sm.update()
+                sm._material_update = True
                 self.materials.surface_material_keys[mat.lower()] = sm
         return True
 
@@ -4837,4 +4871,421 @@ class Icepak(FieldAnalysis3D):
             else:  # pragma : no cover
                 raise SystemExit
         except (GrpcApiError, SystemExit):
+            return None
+
+    @pyaedt_function_handler()
+    def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name=None):
+        """
+        Assign adiabatic plate boundary condition.
+
+        Parameters
+        ----------
+        assignment : list
+            List of strings containing object names, or list of integers
+            containing face ids or list of faces or objects.
+        high_radiation_dict : dictionary, optional
+            Dictionary containing the radiation assignment for the high side.
+            The two keys that are always required are ``"RadiateTo"`` and
+            ``"Surface Material"``. If the value of ``"RadiateTo"`` is
+            ``"RefTemperature"``, then the others required keys are
+            ``"Ref. Temperature"`` and ``"View Factor"``. The other possible
+            value of ``"RadiateTo"`` is ``"AllObjects"``. Default is ``None``
+            in which case the radiation on the high side is set to off.
+        low_radiation_dict : dictionary, optional
+            Dictionary containing the radiation assignment for the low side.
+            The dictionary structure is the same of ``high_radiation_dict``.
+            Default is ``None``, in which case the radiation on the low side
+            is set to off.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignAdiabaticPlateBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        >>> ad_plate = ipk.assign_adiabatic_plate(box.top_face_x, None, {"RadiateTo": "AllObjects"})
+
+        """
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        if isinstance(assignment[0], str):
+            key = "Objects"
+        elif isinstance(assignment[0], int):
+            key = "Faces"
+        elif isinstance(assignment[0], FacePrimitive):
+            key = "Faces"
+            assignment = [f.id for f in assignment]
+        else:
+            key = "Objects"
+            assignment = [o.name for o in assignment]
+        props = {key: assignment}
+        for rad_dict, side in zip([high_radiation_dict, low_radiation_dict], ["HighSide", "LowSide"]):
+            props[side] = {"Radiate": bool(rad_dict)}
+            if rad_dict is not None:
+                for k, v in rad_dict.items():
+                    if side == "HighSide":
+                        if k == "RadiateTo":
+                            v += " - High"
+                        k += " - High"
+                    props[side][k] = v
+
+        if not boundary_name:
+            boundary_name = generate_unique_name("AdiabaticPlate")
+
+        bound = BoundaryObject(self, boundary_name, props, "Adiabatic Plate")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma: no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):  # pragma: no cover
+            return None
+
+    @pyaedt_function_handler()
+    def assign_recirculation_opening(self, face_list, extract_face, thermal_specification="Temperature",
+                                     assignment_value="0cel", conductance_external_temperature=None,
+                                     flow_specification="Mass Flow", flow_assignment="0kg_per_s_m2",
+                                     flow_direction=None, start_time=None, end_time=None, boundary_name=None):
+        """Assign recirculation faces.
+
+        Parameters
+        ----------
+        face_list : list
+            List of face primitive objects or a list of integers
+            containing faces IDs.
+        extract_face : modeler.cad.elements3d.FacePrimitive, int
+             ID of the face on the extract side.
+        thermal_specification : str, optional
+            Type of the thermal assignment across the two recirculation
+            faces. The default is ``"Temperature"``. Options are
+            ``"Conductance"``, ``"Heat Input"``, and ``"Temperature"``.
+        assignment_value : str or dict, optional
+            String with value and units of the thermal assignment. For a
+            transient assignment, a dictionary can be used. The dictionary
+            should contain two keys: ``"Function"`` and ``"Values"``.
+            - For the ``"Function"`` key, options are
+            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
+            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, provide a list of strings containing the
+            parameters required by the ``"Function"`` key selection. For
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each ``"Function"``
+            key selection, see the Icepak documentation.
+            The parameters must contain the units where needed.
+            The default value is ``"0cel"``.
+        conductance_external_temperature : str, optional
+            External temperature value, which is needed if
+            ``thermal_specification`` is set to ``"Conductance"``.
+            The default is ``None``.
+        flow_specification : str, optional
+            Flow specification for the recirculation zone. The default is
+            ``"Mass Flow"``. Options are: ``"Mass Flow"``, ``"Mass Flux"``,
+            and ``"Volume Flow"``.
+        flow_assignment : str or dict, optional
+            String with the value and units of the flow assignment. For a
+            transient assignment, a dictionary can be used. The dictionary
+            should contain two keys: ``"Function"`` and ``"Values"``.
+            - For the ``"Function"`` key, options are
+            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
+            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, provide a list of strings containing the
+            parameters required by the ``"Function"`` key selection. For
+            example, when``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+            The parameters must contain the units where needed.
+            The default value is ``"0kg_per_s_m2"``.
+        flow_direction : list, optional
+            Flow direction enforced at the recirculation zone. The default value
+            is ``None``, in which case the normal direction is used.
+        start_time : str, optional
+            Start of the time interval. This parameter is relevant only if the
+            simulation is transient. The default value is ``"0s"``.
+        end_time : str, optional
+            End of the time interval. This parameter is relevant only if the
+            simulation is transient. The default value is ``"0s"``.
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignRecircBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.solution_type = "Transient"
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box.solve_inside = False
+        >>> recirc = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
+        >>>                                          flow_assignment="10kg_per_s_m2")
+
+        """
+        if not len(face_list) == 2:
+            self.logger.error("Recirculation boundary condition must be assigned to two faces.")
+            return False
+        if conductance_external_temperature is not None and thermal_specification is not "Conductance":
+            self.logger.warning(
+                '``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` '
+                'is ``"Conductance"``.')
+        if conductance_external_temperature is not None and thermal_specification is not "Conductance":
+            self.logger.warning(
+                '``conductance_external_temperature`` must be specified when ``thermal_specification`` '
+                'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.')
+        if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
+            self.logger.warning(
+                '``start_time`` and ``end_time`` only effect steady-state simulations.')
+        elif self.solution_type == "Transient" and not (start_time and end_time):
+            self.logger.warning(
+                '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
+            start_time = "0s"
+            end_time = "0s"
+        assignment_dict = {
+            "Conductance": "Conductance",
+            "Heat Input": "Heat Flow",
+            "Temperature": "Temperature Change"
+        }
+        props = {}
+        if not isinstance(face_list[0], int):
+            face_list = [f.id for f in face_list]
+        props["Faces"] = face_list
+        if isinstance(extract_face, int):
+            extract_face = [extract_face]
+        else:
+            extract_face = [extract_face.id]
+        props["ExtractFace"] = extract_face
+        props["Thermal Condition"] = thermal_specification
+        if isinstance(assignment_value, dict):
+            if not self.solution_type == "Transient":
+                self.logger.error("Transient assignment is supported only in transient designs.")
+                return None
+            assignment = self._parse_variation_data(
+                assignment_dict[thermal_specification],
+                "Transient",
+                variation_value=assignment_value["Values"],
+                function=assignment_value["Function"],
+            )
+            props.update(assignment)
+        else:
+            props[assignment_dict[thermal_specification]] = assignment_value
+        if thermal_specification == "Conductance":
+            props["External Temp"] = conductance_external_temperature
+        if isinstance(flow_assignment, dict):
+            if not self.solution_type == "Transient":
+                self.logger.error("Transient assignment is supported only in transient designs.")
+                return None
+            assignment = self._parse_variation_data(
+                flow_specification + " Rate",
+                "Transient",
+                variation_value=flow_assignment["Values"],
+                function=flow_assignment["Function"],
+            )
+            props.update(assignment)
+        else:
+            props[flow_specification + " Rate"] = flow_assignment
+        if flow_direction is None:
+            props["Supply Flow Direction"] = "Normal"
+        else:
+            props["Supply Flow Direction"] = "Specified"
+            if not (isinstance(flow_direction, list)):
+                self.logger.error("``flow_direction`` can be only ``None`` or a list of strings or floats.")
+                return False
+            elif len(flow_direction) != 3:
+                self.logger.error("``flow_direction`` must have only three components.")
+                return False
+            for direction, val in zip(["X", "Y", "Z"], flow_direction):
+                props[direction] = str(val)
+        if self.solution_type == "Transient":
+            props["Start"] = start_time
+            props["End"] = end_time
+        if not boundary_name:
+            boundary_name = generate_unique_name("Recirculating")
+
+        bound = BoundaryObject(self, boundary_name, props, "Recirculating")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma: no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):  # pragma : no cover
+            return None
+
+    @pyaedt_function_handler()
+    def assign_blower_type1(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W", blade_rpm=0,
+                            blade_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
+                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+        """Assign blower type 1.
+
+        Parameters
+        ----------
+        faces : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+             Inlet faces.
+        fan_curve_pressure : list
+            List of the fan curve pressure values. Only floats should
+            be included in the list as their unit can be modified with
+            fan_curve_pressure_unit argument.
+        fan_curve_flow : list
+            List of the fan curve flow value. Only floats should be
+            included in the list as their unit can be modified with
+            fan_curve_flow_unit argument.
+        blower_power : str, optional
+            blower power expressed as a string containing the value and unit.
+            Default is "0W".
+        blade_rpm : float, optional
+            Blade RPM value. Default is 0.
+        blade_angle : str, optional
+            Blade angle expressed as a string containing value and the unit.
+            Default is "0rad".
+        fan_curve_pressure_unit : str, optional
+            Fan curve pressure unit. Default is "n_per_meter_sq".
+        fan_curve_flow_unit : str, optional
+            Fan curve flow unit. Default is "m3_per_s".
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlowerBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0,0,0], radius=10, height=1)
+        >>> curved_face = [f for f in cylinder.faces if not f.is_planar]
+        >>> planar_faces = [f for f in cylinder.faces if f.is_planar]
+        >>> cylinder.solve_inside=False
+        >>> blower = self.aedtapp.assign_blower_type1([f.id for f in curved_face+planar_faces],
+        >>>                                           [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4])
+
+        """
+        props = {}
+        props["Blade RPM"] = blade_rpm
+        props["Fan Blade Angle"] = blade_angle
+        props["Blower Type"] = "Type 1"
+        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
+                                          fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+
+    @pyaedt_function_handler()
+    def assign_blower_type2(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W",
+                            exhaust_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
+                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+        """Assign blower type 2.
+
+        Parameters
+        ----------
+        faces : list
+            List of modeler.cad.elements3d.FacePrimitive or of integers
+            containing faces ids.
+        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+             Inlet faces.
+        fan_curve_pressure : list
+            List of the fan curve pressure values. Only floats should
+            be included in the list as their unit can be modified with
+            fan_curve_pressure_unit argument.
+        fan_curve_flow : list
+            List of the fan curve flow value. Only floats should be
+            included in the list as their unit can be modified with
+            fan_curve_flow_unit argument.
+        blower_power : str, optional
+            blower power expressed as a string containing the value and unit.
+            Default is "0W".
+        exhaust_angle : float, optional
+            Exhaust angle expressed as a string containing value and the unit.
+            Default is "0rad".
+        fan_curve_pressure_unit : str, optional
+            Fan curve pressure unit. Default is "n_per_meter_sq".
+        fan_curve_flow_unit : str, optional
+            Fan curve flow unit. Default is "m3_per_s".
+        boundary_name : str, optional
+            Name of the recirculation boundary. The default is ``None``, in
+            which case the boundary is automatically generated.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlowerBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box.solve_inside=False
+        >>> blower = self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]],
+        >>>                                           [box.faces[0]], [10, 5, 0], [0, 2, 4])
+
+        """
+        props = {}
+        props["Exhaust Exit Angle"] = exhaust_angle
+        props["Blower Type"] = "Type 2"
+        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
+                                   fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+
+    @pyaedt_function_handler()
+    def _assign_blower(self, props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit, fan_curve_flow,
+                       fan_curve_pressure, blower_power, boundary_name):
+        if isinstance(faces[0], int):
+            props["Faces"] = faces
+        else:
+            props["Faces"] = [f.id for f in faces]
+        if not isinstance(inlet_face, list):
+            inlet_face = [inlet_face]
+        if not isinstance(inlet_face[0], int):
+            props["InletFace"] = [f.id for f in inlet_face]
+        props["Blower Power"] = blower_power
+        props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
+        if len(fan_curve_flow) != len(fan_curve_pressure):
+            self.logger.error("``fan_curve_flow`` and ``fan_curve_pressure`` must have the same length.")
+            return False
+        props["X"] = [str(pt) for pt in fan_curve_flow]
+        props["Y"] = [str(pt) for pt in fan_curve_pressure]
+        if not boundary_name:
+            boundary_name = generate_unique_name("Blower")
+        bound = BoundaryObject(self, boundary_name, props, "Blower")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):  # pragma: no cover
             return None

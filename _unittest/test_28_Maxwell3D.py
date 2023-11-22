@@ -916,3 +916,19 @@ class TestClass:
         assert m3d.assign_zero_tangential_h_field(
             box.top_face_z,
         )
+
+    def test_57_radiation(self):
+        self.aedtapp.insert_design("Radiation")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], matname="aluminum")
+        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], matname="aluminum")
+        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], matname="aluminum")
+        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], matname="aluminum")
+        bound = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
+        assert bound
+        bound2 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2
+        bound3 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2.name != bound3.name
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+        assert not self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])

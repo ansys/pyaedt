@@ -1,4 +1,4 @@
-from copy import deepcopy as copy
+from copy import copy
 import itertools
 import os
 import re
@@ -104,10 +104,12 @@ class TouchstoneData(rf.Network):
         """
         temp_list = []
         freq_idx = 0
+        s_db = self.s_db[freq_idx, :, :]
         for i in self.port_tuples:
-            loss = self.s_db[freq_idx, i[0], i[1]]
-            if loss > threshold:
-                temp_list.append(i)
+            if i[0] != i[1]:
+                loss = s_db[i[0], i[1]]
+                if loss > threshold:
+                    temp_list.append(i)
         return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
@@ -126,13 +128,7 @@ class TouchstoneData(rf.Network):
         list
             List of tuples representing insertion loss excitations.
         """
-        temp_list = []
-        freq_idx = 0
-        for i in self.port_tuples:
-            loss = self.s_db[freq_idx, i[0], i[1]]
-            if loss > threshold:
-                temp_list.append(i)
-
+        temp_list = self.get_insertion_loss_index(threshold=threshold)
         if plot:  # pragma: no cover
             for i in temp_list:
                 self.plot_s_db(*i, logx=self.log_x)
@@ -464,7 +460,7 @@ class TouchstoneData(rf.Network):
 
 @pyaedt_function_handler()
 def read_touchstone(file_path):
-    """Load the contents of a Touchstone file into an NPort
+    """Load the contents of a Touchstone file into an NPort.
 
     Parameters
     ----------
