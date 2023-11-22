@@ -1497,8 +1497,8 @@ class Edb(Database):
             objs_data = self._smart_cut(reference_list, expansion_size)
             _polys.extend(objs_data)
         k = 0
-        delta = expansion_size / 10
-        while k < 4:
+        delta = expansion_size / 5
+        while k < 10:
             unite_polys = []
             for i in _polys:
                 obj_data = i.Expand(expansion_size, tolerance, round_corner, round_extension)
