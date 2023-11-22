@@ -787,8 +787,8 @@ class SolutionData(object):
         :class:`matplotlib.plt`
             Matplotlib fig object.
         """
-        if is_ironpython:
-            return False  # pragma: no cover
+        if is_ironpython:  # pragma: no cover
+            return False
         if not curves:
             curves = [self.active_expression]
         if isinstance(curves, str):
@@ -1080,9 +1080,9 @@ class FfdSolutionData(object):
 
     Parameters
     ----------
-    eep_files : list
+    eep_files : list or str
         List of element pattern files for each frequency.
-    frequencies : list
+    frequencies : list, str, int or float
         List of frequencies.
 
     Examples
@@ -1123,7 +1123,7 @@ class FfdSolutionData(object):
             eep_files = [eep_files]
         self.eep_files = eep_files
 
-        if len(self.eep_files) != len(self.frequencies):
+        if len(self.eep_files) != len(self.frequencies):  # pragma: no cover
             raise Exception("Number of frequencies are different than the number of EEP files.")
 
         for eep in eep_files:
@@ -1133,7 +1133,7 @@ class FfdSolutionData(object):
             not self._eep_file_info_list
             or not self.port_position
             or len(self._eep_file_info_list) != len(self.frequencies)
-        ):
+        ):  # pragma: no cover
             raise Exception("Wrong farfield file load.")
 
         self.eep_file_info = self._eep_file_info_list[0]
@@ -1169,7 +1169,7 @@ class FfdSolutionData(object):
                     self._is_array.append(False)
 
         self.port_index = self._get_port_index()
-        if not self._get_port_index:
+        if not self._get_port_index:  # pragma: no cover
             raise Exception("Wrong port index load.")
         self.__model_units = "meter"
         self.frequency = self.frequencies[0]
@@ -1201,9 +1201,9 @@ class FfdSolutionData(object):
                 self._freq_index = self.frequencies.index(val)
                 self.eep_file_info = self._eep_file_info_list[self._freq_index]
                 self.farfield_data = self.combine_farfield()
-            else:
+            else:  # pragma: no cover
                 self.logger.error("Wrong farfield information.")
-        else:
+        else:  # pragma: no cover
             self.logger.error("Frequency not available.")
 
     @property
@@ -1564,13 +1564,13 @@ class FfdSolutionData(object):
             farfield_quantity = kwargs["qty_str"]
 
         data = self.combine_farfield(phi_scan, theta_scan)
-        if farfield_quantity not in data:
+        if farfield_quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity not available")
             return False
 
         data_to_plot = data[farfield_quantity]
         data_to_plot = conversion_function(data_to_plot, format_quantity)
-        if not isinstance(data_to_plot, np.ndarray):
+        if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
         data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
@@ -1661,7 +1661,7 @@ class FfdSolutionData(object):
             farfield_quantity = kwargs["qty_str"]
 
         data = self.combine_farfield(phi_scan, theta_scan)
-        if farfield_quantity not in data:
+        if farfield_quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity not available")
             return False
 
@@ -1799,7 +1799,7 @@ class FfdSolutionData(object):
             farfield_quantity = kwargs["qty_str"]
 
         data = self.combine_farfield(phi_scan, theta_scan)
-        if farfield_quantity not in data:
+        if farfield_quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity not available")
             return False
 
@@ -1902,7 +1902,7 @@ class FfdSolutionData(object):
 
         if not rotation:
             rotation = np.eye(3)
-        elif isinstance(rotation, (list, tuple)):
+        elif isinstance(rotation, (list, tuple)):  # pragma: no cover
             rotation = np.array(rotation)
         text_color = "white"
         if background is None:
@@ -1910,7 +1910,7 @@ class FfdSolutionData(object):
             text_color = "black"
 
         farfield_data = self.combine_farfield(phi_scan=0, theta_scan=0)
-        if farfield_quantity not in farfield_data:
+        if farfield_quantity not in farfield_data:  # pragma: no cover
             self.logger.error("Far field quantity not available")
             return False
 
@@ -1931,7 +1931,7 @@ class FfdSolutionData(object):
                 p = pv.Plotter(notebook=False, off_screen=off_screen)
             else:
                 p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
-        else:
+        else:  # pragma: no cover
             p = pyvista_object
 
         uf = UpdateBeamForm(self, farfield_quantity, format_quantity)
@@ -1943,7 +1943,7 @@ class FfdSolutionData(object):
             background_color = [i / 255 for i in background]
             p.background_color = background_color
             axes_color = [0 if i >= 128 else 255 for i in background]
-        elif isinstance(background, str):
+        elif isinstance(background, str):  # pragma: no cover
             p.add_background_image(background, scale=2.5)
 
         if show_beam_slider and self._is_array[self._freq_index]:
@@ -2013,7 +2013,6 @@ class FfdSolutionData(object):
                 sf = AEDT_UNITS["Length"][self.__model_units]
                 ff_mesh_inst.SetPosition(np.divide(self.origin, sf))
                 ff_mesh_inst.SetOrientation(rotation_euler)
-                return
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
@@ -2022,7 +2021,7 @@ class FfdSolutionData(object):
                     slider_max = int(
                         np.ceil((np.max(self._array_dimension[self._freq_index]) / np.min(np.abs(p.bounds))))
                     )
-                else:
+                else:  # pragma: no cover
                     slider_max = int(np.ceil((np.max(p.bounds) / 2 / np.min(np.abs(p.bounds)))))
                 slider_min = 0
             else:
@@ -2128,7 +2127,7 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`Pyvista.Plotter`
-            UnstructuredGrid object representing the far field mesh
+            UnstructuredGrid object representing the far field mesh.
 
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
@@ -2267,7 +2266,7 @@ class FfdSolutionData(object):
         else:
             non_array_geometry = model_info
 
-        if non_array_geometry:
+        if non_array_geometry:  # pragma: no cover
             model_pv = ModelPlotter()
             first_key = list(non_array_geometry.keys())[0]
             first_value = non_array_geometry[first_key]

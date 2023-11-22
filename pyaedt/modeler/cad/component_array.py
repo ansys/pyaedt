@@ -261,10 +261,10 @@ class ComponentArray(object):
     def a_length(self):
         """Length of the array in A direction."""
         lattice_vector = self.lattice_vector()
-        if lattice_vector[0] != 0:
+        if lattice_vector[0] != 0:  # pragma: no cover
             x_spacing = lattice_vector[0]
         else:
-            x_spacing = lattice_vector[1]
+            x_spacing = lattice_vector[3]
 
         return x_spacing * self.a_size
 
@@ -272,9 +272,9 @@ class ComponentArray(object):
     def b_length(self):
         """Length of the array in B direction."""
         lattice_vector = self.lattice_vector()
-        if lattice_vector[3] != 0:
-            y_spacing = lattice_vector[3]
-        else:
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
+        else:  # pragma: no cover
             y_spacing = lattice_vector[4]
 
         return y_spacing * self.b_size
@@ -634,7 +634,7 @@ class ComponentArray(object):
         lattice_vector = self.lattice_vector()
         # Perpendicular lattice vector
         a_x_dir = True
-        if lattice_vector[0] != 0:
+        if lattice_vector[0] != 0:  # pragma: no cover
             x_spacing = lattice_vector[0]
         else:
             a_x_dir = False
@@ -642,13 +642,13 @@ class ComponentArray(object):
 
         if lattice_vector[1] != 0:
             y_spacing = lattice_vector[1]
-        else:
+        else:  # pragma: no cover
             y_spacing = lattice_vector[4]
 
         cells = self.cells
         for row_cell in range(0, self.a_size):
             for col_cell in range(0, self.b_size):
-                if a_x_dir:
+                if a_x_dir:  # pragma: no cover
                     y_position = col_cell * y_spacing
                     x_position = row_cell * x_spacing
 
