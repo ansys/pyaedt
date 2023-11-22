@@ -852,3 +852,19 @@ class Materials(object):
             materials_added.append(new_material)
 
         return materials_added
+
+    @pyaedt_function_handler
+    def get_used_project_material_names(self):
+        """Get list of material names in current project.
+
+        Returns
+        -------
+        List of str
+            List of material names used in the current project.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.GetInUseProjectMaterialNames
+        """
+        return self.odefinition_manager.GetInUseProjectMaterialNames()
