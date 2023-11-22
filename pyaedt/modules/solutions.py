@@ -1499,19 +1499,21 @@ class FfdSolutionData(object):
         farfield_data["Element_Location"] = port_positions
         return farfield_data
 
+    # fmt: off
     @pyaedt_function_handler()
     def plot_farfield_contour(
-        self,
-        farfield_quantity="RealizedGain",
-        phi_scan=0,
-        theta_scan=0,
-        title="RectangularPlot",
-        format_quantity="dB10",
-        export_image_path=None,
-        levels=64,
-        show=True,
-        **kwargs,
+            self,
+            farfield_quantity="RealizedGain",
+            phi_scan=0,
+            theta_scan=0,
+            title="RectangularPlot",
+            format_quantity="dB10",
+            export_image_path=None,
+            levels=64,
+            show=True,
+            **kwargs
     ):
+        # fmt: on
         """Create a Contour plot of specified quantity.
 
         Parameters
@@ -1589,21 +1591,23 @@ class FfdSolutionData(object):
         else:
             return data_to_plot
 
+    # fmt: off
     @pyaedt_function_handler()
     def plot_2d_cut(
-        self,
-        farfield_quantity="RealizedGain",
-        primary_sweep="phi",
-        secondary_sweep_value=0,
-        phi_scan=0,
-        theta_scan=0,
-        title="Far Field Cut",
-        format_quantity="dB10",
-        export_image_path=None,
-        show=True,
-        is_polar=False,
-        **kwargs,
+            self,
+            farfield_quantity="RealizedGain",
+            primary_sweep="phi",
+            secondary_sweep_value=0,
+            phi_scan=0,
+            theta_scan=0,
+            title="Far Field Cut",
+            format_quantity="dB10",
+            export_image_path=None,
+            show=True,
+            is_polar=False,
+            **kwargs
     ):
+        # fmt: on
         """Create a 2D plot of specified quantity in matplotlib.
 
         Parameters
@@ -1737,18 +1741,20 @@ class FfdSolutionData(object):
         else:
             return curves
 
+    # fmt: off
     @pyaedt_function_handler()
     def polar_plot_3d(
-        self,
-        farfield_quantity="RealizedGain",
-        phi_scan=0,
-        theta_scan=0,
-        title="3D Plot",
-        format_quantity="dB10",
-        export_image_path=None,
-        show=True,
-        **kwargs,
+            self,
+            farfield_quantity="RealizedGain",
+            phi_scan=0,
+            theta_scan=0,
+            title="3D Plot",
+            format_quantity="dB10",
+            export_image_path=None,
+            show=True,
+            **kwargs
     ):
+        # fmt: on
         """Create a 3d plot of specified quantity.
 
         Parameters
@@ -1826,22 +1832,24 @@ class FfdSolutionData(object):
         else:
             return x, y, z
 
+    # fmt: off
     @pyaedt_function_handler()
     def polar_plot_3d_pyvista(
-        self,
-        farfield_quantity="RealizedGain",
-        format_quantity="dB10",
-        rotation=None,
-        export_image_path=None,
-        show=True,
-        show_as_standalone=False,
-        pyvista_object=None,
-        background=None,
-        scale_farfield=None,
-        show_beam_slider=True,
-        show_geometry=True,
-        **kwargs,
+            self,
+            farfield_quantity="RealizedGain",
+            format_quantity="dB10",
+            rotation=None,
+            export_image_path=None,
+            show=True,
+            show_as_standalone=False,
+            pyvista_object=None,
+            background=None,
+            scale_farfield=None,
+            show_beam_slider=True,
+            show_geometry=True,
+            **kwargs
     ):
+        # fmt: on
         """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
 
         Parameters
