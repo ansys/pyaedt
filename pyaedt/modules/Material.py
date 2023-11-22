@@ -18,8 +18,10 @@ import warnings
 
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.constants import CSS4_COLORS, unit_converter
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_number
+from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class MatProperties(object):
@@ -2061,8 +2063,7 @@ class Material(CommonMaterial, object):
             if isinstance(freq_keys[i], str):
                 value, unit = decompose_variable_value(freq_keys[i])
                 if unit != "Hz":
-                    value = unit_converter(values=value, unit_system="Freq", input_units=unit,
-                                                     output_units="Hz")
+                    value = unit_converter(values=value, unit_system="Freq", input_units=unit, output_units="Hz")
                 points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
                 del points_list_at_freq[freq_keys[i]]
         freq_keys = list(points_list_at_freq.keys())
@@ -2187,8 +2188,7 @@ class Material(CommonMaterial, object):
             if isinstance(freq_keys[i], str):
                 value, unit = decompose_variable_value(freq_keys[i])
                 if unit != "Hz":
-                    value = unit_converter(values=value, unit_system="Freq", input_units=unit,
-                                           output_units="Hz")
+                    value = unit_converter(values=value, unit_system="Freq", input_units=unit, output_units="Hz")
                 points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
                 del points_list_at_freq[freq_keys[i]]
         freq_keys = list(points_list_at_freq.keys())

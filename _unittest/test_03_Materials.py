@@ -297,7 +297,9 @@ class TestClass:
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
         try:
-            self.aedtapp.materials["mat_test"].get_core_loss_coefficients(points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]])
+            self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+            )
             assert False
         except TypeError:
             assert True
@@ -313,24 +315,21 @@ class TestClass:
         assert all(isinstance(c, float) for c in coeff)
         # Test thickness
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]},
-            thickness="0.6mm"
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
         )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
         try:
             coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]},
-                thickness="invalid"
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
             )
             assert False
         except TypeError:
             assert True
         try:
             coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]},
-                thickness=50
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
             )
             assert False
         except TypeError:
@@ -350,7 +349,8 @@ class TestClass:
         )
         try:
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]])
+                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+            )
             assert False
         except TypeError:
             assert True
@@ -363,23 +363,19 @@ class TestClass:
         )
         # Test thickness
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]},
-            thickness="0.6mm"
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
         )
         try:
             coeff = self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]},
-                thickness="invalid"
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
             )
             assert False
         except TypeError:
             assert True
         try:
             coeff = self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]},
-                thickness=50
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
             )
             assert False
         except TypeError:
             assert True
-

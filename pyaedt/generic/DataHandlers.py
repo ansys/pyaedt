@@ -101,7 +101,7 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
                 arg_out.append(arg)
-        elif isinstance(v,list) and len(v) > 0 and all(isinstance(n, int) for n in v):
+        elif isinstance(v, list) and len(v) > 0 and all(isinstance(n, int) for n in v):
             arg = ["NAME:" + k]
             for el in v:
                 arg.append(el)
