@@ -95,7 +95,12 @@ class LayoutValidation:
 
     @pyaedt_function_handler()
     def disjoint_nets(
-        self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0, order_by_area=False
+        self,
+        net_list=None,
+        keep_only_main_net=False,
+        clean_disjoints_less_than=0.0,
+        order_by_area=False,
+        keep_disjoint_pins=False,
     ):
         """Find and fix disjoint nets from a given netlist.
 
@@ -110,6 +115,8 @@ class LayoutValidation:
         order_by_area : bool, optional
             Whether if the naming order has to be by number of objects (fastest) or area (slowest but more accurate).
             Default is ``False``.
+        keep_disjoint_pins : bool, optional
+            Whether if delete disjoints pins not connected to any other primitive or not. Default is ``False``.
         Returns
         -------
         List
@@ -190,14 +197,24 @@ class LayoutValidation:
                             except KeyError:
                                 pass
                     elif len(disjoints) == 1 and (
-                        isinstance(obj_dict[disjoints[0]], EDBPadstackInstance)
-                        or clean_disjoints_less_than
+                        clean_disjoints_less_than
+                        and "area" in dir(obj_dict[disjoints[0]])
                         and obj_dict[disjoints[0]].area() < clean_disjoints_less_than
                     ):
                         try:
                             obj_dict[disjoints[0]].delete()
                         except KeyError:
                             pass
+                    elif (
+                        len(disjoints) == 1
+                        and not keep_disjoint_pins
+                        and isinstance(obj_dict[disjoints[0]], EDBPadstackInstance)
+                    ):
+                        try:
+                            obj_dict[disjoints[0]].delete()
+                        except KeyError:
+                            pass
+
                     else:
                         new_net_name = generate_unique_name(net, n=6)
                         net_obj = self._pedb.nets.find_or_create_net(new_net_name)
