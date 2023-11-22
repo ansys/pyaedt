@@ -106,7 +106,7 @@ class EDBPrimitivesMain(Connectable):
                     self.net = name
                 elif isinstance(name, NetDotNet):
                     self.net = name.name
-            except:
+            except:  # pragma: no cover
                 self._app.logger.error("Failed to set net name.")
 
     @property

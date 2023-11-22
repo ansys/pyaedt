@@ -2067,7 +2067,7 @@ class Edb(Database):
         elif custom_extent:
             _poly = custom_extent
         else:
-            net_signals = [net.api_object for net in self.layout.nets if net.name in signal_list]
+            net_signals = [net.api_object for net in self.layout.nets if net.name in signal_list + nets_to_preserve]
             _poly = self._create_extent(
                 net_signals,
                 extent_type,
