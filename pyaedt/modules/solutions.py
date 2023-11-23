@@ -2125,12 +2125,12 @@ class FfdSolutionData(object):
         Parameters
         ----------
         farfield_quantity : str, optional
-            Far field quantity to plot. The default is`"RealizedGain"`.
-            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
-            `"rETheta"`, `"rEPhi"`.
+            Far field quantity to plot. The default is ``"RealizedGain"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
+            ``"rETheta"``, and ``"rEPhi"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
 
         Returns
         -------
