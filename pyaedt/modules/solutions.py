@@ -1529,7 +1529,7 @@ class FfdSolutionData(object):
         phi_scan : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
-            Theta scan angle in degree. Default `0`.
+            Theta scan angle in degrees. The default is ``0``.
         title : str, optional
             Plot title. Default `"RectangularPlot"`.
         format_quantity : str, optional
