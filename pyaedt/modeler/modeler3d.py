@@ -894,7 +894,8 @@ class Modeler3D(Primitives3D):
                     continue
                 elif line_type in ["GRID", "CTRIA3"]:
                     grid_id = int(line[8:16])
-                    tria_id = int(line[16:24])
+                    if line_type == "CTRIA3":
+                        tria_id = int(line[16:24])
                     n1 = line[24:32].strip()
                     if "-" in n1[1:]:
                         n1 = n1[0] + n1[1:].replace("-", "e-")
