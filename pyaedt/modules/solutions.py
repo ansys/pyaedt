@@ -1877,15 +1877,17 @@ class FfdSolutionData(object):
         show_as_standalone : bool, optional
             Whether to show a plot as standalone. The default is ``True``.
         pyvista_object : :class:`Pyvista.Plotter`, optional
-            Pyvista instance defined externally.
+            PyVista instance defined externally. The default is ``None``.
         background : list or str, optional
-            Background color if a list passed or background picture if string passed.
+            Background color if a list is passed or background picture if a string is passed.
+            The default is ``None``.
         scale_farfield : list, optional
-            List with minimum and maximum value of the scale slider.
+            List with minimum and maximum values of the scale slider. The default is
+            ``None``.
         show_beam_slider : bool, optional
-            Whether the theta and phi scan slider is active or not.
+            Whether the Theta and Phi scan slider is active. The default is ``True``.
         show_geometry :
-            Whether the show geometry check box is active or not.
+            Whether to show the geometry. The default is ``True``.
 
         Returns
         -------
