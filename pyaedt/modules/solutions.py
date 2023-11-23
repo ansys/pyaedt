@@ -1076,6 +1076,7 @@ class SolutionData(object):
 
 class FfdSolutionData(object):
     """Contains information from the far field solution data.
+    
     Load far field data from the element pattern files.
 
     Parameters
