@@ -1291,7 +1291,7 @@ class FfdSolutionData(object):
         Returns
         -------
         float
-            Weight to applied to specific index of array.
+            Weight applied to specific index of the array.
         """
         taper = self.taper
 
