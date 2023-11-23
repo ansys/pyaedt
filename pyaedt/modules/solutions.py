@@ -2154,7 +2154,7 @@ class FfdSolutionData(object):
         ff_data = conversion_function(data, format_quantity)
 
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
-            self.logger.error("Wrong format quantity")
+            self.logger.error("Format of the quantity is wrong.")
             return False
 
         theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
