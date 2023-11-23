@@ -5947,7 +5947,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.desktop_class.is_grpc_api:  # pragma: no cover
-            self.hfss.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually")
+            self.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually")
             return False
 
         port_names = []

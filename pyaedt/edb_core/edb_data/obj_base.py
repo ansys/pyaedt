@@ -13,4 +13,7 @@ class ObjBase(object):
     @property
     def type(self):
         """Get type."""
-        return self._edb_object.GetType()
+        try:
+            return self._edb_object.GetType()
+        except AttributeError:  # pragma: no cover
+            return None

@@ -833,6 +833,8 @@ class Desktop(object):
     ):  # pragma: no cover
         import pythoncom
 
+        pythoncom.CoInitialize()
+
         if is_linux:
             raise Exception(
                 "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
