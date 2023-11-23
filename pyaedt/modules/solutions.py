@@ -2582,7 +2582,7 @@ class UpdateBeamForm:
 
     @pyaedt_function_handler()
     def update_phi(self, phi):
-        """Update new phi value."""
+        """Update the Phi value."""
         self._phi = phi
         self._update_both()
 
