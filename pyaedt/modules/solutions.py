@@ -1272,7 +1272,7 @@ class FfdSolutionData(object):
     @origin.setter
     def origin(self, vals):
         if len(vals) != 3:
-            self.logger.error("Wrong origin")
+            self.logger.error("Origin is wrong.")
         else:
             self._origin = vals
             self.farfield_data = self.combine_farfield()
