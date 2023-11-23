@@ -2201,7 +2201,7 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def _get_geometry(self):
-        """Get 3d meshes."""
+        """Get 3D meshes."""
         from pyaedt.generic.plot import ModelPlotter
 
         eep_file_path = os.path.abspath(self.eep_files[self._freq_index])
