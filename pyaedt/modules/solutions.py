@@ -1534,7 +1534,7 @@ class FfdSolutionData(object):
             Plot title. The default is ``"RectangularPlot"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         levels : int, optional
