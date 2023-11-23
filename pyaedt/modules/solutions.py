@@ -1531,7 +1531,7 @@ class FfdSolutionData(object):
         theta_scan : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
         title : str, optional
-            Plot title. Default `"RectangularPlot"`.
+            Plot title. The default is ``"RectangularPlot"``.
         format_quantity : str, optional
             Conversion data function.
             Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
