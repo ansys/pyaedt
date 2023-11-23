@@ -1761,7 +1761,7 @@ class FfdSolutionData(object):
             **kwargs
     ):
         # fmt: on
-        """Create a 3d plot of specified quantity.
+        """Create a 3D plot of a specified quantity.
 
         Parameters
         ----------
