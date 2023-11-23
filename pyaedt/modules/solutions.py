@@ -1518,7 +1518,7 @@ class FfdSolutionData(object):
             **kwargs
     ):
         # fmt: on
-        """Create a Contour plot of specified quantity.
+        """Create a contour plot of a specified quantity.
 
         Parameters
         ----------
