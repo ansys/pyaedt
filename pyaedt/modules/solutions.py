@@ -1083,7 +1083,7 @@ class FfdSolutionData(object):
     ----------
     eep_files : list or str
         List of element pattern files for each frequency.
-    frequencies : list, str, int or float
+    frequencies : list, str, int, or float
         List of frequencies.
 
     Examples
