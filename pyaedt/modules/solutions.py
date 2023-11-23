@@ -1703,7 +1703,7 @@ class FfdSolutionData(object):
                     y = temp[theta_idx]
                     y = conversion_function(y, format_quantity)
                     if not isinstance(y, np.ndarray):  # pragma: no cover
-                        self.logger.error("Wrong format quantity")
+                        self.logger.error("Format of quantity is wrong.")
                         return False
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
