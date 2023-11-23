@@ -1863,13 +1863,13 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
-            `"rETheta"`, `"rEPhi"`.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
+            ``"rETheta"``, and ``"rEPhi"``..
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
         export_image_path : str, optional
-            Full path to image file. Default is None to not export.
+            Full path for the image file. The default is ``None``, in which case a file is not exported.
         rotation : list, optional
             It can be a list of numpy list of origin of plot.
             The default is ``[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]``.
