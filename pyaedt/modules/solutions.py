@@ -1368,10 +1368,10 @@ class FfdSolutionData(object):
             Index of array, column.
         b : int
             Index of array, row.
-        theta : float
-            Theta scan angle in degree. Default `0.0`.
-        phi : float
-            Phi scan angle in degree. Default `0.0`.
+        theta : float, optional
+            Theta scan angle in degrees. The default is ``0.0``.
+        phi : float, optional
+            Phi scan angle in degrees. The default is ``0.0``.
 
         Returns
         -------
