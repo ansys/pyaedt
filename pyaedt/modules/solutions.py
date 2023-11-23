@@ -1232,7 +1232,8 @@ class FfdSolutionData(object):
 
     @property
     def mag_offset(self):
-        """List of additional magnitudes on each port. Useful when element has more than one port."""
+        """List of additional magnitudes on each port. This property is
+        useful when an element has more than one port."""
         return self._mag_offset
 
     @mag_offset.setter
