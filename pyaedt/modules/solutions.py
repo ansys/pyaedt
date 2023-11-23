@@ -1884,8 +1884,8 @@ class FfdSolutionData(object):
         Returns
         -------
         bool or :class:`Pyvista.Plotter`
-            Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
-            In other cases return ``True`` when successful.
+            ``True`` when successful. The :class:`Pyvista.Plotter` is returned when ``show`` and
+            ``export_image_path`` are ``False``.
 
         Examples
         --------
