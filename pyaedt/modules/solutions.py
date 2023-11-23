@@ -1613,7 +1613,7 @@ class FfdSolutionData(object):
             **kwargs
     ):
         # fmt: on
-        """Create a 2D plot of specified quantity in matplotlib.
+        """Create a 2D plot of a specified quantity in Matplotlib.
 
         Parameters
         ----------
