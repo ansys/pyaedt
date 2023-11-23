@@ -2588,7 +2588,7 @@ class UpdateBeamForm:
 
     @pyaedt_function_handler()
     def update_theta(self, theta):
-        """Update new theta value."""
+        """Update the Theta value."""
         self._theta = theta
         self._update_both()
 
