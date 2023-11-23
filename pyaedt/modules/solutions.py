@@ -1358,8 +1358,9 @@ class FfdSolutionData(object):
         return w1 * w2
 
     def _phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
-        """Element phase shift for a specific theta and phi scan angle in degrees.
-        Calculates phase shifts between array elements in A and B directions given the lattice vector.
+        """Shift element phase for a specific Theta and Phi scan angle in degrees.
+        
+        This method calculates phase shifts between array elements in A and B directions given the lattice vector.
 
         Parameters
         ----------
