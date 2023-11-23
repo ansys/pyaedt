@@ -2594,7 +2594,7 @@ class UpdateBeamForm:
 
 
 class FieldPlot:
-    """Creates and edits field plots.
+    """Provides for creating and editing field plots.
 
     Parameters
     ----------
