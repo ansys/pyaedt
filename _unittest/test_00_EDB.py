@@ -2993,6 +2993,6 @@ class TestClass:
         simconfig = edbapp.new_simulation_configuration()
         simconfig.import_json(json_file)
         edbapp.build_simulation_project(simconfig)
-        assert round(edbapp.components["X1"].solder_ball_height, 6) == 0.00035
-        assert round(edbapp.components["U1"].solder_ball_height, 6) == 0.0005
+        assert round(edbapp.components["X1"].solder_ball_height, 6) == 0.00025
+        assert round(edbapp.components["U1"].solder_ball_height, 6) == 0.00035
         edbapp.close_edb()

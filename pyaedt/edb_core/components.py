@@ -813,6 +813,8 @@ class Components(object):
         reference_net="gnd",
         port_name=None,
         solder_balls_height=None,
+        solder_balls_size=None,
+        solder_balls_mid_size=None,
     ):
         """Create ports on a component.
 
@@ -840,7 +842,11 @@ class Components(object):
         solder_balls_height : float, optional
             Solder balls height used for the component. When provided default value is overwritten and must be
             provided in meter.
-
+        solder_balls_size : float, optional
+            Solder balls diameter. When provided auto evaluation based on padstack size will be disabled.
+        solder_balls_mid_size : float, optional
+            Solder balls mid diameter. When provided if value is different than solder balls size, spheroid shape will
+            be switched.
         Returns
         -------
         double, bool
@@ -885,15 +891,36 @@ class Components(object):
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             if not pad_params[0] == 7:
-                sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                if not solder_balls_size:
+                    sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                    sball_mid_diam = sball_diam
+                else:
+                    sball_diam = solder_balls_size
+                    if solder_balls_mid_size:
+                        sball_mid_diam = solder_balls_mid_size
+                    else:
+                        sball_mid_diam = solder_balls_size
                 if not solder_balls_height:
                     solder_balls_height = 2 * sball_diam / 3
             else:
-                bbox = pad_params[1]
-                sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                if not solder_balls_size:
+                    bbox = pad_params[1]
+                    sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                else:
+                    if not solder_balls_mid_size:
+                        sball_mid_diam = solder_balls_size
                 if not solder_balls_height:
                     solder_balls_height = 2 * sball_diam / 3
-            self.set_solder_ball(component, solder_balls_height, sball_diam)
+            sball_shape = "Cylinder"
+            if not sball_diam == sball_mid_diam:
+                sball_shape = "Spheroid"
+            self.set_solder_ball(
+                component=component,
+                sball_height=solder_balls_height,
+                sball_diam=sball_diam,
+                sball_mid_diam=sball_mid_diam,
+                shape=sball_shape,
+            )
             for pin in cmp_pins:
                 self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 

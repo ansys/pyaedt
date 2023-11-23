@@ -3140,7 +3140,14 @@ class Edb(Database):
                                 port_type=source_type,
                             )
                         elif isinstance(cmp, dict):
-                            if "refdes" in cmp and "solder_balls_height" in cmp:
+                            if "refdes" in cmp:
+                                if not "solder_balls_height" in cmp:
+                                    cmp["solder_balls_height"] = None
+                                if not "solder_balls_size" in cmp:
+                                    cmp["solder_balls_size"] = None
+                                    cmp["solder_balls_mid_size"] = None
+                                if not "solder_balls_mid_size" in cmp:
+                                    cmp["solder_balls_mid_size"] = None
                                 self.components.create_port_on_component(
                                     cmp["refdes"],
                                     net_list=simulation_setup.signal_nets,
@@ -3148,6 +3155,8 @@ class Edb(Database):
                                     reference_net=simulation_setup.power_nets,
                                     port_type=source_type,
                                     solder_balls_height=cmp["solder_balls_height"],
+                                    solder_balls_size=cmp["solder_balls_size"],
+                                    solder_balls_mid_size=cmp["solder_balls_mid_size"],
                                 )
                     if simulation_setup.generate_solder_balls and not self.hfss.set_coax_port_attributes(
                         simulation_setup
