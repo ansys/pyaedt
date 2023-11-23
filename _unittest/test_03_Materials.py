@@ -210,7 +210,7 @@ class TestClass:
         assert len(mats) == 2
 
     def test_09_non_linear_materials(self, add_app):
-        app = add_app(application=Maxwell3d)
+        app = add_app(application=Maxwell3d, solution_type="Transient")
         mat1 = app.materials.add_material("myMat")
         mat1.permeability = [[0, 0], [1, 12], [10, 30]]
         mat1.permittivity = [[0, 0], [2, 12], [10, 30]]

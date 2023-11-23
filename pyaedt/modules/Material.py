@@ -1160,7 +1160,7 @@ class CommonMaterial(object):
 
         Parameters
         ----------
-        prop : str, optional
+        props : str, optional
             Name of the property.  The default is ``None``.
         """
         if not props:
@@ -2096,6 +2096,9 @@ class Material(CommonMaterial, object):
 
         props = self._get_args(props)
         props.pop(0)
+        props[0][-1][2] = "NAME:Points"
+        points = props[0][-1].pop(2)
+        props[0][-1][2].insert(0, points)
         coefficients = self.odefinition_manager.ComputeCoreLossCoefficients(
             core_loss_model_type, self.mass_density.evaluated_value, props[0]
         )
