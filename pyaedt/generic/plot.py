@@ -1125,7 +1125,9 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def add_object(self, cad_path, cad_color="dodgerblue", opacity=1, units="mm"):
-        """Add a mesh file to the scenario. It can be obj or any of pyvista supported files.
+        """Add a mesh file to the scenario.
+        
+        The mesh file can be an object or any of the PyVista supported files.
 
         Parameters
         ----------
