@@ -2535,7 +2535,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 try:
                     os.remove(os.path.join(original_path, name + ".mtl"))
                 except SystemExit:
-                    self.logger.warning("File can not be removed.")
+                    self.logger.warning("File cannot be removed.")
             obj_list[obj.name] = [
                 os.path.join(os.path.basename(export_path), object_name),
                 obj.color,
