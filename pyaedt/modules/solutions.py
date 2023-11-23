@@ -1780,7 +1780,7 @@ class FfdSolutionData(object):
             Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``,
             ``"imag"``, ``"norm"``, ``"ang"``, ``"and_deg"``.
         export_image_path : str, optional
-            Full path to image file. Default is None to not export.
+            Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is `True`.
 
