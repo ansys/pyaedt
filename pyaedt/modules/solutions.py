@@ -1076,7 +1076,7 @@ class SolutionData(object):
 
 class FfdSolutionData(object):
     """Contains information from the far field solution data.
-    
+
     Load far field data from the element pattern files.
 
     Parameters
@@ -1359,7 +1359,7 @@ class FfdSolutionData(object):
 
     def _phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
         """Shift element phase for a specific Theta and Phi scan angle in degrees.
-        
+
         This method calculates phase shifts between array elements in A and B directions given the lattice vector.
 
         Parameters
