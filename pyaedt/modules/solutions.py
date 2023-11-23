@@ -1527,7 +1527,7 @@ class FfdSolutionData(object):
             Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
             ``"rETheta"``, and ``"rEPhi"``.
         phi_scan : float, int, optional
-            Phi scan angle in degree. Default `0`.
+            Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
             Theta scan angle in degree. Default `0`.
         title : str, optional
