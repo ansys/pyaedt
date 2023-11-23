@@ -1348,7 +1348,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
     ----------
     data : list
     function_str : str, optional
-        The desired conversion function. Default is `"dB10"`.
+        Conversion function. The default is `"dB10"`.
 
     Returns
     -------
