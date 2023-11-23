@@ -1661,6 +1661,7 @@ class Components(object):
     def delete_single_pin_rlc(self, deactivate_only=False):
         # type: (bool) -> list
         """Delete all RLC components with a single pin.
+        Single pin component model type will be reverted to ``"RLC"``.
 
         Parameters
         ----------
@@ -1688,6 +1689,7 @@ class Components(object):
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 if deactivate_only:
                     val.is_enabled = False
+                    val.model_type = "RLC"
                 else:
                     val.edbcomponent.Delete()
                     deleted_comps.append(comp)
