@@ -805,7 +805,14 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd", port_name=None
+        self,
+        component,
+        net_list,
+        port_type=SourceType.CoaxPort,
+        do_pingroup=True,
+        reference_net="gnd",
+        port_name=None,
+        solder_balls_height=None,
     ):
         """Create ports on a component.
 
@@ -830,6 +837,9 @@ class Components(object):
             If a port with the specified name already exists, the
             default naming convention is used so that port creation does
             not fail.
+        solder_balls_height : float, optional
+            Solder balls height used for the component. When provided default value is overwritten and must be
+            provided in meter.
 
         Returns
         -------
@@ -876,12 +886,14 @@ class Components(object):
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             if not pad_params[0] == 7:
                 sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-                solder_ball_height = 2 * sball_diam / 3
+                if not solder_balls_height:
+                    solder_balls_height = 2 * sball_diam / 3
             else:
                 bbox = pad_params[1]
                 sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
-                solder_ball_height = 2 * sball_diam / 3
-            self.set_solder_ball(component, solder_ball_height, sball_diam)
+                if not solder_balls_height:
+                    solder_balls_height = 2 * sball_diam / 3
+            self.set_solder_ball(component, solder_balls_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 
