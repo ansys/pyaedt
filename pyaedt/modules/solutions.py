@@ -1637,7 +1637,7 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         show : bool, optional
-            Whether to show the plot or return the matplotlib object. Default is `True`.
+            Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether this plot is a polar plot. The default is ``True``.
 
