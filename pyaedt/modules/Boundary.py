@@ -5,13 +5,10 @@ from collections import OrderedDict
 import copy
 import re
 
-import pywintypes
-
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.constants import CATEGORIESQ3D
-from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple
@@ -4517,6 +4514,6 @@ def _create_boundary(bound):
             bound._app._boundaries[bound.name] = bound
             return bound
         else:  # pragma : no cover
-            raise SystemExit
-    except (GrpcApiError, SystemExit, pywintypes.com_error):  # pragma: no cover
+            raise Exception
+    except Exception:  # pragma: no cover
         return None
