@@ -2553,10 +2553,10 @@ class UpdateBeamForm:
     ff : :class:`pyaedt.modules.solutions.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
-        Quantity to plot. Default `"RealizedGain"`.
+        Quantity to plot. The default is ``"RealizedGain"``.
     quantity_format : str, optional
         Conversion data function.
-        Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+        Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
     """
 
     def __init__(self, ff, farfield_quantity, quantity_format):
