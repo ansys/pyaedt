@@ -2135,7 +2135,7 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`Pyvista.Plotter`
-            UnstructuredGrid object representing the far field mesh.
+            ``UnstructuredGrid`` object representing the far field mesh.
 
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
