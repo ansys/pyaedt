@@ -2099,7 +2099,7 @@ class Material(CommonMaterial, object):
         coefficients = self.odefinition_manager.ComputeCoreLossCoefficients(
             core_loss_model_type, self.mass_density.evaluated_value, props[0]
         )
-        return coefficients
+        return list(coefficients)
 
     @pyaedt_function_handler()
     def set_coreloss_at_frequency(
