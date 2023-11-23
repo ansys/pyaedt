@@ -1624,7 +1624,7 @@ class FfdSolutionData(object):
         primary_sweep : str, optional.
             X axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
         secondary_sweep_value : float, list, string, optional
-            List of cuts on secondary sweep to plot. Options are `"all"`, single value float or list of float.
+            List of cuts on the secondary sweep to plot. The default is ``0``, Options are ``"all"``, a single value float, or a list of float values.
         phi_scan : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
