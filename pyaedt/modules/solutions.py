@@ -1777,7 +1777,8 @@ class FfdSolutionData(object):
             Plot title. Default `"3D Plot"`.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``,
+            ``"imag"``, ``"norm"``, ``"ang"``, ``"and_deg"``.
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
         show : bool, optional
