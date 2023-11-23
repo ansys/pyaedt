@@ -210,14 +210,9 @@ class TestClass:
     def test_09_manipulate_report_E(self, field_test):
         field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = field_test.available_variations.nominal_w_values_dict
-        variations2["Theta"] = ["All"]
-        variations2["Phi"] = ["All"]
-        variations2["Freq"] = ["30GHz"]
-        variations2["Distance"] = ["All"]
-        assert field_test.post.create_report(
+
+        assert field_test.setups[0].create_report(
             "Mag_E",
-            field_test.nominal_adaptive,
-            variations=variations2,
             primary_sweep_variable="Distance",
             context="Poly1",
             report_category="Fields",
@@ -227,11 +222,10 @@ class TestClass:
         new_report.polyline = "Poly1"
         assert new_report.create()
         new_report = field_test.post.reports_by_category.modal_solution("S(1,1)")
-        new_report.plot_type = "Smith Chart"
+        new_report.report_type = "Smith Chart"
         assert new_report.create()
-        data = field_test.post.get_solution_data(
+        data = field_test.setups[0].get_solution_data(
             "Mag_E",
-            field_test.nominal_adaptive,
             variations=variations2,
             primary_sweep_variable="Theta",
             context="Poly1",
@@ -270,7 +264,7 @@ class TestClass:
         circuit_test.analyze_setup("LNA")
         circuit_test.analyze_setup("Transient")
         assert circuit_test.setups[0].is_solved
-        assert circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
         new_report = circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
         )
@@ -383,7 +377,7 @@ class TestClass:
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
-            variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
+            # variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
             context="Near_Field",
             report_category="Near Fields",
         )

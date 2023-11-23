@@ -1421,9 +1421,11 @@ class TestClass:
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        assert self.aedtapp.modeler.import_nastran(example_project2)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -1481,8 +1483,13 @@ class TestClass:
             name="Wave2",
             renormalize=False,
         )
-        assert self.aedtapp.set_phase_center_per_port()
-        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        if self.aedtapp.desktop_class.is_grpc_api:
+            assert self.aedtapp.set_phase_center_per_port()
+            assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        else:
+            assert not self.aedtapp.set_phase_center_per_port()
+            assert not self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 

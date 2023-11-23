@@ -1669,7 +1669,10 @@ class EDBPadstackInstance(EDBPrimitivesMain):
         float
             Lower elavation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetLowerElevation()
+        try:
+            return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetLowerElevation()
+        except AttributeError:  # pragma: no cover
+            return None
 
     @property
     def upper_elevation(self):
@@ -1680,7 +1683,10 @@ class EDBPadstackInstance(EDBPrimitivesMain):
         float
            Upper elevation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetUpperElevation()
+        try:
+            return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetUpperElevation()
+        except AttributeError:  # pragma: no cover
+            return None
 
     @property
     def top_bottom_association(self):
