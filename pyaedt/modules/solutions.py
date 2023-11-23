@@ -2388,7 +2388,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     sphere_name : str
         Infinite sphere to use.
     setup_name : str
-        Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+        Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
     frequencies : list
         Frequency list to export. String with units is valid and float in Hertz.
     variations : dict, optional
