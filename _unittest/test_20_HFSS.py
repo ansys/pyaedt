@@ -1421,9 +1421,11 @@ class TestClass:
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        assert self.aedtapp.modeler.import_nastran(example_project2)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
