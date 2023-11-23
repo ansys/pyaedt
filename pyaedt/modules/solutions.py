@@ -1857,7 +1857,7 @@ class FfdSolutionData(object):
             **kwargs
     ):
         # fmt: on
-        """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
+        """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
 
         Parameters
         ----------
