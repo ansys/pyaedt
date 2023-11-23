@@ -2146,7 +2146,7 @@ class FfdSolutionData(object):
                 format_quantity = "abs"
 
         if farfield_quantity not in self.farfield_data:
-            self.logger.error("Far field quantity not available")
+            self.logger.error("Far field quantity is not available.")
             return False
 
         data = self.farfield_data[farfield_quantity]
