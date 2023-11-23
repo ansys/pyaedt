@@ -1342,7 +1342,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
     - `"ang"`: Computes the phase angle of the data.
     - `"ang_deg"`: Computes the phase angle of the data in degrees.
 
-    If an invalid function string is provided, the method returns ``False``.
+    If an invalid function string is specified, the method returns ``False``.
 
     Parameters
     ----------
