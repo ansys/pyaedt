@@ -55,7 +55,10 @@ class LayoutValidation:
             else:
                 _padstacks_list[n_name] = [pad]
         dc_shorts = []
+        all_shorted_nets = []
         for net in net_list:
+            if net in all_shorted_nets:
+                continue
             objs = []
             for i in _objects_list.get(net, []):
                 objs.append(i)
@@ -68,11 +71,13 @@ class LayoutValidation:
             connected_objs = objs[0].get_connected_objects()
             connected_objs.append(objs[0])
             net_dc_shorts = [obj for obj in connected_objs]
+            all_shorted_nets.append(net)
             if net_dc_shorts:
                 dc_nets = list(set([obj.net.name for obj in net_dc_shorts if not obj.net.name == net]))
                 for dc in dc_nets:
                     if dc:
                         dc_shorts.append([net, dc])
+                        all_shorted_nets.append(dc)
                 if fix:
                     temp = []
                     for i in net_dc_shorts:

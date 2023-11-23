@@ -1232,13 +1232,20 @@ class Setup3DLayout(CommonSetup):
             `True` if solutions are available.
         """
         if self.props.get("SolveSetupType", "HFSS") == "HFSS":
-            sol = self._app.post.reports_by_category.standard(setup_name="{} : Last Adaptive".format(self.name))
+            combined_name = "{} : Last Adaptive".format(self.name)
+            expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
+            sol = self._app.post.reports_by_category.standard(setup_name=combined_name, expressions=expressions[0])
         elif self.props.get("SolveSetupType", "HFSS") == "SIwave":
+            combined_name = "{} : {}".format(self.name, self.sweeps[0].name)
+            expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(
-                setup_name="{} : {}".format(self.name, self.sweeps[0].name)
+                setup_name=combined_name,
+                expressions=expressions[0],
             )
         else:
-            sol = self._app.post.reports_by_category.standard(setup_name=self.name)
+            expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
+
+            sol = self._app.post.reports_by_category.standard(setup_name=self.name, expressions=expressions[0])
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False

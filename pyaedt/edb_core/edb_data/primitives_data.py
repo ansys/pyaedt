@@ -83,7 +83,10 @@ class EDBPrimitivesMain(Connectable):
         -------
         str
         """
-        return self._edb_object.GetPrimitiveType().ToString()
+        try:
+            return self._edb_object.GetPrimitiveType().ToString()
+        except AttributeError:  # pragma: no cover
+            return ""
 
     @property
     def net_name(self):
@@ -112,7 +115,10 @@ class EDBPrimitivesMain(Connectable):
     @property
     def layer(self):
         """Get the primitive edb layer object."""
-        return self.primitive_object.GetLayer()
+        try:
+            return self.primitive_object.GetLayer()
+        except AttributeError:  # pragma: no cover
+            return None
 
     @property
     def layer_name(self):
@@ -122,7 +128,10 @@ class EDBPrimitivesMain(Connectable):
         -------
         str
         """
-        return self.layer.GetName()
+        try:
+            return self.layer.GetName()
+        except AttributeError:  # pragma: no cover
+            return None
 
     @layer_name.setter
     def layer_name(self, val):
@@ -148,7 +157,10 @@ class EDBPrimitivesMain(Connectable):
         -------
         bool
         """
-        return self._edb_object.IsVoid()
+        try:
+            return self._edb_object.IsVoid()
+        except AttributeError:  # pragma: no cover
+            return None
 
     def get_connected_objects(self):
         """Get connected objects.
