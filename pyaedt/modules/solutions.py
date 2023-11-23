@@ -2520,7 +2520,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     @pyaedt_function_handler()
     def _create_geometries(self, export_path):
         """Export geometry in OBJ format."""
-        self._app.logger.info("Exporting Geometry...")
+        self._app.logger.info("Exporting geometry...")
         model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = {}
         for obj in model_pv.objects:
