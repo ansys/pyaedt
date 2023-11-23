@@ -1855,7 +1855,7 @@ class FfdSolutionData(object):
         Parameters
         ----------
         farfield_quantity : str, optional
-            Quantity to plot. Default `"RealizedGain"`.
+            Quantity to plot. The default is ``"RealizedGain"``.
             Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
             `"rETheta"`, `"rEPhi"`.
         format_quantity : str, optional
