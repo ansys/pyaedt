@@ -1524,8 +1524,8 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
-            `"rETheta"`, `"rEPhi"`.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
+            ``"rETheta"``, and ``"rEPhi"``.
         phi_scan : float, int, optional
             Phi scan angle in degree. Default `0`.
         theta_scan : float, int, optional
