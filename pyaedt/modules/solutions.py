@@ -2478,7 +2478,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                         ]
                     )
                 except:
-                    self._app.logger.error("Failed to export one Element Pattern.")
+                    self._app.logger.error("Failed to export one element pattern.")
                     self._app.logger.error(export_path + exported_name_base + ".ffd")
 
             else:
