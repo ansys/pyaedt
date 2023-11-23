@@ -1239,7 +1239,7 @@ class FfdSolutionData(object):
     @mag_offset.setter
     def mag_offset(self, mags):
         if len(mags) != len(self.all_port_names):
-            self.logger.error("Number of magnitude must be equal to number of ports")
+            self.logger.error("Number of magnitude must be equal to number of ports.")
         else:
             self._mag_offset = mags
             self.farfield_data = self.combine_farfield()
