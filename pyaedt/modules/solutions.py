@@ -1865,11 +1865,11 @@ class FfdSolutionData(object):
             Full path to image file. Default is None to not export.
         rotation : list, optional
             It can be a list of numpy list of origin of plot.
-            Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
+            The default is ``[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]``.
         show : bool, optional
-            Either if the plot has to be shown or not. Default is `True`.
+            Whether to show the plot. The default is ``True``.
         show_as_standalone : bool, optional
-            Either if the plot has to be shown as standalone or not. Default is `True`.
+            Whether to show a plot as standalone. The default is ``True``.
         pyvista_object : :class:`Pyvista.Plotter`, optional
             Pyvista instance defined externally.
         background : list or str, optional
