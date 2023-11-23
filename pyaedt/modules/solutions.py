@@ -1536,7 +1536,7 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
         export_image_path : str, optional
-            Full path to image file. Default is None to not export.
+            Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
                 Colormap levels. Default is `64`.
         show : bool, optional
