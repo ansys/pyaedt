@@ -1626,7 +1626,7 @@ class FfdSolutionData(object):
         secondary_sweep_value : float, list, string, optional
             List of cuts on secondary sweep to plot. Options are `"all"`, single value float or list of float.
         phi_scan : float, int, optional
-            Phi scan angle in degree. Default `0`.
+            Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
             Theta scan angle in degree. Default `0`.
         title : str, optional
