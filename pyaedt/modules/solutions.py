@@ -1403,10 +1403,10 @@ class FfdSolutionData(object):
 
         Parameters
         ----------
-        phi_scan : float
-            Phi scan angle in degree. Default `0.0`.
-        theta_scan : float
-            Theta scan angle in degree. Default `0.0`.
+        phi_scan : float, optional
+            Phi scan angle in degrees. The default is ``0.0``.
+        theta_scan : float, optional
+            Theta scan angle in degrees. The default is ``0.0``.
 
         Returns
         -------
