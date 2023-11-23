@@ -1572,7 +1572,7 @@ class FfdSolutionData(object):
 
         data = self.combine_farfield(phi_scan, theta_scan)
         if farfield_quantity not in data:  # pragma: no cover
-            self.logger.error("Far field quantity not available")
+            self.logger.error("Far field quantity is not available.")
             return False
 
         data_to_plot = data[farfield_quantity]
