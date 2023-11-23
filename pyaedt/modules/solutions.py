@@ -1695,7 +1695,7 @@ class FfdSolutionData(object):
                 y = temp[idx]
                 y = conversion_function(y, format_quantity)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
-                    self.logger.error("Wrong format quantity")
+                    self.logger.error("Format of quantity is wrong.")
                     return False
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
