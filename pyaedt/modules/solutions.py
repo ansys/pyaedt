@@ -2120,7 +2120,7 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def get_far_field_mesh(self, farfield_quantity="RealizedGain", format_quantity="dB10", **kwargs):
-        """Generate a PyVista UnstructuredGrid object that represents the far field mesh.
+        """Generate a PyVista ``UnstructuredGrid`` object that represents the far field mesh.
 
         Parameters
         ----------
