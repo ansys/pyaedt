@@ -2316,7 +2316,7 @@ class FfdSolutionData(object):
         Parameters
         ----------
         port_name : str or list
-            Port name or list of port names.
+            Port name or a list of port names.
 
         Returns
         -------
