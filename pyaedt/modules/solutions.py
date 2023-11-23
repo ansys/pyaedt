@@ -1225,7 +1225,7 @@ class FfdSolutionData(object):
     @phase_offset.setter
     def phase_offset(self, phases):
         if len(phases) != len(self.all_port_names):
-            self.logger.error("Number of phases must be equal to number of ports")
+            self.logger.error("Number of phases must be equal to number of ports.")
         else:
             self._phase_offset = phases
             self.farfield_data = self.combine_farfield()
