@@ -5,10 +5,13 @@ from collections import OrderedDict
 import copy
 import re
 
+import pywintypes
+
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.constants import CATEGORIESQ3D
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple
@@ -4506,3 +4509,14 @@ class NetworkObject(BoundaryObject):
                     node_args[k] = val
 
             return node_args
+
+
+def _create_boundary(bound):
+    try:
+        if bound.create():
+            bound._app._boundaries[bound.name] = bound
+            return bound
+        else:  # pragma : no cover
+            raise SystemExit
+    except (GrpcApiError, SystemExit, pywintypes.com_error):  # pragma: no cover
+        return None
