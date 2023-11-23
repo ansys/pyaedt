@@ -2003,7 +2003,7 @@ class Material(CommonMaterial, object):
         conductivity=0,
         coefficient_setup="w_per_cubic_meter",
     ):
-        """Get electrical steel or power ferrite core loss coefficients from the loss characteristics (BP curve) at a given frequency.
+        """Get electrical steel or power ferrite core loss coefficients at a given frequency.
 
         Parameters
         ----------
