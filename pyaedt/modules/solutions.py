@@ -1083,8 +1083,10 @@ class FfdSolutionData(object):
     ----------
     eep_files : list or str
         List of element pattern files for each frequency.
+        If the input is string, assumes it is a single frequency.
     frequencies : list, str, int, or float
         List of frequencies.
+        If the input is not a list, assumes it is a single frequency.
 
     Examples
     --------
@@ -1524,8 +1526,8 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
-            ``"rETheta"``, and ``"rEPhi"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         phi_scan : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
@@ -1534,7 +1536,8 @@ class FfdSolutionData(object):
             Plot title. The default is ``"RectangularPlot"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
+            and ``"and_deg"``.
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
@@ -1618,13 +1621,14 @@ class FfdSolutionData(object):
         Parameters
         ----------
         farfield_quantity : str, optional
-            Quantity to plot. Default `"RealizedGain"`.
-            Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
-            `"rETheta"`, `"rEPhi"`.
+            Quantity to plot. The default is ``"RealizedGain"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         primary_sweep : str, optional.
             X axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
         secondary_sweep_value : float, list, string, optional
-            List of cuts on the secondary sweep to plot. The default is ``0``, Options are ``"all"``, a single value float, or a list of float values.
+            List of cuts on the secondary sweep to plot. The default is ``0``. Options are
+            `"all"`, a single value float, or a list of float values.
         phi_scan : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
@@ -1633,11 +1637,13 @@ class FfdSolutionData(object):
             Plot title. The default is ``"RectangularPlot"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: `"dB10"`, `"dB20"`, "`abs"`, `"real"`, `"imag"`, `"norm"`, `"ang"`, `"and_deg"`.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``,
+            ``"norm"``, ``"ang"``, and ``"deg"``.
         export_image_path : str, optional
-            Full path to image file. Default is None to not export.
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
-            Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib instance of the plot is shown.
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether this plot is a polar plot. The default is ``True``.
 
@@ -1767,8 +1773,8 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
-            ``"rETheta"``, and ``"rEPhi"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         phi_scan : float, int, optional
             Phi scan angle in degree. Default `0`.
         theta_scan : float, int, optional
@@ -1863,15 +1869,16 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
-            ``"rETheta"``, and ``"rEPhi"``..
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
+            and ``"and_deg"``.
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         rotation : list, optional
-            It can be a list of numpy list of origin of plot.
+            Far field rotation matrix. The matrix contains three vectors, around x, y, and z axes.
             The default is ``[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]``.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
@@ -1935,7 +1942,6 @@ class FfdSolutionData(object):
 
         self.mesh = self.get_far_field_mesh(qty_str=farfield_quantity, quantity_format=format_quantity)
 
-        # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
         if not export_image_path and not show:
@@ -2135,11 +2141,12 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``, ``"rETotal"``,
-            ``"rETheta"``, and ``"rEPhi"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
+            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
+            and ``"and_deg"``.
 
         Returns
         -------
@@ -2399,7 +2406,8 @@ class FfdSolutionDataExporter(FfdSolutionData):
     setup_name : str
         Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
     frequencies : list
-        Frequency list to export. String with units is valid and float in Hertz.
+        Frequency list to export. List of strings with units is valid or list of float in Hertz units.
+        For example, ``["9GHz", 9e9]``.
     variations : dict, optional
         Dictionary of all families including the primary sweep. The default value is ``None``.
     overwrite : bool, optional
@@ -2567,7 +2575,8 @@ class UpdateBeamForm:
         Quantity to plot. The default is ``"RealizedGain"``.
     quantity_format : str, optional
         Conversion data function.
-        Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``, and ``"and_deg"``.
+        Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
+         and ``"and_deg"``.
     """
 
     def __init__(self, ff, farfield_quantity, quantity_format):
