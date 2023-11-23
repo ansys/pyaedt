@@ -2291,7 +2291,7 @@ class FfdSolutionData(object):
                         object_in[3],
                     )
                 else:
-                    self.logger.warning("Geometry objects not defined")
+                    self.logger.warning("Geometry objects are not defined.")
                     return False
             self.__model_units = first_value[3]
             model_pv.generate_geometry_mesh()
