@@ -1337,3 +1337,28 @@ class TestClass:
             thermal_specification="Temperature",
             flow_assignment=flow_dict,
         )
+
+    def test_70_blower_boundary(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
+        curved_face = [f for f in cylinder.faces if not f.is_planar]
+        planar_faces = [f for f in cylinder.faces if f.is_planar]
+        assert not self.aedtapp.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])
+        blower = self.aedtapp.assign_blower_type1(
+            [f.id for f in curved_face + planar_faces], [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4]
+        )
+        assert blower
+        assert blower.update()
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        assert self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]], [box.faces[0]], [10, 5, 0], [0, 2, 4])
+
+    def test_71_assign_adiabatic_plate(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [1, 2])
+        assert self.aedtapp.assign_adiabatic_plate(
+            box.top_face_x, {"RadiateTo": "AllObjects"}, {"RadiateTo": "AllObjects"}
+        )
+        assert self.aedtapp.assign_adiabatic_plate(box.top_face_x.id)
+        assert self.aedtapp.assign_adiabatic_plate(rectangle)
+        ad_plate = self.aedtapp.assign_adiabatic_plate(rectangle.name)
+        assert ad_plate
+        assert ad_plate.update()

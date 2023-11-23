@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
@@ -90,6 +91,7 @@ class TestClass:
     def test_06a_set_temp_dir(self):
         assert os.path.exists(self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir")))
         assert self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir"))
+        self.aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_08_objects(self):
         print(self.aedtapp.oboundary)

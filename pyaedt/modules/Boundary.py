@@ -570,6 +570,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignGrilleBoundary(self._get_args())
         elif bound_type == "Block":
             self._app.oboundary.AssignBlockBoundary(self._get_args())
+        elif bound_type == "Blower":
+            self._app.oboundary.AssignBlowerBoundary(self._get_args())
         elif bound_type == "SourceIcepak":
             self._app.oboundary.AssignSourceBoundary(self._get_args())
         elif bound_type == "Opening":
@@ -748,6 +750,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())  # pragma: no cover
         elif bound_type == "Block":
             self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
+        elif bound_type == "Blower":
+            self._app.oboundary.EditBlowerBoundary(self._boundary_name, self._get_args())
         elif bound_type == "SourceIcepak":
             self._app.oboundary.EditSourceBoundary(self._boundary_name, self._get_args())
         elif bound_type == "HeatFlux":
