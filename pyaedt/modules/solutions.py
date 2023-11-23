@@ -1622,7 +1622,7 @@ class FfdSolutionData(object):
             Available functions are: `"RealizedGain"`, `"RealizedGain_Theta"`, "`RealizedGain_Phi"`, `"rETotal"`,
             `"rETheta"`, `"rEPhi"`.
         primary_sweep : str, optional.
-            X Axis variable. Default is `"phi"`. Option is  `"theta"`.
+            X axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
         secondary_sweep_value : float, list, string, optional
             List of cuts on secondary sweep to plot. Options are `"all"`, single value float or list of float.
         phi_scan : float, int, optional
