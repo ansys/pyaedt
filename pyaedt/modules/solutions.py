@@ -1538,9 +1538,10 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
-                Colormap levels. Default is `64`.
+                Colormap levels. The default is ``64``.
         show : bool, optional
-            Whether to show the plot or return the matplotlib object. Default is `True`.
+            Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib
+            instance of the plot is shown.
 
         Returns
         -------
