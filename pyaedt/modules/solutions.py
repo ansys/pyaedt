@@ -1639,7 +1639,7 @@ class FfdSolutionData(object):
         show : bool, optional
             Whether to show the plot or return the matplotlib object. Default is `True`.
         is_polar : bool, optional
-            Set to `True` if this is a polar plot.
+            Whether this plot is a polar plot. The default is ``True``.
 
         Returns
         -------
