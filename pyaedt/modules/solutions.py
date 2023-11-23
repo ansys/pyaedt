@@ -2514,7 +2514,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 with open(metadata_file_name, "w") as f:
                     json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
-        self._app.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
+        self._app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
         return path_dict
 
     @pyaedt_function_handler()
