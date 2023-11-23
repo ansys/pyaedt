@@ -2547,7 +2547,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
 
 class UpdateBeamForm:
     """Provides for updating far field data.
-    
+
     This class is used to interact with the far field Theta and Phi scan.
 
     Parameters

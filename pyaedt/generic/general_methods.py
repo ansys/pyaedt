@@ -1330,7 +1330,7 @@ def compute_fft(time_vals, value):  # pragma: no cover
 @pyaedt_function_handler()
 def conversion_function(data, function_str=None):  # pragma: no cover
     """Convert input data based on a specified function string.
-    
+
     The available functions are:
 
     - `"dB10"`: Converts the data to decibels using base 10 logarithm.
