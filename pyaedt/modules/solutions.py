@@ -2166,7 +2166,7 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def _read_eep_files(self, eep_path):
-        """Reads the EEP file and populates all attributes with information about each port in the file.
+        """Read the EEP file and populate all attributes with information about each port in the file.
 
         Parameters
         ----------
