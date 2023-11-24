@@ -825,7 +825,7 @@ class EmitRadioComponent(EmitComponent):
         freq_float_in_Hz = consts.unit_converter(band_stop_freq, "Freq", units, "Hz")
         if not (1 <= freq_float_in_Hz <= 100000000000):  # pragma: no cover
             raise ValueError("Frequency should be within 1Hz to 100 GHz.")
-        if float(band_node.props["StartFrequency"]) > freq_float_in_Hz:
+        if float(band_node.props["StartFrequency"]) > freq_float_in_Hz:  # pragma: no cover
             if freq_float_in_Hz > 1:
                 band_node._set_prop_value({"StartFrequency": str(freq_float_in_Hz - 1)})
             else:
