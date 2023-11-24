@@ -1143,7 +1143,7 @@ class Configurations(object):
         dict_out["general"]["date"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         dict_out["general"]["object_mapping"] = {}
         dict_out["general"]["output_variables"] = {}
-        if self._app.output_variables:
+        if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
             with open(oo_out, "r") as f:
