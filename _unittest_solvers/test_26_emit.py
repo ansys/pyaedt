@@ -229,9 +229,21 @@ class TestClass:
             radio.set_band_start_frequency(band, start_freq, units=units)
             radio.set_band_stop_frequency(band, stop_freq, units=units)
             assert radio.band_start_frequency(band, units="Hz") == 8
+            radio.set_band_start_frequency(band, 10, units=units)
+            assert radio.band_stop_frequency(band, units="Hz") == 11
             units = 'wrong'
             radio.set_band_stop_frequency(band, 10, units=units)
             assert radio.band_stop_frequency(band, units='Hz') == 10
+            radio.set_band_start_frequency(band, 10, units=units)
+            assert radio.band_start_frequency(band, units='Hz') == 10
+            with pytest.raises(ValueError) as e:
+                start_freq = 101
+                units = 'GHz'
+                radio.set_band_start_frequency(band, start_freq, units=units)
+                assert "Frequency should be within 1Hz to 100 GHz." in str(e)
+                stop_freq = 102
+                radio.set_band_stop_frequency(band, stop_freq, units=units)
+                assert "Frequency should be within 1Hz to 100 GHz." in str(e)
 
             # test power unit conversions
             band_power = radio.band_tx_power(band)

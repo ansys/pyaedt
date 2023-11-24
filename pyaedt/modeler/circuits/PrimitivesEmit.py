@@ -745,7 +745,7 @@ class EmitRadioComponent(EmitComponent):
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
 
     def set_band_start_frequency(self, band_node, band_start_freq, units=""):
-        """Set start frequency of a given band.
+        """Set start frequency of the band.
 
         Parameters
         ----------
@@ -771,8 +771,9 @@ class EmitRadioComponent(EmitComponent):
         >>> units = 'MHz'
         >>> radio.set_band_start_frequency(band, start_freq, units=units)
         """
-        if "Band" not in band_node.props["Type"]:
-            raise TypeError("{} must be a band.".format(band_node.node_name))
+
+        # if "Band" not in band_node.props["Type"]:
+        #     raise TypeError("{} must be a band.".format(band_node.node_name))
 
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
@@ -799,7 +800,8 @@ class EmitRadioComponent(EmitComponent):
         band_stop_freq : float
             Stop frequency of the band.
         units : str, optional
-            Units of the stop frequency. If invalid or no units specified, ``Hz`` is assumed.
+            Units of the stop frequency. If no units are specified or the units
+            specified are invalid, then `"Hz"`` is assumed.
 
         Returns
         ------
@@ -815,8 +817,8 @@ class EmitRadioComponent(EmitComponent):
         >>> units = 'MHz'
         >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
         """
-        if "Band" not in band_node.props["Type"]:
-            raise TypeError("{} must be a band.".format(band_node.node_name))
+        # if "Band" not in band_node.props["Type"]:
+        #     raise TypeError("{} must be a band.".format(band_node.node_name))
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         # convert to Hz
