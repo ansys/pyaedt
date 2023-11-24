@@ -1439,6 +1439,8 @@ class EdbHfss(object):
             and "refdes" in simulation_setup.components[0]
         ):
             cmp_names = [cmp["refdes"] for cmp in simulation_setup.components]
+        else:
+            cmp_names = []
         ii = 0
         for cc in cmp_names:
             cmp = self._pedb.edb_api.cell.hierarchy.component.FindByName(self._active_layout, cc)
