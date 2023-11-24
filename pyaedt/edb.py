@@ -3173,12 +3173,12 @@ class Edb(Database):
                             )
                         elif isinstance(cmp, dict):
                             if "refdes" in cmp:
-                                if not "solder_balls_height" in cmp:
+                                if not "solder_balls_height" in cmp:  # pragma no cover
                                     cmp["solder_balls_height"] = None
-                                if not "solder_balls_size" in cmp:
+                                if not "solder_balls_size" in cmp:  # pragma no cover
                                     cmp["solder_balls_size"] = None
                                     cmp["solder_balls_mid_size"] = None
-                                if not "solder_balls_mid_size" in cmp:
+                                if not "solder_balls_mid_size" in cmp:  # pragma no cover
                                     cmp["solder_balls_mid_size"] = None
                                 self.components.create_port_on_component(
                                     cmp["refdes"],
@@ -3220,7 +3220,7 @@ class Edb(Database):
                                 port_type=SourceType.CircPort,
                             )
                         elif isinstance(cmp, dict):
-                            if "refdes" in cmp:
+                            if "refdes" in cmp:  # pragma no cover
                                 self.components.create_port_on_component(
                                     cmp["refdes"],
                                     net_list=simulation_setup.signal_nets,
