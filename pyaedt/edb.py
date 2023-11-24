@@ -3098,10 +3098,9 @@ class Edb(Database):
                         idx = simulation_setup.signal_layer_etching_instances.index(layer)
                         if len(simulation_setup.etching_factor_instances) > idx:
                             self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
-
             if not simulation_setup.signal_nets and simulation_setup.components:
                 nets_to_include = []
-                pnets = list(self.nets.power_nets.keys())[:]
+                pnets = list(self.nets.power.keys())[:]
                 for el in simulation_setup.components:
                     nets_to_include.append([i for i in self.components[el].nets if i not in pnets])
                 simulation_setup.signal_nets = [
@@ -3164,13 +3163,33 @@ class Edb(Database):
                     if not simulation_setup.generate_solder_balls:
                         source_type = SourceType.CircPort
                     for cmp in simulation_setup.components:
-                        self.components.create_port_on_component(
-                            cmp,
-                            net_list=simulation_setup.signal_nets,
-                            do_pingroup=False,
-                            reference_net=simulation_setup.power_nets,
-                            port_type=source_type,
-                        )
+                        if isinstance(cmp, str):  # keep legacy component
+                            self.components.create_port_on_component(
+                                cmp,
+                                net_list=simulation_setup.signal_nets,
+                                do_pingroup=False,
+                                reference_net=simulation_setup.power_nets,
+                                port_type=source_type,
+                            )
+                        elif isinstance(cmp, dict):
+                            if "refdes" in cmp:
+                                if not "solder_balls_height" in cmp:  # pragma no cover
+                                    cmp["solder_balls_height"] = None
+                                if not "solder_balls_size" in cmp:  # pragma no cover
+                                    cmp["solder_balls_size"] = None
+                                    cmp["solder_balls_mid_size"] = None
+                                if not "solder_balls_mid_size" in cmp:  # pragma no cover
+                                    cmp["solder_balls_mid_size"] = None
+                                self.components.create_port_on_component(
+                                    cmp["refdes"],
+                                    net_list=simulation_setup.signal_nets,
+                                    do_pingroup=False,
+                                    reference_net=simulation_setup.power_nets,
+                                    port_type=source_type,
+                                    solder_balls_height=cmp["solder_balls_height"],
+                                    solder_balls_size=cmp["solder_balls_size"],
+                                    solder_balls_mid_size=cmp["solder_balls_mid_size"],
+                                )
                     if simulation_setup.generate_solder_balls and not self.hfss.set_coax_port_attributes(
                         simulation_setup
                     ):  # pragma: no cover
@@ -3192,17 +3211,26 @@ class Edb(Database):
             if simulation_setup.solver_type == SolverType.SiwaveSYZ:
                 if simulation_setup.generate_excitations:
                     for cmp in simulation_setup.components:
-                        self.components.create_port_on_component(
-                            cmp,
-                            net_list=simulation_setup.signal_nets,
-                            do_pingroup=simulation_setup.do_pingroup,
-                            reference_net=simulation_setup.power_nets,
-                            port_type=SourceType.CircPort,
-                        )
+                        if isinstance(cmp, str):  # keep legacy
+                            self.components.create_port_on_component(
+                                cmp,
+                                net_list=simulation_setup.signal_nets,
+                                do_pingroup=simulation_setup.do_pingroup,
+                                reference_net=simulation_setup.power_nets,
+                                port_type=SourceType.CircPort,
+                            )
+                        elif isinstance(cmp, dict):
+                            if "refdes" in cmp:  # pragma no cover
+                                self.components.create_port_on_component(
+                                    cmp["refdes"],
+                                    net_list=simulation_setup.signal_nets,
+                                    do_pingroup=simulation_setup.do_pingroup,
+                                    reference_net=simulation_setup.power_nets,
+                                    port_type=SourceType.CircPort,
+                                )
                 self.logger.info("Configuring analysis setup.")
                 if not self.siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
-
             if simulation_setup.solver_type == SolverType.SiwaveDC:
                 if simulation_setup.generate_excitations:
                     self.components.create_source_on_component(simulation_setup.sources)
