@@ -206,6 +206,45 @@ class TestClass:
             assert start_freq == 0.1
             start_freq = radio.band_start_frequency(band, "THz")
             assert start_freq == 0.0001
+            # test band.set_band_start_frequency
+            start_freq = 10
+            units = 'MHz'
+            radio.set_band_start_frequency(band, start_freq, units=units)
+            assert radio.band_start_frequency(band, units=units) == start_freq
+            start_freq = 20000000
+            radio.set_band_start_frequency(band, start_freq)
+            assert radio.band_start_frequency(band, units='Hz') == start_freq
+            # test band.set_band_stop_frequency
+            stop_freq = 30
+            units = 'MHz'
+            radio.set_band_stop_frequency(band, stop_freq, units=units)
+            assert radio.band_stop_frequency(band, units=units) == stop_freq
+            stop_freq = 40000000
+            radio.set_band_stop_frequency(band, stop_freq)
+            assert radio.band_stop_frequency(band, units='Hz') == stop_freq
+            # test corner cases for band start and stop frequencies
+            start_freq = 10
+            stop_freq = 9
+            units = 'Hz'
+            radio.set_band_start_frequency(band, start_freq, units=units)
+            radio.set_band_stop_frequency(band, stop_freq, units=units)
+            assert radio.band_start_frequency(band, units="Hz") == 8
+            radio.set_band_start_frequency(band, 10, units=units)
+            assert radio.band_stop_frequency(band, units="Hz") == 11
+            units = 'wrong'
+            radio.set_band_stop_frequency(band, 10, units=units)
+            assert radio.band_stop_frequency(band, units='Hz') == 10
+            radio.set_band_start_frequency(band, 10, units=units)
+            assert radio.band_start_frequency(band, units='Hz') == 10
+            with pytest.raises(ValueError) as e:
+                start_freq = 101
+                units = 'GHz'
+                radio.set_band_start_frequency(band, start_freq, units=units)
+                assert "Frequency should be within 1Hz to 100 GHz." in str(e)
+                stop_freq = 102
+                radio.set_band_stop_frequency(band, stop_freq, units=units)
+                assert "Frequency should be within 1Hz to 100 GHz." in str(e)
+
             # test power unit conversions
             band_power = radio.band_tx_power(band)
             assert band_power == 40.0
