@@ -12,6 +12,7 @@ from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -1250,6 +1251,10 @@ class Icepak(FieldAnalysis3D):
         ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         """
+        warnings.warn(
+            "This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.",
+            DeprecationWarning,
+        )  # TODO: update deprecation number
         all_objs = self.modeler.object_names
         self["FinPitch"] = self.modeler._arg_with_dim(pitch)
         self["FinThickness"] = self.modeler._arg_with_dim(thick)
@@ -1374,6 +1379,330 @@ class Icepak(FieldAnalysis3D):
         self.modeler.unite(list_to_move)
         self.modeler[list_to_move[0]].name = "HeatSink1"
         return True
+
+    @pyaedt_function_handler()
+    def create_parametric_heatsink_on_face(
+        self,
+        top_face,
+        relative=True,
+        hs_basethick=0.1,
+        fin_thick=0.05,
+        fin_length=0.25,
+        fin_height=0.5,
+        draft_angle=0,
+        pattern_angle=10,
+        separation=0.05,
+        column_separation=0.05,
+        symmetric=True,
+        symmetric_separation=0.05,
+        numcolumn_perside=2,
+        matname="Al-Extruded",
+    ):
+        """Create a parametric heat sink.
+
+        Parameters
+        ----------
+        top_face : modeler.cad.elements3d.FacePrimitive
+            Face on which to build the heatsink.
+        relative : bool, optional
+            Whether the dimensions used as arguments of the function are
+            absolute or relative to the width and the height of the
+            top_face.
+        hs_basethick : float, optional
+            Thickness of the heat sink base. If ``relative==True``, it is the
+            fraction of the ``top_face`` width. The default is ``0.1``.
+        fin_thick : float, optional
+            Thickness of the fin. If ``relative==True``, it is the fraction of
+             the ``top_face`` height. The default is ``0.50``.
+        fin_length : float, optional
+            Length of the fin. If ``relative==True``, it is the fraction of
+            the ``top_face`` width. The default is ``0.25``.
+        fin_height : float, optional
+            Height of the fin. If ``relative==True``, it is the fraction of
+            the ``top_face`` height. The default is ``1``.
+        draft_angle : float, optional
+            Draft angle in degrees. The default is ``0``.
+        pattern_angle : float, optional
+            Pattern angle in degrees. The default is ``10``.
+        separation : float, optional
+            Separation among the fins of one column. If ``relative==True``,
+            it is the fraction of the ``top_face`` width. The default is
+            ``0.05``.
+        column_separation : float, optional
+            Separation among columns of fins. If ``relative==True``, it is the
+            fraction of the ``top_face`` height. The default is ``0.1``.
+        symmetric : bool, optional
+            Whether the heat sink is symmetric. The default is ``True``.
+        symmetric_separation : optional
+            Separation between the two sides. If ``relative==True``, it is the
+            fraction of the ``top_face`` height. The default is ``0.01``.
+        numcolumn_perside : int, optional
+            Number of columns per side. The default is ``2``.
+        matname : str, optional
+            Name of the material. The default is ``Al-Extruded``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Heatsink created or ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([0,0,0], [1,2,3])
+        >>> top_face=box.top_face_z
+        >>> ipk.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        """
+        all_obj = self.modeler.object_names
+        center = top_face.center
+        ref_edge = top_face.edges[0]
+        if not go.is_parallel(
+            ref_edge.vertices[0].position,
+            ref_edge.vertices[1].position,
+            top_face.edges[1].vertices[0].position,
+            top_face.edges[1].vertices[1].position,
+        ):
+            perp_edge = top_face.edges[1]
+        else:
+            perp_edge = top_face.edges[2]
+
+        hs_height = ref_edge.length
+        hs_width = perp_edge.length
+        x_vect = [ref_edge.midpoint[i] - center[i] for i in range(3)]
+        y_vect = [perp_edge.midpoint[i] - center[i] for i in range(3)]
+        self.modeler.create_coordinate_system(origin=center, x_pointing=x_vect, y_pointing=y_vect)
+
+        hs_name = generate_unique_name("Heatsink")
+        hs_code = hs_name.replace("Heatsink_", "")
+
+        name_map = {
+            "HSHeight": "HSHeight_" + hs_code,
+            "HSWidth": "HSWidth_" + hs_code,
+            "DraftAngle": "DraftAngle_" + hs_code,
+            "PatternAngle": "PatternAngle_" + hs_code,
+            "FinThickness": "FinThickness_" + hs_code,
+            "FinLength": "FinLength_" + hs_code,
+            "FinHeight": "FinHeight_" + hs_code,
+            "ColumnSeparation": "ColumnSeparation_" + hs_code,
+            "FinSeparation": "FinSeparation_" + hs_code,
+            "HSBaseThick": "HSBaseThick_" + hs_code,
+            "NumColumnsPerSide": "NumColumnsPerSide_" + hs_code,
+            "SymSeparation_Factor": "SymSeparation_Factor_" + hs_code,
+            "SymSeparation": "SymSeparation_" + hs_code,
+            "_num": "_num_" + hs_code,
+        }
+
+        self[name_map["HSHeight"]] = self.modeler._arg_with_dim(hs_height)
+        self[name_map["HSWidth"]] = self.modeler._arg_with_dim(hs_width)
+        self[name_map["DraftAngle"]] = draft_angle
+        self[name_map["PatternAngle"]] = pattern_angle
+
+        for var, var_name, width_or_height in zip(
+            [fin_thick, fin_length, fin_height, column_separation, separation, hs_basethick],
+            ["FinThickness", "FinLength", "FinHeight", "ColumnSeparation", "FinSeparation", "HSBaseThick"],
+            [0, 1, 0, 0, 1, 1],
+        ):
+            if relative:
+                name_map[var_name + "_Factor"] = var_name + "_Factor_" + hs_code
+                self[name_map[var_name + "_Factor"]] = var
+                self[name_map[var_name]] = (
+                    name_map[var_name + "_Factor"] + "*" + [name_map["HSHeight"], name_map["HSWidth"]][width_or_height]
+                )
+            else:
+                self[name_map[var_name]] = self.modeler._arg_with_dim(var)
+
+        if numcolumn_perside > 1:
+            self[name_map["NumColumnsPerSide"]] = numcolumn_perside
+        if symmetric:
+            if relative:
+                self[name_map["SymSeparation_Factor"]] = symmetric_separation
+                self[name_map["SymSeparation"]] = name_map["SymSeparation_Factor"] + "*" + name_map["HSHeight"]
+            else:
+                self[name_map["SymSeparation"]] = self.modeler._arg_with_dim(symmetric_separation)
+
+        hs_base = self.modeler.create_box(
+            ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
+            [name_map["HSWidth"], name_map["HSHeight"], name_map["HSBaseThick"]],
+            generate_unique_name("HSBase"),
+            matname,
+        )
+        fin_line = []
+        fin_line.append(self.Position(0, 0, name_map["HSBaseThick"]))
+        fin_line.append(self.Position(0, name_map["FinThickness"], name_map["HSBaseThick"]))
+        fin_line.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinThickness"]
+                + "+"
+                + name_map["FinLength"]
+                + "*sin("
+                + name_map["PatternAngle"]
+                + "*3.14/180)",
+                name_map["HSBaseThick"],
+            )
+        )
+        fin_line.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                name_map["HSBaseThick"],
+            )
+        )
+        fin_line.append(self.Position(0, 0, name_map["HSBaseThick"]))
+        fin_base = self.modeler.create_polyline(fin_line, cover_surface=True, name=generate_unique_name("Fin"))
+        fin_line2 = []
+        fin_line2.append(
+            self.Position(
+                0,
+                "sin(" + name_map["DraftAngle"] + "*3.14/180)*" + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_line2.append(
+            self.Position(
+                0,
+                name_map["FinThickness"] + "-sin(" + name_map["DraftAngle"] + "*3.14/180)*" + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_line2.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinThickness"]
+                + " + "
+                + name_map["FinLength"]
+                + "*sin("
+                + name_map["PatternAngle"]
+                + "*3.14/180)-sin("
+                + name_map["DraftAngle"]
+                + "*3.14/180)*"
+                + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_line2.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinLength"]
+                + "*sin("
+                + name_map["PatternAngle"]
+                + "*3.14/180)+sin("
+                + name_map["DraftAngle"]
+                + "*3.14/180)*"
+                + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_line2.append(
+            self.Position(
+                0,
+                "sin(" + name_map["DraftAngle"] + "*3.14/180)*" + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_top = self.modeler.create_polyline(fin_line2, cover_surface=True, name=generate_unique_name("Fin_top"))
+        self.modeler.connect([fin_base.name, fin_top.name])
+        self.modeler[fin_base.name].material_name = matname
+        self[name_map["_num"]] = (
+            "nint(("
+            + name_map["HSWidth"]
+            + "+"
+            + name_map["FinLength"]
+            + "*sin("
+            + name_map["PatternAngle"]
+            + "*3.14/180))/("
+            + name_map["FinSeparation"]
+            + " + "
+            + name_map["FinThickness"]
+            + "))"
+        )
+        self.modeler.move(
+            fin_base.name,
+            self.Position(
+                "-" + name_map["HSHeight"] + "/2",
+                "-"
+                + name_map["HSWidth"]
+                + "/2-("
+                + name_map["FinSeparation"]
+                + "+"
+                + name_map["FinThickness"]
+                + ")*"
+                + name_map["_num"],
+                0,
+            ),
+        )
+        self.modeler.duplicate_along_line(
+            fin_base.name,
+            self.Position(0, name_map["FinSeparation"] + "+" + name_map["FinThickness"], 0),
+            name_map["_num"] + "*2",
+            True,
+        )
+        if numcolumn_perside > 0:
+            self.modeler.duplicate_along_line(
+                fin_base.name,
+                self.Position(
+                    name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
+                    name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                    0,
+                ),
+                name_map["NumColumnsPerSide"],
+                True,
+            )
+        cs = self.modeler.oeditor.GetActiveCoordinateSystem()
+        cs_ymax = self.modeler.create_coordinate_system(
+            self.Position(0, name_map["HSHeight"] + "/2", 0),
+            mode="view",
+            view="XY",
+            name=generate_unique_name("yMax"),
+            reference_cs=cs,
+        )
+        self.modeler.set_working_coordinate_system(cs_ymax.name)
+        self.modeler.split(fin_base.name, self.PLANE.ZX, "NegativeOnly")
+        cs_ymin = self.modeler.create_coordinate_system(
+            self.Position(0, "-" + name_map["HSHeight"], 0),
+            mode="view",
+            view="XY",
+            name=generate_unique_name("yMin"),
+            reference_cs=cs_ymax.name,
+        )
+        self.modeler.set_working_coordinate_system(cs_ymin.name)
+        self.modeler.split(fin_base.name, self.PLANE.ZX, "PositiveOnly")
+
+        if symmetric:
+            cs_center_right_sep = self.modeler.create_coordinate_system(
+                self.Position("-" + name_map["SymSeparation"] + "/2", 0, 0),
+                mode="view",
+                view="XY",
+                name=generate_unique_name("CenterRightSep"),
+                reference_cs=cs_ymax.name,
+            )
+
+            self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
+            self.modeler.create_coordinate_system(
+                self.Position(name_map["SymSeparation"] + "/2", 0, 0),
+                mode="view",
+                view="XY",
+                name=generate_unique_name("CenterRight"),
+                reference_cs=cs_center_right_sep.name,
+            )
+            self.modeler.duplicate_and_mirror(fin_base.name, self.Position(0, 0, 0), self.Position(1, 0, 0))
+        else:
+            cs_xmax = self.modeler.create_coordinate_system(
+                self.Position(name_map["HSWidth"] + "/2", 0, 0),
+                mode="view",
+                view="XY",
+                name=generate_unique_name("xMax"),
+                reference_cs=cs,
+            )
+            self.modeler.set_working_coordinate_system(cs_xmax.name)
+            self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
+        all_obj = [obj for obj in self.modeler.object_names if not obj in all_obj]
+        hs_final_name = self.modeler.unite(all_obj)
+        hs = self.modeler[hs_final_name]
+        hs.name = hs_name
+        return hs, name_map
 
     # fmt: off
     @pyaedt_function_handler()
@@ -1615,13 +1944,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def eval_surface_quantity_from_field_summary(
-        self,
-        faces_list,
-        quantity_name="HeatTransCoeff",
-        savedir=None,
-        filename=None,
-        sweep_name=None,
-        parameter_dict_with_values={},
+            self,
+            faces_list,
+            quantity_name="HeatTransCoeff",
+            savedir=None,
+            filename=None,
+            sweep_name=None,
+            parameter_dict_with_values={},
     ):
         """Export the field surface output.
 
@@ -1688,13 +2017,13 @@ class Icepak(FieldAnalysis3D):
         return filename
 
     def eval_volume_quantity_from_field_summary(
-        self,
-        object_list,
-        quantity_name="HeatTransCoeff",
-        savedir=None,
-        filename=None,
-        sweep_name=None,
-        parameter_dict_with_values={},
+            self,
+            object_list,
+            quantity_name="HeatTransCoeff",
+            savedir=None,
+            filename=None,
+            sweep_name=None,
+            parameter_dict_with_values={},
     ):
         """Export the field volume output.
 
@@ -1966,14 +2295,14 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_fan(
-        self,
-        name=None,
-        is_2d=False,
-        shape="Circular",
-        cross_section="XY",
-        radius="0.008mm",
-        hub_radius="0mm",
-        origin=None,
+            self,
+            name=None,
+            is_2d=False,
+            shape="Circular",
+            cross_section="XY",
+            radius="0.008mm",
+            hub_radius="0mm",
+            origin=None,
     ):
         """Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2067,7 +2396,7 @@ class Icepak(FieldAnalysis3D):
                 "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-"
-                + random_string(12, char_set="abcdef0123456789"),
+                                              + random_string(12, char_set="abcdef0123456789"),
                 "OriginFilePath": "",
                 "IsLocal": False,
                 "ChecksumString": "",
@@ -2101,7 +2430,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
-        self,
+            self,
             compName,
             setupLinkInfo,
             solutionFreq,
@@ -2255,7 +2584,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
-        self,
+            self,
             component_name,
             project_name,
             design_name,
@@ -2425,15 +2754,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def globalMeshSettings(
-        self,
-        meshtype,
-        gap_min_elements="1",
-        noOgrids=False,
-        MLM_en=True,
-        MLM_Type="3D",
-        stairStep_en=False,
-        edge_min_elements="1",
-        object="Region",
+            self,
+            meshtype,
+            gap_min_elements="1",
+            noOgrids=False,
+            MLM_en=True,
+            MLM_Type="3D",
+            stairStep_en=False,
+            edge_min_elements="1",
+            object="Region",
     ):
         """Create a custom mesh tailored on a PCB design.
 
@@ -2522,7 +2851,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_meshregion_component(
-        self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
+            self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
     ):
         """Create a bounding box to use as a mesh region in Icepak.
 
@@ -2660,14 +2989,14 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def generate_fluent_mesh(
-        self,
-        object_lists=None,
-        meshtype="tetrahedral",
-        min_size=None,
-        max_size=None,
-        inflation_layer_number=3,
-        inflation_growth_rate=1.2,
-        mesh_growth_rate=1.2,
+            self,
+            object_lists=None,
+            meshtype="tetrahedral",
+            min_size=None,
+            max_size=None,
+            inflation_layer_number=3,
+            inflation_growth_rate=1.2,
+            mesh_growth_rate=1.2,
     ):
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
@@ -2826,13 +3155,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def apply_icepak_settings(
-        self,
-        ambienttemp=20,
-        gravityDir=5,
-        perform_minimal_val=True,
-        default_fluid="air",
-        default_solid="Al-Extruded",
-        default_surface="Steel-oxidised-surface",
+            self,
+            ambienttemp=20,
+            gravityDir=5,
+            perform_minimal_val=True,
+            default_fluid="air",
+            default_solid="Al-Extruded",
+            default_surface="Steel-oxidised-surface",
     ):
         """Apply Icepak default design settings.
 
@@ -2960,31 +3289,31 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def import_idf(
-        self,
-        board_path,
-        library_path=None,
-        control_path=None,
-        filter_cap=False,
-        filter_ind=False,
-        filter_res=False,
-        filter_height_under=None,
-        filter_height_exclude_2d=False,
-        power_under=None,
-        create_filtered_as_non_model=False,
-        high_surface_thick="0.07mm",
-        low_surface_thick="0.07mm",
-        internal_thick="0.07mm",
-        internal_layer_number=2,
-        high_surface_coverage=30,
-        low_surface_coverage=30,
-        internal_layer_coverage=30,
-        trace_material="Cu-Pure",
-        substrate_material="FR-4",
-        create_board=True,
-        model_board_as_rect=False,
-        model_device_as_rect=True,
-        cutoff_height="5mm",
-        component_lib="",
+            self,
+            board_path,
+            library_path=None,
+            control_path=None,
+            filter_cap=False,
+            filter_ind=False,
+            filter_res=False,
+            filter_height_under=None,
+            filter_height_exclude_2d=False,
+            power_under=None,
+            create_filtered_as_non_model=False,
+            high_surface_thick="0.07mm",
+            low_surface_thick="0.07mm",
+            internal_thick="0.07mm",
+            internal_layer_number=2,
+            high_surface_coverage=30,
+            low_surface_coverage=30,
+            internal_layer_coverage=30,
+            trace_material="Cu-Pure",
+            substrate_material="FR-4",
+            create_board=True,
+            model_board_as_rect=False,
+            model_device_as_rect=True,
+            cutoff_height="5mm",
+            component_lib="",
     ):
         """Import an IDF file into an Icepak design.
 
@@ -3265,33 +3594,33 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall(
-        self,
-        geometry,
-        boundary_condition,
-        name=None,
-        temperature="0cel",
-        heat_flux="0irrad_W_per_m2",
-        thickness="0mm",
-        htc="0w_per_m2kel",
-        htc_dataset=None,
-        ref_temperature="AmbientTemp",
-        material="Al-Extruded",  # relevant if th>0
-        radiate=False,
-        radiate_surf_mat="Steel-oxidised-surface",  # relevant if radiate = False
-        ht_correlation=False,
-        ht_correlation_type="Natural Convection",
-        ht_correlation_fluid="air",
-        ht_correlation_flow_type="Turbulent",
-        ht_correlation_flow_direction="X",
-        ht_correlation_value_type="Average Values",  # "Local Values"
-        ht_correlation_free_stream_velocity="1m_per_sec",
-        ht_correlation_surface="Vertical",  # Top, Bottom, Vertical
-        ht_correlation_amb_temperature="AmbientTemp",
-        shell_conduction=False,
-        ext_surf_rad=False,
-        ext_surf_rad_material="Stainless-steel-cleaned",
-        ext_surf_rad_ref_temp="AmbientTemp",
-        ext_surf_rad_view_factor="1",
+            self,
+            geometry,
+            boundary_condition,
+            name=None,
+            temperature="0cel",
+            heat_flux="0irrad_W_per_m2",
+            thickness="0mm",
+            htc="0w_per_m2kel",
+            htc_dataset=None,
+            ref_temperature="AmbientTemp",
+            material="Al-Extruded",  # relevant if th>0
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",  # relevant if radiate = False
+            ht_correlation=False,
+            ht_correlation_type="Natural Convection",
+            ht_correlation_fluid="air",
+            ht_correlation_flow_type="Turbulent",
+            ht_correlation_flow_direction="X",
+            ht_correlation_value_type="Average Values",  # "Local Values"
+            ht_correlation_free_stream_velocity="1m_per_sec",
+            ht_correlation_surface="Vertical",  # Top, Bottom, Vertical
+            ht_correlation_amb_temperature="AmbientTemp",
+            shell_conduction=False,
+            ext_surf_rad=False,
+            ext_surf_rad_material="Stainless-steel-cleaned",
+            ext_surf_rad_ref_temp="AmbientTemp",
+            ext_surf_rad_view_factor="1",
     ):
         """Assign surface wall boundary condition.
 
@@ -3477,15 +3806,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
-        self,
-        geometry,
-        name=None,
-        heat_flux="0irrad_W_per_m2",
-        thickness="0mm",
-        material="Al-Extruded",
-        radiate=False,
-        radiate_surf_mat="Steel-oxidised-surface",
-        shell_conduction=False,
+            self,
+            geometry,
+            name=None,
+            heat_flux="0irrad_W_per_m2",
+            thickness="0mm",
+            material="Al-Extruded",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
     ):
         """Assign a surface wall boundary condition with specified heat flux.
 
@@ -3537,15 +3866,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_temperature(
-        self,
-        geometry,
-        name=None,
-        temperature="0cel",
-        thickness="0mm",
-        material="Al-Extruded",
-        radiate=False,
-        radiate_surf_mat="Steel-oxidised-surface",
-        shell_conduction=False,
+            self,
+            geometry,
+            name=None,
+            temperature="0cel",
+            thickness="0mm",
+            material="Al-Extruded",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
     ):
         """Assign a surface wall boundary condition with specified temperature.
 
@@ -3597,30 +3926,30 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_htc(
-        self,
-        geometry,
-        name=None,
-        thickness="0mm",
-        material="Al-Extruded",
-        htc="0w_per_m2kel",
-        htc_dataset=None,
-        ref_temperature="AmbientTemp",
-        ht_correlation=False,
-        ht_correlation_type="Natural Convection",
-        ht_correlation_fluid="air",
-        ht_correlation_flow_type="Turbulent",
-        ht_correlation_flow_direction="X",
-        ht_correlation_value_type="Average Values",
-        ht_correlation_free_stream_velocity="1m_per_sec",
-        ht_correlation_surface="Vertical",
-        ht_correlation_amb_temperature="AmbientTemp",
-        ext_surf_rad=False,
-        ext_surf_rad_material="Stainless-steel-cleaned",
-        ext_surf_rad_ref_temp="AmbientTemp",
-        ext_surf_rad_view_factor="1",
-        radiate=False,
-        radiate_surf_mat="Steel-oxidised-surface",
-        shell_conduction=False,
+            self,
+            geometry,
+            name=None,
+            thickness="0mm",
+            material="Al-Extruded",
+            htc="0w_per_m2kel",
+            htc_dataset=None,
+            ref_temperature="AmbientTemp",
+            ht_correlation=False,
+            ht_correlation_type="Natural Convection",
+            ht_correlation_fluid="air",
+            ht_correlation_flow_type="Turbulent",
+            ht_correlation_flow_direction="X",
+            ht_correlation_value_type="Average Values",
+            ht_correlation_free_stream_velocity="1m_per_sec",
+            ht_correlation_surface="Vertical",
+            ht_correlation_amb_temperature="AmbientTemp",
+            ext_surf_rad=False,
+            ext_surf_rad_material="Stainless-steel-cleaned",
+            ext_surf_rad_ref_temp="AmbientTemp",
+            ext_surf_rad_view_factor="1",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
     ):
         """Assign a surface wall boundary condition with specified heat transfer coefficient.
 
@@ -3823,14 +4152,14 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_source(
-        self,
-        assignment,
-        thermal_condition,
-        assignment_value,
-        boundary_name=None,
-        radiate=False,
-        voltage_current_choice=False,
-        voltage_current_value=None,
+            self,
+            assignment,
+            thermal_condition,
+            assignment_value,
+            boundary_name=None,
+            radiate=False,
+            voltage_current_choice=False,
+            voltage_current_value=None,
     ):
         """Create a source power for a face.
 
@@ -4059,7 +4388,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler
     def assign_solid_block(
-        self, object_name, power_assignment, boundary_name=None, htc=None, ext_temperature="AmbientTemp"
+            self, object_name, power_assignment, boundary_name=None, htc=None, ext_temperature="AmbientTemp"
     ):
         """
         Assign block boundary for solid objects.
@@ -4184,7 +4513,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler
     def assign_hollow_block(
-        self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
+            self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
     ):
         """Assign block boundary for hollow objects.
 
@@ -4398,18 +4727,18 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_free_opening(
-        self,
-        assignment,
-        boundary_name=None,
-        temperature="AmbientTemp",
-        radiation_temperature="AmbientRadTemp",
-        flow_type="Pressure",
-        pressure="AmbientPressure",
-        no_reverse_flow=False,
-        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
-        mass_flow_rate="0kg_per_s",
-        inflow=True,
-        direction_vector=None,
+            self,
+            assignment,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            flow_type="Pressure",
+            pressure="AmbientPressure",
+            no_reverse_flow=False,
+            velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+            mass_flow_rate="0kg_per_s",
+            inflow=True,
+            direction_vector=None,
     ):
         """
         Assign free opening boundary condition.
@@ -4564,13 +4893,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_pressure_free_opening(
-        self,
-        assignment,
-        boundary_name=None,
-        temperature="AmbientTemp",
-        radiation_temperature="AmbientRadTemp",
-        pressure="AmbientPressure",
-        no_reverse_flow=False,
+            self,
+            assignment,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            no_reverse_flow=False,
     ):
         """
         Assign free opening boundary condition.
@@ -4634,13 +4963,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_velocity_free_opening(
-        self,
-        assignment,
-        boundary_name=None,
-        temperature="AmbientTemp",
-        radiation_temperature="AmbientRadTemp",
-        pressure="AmbientPressure",
-        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+            self,
+            assignment,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
     ):
         """
         Assign free opening boundary condition.
@@ -4709,15 +5038,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_mass_flow_free_opening(
-        self,
-        assignment,
-        boundary_name=None,
-        temperature="AmbientTemp",
-        radiation_temperature="AmbientRadTemp",
-        pressure="AmbientPressure",
-        mass_flow_rate="0kg_per_s",
-        inflow=True,
-        direction_vector=None,
+            self,
+            assignment,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            mass_flow_rate="0kg_per_s",
+            inflow=True,
+            direction_vector=None,
     ):
         """
         Assign free opening boundary condition.
@@ -5144,7 +5473,7 @@ class Icepak(FieldAnalysis3D):
         props["Fan Blade Angle"] = blade_angle
         props["Blower Type"] = "Type 1"
         return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
-                                          fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+                                   fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
 
     @pyaedt_function_handler()
     def assign_blower_type2(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W",
