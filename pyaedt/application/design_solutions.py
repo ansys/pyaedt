@@ -110,7 +110,7 @@ solutions_types = {
             "name": None,
             "options": None,
             "report_type": None,
-            "default_setup": None,
+            "default_setup": 8,
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
@@ -118,7 +118,7 @@ solutions_types = {
             "name": None,
             "options": None,
             "report_type": None,
-            "default_setup": None,
+            "default_setup": 8,
             "default_adaptive": "LastAdaptive",
         },
         "ElectroDCConduction": {
@@ -138,13 +138,21 @@ solutions_types = {
         },
     },
     "Twin Builder": {
-        "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 35, "default_adaptive": None},
+        "TR": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 35,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
         "AC": {
             "name": None,
             "options": None,
             "report_type": "Standard",
             "default_setup": None,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "DC": {
             "name": None,
@@ -161,6 +169,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 15,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "NexximDC": {
             "name": None,
@@ -175,6 +184,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 17,
             "default_adaptive": None,
+            "intrinsics": ["Time"],
         },
         "NexximVerifEye": {
             "name": None,
@@ -182,6 +192,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 19,
             "default_adaptive": None,
+            "intrinsics": ["Time"],
         },
         "NexximQuickEye": {
             "name": None,
@@ -189,6 +200,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 18,
             "default_adaptive": None,
+            "intrinsics": ["Time"],
         },
         "NexximAMI": {
             "name": None,
@@ -196,6 +208,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 20,
             "default_adaptive": None,
+            "intrinsics": ["Time"],
         },
         "NexximOscillatorRSF": {
             "name": None,
@@ -203,6 +216,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 21,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "NexximOscillator1T": {
             "name": None,
@@ -210,6 +224,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 22,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "NexximOscillatorNT": {
             "name": None,
@@ -217,6 +232,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 23,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "NexximHarmonicBalance1T": {
             "name": None,
@@ -224,6 +240,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 24,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "NexximHarmonicBalanceNT": {
             "name": None,
@@ -231,6 +248,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 25,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "NexximSystem": {
             "name": None,
@@ -238,6 +256,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 26,
             "default_adaptive": None,
+            "intrinsics": ["Time"],
         },
         "NexximTVNoise": {
             "name": None,
@@ -245,6 +264,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 27,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "HSPICE": {
             "name": None,
@@ -252,8 +272,16 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 28,
             "default_adaptive": None,
+            "intrinsics": ["Time"],
         },
-        "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 17, "default_adaptive": None},
+        "TR": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 17,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
     },
     "2D Extractor": {
         "Open": {
@@ -353,6 +381,7 @@ solutions_types = {
             "report_type": "Modal Solution Data",
             "default_setup": 4,
             "default_adaptive": "Sweep",
+            "intrinsics": ["Freq", "Phase"],
         },
     },
     "Icepak": {
@@ -439,6 +468,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 41,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
         "LNA3DLayout": {
             "name": None,
@@ -446,6 +476,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 42,
             "default_adaptive": None,
+            "intrinsics": ["Freq"],
         },
     },
     "Mechanical": {
