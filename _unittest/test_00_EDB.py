@@ -264,12 +264,10 @@ class TestClass:
         assert self.edbapp.padstacks.definitions["myVia"].hole_range == "through"
         self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
         assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
-
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
         assert self.edbapp["via_y"].value == 1e-3
         assert self.edbapp["via_y"].value_string == "1mm"
-
         assert self.edbapp.padstacks.place(["via_x", "via_x+via_y"], "myVia", via_name="via_test1")
         assert self.edbapp.padstacks.place(["via_x", "via_x+via_y*2"], "myVia_bullet")
         self.edbapp.padstacks["via_test1"].net_name = "GND"
@@ -2921,9 +2919,8 @@ class TestClass:
         edbapp.layout_validation.illegal_rlc_values(True)
 
         # assert len(dc_shorts) == 20
-        assert ["LVDS_CH09_N", "GND"] in dc_shorts
-        assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
-        assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        assert ["SFPA_Tx_Fault", "PCIe_Gen4_CLKREQ_L"] in dc_shorts
+        assert ["VDD_DDR", "GND"] in dc_shorts
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
         edbapp.nets["DDR4_DM3"].find_dc_short(True)
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
@@ -2983,3 +2980,16 @@ class TestClass:
         assert mats[key]["mass_density"] == 8055
         assert mats[key]["specific_heat"] == 480
         assert mats[key]["thermal_expansion_coeffcient"] == 1.08e-005
+
+    def test_152_simconfig_built_custom_sballs_height(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_custom_sball_height", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        json_file = os.path.join(target_path, "simsetup_custom_sballs.json")
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        simconfig = edbapp.new_simulation_configuration()
+        simconfig.import_json(json_file)
+        edbapp.build_simulation_project(simconfig)
+        assert round(edbapp.components["X1"].solder_ball_height, 6) == 0.00025
+        assert round(edbapp.components["U1"].solder_ball_height, 6) == 0.00035
+        edbapp.close_edb()

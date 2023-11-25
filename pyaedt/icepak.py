@@ -34,6 +34,7 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.Boundary import _create_boundary
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -630,14 +631,7 @@ class Icepak(FieldAnalysis3D):
             )
         props["Shell Conduction"] = shell_conduction
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler()
     def create_source_power(
@@ -727,14 +721,7 @@ class Icepak(FieldAnalysis3D):
         props["Temperature"] = temperature
         props["Radiation"] = OrderedDict({"Radiate": radiate})
         bound = BoundaryObject(self, source_name, props, "SourceIcepak")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler()
     def create_network_block(
@@ -3486,14 +3473,7 @@ class Icepak(FieldAnalysis3D):
         props["External Radiation Reference Temperature"] = ext_surf_rad_ref_temp
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
         bound = BoundaryObject(self, name, props, "Stationary Wall")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
@@ -4200,14 +4180,7 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler
     def assign_hollow_block(
@@ -4335,14 +4308,7 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler()
     def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
@@ -4827,11 +4793,7 @@ class Icepak(FieldAnalysis3D):
         )
 
     @pyaedt_function_handler()
-    def assign_symmetry_wall(
-        self,
-        geometry,
-        boundary_name=None,
-    ):
+    def assign_symmetry_wall(self, geometry, boundary_name=None):
         """Assign symmetry wall boundary condition.
 
         Parameters
@@ -4864,14 +4826,7 @@ class Icepak(FieldAnalysis3D):
             props["Objects"] = geometry
 
         bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler()
     def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name=None):
@@ -5044,11 +4999,11 @@ class Icepak(FieldAnalysis3D):
         if not len(face_list) == 2:
             self.logger.error("Recirculation boundary condition must be assigned to two faces.")
             return False
-        if conductance_external_temperature is not None and thermal_specification is not "Conductance":
+        if conductance_external_temperature is not None and thermal_specification != "Conductance":
             self.logger.warning(
                 '``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` '
                 'is ``"Conductance"``.')
-        if conductance_external_temperature is not None and thermal_specification is not "Conductance":
+        if conductance_external_temperature is not None and thermal_specification != "Conductance":
             self.logger.warning(
                 '``conductance_external_temperature`` must be specified when ``thermal_specification`` '
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.')
@@ -5122,14 +5077,7 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Recirculating")
 
         bound = BoundaryObject(self, boundary_name, props, "Recirculating")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma: no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):  # pragma : no cover
-            return None
+        return _create_boundary(bound)
 
     @pyaedt_function_handler()
     def assign_blower_type1(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W", blade_rpm=0,
@@ -5281,11 +5229,4 @@ class Icepak(FieldAnalysis3D):
         if not boundary_name:
             boundary_name = generate_unique_name("Blower")
         bound = BoundaryObject(self, boundary_name, props, "Blower")
-        try:
-            if bound.create():
-                self._boundaries[bound.name] = bound
-                return bound
-            else:  # pragma : no cover
-                raise SystemExit
-        except (GrpcApiError, SystemExit):  # pragma: no cover
-            return None
+        return _create_boundary(bound)
