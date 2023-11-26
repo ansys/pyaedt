@@ -4506,3 +4506,14 @@ class NetworkObject(BoundaryObject):
                     node_args[k] = val
 
             return node_args
+
+
+def _create_boundary(bound):
+    try:
+        if bound.create():
+            bound._app._boundaries[bound.name] = bound
+            return bound
+        else:  # pragma : no cover
+            raise Exception
+    except Exception:  # pragma: no cover
+        return None
