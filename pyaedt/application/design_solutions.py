@@ -352,6 +352,14 @@ solutions_types = {
             "default_adaptive": "Transient",
             "intrinsics": ["Time"],
         },
+        "Transient Composite": {
+            "name": "Transient Composite",
+            "options": None,
+            "report_type": "Terminal Solution Data",
+            "default_setup": 3,
+            "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
+        },
         "Transient": {
             "name": "Transient",
             "options": None,
@@ -681,9 +689,12 @@ class HFSSDesignSolution(DesignSolution, object):
             else:
                 self._solution_type = solutions_defaults[self._design_type]
         elif value and value in self._solution_options and self._solution_options[value]["name"]:
-            if value == "Transient":
+            if value == "Transient" or value == "Transient Network":
                 value = "Transient Network"
                 self._solution_type = "Transient Network"
+            elif value == "Transient Composite":
+                value = "Transient Composite"
+                self._solution_type = "Transient Composite"
             elif "Modal" in value:
                 value = "Modal"
                 self._solution_type = "Modal"
