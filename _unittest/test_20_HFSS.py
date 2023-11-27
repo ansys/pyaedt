@@ -1613,3 +1613,13 @@ class TestClass:
 
         array.delete()
         assert not hfss_array.component_array
+
+    def test_66_assign_febi(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_febi(["inner"])
+        aedtapp.close_project(save_project=False)
