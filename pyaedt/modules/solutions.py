@@ -1220,7 +1220,7 @@ class FfdSolutionData(object):
 
     @property
     def phase_offset(self):
-        """List of additional phase offset in degrees on each port. This property
+        """List of additional phase offsets in degrees on each port. This property
         is useful when an element has more than one port."""
         return self._phase_offset
 
