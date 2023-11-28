@@ -1086,7 +1086,7 @@ class FfdSolutionData(object):
         If the input is string, it is assumed to be a single frequency.
     frequencies : list, str, int, or float
         List of frequencies.
-        If the input is not a list, assumes it is a single frequency.
+        If the input is not a list, it is assumed to be a single frequency.
 
     Examples
     --------
