@@ -1177,9 +1177,9 @@ class FfdSolutionData(object):
         self.__model_units = "meter"
         self.frequency = self.frequencies[0]
 
-        self.a_min = 9999999999
+        self.a_min = sys.maxsize
         self.a_max = 0
-        self.b_min = 9999999999
+        self.b_min = sys.maxsize
         self.b_max = 0
         if self.port_index:
             for row, col in self.port_index.values():
@@ -1299,9 +1299,6 @@ class FfdSolutionData(object):
 
         if taper.lower() in ("flat", "uniform") or not self._is_array[self._freq_index]:
             return 1
-
-        a = int(a)
-        b = int(b)
 
         cosinePow = 1
         edgeTaper_dB = -200
@@ -1565,10 +1562,7 @@ class FfdSolutionData(object):
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            if kwargs["convert_to_db"]:
-                format_quantity = "dB10"
-            else:
-                format_quantity = "abs"
+            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1668,10 +1662,7 @@ class FfdSolutionData(object):
 
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            if kwargs["convert_to_db"]:
-                format_quantity = "dB10"
-            else:
-                format_quantity = "abs"
+            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1685,19 +1676,15 @@ class FfdSolutionData(object):
 
         curves = []
         if primary_sweep == "phi":
-            x_key = "Phi"
-            y_key = "Theta"
+            x_key, y_key = "Phi", "Theta"
+            temp = data_to_plot
         else:
-            y_key = "Phi"
-            x_key = "Theta"
+            y_key, x_key = "Phi", "Theta"
+            temp = data_to_plot.T
         x = data[x_key]
         if is_polar:
             x = [i * 2 * math.pi / 360 for i in x]
         xlabel = x_key
-        if x_key == "Phi":
-            temp = data_to_plot
-        else:
-            temp = data_to_plot.T
         if secondary_sweep_value == "all":
             for el in data[y_key]:
                 idx = self._find_nearest(data[y_key], el)
@@ -1810,10 +1797,7 @@ class FfdSolutionData(object):
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            if kwargs["convert_to_db"]:
-                format_quantity = "dB10"
-            else:
-                format_quantity = "abs"
+            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1917,10 +1901,7 @@ class FfdSolutionData(object):
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            if kwargs["convert_to_db"]:
-                format_quantity = "dB10"
-            else:
-                format_quantity = "abs"
+            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -2157,10 +2138,7 @@ class FfdSolutionData(object):
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
-            if kwargs["convert_to_db"]:
-                format_quantity = "dB10"
-            else:
-                format_quantity = "abs"
+            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
 
         if farfield_quantity not in self.farfield_data:
             self.logger.error("Far field quantity is not available.")
@@ -2228,8 +2206,7 @@ class FfdSolutionData(object):
             non_array_geometry = model_info.copy()
             components_info = self._component_objects[self._freq_index]
             array_dimension = self._array_dimension[self._freq_index]
-            first_key = list(model_info.keys())[0]
-            first_value = model_info[first_key]
+            first_value = next(iter(model_info.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
             cell_info = self._cell_position[self._freq_index]
@@ -2293,8 +2270,7 @@ class FfdSolutionData(object):
 
         if non_array_geometry:  # pragma: no cover
             model_pv = ModelPlotter()
-            first_key = list(non_array_geometry.keys())[0]
-            first_value = non_array_geometry[first_key]
+            first_value = next(iter(non_array_geometry.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
 
             model_pv.off_screen = True
@@ -2464,14 +2440,12 @@ class FfdSolutionDataExporter(FfdSolutionData):
             export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
             if settings.remote_rpc_session:
                 settings.remote_rpc_session.filemanager.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.filemanager.pathexists(
-                    export_path + exported_name_base + ".txt"
-                )
+                file_exists = settings.remote_rpc_session.filemanager.pathexists(export_path + exported_name_map)
             elif not os.path.exists(export_path):
                 os.makedirs(export_path)
-                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
+                file_exists = False
             else:
-                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
+                file_exists = os.path.exists(export_path + exported_name_map)
             time_before = time.time()
             if self.overwrite or not file_exists:
                 self._app.logger.info("Exporting embedded element patterns...")
@@ -2503,7 +2477,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 self._app.logger.info("Using Existing Embedded Element Patterns")
             local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
             export_path = check_and_download_folder(local_path, export_path)
-            if os.path.exists(export_path + "/" + exported_name_map):
+            if os.path.exists(os.path.join(export_path, exported_name_map)):
                 geometry_path = os.path.join(export_path, "geometry")
                 if not os.path.exists(geometry_path):
                     os.mkdir(geometry_path)
