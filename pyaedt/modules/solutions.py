@@ -1251,11 +1251,11 @@ class FfdSolutionData(object):
         """Taper type.
 
         Options are:
-        - "flat"
-        - "uniform"
-        - "cosine"
-        - "triangular"
-        - "hamming"
+        - ``"cosine"``
+        - ``"flat"``
+        - ``"hamming"``
+        - ``"triangular"``
+        - ``"uniform"``
         """
         return self._taper
 
