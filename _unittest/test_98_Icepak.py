@@ -897,6 +897,16 @@ class TestClass:
             ht_correlation_value_type="Average Values",
             ht_correlation_free_stream_velocity=1,
         )
+        self.aedtapp.create_dataset("ds1", [1, 2, 3], [2, 3, 4], is_project_dataset=False)
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            name=None,
+            thickness="0mm",
+            material="Al-Extruded",
+            htc_dataset="ds1",
+            ref_temperature="AmbientTemp",
+            ht_correlation=False,
+        )
         assert self.aedtapp.assign_stationary_wall_with_temperature(
             "surf1",
             name=None,

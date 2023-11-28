@@ -3445,11 +3445,11 @@ class Icepak(FieldAnalysis3D):
             geometry = [geometry]
         if not isinstance(thickness, str):
             thickness = "{}{}".format(thickness, self.modeler.model_units)
-        if not isinstance(heat_flux, dict) and not isinstance(heat_flux, str):
+        if heat_flux is not None and not isinstance(heat_flux, dict) and not isinstance(heat_flux, str):
             heat_flux = "{}irrad_W_per_m2".format(heat_flux)
-        if not isinstance(temperature, dict) and not isinstance(temperature, str):
+        if temperature is not None and not isinstance(temperature, dict) and not isinstance(temperature, str):
             temperature = "{}cel".format(temperature)
-        if not isinstance(htc, dict) and not isinstance(htc, str):
+        if htc is not None and not isinstance(htc, dict) and not isinstance(htc, str):
             htc = "{}w_per_m2kel".format(htc)
         if not isinstance(ref_temperature, str):
             ref_temperature = "{}cel".format(ref_temperature)
@@ -3472,9 +3472,9 @@ class Icepak(FieldAnalysis3D):
             warnings.warn("``htc_dataset`` argument is being deprecated. Create a dictionary as per"
                           "documentation and assign it to the ``htc`` argument.", DeprecationWarning)
             if kwargs["htc_dataset"] is not None:
-                htc = {"Variation Type": "Temp Dep",
-                       "Variation Function": "Piecewise Linear",
-                       "Variation Value": '["1w_per_m2kel", "pwl({},Temp)"]'.format(kwargs["htc_dataset"]),
+                htc = {"Type": "Temp Dep",
+                       "Function": "Piecewise Linear",
+                       "Values": kwargs["htc_dataset"],
                        }
         for quantity, assignment_value, to_add in [
             ("External Radiation Reference Temperature", ext_surf_rad_ref_temp, ext_surf_rad),
@@ -3490,7 +3490,7 @@ class Icepak(FieldAnalysis3D):
                         variation_value=assignment_value["Values"],
                         function=assignment_value["Function"],
                     )
-                    if assignment_value is None:
+                    if assignment_value is None:  # pragma : no cover
                         return None
                     props.update(assignment_value)
                 else:
