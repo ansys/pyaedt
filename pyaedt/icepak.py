@@ -3312,7 +3312,7 @@ class Icepak(FieldAnalysis3D):
              ``"Values"``.
              
               - The value for the ``"Type"`` key must be ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
              ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
