@@ -2126,7 +2126,7 @@ class FfdSolutionData(object):
                 else:
                     valid_ffd = False
         else:
-            self.logger.error("Wrong far fields imported")
+            self.logger.error("Wrong far fields were imported.")
             return False
 
         if not valid_ffd:
