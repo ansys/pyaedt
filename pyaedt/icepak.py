@@ -3313,11 +3313,11 @@ class Icepak(FieldAnalysis3D):
              
               - The value for the ``"Type"`` key must be ``"Transient"``.
              - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
-             ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
+             ``"Sinusoidal"``, ``"Square Wave"``, and ``"Piecewise Linear"``.
+             The ``"Values"`` key contains a list of strings containing the parameters
+            required by the ``"Function"`` key selection. For example, ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line. The parameters required by
+            each ``Function`` key selection is in Icepak documentation. The parameters must contain the
             units where needed. The default is ``"0cel"``.
         heat_flux : str or float or dict, optional
             Heat flux to assign to the wall. This parameter is relevant if
