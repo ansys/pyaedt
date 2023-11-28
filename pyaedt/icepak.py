@@ -3310,7 +3310,7 @@ class Icepak(FieldAnalysis3D):
             unit is degrees Celsius. A dictionary can be used for transient
              assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``.
-             
+
               - The value for the ``"Type"`` key must be ``"Transient"``.
              - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"``, and ``"Piecewise Linear"``.
