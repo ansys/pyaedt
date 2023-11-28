@@ -1788,7 +1788,8 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
-            Whether to show the plot or return the matplotlib object. Default is `True`.
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
 
         Returns
         -------
