@@ -2407,7 +2407,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     setup_name : str
         Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
     frequencies : list
-        Frequency list to export. List of strings with units is valid or list of float in Hertz units.
+        Frequency list to export. Specify either a list of strings with units or a list of floats in Hertz units.
         For example, ``["9GHz", 9e9]``.
     variations : dict, optional
         Dictionary of all families including the primary sweep. The default value is ``None``.
