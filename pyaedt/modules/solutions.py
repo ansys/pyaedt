@@ -1549,8 +1549,8 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`matplotlib.plt`
-            If show is `True`, it returns a matplotlib figure instance of the plot.
-            If show is `False`, it returns the plotted curve.
+            If ``show=True``, it returns a Matplotlib figure instance of the plot.
+            If ``show=False``, it returns the plotted curve.
 
         Examples
         --------
