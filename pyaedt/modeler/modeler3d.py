@@ -333,19 +333,25 @@ class Modeler3D(Primitives3D):
                 config_dict = json.load(f)
             out_dict = {}
             if monitor_objects:
-                out_dict["monitor"] = config_dict["monitor"]
-                for i in list(out_dict["monitor"]):
-                    if i not in monitor_objects:
-                        del out_dict["monitor"][i]
+                out_dict["monitors"] = config_dict["monitors"]
+                to_remove = []
+                for i, mon in enumerate(out_dict["monitors"]):
+                    if mon["Name"] not in monitor_objects:
+                        to_remove.append(mon)
                     else:
-                        if out_dict["monitor"][i]["Type"] in ["Object", "Surface"]:
+                        if mon["Type"] in ["Object", "Surface"]:
                             self._app.modeler.refresh_all_ids()
-                            out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(out_dict["monitor"][i]["ID"])
+                            out_dict["monitors"][i]["ID"] = self._app.modeler.get_obj_id(mon["ID"])
+            for mon in to_remove:
+                out_dict["monitors"].remove(mon)
             if datasets:
                 out_dict["datasets"] = config_dict["datasets"]
-                for i in list(out_dict["datasets"]):
-                    if i not in datasets:
-                        del out_dict["datasets"][i]
+                to_remove = []
+                for dat in out_dict["datasets"]:
+                    if dat["Name"] not in datasets:
+                        to_remove.append(dat)
+                for dat in to_remove:
+                    out_dict["datasets"].remove(dat)
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
                 out_dict["native components"] = config_dict["native components"]
