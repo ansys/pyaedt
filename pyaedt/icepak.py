@@ -3308,7 +3308,7 @@ class Icepak(FieldAnalysis3D):
             Temperature to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified, the
             unit is degrees Celsius. A dictionary can be used for transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``.
              
               - The value for the ``"Type"`` key must be ``"Transient"``.
