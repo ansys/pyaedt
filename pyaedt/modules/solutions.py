@@ -1526,8 +1526,8 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
-            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
+            ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
         phi_scan : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
         theta_scan : float, int, optional
@@ -1536,8 +1536,8 @@ class FfdSolutionData(object):
             Plot title. The default is ``"RectangularPlot"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
-            and ``"and_deg"``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
@@ -1637,8 +1637,8 @@ class FfdSolutionData(object):
             Plot title. The default is ``"RectangularPlot"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``,
-            ``"norm"``, ``"ang"``, and ``"deg"``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
@@ -1773,8 +1773,8 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
-             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
+            ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
         phi_scan : float, int, optional
             Phi scan angle in degree. The default is ``0``.
         theta_scan : float, int, optional
@@ -1783,8 +1783,8 @@ class FfdSolutionData(object):
             Plot title. The default is ``"3D Plot"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``,
-            ``"imag"``, ``"norm"``, ``"ang"``, ``"and_deg"``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
@@ -1874,8 +1874,8 @@ class FfdSolutionData(object):
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
-            and ``"and_deg"``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         rotation : list, optional
@@ -2142,12 +2142,12 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
-            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
+            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
+            ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
         format_quantity : str, optional
             Conversion data function.
-            Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
-            and ``"and_deg"``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
 
         Returns
         -------
@@ -2576,8 +2576,8 @@ class UpdateBeamForm:
         Quantity to plot. The default is ``"RealizedGain"``.
     quantity_format : str, optional
         Conversion data function.
-        Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``, ``"imag"``, ``"norm"``, ``"ang"``,
-         and ``"and_deg"``.
+        Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
     """
 
     def __init__(self, ff, farfield_quantity, quantity_format):
