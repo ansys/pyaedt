@@ -1083,7 +1083,7 @@ class FfdSolutionData(object):
     ----------
     eep_files : list or str
         List of element pattern files for each frequency.
-        If the input is string, assumes it is a single frequency.
+        If the input is string, it is assumed to be a single frequency.
     frequencies : list, str, int, or float
         List of frequencies.
         If the input is not a list, assumes it is a single frequency.
