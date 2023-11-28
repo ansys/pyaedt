@@ -2980,3 +2980,16 @@ class TestClass:
         assert mats[key]["mass_density"] == 8055
         assert mats[key]["specific_heat"] == 480
         assert mats[key]["thermal_expansion_coeffcient"] == 1.08e-005
+
+    def test_152_simconfig_built_custom_sballs_height(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_custom_sball_height", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        json_file = os.path.join(target_path, "simsetup_custom_sballs.json")
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        simconfig = edbapp.new_simulation_configuration()
+        simconfig.import_json(json_file)
+        edbapp.build_simulation_project(simconfig)
+        assert round(edbapp.components["X1"].solder_ball_height, 6) == 0.00025
+        assert round(edbapp.components["U1"].solder_ball_height, 6) == 0.00035
+        edbapp.close_edb()
