@@ -1347,6 +1347,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
     Parameters
     ----------
     data : list
+        List of numerical values that are to be converted.
     function_str : str, optional
         Conversion function. The default is `"dB10"`.
 
@@ -1373,30 +1374,22 @@ def conversion_function(data, function_str=None):  # pragma: no cover
         logging.error("NumPy is not available. Install it.")
         return False
 
-    available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg"]
-    if not function_str:
-        function_str = "dB10"
-    elif not isinstance(function_str, str) or function_str not in available_functions:
-        return False
-    if function_str == "dB10":
-        data = 10 * np.log10(np.abs(data))
-    elif function_str == "dB20":
-        data = 20 * np.log10(np.abs(data))
-    elif function_str == "abs":
-        data = np.abs(data)
-    elif function_str == "real":
-        data = np.real(data)
-    elif function_str == "imag":
-        data = np.imag(data)
-    elif function_str == "norm":
-        data = np.abs(data) / np.max(np.abs(data))
-    elif function_str == "ang":
-        data = np.angle(data)
-    elif function_str == "ang_deg":
-        data = np.angle(data, deg=True)
-    else:
-        data = data
+    function_str = function_str or "dB10"
+    available_functions = {
+        "dB10": lambda x: 10 * np.log10(np.abs(x)),
+        "dB20": lambda x: 20 * np.log10(np.abs(x)),
+        "abs": np.abs,
+        "real": np.real,
+        "imag": np.imag,
+        "norm": lambda x: np.abs(x) / np.max(np.abs(x)),
+        "ang": np.angle,
+        "ang_deg": lambda x: np.angle(x, deg=True),
+    }
 
+    if function_str not in available_functions:
+        return False
+
+    data = available_functions[function_str](data)
     return data
 
 
