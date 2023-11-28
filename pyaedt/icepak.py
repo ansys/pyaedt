@@ -3311,7 +3311,7 @@ class Icepak(FieldAnalysis3D):
              assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``.
 
-              - The value for the ``"Type"`` key must be ``"Transient"``.
+             - The value for the ``"Type"`` key must be ``"Transient"``.
              - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"``, and ``"Piecewise Linear"``.
              The ``"Values"`` key contains a list of strings containing the parameters
@@ -3323,9 +3323,11 @@ class Icepak(FieldAnalysis3D):
             Heat flux to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified,
             the unit is irrad_W_per_m2. A dictionary can be used for temperature-dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
-             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+            assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
+            ``"Values"``.
+
+             - The value for the ``"Type"`` key must be ``"Transient"``.
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
              ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
@@ -3337,9 +3339,9 @@ class Icepak(FieldAnalysis3D):
             is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
             float value is specified, the unit is w_per_m2kel.
             A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
              support the latter. ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
@@ -3411,9 +3413,11 @@ class Icepak(FieldAnalysis3D):
              Reference temperature for the external surface radiation option. This parameter
              is relevant if  ``ext_surf_rad=True``.  If a float value is specified, the default
              unit is degrees Celsius.  A dictionary can be used for transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
-             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
+             ``"Values"``.
+
+             - The value for the ``"Type"`` key must be ``"Transient"``.
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
              ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
@@ -3465,7 +3469,7 @@ class Icepak(FieldAnalysis3D):
         props["Solid Material"] = material
         props["External Condition"] = boundary_condition
         if "htc_dataset" in kwargs:  # backward compatibility
-            warnings.warn("``htc_dataset`` argument is being deprecated. Ceate a dictionary as per"
+            warnings.warn("``htc_dataset`` argument is being deprecated. Create a dictionary as per"
                           "documentation and assign it to the ``htc`` argument.", DeprecationWarning)
             if kwargs["htc_dataset"] is not None:
                 htc = {"Variation Type": "Temp Dep",
@@ -3550,9 +3554,11 @@ class Icepak(FieldAnalysis3D):
         heat_flux : str or float or dict, optional
             Heat flux to assign to the wall. If a float value is
             specified, the unit is ``irrad_W_per_m2``. A dictionary can be used for transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
-             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+            assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
+            ``"Values"``.
+
+             - The value for the ``"Type"`` key must be ``"Transient"``.
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
              ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
@@ -3618,14 +3624,16 @@ class Icepak(FieldAnalysis3D):
         temperature : str or float or dict, optional
             Temperature to assign to the wall. If a float value is specified,
             the unit is degrees Celsius.  A dictionary can be used for transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
-             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
-             ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
+            ``"Values"``.
+
+             - The value for the ``"Type"`` key must be ``"Transient"``.
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"``, and ``"Piecewise Linear"``.
+             The ``"Values"`` key contains a list of strings containing the parameters
+            required by the ``"Function"`` key selection. For example, ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line. The parameters required by
+            each ``Function`` key selection is in Icepak documentation. The parameters must contain the
             units where needed. The default is ``"0cel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified used, the unit is the
@@ -3702,9 +3710,9 @@ class Icepak(FieldAnalysis3D):
         htc : str or float or dict, optional
             Heat transfer coefficient to assign to the wall. If a float value
             is specified, the unit is ``w_per_m2kel``. A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
              support the latter. ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
@@ -3776,9 +3784,9 @@ class Icepak(FieldAnalysis3D):
              parameter is relevant if ``ext_surf_rad=True``. If a float value is
              specified, the default unit is degrees Celsius.
               A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
              support the latter. ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
@@ -3954,9 +3962,9 @@ class Icepak(FieldAnalysis3D):
         assignment_value : str or dict
             Value and units of the input power, surface heat or temperature (depending on
             ``thermal_condition``). A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
              ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
              ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
              support the latter. ``"Values"`` contains a list of strings containing the parameters
             required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
