@@ -1684,7 +1684,6 @@ class FfdSolutionData(object):
         x = data[x_key]
         if is_polar:
             x = [i * 2 * math.pi / 360 for i in x]
-        xlabel = x_key
         if secondary_sweep_value == "all":
             for el in data[y_key]:
                 idx = self._find_nearest(data[y_key], el)
@@ -1722,7 +1721,7 @@ class FfdSolutionData(object):
             if is_polar:
                 return plot_polar_chart(
                     curves,
-                    xlabel=xlabel,
+                    xlabel=x_key,
                     ylabel=farfield_quantity,
                     title=title,
                     snapshot_path=export_image_path,
@@ -1731,7 +1730,7 @@ class FfdSolutionData(object):
             else:
                 return plot_2d_chart(
                     curves,
-                    xlabel=xlabel,
+                    xlabel=x_key,
                     ylabel=farfield_quantity,
                     title=title,
                     snapshot_path=export_image_path,
