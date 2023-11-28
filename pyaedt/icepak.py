@@ -3320,7 +3320,7 @@ class Icepak(FieldAnalysis3D):
         heat_flux : str or float or dict, optional
             Heat flux to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified,
-            the unit is irrad_W_per_m2. A dictionary can be used for temperature dependent or transient
+            the unit is irrad_W_per_m2. A dictionary can be used for temperature-dependent or transient
              assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
              ``"Values"``. ``"Type"`` value must be ``"Transient"``.
              Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
