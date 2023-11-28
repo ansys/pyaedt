@@ -3463,7 +3463,7 @@ class Icepak(FieldAnalysis3D):
         props["Solid Material"] = material
         props["External Condition"] = boundary_condition
         if "htc_dataset" in kwargs:  # backward compatibility
-            warnings.warn("``htc_dataset`` argument is being deprecated. Please create a dictionary as per"
+            warnings.warn("``htc_dataset`` argument is being deprecated. Ceate a dictionary as per"
                           "documentation and assign it to the ``htc`` argument.", DeprecationWarning)
             if kwargs["htc_dataset"] is not None:
                 htc = {"Variation Type": "Temp Dep",
