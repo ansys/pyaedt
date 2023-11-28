@@ -36,6 +36,8 @@
       "type": "object",
       "description": "Data sets as x,y tabular data."
     },
+    "monitor": {"type":  "object",
+    },
     "native components": {
       "type": "object",
       "description": "Icepak native components."
