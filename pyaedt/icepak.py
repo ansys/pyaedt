@@ -3307,16 +3307,43 @@ class Icepak(FieldAnalysis3D):
         temperature : str or float or dict, optional
             Temperature to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified, the
-            unit is degrees Celsius. The default is ``"0cel"``.
+            unit is degrees Celsius. A dictionary can be used for transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
+             ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"0cel"``.
         heat_flux : str or float or dict, optional
             Heat flux to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified,
-            the unit is irrad_W_per_m2. The default is ``"0irrad_W_per_m2"``.
+            the unit is irrad_W_per_m2. A dictionary can be used for temperature dependent or transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
+             ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"0irrad_W_per_m2"``.
         htc : str or float or dict, optional
             Heat transfer coefficient to assign to the wall. This parameter
             is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
-            float value is specified, the unit is w_per_m2kel. The default
-            is ``"0w_per_m2kel"``.
+            float value is specified, the unit is w_per_m2kel.
+            A dictionary can be used for temperature dependent or transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
+             support the latter. ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"0w_per_m2kel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is
             the current unit system set in Icepak. The default is ``"0mm"``.
@@ -3381,7 +3408,16 @@ class Icepak(FieldAnalysis3D):
         ext_surf_rad_ref_temp : str or float or dict, optional
              Reference temperature for the external surface radiation option. This parameter
              is relevant if  ``ext_surf_rad=True``.  If a float value is specified, the default
-             unit is degrees Celsius. The default is ``"AmbientTemp"``.
+             unit is degrees Celsius.  A dictionary can be used for transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
+             ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
 
@@ -3427,6 +3463,8 @@ class Icepak(FieldAnalysis3D):
         props["Solid Material"] = material
         props["External Condition"] = boundary_condition
         if "htc_dataset" in kwargs:  # backward compatibility
+            warnings.warn("``htc_dataset`` argument is being deprecated. Please create a dictionary as per"
+                          "documentation and assign it to the ``htc`` argument.", DeprecationWarning)
             if kwargs["htc_dataset"] is not None:
                 htc = {"Variation Type": "Temp Dep",
                        "Variation Function": "Piecewise Linear",
@@ -3509,8 +3547,16 @@ class Icepak(FieldAnalysis3D):
             Name of the boundary condition. The default is ``None``.
         heat_flux : str or float or dict, optional
             Heat flux to assign to the wall. If a float value is
-            specified, the unit is ``irrad_W_per_m2``. The default is
-            ``"0irrad_W_per_m2"``.
+            specified, the unit is ``irrad_W_per_m2``. A dictionary can be used for transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
+             ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"0irrad_W_per_m2"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is the
             current unit system set in Icepak. The default is ``"0mm"``.
@@ -3569,7 +3615,16 @@ class Icepak(FieldAnalysis3D):
             Name of the boundary condition. The default is ``None``.
         temperature : str or float or dict, optional
             Temperature to assign to the wall. If a float value is specified,
-            the unit is degrees Celsius. The default is ``"0cel"``.
+            the unit is degrees Celsius.  A dictionary can be used for transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. ``"Type"`` value must be ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
+             ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"0cel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified used, the unit is the
             current unit system set in Icepak. The default is ``"0mm"``.
@@ -3644,8 +3699,16 @@ class Icepak(FieldAnalysis3D):
             Name of the boundary condition. The default is ``None``.
         htc : str or float or dict, optional
             Heat transfer coefficient to assign to the wall. If a float value
-            is specified, the unit is ``w_per_m2kel``. The default is
-            ``"0w_per_m2kel"``.
+            is specified, the unit is ``w_per_m2kel``. A dictionary can be used for temperature dependent or transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
+             support the latter. ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"0w_per_m2kel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is the
             current unit system set in Icepak. The default is ``"0mm"``.
@@ -3709,8 +3772,17 @@ class Icepak(FieldAnalysis3D):
         ext_surf_rad_ref_temp : str or float or dict, optional
              Reference temperature for the external surface radiation option. This
              parameter is relevant if ``ext_surf_rad=True``. If a float value is
-             specified, the default unit is degrees Celsius. The default is
-             ``"AmbientTemp"``.
+             specified, the default unit is degrees Celsius.
+              A dictionary can be used for temperature dependent or transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
+             support the latter. ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed. The default is ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
 
