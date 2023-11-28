@@ -1776,11 +1776,11 @@ class FfdSolutionData(object):
             Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
              ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         phi_scan : float, int, optional
-            Phi scan angle in degree. Default `0`.
+            Phi scan angle in degree. The default is ``0``.
         theta_scan : float, int, optional
-            Theta scan angle in degree. Default `0`.
+            Theta scan angle in degree. The default is ``0``.
         title : str, optional
-            Plot title. Default `"3D Plot"`.
+            Plot title. The default is ``"3D Plot"``.
         format_quantity : str, optional
             Conversion data function.
             Available functions are: ``"dB10"``, ``"dB20"``, ``"abs"``, ``"real"``,
