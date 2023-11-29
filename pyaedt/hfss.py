@@ -4589,7 +4589,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box and assign a FEBI boundary to it.
+        Create a box and assign an FEBI boundary to it.
 
         >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
         ...                                         name="Radiation_box")
