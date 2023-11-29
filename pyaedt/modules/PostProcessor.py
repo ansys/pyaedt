@@ -1615,7 +1615,7 @@ class PostProcessorCommon(object):
             ]
         report.expressions = expressions
         report.domain = domain
-        if not variations and domain == "Sweep" :
+        if not variations and domain == "Sweep":
             variations = self._app.available_variations.nominal_w_values_dict
             if variations:
                 variations["Freq"] = "All"
