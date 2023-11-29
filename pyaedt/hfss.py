@@ -4574,7 +4574,7 @@ class Hfss(FieldAnalysis3D, object):
         obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
 
         Returns
         -------
