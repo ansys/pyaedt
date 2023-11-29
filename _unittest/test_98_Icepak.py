@@ -897,6 +897,16 @@ class TestClass:
             ht_correlation_value_type="Average Values",
             ht_correlation_free_stream_velocity=1,
         )
+        self.aedtapp.create_dataset("ds1", [1, 2, 3], [2, 3, 4], is_project_dataset=False)
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            name=None,
+            thickness="0mm",
+            material="Al-Extruded",
+            htc_dataset="ds1",
+            ref_temperature="AmbientTemp",
+            ht_correlation=False,
+        )
         assert self.aedtapp.assign_stationary_wall_with_temperature(
             "surf1",
             name=None,
@@ -930,6 +940,17 @@ class TestClass:
             ext_surf_rad_material="Stainless-steel-cleaned",
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_stationary_wall_with_temperature(
+            "surf1",
+            name=None,
+            temperature={"Type": "Transient", "Function": "Sinusoidal", "Values": ["20cel", 1, 1, "1s"]},
+            thickness="0mm",
+            material="Al-Extruded",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
         )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
