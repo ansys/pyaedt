@@ -3490,7 +3490,7 @@ class Icepak(FieldAnalysis3D):
                         variation_value=assignment_value["Values"],
                         function=assignment_value["Function"],
                     )
-                    if assignment_value is None:  # pragma : no cover
+                    if assignment_value is None:  # pragma: no cover
                         return None
                     props.update(assignment_value)
                 else:
