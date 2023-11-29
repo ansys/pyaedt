@@ -4567,7 +4567,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_febi(self, obj_names, boundary_name=""):
-        """Assign a FE-BI region to one or more objects.
+        """Assign an FE-BI region to one or more objects.
 
         Parameters
         ----------
