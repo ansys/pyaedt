@@ -805,7 +805,16 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd", port_name=None
+        self,
+        component,
+        net_list,
+        port_type=SourceType.CoaxPort,
+        do_pingroup=True,
+        reference_net="gnd",
+        port_name=None,
+        solder_balls_height=None,
+        solder_balls_size=None,
+        solder_balls_mid_size=None,
     ):
         """Create ports on a component.
 
@@ -830,7 +839,14 @@ class Components(object):
             If a port with the specified name already exists, the
             default naming convention is used so that port creation does
             not fail.
-
+        solder_balls_height : float, optional
+            Solder balls height used for the component. When provided default value is overwritten and must be
+            provided in meter.
+        solder_balls_size : float, optional
+            Solder balls diameter. When provided auto evaluation based on padstack size will be disabled.
+        solder_balls_mid_size : float, optional
+            Solder balls mid diameter. When provided if value is different than solder balls size, spheroid shape will
+            be switched.
         Returns
         -------
         double, bool
@@ -875,13 +891,36 @@ class Components(object):
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             if not pad_params[0] == 7:
-                sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-                solder_ball_height = 2 * sball_diam / 3
-            else:
-                bbox = pad_params[1]
-                sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
-                solder_ball_height = 2 * sball_diam / 3
-            self.set_solder_ball(component, solder_ball_height, sball_diam)
+                if not solder_balls_size:  # pragma no cover
+                    sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                    sball_mid_diam = sball_diam
+                else:  # pragma no cover
+                    sball_diam = solder_balls_size
+                    if solder_balls_mid_size:
+                        sball_mid_diam = solder_balls_mid_size
+                    else:
+                        sball_mid_diam = solder_balls_size
+                if not solder_balls_height:  # pragma no cover
+                    solder_balls_height = 2 * sball_diam / 3
+            else:  # pragma no cover
+                if not solder_balls_size:
+                    bbox = pad_params[1]
+                    sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                else:
+                    if not solder_balls_mid_size:
+                        sball_mid_diam = solder_balls_size
+                if not solder_balls_height:
+                    solder_balls_height = 2 * sball_diam / 3
+            sball_shape = "Cylinder"
+            if not sball_diam == sball_mid_diam:
+                sball_shape = "Spheroid"
+            self.set_solder_ball(
+                component=component,
+                sball_height=solder_balls_height,
+                sball_diam=sball_diam,
+                sball_mid_diam=sball_mid_diam,
+                shape=sball_shape,
+            )
             for pin in cmp_pins:
                 self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 
@@ -1661,6 +1700,7 @@ class Components(object):
     def delete_single_pin_rlc(self, deactivate_only=False):
         # type: (bool) -> list
         """Delete all RLC components with a single pin.
+        Single pin component model type will be reverted to ``"RLC"``.
 
         Parameters
         ----------
@@ -1688,6 +1728,7 @@ class Components(object):
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 if deactivate_only:
                     val.is_enabled = False
+                    val.model_type = "RLC"
                 else:
                     val.edbcomponent.Delete()
                     deleted_comps.append(comp)
