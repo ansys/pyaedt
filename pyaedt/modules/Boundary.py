@@ -510,6 +510,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignAperture(self._get_args())
         elif bound_type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
+        elif bound_type == "FE-BI":
+            self._app.oboundary.AssignFEBI(self._get_args())
         elif bound_type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif bound_type == "Lumped RLC":
@@ -4506,3 +4508,14 @@ class NetworkObject(BoundaryObject):
                     node_args[k] = val
 
             return node_args
+
+
+def _create_boundary(bound):
+    try:
+        if bound.create():
+            bound._app._boundaries[bound.name] = bound
+            return bound
+        else:  # pragma : no cover
+            raise Exception
+    except Exception:  # pragma: no cover
+        return None

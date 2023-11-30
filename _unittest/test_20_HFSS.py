@@ -1421,9 +1421,11 @@ class TestClass:
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        assert self.aedtapp.modeler.import_nastran(example_project2)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -1481,8 +1483,13 @@ class TestClass:
             name="Wave2",
             renormalize=False,
         )
-        assert self.aedtapp.set_phase_center_per_port()
-        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        if self.aedtapp.desktop_class.is_grpc_api:
+            assert self.aedtapp.set_phase_center_per_port()
+            assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        else:
+            assert not self.aedtapp.set_phase_center_per_port()
+            assert not self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
@@ -1606,3 +1613,20 @@ class TestClass:
 
         array.delete()
         assert not hfss_array.component_array
+
+    def test_66_assign_febi(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_febi(["inner"])
+        assert len(aedtapp.boundaries) == 1
+        aedtapp.close_project(save_project=False)
+
+    def test_67_transient_composite(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        aedtapp.solution_type = "Transient Composite"
+        assert aedtapp.solution_type == "Transient Composite"
+        aedtapp.close_project(save_project=False)

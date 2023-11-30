@@ -1412,6 +1412,7 @@ class Edb(Database):
         smart_cut=False,
         reference_list=[],
         include_pingroups=True,
+        pins_to_preserve=None,
     ):
         if extent_type in ["Conforming", self.edb_api.geometry.extent_type.Conforming, 1]:
             if use_pyaedt_extent:
@@ -1423,7 +1424,7 @@ class Edb(Database):
                     expansion_size,
                     smart_cut,
                     reference_list,
-                    include_pingroups,
+                    pins_to_preserve,
                 )
             else:
                 _poly = self.layout.expanded_extent(
@@ -1448,7 +1449,7 @@ class Edb(Database):
                     expansion_size,
                     smart_cut,
                     reference_list,
-                    include_pingroups,
+                    pins_to_preserve,
                 )
             else:
                 _poly = self.layout.expanded_extent(
@@ -1473,65 +1474,73 @@ class Edb(Database):
         round_extension,
         smart_cutout=False,
         reference_list=[],
-        include_pingroups=True,
+        pins_to_preserve=None,
     ):
         names = []
         _polys = []
         for net in net_signals:
             names.append(net.GetName())
+        if pins_to_preserve:
+            insts = self.padstacks.instances
+            for i in pins_to_preserve:
+                p = insts[i].position
+                pos_1 = [i - expansion_size for i in p]
+                pos_2 = [i + expansion_size for i in p]
+                plane = self.modeler.Shape("rectangle", pointA=pos_1, pointB=pos_2)
+                rectangle_data = self.modeler.shape_to_polygon_data(plane)
+                _polys.append(rectangle_data)
+
         for prim in self.modeler.primitives:
             if prim is not None and prim.net_name in names:
-                obj_data = prim.primitive_object.GetPolygonData().Expand(
-                    expansion_size, tolerance, round_corner, round_extension
-                )
-                if obj_data:
-                    _polys.extend(list(obj_data))
+                _polys.append(prim.primitive_object.GetPolygonData())
         if smart_cutout:
-            _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly_unite = self.edb_api.geometry.polygon_data.unite(_polys)
+            objs_data = self._smart_cut(reference_list, expansion_size)
+            _polys.extend(objs_data)
+        k = 0
+        delta = expansion_size / 5
+        while k < 10:
+            unite_polys = []
+            for i in _polys:
+                obj_data = i.Expand(expansion_size, tolerance, round_corner, round_extension)
+                if obj_data:
+                    unite_polys.extend(list(obj_data))
+            _poly_unite = self.edb_api.geometry.polygon_data.unite(unite_polys)
+            if len(_poly_unite) == 1:
+                self.logger.info("Correctly computed Extension at first iteration.")
+                return _poly_unite[0]
+            k += 1
+            expansion_size += delta
         if len(_poly_unite) == 1:
+            self.logger.info("Correctly computed Extension in {} iterations.".format(k))
             return _poly_unite[0]
         else:
+            self.logger.info("Failed to Correctly computed Extension.")
             areas = [i.Area() for i in _poly_unite]
             return _poly_unite[areas.index(max(areas))]
 
     @pyaedt_function_handler()
-    def _smart_cut(self, net_signals, reference_list=[], include_pingroups=True):
+    def _smart_cut(self, reference_list=[], expansion_size=1e-12):
+        from pyaedt.generic.clr_module import Tuple
+
         _polys = []
         terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) in [0, 3, 4, 7, 8]]
         locations = []
         for term in terms:
-            if term.GetTerminalType().ToString() == "PadstackInstanceTerminal":
-                if term.GetParameters()[1].GetNet().GetName() in reference_list:
-                    locations.append(self.padstacks.instances[term.GetParameters()[1].GetId()].position)
-            elif term.GetTerminalType().ToString() == "PointTerminal" and term.GetNet().GetName() in reference_list:
+            if term.GetTerminalType().ToString() == "PointTerminal" and term.GetNet().GetName() in reference_list:
                 pd = term.GetParameters()[1]
                 locations.append([pd.X.ToDouble(), pd.Y.ToDouble()])
-        if include_pingroups:
-            for reference in reference_list:
-                for pin in self.nets.nets[reference].padstack_instances:
-                    if pin.pingroups:
-                        locations.append(pin.position)
         for point in locations:
             pointA = self.edb_api.geometry.point_data(
-                self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12)
+                self.edb_value(point[0] - expansion_size), self.edb_value(point[1] - expansion_size)
             )
             pointB = self.edb_api.geometry.point_data(
-                self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12)
+                self.edb_value(point[0] + expansion_size), self.edb_value(point[1] + expansion_size)
             )
 
             points = Tuple[self.edb_api.geometry.geometry.PointData, self.edb_api.geometry.geometry.PointData](
                 pointA, pointB
             )
             _polys.append(self.edb_api.geometry.polygon_data.create_from_bbox(points))
-        for cname, c in self.components.instances.items():
-            if (
-                set(net_signals).intersection(c.nets)
-                and c.is_enabled
-                and c.model_type in ["SParameterModel", "SpiceModel", "NetlistModel"]
-            ):
-                for pin in c.pins:
-                    locations.append(pin.position)
         return _polys
 
     @pyaedt_function_handler()
@@ -1544,17 +1553,28 @@ class Edb(Database):
         round_extension,
         smart_cut=False,
         reference_list=[],
-        include_pingroups=True,
+        pins_to_preserve=None,
     ):
         names = []
         _polys = []
         for net in net_signals:
             names.append(net.GetName())
+        if pins_to_preserve:
+            insts = self.padstacks.instances
+            for i in pins_to_preserve:
+                p = insts[i].position
+                pos_1 = [i - 1e-12 for i in p]
+                pos_2 = [i + 1e-12 for i in p]
+                plane = self.modeler.Shape("rectangle", pointA=pos_1, pointB=pos_2)
+                rectangle_data = self.modeler.shape_to_polygon_data(plane)
+                _polys.append(rectangle_data)
         for prim in self.modeler.primitives:
             if prim is not None and prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
         if smart_cut:
-            _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
+            objs_data = self._smart_cut(reference_list, expansion_size)
+            _polys.extend(objs_data)
+
         _poly = self.edb_api.geometry.polygon_data.get_convex_hull_of_polygons(convert_py_list_to_net_list(_polys))
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
@@ -2027,6 +2047,17 @@ class Edb(Database):
                 ):
                     pins_to_preserve.extend([i.id for i in el.pins.values()])
                     nets_to_preserve.extend(el.nets)
+        if include_pingroups:
+            for reference in reference_list:
+                for pin in self.nets.nets[reference].padstack_instances:
+                    if pin.pingroups:
+                        pins_to_preserve.append(pin.id)
+        if check_terminals:
+            terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) in [0, 3, 4, 7, 8]]
+            for term in terms:
+                if term.GetTerminalType().ToString() == "PadstackInstanceTerminal":
+                    if term.GetParameters()[1].GetNet().GetName() in reference_list:
+                        pins_to_preserve.append(term.GetParameters()[1].GetId())
 
         for i in self.nets.nets.values():
             name = i.name
@@ -2077,6 +2108,7 @@ class Edb(Database):
                 smart_cut=check_terminals,
                 reference_list=reference_list,
                 include_pingroups=include_pingroups,
+                pins_to_preserve=pins_to_preserve,
             )
             if extent_type in ["Conforming", self.edb_api.geometry.extent_type.Conforming, 1] and extent_defeature > 0:
                 _poly = _poly.Defeature(extent_defeature)
@@ -3066,10 +3098,9 @@ class Edb(Database):
                         idx = simulation_setup.signal_layer_etching_instances.index(layer)
                         if len(simulation_setup.etching_factor_instances) > idx:
                             self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
-
             if not simulation_setup.signal_nets and simulation_setup.components:
                 nets_to_include = []
-                pnets = list(self.nets.power_nets.keys())[:]
+                pnets = list(self.nets.power.keys())[:]
                 for el in simulation_setup.components:
                     nets_to_include.append([i for i in self.components[el].nets if i not in pnets])
                 simulation_setup.signal_nets = [
@@ -3132,13 +3163,33 @@ class Edb(Database):
                     if not simulation_setup.generate_solder_balls:
                         source_type = SourceType.CircPort
                     for cmp in simulation_setup.components:
-                        self.components.create_port_on_component(
-                            cmp,
-                            net_list=simulation_setup.signal_nets,
-                            do_pingroup=False,
-                            reference_net=simulation_setup.power_nets,
-                            port_type=source_type,
-                        )
+                        if isinstance(cmp, str):  # keep legacy component
+                            self.components.create_port_on_component(
+                                cmp,
+                                net_list=simulation_setup.signal_nets,
+                                do_pingroup=False,
+                                reference_net=simulation_setup.power_nets,
+                                port_type=source_type,
+                            )
+                        elif isinstance(cmp, dict):
+                            if "refdes" in cmp:
+                                if not "solder_balls_height" in cmp:  # pragma no cover
+                                    cmp["solder_balls_height"] = None
+                                if not "solder_balls_size" in cmp:  # pragma no cover
+                                    cmp["solder_balls_size"] = None
+                                    cmp["solder_balls_mid_size"] = None
+                                if not "solder_balls_mid_size" in cmp:  # pragma no cover
+                                    cmp["solder_balls_mid_size"] = None
+                                self.components.create_port_on_component(
+                                    cmp["refdes"],
+                                    net_list=simulation_setup.signal_nets,
+                                    do_pingroup=False,
+                                    reference_net=simulation_setup.power_nets,
+                                    port_type=source_type,
+                                    solder_balls_height=cmp["solder_balls_height"],
+                                    solder_balls_size=cmp["solder_balls_size"],
+                                    solder_balls_mid_size=cmp["solder_balls_mid_size"],
+                                )
                     if simulation_setup.generate_solder_balls and not self.hfss.set_coax_port_attributes(
                         simulation_setup
                     ):  # pragma: no cover
@@ -3160,17 +3211,26 @@ class Edb(Database):
             if simulation_setup.solver_type == SolverType.SiwaveSYZ:
                 if simulation_setup.generate_excitations:
                     for cmp in simulation_setup.components:
-                        self.components.create_port_on_component(
-                            cmp,
-                            net_list=simulation_setup.signal_nets,
-                            do_pingroup=simulation_setup.do_pingroup,
-                            reference_net=simulation_setup.power_nets,
-                            port_type=SourceType.CircPort,
-                        )
+                        if isinstance(cmp, str):  # keep legacy
+                            self.components.create_port_on_component(
+                                cmp,
+                                net_list=simulation_setup.signal_nets,
+                                do_pingroup=simulation_setup.do_pingroup,
+                                reference_net=simulation_setup.power_nets,
+                                port_type=SourceType.CircPort,
+                            )
+                        elif isinstance(cmp, dict):
+                            if "refdes" in cmp:  # pragma no cover
+                                self.components.create_port_on_component(
+                                    cmp["refdes"],
+                                    net_list=simulation_setup.signal_nets,
+                                    do_pingroup=simulation_setup.do_pingroup,
+                                    reference_net=simulation_setup.power_nets,
+                                    port_type=SourceType.CircPort,
+                                )
                 self.logger.info("Configuring analysis setup.")
                 if not self.siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
-
             if simulation_setup.solver_type == SolverType.SiwaveDC:
                 if simulation_setup.generate_excitations:
                     self.components.create_source_on_component(simulation_setup.sources)
