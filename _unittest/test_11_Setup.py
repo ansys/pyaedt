@@ -59,6 +59,15 @@ class TestClass:
         sweep2 = setup1.add_sweep(sweepname="test_sweeptype", sweeptype="invalid")
         assert sweep2.props["Type"] == "Interpolating"
         setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
+    
+    def test_01c_create_hfss_setup_auto_open(self):
+        for setup in self.aedtapp.get_setups():
+            self.aedtapp.delete_setup(setup)
+        self.aedtapp.set_auto_open()
+        setup1 = self.aedtapp.get_setup("Auto1")
+        setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
+        assert setup1.update({"MaximumPasses": 20})
+        assert setup1.props["SolveType"] == "MultiFrequency"
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit(specified_version=desktop_version)
