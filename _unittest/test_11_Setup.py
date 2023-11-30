@@ -58,7 +58,10 @@ class TestClass:
         assert self.aedtapp.get_sweeps("My_HFSS_Setup")
         sweep2 = setup1.add_sweep(sweepname="test_sweeptype", sweeptype="invalid")
         assert sweep2.props["Type"] == "Interpolating"
-        setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
+        sweep3 = setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
+        assert sweep3.props["Type"] == "Discrete"
+        sweep4 = setup1.create_frequency_sweep("GHz", 23, 25, 401, sweep_type="Fast")
+        assert sweep4.props["Type"] == "Fast"
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit(specified_version=desktop_version)
