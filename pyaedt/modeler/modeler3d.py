@@ -1295,7 +1295,7 @@ class Modeler3D(Primitives3D):
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
         mesh_sheets_number : int, optional
             Number of mesh sheets within one magnet segment.
-            If nothing is provided and apply_mesh_sheets is ``True`` the default value is ``2``.
+            If nothing is provided and ``apply_mesh_sheets=True``, the default value is ``2``.
 
         Returns
         -------
