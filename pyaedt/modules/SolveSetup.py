@@ -2629,7 +2629,7 @@ class SetupHFSS(Setup, object):
             return False
         self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
-        if "MultipleAdaptiveFreqsSetup" not in self.props:
+        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
             self.props["MultipleAdaptiveFreqsSetup"] = {}
         for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
