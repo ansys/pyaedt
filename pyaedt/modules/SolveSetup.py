@@ -2629,6 +2629,10 @@ class SetupHFSS(Setup, object):
             return False
         self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
+        # props["MultipleAdaptiveFreqsSetup"] could potentially be nonexistent.
+        # A known case is the setup automatically created by setting auto-open region.
+        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
+            self.props["MultipleAdaptiveFreqsSetup"] = {}
         for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         i = 0
