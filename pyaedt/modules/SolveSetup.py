@@ -2247,12 +2247,12 @@ class SetupHFSS(Setup, object):
 
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
-        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
-            num_of_freq_points = 401
-        elif num_of_freq_points is None and sweep_type == "Discrete":
-            num_of_freq_points = 5
-        else:
-            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+        if sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = num_of_freq_points or 401
+        elif sweep_type == "Discrete":
+            num_of_freq_points = num_of_freq_points or 5
+        else:  # pragma: no cover
+            raise ValueError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
