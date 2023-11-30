@@ -1269,7 +1269,8 @@ class Modeler3D(Primitives3D):
 
     @pyaedt_function_handler
     def objects_segmentation(
-        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False
+        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False,
+            mesh_sheets_number=2
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
@@ -1288,6 +1289,9 @@ class Modeler3D(Primitives3D):
             Whether to apply mesh sheets to selected objects.
             Mesh sheets are needed in case the user would like to have additional layers
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
+        mesh_sheets_number : int, optional
+            Number of mesh sheets within one magnet segment.
+            If nothing is provided and apply_mesh_sheets is ``True`` the default value is ``2``.
 
         Returns
         -------
@@ -1333,11 +1337,18 @@ class Modeler3D(Primitives3D):
                 mesh_sheets = {}
                 mesh_objects = {}
                 # mesh sheets
-                self.move(face_object, [0, 0, segmentation_thickness / 4])
-                mesh_sheets[obj.name] = face_object.duplicate_along_line(
-                    [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
-                )
-                mesh_objects[obj.name] = []
+                mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
+                for i in range(len(segment_objects[obj.name])+1):
+                    if i == 0:
+                        face = obj.bottom_face_z
+                    else:
+                        face = segment_objects[obj.name][i-1].faces[0]
+                    mesh_face_object = self.create_object_from_face(face)
+                    self.move(mesh_face_object, [0, 0, mesh_sheet_position])
+                    mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
+                        [0, 0, mesh_sheet_position], mesh_sheets_number
+                    )
+                mesh_objects[obj.name] = [mesh_face_object]
                 for value in mesh_sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         face_object.delete()
