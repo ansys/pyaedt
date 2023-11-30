@@ -59,7 +59,7 @@ class TestClass:
         sweep2 = setup1.add_sweep(sweepname="test_sweeptype", sweeptype="invalid")
         assert sweep2.props["Type"] == "Interpolating"
         setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
-    
+
     def test_01c_create_hfss_setup_auto_open(self):
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
