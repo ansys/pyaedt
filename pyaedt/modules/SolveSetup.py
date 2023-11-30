@@ -2251,7 +2251,7 @@ class SetupHFSS(Setup, object):
             num_of_freq_points = num_of_freq_points or 401
         elif sweep_type == "Discrete":
             num_of_freq_points = num_of_freq_points or 5
-        else:
+        else:  # pragma: no cover
             raise ValueError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
