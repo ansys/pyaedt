@@ -71,6 +71,7 @@ class TestClass:
         setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
         assert setup1.update({"MaximumPasses": 20})
         assert setup1.props["SolveType"] == "MultiFrequency"
+        self.aedtapp.set_auto_open(False)
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit(specified_version=desktop_version)
