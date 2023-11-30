@@ -732,7 +732,7 @@ class Revision:
             raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
         engine = self.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
-    
+
     def get_license_session(self):
         """Get a license session.
 
