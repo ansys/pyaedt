@@ -1269,8 +1269,12 @@ class Modeler3D(Primitives3D):
 
     @pyaedt_function_handler
     def objects_segmentation(
-        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False,
-            mesh_sheets_number=2
+        self,
+        objects_list,
+        segmentation_thickness=None,
+        segments_number=None,
+        apply_mesh_sheets=False,
+        mesh_sheets_number=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
@@ -1338,11 +1342,11 @@ class Modeler3D(Primitives3D):
                 mesh_objects = {}
                 # mesh sheets
                 mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
-                for i in range(len(segment_objects[obj.name])+1):
+                for i in range(len(segment_objects[obj.name]) + 1):
                     if i == 0:
                         face = obj.bottom_face_z
                     else:
-                        face = segment_objects[obj.name][i-1].faces[0]
+                        face = segment_objects[obj.name][i - 1].faces[0]
                     mesh_face_object = self.create_object_from_face(face)
                     self.move(mesh_face_object, [0, 0, mesh_sheet_position])
                     mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
