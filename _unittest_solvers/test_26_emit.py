@@ -1220,4 +1220,4 @@ class TestClass:
         end = time.perf_counter()
         licenseSessionTime = end - start
 
-        assert licenseSessionTime < noLicenseSessionTime
+        assert (licenseSessionTime*2) < noLicenseSessionTime
