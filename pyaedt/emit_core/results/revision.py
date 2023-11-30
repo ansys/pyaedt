@@ -734,7 +734,7 @@ class Revision:
         engine.set_emi_category_filter_enabled(category, enabled)
     
     def get_license_session(self):
-        """Get a license_session object.
+        """Get a license session.
 
         A license session can be started with checkout(), and ended with checkin().
         The `with` keyword can also be used, where checkout() is called on enter, and checkin() is called on exit.
