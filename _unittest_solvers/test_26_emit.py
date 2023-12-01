@@ -1,6 +1,7 @@
 # Import required modules
 import os
 import sys
+import time
 
 from _unittest_solvers.conftest import config
 import pytest
@@ -1170,3 +1171,92 @@ class TestClass:
         with pytest.raises(RuntimeError) as e:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2."
+    )
+    def test_license_session(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+
+        # Generate a revision
+        results = self.aedtapp.results
+        revision = self.aedtapp.results.analyze()
+
+        receivers = revision.get_receiver_names()
+        modeRx = TxRxMode.RX
+        modeTx = TxRxMode.TX
+        modeEmi = ResultType.EMI
+        self.aedtapp.set_units("Frequency", "GHz")
+
+        def get_best_rx_channel(results, receiver):
+            domain = results.interaction_domain()
+            rev = results.current_revision
+            # get interferers
+            interferers = rev.get_interferer_names()
+            best_emi = 300.0
+            best_band = None
+            best_freq = None
+
+            combinations_run = 0
+            
+            domain.set_receiver(receiver)
+            interaction = rev.run(domain)
+
+            for interferer in interferers:
+                for tx_band in rev.get_band_names(interferer, modeTx):
+                    for tx_freq in rev.get_active_frequencies(interferer, tx_band, modeTx):
+                        domain.set_interferer(interferer, tx_band, tx_freq)
+                        rx_band = rev.get_band_names(receiver, modeRx)[0]
+                        for rx_freq in rev.get_active_frequencies(receiver, rx_band, modeRx):
+                            
+                            domain.set_receiver(receiver, rx_band, rx_freq)
+
+                            if best_band == None:
+                                best_band = rx_band
+                            if best_freq == None:
+                                best_freq = rx_freq
+
+                            try: 
+                                instance = interaction.get_instance(domain)
+                                if instance.has_valid_values():
+                                    emi = instance.get_value(modeEmi)
+                                    if emi < best_emi:
+                                        best_emi = emi
+                                        best_band = rx_band
+                                        best_freq = rx_freq
+                                else:
+                                    assert(f'No valid values found')
+                            except:
+                                assert("No results between " + interferer + ": " + tx_band + 
+                                       ": " + str(tx_freq) + " and " + receiver + ": " + 
+                                       rx_band + ": " + str(rx_freq))
+                            
+                            combinations_run += 1
+
+                            if combinations_run >= 20:
+                                return [best_band, best_freq]
+            return [best_band, best_freq]
+        
+        # Warmup in case something isn't solved
+        best_case_rx_ch = {}
+        for rx in [receivers[0]]:
+            best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
+        
+        # Get the time without the license session
+        start = time.perf_counter()
+        best_case_rx_ch = {}
+        for rx in [receivers[0]]:
+            best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
+        end = time.perf_counter()
+        noLicenseSessionTime = end - start
+        
+        # Get the time using the license session
+        start = time.perf_counter()
+        best_case_rx_ch = {}
+        with revision.get_license_session():
+            for rx in [receivers[0]]:
+                best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
+        end = time.perf_counter()
+        licenseSessionTime = end - start
+
+        assert (licenseSessionTime*2) < noLicenseSessionTime
