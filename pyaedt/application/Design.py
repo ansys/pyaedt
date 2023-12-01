@@ -314,6 +314,11 @@ class Design(AedtObjects):
             bb = list(self.oboundary.GetBoundaries())
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
+        if "GetHybridRegions" in self.oboundary.__dir__():
+            hybrid_regions = self.oboundary.GetHybridRegions()
+            for region in hybrid_regions:
+                bb.append(region)
+                bb.append("FE-BI")
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
