@@ -1,0 +1,107 @@
+name: Documentation with Examples
+
+env:
+  python.version: '3.10'
+  python.venv: 'testvenv'
+  RESET_EXAMPLES_CACHE: 3
+  RESET_DOC_BUILD_CACHE: 3
+  RESET_AUTOSUMMARY_CACHE: 3
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches:
+     - 'doc/*'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  full_documentation:
+    # The type of runner that the job will run on
+    name: full_documentation
+    runs-on: [windows-latest, pyaedt]
+    timeout-minutes: 480
+    strategy:
+      matrix:
+        python-version: ['3.10']
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install .[doc]
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+
+      - name: Retrieve PyAEDT version
+        id: version
+        run: |
+          testenv\Scripts\Activate.ps1
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+
+      - name: Create HTML Documentations
+        run: |
+          testenv\Scripts\Activate.ps1
+          sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+
+#      - name: Create PDF Documentations
+#        run: |
+#            testenv\Scripts\Activate.ps1
+#            .\doc\make.bat pdf
+
+      - name: Upload HTML documentation artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Documentation
+          path: doc/_build/html
+          retention-days: 7
+
+#      - name: Upload EDB Documentation
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: documentation-html-edb
+#          path: doc/_build/html/EDBAPI
+#          retention-days: 3
+
+#      - name: Upload PDF documentation artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: documentation-pdf
+#          path: doc/_build/pdf
+#          retention-days: 7
+
+#      - name: Release
+#        uses: softprops/action-gh-release@v1
+#        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+#        with:
+#          generate_release_notes: true
+#          files: |
+#            doc/_build/pdf
+
