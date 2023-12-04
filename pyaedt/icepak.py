@@ -1267,8 +1267,7 @@ class Icepak(FieldAnalysis3D):
         self["HSHeight"] = self.modeler._arg_with_dim(hs_height)
         self["HSWidth"] = self.modeler._arg_with_dim(hs_width)
         self["HSBaseThick"] = self.modeler._arg_with_dim(hs_basethick)
-        if numcolumn_perside > 1:
-            self["NumColumnsPerSide"] = numcolumn_perside
+        self["NumColumnsPerSide"] = numcolumn_perside
         if symmetric:
             self["SymSeparation"] = self.modeler._arg_with_dim(symmetric_separation)
         self["Tolerance"] = self.modeler._arg_with_dim(tolerance)
