@@ -2164,7 +2164,7 @@ class Material(CommonMaterial, object):
         >>> m3d = Maxwell3d()
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
-        >>> m3d.materials["magnesium"].set_electrical_steel_coreloss(
+        >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
@@ -2175,7 +2175,7 @@ class Material(CommonMaterial, object):
         >>> m3d = Maxwell3d()
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
-        >>> m3d.materials["magnesium"].set_electrical_steel_coreloss(
+        >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]],
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
