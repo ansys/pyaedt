@@ -266,33 +266,32 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
-    if config["run_examples"]:
-        extensions.append("sphinx_gallery.gen_gallery")
+    extensions.append("sphinx_gallery.gen_gallery")
 
-        sphinx_gallery_conf = {
-            # convert rst to md for ipynb
-            "pypandoc": True,
-            # path to your examples scripts
-            "examples_dirs": ["../../examples/"],
-            # path where to save gallery generated examples
-            "gallery_dirs": ["examples"],
-            # Patter to search for examples files
-            "filename_pattern": r"\.py",
-            # Remove the "Download all examples" button from the top level gallery
-            "download_all_examples": False,
-            # Sort gallery examples by file name instead of number of lines (default)
-            "within_subsection_order": FileNameSortKey,
-            # directory where function granular galleries are stored
-            "backreferences_dir": None,
-            # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-pyaedt",
-            "image_scrapers": ("pyvista", "matplotlib"),
-            "ignore_pattern": "flycheck*",
-            "thumbnail_size": (350, 350),
-            # 'first_notebook_cell': ("%matplotlib inline\n"
-            #                         "from pyvista import set_plot_theme\n"
-            #                         "set_plot_theme('document')"),
-        }
+    sphinx_gallery_conf = {
+        # convert rst to md for ipynb
+        "pypandoc": True,
+        # path to your examples scripts
+        "examples_dirs": ["../../examples/"],
+        # path where to save gallery generated examples
+        "gallery_dirs": ["examples"],
+        # Patter to search for examples files
+        "filename_pattern": r"\.py",
+        # Remove the "Download all examples" button from the top level gallery
+        "download_all_examples": False,
+        # Sort gallery examples by file name instead of number of lines (default)
+        "within_subsection_order": FileNameSortKey,
+        # directory where function granular galleries are stored
+        "backreferences_dir": None,
+        # Modules for which function level galleries are created.  In
+        "doc_module": "ansys-pyaedt",
+        "image_scrapers": ("pyvista", "matplotlib"),
+        "ignore_pattern": "flycheck*",
+        "thumbnail_size": (350, 350),
+        # 'first_notebook_cell': ("%matplotlib inline\n"
+        #                         "from pyvista import set_plot_theme\n"
+        #                         "set_plot_theme('document')"),
+    }
 
 jinja_contexts = {
     "main_toctree": {
