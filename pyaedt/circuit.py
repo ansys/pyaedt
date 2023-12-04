@@ -392,6 +392,8 @@ class Circuit(FieldAnalysisCircuit, object):
                         mycomp = self.modeler.schematic.create_current_pulse(
                             name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
+                elif not any(word in line for word in [".param", ".model", ".lib"]):
+                    self.logger.warning("%s could not be imported", line)
                 if mycomp:
                     id = 1
                     for pin in mycomp.pins:
