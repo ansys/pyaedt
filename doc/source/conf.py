@@ -270,8 +270,6 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
         extensions.append("sphinx_gallery.gen_gallery")
 
         sphinx_gallery_conf = {
-            # enable jupytext notebooks support
-            "jupytext": True,
             # convert rst to md for ipynb
             "pypandoc": True,
             # path to your examples scripts
