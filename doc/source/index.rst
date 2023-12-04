@@ -27,25 +27,23 @@ Epured documentatiob.
 
     .. grid:: 2
 
-           {% if run_examples %}
-           .. grid-item-card::
-                    :img-top: _static/assets/index_examples.png
+        .. grid-item-card::
+                :img-top: _static/assets/index_examples.png
 
-                    Examples
-                    ^^^^^^^^
+                Examples
+                ^^^^^^^^
 
-                    Explore examples that show how to use PyAEDT to
-                    perform different types of simulations.
+                Explore examples that show how to use PyAEDT to
+                perform different types of simulations.
 
-                    +++
-                    .. button-link:: examples/index.html
-                       :color: secondary
-                       :expand:
-                       :outline:
-                       :click-parent:
+                +++
+                .. button-link:: examples/index.html
+                   :color: secondary
+                   :expand:
+                   :outline:
+                   :click-parent:
 
-                          Examples
-           {% endif %}
+                      Examples
 
         .. grid-item-card::
                 :img-top: _static/assets/index_contribute.png
@@ -77,8 +75,6 @@ Indices and tables
        :hidden:
 
        EDBAPI/index
-       {% if run_examples %}
        examples/index
-       {% endif %}
 
 
