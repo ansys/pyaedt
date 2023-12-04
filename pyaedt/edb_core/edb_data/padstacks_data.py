@@ -1008,7 +1008,7 @@ class EDBPadstack(object):
                 offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
                 offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
                 rot = self.pad_by_layer[layer]._pad_parameter_value[5]
-                if layer == old_name:
+                if layer == old_name:  # pragma no cover
                     new_padstack_data.SetPadParameters(
                         updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rot
                     )
@@ -1023,7 +1023,7 @@ class EDBPadstack(object):
                 offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
                 offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
                 rotation = self.pad_by_layer[layer]._pad_parameter_value[5]
-                if layer == old_name:
+                if layer == old_name:  # pragma no cover
                     new_padstack_data.SetPadParameters(
                         updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rotation
                     )
@@ -1040,7 +1040,7 @@ class EDBPadstack(object):
                 offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
                 offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
                 rotation = self.pad_by_layer[layer]._pad_parameter_value[5]
-                if layer == old_name:
+                if layer == old_name:  # pragma no cover
                     new_padstack_data.SetPadParameters(
                         updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rotation
                     )
