@@ -1,69 +1,9 @@
 PyAEDT documentation  |version|
 ===============================
 
-PyAEDT is a Python library that interacts directly with the API for
-Ansys Electronics Desktop (AEDT) to make scripting simpler.
+Epured documentatiob.
 
 .. grid:: 2
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_getting_started.png
-
-            Getting started
-            ^^^^^^^^^^^^^^^
-
-            Learn how to run install PyAEDT, to launch Electronics Desktop and
-            install link button in AEDT.
-
-            +++
-
-            .. button-link:: Getting_started/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  Getting started
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_user_guide.png
-
-            User guide
-            ^^^^^^^^^^
-
-            Understand key concepts and approaches for primitives,
-            modeler, mesh, setup and post-processing.
-
-            +++
-            .. button-link:: User_guide/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  User guide
-
-
-
-.. grid:: 2
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
-
-            AEDT API reference
-            ^^^^^^^^^^^^^^^^^^
-
-            Understand PyAEDT API endpoints, their capabilities,
-            and how to interact with them programmatically.
-
-            +++
-            .. button-link:: API/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  AEDT API reference
 
    .. grid-item-card::
             :img-top: _static/assets/index_api.png
@@ -136,9 +76,6 @@ Indices and tables
     .. toctree::
        :hidden:
 
-       Getting_started/index
-       User_guide/index
-       API/index
        EDBAPI/index
        {% if run_examples %}
        examples/index
