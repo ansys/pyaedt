@@ -2993,3 +2993,21 @@ class TestClass:
         assert round(edbapp.components["X1"].solder_ball_height, 6) == 0.00025
         assert round(edbapp.components["U1"].solder_ball_height, 6) == 0.00035
         edbapp.close_edb()
+
+    def test_153_update_padstacks_after_layer_name_changed(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_padstack_def_update", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        signal_layer_list = [layer for layer in list(edbapp.stackup.stackup_layers.values()) if layer.type == "signal"]
+        old_layers = []
+        for n_layer, layer in enumerate(signal_layer_list):
+            new_name = f"new_signal_name_{n_layer}"
+            old_layers.append(layer.name)
+            layer.name = new_name
+        for layer_name in list(edbapp.stackup.stackup_layers.keys()):
+            print(f"New layer name is {layer_name}")
+        for padstack_inst in list(edbapp.padstacks.instances.values()):
+            assert not [lay for lay in padstack_inst.layer_range_names if lay in old_layers]
+        edbapp.close_edb()

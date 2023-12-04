@@ -47,6 +47,17 @@ class LayerEdbClass(object):
         return self._edb_layer.IsViaLayer()
 
     @property
+    def padstacks_definitions(self):
+        """Retrieve database padsatcks definitions.
+
+        Returns
+        -------
+        Database padstacks definitions:class:`pyaedt.edb_core.edb_data.padstacks.EdbPadstacks`
+
+        """
+        return self._pclass._pedb.padstacks.definitions
+
+    @property
     def color(self):
         """Retrieve color of the layer.
 
@@ -95,9 +106,12 @@ class LayerEdbClass(object):
     @name.setter
     def name(self, name):
         layer_clone = self._edb_layer
+        old_name = layer_clone.GetName()
         layer_clone.SetName(name)
         self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
         self._name = name
+        for padstack_def in list(self.padstacks_definitions.values()):
+            padstack_def._update_layer_names(old_name=old_name, updated_name=name)
 
     @property
     def type(self):
