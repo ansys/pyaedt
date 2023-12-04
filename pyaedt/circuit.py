@@ -402,7 +402,12 @@ class Circuit(FieldAnalysisCircuit, object):
                             angle = 0.0
                         else:
                             angle = math.pi
-                        self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
+                        if fields[id] == "0":
+                            gnd_pos = self.modeler.schematic._convert_point_to_units([0, -0.00254])
+                            new_pos = [i + j for i, j in zip(pos, gnd_pos)]
+                            self.modeler.schematic.create_gnd([new_pos[0], new_pos[1]])
+                        else:
+                            self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
                     if ypos > 0.254:
