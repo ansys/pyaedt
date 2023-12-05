@@ -786,12 +786,11 @@ class Components(object):
         if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
             return
         if len(pins) > 1:
-            if pec_boundary:
-                pec_boundary = False
-                self._logger.info(
-                    "Disabling PEC boundary creation, this feature is supported on single pin "
-                    "ports only, {} pins found".format(len(pins))
-                )
+            pec_boundary = False
+            self._logger.info(
+                "Disabling PEC boundary creation, this feature is supported on single pin "
+                "ports only, {} pins found".format(len(pins))
+            )
             group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
             term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
