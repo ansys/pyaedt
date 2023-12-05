@@ -888,131 +888,116 @@ class Modeler3D(Primitives3D):
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
-            for line in lines:
-                line_split = [line[i : i + 8] for i in range(0, len(line), 8)]
-                if len(line_split) < 5:
+            for lk in range(len(lines)):
+                line = lines[lk]
+                line_type = line[:8].strip()
+                if line.startswith("$") or line.startswith("*"):
                     continue
-                if line_split[0].startswith("GRID"):
-                    try:
-                        import re
-
-                        out = re.findall("^.{24}(.{8})(.{8})(.{8})", line)[0]
-                        n1 = out[0].replace(".-", ".e-").strip()
-                        n2 = out[1].replace(".-", ".e-").strip()
-                        n3 = out[2].replace(".-", ".e-").strip()
-
-                        if "-" in n1[1:]:
-                            n1 = n1[0] + n1[1:].replace("-", "e-")
-                        n1 = float(n1)
-                        if "-" in n2[1:]:
-                            n2 = n2[0] + n2[1:].replace("-", "e-")
-                        n2 = float(n2)
-                        if "-" in n3[1:]:
-                            n3 = n3[0] + n3[1:].replace("-", "e-")
-                        n3 = float(n3)
-
-                        nas_to_dict["Points"][int(line_split[1])] = [n1, n2, n3]
-                        nas_to_dict["PointsId"][int(line_split[1])] = id
+                elif line_type in ["GRID", "CTRIA3"]:
+                    grid_id = int(line[8:16])
+                    if line_type == "CTRIA3":
+                        tria_id = int(line[16:24])
+                    n1 = line[24:32].strip()
+                    if "-" in n1[1:]:
+                        n1 = n1[0] + n1[1:].replace("-", "e-")
+                    n2 = line[32:40].strip()
+                    if "-" in n2[1:]:
+                        n2 = n2[0] + n2[1:].replace("-", "e-")
+                    n3 = line[40:48].strip()
+                    if "-" in n3[1:]:
+                        n3 = n3[0] + n3[1:].replace("-", "e-")
+                    if line_type == "GRID":
+                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        nas_to_dict["PointsId"][grid_id] = grid_id
                         id += 1
-                    except:
-                        pass
-                elif line_split[0].startswith("CTRIA3"):
-                    if int(line_split[2]) in nas_to_dict["Triangles"]:
-                        nas_to_dict["Triangles"][int(line_split[2])].append(
-                            [
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                            ]
-                        )
                     else:
-                        nas_to_dict["Triangles"][int(line_split[2])] = [
-                            [
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
+                        if tria_id in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id].append(
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
+                            )
+                        else:
+                            nas_to_dict["Triangles"][tria_id] = [
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
                             ]
-                        ]
-                elif line_split[0].startswith("CPENTA"):
-                    if int(line_split[2]) in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][int(line_split[2])].append(
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
-                            ]
-                        )
+                elif line_type in ["GRID*", "CTRIA3*"]:
+                    grid_id = int(line[8:24])
+                    if line_type == "CTRIA3*":
+                        tria_id = int(line[24:40])
+                    n1 = line[40:56].strip()
+                    if "-" in n1[1:]:
+                        n1 = n1[0] + n1[1:].replace("-", "e-")
+                    n2 = line[56:72].strip()
+                    if "-" in n2[1:]:
+                        n2 = n2[0] + n2[1:].replace("-", "e-")
+
+                    n3 = line[72:88].strip()
+                    if not n3 or n3 == "*":
+                        lk += 1
+                        n3 = lines[lk][8:24].strip()
+                    if "-" in n3[1:]:
+                        n3 = n3[0] + n3[1:].replace("-", "e-")
+                    if line_type == "GRID*":
+                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        nas_to_dict["PointsId"][grid_id] = id
+                        id += 1
                     else:
-                        nas_to_dict["Solids"][int(line_split[2])] = [
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
+                        if tria_id in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id].append(
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
+                            )
+                        else:
+                            nas_to_dict["Triangles"][tria_id] = [
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
                             ]
-                        ]
-                elif line_split[0].startswith("CHEXA"):
-                    if int(line_split[2]) in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][int(line_split[2])].append(
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
-                                int(line_split[9]),
-                                int(line_split[10]),
-                            ]
-                        )
+                elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
+                    obj_id = int(line[16:24])
+                    n1 = int(line[24:32])
+                    n2 = int(line[32:40])
+                    n3 = int(line[40:48])
+                    n4 = int(line[48:56])
+                    obj_list = [line_type, n1, n2, n3, n4]
+                    if line_type == "CPENTA":
+                        n5 = int(line[56:64])
+                        n6 = int(line[64:72])
+                        obj_list.extend([n5, n6])
+
+                    if line_type == "CHEXA":
+                        n5 = int(line[56:64])
+                        n6 = int(line[64:72])
+                        lk += 1
+                        n7 = int(lines[lk][8:16].strip())
+                        n8 = int(lines[lk][16:24].strip())
+
+                        obj_list.extend([n5, n6, n7, n8])
+                    if obj_id in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][obj_id].append(obj_list)
                     else:
-                        nas_to_dict["Solids"][int(line_split[2])] = [
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
-                                int(line_split[9]),
-                                int(line_split[10]),
-                            ]
-                        ]
-                elif line_split[0].startswith("CTETRA"):
-                    if int(line_split[2]) in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][int(line_split[2])].append(
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                            ]
-                        )
+                        nas_to_dict["Solids"][obj_id] = [[i for i in obj_list]]
+                elif line_type in ["CROD", "CBEAM"]:
+                    obj_id = int(line[16:24])
+                    n1 = int(line[24:32])
+                    n2 = int(line[32:40])
+                    if obj_id in nas_to_dict["Lines"]:
+                        nas_to_dict["Lines"][obj_id].append([n1, n2])
                     else:
-                        nas_to_dict["Solids"][int(line_split[2])] = [
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                            ]
-                        ]
-                elif line_split[0].startswith("CROD") or line_split[0].startswith("CBEAM"):
-                    if int(line_split[2]) in nas_to_dict["Lines"]:
-                        nas_to_dict["Lines"][int(line_split[2])].append([int(line_split[3]), int(line_split[4])])
-                    else:
-                        nas_to_dict["Lines"][int(line_split[2])] = [[int(line_split[3]), int(line_split[4])]]
+                        nas_to_dict["Lines"][obj_id] = [[n1, n2]]
+
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
         if nas_to_dict["Triangles"]:
@@ -1039,6 +1024,7 @@ class Modeler3D(Primitives3D):
                         n = [1, 0, 0]
                     else:
                         n = GeometryOperators.v_cross(cv1, cv2)
+
                     normal = GeometryOperators.normalize_vector(n)
                     if normal:
                         f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))

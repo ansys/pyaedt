@@ -76,14 +76,14 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             with subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as p:
                 p.wait()
         else:
-            with subprocess.Popen(
-                " ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            ) as p:
-                p.wait()
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
-    _aedt_process_thread.daemon = True
-    _aedt_process_thread.start()
+    if is_linux:  # pragma: no cover
+        _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
+        _aedt_process_thread.daemon = True
+        _aedt_process_thread.start()
+    else:
+        launch_desktop_on_port()
     timeout = settings.desktop_launch_timeout
     k = 0
     while not _check_grpc_port(port):
