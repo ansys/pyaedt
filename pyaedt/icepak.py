@@ -5067,7 +5067,7 @@ class Icepak(FieldAnalysis3D):
         laminar : bool, optional
             Whether the flow inside the volume must be treated as laminar or
             not. Default is ``False``.
-        loss_type: str, optional
+        loss_type : str, optional
             Type of pressure loss model to be used. It can have one of the
             following values: ``"Device"``, ``"Power Law"``, and
             ``"Loss Curve"``. Default is ``"Device"``.
@@ -5077,11 +5077,11 @@ class Icepak(FieldAnalysis3D):
             which case the default unit ``"m_per_sec"`` will be used, or as
             strings. Relevant only if ``loss_type=="Device"``.  Default is
             ``"1m_per_sec"`` for all three directions.
-        quadratic_loss: list of floats or list of strings, optional
+        quadratic_loss : list of floats or list of strings, optional
             Three values representing the quadratic loss coefficients in the X,
             Y, and Z directions. Relevant only if ``loss_type=="Device"``.
             Default is ``1`` for all three directions.
-        linear_loss_free_area_ratio: list of floats or list of strings, optional
+        linear_loss_free_area_ratio : list of floats or list of strings, optional
             Three values representing the linear loss free area ratio in the X,
             Y, and Z directions. Relevant only if ``loss_type=="Device"``.
             Default is ``1`` for all three directions.
@@ -5089,32 +5089,32 @@ class Icepak(FieldAnalysis3D):
             Three values representing the quadratic loss coefficient for each
             direction (X, Y, Z) in the loss model. Relevant only if
             ``loss_type=="Device"``. Default is ``1`` for all three directions.
-        power_law_constant: str or float, optional
+        power_law_constant : str or float, optional
             Specifies the coefficient in the power law equation for pressure loss. Default is ``1``.
-        power_law_exponent: str or float, optional
+        power_law_exponent : str or float, optional
             Specifies the exponent value in the power law equation for pressure loss calculation. Default is ``1``.
-        loss_curves_x: list of lists of float
+        loss_curves_x : list of lists of float
             List of two list defining the loss curve in the X direction. The
             first list contains the mass flow rate value of the curve while
             the second contains the pressure values. Units can be specified with
             the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
             parameters. Default is ``[[0,1],[0,1]]``.
-        loss_curves_y: list of lists of float
+        loss_curves_y : list of lists of float
             List of two list defining the loss curve in the Y direction. The
             first list contains the mass flow rate value of the curve while
             the second contains the pressure values. Units can be specified with
             the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
             parameters. Default is ``[[0,1],[0,1]]``.
-        loss_curves_z: list of lists of float
+        loss_curves_z : list of lists of float
             List of two list defining the loss curve in the Z direction. The
             first list contains the mass flow rate value of the curve while the
             second contains the pressure values. Units can be specified with the
             ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
             parameters. Default is ``[[0,1],[0,1]]``.
-        loss_curve_flow_unit: str, optional
+        loss_curve_flow_unit : str, optional
             Specifies the unit of flow rate in the loss curvev (for all
             directions). Default is ``"m_per_sec"``.
-        loss_curve_pressure_unit: str, optional
+        loss_curve_pressure_unit : str, optional
             Specifies the unit of pressure drop in the loss curve (for all
             directions). Default is ``"n_per_meter_sq"``.
 
@@ -5135,18 +5135,18 @@ class Icepak(FieldAnalysis3D):
                  "Laminar Flow": laminar}
 
         if loss_type == "Device":
-            props.update({
-                "Pressure Loss Model": "Device/Approach",
-                **{f"Linear {direction} Coefficient": (str(value) + "m_per_sec" if not isinstance(value, str)
-                                                       else value) for direction, value in zip(["X", "Y", "Z"],
-                                                                                               linear_loss)},
-                **{f"Quadratic {direction} Coefficient": str(value) for direction, value in zip(["X", "Y", "Z"],
-                                                                                                quadratic_loss)},
-                **{f"Linear {direction} Free Area Ratio": str(value)
-                   for direction, value in zip(["X", "Y", "Z"], linear_loss_free_area_ratio)},
-                **{f"Quadratic {direction} Free Area Ratio": str(value)
-                   for direction, value in zip(["X", "Y", "Z"], quadratic_loss_free_area_ratio)}
-            })
+            for direction, linear, quadratic, linear_far, quadratic_far in zip(["X", "Y", "Z"], linear_loss,
+                                                                               quadratic_loss,
+                                                                               linear_loss_free_area_ratio,
+                                                                               quadratic_loss_free_area_ratio):
+                props.update({
+                    f"Linear {direction} Coefficient": str(linear) + "m_per_sec" if not isinstance(linear,
+                                                                                                   str) else str(
+                        linear),
+                    f"Quadratic {direction} Coefficient": str(quadratic),
+                    f"Linear {direction} Free Area Ratio": str(linear_far),
+                    f"Quadratic {direction} Free Area Ratio": str(quadratic_far)
+                })
         elif loss_type == "Power Law":
             props.update({
                 "Pressure Loss Model": "Power Law",
@@ -5194,7 +5194,7 @@ class Icepak(FieldAnalysis3D):
     def assign_power_law_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
                           power_law_constant=1, power_law_exponent=1):
         """
-        Assigns resistance boundary condition.
+        Assign resistance boundary condition.
 
         Parameters
         ----------
@@ -5229,10 +5229,10 @@ class Icepak(FieldAnalysis3D):
         laminar : bool, optional
             Whether the flow inside the volume must be treated as laminar or
             not. Default is ``False``.
-        power_law_constant: str or float, optional
+        power_law_constant : str or float, optional
             Specifies the coefficient in the power law equation for pressure
             loss. Default is ``1``.
-        power_law_exponent: str or float, optional
+        power_law_exponent : str or float, optional
             Specifies the exponent value in the power law equation for pressure
             loss calculation. Default is ``1``.
 
@@ -5260,7 +5260,7 @@ class Icepak(FieldAnalysis3D):
                                      loss_curve_flow_unit="m_per_sec",
                                      loss_curve_pressure_unit="n_per_meter_sq"):
         """
-        Assigns resistance boundary condition.
+        Assign resistance boundary condition.
 
         Parameters
         ----------
@@ -5295,28 +5295,28 @@ class Icepak(FieldAnalysis3D):
         laminar : bool, optional
             Whether the flow inside the volume must be treated as laminar or
             not. Default is ``False``.
-        loss_curves_x: list of lists of float
+        loss_curves_x : list of lists of float
             List of two list defining the loss curve in the X direction. The
             first list contains the mass flow rate value of the curve while
             the second contains the pressure values. Units can be specified with
             the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
             parameters. Default is ``[[0,1],[0,1]]``.
-        loss_curves_y: list of lists of float
+        loss_curves_y : list of lists of float
             List of two list defining the loss curve in the Y direction. The
             first list contains the mass flow rate value of the curve while
             the second contains the pressure values. Units can be specified with
             the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
             parameters. Default is ``[[0,1],[0,1]]``.
-        loss_curves_z: list of lists of float
+        loss_curves_z : list of lists of float
             List of two list defining the loss curve in the Z direction. The
             first list contains the mass flow rate value of the curve while the
             second contains the pressure values. Units can be specified with the
             ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
             parameters. Default is ``[[0,1],[0,1]]``.
-        loss_curve_flow_unit: str, optional
+        loss_curve_flow_unit : str, optional
             Specifies the unit of flow rate in the loss curvev (for all
             directions). Default is ``"m_per_sec"``.
-        loss_curve_pressure_unit: str, optional
+        loss_curve_pressure_unit : str, optional
             Specifies the unit of pressure drop in the loss curve (for all
             directions). Default is ``"n_per_meter_sq"``.
 
@@ -5344,7 +5344,7 @@ class Icepak(FieldAnalysis3D):
                           linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"], quadratic_loss = [1, 1, 1],
                           linear_loss_free_area_ratio = [1, 1, 1], quadratic_loss_free_area_ratio = [1, 1, 1]):
         """
-        Assigns resistance boundary condition.
+        Assign resistance boundary condition.
 
         Parameters
         ----------
@@ -5385,11 +5385,11 @@ class Icepak(FieldAnalysis3D):
             which case the default unit ``"m_per_sec"`` will be used, or as
             strings. Relevant only if ``loss_type=="Device"``.  Default is
             ``"1m_per_sec"`` for all three directions.
-        quadratic_loss: list of floats or list of strings, optional
+        quadratic_loss : list of floats or list of strings, optional
             Three values representing the quadratic loss coefficients in the X,
             Y, and Z directions. Relevant only if ``loss_type=="Device"``.
             Default is ``1`` for all three directions.
-        linear_loss_free_area_ratio: list of floats or list of strings, optional
+        linear_loss_free_area_ratio : list of floats or list of strings, optional
             Three values representing the linear loss free area ratio in the X,
             Y, and Z directions. Relevant only if ``loss_type=="Device"``.
             Default is ``1`` for all three directions.
