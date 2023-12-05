@@ -713,7 +713,7 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
-    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0, port_name=None):
+    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0, port_name=None, pec_boundary=False):
         """Create circuit port between pins and reference ones.
 
         Parameters
@@ -734,6 +734,9 @@ class Components(object):
             str, float
         port_name : Port Name (Optional) when provided will overwrite the default naming convention
             str
+        pec_boundary : Define PEC boundary, if set to True will create perfect short between pin and ignore impedance.
+        Only supported on port created between 2 pins (e.g no pin group).
+            bool
 
         Returns
         -------
@@ -783,6 +786,12 @@ class Components(object):
         if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
             return
         if len(pins) > 1:
+            if pec_boundary:
+                pec_boundary = False
+                self._logger.info(
+                    f"Disabling PEC boundary creation, this feature is supported on single pin "
+                    f"ports only, {len(pins)} pins found"
+                )
             group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
             term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
@@ -791,6 +800,11 @@ class Components(object):
             term = self._create_terminal(pins[0], term_name=port_name)
         term.SetIsCircuitPort(True)
         if len(reference_pins) > 1:
+            pec_boundary = False
+            self._logger.info(
+                f"Disabling PEC boundary creation, this feature is supported on single pin "
+                f"ports only, {len(reference_pins)} reference pins found"
+            )
             ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
             ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, term_name=port_name + "_ref")
@@ -799,6 +813,14 @@ class Components(object):
         ref_term.SetIsCircuitPort(True)
         term.SetImpedance(self._edb.utility.value(impedance))
         term.SetReferenceTerminal(ref_term)
+        if pec_boundary:
+            term.SetIsCircuitPort(False)
+            ref_term.SetIsCircuitPort(False)
+            term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.PecBoundary)
+            ref_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.PecBoundary)
+            self._logger.info(
+                f"PEC boundary created between pin {pins[0].name} and reference pin {reference_pins[0].name}"
+            )
         if term:
             return term
         return False
@@ -991,8 +1013,6 @@ class Components(object):
         Edb terminal.
         """
 
-        pin_position = self.get_pin_position(pin)  # pragma no cover
-        pin_pos = self._pedb.point_data(*pin_position)
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
@@ -1002,8 +1022,8 @@ class Components(object):
         for term in list(self._pedb.active_layout.Terminals):
             if term.GetName() == term_name:
                 return term
-        term = self._edb.cell.terminal.PointTerminal.Create(
-            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
+        term = self._edb.cell.terminal.PadstackInstanceTerminal.Create(
+            pin.GetLayout(), pin.GetNet(), term_name, pin._edb_padstackinstance, from_layer
         )
         return term
 
