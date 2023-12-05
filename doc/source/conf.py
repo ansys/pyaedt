@@ -78,6 +78,7 @@ def remove_doctree(app, exception):
 
 
 def setup(app):
+    app.add_css_file("custom.css")
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('build-finished', remove_doctree)

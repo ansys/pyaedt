@@ -1,0 +1,6 @@
+
+/* Remove output from code cells */
+
+.sphx-glr-script-out {
+    display: none;
+}
