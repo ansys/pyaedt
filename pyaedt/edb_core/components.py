@@ -789,8 +789,8 @@ class Components(object):
             if pec_boundary:
                 pec_boundary = False
                 self._logger.info(
-                    f"Disabling PEC boundary creation, this feature is supported on single pin "
-                    f"ports only, {len(pins)} pins found"
+                    "Disabling PEC boundary creation, this feature is supported on single pin "
+                    "ports only, {} pins found".format(len(pins))
                 )
             group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
@@ -802,8 +802,8 @@ class Components(object):
         if len(reference_pins) > 1:
             pec_boundary = False
             self._logger.info(
-                f"Disabling PEC boundary creation, this feature is supported on single pin "
-                f"ports only, {len(reference_pins)} reference pins found"
+                "Disabling PEC boundary creation, this feature is supported on single pin"
+                "ports only, {} reference pins found".format(len(reference_pins))
             )
             ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
@@ -819,7 +819,7 @@ class Components(object):
             term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.PecBoundary)
             ref_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.PecBoundary)
             self._logger.info(
-                f"PEC boundary created between pin {pins[0].name} and reference pin {reference_pins[0].name}"
+                "PEC boundary created between pin {} and reference pin {}".format(pins[0].name, reference_pins[0].name)
             )
         if term:
             return term
