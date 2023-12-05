@@ -48,7 +48,7 @@ class LayerEdbClass(object):
 
     @property
     def color(self):
-        """Retrieve color of the layer.
+        """Color of the layer.
 
         Returns
         -------
