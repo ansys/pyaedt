@@ -1,38 +1,33 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:percent//rst
 #     text_representation:
 #       extension: .py
-#       format_name: percent//rst
-#       format_version: '1.1'
+#       format_name: percent
+#       format_version: '1.3'
 #       jupytext_version: 1.14.5
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
+
+# %%
 """
 EDB: geometry creation
 ----------------------
 This example shows how you can use EDB to create a layout.
-"""
-# %% [markdown]
-######################################################################
-# Final expected project
-# ~~~~~~~~~~~~~~~~~~~~~~
-#
-# .. image:: ../../_static/diff_via.png
-#  :width: 600
-#  :alt: Differential Vias.
-######################################################################
 
-# %% [markdown]
-######################################################################
+Final expected project
+~~~~~~~~~~~~~~~~~~~~~~
+.. image:: ../../_static/diff_via.png
+ :width: 600
+ :alt: Differential Vias.
+
 # Import EDB layout object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import the EDB layout object and initialize it on version 2023 R2.
-######################################################################
+"""
 
 # %%
 import time
@@ -45,24 +40,24 @@ aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_u
 print(aedb_path)
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
-# %% [markdown]
-####################
-# Add stackup layers
-# ~~~~~~~~~~~~~~~~~~
-# Add stackup layers.
-# A stackup can be created layer by layer or imported from a csv file or xml file.
-#
+# %%
+"""
+Add stackup layers
+~~~~~~~~~~~~~~~~~~
+Add stackup layers.
+A stackup can be created layer by layer or imported from a csv file or xml file.
+"""
 
 # %%
 edb.stackup.add_layer("GND")
 edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
 edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
-# %% [markdown]
-#####################################
-# Create signal net and ground planes
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a signal net and ground planes.
+# %% 
+"""
+Create a signal net and ground planes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 
 # %%
 points = [
@@ -76,11 +71,11 @@ edb.modeler.create_polygon(points, "TOP")
 points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
 edb.modeler.create_polygon(points, "TOP")
 
-# %% [markdown]
-#######################################
-# Create vias with parametric positions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create vias with parametric positions.
+# %%
+"""
+Create vias with parametric positions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 
 # %%
 edb.padstacks.create("MyVia")
@@ -93,29 +88,29 @@ edb.padstacks.place([15e-3, -5e-3], "MyVia")
 edb.padstacks.place([35e-3, -5e-3], "MyVia")
 edb.padstacks.place([45e-3, -5e-3], "MyVia")
 
-# %% [markdown]
-#######################################
-# Geometry Plot
-# ~~~~~~~~~~~~~
-#
+# %%
+"""
+Geometry Plot
+~~~~~~~~~~~~~
+"""
 
 # %%
 edb.nets.plot(None, color_by_net=True)
 
-# %% [markdown]
-#######################################
-# Stackup Plot
-# ~~~~~~~~~~~~
-#
+# %%
+"""
+Stackup Plot
+~~~~~~~~~~~~
+"""
 
 # %%
 edb.stackup.plot(plot_definitions="MyVia")
 
-# %% [markdown]
-####################
-# Save and close EDB
-# ~~~~~~~~~~~~~~~~~~
-# Save and close EDB.
+# %%
+"""
+Save and close EDB
+~~~~~~~~~~~~~~~~~~
+"""
 
 # %%
 if edb:
