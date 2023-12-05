@@ -5032,7 +5032,7 @@ class Icepak(FieldAnalysis3D):
                           loss_curves_z = [[0, 1], [0, 1]], loss_curve_flow_unit = "m_per_sec",
                           loss_curve_pressure_unit = "n_per_meter_sq"):
         """
-        Assigns resistance boundary condition.
+        Assign resistance boundary condition.
 
         Parameters
         ----------
@@ -5194,7 +5194,7 @@ class Icepak(FieldAnalysis3D):
     def assign_power_law_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
                           power_law_constant=1, power_law_exponent=1):
         """
-        Assign resistance boundary condition.
+        Assign resistance boundary condition prescribing a power law.
 
         Parameters
         ----------
@@ -5260,7 +5260,7 @@ class Icepak(FieldAnalysis3D):
                                      loss_curve_flow_unit="m_per_sec",
                                      loss_curve_pressure_unit="n_per_meter_sq"):
         """
-        Assign resistance boundary condition.
+        Assign resistance boundary condition prescribing a loss curve.
 
         Parameters
         ----------
@@ -5344,7 +5344,7 @@ class Icepak(FieldAnalysis3D):
                           linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"], quadratic_loss = [1, 1, 1],
                           linear_loss_free_area_ratio = [1, 1, 1], quadratic_loss_free_area_ratio = [1, 1, 1]):
         """
-        Assign resistance boundary condition.
+        Assign resistance boundary condition using the device/approach model.
 
         Parameters
         ----------
