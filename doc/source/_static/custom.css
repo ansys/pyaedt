@@ -13,6 +13,11 @@
     padding-top: 5em;
 }
 
+/* Remove output from cells */
+.sphx-glr-script-out {
+  display: none;  
+}
+
 /* Remove once implemented in ansys-sphinx-theme*/
 
 .sd-card .sd-card-img-top {
