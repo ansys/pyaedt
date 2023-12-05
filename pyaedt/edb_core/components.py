@@ -797,7 +797,7 @@ class Components(object):
             term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
 
         else:
-            term = self._create_terminal(pins[0], term_name=port_name)
+            term = self._create_terminal(pins[0].primitive_object, term_name=port_name)
         term.SetIsCircuitPort(True)
         if len(reference_pins) > 1:
             pec_boundary = False
@@ -809,7 +809,7 @@ class Components(object):
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
             ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, term_name=port_name + "_ref")
         else:
-            ref_term = self._create_terminal(reference_pins[0], term_name=port_name + "_ref")
+            ref_term = self._create_terminal(reference_pins[0].primitive_object, term_name=port_name + "_ref")
         ref_term.SetIsCircuitPort(True)
         term.SetImpedance(self._edb.utility.value(impedance))
         term.SetReferenceTerminal(ref_term)
@@ -1023,7 +1023,7 @@ class Components(object):
             if term.GetName() == term_name:
                 return term
         term = self._edb.cell.terminal.PadstackInstanceTerminal.Create(
-            pin.GetLayout(), pin.GetNet(), term_name, pin._edb_padstackinstance, from_layer
+            pin.GetLayout(), pin.GetNet(), term_name, pin, from_layer
         )
         return term
 
@@ -1180,7 +1180,6 @@ class Components(object):
         self.set_component_rlc(component.refdes)
         pins = self.get_pin_from_component(component.refdes)
         if len(pins) == 2:  # pragma: no cover
-            pos_pin_loc = self.get_pin_position(pins[0])
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
@@ -1192,7 +1191,6 @@ class Components(object):
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
-            neg_pin_loc = self.get_pin_position(pins[1])
             neg_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
                 pins[1].GetNet(),
