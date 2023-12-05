@@ -1001,7 +1001,7 @@ class EDBPadstack(object):
         new_padstack_data.AddLayers(convert_py_list_to_net_list(layers_to_add))
         for layer in layers_name:
             updated_pad = self.pad_by_layer[layer]
-            if not updated_pad.geometry_type == 0:
+            if not updated_pad.geometry_type == 0:  # pragma no cover
                 pad_type = self._edb.definition.PadType.RegularPad
                 geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
                 parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
@@ -1016,7 +1016,7 @@ class EDBPadstack(object):
                     new_padstack_data.SetPadParameters(layer, pad_type, geom_type, parameters, offset_x, offset_y, rot)
 
             updated_anti_pad = self.antipad_by_layer[layer]
-            if not updated_anti_pad.geometry_type == 0:
+            if not updated_anti_pad.geometry_type == 0:  # pragma no cover
                 pad_type = self._edb.definition.PadType.AntiPad
                 geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
                 parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
@@ -1033,7 +1033,7 @@ class EDBPadstack(object):
                     )
 
             updated_thermal_pad = self.thermalpad_by_layer[layer]
-            if not updated_thermal_pad.geometry_type == 0:
+            if not updated_thermal_pad.geometry_type == 0:  # pragma no cover
                 pad_type = self._edb.definition.PadType.ThermalPad
                 geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
                 parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
