@@ -1102,7 +1102,7 @@ class Components(object):
         return self.add_rlc_boundary(component.refdes, False)
 
     @pyaedt_function_handler()
-    def deactivate_rlc_component(self, component=None, create_circuit_port=False):
+    def deactivate_rlc_component(self, component=None, create_circuit_port=False, pec_boundary=False):
         """Deactivate RLC component with a possibility to convert to a circuit port.
 
         Parameters
@@ -1113,6 +1113,8 @@ class Components(object):
         create_circuit_port : bool, optional
             Whether to replace the deactivated RLC component with a circuit port. The default
             is ``False``.
+        pec_boundary : bool, optional
+            if ``True`` create a PEC gap boundary between RLC component pins. Fefault value is ``False``.
 
         Returns
         -------
@@ -1145,10 +1147,12 @@ class Components(object):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
         component.is_enabled = False
-        return self.add_port_on_rlc_component(component=component.refdes, circuit_ports=create_circuit_port)
+        return self.add_port_on_rlc_component(
+            component=component.refdes, circuit_ports=create_circuit_port, pec_boundary=pec_boundary
+        )
 
     @pyaedt_function_handler()
-    def add_port_on_rlc_component(self, component=None, circuit_ports=True):
+    def add_port_on_rlc_component(self, component=None, circuit_ports=True, pec_boundary=False):
         """Deactivate RLC component and replace it with a circuit port.
         The circuit port supports only 2-pin components.
 
@@ -1160,6 +1164,9 @@ class Components(object):
         circuit_ports : bool
             ``True`` will replace RLC component by circuit ports, ``False`` gap ports compatible with HFSS 3D modeler
             export.
+
+        pec_boundary : bool, optional
+            If ``True`` create a gap PEC boundary. Default value is ``False``
 
         Returns
         -------
@@ -1174,8 +1181,6 @@ class Components(object):
         pins = self.get_pin_from_component(component.refdes)
         if len(pins) == 2:  # pragma: no cover
             pos_pin_loc = self.get_pin_position(pins[0])
-            pt = self._pedb.point_data(*pos_pin_loc)
-
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
@@ -1188,8 +1193,6 @@ class Components(object):
             if not pos_pin_term:  # pragma: no cover
                 return False
             neg_pin_loc = self.get_pin_position(pins[1])
-            pt = self._pedb.point_data(*neg_pin_loc)
-
             neg_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
                 pins[1].GetNet(),
@@ -1200,17 +1203,23 @@ class Components(object):
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
-            pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
+            if pec_boundary:
+                pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary)
+                neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary)
+            else:
+                pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
+                neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
             pos_pin_term.SetName(component.refdes)
-            neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
             pos_pin_term.SetReferenceTerminal(neg_pin_term)
-            if circuit_ports:
+            if circuit_ports and not pec_boundary:
                 pos_pin_term.SetIsCircuitPort(True)
                 neg_pin_term.SetIsCircuitPort(True)
+            elif pec_boundary:
+                pos_pin_term.SetIsCircuitPort(False)
+                neg_pin_term.SetIsCircuitPort(False)
             else:
                 pos_pin_term.SetIsCircuitPort(False)
                 neg_pin_term.SetIsCircuitPort(False)
-
             self._logger.info("Component {} has been replaced by port".format(component.refdes))
             return True
         return False
