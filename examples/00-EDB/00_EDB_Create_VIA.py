@@ -12,22 +12,21 @@
 #     name: python3
 # ---
 
+"""
+EDB: geometry creation
+----------------------
+This example shows how you can use EDB to create a layout.
+"""
+
 # %%
-#
-# # EDB: geometry creation
-#
-# This example shows how you can use EDB to create a layout.
-#
 # ## Final expected project
 #
 # .. image:: ../../_static/diff_via.png
 #  :width: 600
 #  :alt: Differential Vias.
-#
-# ## Import EDB layout object
-#
-# Import the EDB layout object and initialize it on version 2023 R2.
 
+# %%
+# ## Import EDB layout object
 
 # %%
 import time
