@@ -1195,7 +1195,7 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setuptype, name)
         elif setuptype == 4:
             setup = SetupSBR(self, setuptype, name)
-        elif setuptype in [5, 6, 7, 8, 9, 10]:
+        elif setuptype in [5, 6, 7, 8, 9, 10, 56]:
             setup = SetupMaxwell(self, setuptype, name)
         elif setuptype in [14]:
             setup = SetupQ3D(self, setuptype, name)
@@ -2203,7 +2203,7 @@ class Analysis(Design, object):
             Some common examples are:
             "in": inches
             "cm": centimeter
-            "um":  micron
+            "um": micron
             "mm": millimeter
             "meter": meters
             "mil": 0.001 inches (mils)
@@ -2217,7 +2217,7 @@ class Analysis(Design, object):
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
-        if not units:
+        if units is None:
             if unit_system == "Length":
                 units = self.modeler.model_units
             else:
