@@ -5024,6 +5024,400 @@ class Icepak(FieldAnalysis3D):
             return None
 
     @pyaedt_function_handler()
+    def assign_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
+                          loss_type="Device", linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"],
+                          quadratic_loss = [1, 1, 1], linear_loss_free_area_ratio = [1, 1, 1],
+                          quadratic_loss_free_area_ratio = [1, 1, 1], power_law_constant=1, power_law_exponent=1,
+                          loss_curves_x = [[0, 1], [0, 1]], loss_curves_y = [[0, 1], [0, 1]],
+                          loss_curves_z = [[0, 1], [0, 1]], loss_curve_flow_unit = "m_per_sec",
+                          loss_curve_pressure_unit = "n_per_meter_sq"):
+        """
+        Assign resistance boundary condition.
+
+        Parameters
+        ----------
+        objects : list or str
+            A list of objects to which the resistance condition will be
+            assigned. It can be a single object (a string) or multiple
+            objects specified as a list.
+        boundary_name : str, optional
+            The name of the boundary object that will be created. If not
+            provided, a unique name will be generated. Default is ``None``.
+        total_power : str, float, or dict, optional
+            The total power transferred to the fluid through the resistance
+            volume. It is specified as a string with value and unit, a float
+            where the default unit "W" will be used, or a dictionary for
+            transient assignment. The dictionary should contain two keys:
+            ``"Function"`` and ``"Values"``.
+
+            - For the ``"Function"`` key, options are ``"Exponential"``,
+            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+            ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, provide a list of strings containing
+            the parameters required by the ``"Function"`` key selection. For
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+
+            Default is ``"0W"``.
+        fluid : str, optional
+            The material of the volume to which the resistance is being
+            assigned. Default is ``"air"``.
+        laminar : bool, optional
+            Whether the flow inside the volume must be treated as laminar or
+            not. Default is ``False``.
+        loss_type : str, optional
+            Type of pressure loss model to be used. It can have one of the
+            following values: ``"Device"``, ``"Power Law"``, and
+            ``"Loss Curve"``. Default is ``"Device"``.
+        linear_loss : list of floats or list of strings, optional
+            Three values representing the linear loss coefficients in the X, Y,
+            and Z directions. These coefficients can be expressed as floats, in
+            which case the default unit ``"m_per_sec"`` will be used, or as
+            strings. Relevant only if ``loss_type=="Device"``.  Default is
+            ``"1m_per_sec"`` for all three directions.
+        quadratic_loss : list of floats or list of strings, optional
+            Three values representing the quadratic loss coefficients in the X,
+            Y, and Z directions. Relevant only if ``loss_type=="Device"``.
+            Default is ``1`` for all three directions.
+        linear_loss_free_area_ratio : list of floats or list of strings, optional
+            Three values representing the linear loss free area ratio in the X,
+            Y, and Z directions. Relevant only if ``loss_type=="Device"``.
+            Default is ``1`` for all three directions.
+        quadratic_loss_free_area_ratio : list of floats or list of strings, optional
+            Three values representing the quadratic loss coefficient for each
+            direction (X, Y, Z) in the loss model. Relevant only if
+            ``loss_type=="Device"``. Default is ``1`` for all three directions.
+        power_law_constant : str or float, optional
+            Specifies the coefficient in the power law equation for pressure loss. Default is ``1``.
+        power_law_exponent : str or float, optional
+            Specifies the exponent value in the power law equation for pressure loss calculation. Default is ``1``.
+        loss_curves_x : list of lists of float
+            List of two list defining the loss curve in the X direction. The
+            first list contains the mass flow rate value of the curve while
+            the second contains the pressure values. Units can be specified with
+            the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
+            parameters. Default is ``[[0,1],[0,1]]``.
+        loss_curves_y : list of lists of float
+            List of two list defining the loss curve in the Y direction. The
+            first list contains the mass flow rate value of the curve while
+            the second contains the pressure values. Units can be specified with
+            the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
+            parameters. Default is ``[[0,1],[0,1]]``.
+        loss_curves_z : list of lists of float
+            List of two list defining the loss curve in the Z direction. The
+            first list contains the mass flow rate value of the curve while the
+            second contains the pressure values. Units can be specified with the
+            ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
+            parameters. Default is ``[[0,1],[0,1]]``.
+        loss_curve_flow_unit : str, optional
+            Specifies the unit of flow rate in the loss curvev (for all
+            directions). Default is ``"m_per_sec"``.
+        loss_curve_pressure_unit : str, optional
+            Specifies the unit of pressure drop in the loss curve (for all
+            directions). Default is ``"n_per_meter_sq"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignResistanceBoundary
+
+        Examples
+        --------
+        """
+        props = {"Objects": objects if isinstance(objects, list) else [objects], "Fluid Material": fluid,
+                 "Laminar Flow": laminar}
+
+        if loss_type == "Device":
+            for direction, linear, quadratic, linear_far, quadratic_far in zip(["X", "Y", "Z"], linear_loss,
+                                                                               quadratic_loss,
+                                                                               linear_loss_free_area_ratio,
+                                                                               quadratic_loss_free_area_ratio):
+                props.update({
+                    "Linear " + direction + " Coefficient": str(linear) + "m_per_sec" if not isinstance(linear,
+                                                                                                   str) else str(
+                        linear),
+                    "Quadratic " + direction + " Coefficient": str(quadratic),
+                    "Linear " + direction + " Free Area Ratio": str(linear_far),
+                    "Quadratic " + direction + " Free Area Ratio": str(quadratic_far)
+                })
+        elif loss_type == "Power Law":
+            props.update({
+                "Pressure Loss Model": "Power Law",
+                "Power Law Coefficient": power_law_constant,
+                "Power Law Exponent": power_law_exponent
+            })
+        elif loss_type == "Loss Curve":
+            props.update({"Pressure Loss Model": "Loss Curve"})
+            for direction, values in zip(["X", "Y", "Z"], [loss_curves_x, loss_curves_y, loss_curves_z]):
+                key = "Pressure Loss Curve {}".format(direction)
+                props[key] = {
+                    "DimUnits": [loss_curve_flow_unit, loss_curve_pressure_unit],
+                    "X": [str(i) for i in values[0]],
+                    "Y": [str(i) for i in values[1]]
+                }
+
+        if isinstance(total_power, dict):
+            if not self.solution_type == "Transient":
+                self.logger.error("Transient assignment is supported only in transient designs.")
+                return None
+            assignment = self._parse_variation_data(
+                "Thermal Power",
+                "Transient",
+                variation_value=total_power["Values"],
+                function=total_power["Function"],
+            )
+            props.update(assignment)
+        else:
+            props["Thermal Power"] = total_power
+
+        if not boundary_name:
+            boundary_name = generate_unique_name("Resistance")
+
+        bound = BoundaryObject(self, boundary_name, props, "Resistance")
+        try:
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+            else:  # pragma: no cover
+                raise SystemExit
+        except (GrpcApiError, SystemExit):  # pragma: no cover
+            return None
+
+    @pyaedt_function_handler()
+    def assign_power_law_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
+                          power_law_constant=1, power_law_exponent=1):
+        """
+        Assign resistance boundary condition prescribing a power law.
+
+        Parameters
+        ----------
+        objects : list or str
+            A list of objects to which the resistance condition will be
+            assigned. It can be a single object (a string) or multiple
+            objects specified as a list.
+        boundary_name : str, optional
+            The name of the boundary object that will be created. If not
+            provided, a unique name will be generated. Default is ``None``.
+        total_power : str, float, or dict, optional
+            The total power transferred to the fluid through the resistance
+            volume. It is specified as a string with value and unit, a float
+            where the default unit "W" will be used, or a dictionary for
+            transient assignment. The dictionary should contain two keys:
+            ``"Function"`` and ``"Values"``.
+
+            - For the ``"Function"`` key, options are ``"Exponential"``,
+            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+            ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, provide a list of strings containing
+            the parameters required by the ``"Function"`` key selection. For
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+
+            Default is ``"0W"``.
+        fluid : str, optional
+            The material of the volume to which the resistance is being
+            assigned. Default is ``"air"``.
+        laminar : bool, optional
+            Whether the flow inside the volume must be treated as laminar or
+            not. Default is ``False``.
+        power_law_constant : str or float, optional
+            Specifies the coefficient in the power law equation for pressure
+            loss. Default is ``1``.
+        power_law_exponent : str or float, optional
+            Specifies the exponent value in the power law equation for pressure
+            loss calculation. Default is ``1``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignResistanceBoundary
+
+        Examples
+        --------
+        """
+        return self.assign_resistance(objects, boundary_name=boundary_name, total_power=total_power, fluid=fluid,
+                                      laminar=laminar, loss_type="Power Law",
+                                      power_law_constant=power_law_constant, power_law_exponent=power_law_exponent)
+
+    @pyaedt_function_handler()
+    def assign_loss_curve_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
+                                     loss_curves_x = [[0, 1], [0, 1]],
+                                     loss_curves_y = [[0, 1], [0, 1]], loss_curves_z = [[0, 1], [0, 1]],
+                                     loss_curve_flow_unit="m_per_sec",
+                                     loss_curve_pressure_unit="n_per_meter_sq"):
+        """
+        Assign resistance boundary condition prescribing a loss curve.
+
+        Parameters
+        ----------
+        objects : list or str
+            A list of objects to which the resistance condition will be
+            assigned. It can be a single object (a string) or multiple
+            objects specified as a list.
+        boundary_name : str, optional
+            The name of the boundary object that will be created. If not
+            provided, a unique name will be generated. Default is ``None``.
+        total_power : str, float, or dict, optional
+            The total power transferred to the fluid through the resistance
+            volume. It is specified as a string with value and unit, a float
+            where the default unit "W" will be used, or a dictionary for
+            transient assignment. The dictionary should contain two keys:
+            ``"Function"`` and ``"Values"``.
+
+            - For the ``"Function"`` key, options are ``"Exponential"``,
+            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+            ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, provide a list of strings containing
+            the parameters required by the ``"Function"`` key selection. For
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+
+            Default is ``"0W"``.
+        fluid : str, optional
+            The material of the volume to which the resistance is being
+            assigned. Default is ``"air"``.
+        laminar : bool, optional
+            Whether the flow inside the volume must be treated as laminar or
+            not. Default is ``False``.
+        loss_curves_x : list of lists of float
+            List of two list defining the loss curve in the X direction. The
+            first list contains the mass flow rate value of the curve while
+            the second contains the pressure values. Units can be specified with
+            the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
+            parameters. Default is ``[[0,1],[0,1]]``.
+        loss_curves_y : list of lists of float
+            List of two list defining the loss curve in the Y direction. The
+            first list contains the mass flow rate value of the curve while
+            the second contains the pressure values. Units can be specified with
+            the ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
+            parameters. Default is ``[[0,1],[0,1]]``.
+        loss_curves_z : list of lists of float
+            List of two list defining the loss curve in the Z direction. The
+            first list contains the mass flow rate value of the curve while the
+            second contains the pressure values. Units can be specified with the
+            ``loss_curve_flow_unit`` and ``loss_curve_pressure_unit``
+            parameters. Default is ``[[0,1],[0,1]]``.
+        loss_curve_flow_unit : str, optional
+            Specifies the unit of flow rate in the loss curvev (for all
+            directions). Default is ``"m_per_sec"``.
+        loss_curve_pressure_unit : str, optional
+            Specifies the unit of pressure drop in the loss curve (for all
+            directions). Default is ``"n_per_meter_sq"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignResistanceBoundary
+
+        Examples
+        --------
+        """
+        return self.assign_resistance(objects, boundary_name=boundary_name, total_power=total_power, fluid=fluid,
+                                      laminar=laminar, loss_type="Loss Curve", loss_curves_x=loss_curves_x,
+                                      loss_curves_y=loss_curves_y, loss_curves_z=loss_curves_z,
+                                      loss_curve_flow_unit=loss_curve_flow_unit,
+                                      loss_curve_pressure_unit=loss_curve_pressure_unit)
+
+    @pyaedt_function_handler()
+    def assign_device_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
+                          linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"], quadratic_loss = [1, 1, 1],
+                          linear_loss_free_area_ratio = [1, 1, 1], quadratic_loss_free_area_ratio = [1, 1, 1]):
+        """
+        Assign resistance boundary condition using the device/approach model.
+
+        Parameters
+        ----------
+        objects : list or str
+            A list of objects to which the resistance condition will be
+            assigned. It can be a single object (a string) or multiple
+            objects specified as a list.
+        boundary_name : str, optional
+            The name of the boundary object that will be created. If not
+            provided, a unique name will be generated. Default is ``None``.
+        total_power : str, float, or dict, optional
+            The total power transferred to the fluid through the resistance
+            volume. It is specified as a string with value and unit, a float
+            where the default unit "W" will be used, or a dictionary for
+            transient assignment. The dictionary should contain two keys:
+            ``"Function"`` and ``"Values"``.
+
+            - For the ``"Function"`` key, options are ``"Exponential"``,
+            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+            ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, provide a list of strings containing
+            the parameters required by the ``"Function"`` key selection. For
+            example, when ``"Linear"`` is set as the ``"Function"`` key, two
+            parameters are required: the value of the variable at t=0 and the
+            slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation.
+
+            Default is ``"0W"``.
+        fluid : str, optional
+            The material of the volume to which the resistance is being
+            assigned. Default is ``"air"``.
+        laminar : bool, optional
+            Whether the flow inside the volume must be treated as laminar or
+            not. Default is ``False``.
+        linear_loss : list of floats or list of strings, optional
+            Three values representing the linear loss coefficients in the X, Y,
+            and Z directions. These coefficients can be expressed as floats, in
+            which case the default unit ``"m_per_sec"`` will be used, or as
+            strings. Relevant only if ``loss_type=="Device"``.  Default is
+            ``"1m_per_sec"`` for all three directions.
+        quadratic_loss : list of floats or list of strings, optional
+            Three values representing the quadratic loss coefficients in the X,
+            Y, and Z directions. Relevant only if ``loss_type=="Device"``.
+            Default is ``1`` for all three directions.
+        linear_loss_free_area_ratio : list of floats or list of strings, optional
+            Three values representing the linear loss free area ratio in the X,
+            Y, and Z directions. Relevant only if ``loss_type=="Device"``.
+            Default is ``1`` for all three directions.
+        quadratic_loss_free_area_ratio : list of floats or list of strings, optional
+            Three values representing the quadratic loss coefficient for each
+            direction (X, Y, Z) in the loss model. Relevant only if
+            ``loss_type=="Device"``. Default is ``1`` for all three directions.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignResistanceBoundary
+
+        Examples
+        --------
+        """
+        return self.assign_resistance(objects, boundary_name=boundary_name, total_power=total_power, fluid=fluid,
+                                      laminar=laminar, loss_type="Device", linear_loss=linear_loss,
+                                      quadratic_loss=quadratic_loss,
+                                      linear_loss_free_area_ratio = linear_loss_free_area_ratio,
+                                      quadratic_loss_free_area_ratio = quadratic_loss_free_area_ratio)
+
+    @pyaedt_function_handler()
     def assign_recirculation_opening(self, face_list, extract_face, thermal_specification="Temperature",
                                      assignment_value="0cel", conductance_external_temperature=None,
                                      flow_specification="Mass Flow", flow_assignment="0kg_per_s_m2",

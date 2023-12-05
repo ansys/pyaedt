@@ -2652,6 +2652,7 @@ class SurfaceMaterial(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ["Thermal"]
+            self._props["PhysicsTypes"] = OrderedDict({"set": ["Thermal"]})
         for property in SurfMatProperties.aedtname:
             if property in self._props:
                 mods = None
