@@ -5140,12 +5140,12 @@ class Icepak(FieldAnalysis3D):
                                                                                linear_loss_free_area_ratio,
                                                                                quadratic_loss_free_area_ratio):
                 props.update({
-                    f"Linear {direction} Coefficient": str(linear) + "m_per_sec" if not isinstance(linear,
+                    "Linear " + direction + " Coefficient": str(linear) + "m_per_sec" if not isinstance(linear,
                                                                                                    str) else str(
                         linear),
-                    f"Quadratic {direction} Coefficient": str(quadratic),
-                    f"Linear {direction} Free Area Ratio": str(linear_far),
-                    f"Quadratic {direction} Free Area Ratio": str(quadratic_far)
+                    "Quadratic " + direction + " Coefficient": str(quadratic),
+                    "Linear " + direction + " Free Area Ratio": str(linear_far),
+                    "Quadratic " + direction + " Free Area Ratio": str(quadratic_far)
                 })
         elif loss_type == "Power Law":
             props.update({
@@ -5154,14 +5154,14 @@ class Icepak(FieldAnalysis3D):
                 "Power Law Exponent": power_law_exponent
             })
         elif loss_type == "Loss Curve":
-            props.update({
-                "Pressure Loss Model": "Loss Curve",
-                **{f"Pressure Loss Curve {direction}": {
+            props.update({"Pressure Loss Model": "Loss Curve"})
+            for direction, values in zip(["X", "Y", "Z"], [loss_curves_x, loss_curves_y, loss_curves_z]):
+                key = "Pressure Loss Curve {}".format(direction)
+                props[key] = {
                     "DimUnits": [loss_curve_flow_unit, loss_curve_pressure_unit],
                     "X": [str(i) for i in values[0]],
                     "Y": [str(i) for i in values[1]]
-                } for direction, values in zip(["X", "Y", "Z"], [loss_curves_x, loss_curves_y, loss_curves_z])}
-            })
+                }
 
         if isinstance(total_power, dict):
             if not self.solution_type == "Transient":
