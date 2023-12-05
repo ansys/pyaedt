@@ -2203,7 +2203,7 @@ class Analysis(Design, object):
             Some common examples are:
             "in": inches
             "cm": centimeter
-            "um":  micron
+            "um": micron
             "mm": millimeter
             "meter": meters
             "mil": 0.001 inches (mils)
@@ -2217,7 +2217,7 @@ class Analysis(Design, object):
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
-        if not units:
+        if units is None:
             if unit_system == "Length":
                 units = self.modeler.model_units
             else:
