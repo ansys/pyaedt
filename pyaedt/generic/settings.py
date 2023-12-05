@@ -62,10 +62,26 @@ class Settings(object):
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
-        self._desktop_launch_timeout = 90
+        self._desktop_launch_timeout = 120
         self._number_of_grpc_api_retries = 6
         self._retry_n_times_time_interval = 0.1
         self._wait_for_license = False
+        self._launch_desktop_in_thread = True
+
+    @property
+    def launch_desktop_in_thread(self):
+        """Whether if Electronics Desktop has to be launched in a daemon thread or in a separate subprocess.
+        Default is ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._launch_desktop_in_thread
+
+    @launch_desktop_in_thread.setter
+    def launch_desktop_in_thread(self, value):
+        self._launch_desktop_in_thread = value
 
     @property
     def wait_for_license(self):

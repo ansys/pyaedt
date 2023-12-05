@@ -73,12 +73,11 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             my_env[env] = val
         if is_linux:  # pragma: no cover
             command.append("&")
-            with subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as p:
-                p.wait()
+            subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    if is_linux:  # pragma: no cover
+    if settings.launch_desktop_in_thread:  # pragma: no cover
         _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
         _aedt_process_thread.daemon = True
         _aedt_process_thread.start()
