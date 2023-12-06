@@ -310,7 +310,7 @@ class Ipc2581(object):
 
     @pyaedt_function_handler()
     def add_layer_features(self):
-        layers = {i: j for i, j in self._pedb.stackup.signal_layers.items()}
+        layers = {i: j for i, j in self._pedb.stackup.layers.items()}
         padstack_instances = list(self._pedb.padstacks.instances.values())
         padstack_defs = {i: k for i, k in self._pedb.padstacks.definitions.items()}
         polys = {i: j for i, j in self._pedb.modeler.primitives_by_layer.items()}
