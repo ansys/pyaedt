@@ -270,7 +270,7 @@ class TestClass:
         self.aedtapp["$df"] = 0.01
         assert mat.set_djordjevic_sarkar_model(dk="$dk", df="$df")
 
-    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in com mode")
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_13_get_materials_in_project(self):
         used_materials = self.aedtapp.materials.get_used_project_material_names()
         assert isinstance(used_materials, list)

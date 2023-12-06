@@ -867,7 +867,7 @@ class TestClass:
         assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
-    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in com mode")
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_53_assign_layout_force(self, layout_comp):
         nets_layers = {
