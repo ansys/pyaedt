@@ -894,7 +894,7 @@ class SetupParam(CommonOptimetrics, object):
         unit : str, optional
             Variation units. Default is `None`.
         variation_type : float or int
-            Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`, `"LogScale"`,
+            Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
             `"DecadeCount"`, `"OctaveCount"`, `"ExponentialCount"`.
 
         Returns
@@ -919,8 +919,6 @@ class SetupParam(CommonOptimetrics, object):
             sweep_range = "LINC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "LinearStep":
             sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.value_with_units(step, unit))
-        elif variation_type == "LogScale":
-            sweep_range = "DEC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "DecadeCount":
             sweep_range = "DEC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "OctaveCount":

@@ -117,6 +117,9 @@ class TestClass:
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
         assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="DecadeCount")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="OctaveCount")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="ExponentialCount")
         assert setup1.add_calculation(
             calculation="dB(S(1,1))", ranges={"Freq": "3.5GHz"}, solution="My_HFSS_Setup : LastAdaptive"
         )
