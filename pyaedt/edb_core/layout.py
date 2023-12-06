@@ -1103,7 +1103,7 @@ class EdbLayout(object):
         return True
 
     @pyaedt_function_handler()
-    def unite_polygons_on_layer(self, layer_name=None, delete_padstack_gemometries=False, net_list=None):
+    def unite_polygons_on_layer(self, layer_name=None, delete_padstack_gemometries=False, net_list=[]):
         """Try to unite all Polygons on specified layer.
 
         Parameters
