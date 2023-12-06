@@ -888,7 +888,8 @@ class Modeler3D(Primitives3D):
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
-            for line in lines:
+            for lk in range(len(lines)):
+                line = lines[lk]
                 line_type = line[:8].strip()
                 if line.startswith("$") or line.startswith("*"):
                     continue
@@ -939,7 +940,8 @@ class Modeler3D(Primitives3D):
 
                     n3 = line[72:88].strip()
                     if not n3 or n3 == "*":
-                        n3 = lines[lines.index(line) + 1][8:24].strip()
+                        lk += 1
+                        n3 = lines[lk][8:24].strip()
                     if "-" in n3[1:]:
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
@@ -978,8 +980,9 @@ class Modeler3D(Primitives3D):
                     if line_type == "CHEXA":
                         n5 = int(line[56:64])
                         n6 = int(line[64:72])
-                        n7 = int(lines[lines.index(line) + 1][8:16].strip())
-                        n8 = int(lines[lines.index(line) + 1][16:24].strip())
+                        lk += 1
+                        n7 = int(lines[lk][8:16].strip())
+                        n8 = int(lines[lk][16:24].strip())
 
                         obj_list.extend([n5, n6, n7, n8])
                     if obj_id in nas_to_dict["Solids"]:
@@ -1021,6 +1024,7 @@ class Modeler3D(Primitives3D):
                         n = [1, 0, 0]
                     else:
                         n = GeometryOperators.v_cross(cv1, cv2)
+
                     normal = GeometryOperators.normalize_vector(n)
                     if normal:
                         f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
