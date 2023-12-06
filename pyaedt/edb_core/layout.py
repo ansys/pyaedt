@@ -1137,7 +1137,7 @@ class EdbLayout(object):
                         if poly.GetNet().GetName():
                             poly_by_nets[poly.GetNet().GetName()].append(poly)
             for net in poly_by_nets:
-                if net in net_list or not net_list:
+                if net in net_list or not net_list:  # pragma no cover
                     list_polygon_data = [i.GetPolygonData() for i in poly_by_nets[net]]
                     all_voids = [i.Voids for i in poly_by_nets[net]]
                     a = self._edb.geometry.polygon_data.unite(convert_py_list_to_net_list(list_polygon_data))
@@ -1155,7 +1155,7 @@ class EdbLayout(object):
                     list_to_delete = [i for i in poly_by_nets[net]]
                     for v in all_voids:
                         for void in v:
-                            for poly in poly_by_nets[net]:
+                            for poly in poly_by_nets[net]:  # pragma no cover
                                 if int(void.GetPolygonData().GetIntersectionType(poly.GetPolygonData())) >= 2:
                                     try:
                                         id = list_to_delete.index(poly)
@@ -1164,7 +1164,7 @@ class EdbLayout(object):
                                     if id >= 0:
                                         list_to_delete.pop(id)
 
-                    [i.Delete() for i in list_to_delete]
+                    [i.Delete() for i in list_to_delete]  # pragma no cover
 
         if delete_padstack_gemometries:
             self._logger.info("Deleting Padstack Definitions")

@@ -1191,4 +1191,4 @@ class EdbNets(object):
         """
         if isinstance(net_list, str):
             net_list = [net_list]
-        self._pedb.modeler.unite_polygons_on_layer(net_list=net_list)
+        return self._pedb.modeler.unite_polygons_on_layer(net_list=net_list)
