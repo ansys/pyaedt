@@ -625,6 +625,7 @@ class TestClass:
         assert self.aedtapp.monitor.all_monitors == {}
         assert not self.aedtapp.monitor.delete_monitor("Test")
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in com mode")
     def test_50_advanced3dcomp_export(self):
         self.aedtapp.insert_design("advanced3dcompTest")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -713,6 +714,7 @@ class TestClass:
         surf1.delete()
         fan_obj_3d.delete()
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in com mode")
     def test_51_advanced3dcomp_import(self):
         self.aedtapp.insert_design("test_3d_comp")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -814,6 +816,7 @@ class TestClass:
             comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
         )
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in com mode")
     def test_52_flatten_3d_components(self):
         self.aedtapp.insert_design("test_52")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
