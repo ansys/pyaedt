@@ -888,7 +888,8 @@ class Modeler3D(Primitives3D):
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
-            for line in lines:
+            for lk in range(len(lines)):
+                line = lines[lk]
                 line_type = line[:8].strip()
                 if line.startswith("$") or line.startswith("*"):
                     continue
@@ -939,7 +940,8 @@ class Modeler3D(Primitives3D):
 
                     n3 = line[72:88].strip()
                     if not n3 or n3 == "*":
-                        n3 = lines[lines.index(line) + 1][8:24].strip()
+                        lk += 1
+                        n3 = lines[lk][8:24].strip()
                     if "-" in n3[1:]:
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
@@ -978,8 +980,9 @@ class Modeler3D(Primitives3D):
                     if line_type == "CHEXA":
                         n5 = int(line[56:64])
                         n6 = int(line[64:72])
-                        n7 = int(lines[lines.index(line) + 1][8:16].strip())
-                        n8 = int(lines[lines.index(line) + 1][16:24].strip())
+                        lk += 1
+                        n7 = int(lines[lk][8:16].strip())
+                        n8 = int(lines[lk][16:24].strip())
 
                         obj_list.extend([n5, n6, n7, n8])
                     if obj_id in nas_to_dict["Solids"]:
@@ -1021,6 +1024,7 @@ class Modeler3D(Primitives3D):
                         n = [1, 0, 0]
                     else:
                         n = GeometryOperators.v_cross(cv1, cv2)
+
                     normal = GeometryOperators.normalize_vector(n)
                     if normal:
                         f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
@@ -1269,7 +1273,12 @@ class Modeler3D(Primitives3D):
 
     @pyaedt_function_handler
     def objects_segmentation(
-        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False
+        self,
+        objects_list,
+        segmentation_thickness=None,
+        segments_number=None,
+        apply_mesh_sheets=False,
+        mesh_sheets_number=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
@@ -1288,6 +1297,9 @@ class Modeler3D(Primitives3D):
             Whether to apply mesh sheets to selected objects.
             Mesh sheets are needed in case the user would like to have additional layers
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
+        mesh_sheets_number : int, optional
+            Number of mesh sheets within one magnet segment.
+            If nothing is provided and ``apply_mesh_sheets=True``, the default value is ``2``.
 
         Returns
         -------
@@ -1333,11 +1345,18 @@ class Modeler3D(Primitives3D):
                 mesh_sheets = {}
                 mesh_objects = {}
                 # mesh sheets
-                self.move(face_object, [0, 0, segmentation_thickness / 4])
-                mesh_sheets[obj.name] = face_object.duplicate_along_line(
-                    [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
-                )
-                mesh_objects[obj.name] = []
+                mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
+                for i in range(len(segment_objects[obj.name]) + 1):
+                    if i == 0:
+                        face = obj.bottom_face_z
+                    else:
+                        face = segment_objects[obj.name][i - 1].faces[0]
+                    mesh_face_object = self.create_object_from_face(face)
+                    self.move(mesh_face_object, [0, 0, mesh_sheet_position])
+                    mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
+                        [0, 0, mesh_sheet_position], mesh_sheets_number
+                    )
+                mesh_objects[obj.name] = [mesh_face_object]
                 for value in mesh_sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         face_object.delete()

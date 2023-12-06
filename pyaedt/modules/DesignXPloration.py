@@ -926,7 +926,7 @@ class SetupParam(CommonOptimetrics, object):
         elif variation_type == "ExponentialCount":
             sweep_range = "ESTP {} {} {}".format(start_point, end_point, step)
         elif variation_type == "SingleValue":
-            sweep_range = "{}".format(self._app.value_with_units(start_point, unit))
+            sweep_range = "{}".format(start_point)
         if not sweep_range:
             return False
         self._activate_variable(sweep_var)
