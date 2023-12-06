@@ -1452,7 +1452,8 @@ class Primitives3D(GeometryModeler):
                         auxiliary_dict = comp_file + ".json"
                     aux_dict = json.load(open(auxiliary_dict, "r"))
                     if aux_dict.get("datasets", None):
-                        for key, val in aux_dict["datasets"].items():
+                        for dat in aux_dict["datasets"]:
+                            key = dat["Name"]
                             if key.startswith("$"):
                                 is_project_dataset = True
                                 dsname = key[1:]
@@ -1461,15 +1462,15 @@ class Primitives3D(GeometryModeler):
                                 dsname = key
                             self._app.create_dataset(
                                 dsname,
-                                val["x"],
-                                val["y"],
-                                val["z"],
-                                val["v"],
+                                dat["x"],
+                                dat["y"],
+                                dat["z"],
+                                dat["v"],
                                 is_project_dataset,
-                                val["xunit"],
-                                val["yunit"],
-                                val["zunit"],
-                                val["vunit"],
+                                dat["xunit"],
+                                dat["yunit"],
+                                dat["zunit"],
+                                dat["vunit"],
                             )
                 udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_dict:
@@ -1497,11 +1498,14 @@ class Primitives3D(GeometryModeler):
                 temp_dict = {}
                 temp_dict["native components"] = copy.deepcopy(aux_dict["native components"])
                 temp_dict["coordinatesystems"] = copy.deepcopy(aux_dict["coordinatesystems"])
-                temp_dict["monitor"] = {}
-                for mon_name in list(aux_dict["monitor"].keys()):
-                    if aux_dict["monitor"][mon_name].get("Native Assignment", None):
-                        temp_dict["monitor"][udm_obj.name + "_" + mon_name] = aux_dict["monitor"][mon_name]
-                        del aux_dict["monitor"][mon_name]
+                temp_dict["monitors"] = {}
+                to_remove = []
+                for mon in aux_dict["monitors"]:
+                    if mon.get("Native Assignment", None):
+                        temp_dict["monitors"][udm_obj.name + "_" + mon["Name"]] = mon
+                        to_remove.append(mon)
+                for mon in to_remove:
+                    aux_dict["monitors"].remove(mon)
                 self._app.configurations.options.unset_all_import()
                 self._app.configurations.options.import_native_components = True
                 self._app.configurations.options.import_monitor = True
@@ -1521,7 +1525,7 @@ class Primitives3D(GeometryModeler):
                 for cs in set(self._app.modeler.coordinate_systems) - old_cs:
                     if cs.ref_cs == "Global":
                         cs.ref_cs = targetCS
-            if aux_dict.get("monitor", None):
+            if aux_dict.get("monitors", None):
                 temp_proj_name = self._app._generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
                 ipkapp_temp.delete_design(ipkapp_temp.design_name)
@@ -1557,12 +1561,12 @@ class Primitives3D(GeometryModeler):
                                     + "}"
                                 )
                             except KeyError:  # TODO: fix reading AEDT
-                                for key, val in part["Operations"]["Operation"]["OperationIdentity"].items():
+                                for key, mon in part["Operations"]["Operation"]["OperationIdentity"].items():
                                     if i in key:
                                         keyarr = key.split("(")
                                         dict_str = (
                                             "{"
-                                            + "{}: {}".format(keyarr[1], val.replace(")", "")).replace("'", '"')
+                                            + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
                                             + "}"
                                         )
                                         break
@@ -1584,38 +1588,38 @@ class Primitives3D(GeometryModeler):
                     mapping_dict["ReferenceCoordSystemName"] = cs_dict[mapping_dict["ReferenceCoordSystemID"]]
                 else:
                     mapping_dict["ReferenceCoordSystemName"] = "Global"
-                for key, val in aux_dict["monitor"].items():
-                    key = udm_obj.name + "_" + key
-                    m_case = val["Type"]
+                for mon in aux_dict["monitors"]:
+                    key = udm_obj.name + "_" + mon["Name"]
+                    m_case = mon["Type"]
                     if m_case == "Point":
                         cs_old = self._app.odesign.SetActiveEditor("3D Modeler").GetActiveCoordinateSystem()
                         self._app.modeler.set_working_coordinate_system(targetCS)
                         self._app.monitor.assign_point_monitor(
-                            val["Location"], monitor_quantity=val["Quantity"], monitor_name=key
+                            mon["Location"], monitor_quantity=mon["Quantity"], monitor_name=key
                         )
                         self._app.modeler.set_working_coordinate_system(cs_old)
                     elif m_case == "Face":
                         self._app.monitor.assign_face_monitor(
-                            mapping_dict["FaceKeyIDMap"][str(val["ID"])],
-                            monitor_quantity=val["Quantity"],
+                            mapping_dict["FaceKeyIDMap"][str(mon["ID"])],
+                            monitor_quantity=mon["Quantity"],
                             monitor_name=key,
                         )
                     elif m_case == "Vertex":
                         self._app.monitor.assign_point_monitor_to_vertex(
-                            mapping_dict["VertexKeyIDMap"][str(val["ID"])],
-                            monitor_quantity=val["Quantity"],
+                            mapping_dict["VertexKeyIDMap"][str(mon["ID"])],
+                            monitor_quantity=mon["Quantity"],
                             monitor_name=key,
                         )
                     elif m_case == "Surface":
                         self._app.monitor.assign_surface_monitor(
-                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
-                            monitor_quantity=val["Quantity"],
+                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(mon["ID"])]].name,
+                            monitor_quantity=mon["Quantity"],
                             monitor_name=key,
                         )
                     elif m_case == "Object":
                         self._app.monitor.assign_point_monitor_in_object(
-                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
-                            monitor_quantity=val["Quantity"],
+                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(mon["ID"])]].name,
+                            monitor_quantity=mon["Quantity"],
                             monitor_name=key,
                         )
             if name:
