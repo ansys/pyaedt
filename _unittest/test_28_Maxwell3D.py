@@ -819,14 +819,17 @@ class TestClass:
         assert isinstance(sheets[0][object_name], list)
         assert len(sheets[0][object_name]) == segments_number - 1
         segments_number = 4
+        mesh_sheets_number = 3
         object_name = "PM_I1_1"
         magnet_id = [obj.id for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
         sheets = cyl_gap.modeler.objects_segmentation(
-            magnet_id, segments_number=segments_number, apply_mesh_sheets=True
+            magnet_id, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=mesh_sheets_number
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0][object_name], list)
         assert len(sheets[0][object_name]) == segments_number - 1
+        assert isinstance(sheets[1][object_name], list)
+        assert len(sheets[1][object_name]) == mesh_sheets_number
         segmentation_thickness = 1
         object_name = "PM_O1"
         magnet = [obj for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]

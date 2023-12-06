@@ -1,4 +1,5 @@
 # standard imports
+import json
 import os
 import time
 
@@ -206,6 +207,28 @@ class TestClass:
         app = add_app(application=Icepak, project_name="new_proj_Ipk_a", just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
+        assert isinstance(out, dict)
+        assert app.configurations.results.global_import_success
+        # backward compatibility
+        with open(conf_file, "r") as f:
+            old_dict_format = json.load(f)
+        old_dict_format["monitor"] = old_dict_format.pop("monitors")
+        old_mon_dict = {}
+        for mon in old_dict_format["monitor"]:
+            old_mon_dict[mon["Name"]] = mon
+            old_mon_dict[mon["Name"]].pop("Name")
+        old_dict_format["monitor"] = old_mon_dict
+        old_dataset_dict = {}
+        for dat in old_dict_format["datasets"]:
+            old_dataset_dict[dat["Name"]] = dat
+            old_dataset_dict[dat["Name"]].pop("Name")
+        old_dict_format["datasets"] = old_dataset_dict
+        old_conf_file = conf_file + ".old.json"
+        with open(old_conf_file, "w") as f:
+            json.dump(old_dict_format, f)
+        app = add_app(application=Icepak, project_name="new_proj_Ipk_a_test2", just_open=True)
+        app.modeler.import_3d_cad(file_path)
+        out = app.configurations.import_config(old_conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
