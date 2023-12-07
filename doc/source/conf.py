@@ -1,27 +1,32 @@
-# Configuration file for the Sphinx_PyAEDT documentation builder.
-
-# -- Project information -----------------------------------------------------
-import datetime
+"""Sphinx documentation configuration file."""
+from datetime import datetime
+import json
 import os
-import pathlib
+from pathlib import Path
+
+from ansys_sphinx_theme import (
+    ansys_favicon,
+    ansys_logo_white,
+    ansys_logo_white_cropped,
+    get_version_match,
+    latex,
+    pyansys_logo_black,
+    watermark,
+)
 import sys
 import warnings
 
 import pyvista
-import numpy as np
-import json
-from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match, pyansys_logo_black,
-                                watermark, 
-                                ansys_logo_white, 
-                                ansys_logo_white_cropped, latex)
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
 import shutil
+
+import requests
+
+from pyaedt import __version__
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
@@ -42,124 +47,111 @@ LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
 
-class PrettyPrintDirective(Directive):
-    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
-    required_arguments = 1
 
-    def run(self):
-        module_path, member_name = self.arguments[0].rsplit('.', 1)
-
-        member_data = getattr(import_module(module_path), member_name)
-        code = pformat(member_data, 2, width=68)
-
-        literal = nodes.literal_block(code, code)
-        literal['language'] = 'python'
-
-        return [
-                addnodes.desc_name(text=member_name),
-                addnodes.desc_content('', literal)
-        ]
-
-
-def autodoc_skip_member(app, what, name, obj, skip, options):
-    try:
-        exclude = True if ".. deprecated::" in obj.__doc__ else False
-    except:
-        exclude = False
-    exclude2 = True if name.startswith("_") else False
-    return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
-    # return True if exclude else None
-
-
-def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build.
-    """
-    shutil.rmtree(app.doctreedir)
-
-
-def setup(app):
-    app.add_css_file("custom.css")
-    app.add_directive('pprint', PrettyPrintDirective)
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect('build-finished', remove_doctree)
-
-
-local_path = os.path.dirname(os.path.realpath(__file__))
-module_path = pathlib.Path(local_path)
-root_path = module_path.parent.parent
-try:
-    from pyaedt import __version__
-except ImportError:
-
-    sys.path.append(os.path.abspath(os.path.join(local_path)))
-    sys.path.append(os.path.join(root_path))
-    from pyaedt import __version__
-
-
+# Project information
 project = "PyAEDT"
-copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
+copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
-cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
-
-# Check for the local config file, otherwise use default desktop configuration
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
-    with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    config = {"run_examples": True}
-
 release = version = __version__
+# FIXME: change default to "aedt.docs.pyansys.com" ?
+cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
+switcher_version = get_version_match(__version__)
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
-# -- General configuration ---------------------------------------------------
+# <----------------- Options for HTML output ----------------->
 
-# Add any Sphinx_PyAEDT extension module names here as strings. They can be
-# extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
-# ones.
+# Select logo, theme, and declare the html title
+html_logo = pyansys_logo_black
+html_theme = "ansys_sphinx_theme"
+html_short_title = html_title = "PyAEDT"
+
+# Specify the location of the github repo
+html_context = {
+    "github_user": "ansys",
+    "github_repo": "pyaedt",
+    "github_version": "main",
+    "doc_path": "doc/source",
+}
+
+html_theme_options = {
+    "switcher": {
+        "json_url": f"https://{cname}/versions.json",
+        "version_match": switcher_version,
+    },
+    "check_switcher": False,
+    "github_url": "https://github.com/ansys/pyaedt",
+    "show_prev_next": False,
+    "show_breadcrumbs": True,
+    "collapse_navigation": True,
+    "use_edit_page_button": True,
+    "additional_breadcrumbs": [
+        ("PyAnsys", "https://docs.pyansys.com/"),
+    ],
+    "icon_links": [
+        {
+            "name": "Support",
+            "url": "https://github.com/ansys/pyaedt/discussions",
+            "icon": "fa fa-comment fa-fw",
+        },
+        {
+            "name": "Download documentation in PDF",
+            "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",  # noqa: E501
+            "icon": "fa fa-file-pdf fa-fw",
+        },
+    ],
+    "use_meilisearch": {
+        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
+        "index_uids": {
+            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
+            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
+        },
+    },
+}
+
+# Sphinx extensions
 extensions = [
-    "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
-    "sphinx.ext.todo",
-    "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.coverage",
     "sphinx_copybutton",
+    "nbsphinx",
+    "myst_parser",
+    "jupyter_sphinx",
     "sphinx_design",
     "sphinx_jinja",
-    "recommonmark",
-    "sphinx.ext.graphviz",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.autosummary",
     "numpydoc",
-    "ansys_sphinx_theme.extension.linkcode",
 ]
 
 # Intersphinx mapping
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.11", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
-    "numpy": ("https://numpy.org/devdocs", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    # "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "pyvista": ("https://docs.pyvista.org/version/stable", None),
+    "imageio": ("https://imageio.readthedocs.io/en/stable", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "imageio": ("https://imageio.readthedocs.io/en/stable", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
-
 toc_object_entries_show_parents = "hide"
 
 html_show_sourcelink = True
+
 
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
+
+# Consider enabling numpydoc validation. See:
+# https://numpydoc.readthedocs.io/en/latest/validation.html#
 numpydoc_validate = True
 numpydoc_validation_checks = {
-    # general
+    # General
     "GL06",  # Found unknown section
     "GL07",  # Sections are in the wrong order.
     "GL08",  # The object does not have a docstring
@@ -179,63 +171,28 @@ numpydoc_validation_checks = {
     # separating the parameter name and type",
 }
 
-numpydoc_validation_exclude = {  # set of regex
-    r"\.AEDTMessageManager.add_message$",  # bad SS05
-    r"\.Modeler3D\.create_choke$",  # bad RT05
-    r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
-}
+# Static path
+html_static_path = ["_static"]
 
-# Favicon
+# These paths are either relative to html_static_path or fully qualified paths (eg. https://...)
+html_css_files = [
+    'custom.css',
+]
+
 html_favicon = ansys_favicon
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
-# disable generating the sphinx nested documentation
-if "PYAEDT_CI_NO_AUTODOC" in os.environ:
-    templates_path.clear()
-
-
-# Copy button customization ---------------------------------------------------
-# exclude traditional Python prompts from the copied code
-copybutton_prompt_text = r">>> ?|\.\.\. "
-copybutton_prompt_is_regexp = True
-
-
-# The language for content autogenerated by Sphinx_PyAEDT. Refer to documentation
-# for a list of supported languages.
-#
-# This is also used if you do content translation via gettext catalogs.
-# Usually you set "language" from the command line for these cases.
-language = "en"
-
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt"]
-
-inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
-inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
-
-
-# -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
-
-source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
+# The suffix(es) of source filenames.
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".mystnb": "jupyter_notebook",
+    ".md": "markdown",
+}
 
 # The master toctree document.
 master_doc = "index"
-
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
-
 
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
@@ -247,128 +204,51 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 
 # must be less than or equal to the XVFB window size
-pyvista.global_theme["window_size"] = np.array([1024, 768])
+pyvista.global_theme["window_size"] = [1024, 768]
 
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
-# gallery build requires AEDT install
-if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
-
-    # suppress annoying matplotlib bug
-    warnings.filterwarnings(
-        "ignore",
-        category=UserWarning,
-        message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
-    )
-
-    # necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
-
-    extensions.append("sphinx_gallery.gen_gallery")
-
-    sphinx_gallery_conf = {
-        # convert rst to md for ipynb
-        "pypandoc": True,
-        # path to your examples scripts
-        "examples_dirs": ["../../examples/"],
-        # path where to save gallery generated examples
-        "gallery_dirs": ["examples"],
-        # Patter to search for examples files
-        "filename_pattern": r"\.py",
-        # Remove the "Download all examples" button from the top level gallery
-        "download_all_examples": False,
-        # Sort gallery examples by file name instead of number of lines (default)
-        "within_subsection_order": FileNameSortKey,
-        # directory where function granular galleries are stored
-        "backreferences_dir": None,
-        # Modules for which function level galleries are created.  In
-        "doc_module": "ansys-pyaedt",
-        "image_scrapers": ("pyvista", "matplotlib"),
-        "ignore_pattern": "flycheck*",
-        "thumbnail_size": (350, 350),
-        # 'first_notebook_cell': ("%matplotlib inline\n"
-        #                         "from pyvista import set_plot_theme\n"
-        #                         "set_plot_theme('document')"),
-    }
-
-jinja_contexts = {
-    "main_toctree": {
-        "run_examples": config["run_examples"],
-    },
+# Examples gallery customization
+nbsphinx_execute = "always"
+nbsphinx_custom_formats = {
+    ".mystnb": ["jupytext.reads", {"fmt": "mystnb"}],
 }
-# def prepare_jinja_env(jinja_env) -> None:
-#     """
-#     Customize the jinja env.
-#
-#     Notes
-#     -----
-#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
-#     """
-#     jinja_env.globals["project_name"] = project
-#
-#
-# autoapi_prepare_jinja_env = prepare_jinja_env
-
-# -- Options for HTML output -------------------------------------------------
-html_short_title = html_title = "PyAEDT"
-html_theme = "ansys_sphinx_theme"
-html_logo = pyansys_logo_black
-html_context = {
-    "github_user": "ansys",
-    "github_repo": "pyaedt",
-    "github_version": "main",
-    "doc_path": "doc/source",
+nbsphinx_thumbnails = {
+    "examples/00_EDB/00_create_via": "_static/diff_via.png",
 }
+nbsphinx_epilog = """
+----
 
-# specify the location of your github repo
-html_theme_options = {
-    "github_url": "https://github.com/ansys/pyaedt",
-    "navigation_with_keys": False,
-    "show_prev_next": False,
-    "show_breadcrumbs": True,
-    "collapse_navigation": True,
-    "use_edit_page_button": True,
-    "additional_breadcrumbs": [
-        ("PyAnsys", "https://docs.pyansys.com/"),
-    ],
-    "icon_links": [
-        {
-            "name": "Support",
-            "url": "https://github.com/ansys/pyaedt/discussions",
-            "icon": "fa fa-comment fa-fw",
-        },
-    ],
-    "switcher": {
-        "json_url": f"https://{cname}/versions.json",
-        "version_match": get_version_match(__version__),
-    },
-    "collapse_navigation": True,
-    "navigation_with_keys": True,
-    "use_meilisearch": {
-        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
-        "index_uids": {
-            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
-            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
-        },
-    },
-}
+.. admonition:: Download this example
 
-html_static_path = ["_static"]
+    Download this example as a `Jupyter Notebook <{cname_pref}/{ipynb_file_loc}>`_
+    or as a `Python script <{cname_pref}/{py_file_loc}>`_.
 
-# These paths are either relative to html_static_path
-# or fully qualified paths (eg. https://...)
-html_css_files = [
-    'custom.css',
-]
+""".format(
+    cname_pref=f"https://{cname}/version/{switcher_version}",
+    ipynb_file_loc="{{ env.docname }}.ipynb",
+    py_file_loc="{{ env.docname }}.py",
+)
 
+nbsphinx_prolog = """
 
-# -- Options for HTMLHelp output ---------------------------------------------
+.. admonition:: Download this example
 
-# Output file base name for HTML help builder.
-htmlhelp_basename = "pyaedtdoc"
+    Download this example as a `Jupyter Notebook <{cname_pref}/{ipynb_file_loc}>`_
+    or as a `Python script <{cname_pref}/{py_file_loc}>`_.
+
+----
+""".format(
+    cname_pref=f"https://{cname}/version/{switcher_version}",
+    ipynb_file_loc="{{ env.docname }}.ipynb",
+    py_file_loc="{{ env.docname }}.py",
+)
+
+typehints_defaults = "comma"
+simplify_optional_unions = False
 
 # -- Options for LaTeX output ------------------------------------------------
 # additional logos for the latex coverpage
@@ -389,4 +269,51 @@ latex_documents = [
         author,
         "manual",
     ),
+]
+
+# linkcheck_exclude_documents = ["index", "getting_started/local/index", "assets"]
+# linkcheck_ignore = [r"https://github.com/ansys/pyansys-geometry-binaries/.*"]
+
+# -- Declare the Jinja context -----------------------------------------------
+exclude_patterns = []
+BUILD_API = True if os.environ.get("BUILD_API", "true") == "true" else False
+if not BUILD_API:
+    exclude_patterns.append("autosummary")
+
+BUILD_EXAMPLES = True if os.environ.get("BUILD_EXAMPLES", "true") == "true" else False
+if not BUILD_EXAMPLES:
+    exclude_patterns.append("examples/**")
+    exclude_patterns.append("examples.rst")
+
+jinja_contexts = {
+    "main_toctree": {
+        "build_api": BUILD_API,
+        "build_examples": BUILD_EXAMPLES,
+    },
+}
+
+def prepare_jinja_env(jinja_env) -> None:
+    """
+    Customize the jinja env.
+
+    Notes
+    -----
+    See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
+    """
+    jinja_env.globals["project_name"] = project
+
+
+nitpick_ignore_regex = [
+    # Ignore typing
+    (r"py:.*", r"optional"),
+    # (r"py:.*", r"beartype.typing.*"),
+    # (r"py:.*", r"ansys.geometry.core.typing.*"),
+    (r"py:.*", r"Real.*"),
+    (r"py:.*", r"SketchObject"),
+    # Ignore API package
+    # (r"py:.*", r"ansys.api.geometry.v0.*"),
+    # (r"py:.*", r"GRPC.*"),
+    (r"py:.*", r"method"),
+    # Python std lib errors
+    (r"py:obj", r"logging.PercentStyle"),
 ]
