@@ -1181,7 +1181,7 @@ class EdbNets(object):
         Parameters
         ----------
         net_list : str or list[str]
-            net name of list of net name.
+            Net name of list of net name.
 
         Returns
         -------
