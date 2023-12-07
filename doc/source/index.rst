@@ -1,80 +1,40 @@
-PyAEDT documentation  |version|
-===============================
+PyAEDT documentation |version|
+==============================
 
-Epured documentatiob.
-
-.. grid:: 2
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
-
-            EDB API reference
-            ^^^^^^^^^^^^^^^^^
-
-            Understand PyAEDT EDB API endpoints, their capabilities,
-            and how to interact with them programmatically.
-
-            +++
-            .. button-link:: EDBAPI/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  EDB API reference
+PyAEDT is a Python client library for Ansys AEDT service.
 
 .. jinja:: main_toctree
 
-    .. grid:: 2
+   .. grid:: 1 2 2 2
+      :gutter: 4
+      :padding: 2 2 0 0
+      :class-container: sd-text-center
 
-        .. grid-item-card::
-                :img-top: _static/assets/index_examples.png
+       {% if build_examples %}
+      .. grid-item-card:: Examples
+         :img-top: _static/assets/index_examples.png
+         :class-card: intro-card
 
-                Examples
-                ^^^^^^^^
+         Explore examples that show how to use PyAEDT to
+         perform many different types of operations.
 
-                Explore examples that show how to use PyAEDT to
-                perform different types of simulations.
+         +++
+         .. button-link:: examples.html
+            :color: secondary
+            :expand:
+            :outline:
+            :click-parent:
 
-                +++
-                .. button-link:: examples/index.html
-                   :color: secondary
-                   :expand:
-                   :outline:
-                   :click-parent:
+            Examples
 
-                      Examples
-
-        .. grid-item-card::
-                :img-top: _static/assets/index_contribute.png
-
-                Contribute
-                ^^^^^^^^^^
-                Learn how to contribute to the PyAEDT codebase
-                or documentation.
-
-                +++
-                .. button-link:: Getting_started/Contributing.html
-                   :color: secondary
-                   :expand:
-                   :outline:
-                   :click-parent:
-
-                      Contribute
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+       {% endif %}
 
 .. jinja:: main_toctree
 
     .. toctree::
        :hidden:
+       :maxdepth: 3
 
-       EDBAPI/index
-       examples/index
-
-
+       {% if build_examples %}
+       examples
+       {% endif %}
