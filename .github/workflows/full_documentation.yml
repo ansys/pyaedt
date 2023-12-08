@@ -35,6 +35,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # TODO: install pandoc on self hosted runners to remove this step
+      - name: Install Chocolatey and Pandoc if necessary
+        run: |
+          # Check if Chocolatey is installed
+          if ((Get-Command choco -ErrorAction SilentlyContinue) -eq $null) {
+              # Install Chocolatey
+              Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+          }
+
+          # Check if Pandoc is installed
+          if (!(choco list --local-only -r pandoc)) {
+              # Install Pandoc
+              choco install pandoc -y
+          } 
+
       - name: 'Create virtual env'
         run: |
           python -m venv testenv
@@ -59,7 +74,9 @@ jobs:
       - name: Create HTML Documentations
         run: |
           testenv\Scripts\Activate.ps1
-          sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+          cd doc
+          .\make.bat html
+          # sphinx-build -j auto --color -b html -a doc/source doc/_build/html
 
 #      - name: Create PDF Documentations
 #        run: |
@@ -73,12 +90,12 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-html-edb
-          path: doc/_build/html/EDBAPI
-          retention-days: 7
+      # - name: Upload HTML documentation artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: documentation-html-edb
+      #     path: doc/_build/html/EDBAPI
+      #     retention-days: 7
 
 #      - name: Upload PDF documentation artifact
 #        uses: actions/upload-artifact@v3
