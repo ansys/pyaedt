@@ -45,10 +45,11 @@ jobs:
           }
 
           # Check if Pandoc is installed
-          if (!(C:\ProgramData\chocolatey\bin\choco list --local-only -r pandoc)) {
-              # Install Pandoc
-              C:\ProgramData\chocolatey\bin\choco install pandoc -y
-          } 
+          # if (!(C:\ProgramData\chocolatey\bin\choco list --local-only -r pandoc)) {
+          #     # Install Pandoc
+          #     C:\ProgramData\chocolatey\bin\choco install pandoc -y
+          # }
+          C:\ProgramData\chocolatey\bin\choco install pandoc -y
 
       - name: 'Create virtual env'
         run: |
