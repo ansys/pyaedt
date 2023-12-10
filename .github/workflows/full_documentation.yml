@@ -49,15 +49,14 @@ jobs:
           #     # Install Pandoc
           #     C:\ProgramData\chocolatey\bin\choco install pandoc -y
           # }
-          $chocoPath = "C:\ProgramData\chocolatey\bin"
-          if ($env:PATH -notlike "*$chocoPath*") {
-            [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) chocoPath", [System.EnvironmentVariableTarget]::Machine)
-            echo "Chocolatey path added. Pandoc shim is now in PATH."
-          } else {
-            echo "The Chocolatey path is already in the PATH variable."
-          }
-          #C:\ProgramData\chocolatey\bin\choco install pandoc -y
-          choco install pandoc -y
+          #$chocoPath = "C:\ProgramData\chocolatey\bin"
+          #if ($env:PATH -notlike "*$chocoPath*") {
+          #  [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) chocoPath", [System.EnvironmentVariableTarget]::Machine)
+          #  echo "Chocolatey path added. Pandoc shim is now in PATH."
+          #} else {
+          #  echo "The Chocolatey path is already in the PATH variable."
+          #}
+          C:\ProgramData\chocolatey\bin\choco install pandoc -y
           
           # Add the pandoc path to PATH.
           #$pandocPath = Join-Path $env:ChocolateyInstall 'bin'

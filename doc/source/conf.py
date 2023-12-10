@@ -146,6 +146,7 @@ html_show_sourcelink = True
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
+nbsphinx_pandoc = r"C:\ProgramData\chocolatey\bin\pandoc.exe"  # Shouldn't have to do this explicitly
 
 # Consider enabling numpydoc validation. See:
 # https://numpydoc.readthedocs.io/en/latest/validation.html#
