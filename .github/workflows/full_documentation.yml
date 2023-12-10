@@ -52,13 +52,13 @@ jobs:
           C:\ProgramData\chocolatey\bin\choco install pandoc -y
           
           # Add the pandoc path to PATH.
-          $pandocPath = (Get-Command pandoc).Path | Split-Path
-          #if ($env:PATH -notlike "*$pandocPath*") {
-          [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) $pandocPath", [System.EnvironmentVariableTarget]::Machine)
-          #  echo "Pandoc path added."
-          #} else {
-          #  echo "Pandoc path is already in the PATH variable."
-          #}
+          $pandocPath = "C:\ProgramData\chocolatey\bin\choco\bin"
+          if ($env:PATH -notlike "*$pandocPath*") {
+            [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) $pandocPath", [System.EnvironmentVariableTarget]::Machine)
+            echo "Pandoc path added."
+          } else {
+            echo "Pandoc path is already in the PATH variable."
+          }
 
       - name: 'Create virtual env'
         run: |
