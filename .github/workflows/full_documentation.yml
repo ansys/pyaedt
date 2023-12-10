@@ -53,12 +53,13 @@ jobs:
           
           # Add the pandoc path to PATH.
           $pandocPath = (Get-Command pandoc).Path | Split-Path
-          if ($env:PATH -notlike "*$pandocPath*") {
-            [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) $pandocPath", [System.EnvironmentVariableTarget]::Machine)
-            echo "Pandoc path added."
-          } else {
-            echo "Pandoc path is already in the PATH variable."
-          }
+          #if ($env:PATH -notlike "*$pandocPath*") {
+          [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) $pandocPath", [System.EnvironmentVariableTarget]::Machine)
+          #  echo "Pandoc path added."
+          #} else {
+          #  echo "Pandoc path is already in the PATH variable."
+          #}
+
       - name: 'Create virtual env'
         run: |
           python -m venv testenv
