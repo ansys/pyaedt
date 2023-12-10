@@ -52,7 +52,7 @@ jobs:
           C:\ProgramData\chocolatey\bin\choco install pandoc -y
           
           # Add the pandoc path to PATH.
-          $pandocPath = "C:\ProgramData\chocolatey\bin\choco\bin"
+          $pandocPath = Join-Path $env:ChocolateyInstall 'bin'
           if ($env:PATH -notlike "*$pandocPath*") {
             [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) $pandocPath", [System.EnvironmentVariableTarget]::Machine)
             echo "Pandoc path added."
