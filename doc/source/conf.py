@@ -146,7 +146,8 @@ html_show_sourcelink = True
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
-nbsphinx_pandoc = r"C:\ProgramData\chocolatey\bin\pandoc.exe"  # Shouldn't have to do this explicitly
+# nbsphinx_pandoc = os.path.join(os.environ['LOCALAPPDATA'], "Pandoc", "pandoc.exe")
+os.environ['PATH'] = os.environ['PATH'] + ";" + os.path.join(os.environ['LOCALAPPDATA'], "Pandoc")
 
 # Consider enabling numpydoc validation. See:
 # https://numpydoc.readthedocs.io/en/latest/validation.html#
