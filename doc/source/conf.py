@@ -60,6 +60,10 @@ switcher_version = get_version_match(__version__)
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
+# Check if Pandoc is already in the Path. Only add it to the path if it is not found.
+if "Pandoc" not in os.environ['PATH']:
+    os.environ['PATH'] = os.environ['PATH'] + ";" + os.path.join(os.environ['LOCALAPPDATA'], "Pandoc")
+
 # <----------------- Options for HTML output ----------------->
 
 # Select logo, theme, and declare the html title
@@ -146,8 +150,6 @@ html_show_sourcelink = True
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
 numpydoc_xref_param_type = True
-# nbsphinx_pandoc = os.path.join(os.environ['LOCALAPPDATA'], "Pandoc", "pandoc.exe")
-os.environ['PATH'] = os.environ['PATH'] + ";" + os.path.join(os.environ['LOCALAPPDATA'], "Pandoc")
 
 # Consider enabling numpydoc validation. See:
 # https://numpydoc.readthedocs.io/en/latest/validation.html#

@@ -44,28 +44,7 @@ jobs:
               Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
           }
 
-          # Check if Pandoc is installed
-          # if (!(C:\ProgramData\chocolatey\bin\choco list --local-only -r pandoc)) {
-          #     # Install Pandoc
-          #     C:\ProgramData\chocolatey\bin\choco install pandoc -y
-          # }
-          #$chocoPath = "C:\ProgramData\chocolatey\bin"
-          #if ($env:PATH -notlike "*$chocoPath*") {
-          #  [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) chocoPath", [System.EnvironmentVariableTarget]::Machine)
-          #  echo "Chocolatey path added. Pandoc shim is now in PATH."
-          #} else {
-          #  echo "The Chocolatey path is already in the PATH variable."
-          #}
           C:\ProgramData\chocolatey\bin\choco install pandoc -y
-          
-          # Add the pandoc path to PATH.
-          #$pandocPath = Join-Path $env:ChocolateyInstall 'bin'
-          #if ($env:PATH -notlike "*$pandocPath*") {
-          #  [Environment]::SetEnvironmentVariable('PATH', "$($env:PATH) $pandocPath", [System.EnvironmentVariableTarget]::Machine)
-          #  echo "Pandoc path added."
-          #} else {
-          #  echo "Pandoc path is already in the PATH variable."
-          #}
 
       - name: 'Create virtual env'
         run: |
