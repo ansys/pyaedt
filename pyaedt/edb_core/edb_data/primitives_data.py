@@ -853,7 +853,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
     pyaedt_function_handler()
 
-    def create_via_fence(self, distance, gap, padstack_name):
+    def create_via_fence(self, distance, gap, padstack_name, net_name):
         """Create via fences on both sides of the trace.
 
         Parameters
@@ -956,7 +956,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
         center_line = self.get_center_line()
         leftline, rightline = getParalletLines(center_line, distance)
         for x, y in getLocations(rightline, gap) + getLocations(leftline, gap):
-            self._pedb.padstacks.place([x, y], padstack_name)
+            self._pedb.padstacks.place([x, y], padstack_name, net_name=net_name)
 
 
 class EdbRectangle(EDBPrimitives, RectangleDotNet):
