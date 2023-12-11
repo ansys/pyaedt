@@ -864,6 +864,8 @@ class EdbPath(EDBPrimitives, PathDotNet):
             Gap between vias.
         padstack_name: str
             Name of the via padstack.
+        net_name: str
+            Name of the net.
 
         Returns
         -------
