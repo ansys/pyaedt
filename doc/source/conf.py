@@ -219,7 +219,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
 nbsphinx_execute = "always"
 nbsphinx_custom_formats = {
     ".mystnb": ["jupytext.reads", {"fmt": "mystnb"}],
-    ".sp.py",
+    ".sp.py": ["jupytext.reads", {"fmt": "sphinx"}],
 }
 nbsphinx_thumbnails = {
     "examples/00_EDB/00_create_via": "_static/diff_via.png",
