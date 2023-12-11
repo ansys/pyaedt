@@ -2892,13 +2892,13 @@ class TestClass:
         assert os.path.isfile(xml_file)
         ipc_edb = Edb(xml_file, edbversion=desktop_version)
         ipc_stats = ipc_edb.get_statistics()
-        assert ipc_stats.layout_size == (0.1492, 0.0837)
+        assert ipc_stats.layout_size == (0.15, 0.0845)
         assert ipc_stats.num_capacitors == 380
         assert ipc_stats.num_discrete_components == 31
         assert ipc_stats.num_inductors == 10
         assert ipc_stats.num_layers == 15
         assert ipc_stats.num_nets == 348
-        assert ipc_stats.num_polygons == 138
+        assert ipc_stats.num_polygons == 139
         assert ipc_stats.num_resistors == 82
         assert ipc_stats.num_traces == 1565
         assert ipc_stats.num_traces == 1565

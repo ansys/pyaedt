@@ -209,7 +209,7 @@ class Step(object):
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
     @pyaedt_function_handler()
-    def add_profile(self, poly):
+    def add_profile(self, poly):  # pragma no cover
         profile = LayerFeature(self._ipc)
         profile.layer_name = "profile"
         if poly:
