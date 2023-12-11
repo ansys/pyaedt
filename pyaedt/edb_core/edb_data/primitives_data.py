@@ -853,7 +853,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
     pyaedt_function_handler()
 
-    def create_via_fence(self, distance, gap, padstack_name, net_name):
+    def create_via_fence(self, distance, gap, padstack_name, net_name="GND"):
         """Create via fences on both sides of the trace.
 
         Parameters
@@ -864,7 +864,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
             Gap between vias.
         padstack_name: str
             Name of the via padstack.
-        net_name: str
+        net_name: str,optional
             Name of the net.
 
         Returns
