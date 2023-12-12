@@ -9,6 +9,7 @@ import warnings
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.constants import unit_converter
 from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
 from pyaedt.modules.SetupTemplates import SweepSiwave
@@ -166,6 +167,12 @@ class SweepHFSS(object):
                     try:
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
                         new_list.sort()
+                        new_list = unit_converter(
+                            values=new_list,
+                            unit_system="Freq",
+                            input_units="Hz",
+                            output_units=self._app._app.odesktop.GetDefaultUnit("Frequency"),
+                        )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
                         pass
@@ -700,6 +707,12 @@ class SweepMatrix(object):
                     try:
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
                         new_list.sort()
+                        new_list = unit_converter(
+                            values=new_list,
+                            unit_system="Freq",
+                            input_units="Hz",
+                            output_units=self._app._app.odesktop.GetDefaultUnit("Frequency"),
+                        )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
                         pass
