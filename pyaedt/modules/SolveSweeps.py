@@ -704,7 +704,7 @@ class SweepMatrix(object):
             solutions = load_entire_aedt_file(solutions_file)
             for k, v in solutions.items():
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
-                    try:
+                    try:  # pragma: no cover
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
                         new_list.sort()
                         new_list = unit_converter(
