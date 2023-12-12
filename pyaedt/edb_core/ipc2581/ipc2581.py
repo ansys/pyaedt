@@ -37,6 +37,7 @@ class Ipc2581(object):
         self.add_bom()
         self._pedb.logger.info("Parsing Padstack Definitions...")
         self.add_pdstack_definition()
+        self.add_profile()
         self._pedb.logger.info("Parsing Components...")
         self.add_components()
         self._pedb.logger.info("Parsing Logical Nets...")
@@ -309,8 +310,14 @@ class Ipc2581(object):
             self.ecad.cad_data.cad_data_step.add_logical_net(net)
 
     @pyaedt_function_handler()
+    def add_profile(self):
+        profile = self._pedb.modeler.primitives_by_layer["Outline"]
+        for prim in profile:
+            self.ecad.cad_data.cad_data_step.add_profile(prim)
+
+    @pyaedt_function_handler()
     def add_layer_features(self):
-        layers = {i: j for i, j in self._pedb.stackup.signal_layers.items()}
+        layers = {i: j for i, j in self._pedb.stackup.layers.items()}
         padstack_instances = list(self._pedb.padstacks.instances.values())
         padstack_defs = {i: k for i, k in self._pedb.padstacks.definitions.items()}
         polys = {i: j for i, j in self._pedb.modeler.primitives_by_layer.items()}

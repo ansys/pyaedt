@@ -2892,13 +2892,13 @@ class TestClass:
         assert os.path.isfile(xml_file)
         ipc_edb = Edb(xml_file, edbversion=desktop_version)
         ipc_stats = ipc_edb.get_statistics()
-        assert ipc_stats.layout_size == (0.1492, 0.0837)
+        assert ipc_stats.layout_size == (0.15, 0.0845)
         assert ipc_stats.num_capacitors == 380
         assert ipc_stats.num_discrete_components == 31
         assert ipc_stats.num_inductors == 10
         assert ipc_stats.num_layers == 15
         assert ipc_stats.num_nets == 348
-        assert ipc_stats.num_polygons == 138
+        assert ipc_stats.num_polygons == 139
         assert ipc_stats.num_resistors == 82
         assert ipc_stats.num_traces == 1565
         assert ipc_stats.num_traces == 1565
@@ -3011,3 +3011,10 @@ class TestClass:
         for padstack_inst in list(edbapp.padstacks.instances.values()):
             assert not [lay for lay in padstack_inst.layer_range_names if lay in old_layers]
         edbapp.close_edb()
+
+    def test_154_merge_polygon(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_merge_polygon.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_merge_polygon", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        assert edbapp.nets.merge_nets_polygons(["net1", "net2"])
