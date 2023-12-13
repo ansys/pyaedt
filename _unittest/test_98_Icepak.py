@@ -1432,7 +1432,7 @@ class TestClass:
         box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
         box_face = box.top_face_x
         assert self.aedtapp.assign_conducting_plate_with_thickness(
-            box_face.id, high_side_rad_material="Steel-oxidised-surface"
+            box_face.id, 1, high_side_rad_material="Steel-oxidised-surface"
         )
         assert self.aedtapp.assign_conducting_plate_with_resistance(
             box_face.id, low_side_rad_material="Steel-oxidised-surface"
