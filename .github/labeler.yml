@@ -1,22 +1,12 @@
 documentation:
-- doc/source/**/*
-- README.md
-- README_CN.md
+- any-glob-to-any-file: ["doc/source/**/*", "README.md", "README_CN.md"]
 maintenance:
-- .github/**/*
-- .flake8
-- setup.py
-- setup-distutils.py
+- any-glob-to-any-file: [".github/**/*", ".flake8", "pyproject.toml"]
 dependencies:
-- requirements/**/*
+- any-glob-to-any-file: [requirements/**/*]
 testing:
-- _unittest/conftest.py
-- _unittest_ironpython/run_unittests.py
-- _unittest_ironpython/run_unittests_batchmode.cmd
+- any-glob-to-any-file: ["_unittest/conftest.py", "_unittest_ironpython/run_unittests.py", "_unittest_ironpython/run_unittests_batchmode.cmd"]
 # TODO : Remove once EDB is extracted from PyAEDT
 edb:
-- examples/00-EDB/**
-- examples/01-HFSS3DLayout/EDB_in_3DLayout.py
-- examples/05-Q3D/Q3D_from_EDB.py
-- pyaedt/edb_core/**
-- pyaedt/edb.py
+- any-glob-to-any-file: ["examples/00-EDB/**", "examples/01-HFSS3DLayout/EDB_in_3DLayout.py", "examples/05-Q3D/Q3D_from_EDB.py", "pyaedt/edb_core/**", "pyaedt/edb.py"]
+
