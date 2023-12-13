@@ -1153,7 +1153,7 @@ class Components(object):
     @pyaedt_function_handler()
     def add_port_on_rlc_component(self, component=None, circuit_ports=True, pec_boundary=False):
         """Deactivate RLC component and replace it with a circuit port.
-        The circuit port supports only 2-pin components.
+        The circuit port supports only two-pin components.
 
         Parameters
         ----------
