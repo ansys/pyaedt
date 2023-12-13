@@ -732,8 +732,8 @@ class Components(object):
             str, [str], EDBPadstackInstance, [EDBPadstackInstance]
         impedance : Port impedance
             str, float
-        port_name : Port Name (Optional) when provided will overwrite the default naming convention
-            str
+        port_name : str, optional
+            Port name. The default is ``None``, in which case a name is automatically assigned.
         pec_boundary : Define PEC boundary, if set to True will create perfect short between pin and ignore impedance.
         Only supported on port created between 2 pins (e.g no pin group).
             bool
