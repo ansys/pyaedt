@@ -7,7 +7,7 @@ This example shows how to
 3, Place padstack instances at given location.
 4, Create primitives, polygon and trace.
 5, Create component from pins.
-6, Create HFSS simulation setup and excitationm ports.
+6, Create HFSS simulation setup and excitation ports.
 """
 ######################################################################
 #
