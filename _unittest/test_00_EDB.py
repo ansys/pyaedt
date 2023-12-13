@@ -3012,6 +3012,19 @@ class TestClass:
             assert not [lay for lay in padstack_inst.layer_range_names if lay in old_layers]
         edbapp.close_edb()
 
+    def test_154_create_pec_boundary_ports(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_custom_sball_height", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        edbapp.components.create_port_on_pins(refdes="U1", pins="AU38", reference_pins="AU37", pec_boundary=True)
+        assert edbapp.terminals["Port_GND_U1-AU38"].boundary_type == "PecBoundary"
+        assert edbapp.terminals["Port_GND_U1-AU38_ref"].boundary_type == "PecBoundary"
+        edbapp.components.deactivate_rlc_component(component="C5", create_circuit_port=True, pec_boundary=True)
+        edbapp.components.add_port_on_rlc_component(component="C65", circuit_ports=False, pec_boundary=True)
+        assert edbapp.terminals["C5"].boundary_type == "PecBoundary"
+        assert edbapp.terminals["C65"].boundary_type == "PecBoundary"
+
     def test_154_merge_polygon(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_merge_polygon.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_merge_polygon", "test.aedb")
