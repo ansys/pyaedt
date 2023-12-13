@@ -1623,6 +1623,7 @@ class PostProcessorCommon(object):
                 variations = {"Freq": ["All"]}
         elif not variations and domain != "Sweep":
             variations = self._app.available_variations.nominal_w_values_dict
+        report.variations = variations
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
         elif domain == "DCIR":  # pragma: no cover
@@ -1834,10 +1835,15 @@ class PostProcessorCommon(object):
         report.domain = domain
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
-        if variations:
-            report.variations = variations
-        else:
-            report.variations = self._app.available_variations.nominal_w_values_dict
+        if not variations and domain == "Sweep":
+            variations = self._app.available_variations.nominal_w_values_dict
+            if variations:
+                variations["Freq"] = "All"
+            else:
+                variations = {"Freq": ["All"]}
+        elif not variations and domain != "Sweep":
+            variations = self._app.available_variations.nominal_w_values_dict
+        report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
         if context == "Differential Pairs":
