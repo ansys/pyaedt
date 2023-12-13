@@ -1113,7 +1113,10 @@ class Components(object):
             Whether to replace the deactivated RLC component with a circuit port. The default
             is ``False``.
         pec_boundary : bool, optional
-            if ``True`` create a PEC gap boundary between RLC component pins. Fefault value is ``False``.
+        Whether to define the PEC boundary, The default is ``False``. If set to ``True``,
+        a perfect short is created between the pin and impedance is ignored. This
+        parameter is only supported on a port created between two pins, such as
+        when there is no pin group.
 
         Returns
         -------
