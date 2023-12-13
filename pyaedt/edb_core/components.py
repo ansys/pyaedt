@@ -801,8 +801,8 @@ class Components(object):
         if len(reference_pins) > 1:
             pec_boundary = False
             self._logger.info(
-                "Disabling PEC boundary creation, this feature is supported on single pin"
-                "ports only, {} reference pins found".format(len(reference_pins))
+                "Disabling PEC boundary creation. This feature is supported on single pin"
+                "ports only {} reference pins found.".format(len(reference_pins))
             )
             ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
