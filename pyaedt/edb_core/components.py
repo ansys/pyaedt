@@ -1009,7 +1009,7 @@ class Components(object):
 
         Returns
         -------
-        Edb terminal.
+        EDB terminal.
         """
 
         res, from_layer, _ = pin.GetLayerRange()
