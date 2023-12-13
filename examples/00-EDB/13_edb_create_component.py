@@ -81,9 +81,9 @@ edb.add_design_variable("$paddiam", "0.5mm")
 edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
-#############################
-# Create pad-satck definition
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+############################
+# Create padstack definition
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 edb.padstacks.create_padstack(padstackname="Via", holediam="$via_hole_size", antipaddiam="$antipaddiam",
                               paddiam="$paddiam")
