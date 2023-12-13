@@ -5758,7 +5758,7 @@ class Icepak(FieldAnalysis3D):
                                 low_side_rad_material=None, high_side_rad_material=None,
                                 thermal_impedance="0celm2_per_W"):
         """
-        Assigns thermal boundary conditions to a conducting plate.
+        Assign thermal boundary conditions to a conducting plate.
 
         Parameters
         ----------
@@ -5868,7 +5868,7 @@ class Icepak(FieldAnalysis3D):
                                                shell_conduction=False, low_side_rad_material=None,
                                                high_side_rad_material=None):
         """
-        Assigns thermal boundary conditions with thickness specification to a conducting plate.
+        Assign thermal boundary conditions with thickness specification to a conducting plate.
 
         Parameters
         ----------
@@ -5921,7 +5921,7 @@ class Icepak(FieldAnalysis3D):
                                                 shell_conduction=False, low_side_rad_material=None,
                                                 high_side_rad_material=None):
         """
-        Assigns thermal boundary conditions with thickness specification to a conducting plate.
+        Assign thermal boundary conditions with thickness specification to a conducting plate.
 
         Parameters
         ----------
@@ -5972,7 +5972,7 @@ class Icepak(FieldAnalysis3D):
                                                shell_conduction=False, low_side_rad_material=None,
                                                high_side_rad_material=None):
         """
-        Assigns thermal boundary conditions with thermal impedance specification to a conducting plate.
+        Assign thermal boundary conditions with thermal impedance specification to a conducting plate.
 
         Parameters
         ----------
@@ -5988,7 +5988,7 @@ class Icepak(FieldAnalysis3D):
         thermal_impedance : str or float, optional
             If ``"Thermal Impedance"`` is specified as the thermal condition,
             this parameter represents the thermal impedance of the plate.
-            If float, the default unit is "``Cel_m2_per_W"``.
+            If float, the default unit is ``"Cel_m2_per_W"``.
             Default is``"0Cel_m2_per_W"``.
         shell_conduction : bool, optional
             Indicates whether shell conduction is considered. Default is
@@ -6020,7 +6020,7 @@ class Icepak(FieldAnalysis3D):
                                                  shell_conduction=False, low_side_rad_material=None,
                                                  high_side_rad_material=None):
         """
-        Assigns thermal boundary conditions with conductance specification to a conducting plate.
+        Assign thermal boundary conditions with conductance specification to a conducting plate.
 
         Parameters
         ----------
