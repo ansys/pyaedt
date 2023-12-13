@@ -6,6 +6,9 @@ from ctypes import c_wchar_p
 from ctypes import py_object
 import os
 
+is_linux = os.name == "posix"
+is_windows = not is_linux
+
 pathDir = os.environ["DesktopPluginPyAEDT"]  # DesktopPlugin
 pathDir = os.path.dirname(pathDir)  # PythonFiles
 pathDir = os.path.dirname(pathDir)  # DesktopPlugin or Win64
@@ -13,7 +16,7 @@ pathDir = os.path.dirname(pathDir)  # DesktopPlugin or Win64
 
 
 # Plugin filename depends on OS
-if os.name != r"nt":
+if is_linux:
     pluginFileName = r"libPyDesktopPlugin.so"
 else:
     pluginFileName = r"PyDesktopPlugin.dll"
@@ -28,7 +31,7 @@ if not os.path.isfile(AedtAPIDll_file):
     # AedtAPIDll_file = os.path.join(pathDir, r"PyAedtStub/x64/Debug/PyAedtStub.dll") #develop dir
 
 # load dll
-if os.name == r"nt":
+if is_windows:
     # on windows, modify path
     aedtDir = os.path.dirname(AedtAPIDll_file)
     originalPath = os.environ["PATH"]

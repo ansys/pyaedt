@@ -277,7 +277,7 @@ class SiwaveSolve(object):
         command.append("-RunScriptAndExit")
         command.append('"' + scriptname + '"')
         print(command)
-        if os.name == "posix":
+        if is_linux:
             p = subprocess.Popen(command)
 
         else:
