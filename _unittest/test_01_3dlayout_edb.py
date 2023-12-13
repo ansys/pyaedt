@@ -345,7 +345,6 @@ class TestClass:
         self.dcir_example_project.analyze()
         setup = self.dcir_example_project.get_setup("SIwaveDCIR1")
         assert setup.is_solved
-        assert self.dcir_example_project.setups[0].is_solved
         assert self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
         assert self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
         solution_data = self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
