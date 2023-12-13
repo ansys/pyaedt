@@ -333,19 +333,25 @@ class Modeler3D(Primitives3D):
                 config_dict = json.load(f)
             out_dict = {}
             if monitor_objects:
-                out_dict["monitor"] = config_dict["monitor"]
-                for i in list(out_dict["monitor"]):
-                    if i not in monitor_objects:
-                        del out_dict["monitor"][i]
+                out_dict["monitors"] = config_dict["monitors"]
+                to_remove = []
+                for i, mon in enumerate(out_dict["monitors"]):
+                    if mon["Name"] not in monitor_objects:
+                        to_remove.append(mon)
                     else:
-                        if out_dict["monitor"][i]["Type"] in ["Object", "Surface"]:
+                        if mon["Type"] in ["Object", "Surface"]:
                             self._app.modeler.refresh_all_ids()
-                            out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(out_dict["monitor"][i]["ID"])
+                            out_dict["monitors"][i]["ID"] = self._app.modeler.get_obj_id(mon["ID"])
+            for mon in to_remove:
+                out_dict["monitors"].remove(mon)
             if datasets:
                 out_dict["datasets"] = config_dict["datasets"]
-                for i in list(out_dict["datasets"]):
-                    if i not in datasets:
-                        del out_dict["datasets"][i]
+                to_remove = []
+                for dat in out_dict["datasets"]:
+                    if dat["Name"] not in datasets:
+                        to_remove.append(dat)
+                for dat in to_remove:
+                    out_dict["datasets"].remove(dat)
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
                 out_dict["native components"] = config_dict["native components"]
@@ -888,7 +894,8 @@ class Modeler3D(Primitives3D):
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
-            for line in lines:
+            for lk in range(len(lines)):
+                line = lines[lk]
                 line_type = line[:8].strip()
                 if line.startswith("$") or line.startswith("*"):
                     continue
@@ -939,7 +946,8 @@ class Modeler3D(Primitives3D):
 
                     n3 = line[72:88].strip()
                     if not n3 or n3 == "*":
-                        n3 = lines[lines.index(line) + 1][8:24].strip()
+                        lk += 1
+                        n3 = lines[lk][8:24].strip()
                     if "-" in n3[1:]:
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
@@ -978,8 +986,9 @@ class Modeler3D(Primitives3D):
                     if line_type == "CHEXA":
                         n5 = int(line[56:64])
                         n6 = int(line[64:72])
-                        n7 = int(lines[lines.index(line) + 1][8:16].strip())
-                        n8 = int(lines[lines.index(line) + 1][16:24].strip())
+                        lk += 1
+                        n7 = int(lines[lk][8:16].strip())
+                        n8 = int(lines[lk][16:24].strip())
 
                         obj_list.extend([n5, n6, n7, n8])
                     if obj_id in nas_to_dict["Solids"]:
@@ -1021,6 +1030,7 @@ class Modeler3D(Primitives3D):
                         n = [1, 0, 0]
                     else:
                         n = GeometryOperators.v_cross(cv1, cv2)
+
                     normal = GeometryOperators.normalize_vector(n)
                     if normal:
                         f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
