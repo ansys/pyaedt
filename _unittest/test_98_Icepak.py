@@ -1450,3 +1450,4 @@ class TestClass:
                 "Values": "Test_DataSet_Plate",
             },
         )
+        assert not self.aedtapp.assign_conducting_plate_with_conductance([box_face.id, "surfPlateTest"])
