@@ -548,6 +548,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Add a conductive plate thermal assignment on a face.
 
+        .. deprecated:: 0.7.8
+            This method is deprecated. Use the ``assign_conducting_plate()`` method instead.
+
         Parameters
         ----------
         face_id : int or str or list
@@ -592,6 +595,12 @@ class Icepak(FieldAnalysis3D):
             Boundary object when successful or ``None`` when failed.
 
         """
+
+        warnings.warn(
+            "This method is deprecated in 0.7.8. Use the assign_conducting_plate() method.",
+            DeprecationWarning,
+        )
+
         if not bc_name:
             bc_name = generate_unique_name("Source")
         props = {}
