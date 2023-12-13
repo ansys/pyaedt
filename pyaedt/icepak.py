@@ -5741,3 +5741,315 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Blower")
         bound = BoundaryObject(self, boundary_name, props, "Blower")
         return _create_boundary(bound)
+
+    @pyaedt_function_handler()
+    def assign_conducting_plate(self, obj_plate, boundary_name=None, total_power="0W",
+                                thermal_specification="Thickness", thickness="1mm", solid_material="Al-Extruded",
+                                conductance="0W_per_Cel", shell_conduction=False, thermal_resistance="0Kel_per_W",
+                                low_side_rad_material=None, high_side_rad_material=None,
+                                thermal_impedance="0celm2_per_W"):
+        """
+        Assigns thermal boundary conditions to a conducting plate.
+
+        Parameters
+        ----------
+        obj_plate : str or int or list
+            The object to which the boundary is assigned.
+            Surface name if str, face id if int.
+        boundary_name : str, optional
+            Boundary name. If not provided, a name is generated automatically.
+            Default is ``None``
+        total_power : str or float, optional
+            Power dissipated by the plate. If float, the default unit is
+            ``"W"``. Default is ``"0W"``.
+        thermal_specification : str, optional
+            Type of condition to be applied. Acceptable specifications are:
+            ``"Thickness"``, ``"Conductance"``, ``"Thermal Resistance"``,
+            ``"Thermal Impedance"``. Default is ``"Thickness"``.
+        thickness : str or float, optional
+            If ``"Thickness"`` is specified as the thermal condition, this
+            parameter represents the thickness to be modeled with the plate.
+            If float, the default unit is ``"mm"``. Default is ``"1mm"``.
+        solid_material : str, optional
+            If ``"Thickness"`` is specified as the thermal condition, this
+            parameter represents the material of the conducting plate.
+            Default is ``"Al-Extruded"``.
+        conductance : str or float, optional
+            If ``"Conductance"`` is specified as the thermal condition, this
+            parameter represents the conductance of the plate. If float, the
+            default unit is ``"W_per_Cel"``. Default is ``"0W_per_Cel"``.
+        thermal_resistance : str or float, optional
+            If ``"Thermal Resistance"`` is specified as the thermal condition,
+            this parameter represents the thermal resistance of the plate.
+            If float, the default unit is ``"Kel_per_W"``.
+            Default is ``"0Kel_per_W"``.
+        thermal_impedance : str or float, optional
+            If ``"Thermal Impedance"`` is specified as the thermal
+            condition, this parameter represents the thermal impedance of
+            the plate. If float, the default unit is "``Cel_m2_per_W"``.
+            Default is ``"0Cel_m2_per_W"``.
+        shell_conduction : bool, optional
+            Indicates whether shell conduction is considered.
+            Default is ``False``.
+        low_side_rad_material : str, optional
+            Material on the low side for radiation. If ``None``, radiation
+            is disabled on the low side. Default is ``None``.
+        high_side_rad_material : str, optional
+            Material on the high side for radiation. If ``None``, radiation
+            is disabled on the high side. Default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        """
+        props = {}
+        if not isinstance(obj_plate, list):
+            obj_plate = [obj_plate]
+        if all(isinstance(obj, int) for obj in obj_plate):
+            props["Faces"] = obj_plate
+        elif all(isinstance(obj, str) for obj in obj_plate):
+            props["Objects"] = obj_plate
+        else:
+            raise AttributeError("Invalid ``obj_plate`` argument.")
+
+        if isinstance(total_power, dict):
+            assignment = self._parse_variation_data(
+                "Total Power",
+                total_power["Type"],
+                variation_value=total_power["Values"],
+                function=total_power["Function"],
+            )
+            props.update(assignment)
+        else:
+            props["Total Power"] = total_power
+        props["Thermal Specification"] = thermal_specification
+        for value, key, unit in zip(
+                [thickness, conductance, thermal_resistance, thermal_impedance],
+                ["Thickness", "Conductance", "Thermal Resistance", "Thermal Impedance"],
+                ["mm", "W_per_Cel", "Kel_per_W", "Cel_m2_per_W"]
+        ):
+            if thermal_specification == key:
+                if not isinstance(value, str):
+                    value = str(value) + unit
+                props[key] = value
+        if thermal_specification == "Thickness":
+            props["Solid Material"] = solid_material
+        if low_side_rad_material is not None:
+            props["LowSide"] = {"Radiate": False}
+        else:
+            props["LowSide"] = {"Radiate": True,
+                                "RadiateTo": "AllObjects",
+                                "Surface Material": low_side_rad_material}
+        if high_side_rad_material is not None:
+            props["LowSide"] = {"Radiate": False}
+        else:
+            props["HighSide"] = {"Radiate": True,
+                                 "RadiateTo - High": "AllObjects - High",
+                                 "Surface Material - High": high_side_rad_material}
+        props["Shell Conduction"] = shell_conduction
+        if not boundary_name:
+            boundary_name = generate_unique_name("Plate")
+        bound = BoundaryObject(self, boundary_name, props, "Conducting Plate")
+        return _create_boundary(bound)
+
+    def assign_conducting_plate_with_thickness(self, obj_plate, boundary_name=None, total_power="0W",
+                                               thickness="1mm", solid_material="Al-Extruded",
+                                               shell_conduction=False, low_side_rad_material=None,
+                                               high_side_rad_material=None):
+        """
+        Assigns thermal boundary conditions with thickness specification to a conducting plate.
+
+        Parameters
+        ----------
+        obj_plate : str or int or list
+            The object to which the boundary is assigned. Surface name
+            if str, face id if int.
+        boundary_name : str, optional
+            Boundary name. If not provided, a name is generated
+            automatically. Default is ``None``
+        total_power : str or float, optional
+            Power dissipated by the plate. If float, the default unit is
+            ``"W"``. Default is ``"0W"``.
+        thermal_resistance : str or float, optional
+            If ``"Thermal Resistance"`` is specified as the thermal
+            condition, this parameter represents the thermal resistance
+            of the plate. If float, the default unit is ``"Kel_per_W"``.
+            Default is ``"0Kel_per_W"``.
+        solid_material : str, optional
+            If ``"Thickness"`` is specified as the thermal condition,
+            this parameter represents the material of the conducting plate.
+            Default is ``"Al-Extruded"``.
+        shell_conduction : bool, optional
+            Indicates whether shell conduction is considered.
+            Default is ``False``.
+        low_side_rad_material : str, optional
+            Material on the low side for radiation. If ``None``,
+            radiation is disabled on the low side. Default is ``None``.
+        high_side_rad_material : str, optional
+            Material on the high side for radiation. If ``None``,
+            radiation is disabled on the high side. Default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        """
+        return self.assign_conducting_plate(obj_plate,
+                                            boundary_name=boundary_name,
+                                            total_power=total_power,
+                                            thermal_specification="Thickness",
+                                            thickness=thickness,
+                                            solid_material=solid_material,
+                                            shell_conduction=shell_conduction,
+                                            low_side_rad_material=low_side_rad_material,
+                                            high_side_rad_material=high_side_rad_material)
+
+    def assign_conducting_plate_with_resistance(self, obj_plate, boundary_name=None, total_power="0W",
+                                                thermal_resistance="0Kel_per_W",
+                                                shell_conduction=False, low_side_rad_material=None,
+                                                high_side_rad_material=None):
+        """
+        Assigns thermal boundary conditions with thickness specification to a conducting plate.
+
+        Parameters
+        ----------
+        obj_plate : str or int or list
+            The object to which the boundary is assigned.
+            Surface name if str, face id if int.
+        boundary_name : str, optional
+            Boundary name. If not provided, a name is generated automatically.
+            Default is ``None``
+        total_power : str or float, optional
+            Power dissipated by the plate. If float, the default unit is ``"W"``.
+            Default is ``"0W"``.
+        thermal_resistance : str or float, optional
+            If ``"Thermal Resistance"`` is specified as the thermal condition,
+            this parameter represents the thermal resistance of the plate.
+            If float, the default unit is ``"Kel_per_W"``.
+            Default is ``"0Kel_per_W"``.
+        solid_material : str, optional
+            If ``"Thickness"`` is specified as the thermal condition, this
+            parameter represents the material of the conducting plate.
+            Default is ``"Al-Extruded"``.
+        shell_conduction : bool, optional
+            Indicates whether shell conduction is considered. Default is ``False``.
+        low_side_rad_material : str, optional
+            Material on the low side for radiation. If ``None``, radiation
+            is disabled on the low side. Default is ``None``.
+        high_side_rad_material : str, optional
+            Material on the high side for radiation. If ``None``, radiation
+            is disabled on the high side. Default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        """
+        return self.assign_conducting_plate(obj_plate,
+                                            boundary_name=boundary_name,
+                                            total_power=total_power,
+                                            thermal_specification="Thermal Resistance",
+                                            thermal_resistance=thermal_resistance,
+                                            shell_conduction=shell_conduction,
+                                            low_side_rad_material=low_side_rad_material,
+                                            high_side_rad_material=high_side_rad_material)
+
+    def assign_conducting_plate_with_impedance(self, obj_plate, boundary_name=None, total_power="0W",
+                                               thermal_impedance="0celm2_per_W",
+                                               shell_conduction=False, low_side_rad_material=None,
+                                               high_side_rad_material=None):
+        """
+        Assigns thermal boundary conditions with thermal impedance specification to a conducting plate.
+
+        Parameters
+        ----------
+        obj_plate : str or int or list
+            The object to which the boundary is assigned.
+            Surface name if str, face id if int.
+        boundary_name : str, optional
+            Boundary name. If not provided, a name is generated automatically.
+            Default is ``None``
+        total_power : str or float, optional
+            Power dissipated by the plate. If float, the default unit is
+            ``"W"``. Default is ``"0W"``.
+        thermal_impedance : str or float, optional
+            If ``"Thermal Impedance"`` is specified as the thermal condition,
+            this parameter represents the thermal impedance of the plate.
+            If float, the default unit is "``Cel_m2_per_W"``.
+            Default is``"0Cel_m2_per_W"``.
+        shell_conduction : bool, optional
+            Indicates whether shell conduction is considered. Default is
+            ``False``.
+        low_side_rad_material : str, optional
+            Material on the low side for radiation. If ``None``, radiation
+            is disabled on the low side. Default is ``None``.
+        high_side_rad_material : str, optional
+            Material on the high side for radiation. If ``None``, radiation
+            is disabled on the high side. Default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        """
+        return self.assign_conducting_plate(obj_plate,
+                                            boundary_name=boundary_name,
+                                            total_power=total_power,
+                                            thermal_specification="Thermal Impedance",
+                                            thermal_impedance=thermal_impedance,
+                                            shell_conduction=shell_conduction,
+                                            low_side_rad_material=low_side_rad_material,
+                                            high_side_rad_material=high_side_rad_material)
+
+    def assign_conducting_plate_with_conductance(self, obj_plate, boundary_name=None, total_power="0W",
+                                                 conductance="0W_per_Cel",
+                                                 shell_conduction=False, low_side_rad_material=None,
+                                                 high_side_rad_material=None):
+        """
+        Assigns thermal boundary conditions with conductance specification to a conducting plate.
+
+        Parameters
+        ----------
+        obj_plate : str or int or list
+            The object to which the boundary is assigned. Surface name
+            if str, face id if int.
+        boundary_name : str, optional
+            Boundary name. If not provided, a name is generated
+            automatically. Default is ``None``.
+        total_power : str or float, optional
+            Power dissipated by the plate. If float, the default unit is
+            ``"W"``. Default is ``"0W"``.
+        conductance : str or float, optional
+            If ``"Conductance"`` is specified as the thermal condition,
+            this parameter represents the conductance of the plate. If
+            float, the default unit is ``"W_per_Cel"``. Default is
+            ``"0W_per_Cel"``.
+        shell_conduction : bool, optional
+            Indicates whether shell conduction is considered. Default is
+            ``False``.
+        low_side_rad_material : str, optional
+            Material on the low side for radiation. If ``None``, radiation
+            is disabled on the low side. Default is ``None``.
+        high_side_rad_material : str, optional
+            Material on the high side for radiation. If ``None``, radiation
+            is disabled on the high side. Default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        """
+        return self.assign_conducting_plate(obj_plate,
+                                            boundary_name=boundary_name,
+                                            total_power=total_power,
+                                            thermal_specification="Conductance",
+                                            conductance=conductance,
+                                            shell_conduction=shell_conduction,
+                                            low_side_rad_material=low_side_rad_material,
+                                            high_side_rad_material=high_side_rad_material)
