@@ -1,7 +1,6 @@
 # Import required modules
 import os
 import sys
-import time
 
 from _unittest_solvers.conftest import config
 import pytest
@@ -1188,28 +1187,56 @@ class TestClass:
             domain = results.interaction_domain()
             rev = results.current_revision
             interaction = rev.run(domain)
-        
-        # Warmup in case something isn't solved
-        do_run()
 
         number_of_runs = 5
 
-        # Get the time without the license session
-        start = time.perf_counter()
+        # Do a run to ensure the license log exists
+        do_run()
+
+        # Find the license log for this process
+        appdata_local_path = os.getenv('LOCALAPPDATA')
+        pid = os.getpid()
+        dot_ansys_directory = os.path.join(appdata_local_path, 'Temp\\.ansys')
+        
+        license_file_path = ''
+        with os.scandir(dot_ansys_directory) as dir:
+            for file in dir:
+                if file.name.startswith('ansyscl') and file.name.endswith('.log') and str(pid) in file.name:
+                    license_file_path = os.path.join(dot_ansys_directory, file.name)
+                    break
+        
+        assert license_file_path != ''
+        
+        def count_license_actions(license_file_path):
+            # Count checkout/checkins in most recent license connection
+            checkouts = 0
+            checkins  = 0
+            with open(license_file_path, 'r') as license_file:
+                lines = license_file.read().strip().split('\n')
+                for line in lines:
+                    if 'NEW_CONNECTION' in line:
+                        checkouts = 0
+                        checkins = 0
+                    elif 'CHECKOUT' in line:
+                        checkouts += 1
+                    elif 'CHECKIN' in line:
+                        checkins += 1
+            return (checkouts, checkins)
+        
+        start_checkouts, start_checkins = count_license_actions(license_file_path)
+
+        # Run without license session
         for i in range(number_of_runs):
             do_run()        
-        end = time.perf_counter()
-        noLicenseSessionTime = end - start
         
-        # Get the time using the license session
-        start = time.perf_counter()
+        # Run with license session
         with revision.get_license_session():
             for i in range(number_of_runs):
-                do_run()        
-        end = time.perf_counter()
-        licenseSessionTime = end - start
+                do_run()
+        
+        end_checkouts, end_checkins = count_license_actions(license_file_path)
 
-        print(f'License session time: {licenseSessionTime}')
-        print(f'No license session time: {noLicenseSessionTime}')
+        checkouts = end_checkouts - start_checkouts
+        checkins = end_checkins - start_checkins
 
-        assert (licenseSessionTime*2) < noLicenseSessionTime
+        assert (checkouts == number_of_runs+1) and checkouts == checkins
