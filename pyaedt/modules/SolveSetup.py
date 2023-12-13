@@ -1639,6 +1639,12 @@ class Setup3DLayout(CommonSetup):
                 setup_name=combined_name,
                 expressions=expressions[0],
             )
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwaveDCIR":
+            expressions = self.p_app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
+            sol = self._app.post.reports_by_category.standard(
+                setup_name=self.name,
+                expressions=expressions[0],
+            )
         else:
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
 
