@@ -1165,7 +1165,11 @@ class Components(object):
             export.
 
         pec_boundary : bool, optional
-            If ``True`` create a gap PEC boundary. Default value is ``False``
+        pec_boundary : bool, optional
+            Whether to define the PEC boundary, The default is ``False``. If set to ``True``,
+            a perfect short is created between the pin and impedance is ignored. This
+           parameter is only supported on a port created between two pins, such as
+           when there is no pin group.
 
         Returns
         -------
