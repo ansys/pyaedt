@@ -734,9 +734,11 @@ class Components(object):
             str, float
         port_name : str, optional
             Port name. The default is ``None``, in which case a name is automatically assigned.
-        pec_boundary : Define PEC boundary, if set to True will create perfect short between pin and ignore impedance.
-        Only supported on port created between 2 pins (e.g no pin group).
-            bool
+        pec_boundary : bool, optional
+        Whether to define the PEC boundary, The default is ``False``. If set to ``True``,
+        a perfect short is created between the pin and impedance is ignored. This
+        parameter is only supported on a port created between two pins, such as
+        when there is no pin group.
 
         Returns
         -------
