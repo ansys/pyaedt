@@ -2383,6 +2383,11 @@ class TestClass:
             reference_designator="U7", net_name="GND", group_name="U7_GND"
         )
         U7.pins["F7"].create_port(reference=pin_group)
+        padstack_instance_terminals = [
+            term for term in list(edbapp.terminals.values()) if "PadstackInstanceTerminal" in str(term.type)
+        ]
+        for term in padstack_instance_terminals:
+            assert term.position
         edbapp.close()
 
     def test_134_siwave_source_setter(self):
