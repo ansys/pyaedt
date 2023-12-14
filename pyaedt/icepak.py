@@ -5771,22 +5771,22 @@ class Icepak(FieldAnalysis3D):
         total_power : str or float or dict, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
             the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary. 
+            can be assigned with a dictionary.
         thermal_specification : str, optional
             Type of condition to apply. The default is `"Thickness"``.
             Options are ``"Conductance"``, ``"Thermal Impedance"``,
-            ``"Thermal Resistance"``, and ``"Thickness"``. 
+            ``"Thermal Resistance"``, and ``"Thickness"``.
         thickness : str or float, optional
             If ``thermal_specification="Thickness"``, this parameter represents the
             thickness to model with the plate. The default is ``"1mm"``. If a float,
-            the default unit is ``"mm"``. 
+            the default unit is ``"mm"``.
         solid_material : str, optional
            If ``thermal_specification="Thickness"``, this parameter represents the
            material of the conducting plate. The default is ``"Al-Extruded"``.
         conductance : str or float, optional
              If ``thermal_specification="Conductance"``, this parameter represents the
              conductance of the plate. The default is ``"0W_per_Cel"``. If a float, the default
-             unit is ``"W_per_Cel"``. 
+             unit is ``"W_per_Cel"``.
         thermal_resistance : str or float, optional
             If ``thermal_specification="Thermal Resistance"``, this parameter represents the
             thermal resistance of the plate. The default is ``"0Kel_per_W"``. If a float, the
@@ -5794,7 +5794,7 @@ class Icepak(FieldAnalysis3D):
         thermal_impedance : str or float, optional
             If ``thermal_specification="Thermal Impedance"``, this parameter represents the
             thermal impedance of the plate. The default is ``"0Cel_m2_per_W"``. If a float, the
-            default unit is "``Cel_m2_per_W"``.           
+            default unit is "``Cel_m2_per_W"``.
         shell_conduction : bool, optional
             Whether to consider shell conduction. The default is ``False``.
         low_side_rad_material : str, optional
