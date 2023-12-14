@@ -478,9 +478,16 @@ class PadstackInstanceTerminal(Terminal):
 
     @property
     def position(self):
+        """Returns terminal position.
+
+        Returns
+        -------
+        Position [x,y] : [float, float]
+
+        """
         edb_padstack_instance = self._edb_object.GetParameters()
         if edb_padstack_instance[0]:
-            return self._pedb.padstacks.instances[edb_padstack_instance[1].GetId()].position
+            return EDBPadstackInstance(edb_padstack_instance[1], self._pedb).position
         return False
 
     def create(self, padstack_instance, name=None, layer=None, is_ref=False):
