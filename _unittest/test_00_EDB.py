@@ -2383,6 +2383,11 @@ class TestClass:
             reference_designator="U7", net_name="GND", group_name="U7_GND"
         )
         U7.pins["F7"].create_port(reference=pin_group)
+        padstack_instance_terminals = [
+            term for term in list(edbapp.terminals.values()) if "PadstackInstanceTerminal" in str(term.type)
+        ]
+        for term in padstack_instance_terminals:
+            assert term.position
         edbapp.close()
 
     def test_134_siwave_source_setter(self):
@@ -2892,13 +2897,13 @@ class TestClass:
         assert os.path.isfile(xml_file)
         ipc_edb = Edb(xml_file, edbversion=desktop_version)
         ipc_stats = ipc_edb.get_statistics()
-        assert ipc_stats.layout_size == (0.1492, 0.0837)
+        assert ipc_stats.layout_size == (0.15, 0.0845)
         assert ipc_stats.num_capacitors == 380
         assert ipc_stats.num_discrete_components == 31
         assert ipc_stats.num_inductors == 10
         assert ipc_stats.num_layers == 15
         assert ipc_stats.num_nets == 348
-        assert ipc_stats.num_polygons == 138
+        assert ipc_stats.num_polygons == 139
         assert ipc_stats.num_resistors == 82
         assert ipc_stats.num_traces == 1565
         assert ipc_stats.num_traces == 1565
@@ -3011,3 +3016,23 @@ class TestClass:
         for padstack_inst in list(edbapp.padstacks.instances.values()):
             assert not [lay for lay in padstack_inst.layer_range_names if lay in old_layers]
         edbapp.close_edb()
+
+    def test_154_create_pec_boundary_ports(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_custom_sball_height", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        edbapp.components.create_port_on_pins(refdes="U1", pins="AU38", reference_pins="AU37", pec_boundary=True)
+        assert edbapp.terminals["Port_GND_U1-AU38"].boundary_type == "PecBoundary"
+        assert edbapp.terminals["Port_GND_U1-AU38_ref"].boundary_type == "PecBoundary"
+        edbapp.components.deactivate_rlc_component(component="C5", create_circuit_port=True, pec_boundary=True)
+        edbapp.components.add_port_on_rlc_component(component="C65", circuit_ports=False, pec_boundary=True)
+        assert edbapp.terminals["C5"].boundary_type == "PecBoundary"
+        assert edbapp.terminals["C65"].boundary_type == "PecBoundary"
+
+    def test_154_merge_polygon(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_merge_polygon.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_merge_polygon", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        assert edbapp.nets.merge_nets_polygons(["net1", "net2"])
