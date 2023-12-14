@@ -5763,50 +5763,46 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         obj_plate : str or int or list
-            The object to which the boundary is assigned.
-            Surface name if str, face id if int.
+            Object to assign the boundary to. If a string, specify a surface name.
+            If an integer, specify a face ID.
         boundary_name : str, optional
-            Boundary name. If not provided, a name is generated automatically.
-            Default is ``None``
+            Boundary name. The default is ``None``, in which case a name is generated
+            automatically.
         total_power : str or float or dict, optional
-            Power dissipated by the plate. If float, the default unit is
-            ``"W"``. A transient or temperature dependent power can be
-            assigned with a dictionary. Default is ``"0W"``.
+            Power dissipated by the plate. The default is ``"0W"``. If a float,
+            the default unit is ``"W"``. A transient or temperature-dependent power
+            can be assigned with a dictionary. 
         thermal_specification : str, optional
-            Type of condition to be applied. Acceptable specifications are:
-            ``"Thickness"``, ``"Conductance"``, ``"Thermal Resistance"``,
-            ``"Thermal Impedance"``. Default is ``"Thickness"``.
+            Type of condition to apply. The default is `"Thickness"``.
+            Options are ``"Conductance"``, ``"Thermal Impedance"``,
+            ``"Thermal Resistance"``, and ``"Thickness"``. 
         thickness : str or float, optional
-            If ``"Thickness"`` is specified as the thermal condition, this
-            parameter represents the thickness to be modeled with the plate.
-            If float, the default unit is ``"mm"``. Default is ``"1mm"``.
+            If ``thermal_specification="Thickness"``, this parameter represents the
+            thickness to model with the plate. The default is ``"1mm"``. If a float,
+            the default unit is ``"mm"``. 
         solid_material : str, optional
-            If ``"Thickness"`` is specified as the thermal condition, this
-            parameter represents the material of the conducting plate.
-            Default is ``"Al-Extruded"``.
+           If ``thermal_specification="Thickness"``, this parameter represents the
+           material of the conducting plate. The default is ``"Al-Extruded"``.
         conductance : str or float, optional
-            If ``"Conductance"`` is specified as the thermal condition, this
-            parameter represents the conductance of the plate. If float, the
-            default unit is ``"W_per_Cel"``. Default is ``"0W_per_Cel"``.
+             If ``thermal_specification="Conductance"``, this parameter represents the
+             conductance of the plate. The default is ``"0W_per_Cel"``. If a float, the default
+             unit is ``"W_per_Cel"``. 
         thermal_resistance : str or float, optional
-            If ``"Thermal Resistance"`` is specified as the thermal condition,
-            this parameter represents the thermal resistance of the plate.
-            If float, the default unit is ``"Kel_per_W"``.
-            Default is ``"0Kel_per_W"``.
+            If ``thermal_specification="Thermal Resistance"``, this parameter represents the
+            thermal resistance of the plate. The default is ``"0Kel_per_W"``. If a float, the
+            default unit is ``"Kel_per_W"``.
         thermal_impedance : str or float, optional
-            If ``"Thermal Impedance"`` is specified as the thermal
-            condition, this parameter represents the thermal impedance of
-            the plate. If float, the default unit is "``Cel_m2_per_W"``.
-            Default is ``"0Cel_m2_per_W"``.
+            If ``thermal_specification="Thermal Impedance"``, this parameter represents the
+            thermal impedance of the plate. The default is ``"0Cel_m2_per_W"``. If a float, the
+            default unit is "``Cel_m2_per_W"``.           
         shell_conduction : bool, optional
-            Indicates whether shell conduction is considered.
-            Default is ``False``.
+            Whether to consider shell conduction. The default is ``False``.
         low_side_rad_material : str, optional
-            Material on the low side for radiation. If ``None``, radiation
-            is disabled on the low side. Default is ``None``.
+            Material on the low side for radiation. The default is ``None``, in which
+            case radiation is disabled on the low side.
         high_side_rad_material : str, optional
-            Material on the high side for radiation. If ``None``, radiation
-            is disabled on the high side. Default is ``None``.
+            Material on the high side for radiation. The default is ``None``, in which
+            case radiation is disabled on the high side.
 
         Returns
         -------
