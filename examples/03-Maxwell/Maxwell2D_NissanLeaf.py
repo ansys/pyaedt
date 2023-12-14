@@ -751,8 +751,9 @@ avg = sum(mag)/len(mag)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export a 2D Plot data to a .csv file.
 
-temp_folder = generate_unique_folder_name()
-M2D.post.export_report_to_file(temp_folder, "Moving1.Torque", ".csv")
+M2D.post.export_report_to_file(output_dir=M2D.toolkit_directory,
+                               plot_name="TorquePlots",
+                               extension=".csv")
 
 ###############################################
 # Close AEDT
