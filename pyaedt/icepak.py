@@ -597,7 +597,7 @@ class Icepak(FieldAnalysis3D):
         """
 
         warnings.warn(
-            "This method is deprecated in 0.7.8. Use the assign_conducting_plate() method.",
+            "This method is deprecated in 0.7.8. Use the ``assign_conducting_plate()`` method.",
             DeprecationWarning,
         )
 
