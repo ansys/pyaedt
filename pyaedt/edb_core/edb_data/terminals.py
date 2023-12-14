@@ -478,7 +478,7 @@ class PadstackInstanceTerminal(Terminal):
 
     @property
     def position(self):
-        """Returns terminal position.
+        """Return terminal position.
 
         Returns
         -------
