@@ -1217,6 +1217,9 @@ class PostProcessorCommon(object):
         if "." not in extension:
             extension = "." + extension
 
+        if "." in plot_name:
+            plot_name = plot_name.replace(".", "")
+
         supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat", ".rdat"]
         if extension not in supported_ext:
             msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
