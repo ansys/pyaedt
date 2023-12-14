@@ -1946,43 +1946,38 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+                Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+                names correspond to the ``setuptype``
+                corresponding to the native AEDT API.  The list of
+                keywords here is not exhaustive.
+        ``
+                Parameters
+                ----------
+                setuptype : int, str, optional
+                    Type of the setup. Based on the solution type, options are
+                    "Magnetostatic", "EddyCurrent", Transient" etc.
+                setupname : str, optional
+                    Name of the setup. The default is ``"Setup1"``.
+                **kwargs : dict, optional
+                    Available keys depend on the setup chosen.
+                    For more information, see :doc:`../SetupTemplatesMaxwell`.
 
-        .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+                Returns
+                -------
+                :class:`pyaedt.modules.SolveSetup.SetupMaxwell`
+                    3D Solver Setup object.
 
-        Parameters
-        ----------
-        setuptype : int, str, optional
-            Type of the setup. Based on the solution type, options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``,
-            ``"HFSSEigen"``, ``"HFSSTransient"`` and ``"HFSSSBR"``.
-            The default is ``"HFSSDrivenAuto"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
-        **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesMaxwell`.
+                References
+                ----------
 
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup.SetupMaxwell`
-            3D Solver Setup object.
+                >>> oModule.InsertSetup
 
-        References
-        ----------
+                Examples
+                --------
 
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-
-        >>> from pyaedt import Maxwell3d
-        >>> app = Maxwell3d()
-        >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
+                >>> from pyaedt import Maxwell3d
+                >>> app = Maxwell3d()
+                >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
 
         """
         if setuptype is None:
