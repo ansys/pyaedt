@@ -229,7 +229,9 @@ class Hfss(FieldAnalysis3D, object):
     class BoundaryType(object):
         """Creates and manages boundaries."""
 
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid) = range(0, 9)
+        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid, FEBI) = range(
+            0, 10
+        )
 
     @property
     def hybrid(self):
@@ -3064,6 +3066,8 @@ class Hfss(FieldAnalysis3D, object):
             props["IsLinkedRegion"] = False
             props["Type"] = "SBR+"
             boundary_type = "Hybrid"
+        elif boundary_type == self.BoundaryType.FEBI:
+            boundary_type = "FE-BI"
         else:
             return None
         return self._create_boundary(boundary_name, props, boundary_type)
@@ -4559,6 +4563,49 @@ class Hfss(FieldAnalysis3D, object):
         bound = self.create_boundary(self.BoundaryType.Hybrid, object_list, region_name)
         if hybrid_region != "SBR+":
             bound.props["Type"] = hybrid_region
+        return bound
+
+    @pyaedt_function_handler()
+    def assign_febi(self, obj_names, boundary_name=""):
+        """Assign an FE-BI region to one or more objects.
+
+        Parameters
+        ----------
+        obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            One or more object names or IDs.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignFEBI
+
+        Examples
+        --------
+
+        Create a box and assign an FE-BI boundary to it.
+
+        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
+        ...                                         name="Radiation_box")
+        >>> febi_box = hfss.assign_febi("Radiation_box")
+        >>> type(febi_box)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
+        if boundary_name:
+            region_name = boundary_name
+        else:
+            region_name = generate_unique_name("FEBI_")
+        bound = self.create_boundary(self.BoundaryType.FEBI, object_list, region_name)
+
         return bound
 
     @pyaedt_function_handler()

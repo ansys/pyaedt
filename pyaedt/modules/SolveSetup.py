@@ -1639,6 +1639,12 @@ class Setup3DLayout(CommonSetup):
                 setup_name=combined_name,
                 expressions=expressions[0],
             )
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwaveDCIR":
+            expressions = self.p_app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
+            sol = self._app.post.reports_by_category.standard(
+                setup_name=self.name,
+                expressions=expressions[0],
+            )
         else:
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
 
@@ -2247,12 +2253,12 @@ class SetupHFSS(Setup, object):
 
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
-        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
-            num_of_freq_points = 401
-        elif num_of_freq_points is None and sweep_type == "Discrete":
-            num_of_freq_points = 5
-        else:
-            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+        if sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = num_of_freq_points or 401
+        elif sweep_type == "Discrete":
+            num_of_freq_points = num_of_freq_points or 5
+        else:  # pragma: no cover
+            raise ValueError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -2629,6 +2635,10 @@ class SetupHFSS(Setup, object):
             return False
         self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
+        # props["MultipleAdaptiveFreqsSetup"] could potentially be nonexistent.
+        # A known case is the setup automatically created by setting auto-open region.
+        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
+            self.props["MultipleAdaptiveFreqsSetup"] = {}
         for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         i = 0

@@ -625,6 +625,7 @@ class TestClass:
         assert self.aedtapp.monitor.all_monitors == {}
         assert not self.aedtapp.monitor.delete_monitor("Test")
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_50_advanced3dcomp_export(self):
         self.aedtapp.insert_design("advanced3dcompTest")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -713,6 +714,7 @@ class TestClass:
         surf1.delete()
         fan_obj_3d.delete()
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_51_advanced3dcomp_import(self):
         self.aedtapp.insert_design("test_3d_comp")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -814,6 +816,7 @@ class TestClass:
             comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
         )
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_52_flatten_3d_components(self):
         self.aedtapp.insert_design("test_52")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
@@ -1383,3 +1386,44 @@ class TestClass:
         ad_plate = self.aedtapp.assign_adiabatic_plate(rectangle.name)
         assert ad_plate
         assert ad_plate.update()
+
+    def test_72_assign_resistance(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
+        assert self.aedtapp.assign_device_resistance(
+            box.name,
+            boundary_name=None,
+            total_power="0W",
+            fluid="air",
+            laminar=False,
+            linear_loss=["1m_per_sec", "2m_per_sec", 3],
+            quadratic_loss=[1, "1", 1],
+            linear_loss_free_area_ratio=[1, "0.1", 1],
+            quadratic_loss_free_area_ratio=[1, 0.1, 1],
+        )
+        assert self.aedtapp.assign_loss_curve_resistance(
+            box.name,
+            boundary_name=None,
+            total_power="0W",
+            fluid="air",
+            laminar=False,
+            loss_curves_x=[[0, 1, 2, 3, 4], [0, 1, 2, 3, 5]],
+            loss_curves_y=[[0, 1, 2, 3, 4], [0, 1, 2, 3, 5]],
+            loss_curves_z=[[0, 1, 2, 3, 4], [0, 1, 2, 3, 5]],
+            loss_curve_flow_unit="m_per_sec",
+            loss_curve_pressure_unit="n_per_meter_sq",
+        )
+        assert not self.aedtapp.assign_power_law_resistance(
+            box.name,
+            boundary_name="TestNameResistance",
+            total_power={"Function": "Linear", "Values": ["0.01W", "1W"]},
+            power_law_constant=1.5,
+            power_law_exponent="3",
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_power_law_resistance(
+            box.name,
+            boundary_name="TestNameResistance",
+            total_power={"Function": "Linear", "Values": ["0.01W", "1W"]},
+            power_law_constant=1.5,
+            power_law_exponent="3",
+        )

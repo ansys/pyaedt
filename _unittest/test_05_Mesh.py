@@ -1,3 +1,4 @@
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 import pytest
 
@@ -102,6 +103,7 @@ class TestClass:
             == "High"
         )
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_05_delete_mesh_ops(self):
         assert self.aedtapp.mesh.delete_mesh_operations("surface")
         assert len(self.aedtapp.mesh.meshoperation_names) == 2

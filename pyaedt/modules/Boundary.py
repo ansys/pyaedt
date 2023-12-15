@@ -510,6 +510,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignAperture(self._get_args())
         elif bound_type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
+        elif bound_type == "FE-BI":
+            self._app.oboundary.AssignFEBI(self._get_args())
         elif bound_type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif bound_type == "Lumped RLC":
