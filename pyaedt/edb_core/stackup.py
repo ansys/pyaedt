@@ -1641,9 +1641,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def _import_dict(self, json_dict):
-        """Import stackup from a dictionary.
-
-        """
+        """Import stackup from a dictionary."""
         for name in list(self.layers.keys()):
             self.remove_layer(name)
 
