@@ -1977,7 +1977,7 @@ class Maxwell(object):
 
                 >>> from pyaedt import Maxwell3d
                 >>> app = Maxwell3d()
-                >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
+                >>> app.create_setup(setupname="My_Setup", setuptype="EddyCurrent", MaximumPasses=10, PercentError=2 )
 
         """
         if setuptype is None:
