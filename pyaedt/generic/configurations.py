@@ -3,7 +3,11 @@ import copy
 from datetime import datetime
 import json
 import os
+import pkgutil
 import tempfile
+
+from jsonschema import exceptions
+from jsonschema import validate
 
 from pyaedt import Icepak
 from pyaedt import __version__
@@ -54,7 +58,7 @@ class ConfigurationsOptions(object):
     """Options class for the configurations.
     User can enable or disable import export components."""
 
-    def __init__(self):
+    def __init__(self, is_layout=False):
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -674,13 +678,18 @@ class ImportResults(object):
 
 class Configurations(object):
     """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
+    Enable export and import of `*.json` configuration that can be applied to a new or existing design.
     """
 
     def __init__(self, app):
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
+
+        # Read the default configuration schema from pyaedt
+        schema_bytes = pkgutil.get_data(__name__, "../misc/config.schema.json")
+        schema_string = schema_bytes.decode("utf-8")
+        self._schema = json.loads(schema_string)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -985,6 +994,44 @@ class Configurations(object):
             )
 
     @pyaedt_function_handler()
+    def validate(self, config):
+        """Validate a configuration file against the schema. The default schema
+            can be found in ``pyaedt/misc/config.schema.json``.
+
+        Parameters
+        ----------
+        config : str, dict
+            Configuration as json (file) or dict.
+
+        Returns
+        -------
+        bool
+            ``True`` if the configuration file is valid, otherwise ``False``.
+            If the validation fails, a warning will also be written to the logger.
+        """
+
+        if isinstance(config, str):
+            try:  # Try to parse config as a file
+                with open(config, "r") as config_file:
+                    config_data = json.load(config_file)
+            except OSError:
+                self._app.logger.warning("Unable to parse %s", config)
+                return False
+        elif isinstance(config, dict):
+            config_data = config
+        else:
+            self._app.logger.warning("Incorrect data type.")
+            return False
+
+        try:
+            validate(instance=config_data, schema=self._schema)
+            return True
+        except exceptions.ValidationError as e:
+            self._app.logger.warning("Configuration is invalid.")
+            self._app.logger.warning("Validation error:" + e.message)
+            return False
+
+    @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a json file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
@@ -1079,7 +1126,16 @@ class Configurations(object):
         #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
         #         if not self._update_face_coordinate_systems(name, props):
         #             self.results.import_face_coordinate_systems = False
-        self._app.modeler.set_working_coordinate_system("Global")
+
+        # Only set global CS in the appropriate context.
+        if self._app.design_type not in [
+            "HFSS 3D Layout Design",
+            "HFSS3DLayout",
+            "RMxprt",
+            "Twin Builder",
+            "Circuit Design",
+        ]:
+            self._app.modeler.set_working_coordinate_system("Global")
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -1425,7 +1481,7 @@ class Configurations(object):
         return False
 
 
-class ConfigurationsOptionsIcepak(ConfigurationsOptions):
+class ConfigurationOptionsIcepak(ConfigurationsOptions):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1466,6 +1522,30 @@ class ConfigurationsOptionsIcepak(ConfigurationsOptions):
         self._export_native_components = val
 
 
+class ConfigurationOptions3DLayout(ConfigurationsOptions):
+    def __init__(self, app):
+        ConfigurationsOptions.__init__(self)
+        self._export_mesh_operations = False
+        self._export_coordinate_systems = False
+        self._export_boundaries = False
+        self._export_object_properties = False
+        self._import_mesh_operations = False
+        self._import_coordinate_systems = False
+        self._import_boundaries = False
+        self._import_object_properties = False
+
+
+class Configurations3DLayout(Configurations):
+    """Configurations3DLayout Class.
+    Enable export and import configuration options to be applied to a
+    new or existing 3DLayout design.
+    """
+
+    def __init__(self, app):
+        Configurations.__init__(self, app)
+        self.options = ConfigurationOptions3DLayout(app)
+
+
 class ConfigurationsIcepak(Configurations):
     """Configuration Class.
     It enables to export and import configuration options to be applied on a new/existing design.
@@ -1473,7 +1553,7 @@ class ConfigurationsIcepak(Configurations):
 
     def __init__(self, app):
         Configurations.__init__(self, app)
-        self.options = ConfigurationsOptionsIcepak(app)
+        self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
     def _update_object_properties(self, name, val):

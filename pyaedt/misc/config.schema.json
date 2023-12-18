@@ -1,47 +1,50 @@
 {
-  "$id": "https://github.com/ansys/pyaedt/tree/main/pyaedt/generic/config.schema.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Pyaedt configuration file schema.",
-  "type": "object",
-  "properties": {
-    "general": {
-      "type":  "object",
-      "description": "Model configuration meta-data."
-    },
-    "setups": {
-      "type":  "object",
-      "description":  "Solution setup configuration data."
-    },
-    "boundaries": {
-      "type":  "object",
-      "description": "Assignment of boundary conditions."
-    },
-    "mesh": {
-      "type":  "object",
-      "description": "Assignment of mesh operations."
-    },
-    "coordinatesystems": {
-      "type": "object",
-      "description": "Relative coordinate systems."
-    },
-    "materials": {
-      "type":  "object",
-      "description": "Material definitions."
-    },
-    "objects": {
-      "type":  "object",
-      "description": "Material assignment and rendering of objects."
-    },
-    "datasets": {
-      "type": "object",
-      "description": "Data sets as x,y tabular data."
-    },
-    "monitor": {"type":  "object",
-    },
-    "native components": {
-      "type": "object",
-      "description": "Icepak native components."
-    }
-  },
-  "required": ["general"]
+   "$id":"https://github.com/ansys/pyaedt/tree/main/pyaedt/generic/config.schema.json",
+   "$schema":"https://json-schema.org/draft/2020-12/schema",
+   "title":"Pyaedt configuration file schema.",
+   "type":"object",
+   "properties":{
+      "general":{
+         "type":"object",
+         "description":"Model configuration meta-data."
+      },
+      "setups":{
+         "type":"object",
+         "description":"Solution setup configuration data."
+      },
+      "boundaries":{
+         "type":"object",
+         "description":"Assignment of boundary conditions."
+      },
+      "mesh":{
+         "type":"object",
+         "description":"Assignment of mesh operations."
+      },
+      "coordinatesystems":{
+         "type":"object",
+         "description":"Relative coordinate systems."
+      },
+      "materials":{
+         "type":"object",
+         "description":"Material definitions."
+      },
+      "objects":{
+         "type":"object",
+         "description":"Material assignment and rendering of objects."
+      },
+      "datasets":{
+         "type":"array",
+         "description":"List of datasets"
+      },
+      "monitors":{
+         "type":"array"
+      },
+      "native components":{
+         "type":"object",
+         "description":"Icepak native components."
+      }
+   },
+   "required":[
+      "general"
+   ]
 }
