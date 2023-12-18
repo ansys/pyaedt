@@ -8,7 +8,6 @@ It is based on templates to allow for easy creation and modification of setup pr
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
-import logging
 import os.path
 from random import randrange
 import re
@@ -21,6 +20,7 @@ from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -2104,6 +2104,7 @@ class Setup3DLayout(CommonSetup):
             SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
         return True
 
+    @pyaedt_function_handler()
     def export_to_json(self, file_path, overwrite=False):
         """Export all setup properties into a json file.
 
@@ -2116,8 +2117,9 @@ class Setup3DLayout(CommonSetup):
         """
         if os.path.isdir(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                logging.error("File {} already exists. Configure file is not exported".format(file_path))
-        return self.props._export_properties_to_json(file_path)
+                settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
+                return False
+        return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
 
 class SetupHFSS(Setup, object):
