@@ -1,6 +1,7 @@
 # Import required modules
 import os
 import sys
+import tempfile
 
 from _unittest_solvers.conftest import config
 import pytest
@@ -1194,9 +1195,9 @@ class TestClass:
         do_run()
 
         # Find the license log for this process
-        appdata_local_path = os.getenv('LOCALAPPDATA')
+        appdata_local_path = tempfile.gettempdir()
         pid = os.getpid()
-        dot_ansys_directory = os.path.join(appdata_local_path, 'Temp\\.ansys')
+        dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
         
         license_file_path = ''
         with os.scandir(dot_ansys_directory) as dir:
