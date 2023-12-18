@@ -882,7 +882,7 @@ class SetupProps(OrderedDict):
             if k not in FILTER_KEYS:
                 export_dict[k] = v
         if os.path.isfile(file_path):
-            settings.logger.warning(f"File '{file_path}' exists.")
+            settings.logger.warning(f"Unable to overwrite file: %s." % (file_path))
             return False
         else:
             with open3(file_path, "w", encoding="utf-8") as f:
