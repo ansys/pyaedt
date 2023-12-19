@@ -1618,6 +1618,7 @@ class Setup3DLayout(CommonSetup):
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
                 self.props = SetupProps(self, OrderedDict())
+                settings.logger.error("Unable to set props.")
 
     @property
     def is_solved(self):
@@ -2115,7 +2116,7 @@ class Setup3DLayout(CommonSetup):
         overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
-        if os.path.isdir(file_path):  # pragma no cover
+        if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
                 settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
                 return False

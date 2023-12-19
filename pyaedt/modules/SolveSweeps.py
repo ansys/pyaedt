@@ -881,7 +881,7 @@ class SetupProps(OrderedDict):
         for k, v in self.items():
             if k not in FILTER_KEYS:
                 export_dict[k] = v
-        if os.path.isfile(file_path):
+        if os.path.isfile(file_path) and not overwrite:
             settings.logger.warning(f"Unable to overwrite file: %s." % (file_path))
             return False
         else:

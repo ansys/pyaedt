@@ -317,8 +317,7 @@ class TestClass:
         assert hfss3dl_a.setups[0].props["ViaNumSides"] == 6
 
     def test_05b_hfss3dlayout_existing_setup(self, hfss3dl_a, hfss3dl_b, local_scratch):
-        tmp = hfss3dl_a.create_setup("My_HFSS_Setup_2")
-        setup2 = hfss3dl_a.get_setup("My_HFSS_Setup_2")
+        setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")
         export_path = os.path.join(local_scratch.path, "export_setup_properties.json")
         assert setup2.export_to_json(export_path, overwrite=True)
         assert not setup2.export_to_json(export_path)
