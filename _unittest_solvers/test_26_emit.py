@@ -1203,6 +1203,8 @@ class TestClass:
         with os.scandir(dot_ansys_directory) as dir:
             for file in dir:
                 filename_pieces = file.name.split('.')
+                # Since machine names can contain periods, there may be over five splits here
+                # We only care about the first split and last three splits
                 if len(filename_pieces) >= 5:
                     if (filename_pieces[0] == 'ansyscl' and 
                         filename_pieces[-3] == str(pid) and
