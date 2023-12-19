@@ -1202,9 +1202,14 @@ class TestClass:
         license_file_path = ''
         with os.scandir(dot_ansys_directory) as dir:
             for file in dir:
-                if file.name.startswith('ansyscl') and file.name.endswith('.log') and str(pid) in file.name:
-                    license_file_path = os.path.join(dot_ansys_directory, file.name)
-                    break
+                filename_pieces = file.name.split('.')
+                if len(filename_pieces) >= 5:
+                    if (filename_pieces[0] == 'ansyscl' and 
+                        filename_pieces[-3] == str(pid) and
+                        filename_pieces[-2].isnumeric() and 
+                        filename_pieces[-1] == 'log'):
+                        license_file_path = os.path.join(dot_ansys_directory, file.name)
+                        break
         
         assert license_file_path != ''
         
@@ -1218,12 +1223,21 @@ class TestClass:
                     if 'NEW_CONNECTION' in line:
                         checkouts = 0
                         checkins = 0
-                    elif 'CHECKOUT' in line:
+                    elif 'CHECKOUT' in line or "SPLIT_CHECKOUT" in line:
                         checkouts += 1
                     elif 'CHECKIN' in line:
                         checkins += 1
             return (checkouts, checkins)
         
+        # Figure out how many checkouts and checkins per run we expect
+        # This could change depending on the user's EMIT HPC settings
+        pre_first_run_checkouts, pre_first_run_checkins = count_license_actions(license_file_path)
+        do_run()
+        post_first_run_checkouts, post_first_run_checkins = count_license_actions(license_file_path)
+
+        checkouts_per_run = post_first_run_checkouts - pre_first_run_checkouts
+        checkins_per_run = post_first_run_checkins - pre_first_run_checkins
+
         start_checkouts, start_checkins = count_license_actions(license_file_path)
 
         # Run without license session
@@ -1240,4 +1254,7 @@ class TestClass:
         checkouts = end_checkouts - start_checkouts
         checkins = end_checkins - start_checkins
 
-        assert (checkouts == number_of_runs+1) and checkouts == checkins
+        expected_checkouts = checkouts_per_run * (number_of_runs + 1)
+        expected_checkins = checkins_per_run * (number_of_runs + 1)
+
+        assert checkouts == expected_checkouts and checkins == expected_checkins
