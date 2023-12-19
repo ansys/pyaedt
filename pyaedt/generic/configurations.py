@@ -6,13 +6,11 @@ import os
 import pkgutil
 import tempfile
 
-from jsonschema import exceptions
-from jsonschema import validate
-
 from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
 from pyaedt import get_pyaedt_app
+from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
@@ -29,6 +27,10 @@ from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
+
+if not is_ironpython:
+    from jsonschema import exceptions
+    from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -1023,13 +1025,17 @@ class Configurations(object):
             self._app.logger.warning("Incorrect data type.")
             return False
 
-        try:
-            validate(instance=config_data, schema=self._schema)
+        if is_ironpython:
+            try:
+                validate(instance=config_data, schema=self._schema)
+                return True
+            except exceptions.ValidationError as e:
+                self._app.logger.warning("Configuration is invalid.")
+                self._app.logger.warning("Validation error:" + e.message)
+                return False
+        else:
+            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
             return True
-        except exceptions.ValidationError as e:
-            self._app.logger.warning("Configuration is invalid.")
-            self._app.logger.warning("Validation error:" + e.message)
-            return False
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
