@@ -2194,9 +2194,14 @@ class Material(CommonMaterial, object):
                 points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
                 del points_list_at_freq[freq_keys[i]]
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
-            )
+            if core_loss_model_type == "Electrical Steel":
+                self._props["core_loss_type"] = OrderedDict(
+                    {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
+                )
+            else:
+                self._props["core_loss_type"] = OrderedDict(
+                    {"property_type": "ChoiceProperty", "Choice": "Power Ferrite"}
+                )
         else:
             self._props.pop("core_loss_cm", None)
             self._props.pop("core_loss_x", None)
@@ -2238,9 +2243,14 @@ class Material(CommonMaterial, object):
         coefficients = self.get_core_loss_coefficients(
             points_list_at_freq, thickness=thickness, conductivity=conductivity
         )
-        self._props["core_loss_kh"] = str(coefficients[0])
-        self._props["core_loss_kc"] = str(coefficients[1])
-        self._props["core_loss_ke"] = str(coefficients[2])
+        if core_loss_model_type == "Electrical Steel":
+            self._props["core_loss_kh"] = str(coefficients[0])
+            self._props["core_loss_kc"] = str(coefficients[1])
+            self._props["core_loss_ke"] = str(coefficients[2])
+        else:
+            self._props["core_loss_cm"] = str(coefficients[0])
+            self._props["core_loss_x"] = str(coefficients[1])
+            self._props["core_loss_y"] = str(coefficients[2])
         self._props["core_loss_kdc"] = str(kdc)
         self._props["core_loss_equiv_cut_depth"] = cut_depth
         return self.update()
