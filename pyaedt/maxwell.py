@@ -1954,8 +1954,9 @@ class Maxwell(object):
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of the setup. Based on the solution type, options are
-            "Magnetostatic", "EddyCurrent", Transient", "Electrostatic", "DC Conduction", "Electric Transient" and "AC Conduction"
+            Type of the setup. Based on the solution type, options are:-
+            "Magnetostatic", "EddyCurrent", Transient" and 
+            "Electrostatic", "DC Conduction", "Electric Transient", "AC Conduction"
         setupname : str, optional
             Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
