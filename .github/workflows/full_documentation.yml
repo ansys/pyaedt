@@ -79,21 +79,21 @@ jobs:
 #            .\doc\make.bat pdf
 
       - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: doc/_build/html
           retention-days: 7
 
       - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html-edb
           path: doc/_build/html/EDBAPI
           retention-days: 7
 
 #      - name: Upload PDF documentation artifact
-#        uses: actions/upload-artifact@v3
+#        uses: actions/upload-artifact@v4
 #        with:
 #          name: documentation-pdf
 #          path: doc/_build/pdf
