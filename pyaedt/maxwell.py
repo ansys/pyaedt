@@ -1950,7 +1950,7 @@ class Maxwell(object):
                 names correspond to the ``setuptype``
                 corresponding to the native AEDT API.  The list of
                 keywords here is not exhaustive.
-        ``
+        
                 Parameters
                 ----------
                 setuptype : int, str, optional
