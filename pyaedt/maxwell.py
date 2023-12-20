@@ -1969,7 +1969,6 @@ class Maxwell(object):
 
                 References
                 ----------
-
                 >>> oModule.InsertSetup
 
                 Examples
