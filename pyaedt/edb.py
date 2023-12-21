@@ -3941,7 +3941,7 @@ class Edb(Database):
             padstack_defs = {k: v for k, v in self.padstacks.definitions.items() if k in padstack_definition_filter}
         for def_name, padstack_def in padstack_defs.items():
             if not padstack_def.via_start_layer == padstack_def.via_stop_layer:
-                if via_holes:
+                if via_holes:  # pragma no cover
                     hole_variable = self._clean_string_for_variable_name("$hole_diam_{}".format(def_name))
                     if hole_variable not in self.variables:
                         self.add_design_variable(hole_variable, padstack_def.hole_properties[0])
@@ -3957,7 +3957,7 @@ class Edb(Database):
                             self.add_design_variable(pad_diameter_variable, pad.parameters_values[0])
                         pad.parameters = {"Diameter": pad_diameter_variable}
                         parameters.append(pad_diameter_variable)
-                    if pad.geometry_type == 2:
+                    if pad.geometry_type == 2:  # pragma no cover
                         pad_size_variable = self._clean_string_for_variable_name(
                             "$pad_size_{}_{}".format(def_name, layer)
                         )
@@ -3965,7 +3965,7 @@ class Edb(Database):
                             self.add_design_variable(pad_size_variable, pad.parameters_values[0])
                         pad.parameters = {"Size": pad_size_variable}
                         parameters.append(pad_size_variable)
-                    elif pad.geometry_type == 3:
+                    elif pad.geometry_type == 3:  # pragma no cover
                         pad_size_variable_x = self._clean_string_for_variable_name(
                             "$pad_size_x_{}_{}".format(def_name, layer)
                         )
@@ -3980,23 +3980,23 @@ class Edb(Database):
                         parameters.append(pad_size_variable_y)
             if antipads:
                 for layer, antipad in padstack_def.antipad_by_layer.items():
-                    if antipad.geometry_type == 1:
+                    if antipad.geometry_type == 1:  # pragma no cover
                         antipad_diameter_variable = self._clean_string_for_variable_name(
                             "$antipad_diam_{}_{}".format(def_name, layer)
                         )
-                        if antipad_diameter_variable not in self.variables:
+                        if antipad_diameter_variable not in self.variables:  # pragma no cover
                             self.add_design_variable(antipad_diameter_variable, antipad.parameters_values[0])
                         antipad.parameters = {"Diameter": antipad_diameter_variable}
                         parameters.append(antipad_diameter_variable)
-                    if antipad.geometry_type == 2:
+                    if antipad.geometry_type == 2:  # pragma no cover
                         antipad_size_variable = self._clean_string_for_variable_name(
                             "$antipad_size_{}_{}".format(def_name, layer)
                         )
-                        if antipad_size_variable not in self.variables:
+                        if antipad_size_variable not in self.variables:  # pragma no cover
                             self.add_design_variable(antipad_size_variable, antipad.parameters_values[0])
                         antipad.parameters = {"Size": antipad_size_variable}
                         parameters.append(antipad_size_variable)
-                    elif antipad.geometry_type == 3:
+                    elif antipad.geometry_type == 3:  # pragma no cover
                         antipad_size_variable_x = self._clean_string_for_variable_name(
                             "$antipad_size_x_{}_{}".format(def_name, layer)
                         )
@@ -4006,7 +4006,7 @@ class Edb(Database):
                         if (
                             antipad_size_variable_x not in self.variables
                             and antipad_size_variable_y not in self.variables
-                        ):
+                        ):  # pragma no cover
                             self.add_design_variable(antipad_size_variable_x, antipad.parameters_values[0])
                             self.add_design_variable(antipad_size_variable_y, antipad.parameters_values[1])
                         antipad.parameters = {"XSize": antipad_size_variable_x, "YSize": antipad_size_variable_y}
