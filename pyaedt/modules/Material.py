@@ -2193,7 +2193,7 @@ class Material(CommonMaterial, object):
         """
         if not isinstance(points_list_at_freq, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
-        if len(points_list_at_freq) == 1 and core_loss_model_type == "Power Ferrite":
+        if len(points_list_at_freq) <= 1 and core_loss_model_type == "Power Ferrite":
             raise ValueError("At least 2 frequencies must be included.")
         freq_keys = list(points_list_at_freq.keys())
         for i in range(0, len(freq_keys)):
@@ -2204,14 +2204,10 @@ class Material(CommonMaterial, object):
                 points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
                 del points_list_at_freq[freq_keys[i]]
         if "core_loss_type" not in self._props:
-            if core_loss_model_type == "Electrical Steel":
-                self._props["core_loss_type"] = OrderedDict(
-                    {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
-                )
-            else:
-                self._props["core_loss_type"] = OrderedDict(
-                    {"property_type": "ChoiceProperty", "Choice": "Power Ferrite"}
-                )
+            choice = "Electrical Steel" if core_loss_model_type == "Electrical Steel" else ""Power Ferrite"
+            self._props["core_loss_type"] = OrderedDict(
+                {"property_type": "ChoiceProperty", "Choice": choice}
+            )
         else:
             self._props.pop("core_loss_cm", None)
             self._props.pop("core_loss_x", None)
