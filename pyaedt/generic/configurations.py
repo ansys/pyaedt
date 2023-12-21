@@ -3,6 +3,7 @@ import copy
 from datetime import datetime
 import json
 import os
+import tempfile
 
 from pyaedt import Icepak
 from pyaedt import __version__
@@ -76,6 +77,7 @@ class ConfigurationsOptions(object):
         self._import_coordinate_systems = True
         # self._import_face_coordinate_systems = False
         self._import_materials = True
+        self._import_output_variables = True
         self._import_object_properties = True
         self._skip_import_if_exists = False
 
@@ -499,6 +501,26 @@ class ConfigurationsOptions(object):
         """
         return self._import_materials
 
+    @property
+    def import_output_variables(self):
+        """Define if the output variables have to be imported/created from json file. Default is `True`.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.configurations.options.import_output_variables = False  # Disable the materials import
+        """
+        return self._import_output_variables
+
+    @import_output_variables.setter
+    def import_output_variables(self, val):
+        self._import_output_variables = val
+
     @import_materials.setter
     def import_materials(self, val):
         self._import_materials = val
@@ -617,6 +639,7 @@ class ImportResults(object):
     def __init__(self):
         self.import_units = None
         self.import_variables = None
+        self.import_output_variables = None
         self.import_postprocessing_variables = None
         self.import_setup = None
         self.import_optimizations = None
@@ -915,7 +938,7 @@ class Configurations(object):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupOpti(self._app, name, optim_type=props.get("SetupType", None))
+        setup = SetupOpti(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info("Optim {} added.".format(name))
@@ -932,7 +955,7 @@ class Configurations(object):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        setup = SetupParam(self._app, name, optim_type=props.get("SetupType", None))
+        setup = SetupParam(self._app, name, dictinputs=props, optim_type=props.get("SetupType", None))
         if setup.create():
             self._app.optimizations.setups.append(setup)
             self._app.logger.info("Optim {} added.".format(name))
@@ -942,7 +965,8 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def _update_datasets(self, name, data_dict):
+    def _update_datasets(self, data_dict):
+        name = data_dict["Name"]
         is_project_dataset = False
         if name.startswith("$"):
             is_project_dataset = True
@@ -1037,8 +1061,8 @@ class Configurations(object):
                     self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self._app, el, val)
-                if newmat.update():
+                newmat = Material(self._app, el, val, material_update=True)
+                if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
                     self.results.import_materials = False
@@ -1065,8 +1089,14 @@ class Configurations(object):
 
         if self.options.import_datasets and dict_in.get("datasets", None):
             self.results.import_datasets = True
-            for k, v in dict_in["datasets"].items():
-                self._update_datasets(k, v)
+            if not isinstance(dict_in["datasets"], list):  # backward compatibility
+                dataset_list = []
+                for k, v in dict_in["datasets"].items():
+                    v["Name"] = k
+                    dataset_list.append(v)
+                dict_in["datasets"] = dataset_list
+            for dataset in dict_in["datasets"]:
+                self._update_datasets(dataset)
 
         if self.options.import_boundaries and dict_in.get("boundaries", None):
             self.results.import_boundaries = True
@@ -1089,6 +1119,15 @@ class Configurations(object):
                 if not self._update_setup(setup, props):
                     self.results.import_setup = False
 
+        if self.options.import_output_variables:
+            try:
+                for k, v in dict_in["general"]["output_variables"].items():
+                    self._app.create_output_variable(k, v)
+            except KeyError:
+                self.results.import_variables = False
+            else:
+                self.results.import_variables = True
+
         if self.options.import_optimizations and dict_in.get("optimizations", None):
             self.results.import_optimizations = True
             for setup, props in dict_in["optimizations"].items():
@@ -1110,6 +1149,18 @@ class Configurations(object):
         dict_out["general"]["design_name"] = self._app.design_name
         dict_out["general"]["date"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         dict_out["general"]["object_mapping"] = {}
+        dict_out["general"]["output_variables"] = {}
+        if list(self._app.output_variables):
+            oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
+            self._app.ooutput_variable.ExportOutputVariables(oo_out)
+            with open(oo_out, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    line_split = line.split(" ")
+                    try:
+                        dict_out["general"]["output_variables"][line_split[0]] = line.split("'")[1]
+                    except IndexError:
+                        pass
 
     @pyaedt_function_handler()
     def _export_variables(self, dict_out):
@@ -1133,37 +1184,49 @@ class Configurations(object):
         if self._app.setups:
             dict_out["setups"] = {}
             for setup in self._app.setups:
+                legacy_update = setup.auto_update
+                setup.auto_update = False
                 dict_out["setups"][setup.name] = setup.props
                 dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
                 if setup.sweeps:
                     for sweep in setup.sweeps:
                         dict_out["setups"][setup.name][sweep.name] = sweep.props
+                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
         if self._app.optimizations.setups:
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
-                dict_out["optimizations"][setup.name] = setup.props
+                legacy_update = setup.auto_update
+                setup.auto_update = False
+                dict_out["optimizations"][setup.name] = dict(setup.props)
                 dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
+                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
         if self._app.parametrics.setups:
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
-                dict_out["parametrics"][setup.name] = setup.props
+                legacy_update = setup.auto_update
+                setup.auto_update = False
+                dict_out["parametrics"][setup.name] = dict(setup.props)
                 dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
+                setup.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
         if self._app.boundaries:
             dict_out["boundaries"] = {}
             for boundary in self._app.boundaries:
-                dict_out["boundaries"][boundary.name] = boundary.props
+                legacy_update = boundary.auto_update
+                boundary.auto_update = False
+                dict_out["boundaries"][boundary.name] = dict(boundary.props)
                 if not boundary.props.get("BoundType", None):
                     dict_out["boundaries"][boundary.name]["BoundType"] = boundary.type
                 self._map_object(boundary.props, dict_out)
+                boundary.auto_update = legacy_update
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
@@ -1171,9 +1234,12 @@ class Configurations(object):
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
                 if isinstance(cs, CoordinateSystem):
+                    legacy_update = cs.auto_update
+                    cs.auto_update = False
                     if cs.props:
-                        dict_out["coordinatesystems"][cs.name] = cs.props
+                        dict_out["coordinatesystems"][cs.name] = copy.deepcopy(dict(cs.props))
                         dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
+                    cs.auto_update = legacy_update
 
     # @pyaedt_function_handler()
     # def _export_face_coordinate_systems(self, dict_out):
@@ -1206,31 +1272,34 @@ class Configurations(object):
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
             for mesh in self._app.mesh.meshoperations:
-                dict_out["mesh"][mesh.name] = mesh.props
+                dict_out["mesh"][mesh.name] = copy.deepcopy(dict(mesh.props))
                 self._map_object(mesh.props, dict_out)
 
     @pyaedt_function_handler()
     def _export_datasets(self, dict_out):
         if self._app.project_datasets or self._app.design_datasets:
             if dict_out.get("datasets", None) is None:
-                dict_out["datasets"] = {}
+                dict_out["datasets"] = []
             for dataset_dict in [self._app.project_datasets, self._app.design_datasets]:
                 for k, obj in dataset_dict.items():
                     if k not in dict_out.get("material datasets", []):
-                        dict_out["datasets"][k] = {
-                            "v": obj.v,
-                            "vunit": obj.vunit,
-                            "x": obj.x,
-                            "xunit": obj.xunit,
-                            "y": obj.y,
-                            "yunit": obj.yunit,
-                            "z": obj.z,
-                            "zunit": obj.zunit,
-                        }
+                        dict_out["datasets"].append(
+                            {
+                                "Name": k,
+                                "v": obj.v,
+                                "vunit": obj.vunit,
+                                "x": obj.x,
+                                "xunit": obj.xunit,
+                                "y": obj.y,
+                                "yunit": obj.yunit,
+                                "z": obj.z,
+                                "zunit": obj.zunit,
+                            }
+                        )
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
-        dict_monitor = {}
+        dict_monitors = []
         native_parts = [
             part.name
             for udc_name, udc in self._app.modeler.user_defined_components.items()
@@ -1239,33 +1308,33 @@ class Configurations(object):
         ]
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
-                dict_monitor[mon_name] = {
+                dict_monitor = {
                     key: val
                     for key, val in self._app.monitor.all_monitors[mon_name].properties.items()
                     if key not in ["Name", "Object"]
                 }
-                if dict_monitor[mon_name]["Geometry Assignment"] in native_parts:
-                    dict_monitor[mon_name]["Native Assignment"] = [
+                dict_monitor["Name"] = mon_name
+                if dict_monitor["Geometry Assignment"] in native_parts:
+                    dict_monitor["Native Assignment"] = [
                         name
                         for name, dict_comp in self._app.modeler.user_defined_components.items()
-                        if dict_monitor[mon_name]["Geometry Assignment"]
+                        if dict_monitor["Geometry Assignment"]
                         in [part.name for part_id, part in dict_comp.parts.items()]
                     ][0]
-                    if dict_monitor[mon_name]["Type"] == "Face":
-                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            dict_monitor[mon_name]["ID"]
+                    if dict_monitor["Type"] == "Face":
+                        dict_monitor["Area Assignment"] = self._app.modeler.get_face_area(dict_monitor["ID"])
+                    elif dict_monitor["Type"] == "Surface":
+                        dict_monitor["Area Assignment"] = self._app.modeler.get_face_area(
+                            self._app.modeler.get_object_from_name(dict_monitor["ID"]).faces[0].id
                         )
-                    elif dict_monitor[mon_name]["Type"] == "Surface":
-                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            self._app.modeler.get_object_from_name(dict_monitor[mon_name]["ID"]).faces[0].id
-                        )
-                    elif dict_monitor[mon_name]["Type"] == "Object":
-                        bb = self._app.modeler.get_object_from_name([dict_monitor[mon_name]["ID"]][0]).bounding_box
-                        dict_monitor[mon_name]["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
-                        dict_monitor[mon_name]["Volume Assignment"] = self._app.modeler.get_object_from_name(
-                            dict_monitor[mon_name]["ID"]
+                    elif dict_monitor["Type"] == "Object":
+                        bb = self._app.modeler.get_object_from_name([dict_monitor["ID"]][0]).bounding_box
+                        dict_monitor["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
+                        dict_monitor["Volume Assignment"] = self._app.modeler.get_object_from_name(
+                            dict_monitor["ID"]
                         ).volume
-        dict_out["monitor"] = dict_monitor
+                dict_monitors.append(dict_monitor)
+        dict_out["monitors"] = dict_monitors
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
@@ -1559,58 +1628,57 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def _monitor_assignment_finder(self, dict_in, monitor_obj, exclude_set):
-        if dict_in["monitor"][monitor_obj].get("Native Assignment", None):
+        idx = dict_in["monitors"].index(monitor_obj)
+        if monitor_obj.get("Native Assignment", None):
             objects_to_check = [obj for _, obj in self._app.modeler.objects.items()]
             objects_to_check = list(set(objects_to_check) - exclude_set)
-            if dict_in["monitor"][monitor_obj]["Type"] == "Face":
+            if monitor_obj["Type"] == "Face":
                 for obj in objects_to_check:
                     for f in obj.faces:
                         if (
-                            GeometryOperators.v_norm(
-                                GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
-                            )
+                            GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, monitor_obj["Location"]))
                             <= 1e-12
-                            and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                            and abs(f.area - monitor_obj["Area Assignment"]) <= 1e-12
                         ):
-                            dict_in["monitor"][monitor_obj]["ID"] = f.id
+                            monitor_obj["ID"] = f.id
+                            dict_in["monitors"][idx] = monitor_obj
                             return
-            elif dict_in["monitor"][monitor_obj]["Type"] == "Surface":
+            elif monitor_obj["Type"] == "Surface":
                 for obj in objects_to_check:
                     if len(obj.faces) == 1:
                         for f in obj.faces:
                             if (
-                                GeometryOperators.v_norm(
-                                    GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
-                                )
+                                GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, monitor_obj["Location"]))
                                 <= 1e-12
-                                and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                                and abs(f.area - monitor_obj["Area Assignment"]) <= 1e-12
                             ):
-                                dict_in["monitor"][monitor_obj]["ID"] = obj.name
+                                monitor_obj["ID"] = obj.name
+                                dict_in["monitors"][idx] = monitor_obj
                                 return
-            elif dict_in["monitor"][monitor_obj]["Type"] == "Object":
+            elif monitor_obj["Type"] == "Object":
                 for obj in objects_to_check:
                     bb = obj.bounding_box
                     if (
                         GeometryOperators.v_norm(
                             GeometryOperators.v_sub(
-                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)], dict_in["monitor"][monitor_obj]["Location"]
+                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)], monitor_obj["Location"]
                             )
                         )
                         <= 1e-12
-                        and abs(obj.volume - dict_in["monitor"][monitor_obj]["Volume Assignment"]) <= 1e-12
+                        and abs(obj.volume - monitor_obj["Volume Assignment"]) <= 1e-12
                     ):
-                        dict_in["monitor"][monitor_obj]["ID"] = obj.id
+                        monitor_obj["ID"] = obj.id
+                        dict_in["monitors"][idx] = monitor_obj
                         return
-            elif dict_in["monitor"][monitor_obj]["Type"] == "Vertex":
+            elif monitor_obj["Type"] == "Vertex":
                 for obj in objects_to_check:
                     for v in obj.vertices:
                         if (
-                            GeometryOperators.v_norm(
-                                GeometryOperators.v_sub(v.position, dict_in["monitor"][monitor_obj]["Location"])
-                            )
+                            GeometryOperators.v_norm(GeometryOperators.v_sub(v.position, monitor_obj["Location"]))
                             <= 1e-12
                         ):
-                            dict_in["monitor"][monitor_obj]["ID"] = v.id
+                            monitor_obj["ID"] = v.id
+                            dict_in["monitors"][idx] = monitor_obj
                             return
 
     @pyaedt_function_handler()
@@ -1664,16 +1732,24 @@ class ConfigurationsIcepak(Configurations):
                     result_native_component = False
 
         dict_in = Configurations.import_config(self, config_file)
-        if self.options.import_monitor and dict_in.get("monitor", None):
+        if self.options.import_monitor and dict_in.get("monitor", None):  # backward compatibility
+            dict_in["monitors"] = dict_in.pop("monitor")
+        if self.options.import_monitor and dict_in.get("monitors", None):
+            if not isinstance(dict_in["monitors"], list):  # backward compatibility
+                mon_list = []
+                for k, v in dict_in["monitors"].items():
+                    v["Name"] = k
+                    mon_list.append(v)
+                dict_in["monitors"] = mon_list
             self.results.import_monitor = True
-            for monitor_obj in dict_in["monitor"]:
+            for monitor_obj in dict_in["monitors"]:
                 self._monitor_assignment_finder(dict_in, monitor_obj, exclude_set)
-                m_type = dict_in["monitor"][monitor_obj]["Type"]
-                m_obj = dict_in["monitor"][monitor_obj]["ID"]
+                m_type = monitor_obj["Type"]
+                m_obj = monitor_obj["ID"]
                 if m_type == "Point":
-                    m_obj = dict_in["monitor"][monitor_obj]["Location"]
+                    m_obj = monitor_obj["Location"]
                 if not self.update_monitor(
-                    m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                    m_type, m_obj, monitor_obj["Quantity"], monitor_obj["Name"]
                 ):  # pragma: no cover
                     self.results.import_monitor = False
         try:

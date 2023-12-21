@@ -11,23 +11,36 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (
-    ansys_favicon,
-    ansys_logo_white,
-    ansys_logo_white_cropped,
-    get_version_match,
-    latex,
-    pyansys_logo_black,
-    watermark,
-)
+from ansys_sphinx_theme import (ansys_favicon, 
+                                get_version_match, pyansys_logo_black,
+                                watermark, 
+                                ansys_logo_white, 
+                                ansys_logo_white_cropped, latex)
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
-from sphinx.builders.latex import LaTeXBuilder
+import shutil
 
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
+# <-----------------Override the sphinx pdf builder---------------->
+# Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
+# This issue can be resolved by migrating to the autoapi format.
+# Additionally, when documenting images in formats other than the supported ones, 
+# make sure to specify their types.
+from sphinx.builders.latex import LaTeXBuilder
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+
+from sphinx.writers.latex import CR
+from sphinx.writers.latex import LaTeXTranslator
+from docutils.nodes import Element
+
+def visit_desc_content(self, node: Element) -> None:
+    self.body.append(CR + r'\pysigstopsignatures')
+    self.in_desc_signature = False
+LaTeXTranslator.visit_desc_content = visit_desc_content
+
+# <----------------- End of sphinx pdf builder override---------------->
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -58,9 +71,16 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     # return True if exclude else None
 
 
+def remove_doctree(app, exception):
+    """Remove the .doctree directory created during the documentation build.
+    """
+    shutil.rmtree(app.doctreedir)
+
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('build-finished', remove_doctree)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -74,6 +94,7 @@ except ImportError:
     sys.path.append(os.path.join(root_path))
     from pyaedt import __version__
 
+from pyaedt import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -106,6 +127,8 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
     "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_jinja",
     "recommonmark",
     "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
@@ -116,7 +139,7 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3.11", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "numpy": ("https://numpy.org/devdocs", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
@@ -144,7 +167,7 @@ numpydoc_validation_checks = {
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
     "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."'
+    "RT05", # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -152,7 +175,7 @@ numpydoc_validation_checks = {
     "SS04",  # Summary contains heading whitespaces
     "SS05",  # Summary must start with infinitive verb, not third person
     # Parameters
-    "PR10",  # Parameter "{param_name}" requires a space before the colon '
+    "PR10",  # Parameter "{param_name}" requires a space before the colon
     # separating the parameter name and type",
 }
 
@@ -232,7 +255,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
+if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
@@ -272,6 +295,24 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             #                         "set_plot_theme('document')"),
         }
 
+jinja_contexts = {
+    "main_toctree": {
+        "run_examples": config["run_examples"],
+    },
+}
+# def prepare_jinja_env(jinja_env) -> None:
+#     """
+#     Customize the jinja env.
+#
+#     Notes
+#     -----
+#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
+#     """
+#     jinja_env.globals["project_name"] = project
+#
+#
+# autoapi_prepare_jinja_env = prepare_jinja_env
+
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
 html_theme = "ansys_sphinx_theme"
@@ -286,6 +327,7 @@ html_context = {
 # specify the location of your github repo
 html_theme_options = {
     "github_url": "https://github.com/ansys/pyaedt",
+    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
@@ -305,6 +347,7 @@ html_theme_options = {
         "version_match": get_version_match(__version__),
     },
     "collapse_navigation": True,
+    "navigation_with_keys": True,
     "use_meilisearch": {
         "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
@@ -329,7 +372,12 @@ html_css_files = [
 htmlhelp_basename = "pyaedtdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
-latex_elements = {}
+# additional logos for the latex coverpage
+latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
+
+# change the preamble of latex with customized title page
+# variables are the title of pdf, watermark
+latex_elements = {"preamble": latex.generate_preamble(html_title)}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
@@ -343,10 +391,3 @@ latex_documents = [
         "manual",
     ),
 ]
-
-# additional logos for the latex coverpage
-latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
-
-# change the preamble of latex with customized title page
-# variables are the title of pdf, watermark
-latex_elements = {"preamble": latex.generate_preamble(html_title)}

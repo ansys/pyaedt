@@ -14,9 +14,16 @@ from pyaedt.generic.near_field_import import convert_nearfield_data
 test_subfolder = "T20"
 
 if config["desktopVersion"] > "2022.2":
+    component = "Circ_Patch_5GHz_232.a3dcomp"
+else:
+    component = "Circ_Patch_5GHz.a3dcomp"
+
+if config["desktopVersion"] > "2023.1":
     diff_proj_name = "differential_pairs_231"
 else:
     diff_proj_name = "differential_pairs"
+
+component_array = "Array_232"
 
 
 @pytest.fixture(scope="class")
@@ -843,107 +850,6 @@ class TestClass:
         assert len(self.aedtapp.mesh.meshoperations) == 2
         pass
 
-    def test_25a_create_parametrics(self):
-        self.aedtapp["w1"] = "10mm"
-        self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
-        assert setup1
-        assert setup1.add_variation("w2", "0.1mm", 10, 11)
-        assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
-        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
-        assert setup1.add_calculation(
-            calculation="dB(S(1,1))", ranges={"Freq": "5GHz"}, solution="MySetupForSweep : LastAdaptive"
-        )
-        assert setup1.name in self.aedtapp.get_oo_name(
-            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup1.name))
-        oo_calculation = oo.GetCalculationInfo()[0]
-        assert "Modal Solution Data" in oo_calculation
-        assert setup1.export_to_csv(os.path.join(self.local_scratch.path, "test.csv"))
-        assert os.path.exists(os.path.join(self.local_scratch.path, "test.csv"))
-        assert self.aedtapp.parametrics.add_from_file(
-            os.path.join(self.local_scratch.path, "test.csv"), "ParametricsfromFile"
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
-        assert oo
-        assert self.aedtapp.parametrics.delete("ParametricsfromFile")
-
-    def test_25b_create_parametrics_sync(self):
-        self.aedtapp["a1"] = "10mm"
-        self.aedtapp["a2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add(
-            "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
-        )
-        assert setup1
-        assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
-        assert setup1.sync_variables(["a1", "a2"], sync_n=1)
-        assert setup1.sync_variables(["a1", "a2"], sync_n=0)
-        setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
-
-    def test_26_create_optimization(self):
-        calculation = "db(S(Cir1,Cir1))"
-        setup2 = self.aedtapp.optimizations.add(calculation, ranges={"Freq": "2.5GHz"})
-        assert setup2
-        assert setup2.name in self.aedtapp.get_oo_name(
-            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-        )
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
-        oo_calculation = oo.GetCalculationInfo()[0]
-        assert calculation in oo_calculation
-        assert self.aedtapp.nominal_sweep in oo_calculation
-        for el in oo_calculation:
-            if "NAME:Ranges" in el:
-                break
-        assert len(el) == 3
-        assert setup2.add_goal(calculation=calculation, ranges={"Freq": "2.6GHz"})
-        oo_calculation = oo.GetCalculationInfo()[0]
-        for el in reversed(oo_calculation):
-            if "NAME:Ranges" in el:
-                break
-        assert "2.6GHz" in el[2]
-        assert setup2.add_goal(calculation=calculation, ranges={"Freq": ("2.6GHz", "5GHZ")})
-        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
-        oo_calculation = oo.GetCalculationInfo()[0]
-        for el in reversed(oo_calculation):
-            if "NAME:Ranges" in el:
-                break
-        assert "rd" in el[2]
-        assert self.aedtapp.optimizations.delete(setup2.name)
-
-    def test_27_create_doe(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
-        assert setup2.delete()
-
-    def test_28A_create_dx(self):
-        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert not setup2.add_variation("w3", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
-    def test_28B_create_dx(self):
-        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="DesignExplorer")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
-    def test_29_create_sensitivity(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
-        assert setup2.add_variation("w1", 0.1, 10, 51)
-        assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
-    def test_29_create_statistical(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Statistical")
-        assert setup2.add_variation("w1", 0.1, 10, 0.1, "LinearStep")
-        assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
@@ -1358,16 +1264,32 @@ class TestClass:
         self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
-        dict_in = json_to_dict(
-            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
-        )
-        dict_in["Circ_Patch_5GHz1"] = os.path.join(
-            local_path, "../_unittest/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
-        )
-        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+        if config["desktopVersion"] > "2023.1":
+            dict_in = json_to_dict(
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple_232.json")
+            )
+            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
+        else:
+            dict_in = json_to_dict(
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
+            )
+            dict_in["Circ_Patch_5GHz1"] = os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        array_name = self.aedtapp.component_array_names[0]
+        assert self.aedtapp.component_array[array_name].cells[2][2].rotation == 0
+        assert self.aedtapp.component_array_names
         dict_in["cells"][(3, 3)]["rotation"] = 90
-        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        component_array = self.aedtapp.add_3d_component_array_from_json(dict_in)
+        assert component_array.cells[2][2].rotation == 90
+        component_array.cells[2][2].rotation = 0
+        assert component_array.cells[2][2].rotation == 0
 
     def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()
@@ -1499,9 +1421,11 @@ class TestClass:
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        assert self.aedtapp.modeler.import_nastran(example_project2)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -1559,8 +1483,13 @@ class TestClass:
             name="Wave2",
             renormalize=False,
         )
-        assert self.aedtapp.set_phase_center_per_port()
-        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        if self.aedtapp.desktop_class.is_grpc_api:
+            assert self.aedtapp.set_phase_center_per_port()
+            assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        else:
+            assert not self.aedtapp.set_phase_center_per_port()
+            assert not self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
@@ -1571,3 +1500,133 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_65_component_array(self, add_app):
+        hfss_array = add_app(project_name=component_array, subfolder=test_subfolder)
+        assert len(hfss_array.component_array) == 1
+
+        array = hfss_array.component_array["A1"]
+        assert array.name == hfss_array.component_array_names[0]
+
+        cell1 = array.get_cell(1, 1)
+        cell2 = array[1, 1]
+        assert cell2
+        assert cell1.rotation == 0
+
+        assert not array.get_cell(0, 0)
+        assert not array.get_cell(10, 0)
+
+        lc = array.lattice_vector()
+        assert len(lc) == 6
+
+        assert len(array.component_names) == 4
+
+        assert len(array.post_processing_cells) == 4
+        post_cells = array.post_processing_cells
+        post_cells["Radome_Corner1"] = [8, 1]
+        array.post_processing_cells = post_cells
+        assert array.post_processing_cells["Radome_Corner1"] == [8, 1]
+
+        array.cells[0][1].component = None
+        assert not array.cells[0][1].component
+
+        array.cells[1][1].rotation = 90
+        assert array.cells[1][1].rotation == 90
+
+        array.cells[1][1].rotation = 10
+        assert not array.cells[1][1].rotation == 10
+
+        array.cells[1][1].is_active = False
+        array.cells[1][1].is_active = 1
+        assert not array.cells[1][1].is_active
+
+        assert array.cells[1][2].component == array.component_names[2]
+        assert not array.cells[1][2].component == "test"
+
+        array.cells[0][1].component = array.component_names[3]
+        assert array.cells[0][1].component == array.component_names[3]
+
+        hfss_array.component_array["A1"].name = "Array_new"
+        assert hfss_array.component_array_names[0] == "Array_new"
+        hfss_array.component_array["Array_new"].name = "A1"
+
+        omodel = hfss_array.get_oo_object(hfss_array.odesign, "Model")
+        oarray = hfss_array.get_oo_object(omodel, "A1")
+
+        assert array.visible
+        array.visible = False
+        assert not oarray.GetPropValue("Visible")
+        array.visible = True
+        assert oarray.GetPropValue("Visible")
+
+        assert array.show_cell_number
+        array.show_cell_number = False
+        assert not oarray.GetPropValue("Show Cell Number")
+        array.show_cell_number = True
+        assert oarray.GetPropValue("Show Cell Number")
+
+        assert array.render == "Shaded"
+        array.render = "Wireframe"
+        assert oarray.GetPropValue("Render") == "Wireframe"
+        array.render = "Shaded"
+        assert oarray.GetPropValue("Render") == "Shaded"
+        array.render = "Shaded1"
+        assert not array.render == "Shaded1"
+
+        a_choices = array.a_vector_choices
+        assert array.a_vector_name in a_choices
+        array.a_vector_name = a_choices[0]
+        assert oarray.GetPropValue("A Vector") == a_choices[0]
+        array.a_vector_name = "Test"
+        assert not array.a_vector_name == "Test"
+
+        b_choices = array.b_vector_choices
+        assert array.b_vector_name in b_choices
+        array.b_vector_name = b_choices[1]
+        assert oarray.GetPropValue("B Vector") == b_choices[1]
+        array.b_vector_name = "Test"
+        assert not array.b_vector_name == "Test"
+
+        assert array.a_size == 8
+
+        assert array.b_size == 8
+
+        assert array.padding_cells == 0
+        array.padding_cells = 2
+        assert oarray.GetPropValue("Padding") == "2"
+        array.padding_cells = 0
+
+        assert array.coordinate_system == "Global"
+        array.coordinate_system = "Corner"
+        array.coordinate_system = "Global"
+
+        array_csv = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_info.csv")
+        array_info = array.parse_array_info_from_csv(array_csv)
+        assert len(array_info) == 4
+        assert array_info["component"][1] == "02_Patch1"
+
+        # Delete 3D Component
+        hfss_array.modeler.user_defined_components["03_Radome_Side1"].delete()
+        array.update_properties()
+        assert len(array.component_names) == 3
+        assert len(array.post_processing_cells) == 3
+
+        array.delete()
+        assert not hfss_array.component_array
+
+    def test_66_assign_febi(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_febi(["inner"])
+        assert len(aedtapp.boundaries) == 1
+        aedtapp.close_project(save_project=False)
+
+    def test_67_transient_composite(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        aedtapp.solution_type = "Transient Composite"
+        assert aedtapp.solution_type == "Transient Composite"
+        aedtapp.close_project(save_project=False)

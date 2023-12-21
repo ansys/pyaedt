@@ -86,7 +86,8 @@ class EmitComponents(object):
 
     @pyaedt_function_handler()
     def __getitem__(self, compname):
-        """
+        """Get a component by its name.
+
         Parameters
         ----------
         compname : str
@@ -742,6 +743,144 @@ class EmitRadioComponent(EmitComponent):
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = self.units["Frequency"]
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
+
+    def set_band_start_frequency(self, band_node, band_start_freq, units=""):
+        """Set start frequency of the band.
+
+        Parameters
+        ----------
+        band_node : pyaedt.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
+            Instance of the band node
+        band_start_freq : float
+            Start frequency of the band.
+        units : str, optional
+            Units of the start frequency. If no units are specified or the units
+            specified are invalid, then `"Hz"`` is assumed.
+
+        Returns
+        ------
+        None
+
+        Examples
+        --------
+        >>> from pyaedt import Emit
+        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> radio = aedtapp.modeler.components.create_component("New Radio")
+        >>> band =  radio.bands()[0]
+        >>> start_freq = 10
+        >>> units = 'MHz'
+        >>> radio.set_band_start_frequency(band, start_freq, units=units)
+        """
+
+        # if "Band" not in band_node.props["Type"]:
+        #     raise TypeError("{} must be a band.".format(band_node.node_name))
+
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = "Hz"
+
+        # convert to Hz
+        freq_float_in_Hz = consts.unit_converter(band_start_freq, "Freq", units, "Hz")
+        freq_string = "{}".format(freq_float_in_Hz)
+        if not (1 <= freq_float_in_Hz <= 100000000000):  # pragma: no cover
+            raise ValueError("Frequency should be within 1Hz to 100 GHz.")
+        if float(band_node.props["StopFrequency"]) < freq_float_in_Hz:  # pragma: no cover
+            stop_freq = freq_float_in_Hz + 1
+            band_node._set_prop_value({"StopFrequency": str(stop_freq)})
+        else:
+            prop_list = {"StartFrequency": freq_string}
+            band_node._set_prop_value(prop_list)
+
+    def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
+        """Set stop frequency of the band.
+
+        Parameters
+        ----------
+        band_node : pyaedt.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
+            Instance of the band node
+        band_stop_freq : float
+            Stop frequency of the band.
+        units : str, optional
+            Units of the stop frequency. If no units are specified or the units
+            specified are invalid, then `"Hz"`` is assumed.
+
+        Returns
+        ------
+        None
+
+        Examples
+        --------
+        >>> from pyaedt import Emit
+        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> radio = aedtapp.modeler.components.create_component("New Radio")
+        >>> band =  radio.bands()[0]
+        >>> stop_freq = 10
+        >>> units = 'MHz'
+        >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
+        """
+        # if "Band" not in band_node.props["Type"]:
+        #     raise TypeError("{} must be a band.".format(band_node.node_name))
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = "Hz"
+        # convert to Hz
+        freq_float_in_Hz = consts.unit_converter(band_stop_freq, "Freq", units, "Hz")
+        if not (1 <= freq_float_in_Hz <= 100000000000):  # pragma: no cover
+            raise ValueError("Frequency should be within 1Hz to 100 GHz.")
+        if float(band_node.props["StartFrequency"]) > freq_float_in_Hz:  # pragma: no cover
+            if freq_float_in_Hz > 1:
+                band_node._set_prop_value({"StartFrequency": str(freq_float_in_Hz - 1)})
+            else:  # pragma: no cover
+                raise ValueError("Band stop frequency is less than start frequency.")
+        freq_string = "{}".format(freq_float_in_Hz)
+        prop_list = {"StopFrequency": freq_string}
+        band_node._set_prop_value(prop_list)
+
+    # def duplicate_band(self, band_node_to_duplicate):
+    #     """
+    #     [Incomplete 10/19/2023]
+    #     Parameters
+    #     ----------
+    #     band_node_to_duplicate
+    #
+    #     Returns
+    #     -------
+    #
+    #     """
+    #     # append number to the name of the band to duplicate.
+    #     print('Duplicating...')
+    #
+    #
+    #     # return band node
+    # def convert_channels_to_multi_bands(self, band_node):
+    #     """
+    #     [Incomplete 10/19/2023]
+    #     Parameters
+    #     ----------
+    #     band_node
+    #
+    #     Returns
+    #     -------
+    #
+    #     """
+    #     # get the channels. Say returns 10 channels in the band_node
+    #     # Name = r.bands()[0].children[0].props['Name']
+    #     # band_node.props['Name']
+    #     # Start = r.bands()[0].props['StartFrequency']
+    #     band_start_frequency = float(band_node.props['StartFrequency'])
+    #     # Stop = r.bands()[0].props['StopFrequency']
+    #     band_stop_frequency = float(band_node.props['StopFrequency'])
+    #     # Spacing = r.bands()[0].props['ChannelSpacing']
+    #     channel_spacing = float(band_node.props['ChannelSpacing'])
+    #     # for each channel
+    #     # 1) create a band (duplicate original one)
+    #     # 2) set band start and stop frequencies
+    #     for channel in list(range(int(band_start_frequency), int(band_stop_frequency), int(channel_spacing))):
+    #         baby_band_start = channel
+    #         baby_band_stop = channel+channel_spacing
+    #         baby_band_node = self.duplicate_band(band_node) # return band name or some handle to it
+    #         self.set_band_start_frequency(baby_band_node, baby_band_start)
+    #         self.set_band_stop_frequency(baby_band_node, baby_band_stop)
+    #         # set start and stop freq for that band name
+    #     # to be
 
     def band_channel_bandwidth(self, band_node, units=""):
         """Get the channel bandwidth of the band node.

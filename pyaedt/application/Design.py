@@ -103,15 +103,36 @@ class Design(AedtObjects):
 
     """
 
-    def __str__(self):
-        pyaedt_details = "      pyaedt API\n"
-        pyaedt_details += "pyaedt running AEDT Version {} \n".format(settings.aedt_version)
-        pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
-        pyaedt_details += "Solution Type: {} \n".format(self.solution_type)
-        pyaedt_details += "Project Name: {} Design Name {} \n".format(self.project_name, self.design_name)
+    @property
+    def _pyaedt_details(self):
+        import platform
+
+        from pyaedt import __version__ as pyaedt_version
+
+        _p_dets = {
+            "PyAEDT Version": pyaedt_version,
+            "Product": "Ansys Electronics Desktop {}".format(settings.aedt_version),
+            "Design Type": self.design_type,
+            "Solution Type": self.solution_type,
+            "Project Name": self.project_name,
+            "Design Name": self.design_name,
+            "Project Path": "",
+        }
         if self._oproject:
-            pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
-        return pyaedt_details
+            _p_dets["Project Path"] = self.project_file
+        _p_dets["Platform"] = platform.platform()
+        _p_dets["Python Version"] = platform.python_version()
+        _p_dets["AEDT Process ID"] = self.desktop_class.aedt_process_id
+        _p_dets["AEDT GRPC Port"] = self.desktop_class.port
+        return _p_dets
+
+    def __str__(self):
+        return "\n".join(
+            [
+                "{}:".format(each_name).ljust(25) + "{}".format(each_attr).ljust(25)
+                for each_name, each_attr in self._pyaedt_details.items()
+            ]
+        )
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
@@ -132,6 +153,16 @@ class Design(AedtObjects):
     def __setitem__(self, variable_name, variable_value):
         self.variable_manager[variable_name] = variable_value
         return True
+
+    @property
+    def info(self):
+        """Dictionary of the PyAEDT session information.
+
+        Returns
+        -------
+        dict
+        """
+        return self._pyaedt_details
 
     def _init_design(self, project_name, design_name, solution_type=None):
         # calls the method from the application class
@@ -283,6 +314,11 @@ class Design(AedtObjects):
             bb = list(self.oboundary.GetBoundaries())
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
+        if "GetHybridRegions" in self.oboundary.__dir__():
+            hybrid_regions = self.oboundary.GetHybridRegions()
+            for region in hybrid_regions:
+                bb.append(region)
+                bb.append("FE-BI")
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
@@ -364,7 +400,7 @@ class Design(AedtObjects):
 
     @property
     def excitations_by_type(self):
-        """Design excitations by tupe.
+        """Design excitations by type.
 
         Returns
         -------
@@ -2241,21 +2277,21 @@ class Design(AedtObjects):
         return boundaries
 
     @pyaedt_function_handler()
-    def _get_ds_data(self, name, datas):
+    def _get_ds_data(self, name, data):
         """
 
         Parameters
         ----------
         name :
 
-        datas :
+        data :
 
 
         Returns
         -------
 
         """
-        units = datas["DimUnits"]
+        units = data["DimUnits"]
         numcol = len(units)
         x = []
         y = []
@@ -2264,15 +2300,15 @@ class Design(AedtObjects):
         if numcol > 2:
             z = []
             v = []
-        if "Coordinate" in datas:
-            for el in datas["Coordinate"]:
+        if "Coordinate" in data:
+            for el in data["Coordinate"]:
                 x.append(el["CoordPoint"][0])
                 y.append(el["CoordPoint"][1])
                 if numcol > 2:
                     z.append(el["CoordPoint"][2])
                     v.append(el["CoordPoint"][3])
         else:
-            new_list = [datas["Points"][i : i + numcol] for i in range(0, len(datas["Points"]), numcol)]
+            new_list = [data["Points"][i : i + numcol] for i in range(0, len(data["Points"]), numcol)]
             for el in new_list:
                 x.append(el[0])
                 y.append(el[1])
@@ -2290,10 +2326,10 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
+                data = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
                     "Coordinates"
                 ]
-                datasets[ds] = self._get_ds_data(ds, datas)
+                datasets[ds] = self._get_ds_data(ds, data)
         except:
             pass
         return datasets
@@ -2304,8 +2340,8 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
-                datasets[ds] = self._get_ds_data(ds, datas)
+                data = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datasets[ds] = self._get_ds_data(ds, data)
         except:
             pass
         return datasets
@@ -3195,6 +3231,17 @@ class Design(AedtObjects):
         >>> oDesign.ChangeProperty
         """
         return self.variable_manager.delete_variable(sVarName)
+
+    @pyaedt_function_handler()
+    def delete_unused_variables(self):
+        """Delete design and project unused variables.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        return self.variable_manager.delete_unused_variables()
 
     @pyaedt_function_handler()
     def insert_design(self, design_name=None, solution_type=None):

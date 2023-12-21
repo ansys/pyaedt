@@ -88,6 +88,7 @@ class TestClass:
         )
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
+        assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -199,7 +200,15 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
 
     def test_06_export_report_to_csv(self):
-        self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
+        self.aedtapp.post.export_report_to_csv(
+            self.local_scratch.path,
+            "MyTestScattering",
+            start="3GHz",
+            end="6GHz",
+            step="0.12GHz",
+            uniform=True,
+            use_trace_number_format=False,
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
 
     def test_06_export_report_to_rdat(self):
@@ -548,6 +557,10 @@ class TestClass:
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
         )
         assert os.path.exists(obj.image_file)
+        obj2 = self.aedtapp.post.plot_model_obj(
+            show=False, export_path=os.path.join(self.local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
+        )
+        assert os.path.exists(obj2.image_file)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self):

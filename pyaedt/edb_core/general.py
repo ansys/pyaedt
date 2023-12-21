@@ -151,24 +151,34 @@ class DielectricExtentType(Enum):
     Polygon = 3
 
 
-class BoundaryType(Enum):
-    InvalidBoundary = -1
-    PortBoundary = 0
-    PecBoundary = 1
-    RlcBoundary = 2
-    kCurrentSource = 3
-    kVoltageSource = 4
-    kNexximGround = 5
-    kNexximPort = 6
-    kDcTerminal = 7
-    kVoltageProbe = 8
+class Primitives(Enum):
+    Rectangle = 0
+    Circle = 1
+    Polygon = 2
+    Path = 3
+    Bondwire = 4
+    PrimitivePlugin = 5
+    Text = 6
+    Path3D = 7
+    BoardBendDef = 8
+    InValidType = 9
 
 
-class TerminalType(Enum):
-    InvalidTerminal = -1
-    EdgeTerminal = 0
-    PointTerminal = 1
-    TerminalInstanceTerminal = 2
-    PadstackInstanceTerminal = 3
-    BundleTerminal = 4
-    PinGroupTerminal = 5
+class LayoutObjType(Enum):
+    InvalidLayoutObj = -1
+    Primitive = 0
+    PadstackInstance = 1
+    Terminal = 2
+    TerminalInstance = 3
+    CellInstance = 4
+    Layer = 5
+    Net = 6
+    Padstack = 7
+    Group = 8
+    NetClass = 9
+    Cell = 10
+    DifferentialPair = 11
+    PinGroup = 12
+    VoltageRegulator = 13
+    ExtendedNet = 14
+    LayoutObjTypeCount = 15

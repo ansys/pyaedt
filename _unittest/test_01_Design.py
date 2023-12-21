@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
@@ -90,6 +91,7 @@ class TestClass:
     def test_06a_set_temp_dir(self):
         assert os.path.exists(self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir")))
         assert self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir"))
+        self.aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_08_objects(self):
         print(self.aedtapp.oboundary)
@@ -98,6 +100,8 @@ class TestClass:
         print(self.aedtapp.logger)
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
+        print(self.aedtapp)
+        assert self.aedtapp.info
 
     def test_09_set_objects_deformation(self):
         assert self.aedtapp.modeler.set_objects_deformation(["inner"])
@@ -129,6 +133,9 @@ class TestClass:
 
     def test_14_get_nominal_variation(self):
         assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
+        assert isinstance(self.aedtapp.get_nominal_variation(), list)
+        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), list)
+        assert self.aedtapp.get_nominal_variation(with_values=True) != []
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("non_valid1", False)

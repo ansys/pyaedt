@@ -607,6 +607,42 @@ def download_3dcomponent(force_download=False, destination=None):
     return os.path.join(destination, "array_3d_component")
 
 
+def download_FSS_3dcomponent(force_download=False, destination=None):
+    """Download an example of 3d component array with json template files.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    force_download : bool
+        Force to delete cache and download files again.
+    destination : str, optional
+        Path for downloading files. The default is the user's temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example folder containing all example files.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file.
+    >>> import pyaedt
+    >>> path = pyaedt.downloads.download_FSS_3dcomponent(force_download=True)
+    >>> path
+    'C:/Users/user/AppData/local/temp/array_3d_component'
+    """
+    if not destination:  # pragma: no cover
+        destination = EXAMPLES_PATH
+    if force_download:  # pragma: no cover
+        local_path = os.path.join(destination, "fss_3d_component")
+        if os.path.exists(local_path):  # pragma: no cover
+            shutil.rmtree(local_path, ignore_errors=True)
+    download_file("pyaedt/fss_3d_component", destination=destination)
+    return os.path.join(destination, "fss_3d_component")
+
+
 def download_multiparts(destination=None):
     """Download an example of 3DComponents Multiparts.
 

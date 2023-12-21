@@ -1,5 +1,6 @@
 from pyaedt.edb_core.edb_data.terminals import BundleTerminal
 from pyaedt.edb_core.edb_data.terminals import EdgeTerminal
+from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
 from pyaedt.edb_core.edb_data.terminals import Terminal
 
 
@@ -53,6 +54,25 @@ class GapPort(EdgeTerminal):
         )
 
 
+class CircuitPort(GapPort):
+    """Manages gap port properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_object : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from EDB.
+
+    Examples
+    --------
+    This example shows how to access the ``GapPort`` class.
+    """
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
+
+
 class WavePort(EdgeTerminal):
     """Manages wave port properties.
 
@@ -95,17 +115,6 @@ class WavePort(EdgeTerminal):
     def vertical_extent_factor(self, value):
         p = self._hfss_port_property
         p["Vertical Extent Factor"] = value
-        self._hfss_port_property = p
-
-    @property
-    def radial_extent_factor(self):
-        """Radial extent factor."""
-        return self._hfss_port_property["Radial Extent Factor"]
-
-    @radial_extent_factor.setter
-    def radial_extent_factor(self, value):
-        p = self._hfss_port_property
-        p["Radial Extent Factor"] = value
         self._hfss_port_property = p
 
     @property
@@ -186,30 +195,6 @@ class ExcitationSources(Terminal):
         self._edb_object.SetSourcePhase(self._edb.utility.value(value))
 
 
-class ExcitationProbes(Terminal):
-    """Manage probes properties.
-
-    Parameters
-    ----------
-    pedb : pyaedt.edb.Edb
-        Edb object from Edblib.
-    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from Edb.
-
-
-    Examples
-    --------
-    This example shows how to access this class.
-    >>> from pyaedt import Edb
-    >>> edb = Edb("myaedb.aedb")
-    >>> probes = edb.probes
-    >>> print(probes["Probe1"].name)
-    """
-
-    def __init__(self, pedb, edb_terminal):
-        Terminal.__init__(self, pedb, edb_terminal)
-
-
 class BundleWavePort(BundleTerminal):
     """Manages bundle wave port properties.
 
@@ -248,11 +233,6 @@ class BundleWavePort(BundleTerminal):
         self._wave_port.vertical_extent_factor = value
 
     @property
-    def radial_extent_factor(self):
-        """Radial extent factor."""
-        return self._wave_port.radial_extent_factor
-
-    @property
     def pec_launch_width(self):
         """Launch width for the printed electronic component (PEC)."""
         return self._wave_port.pec_launch_width
@@ -278,3 +258,30 @@ class BundleWavePort(BundleTerminal):
     @deembed_length.setter
     def deembed_length(self, value):
         self._wave_port.deembed_length = value
+
+
+class CoaxPort(PadstackInstanceTerminal):
+    """Manages bundle wave port properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_object : Ansys.Ansoft.Edb.Cell.Terminal.PadstackInstanceTerminal
+        PadstackInstanceTerminal instance from EDB.
+
+    """
+
+    def __init__(self, pedb, edb_object):
+        super().__init__(pedb, edb_object)
+
+    @property
+    def radial_extent_factor(self):
+        """Radial extent factor."""
+        return self._hfss_port_property["Radial Extent Factor"]
+
+    @radial_extent_factor.setter
+    def radial_extent_factor(self, value):
+        p = self._hfss_port_property
+        p["Radial Extent Factor"] = value
+        self._hfss_port_property = p

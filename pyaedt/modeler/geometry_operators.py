@@ -464,6 +464,8 @@ class GeometryOperators(object):
         """
         # normalize a vector to its norm
         norm = GeometryOperators.v_norm(v)
+        if norm == 0.0:
+            return v
         vn = [i / norm for i in v]
         return vn
 

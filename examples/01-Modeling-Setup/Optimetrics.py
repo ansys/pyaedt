@@ -97,7 +97,7 @@ sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # Create an optimization analysis based on goals and calculations.
 
 sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
-
+sweep3.add_variation("w1", 0.1, 3, 0.5)
 sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq": ("2.6GHz", "5GHz")})
 sweep3.add_goal(
@@ -120,8 +120,6 @@ sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # Create a DOE (Design of Experiments) based on a goal and a calculation.
 
 sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
-sweep5.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
-sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
 # Create DOE based on a goal and calculation

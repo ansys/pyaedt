@@ -418,8 +418,6 @@ class EdbHfss(object):
     @pyaedt_function_handler()
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
-
-        .. note::
            The name of the new coaxial port is automatically assigned.
 
         Parameters
@@ -1113,7 +1111,7 @@ class EdbHfss(object):
                                 ref_prim = [
                                     prim
                                     for prim in reference_net.primitives
-                                    if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                    if prim.polygon_data.edb_api.PointInPolygon(mid_pt_data)
                                 ]
                                 if not ref_prim:
                                     self._logger.warning("no reference primitive found, trying to extend scanning area")
@@ -1130,7 +1128,7 @@ class EdbHfss(object):
                                         ref_prim = [
                                             prim
                                             for prim in reference_net.primitives
-                                            if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                            if prim.polygon_data.edb_api.PointInPolygon(mid_pt_data)
                                         ]
                                         if ref_prim:
                                             self._logger.info("Reference primitive found")
@@ -1429,9 +1427,20 @@ class EdbHfss(object):
             )
             return False
         net_names = [net.name for net in self._layout.nets if not net.IsPowerGround()]
-        cmp_names = (
-            simulation_setup.components if simulation_setup.components else [gg.GetName() for gg in self._layout.groups]
-        )
+        if simulation_setup.components and isinstance(simulation_setup.components[0], str):
+            cmp_names = (
+                simulation_setup.components
+                if simulation_setup.components
+                else [gg.GetName() for gg in self._layout.groups]
+            )
+        elif (
+            simulation_setup.components
+            and isinstance(simulation_setup.components[0], dict)
+            and "refdes" in simulation_setup.components[0]
+        ):
+            cmp_names = [cmp["refdes"] for cmp in simulation_setup.components]
+        else:
+            cmp_names = []
         ii = 0
         for cc in cmp_names:
             cmp = self._pedb.edb_api.cell.hierarchy.component.FindByName(self._active_layout, cc)

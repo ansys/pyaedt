@@ -62,9 +62,25 @@ class Settings(object):
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
-        self._desktop_launch_timeout = 90
+        self._desktop_launch_timeout = 120
         self._number_of_grpc_api_retries = 6
         self._retry_n_times_time_interval = 0.1
+        self._wait_for_license = False
+
+    @property
+    def wait_for_license(self):
+        """Whether if Electronics Desktop has to be launched with ``-waitforlicense`` flag enabled or not.
+        Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._wait_for_license
+
+    @wait_for_license.setter
+    def wait_for_license(self, value):
+        self._wait_for_license = value
 
     @property
     def retry_n_times_time_interval(self):

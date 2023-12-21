@@ -4,7 +4,9 @@ import re
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt.edb_core.dotnet.database import PolygonDataDotNet
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitivesMain
 from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import String
@@ -133,7 +135,10 @@ class EDBPadProperties(object):
             pad_values = self._edb_padstack.GetData().GetPolygonalPadParameters(
                 self.layer_name, self.int_to_pad_type(self.pad_type)
             )
-            return pad_values[1]
+            if pad_values[1]:
+                return PolygonDataDotNet(self._edb._app, pad_values[1])
+            else:
+                return
         except:
             return
 
@@ -764,7 +769,7 @@ class EDBPadstack(object):
                         layout,
                         self.via_start_layer,
                         via._edb_padstackinstance.GetNet(),
-                        self.pad_by_layer[self.via_start_layer].polygon_data,
+                        self.pad_by_layer[self.via_start_layer].polygon_data.edb_api,
                     )
                 else:
                     self._edb.cell.primitive.circle.create(
@@ -780,7 +785,7 @@ class EDBPadstack(object):
                         layout,
                         self.via_stop_layer,
                         via._edb_padstackinstance.GetNet(),
-                        self.pad_by_layer[self.via_stop_layer].polygon_data,
+                        self.pad_by_layer[self.via_stop_layer].polygon_data.edb_api,
                     )
                 else:
                     self._edb.cell.primitive.circle.create(
@@ -967,8 +972,109 @@ class EDBPadstack(object):
         self._ppadstack._pedb.logger.info("Created {} new microvias.".format(i))
         return new_instances
 
+    @pyaedt_function_handler()
+    def _update_layer_names(self, old_name, updated_name):
+        """Update padstack definition layer name when layer name is edited with the layer name setter.
 
-class EDBPadstackInstance(object):
+        Parameters
+        ----------
+        old_name
+            old name : str
+        updated_name
+            new name : str
+
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` when failed.
+
+        """
+        cloned_padstack_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
+        new_padstack_data = self._edb.definition.PadstackDefData.Create()
+        layers_name = cloned_padstack_data.GetLayerNames()
+        layers_to_add = []
+        for layer in layers_name:
+            if layer == old_name:
+                layers_to_add.append(updated_name)
+            else:
+                layers_to_add.append(layer)
+        new_padstack_data.AddLayers(convert_py_list_to_net_list(layers_to_add))
+        for layer in layers_name:
+            updated_pad = self.pad_by_layer[layer]
+            if not updated_pad.geometry_type == 0:  # pragma no cover
+                pad_type = self._edb.definition.PadType.RegularPad
+                geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
+                parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
+                offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
+                offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
+                rot = self.pad_by_layer[layer]._pad_parameter_value[5]
+                if layer == old_name:  # pragma no cover
+                    new_padstack_data.SetPadParameters(
+                        updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rot
+                    )
+                else:
+                    new_padstack_data.SetPadParameters(layer, pad_type, geom_type, parameters, offset_x, offset_y, rot)
+
+            updated_anti_pad = self.antipad_by_layer[layer]
+            if not updated_anti_pad.geometry_type == 0:  # pragma no cover
+                pad_type = self._edb.definition.PadType.AntiPad
+                geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
+                parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
+                offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
+                offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
+                rotation = self.pad_by_layer[layer]._pad_parameter_value[5]
+                if layer == old_name:  # pragma no cover
+                    new_padstack_data.SetPadParameters(
+                        updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+                else:
+                    new_padstack_data.SetPadParameters(
+                        layer, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+
+            updated_thermal_pad = self.thermalpad_by_layer[layer]
+            if not updated_thermal_pad.geometry_type == 0:  # pragma no cover
+                pad_type = self._edb.definition.PadType.ThermalPad
+                geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
+                parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
+                offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
+                offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
+                rotation = self.pad_by_layer[layer]._pad_parameter_value[5]
+                if layer == old_name:  # pragma no cover
+                    new_padstack_data.SetPadParameters(
+                        updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+                else:
+                    new_padstack_data.SetPadParameters(
+                        layer, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+
+        hole_param = cloned_padstack_data.GetHoleParameters()
+        if hole_param[0]:
+            hole_geom = hole_param[1]
+            hole_params = convert_py_list_to_net_list([self._get_edb_value(i) for i in hole_param[2]])
+            hole_off_x = self._get_edb_value(hole_param[3])
+            hole_off_y = self._get_edb_value(hole_param[4])
+            hole_rot = self._get_edb_value(hole_param[5])
+            new_padstack_data.SetHoleParameters(hole_geom, hole_params, hole_off_x, hole_off_y, hole_rot)
+
+        new_padstack_data.SetHolePlatingPercentage(self._get_edb_value(cloned_padstack_data.GetHolePlatingPercentage()))
+
+        new_padstack_data.SetHoleRange(cloned_padstack_data.GetHoleRange())
+        new_padstack_data.SetMaterial(cloned_padstack_data.GetMaterial())
+        new_padstack_data.SetSolderBallMaterial(cloned_padstack_data.GetSolderBallMaterial())
+        solder_ball_param = cloned_padstack_data.GetSolderBallParameter()
+        if solder_ball_param[0]:
+            new_padstack_data.SetSolderBallParameter(
+                self._get_edb_value(solder_ball_param[1]), self._get_edb_value(solder_ball_param[2])
+            )
+        new_padstack_data.SetSolderBallPlacement(cloned_padstack_data.GetSolderBallPlacement())
+        new_padstack_data.SetSolderBallShape(cloned_padstack_data.GetSolderBallShape())
+        self.edb_padstack.SetData(new_padstack_data)
+        return True
+
+
+class EDBPadstackInstance(EDBPrimitivesMain):
     """Manages EDB functionalities for a padstack.
 
     Parameters
@@ -985,22 +1091,80 @@ class EDBPadstackInstance(object):
     >>> edb_padstack_instance = edb.padstacks.instances[0]
     """
 
-    def __getattr__(self, key):
-        try:
-            return super().__getattribute__(key)
-        except AttributeError:
-            try:
-                return getattr(self._edb_padstackinstance, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, edb_padstackinstance, _pedb):
-        self._edb_padstackinstance = edb_padstackinstance
-        self._pedb = _pedb
+        super().__init__(edb_padstackinstance, _pedb)
+        self._edb_padstackinstance = self._edb_object
         self._bounding_box = []
         self._object_instance = None
         self._position = []
         self._pdef = None
+
+    @pyaedt_function_handler
+    def get_terminal(self, name=None, create_new_terminal=False):
+        """Return PadstackInstanceTerminal object.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the terminal. Only applicable when create_new_terminal is True.
+        create_new_terminal : bool, optional
+            Whether to create a new terminal.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.terminals`
+
+        """
+
+        if create_new_terminal:
+            term = self._create_terminal(name)
+        else:
+            from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
+            term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        if not term.is_null:
+            return term
+
+    @pyaedt_function_handler
+    def _create_terminal(self, name=None):
+        """Create a padstack instance terminal"""
+        from pyaedt.edb_core.edb_data.terminals import PadstackInstanceTerminal
+
+        term = PadstackInstanceTerminal(self._pedb, self._edb_object.GetPadstackInstanceTerminal())
+        return term.create(self, name)
+
+    @pyaedt_function_handler
+    def create_coax_port(self, name=None, radial_extent_factor=0):
+        """Create a coax port."""
+
+        port = self.create_port(name)
+        port.radial_extent_factor = radial_extent_factor
+        return port
+
+    @pyaedt_function_handler
+    def create_port(self, name=None, reference=None, is_circuit_port=False):
+        """Create a port on the padstack.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the port. The default is ``None``, in which case a name is automatically assigned.
+        reference : class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`,
+                    class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`,
+                    class:`pyaedt.edb_core.edb_data.sources.PinGroup`, optional
+            Negative terminal of the port.
+        is_circuit_port : bool, optional
+            Whether it is a circuit port.
+        """
+        terminal = self._create_terminal(name)
+        if reference:
+            ref_terminal = reference._create_terminal(terminal.name + "_ref")
+            if reference._edb_object.ToString() == "PinGroup":
+                is_circuit_port = True
+        else:
+            ref_terminal = None
+
+        return self._pedb.create_port(terminal, ref_terminal, is_circuit_port)
 
     @property
     def _em_properties(self):
@@ -1067,7 +1231,7 @@ class EDBPadstackInstance(object):
 
     @property
     def object_instance(self):
-        """Edb Object Instance."""
+        """Return Ansys.Ansoft.Edb.LayoutInstance.LayoutObjInstance object."""
         if not self._object_instance:
             self._object_instance = (
                 self._edb_padstackinstance.GetLayout()
@@ -1139,18 +1303,9 @@ class EDBPadstackInstance(object):
             return False
 
     @property
-    def component(self):
-        """Get the component that this padstack belongs to."""
-        api_object = self._edb_padstackinstance.GetComponent()
-        from pyaedt.edb_core.edb_data.components_data import EDBComponent
-
-        edb_comp = EDBComponent(self._pedb, api_object)
-        if not edb_comp.is_null:
-            return edb_comp
-
-    @property
     def pin(self):
-        """Return Edb padstack object."""
+        """EDB padstack object."""
+        warnings.warn("`pin` is deprecated.", DeprecationWarning)
         return self._edb_padstackinstance
 
     @property
@@ -1441,17 +1596,6 @@ class EDBPadstackInstance(object):
             return out[2].ToDouble()
 
     @property
-    def id(self):
-        """Id of this padstack instance.
-
-        Returns
-        -------
-        str
-            Padstack instance id.
-        """
-        return self._edb_padstackinstance.GetId()
-
-    @property
     def name(self):
         """Padstack Instance Name. If it is a pin, the syntax will be like in AEDT ComponentName-PinName."""
         if self.is_pin:
@@ -1570,12 +1714,6 @@ class EDBPadstackInstance(object):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
-        """Delete this padstack instance."""
-        self._edb_padstackinstance.Delete()
-        return True
-
-    @pyaedt_function_handler()
     def in_voids(self, net_name=None, layer_name=None):
         """Check if this padstack instance is in any void.
 
@@ -1632,7 +1770,10 @@ class EDBPadstackInstance(object):
         float
             Lower elavation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetLowerElevation()
+        try:
+            return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetLowerElevation()
+        except AttributeError:  # pragma: no cover
+            return None
 
     @property
     def upper_elevation(self):
@@ -1643,7 +1784,10 @@ class EDBPadstackInstance(object):
         float
            Upper elevation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetUpperElevation()
+        try:
+            return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetUpperElevation()
+        except AttributeError:  # pragma: no cover
+            return None
 
     @property
     def top_bottom_association(self):
@@ -1829,8 +1973,8 @@ class EDBPadstackInstance(object):
             # Polygon
             points = []
             i = 0
-            while i < polygon_data.Count:
-                point = polygon_data.GetPoint(i)
+            while i < polygon_data.edb_api.Count:
+                point = polygon_data.edb_api.GetPoint(i)
                 i += 1
                 if point.IsArc():
                     continue

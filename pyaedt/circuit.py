@@ -159,6 +159,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
+        value = value.replace("µ", "u")
         try:
             float(value)
             return value
@@ -206,8 +207,11 @@ class Circuit(FieldAnalysisCircuit, object):
                 line = line.decode("utf-8")
                 if ".param" in line[:7].lower():
                     try:
-                        ppar = line[7:].split("=")[0]
-                        pval = line[7:].split("=")[1]
+                        param_line = " ".join(line[7:].split())
+                        param_re = re.split("[ =]", param_line)
+
+                        ppar = param_re[0]
+                        pval = param_re[1]
                         self[ppar] = pval
                         xpos = 0.0254
                     except:
@@ -371,7 +375,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         mycomp = self.modeler.schematic.create_voltage_pulse(
                             name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
-                elif fields[0][0] == "K":
+                elif fields[0][0].lower() == "k":
                     value = self._get_number_from_string(fields[3])
                     mycomp = self.modeler.schematic.create_coupling_inductors(
                         name, fields[1], fields[2], value, [xpos, ypos], use_instance_id_netlist=use_instance
@@ -388,6 +392,8 @@ class Circuit(FieldAnalysisCircuit, object):
                         mycomp = self.modeler.schematic.create_current_pulse(
                             name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
+                elif not any(word in line.lower() for word in [".param", ".model", ".lib"]):
+                    self.logger.warning("%s could not be imported", line)
                 if mycomp:
                     id = 1
                     for pin in mycomp.pins:
@@ -396,7 +402,12 @@ class Circuit(FieldAnalysisCircuit, object):
                             angle = 0.0
                         else:
                             angle = math.pi
-                        self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
+                        if fields[id] == "0":
+                            gnd_pos = self.modeler.schematic._convert_point_to_units([0, -0.00254])
+                            new_pos = [i + j for i, j in zip(pos, gnd_pos)]
+                            self.modeler.schematic.create_gnd([new_pos[0], new_pos[1]])
+                        else:
+                            self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
                     if ypos > 0.254:
@@ -798,14 +809,14 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
     ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solution_name : str, optional
-            Name of the solution that has been solved.
+        setup_name : str, optional
+            Name of the setup that has been solved.
         sweep_name : str, optional
             Name of the sweep that has been solved.
         file_name : str, optional
@@ -829,7 +840,7 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.ExportNetworkData
         """
         return self._export_touchstone(
-            solution_name=solution_name,
+            setup_name=setup_name,
             sweep_name=sweep_name,
             file_name=file_name,
             variations=variations,
@@ -1587,7 +1598,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            ``True`` when succeessful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------

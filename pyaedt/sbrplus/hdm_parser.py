@@ -26,7 +26,7 @@ class Parser:
     """
 
     def __init__(self, filename):
-        """Initializes parser object with the interpreted header and a pointer to the binary data"""
+        """Initialize parser object with the interpreted header and a pointer to the binary data."""
         self.parser_types = {}
         self.parser_flags = {}
         self.parser_enums = {}
@@ -42,11 +42,11 @@ class Parser:
         self.binarycontent = binarycontent
 
     def parse_message(self):
-        """Parses the binary content of the HDM file"""
+        """Parse the binary content of the HDM file."""
         return self._parse(self.message["type"])
 
     def _parse(self, type_name):
-        """Generic parser method, dispatches to specialized ones"""
+        """Use a generic parser method, which dispatches to appropriate and specialized parsers."""
         if self.parser_types[type_name]["type"] == "object":
             return self._parse_object(type_name)
         elif self.parser_types[type_name]["type"] == "internal":
@@ -86,9 +86,9 @@ class Parser:
 
     def _parse_list(self, type=None, base=None, size=1):
         """
-        Parser for vector or list. 'vector's are to be interpreted in the linear algebra sense,
-        and converted to numpy.array. 'list's are Python lists. Only simple base types can be
-        interpreted as a numpy array
+        Parser for vector or list. A vector is interpreted in the linear algebra sense
+        and converted to a NumPy array. A list is converted to a Python list. Only simple base types can be
+        interpreted as a NumPy array.
         """
         assert base != None
         res = []
@@ -115,7 +115,7 @@ class Parser:
             return res
 
     def _parse_object(self, name):
-        """Parser for an object message"""
+        """Parser for an object message."""
         namesdict = {}
         for l in self.parser_types[name]["layout"]:
             type_to_parse = l["type"]
@@ -163,7 +163,7 @@ class Parser:
         return self.objects[name](namesdict)
 
     def _read_header(self):
-        """Parses the header and prepares all data structures to interpret the binary content"""
+        """Parse the header and prepare all data structures to interpret the binary content."""
 
         def build_type(self, key, val):
             type_i = val["type"]
