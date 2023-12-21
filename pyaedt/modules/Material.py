@@ -2057,7 +2057,7 @@ class Material(CommonMaterial, object):
             value, unit = decompose_variable_value(thickness)
             if not is_number(value) and not unit:
                 raise TypeError("Thickness must be provided as a string with value and unit.")
-        if len(points_list_at_freq) == 1 and core_loss_model_type == "Power Ferrite":
+        if len(points_list_at_freq) <= 1 and core_loss_model_type == "Power Ferrite":
             raise ValueError("At least 2 frequencies must be included.")
         props = OrderedDict({})
         freq_keys = list(points_list_at_freq.keys())
