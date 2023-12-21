@@ -32,7 +32,7 @@ def _get_file_url(directory, filename=None):
 
 
 def _retrieve_file(url, filename, directory, destination=None, local_paths=None):
-    """Download a file from a url"""
+    """Download a file from a URL."""
 
     if local_paths is None:
         local_paths = []
