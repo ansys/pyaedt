@@ -1,4 +1,4 @@
-Maxwell Templates and Arguments
+Maxwell templates and arguments
 ===============================
 
 
