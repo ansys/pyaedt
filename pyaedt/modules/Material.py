@@ -2204,10 +2204,8 @@ class Material(CommonMaterial, object):
                 points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
                 del points_list_at_freq[freq_keys[i]]
         if "core_loss_type" not in self._props:
-            choice = "Electrical Steel" if core_loss_model_type == "Electrical Steel" else ""Power Ferrite"
-            self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": choice}
-            )
+            choice = "Electrical Steel" if core_loss_model_type == "Electrical Steel" else "Power Ferrite"
+            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": choice})
         else:
             self._props.pop("core_loss_cm", None)
             self._props.pop("core_loss_x", None)
