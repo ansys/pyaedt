@@ -1,4 +1,4 @@
-Maxwell templates and arguments
+Maxwell Templates and Arguments
 ===============================
 
 
@@ -8,14 +8,13 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from pyaedt import Maxwell3d
 
-    hfss = Hfss()
+    Maxwell3d = Maxwell3d ()
     # Any property of this setup can be found on this page.
-    setup = hfss.create_setup()
-    setup.props["AdaptMultipleFreqs"] = True
-    setup.update()
-
+    setup = Maxwell3d.create_setup ()
+    setup.props["MaximumPasses"] = 5
+    setup.update ()
 
 
 .. pprint:: pyaedt.modules.SetupTemplates.MaxwellTransient
@@ -23,4 +22,5 @@ You can edit a setup after it is created. Here is an example:
 .. pprint:: pyaedt.modules.SetupTemplates.Electrostatic
 .. pprint:: pyaedt.modules.SetupTemplates.EddyCurrent
 .. pprint:: pyaedt.modules.SetupTemplates.ElectricTransient
-
+.. pprint:: pyaedt.modules.SetupTemplates.ACConduction
+.. pprint:: pyaedt.modules.SetupTemplates.DCConduction
