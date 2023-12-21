@@ -253,8 +253,8 @@ class TestClass:
         assert sweep.props["Type"] == "Discrete"
 
         # Create a linear count sweep with the incorrect sweep type.
-        try:
-            sweep = self.aedtapp.create_linear_count_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_count_sweep(
                 setupname="MySetup",
                 sweepname="IncorrectStep",
                 unit="MHz",
@@ -263,12 +263,10 @@ class TestClass:
                 num_of_freq_points=1234,
                 sweep_type="Incorrect",
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0]
+                == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        assert exception_raised
         self.aedtapp["der_var"] = "1mm"
         self.aedtapp["der_var2"] = "2mm"
         setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
@@ -327,8 +325,8 @@ class TestClass:
         assert sweep.props["Type"] == "Fast"
 
         # Create a linear step sweep with the incorrect sweep type.
-        try:
-            sweep = self.aedtapp.create_linear_step_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_step_sweep(
                 setupname="MySetup",
                 sweepname="StepFast",
                 unit=units,
@@ -337,12 +335,10 @@ class TestClass:
                 step_size=step_size,
                 sweep_type="Incorrect",
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0]
+                == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        assert exception_raised
 
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
@@ -1157,37 +1153,28 @@ class TestClass:
         assert n_boundaries == 12
 
         # Use two boxes with different dimensions.
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box3)
-        except AttributeError as e:
-            assert e.args[0] == "The closest faces of the two objects must be identical in shape."
-        else:
-            assert False
+            assert execinfo.args[0] == "The closest faces of the two objects must be identical in shape."
 
         # Rotate box3 so that, box3 and box4 are not collinear anymore.
         # Spiral lumped port can only be created based on 2 collinear objects.
         box3.rotate(cs_axis="X", angle=90)
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
-        except AttributeError as e:
-            assert e.args[0] == "The two objects must have parallel adjacent faces."
-        else:
-            assert False
+            assert execinfo.args[0] == "The two objects must have parallel adjacent faces."
 
         # Rotate back box3
         # rotate them slightly so that they are still parallel, but not aligned anymore with main planes.
         box3.rotate(cs_axis="X", angle=-90)
         box3.rotate(cs_axis="Y", angle=5)
         box4.rotate(cs_axis="Y", angle=5)
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
-        except AttributeError as e:
             assert (
-                e.args[0]
+                execinfo.args[0]
                 == "The closest faces of the two objects must be aligned with the main planes of the reference system."
             )
-        else:
-            assert False
         self.aedtapp.delete_design("Design_Terminal_2", self.fall_back_name)
 
     def test_46_mesh_settings(self):
@@ -1208,12 +1195,9 @@ class TestClass:
 
         self.aedtapp.solution_type = "Modal"
         # Spiral lumped port can only be created in a 'Terminal' solution.
-        try:
+        with pytest.raises(Exception) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box2)
-        except Exception as e:
-            exception_raised = True
-            assert e.args[0] == "This method can be used only in Terminal solutions."
-        assert exception_raised
+            assert execinfo.args[0] == "This method can be used only in Terminal solutions."
         self.aedtapp.solution_type = "Terminal"
 
         # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+
