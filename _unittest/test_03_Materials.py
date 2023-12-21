@@ -363,13 +363,10 @@ class TestClass:
                 150: [[0, 0], [1, 10], [2, 19]],
             }
         )
-        try:
+        with pytest.raises(ValueError):
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
                 points_list_at_freq={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
             )
-            assert False
-        except ValueError:
-            assert True
         # Test thickness
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
             points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
