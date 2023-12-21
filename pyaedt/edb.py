@@ -3889,6 +3889,7 @@ class Edb(Database):
                 _layers = {k: v for k, v in self.stackup.stackup_layers.items() if k in layer_filter}
             for layer_name, layer in _layers.items():
                 thickness_variable = "${}_thick".format(layer_name)
+                self._clean_string_for_variable_name(thickness_variable)
                 if thickness_variable not in self.variables:
                     self.add_design_variable(thickness_variable, layer.thickness)
                 layer.thickness = thickness_variable
@@ -3901,17 +3902,20 @@ class Edb(Database):
             for mat_name, material in _materials.items():
                 if material.conductivity < 1e4:
                     epsr_variable = "$epsr_{}".format(mat_name)
+                    self._clean_string_for_variable_name(epsr_variable)
                     if epsr_variable not in self.variables:
                         self.add_design_variable(epsr_variable, material.permittivity)
                     material.permittivity = epsr_variable
                     parameters.append(epsr_variable)
                     loss_tg_variable = "$loss_tangent_{}".format(mat_name)
+                    self._clean_string_for_variable_name(loss_tg_variable)
                     if not loss_tg_variable in self.variables:
                         self.add_design_variable(loss_tg_variable, material.loss_tangent)
                     material.loss_tangent = loss_tg_variable
                     parameters.append(loss_tg_variable)
                 else:
                     sigma_variable = "$sigma_{}".format(mat_name)
+                    self._clean_string_for_variable_name(sigma_variable)
                     if not sigma_variable in self.variables:
                         self.add_design_variable(sigma_variable, material.conductivity)
                     material.conductivity = sigma_variable
@@ -3923,6 +3927,7 @@ class Edb(Database):
                 paths = [path for path in self.modeler.paths if path.net_name in trace_net_filter]
             for path in paths:
                 trace_width_variable = "trace_w_{}_{}".format(path.net_name, path.id)
+                self._clean_string_for_variable_name(trace_width_variable)
                 if trace_width_variable not in self.variables:
                     self.add_design_variable(trace_width_variable, path.width)
                 path.width = trace_width_variable
@@ -3937,7 +3942,7 @@ class Edb(Database):
         for def_name, padstack_def in padstack_defs.items():
             if not padstack_def.via_start_layer == padstack_def.via_stop_layer:
                 if via_holes:
-                    hole_variable = "$hole_diam_{}".format(def_name)
+                    hole_variable = self._clean_string_for_variable_name("$hole_diam_{}".format(def_name))
                     if hole_variable not in self.variables:
                         self.add_design_variable(hole_variable, padstack_def.hole_properties[0])
                     padstack_def.hole_properties = hole_variable
@@ -3945,20 +3950,28 @@ class Edb(Database):
             if pads:
                 for layer, pad in padstack_def.pad_by_layer.items():
                     if pad.geometry_type == 1:
-                        pad_diameter_variable = "$pad_diam_{}_{}".format(def_name, layer)
+                        pad_diameter_variable = self._clean_string_for_variable_name(
+                            "$pad_diam_{}_{}".format(def_name, layer)
+                        )
                         if pad_diameter_variable not in self.variables:
                             self.add_design_variable(pad_diameter_variable, pad.parameters_values[0])
                         pad.parameters = {"Diameter": pad_diameter_variable}
                         parameters.append(pad_diameter_variable)
                     if pad.geometry_type == 2:
-                        pad_size_variable = "$pad_size_{}_{}".format(def_name, layer)
+                        pad_size_variable = self._clean_string_for_variable_name(
+                            "$pad_size_{}_{}".format(def_name, layer)
+                        )
                         if pad_size_variable not in self.variables:
                             self.add_design_variable(pad_size_variable, pad.parameters_values[0])
                         pad.parameters = {"Size": pad_size_variable}
                         parameters.append(pad_size_variable)
                     elif pad.geometry_type == 3:
-                        pad_size_variable_x = "$pad_size_x_{}_{}".format(def_name, layer)
-                        pad_size_variable_y = "$pad_size_y_{}_{}".format(def_name, layer)
+                        pad_size_variable_x = self._clean_string_for_variable_name(
+                            "$pad_size_x_{}_{}".format(def_name, layer)
+                        )
+                        pad_size_variable_y = self._clean_string_for_variable_name(
+                            "$pad_size_y_{}_{}".format(def_name, layer)
+                        )
                         if pad_size_variable_x not in self.variables and pad_size_variable_y not in self.variables:
                             self.add_design_variable(pad_size_variable_x, pad.parameters_values[0])
                             self.add_design_variable(pad_size_variable_y, pad.parameters_values[1])
@@ -3968,20 +3981,28 @@ class Edb(Database):
             if antipads:
                 for layer, antipad in padstack_def.antipad_by_layer.items():
                     if antipad.geometry_type == 1:
-                        antipad_diameter_variable = "$antipad_diam_{}_{}".format(def_name, layer)
+                        antipad_diameter_variable = self._clean_string_for_variable_name(
+                            "$antipad_diam_{}_{}".format(def_name, layer)
+                        )
                         if antipad_diameter_variable not in self.variables:
                             self.add_design_variable(antipad_diameter_variable, antipad.parameters_values[0])
                         antipad.parameters = {"Diameter": antipad_diameter_variable}
                         parameters.append(antipad_diameter_variable)
                     if antipad.geometry_type == 2:
-                        antipad_size_variable = "$antipad_size_{}_{}".format(def_name, layer)
+                        antipad_size_variable = self._clean_string_for_variable_name(
+                            "$antipad_size_{}_{}".format(def_name, layer)
+                        )
                         if antipad_size_variable not in self.variables:
                             self.add_design_variable(antipad_size_variable, antipad.parameters_values[0])
                         antipad.parameters = {"Size": antipad_size_variable}
                         parameters.append(antipad_size_variable)
                     elif antipad.geometry_type == 3:
-                        antipad_size_variable_x = "$antipad_size_x_{}_{}".format(def_name, layer)
-                        antipad_size_variable_y = "$antipad_size_y_{}_{}".format(def_name, layer)
+                        antipad_size_variable_x = self._clean_string_for_variable_name(
+                            "$antipad_size_x_{}_{}".format(def_name, layer)
+                        )
+                        antipad_size_variable_y = self._clean_string_for_variable_name(
+                            "$antipad_size_y_{}_{}".format(def_name, layer)
+                        )
                         if (
                             antipad_size_variable_x not in self.variables
                             and antipad_size_variable_y not in self.variables
@@ -3992,3 +4013,23 @@ class Edb(Database):
                         parameters.append(antipad_size_variable_x)
                         parameters.append(antipad_size_variable_y)
         return parameters
+
+    @pyaedt_function_handler
+    def _clean_string_for_variable_name(self, variable_name):
+        """Remove forbidden character for variable name.
+
+        Parameter
+        ----------
+        variable_name : str
+                Variable name.
+
+        Returns
+        -------
+        str
+            Edited name.
+        """
+        if "-" in variable_name:
+            variable_name = variable_name.replace("-", "_")
+        if "+" in variable_name:
+            variable_name = variable_name.replace("+", "p")
+        return variable_name
