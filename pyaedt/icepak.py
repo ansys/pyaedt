@@ -5741,3 +5741,53 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Blower")
         bound = BoundaryObject(self, boundary_name, props, "Blower")
         return _create_boundary(bound)
+
+    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None):
+        """ creates geometry from csv file containing geometry data
+
+        Parameters
+            ----------
+            csv_file : str
+                csv file containing the geometry details
+            header_line : int , optional
+                The line marking the start of data. the default value is 2, first two lines are skipped and data read
+                from line 3.
+            column_mapping : dict , optional
+                dictionary to rename the columns of csv to the allowed column names.
+
+        Returns
+        -------
+        :Boolean
+            True if successful and False if not successful.
+        """
+        import pandas as pd
+        df = pd.read_csv(csv_file, header=header_line)
+        if column_mapping is not None:
+            df = df.rename(columns=column_mapping)
+        result = self._create_cylinder(df)
+        return result
+
+    def _create_cylinder(self, df):
+        for i in range(len(df)):
+            try:
+                name = self._remove_special_characters(df["name"][i])
+                position = (df['xc'][i], df['yc'][i], df['zc'][i])
+                radius = df['radius'][i]
+                height = df['height'][i]
+                cs_axis = df['plane'][i]
+            except:
+                self.logger.info("The column names in the file do not match the expected names")
+                return False
+            try:
+                self.logger.info("Creating cylinder: " + name)
+                self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
+                self.logger.info("Created cylinder: " + name)
+            except:
+                self.logger.info("Unable to create cylinder " + name)
+        return True
+
+    def _remove_special_characters(self, text):
+        import re
+        sanitized_text = re.sub('[^a-zA-Z0-9_ \n]', '_', text)
+        self.logger.info(f"Renamed {text} to {sanitized_text}")
+        return sanitized_text
