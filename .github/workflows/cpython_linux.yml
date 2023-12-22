@@ -84,7 +84,7 @@ jobs:
             pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: junit/test-results.xml

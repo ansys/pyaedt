@@ -1450,8 +1450,5 @@ class TestClass:
                 "Values": "Test_DataSet_Plate",
             },
         )
-        try:
+        with pytest.raises(AttributeError):
             self.aedtapp.assign_conducting_plate_with_conductance([box_face.id, "surfPlateTest"])
-            assert False
-        except AttributeError:
-            assert True
