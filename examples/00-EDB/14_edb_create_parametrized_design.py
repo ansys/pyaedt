@@ -28,7 +28,7 @@ project_path = pyaedt.generate_unique_folder_name()
 target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_path)
 print("Project folder will be", target_aedb)
 
-aedt_version = "2024.1"
+aedt_version = "2023.2"
 edb = pyaedt.Edb(edbpath=target_aedb, edbversion=aedt_version)
 print("EDB is located at {}".format(target_aedb))
 
