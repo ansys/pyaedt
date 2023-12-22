@@ -1946,15 +1946,15 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.
+        Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
+        The list of keywords here is not exhaustive.
 
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of the setup. Depending on the solution type, options are:
+            Type of the setup. Depending on the solution type, options are
             ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
             ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
             and ``Transient"``.

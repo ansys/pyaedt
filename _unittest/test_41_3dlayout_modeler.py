@@ -436,9 +436,8 @@ class TestClass:
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
 
         # Create a linear step sweep with the incorrect sweep type.
-        exception_raised = False
-        try:
-            sweep_raising_error = self.aedtapp.create_linear_step_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_step_sweep(
                 setupname=setup_name,
                 unit="GHz",
                 freqstart=1,
@@ -448,12 +447,10 @@ class TestClass:
                 sweep_type="Incorrect",
                 save_fields=True,
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0] == "Invalid value for 'sweep_type'. The value must be 'Discrete', "
+                "'Interpolating', or 'Fast'."
             )
-        assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
         setup_name = "RF_create_single_point"
@@ -475,19 +472,15 @@ class TestClass:
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
-        exception_raised = False
-        try:
-            sweep7 = self.aedtapp.create_single_point_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_single_point_sweep(
                 setupname=setup_name,
                 unit="GHz",
                 freq=[],
                 sweepname="RFBoardSingle",
                 save_fields=False,
             )
-        except AttributeError as e:
-            exception_raised = True
-            assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
-        assert exception_raised
+            assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
 
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
