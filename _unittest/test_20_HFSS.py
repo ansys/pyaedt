@@ -337,7 +337,7 @@ class TestClass:
             )
             assert (
                 execinfo.args[0]
-                == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                == "Invalid value for 'sweep_type'. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
 
     def test_06d_create_single_point_sweep(self):
@@ -1197,7 +1197,7 @@ class TestClass:
         # Spiral lumped port can only be created in a 'Terminal' solution.
         with pytest.raises(Exception) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box2)
-            assert execinfo.args[0] == "This method can be used only in Terminal solutions."
+            assert execinfo.args[0] == "This method can be used only in 'Terminal' solutions."
         self.aedtapp.solution_type = "Terminal"
 
         # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+

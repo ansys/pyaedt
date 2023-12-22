@@ -448,7 +448,7 @@ class TestClass:
                 save_fields=True,
             )
             assert (
-                execinfo.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', "
+                execinfo.args[0] == "Invalid value for 'sweep_type'. The value must be 'Discrete', "
                 "'Interpolating', or 'Fast'."
             )
 

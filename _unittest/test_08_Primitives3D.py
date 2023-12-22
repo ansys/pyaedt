@@ -704,7 +704,7 @@ class TestClass:
         with pytest.raises(ValueError) as execinfo:
             prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
             assert (
-                str(execinfo) == "The position_list argument must contain at least 4 points for segment of type Spline."
+                str(execinfo) == "The 'position_list' argument must contain at least four points for segment of type 'Spline'."
             )
         assert prim3D.create_polyline(
             position_list=[[100, 100, 0]],
