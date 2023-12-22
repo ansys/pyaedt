@@ -21,5 +21,4 @@ You can edit a setup after it is created. Here is an example:
 .. pprint:: pyaedt.modules.SetupTemplates.Electrostatic
 .. pprint:: pyaedt.modules.SetupTemplates.EddyCurrent
 .. pprint:: pyaedt.modules.SetupTemplates.ElectricTransient
-.. pprint:: pyaedt.modules.SetupTemplates.ACConduction
-.. pprint:: pyaedt.modules.SetupTemplates.DCConduction
+
