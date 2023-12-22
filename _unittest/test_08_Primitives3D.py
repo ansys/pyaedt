@@ -701,12 +701,12 @@ class TestClass:
         assert prim3D.create_polyline(
             position_list=test_points, segment_type=PolylineSegment("Spline", num_points=3), name="PL03_spline_3pt"
         )
-        try:
+        with pytest.raises(ValueError) as execinfo:
             prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
-        except ValueError as e:
-            assert str(e) == "The position_list argument must contain at least 4 points for segment of type Spline."
-        else:
-            assert False
+            assert (
+                str(execinfo)
+                == "The 'position_list' argument must contain at least four points for segment of type 'Spline'."
+            )
         assert prim3D.create_polyline(
             position_list=[[100, 100, 0]],
             segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
@@ -1023,12 +1023,9 @@ class TestClass:
         # test unclassified
         p11 = polyline_points[11]
         position_lst = [[-142, 130, 0], [-126, 63, 0], p11]
-        try:
+        with pytest.raises(ValueError) as execinfo:
             ind.insert_segment(position_lst, "Arc")
-        except ValueError as e:
-            assert str(e) == "Adding the segment result in an unclassified object. Undoing operation."
-        else:
-            assert False
+            assert str(execinfo) == "Adding the segment result in an unclassified object. Undoing operation."
         assert len(ind.points) == 64
         assert len(ind.segment_types) == 55
 
