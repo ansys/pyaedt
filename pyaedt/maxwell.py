@@ -1954,7 +1954,7 @@ class Maxwell(object):
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of the setup. Depending on the solution type, options are:
+            Type of the setup. Depending on the solution type, options are
             ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
             ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
             and ``Transient"``.
