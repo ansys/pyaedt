@@ -5775,12 +5775,21 @@ class Icepak(FieldAnalysis3D):
                 radius = df['radius'][i]
                 height = df['height'][i]
                 cs_axis = df['plane'][i]
+                inner_radius = df['iradius'][i]
             except:
                 self.logger.info("The column names in the file do not match the expected names")
                 return False
             try:
                 self.logger.info("Creating cylinder: " + name)
-                self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
+                if inner_radius == 0:
+                    self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
+                elif radius > inner_radius:
+                    outer_cylinder = self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
+                    inner_cylinder = self.modeler.create_cylinder(cs_axis, position, inner_radius, height,
+                                                                  name=name + "_inner")
+                    outer_cylinder.subtract([inner_cylinder], keep_originals=False)
+                else:
+                    self.logger.info("Inner radius is greater than outer radius")
                 self.logger.info("Created cylinder: " + name)
             except:
                 self.logger.info("Unable to create cylinder " + name)
