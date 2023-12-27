@@ -5771,6 +5771,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def _create_cylinder(self, df):
+        cylinders = []
         for i in range(len(df)):
             try:
                 name = self._remove_special_characters(df["name"][i])
@@ -5779,7 +5780,7 @@ class Icepak(FieldAnalysis3D):
                 height = df['height'][i]
                 cs_axis = df['plane'][i]
                 inner_radius = df['iradius'][i]
-            except:
+            except KeyError:
                 self.logger.info("The column names in the file do not match the expected names")
                 return False
             try:
@@ -5794,12 +5795,8 @@ class Icepak(FieldAnalysis3D):
                 else:
                     self.logger.info("Inner radius is greater than outer radius")
                 self.logger.info("Created cylinder: " + name)
-            except:
+                cylinders.append(outer_cylinder)
+            except Exception:
                 self.logger.info("Unable to create cylinder " + name)
-        return True
-
-    def _remove_special_characters(self, text):
-        import re
-        sanitized_text = re.sub('[^a-zA-Z0-9_ \n]', '_', text)
-        self.logger.info(f"Renamed {text} to {sanitized_text}")
-        return sanitized_text
+                return False
+        return cylinders
