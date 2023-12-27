@@ -5743,24 +5743,32 @@ class Icepak(FieldAnalysis3D):
         return _create_boundary(bound)
 
     @pyaedt_function_handler()
-    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None):
+    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, geo_type='cylinder'):
         """Creates geometry from csv file containing geometry data.
 
         Parameters
-            ----------
-            csv_file : str
-                Csv file containing the geometry details.
-            header_line : int, optional
-                The line marking the start of data.
-                The default value is 2, the first two lines are skipped, and data read
-                from line 3.
-            column_mapping : dict, optional
-                Map of the csv columns names to the accepted column names.
+        ----------
+        csv_file : str
+            Csv file containing the geometry details.
+            Expected column headers are dependent on the geometry type:
+
+            - if ``geo_type=='cylinder'``, expected fields are ``'xc'`` (base
+            center x coordinate),``'yc'`` (base center y coordinate), ``'zc'``
+            (base center z coordinate), ``'height'``, ``'radius'``,
+            ``'iradius'`` (inner radius for hollow cylinder), ``'plane'``
+            (plane on which the cylinder base lies).
+        header_line : int, optional
+            The line marking the start of data.
+            The default value is 2.
+        column_mapping : dict, optional
+            Map of the csv columns names to the accepted column names.
+        geo_type: str, optional
+            Type of geometry that the csv file describes. Accepted values are: ``"cylinder"``.
+            Default is 'cylinder'.
 
         Returns
         -------
-        :boolean
-            True if successful and False if not successful.
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
         """
         import pandas as pd
         df = pd.read_csv(csv_file, header=header_line)
