@@ -5742,6 +5742,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Blower")
         return _create_boundary(bound)
 
+    @pyaedt_function_handler()
     def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None):
         """ creates geometry from csv file containing geometry data
 
@@ -5767,6 +5768,7 @@ class Icepak(FieldAnalysis3D):
         result = self._create_cylinder(df)
         return result
 
+    @pyaedt_function_handler()
     def _create_cylinder(self, df):
         for i in range(len(df)):
             try:
