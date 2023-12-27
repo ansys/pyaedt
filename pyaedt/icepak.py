@@ -5744,21 +5744,22 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None):
-        """ creates geometry from csv file containing geometry data
+        """Creates geometry from csv file containing geometry data.
 
         Parameters
             ----------
             csv_file : str
-                csv file containing the geometry details
-            header_line : int , optional
-                The line marking the start of data. the default value is 2, first two lines are skipped and data read
+                Csv file containing the geometry details.
+            header_line : int, optional
+                The line marking the start of data.
+                The default value is 2, the first two lines are skipped, and data read
                 from line 3.
-            column_mapping : dict , optional
-                dictionary to rename the columns of csv to the allowed column names.
+            column_mapping : dict, optional
+                Map of the csv columns names to the accepted column names.
 
         Returns
         -------
-        :Boolean
+        :boolean
             True if successful and False if not successful.
         """
         import pandas as pd
