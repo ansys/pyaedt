@@ -5774,8 +5774,17 @@ class Icepak(FieldAnalysis3D):
         df = pd.read_csv(csv_file, header=header_line)
         if column_mapping is not None:
             df = df.rename(columns=column_mapping)
-        result = self._create_cylinder(df)
-        return result
+        if geo_type == 'cylinder':
+            return self._create_cylinder(df)
+        else:
+            raise ValueError("Geometry type not supported yet.")
+
+    @pyaedt_function_handler()
+    def _remove_special_characters(self, text):
+        import re
+        sanitized_text = re.sub('[^a-zA-Z0-9_ \n]', '_', text)
+        self.logger.info(f"Renamed {text} to {sanitized_text}")
+        return sanitized_text
 
     @pyaedt_function_handler()
     def _create_cylinder(self, df):
