@@ -375,10 +375,14 @@ class Modeler3D(Primitives3D):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
-        if not os.path.isdir(os.path.dirname(component_file)) and create_folder:  # Folder doesn't exist.
-            os.mkdir(os.path.dirname(component_file))
-            self.logger.warning("Folder doesn't exist.")
-            self.logger.warning("Created folder " + os.path.dirname(component_file))
+        if not os.path.isdir(os.path.dirname(component_file)):
+            self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
+            if create_folder:  # Folder doesn't exist.
+                os.mkdir(os.path.dirname(component_file))
+                self.logger.warning("Created folder '" + os.path.dirname(component_file) + "'")
+            else:
+                self.logger.warning("Unable to create 3D Component: '" + component_file + "'")
+                return False
         self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
         return True
 

@@ -51,7 +51,7 @@ def examples(local_scratch):
     scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
     scdoc_file = local_scratch.copyfile(scdoc_file)
     step_file = os.path.join(local_path, "example_models", test_subfolder, step)
-    component3d_file = os.path.join(local_scratch.path, component3d)
+    component3d_file = os.path.join(local_scratch.path, "comp_3d", component3d)
     encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cyl)
     test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
     test_98_project = local_scratch.copyfile(test_98_project)
@@ -1155,6 +1155,11 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         for i in list(self.aedtapp.modeler.objects.keys()):
             self.aedtapp.modeler.objects[i].material_name = "copper"
+
+        # Folder doesn't exist. Cannot create component.
+        assert not self.aedtapp.modeler.create_3dcomponent(self.component3d_file, create_folder=False)
+
+        # By default, the new folder is created.
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
         assert os.path.exists(self.component3d_file)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
