@@ -30,9 +30,32 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 class Primitives3D(GeometryModeler):
     """Manages primitives in 3D tools.
 
-    This class is inherited in the caller application and is
+    Each Electonics Desktop application uses an instance of this class
+    to enable geometry operations.  For example, ```hfss.modeler`` or
+    ``icepak.modeler`` is used to call all methods in this class
     accessible through the primitives variable part of modeler object(
     e.g. ``hfss.modeler`` or ``icepak.modeler``).
+
+    Geometry primitives created using methods of ``app.modeler`` may be
+    set by passing optional named arguments. The following properties are supported:
+    - color : tuple, optional
+        (R, G, B) values defining the color. R, G, and B are intengers
+        in the range 0-255. The default value is derived from the local
+        settings for Electronics Desktop.
+    - transparency : float, optional
+        Value between 0 - 1 defining the transparency. 0 is opaque. The default
+        value is defined in the local settings for Electronics Desktop.
+    - display_wireframe : Boolean, optional
+        Set to ``True`` if the object should be displayed as a wireframe. The
+        default value is defined in the local settings for Electronics Desktop.
+    - solve_inside : Boolean, optional
+        Set to ``True`` if a field solution should be calculated inside the object.
+        This setting applies only to HFSS. The default value is ``True`` for
+        non-conducting objects.
+    - model : Boolean, optional
+        Set to ``False`` if the object should be *non-model.* The default value
+        is ``True`` unless the local Electronics Desktop settings have been modified.
+
 
     Parameters
     ----------
@@ -44,8 +67,13 @@ class Primitives3D(GeometryModeler):
     Basic usage demonstrated with an HFSS, Maxwell 3D, Icepak, Q3D, or Mechanical design:
 
     >>> from pyaedt import Hfss
-    >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler
+    >>> app = Hfss()
+    >>> box = app.modeler.create_box(position=[0,0,0], dimensions_list=[10,5,3], name="my_box",
+    ...                              matname="copper", color=(240, 120, 0),
+    ...                              transparency=0.5)
+
+    In the previous example, ``color`` and ``transparency`` are the variable named arguments that
+    can be passed to any method that creates a primitive.
     """
 
     def __init__(self, application):
@@ -53,7 +81,7 @@ class Primitives3D(GeometryModeler):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def create_box(self, position, dimensions_list, name=None, matname=None):
+    def create_box(self, position, dimensions_list, name=None, matname=None, **kwargs):
         """Create a box.
 
         Parameters
@@ -95,10 +123,10 @@ class Primitives3D(GeometryModeler):
         >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
-        >>> box_object = hfss.modeler.primivites.create_box(position=origin,
-        ...                                                 dimensions_list=dimensions,
-        ...                                                 name="mybox",
-        ...                                                 matname="copper")
+        >>> box_object = hfss.modeler.create_box(position=origin,
+        ...                                      dimensions_list=dimensions,
+        ...                                      name="mybox",
+        ...                                      matname="copper")
 
         """
         if len(position) != 3:
@@ -119,10 +147,10 @@ class Primitives3D(GeometryModeler):
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None):
+    def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None, **kwargs):
         """Create a cylinder.
 
         Parameters
@@ -200,7 +228,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("NumSides:="), vArg1.append("{}".format(numSides))
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_polyhedron(
@@ -212,6 +240,7 @@ class Primitives3D(GeometryModeler):
         num_sides=12,
         name=None,
         matname=None,
+        **kwargs,
     ):
         """Create a regular polyhedron.
 
@@ -292,10 +321,10 @@ class Primitives3D(GeometryModeler):
         vArg1.append("WhichAxis:="), vArg1.append(cs_axis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateRegularPolyhedron(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None):
+    def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None, **kwargs):
         """Create a cone.
 
         Parameters
@@ -383,10 +412,10 @@ class Primitives3D(GeometryModeler):
         vArg1.append("TopRadius:="), vArg1.append(RadiusUp)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateCone(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_sphere(self, position, radius, name=None, matname=None):
+    def create_sphere(self, position, radius, name=None, matname=None, **kwargs):
         """Create a sphere.
 
         Parameters
@@ -447,10 +476,10 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateSphere(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None):
+    def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None, **kwargs):
         """Create a torus.
 
         Parameters
@@ -521,7 +550,7 @@ class Primitives3D(GeometryModeler):
         first_argument.append("WhichAxis:="), first_argument.append(axis)
         second_argument = self._default_object_attributes(name=name, matname=material_name)
         new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_bondwire(
@@ -538,6 +567,7 @@ class Primitives3D(GeometryModeler):
         name=None,
         matname=None,
         cs_axis="Z",
+        **kwargs,
     ):
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
@@ -679,10 +709,10 @@ class Primitives3D(GeometryModeler):
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, csPlane, position, dimension_list, name=None, matname=None, is_covered=True):
+    def create_rectangle(self, csPlane, position, dimension_list, name=None, matname=None, is_covered=True, **kwargs):
         """Create a rectangle.
 
         Parameters
@@ -733,11 +763,20 @@ class Primitives3D(GeometryModeler):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_circle(
-        self, cs_plane, position, radius, numSides=0, is_covered=True, name=None, matname=None, non_model=False
+        self,
+        cs_plane,
+        position,
+        radius,
+        numSides=0,
+        is_covered=True,
+        name=None,
+        matname=None,
+        non_model=False,
+        **kwargs,
     ):
         """Create a circle.
 
@@ -809,10 +848,12 @@ class Primitives3D(GeometryModeler):
         vArg1.append("NumSegments:="), vArg1.append("{}".format(numSides))
         vArg2 = self._default_object_attributes(name=name, matname=matname, flags=non_model_flag)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_ellipse(self, cs_plane, position, major_radius, ratio, is_covered=True, name=None, matname=None):
+    def create_ellipse(
+        self, cs_plane, position, major_radius, ratio, is_covered=True, name=None, matname=None, **kwargs
+    ):
         """Create an ellipse.
 
         Parameters
@@ -888,7 +929,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_equationbased_curve(
@@ -907,6 +948,7 @@ class Primitives3D(GeometryModeler):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
+        **kwargs,
     ):
         """Create an equation-based curve.
 
@@ -1024,7 +1066,7 @@ class Primitives3D(GeometryModeler):
         vArg2 = self._default_object_attributes(name)
 
         new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
-        return self._create_object(new_name)
+        return self._create_object(new_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_helix(
@@ -1038,6 +1080,7 @@ class Primitives3D(GeometryModeler):
         right_hand=True,
         radius_increment=0.0,
         thread=1,
+        **kwargs,
     ):
         """Create an helix from a polyline.
 
@@ -1137,7 +1180,7 @@ class Primitives3D(GeometryModeler):
         self.oeditor.CreateHelix(vArg1, vArg2)
         if polyline_name in self._object_names_to_ids:
             del self.objects[self._object_names_to_ids[polyline_name]]
-        return self._create_object(polyline_name)
+        return self._create_object(polyline_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_udm(
@@ -1243,6 +1286,7 @@ class Primitives3D(GeometryModeler):
         elevation=0,
         material="copper",
         name=None,
+        **kwargs,
     ):
         """Create a spiral inductor from a polyline.
 
@@ -1303,7 +1347,7 @@ class Primitives3D(GeometryModeler):
         )
         if name:
             p1.name = name
-            self._create_object(name)
+            self._create_object(name, **kwargs)
         return p1
 
     @pyaedt_function_handler()

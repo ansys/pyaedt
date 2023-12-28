@@ -7895,7 +7895,24 @@ class GeometryModeler(Modeler):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0, use_cached=False):
+    def _create_object(self, name, *args, **kwargs):
+        # Set default values for keyword arguments.  Need to handle arguments when
+        # they are passed by order and not name.
+        try:
+            pid = args[0]
+        except:
+            if "pid" in kwargs.keys():
+                pid = kwargs["pid"]
+            else:
+                pid = 0
+        try:
+            use_cached = args[1]
+        except:
+            if "use_cached" in kwargs.keys():
+                use_cached = kwargs["use_cached"]
+            else:
+                use_cached = False
+
         if use_cached:
             line_names = self._lines
         else:
@@ -7926,6 +7943,17 @@ class GeometryModeler(Modeler):
                 new_id = o.id
             self.objects[new_id] = o
             self._object_names_to_ids[o.name] = new_id
+        for k, val in kwargs.items():
+            if k == "color":
+                o.color = val
+            elif k == "transparency":
+                o.transparency = val
+            elif k == "display_wireframe":
+                o.display_wireframe = val
+            elif k == "solve_inside":
+                o.solve_inside = val
+            elif k == "model":
+                o.model = val
         return o
 
     @pyaedt_function_handler()
