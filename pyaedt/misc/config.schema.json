@@ -10,11 +10,11 @@
       },
       "setups":{
          "type":"object",
-         "description":"Solution setup configuration data."
+         "description":"Solution setup configuration. Keys are setup names."
       },
       "boundaries":{
          "type":"object",
-         "description":"Assignment of boundary conditions."
+         "description":"Assignment of boundary conditions. Keys are boundary names."
       },
       "mesh":{
          "type":"object",
