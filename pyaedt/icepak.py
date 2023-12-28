@@ -5742,7 +5742,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Blower")
         return _create_boundary(bound)
 
-    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None):
+    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, unit="mm"):
         """ creates geometry from csv file containing geometry data
 
         Parameters
@@ -5754,6 +5754,8 @@ class Icepak(FieldAnalysis3D):
                 from line 3.
             column_mapping : dict , optional
                 dictionary to rename the columns of csv to the allowed column names.
+            unit : str , optional
+                unit of values used to create geometry. Default unit is "mm".
 
         Returns
         -------
@@ -5764,18 +5766,22 @@ class Icepak(FieldAnalysis3D):
         df = pd.read_csv(csv_file, header=header_line)
         if column_mapping is not None:
             df = df.rename(columns=column_mapping)
-        result = self._create_cylinder(df)
+        result = self._create_cylinder(df, unit=unit)
         return result
 
-    def _create_cylinder(self, df):
+    def _create_cylinder(self, df, unit):
+
         for i in range(len(df)):
             try:
                 name = self._remove_special_characters(df["name"][i])
-                position = (df['xc'][i], df['yc'][i], df['zc'][i])
-                radius = df['radius'][i]
-                height = df['height'][i]
-                cs_axis = df['plane'][i]
-                inner_radius = df['iradius'][i]
+                xc = self._length_unit_conversion(df['xc'][i], input_units=unit)
+                yc = self._length_unit_conversion(df['yc'][i], input_units=unit)
+                zc = self._length_unit_conversion(df['zc'][i], input_units=unit)
+                position = (xc, yc, zc)
+                radius = self._length_unit_conversion(df['radius'][i], input_units=unit)
+                height = self._length_unit_conversion(df['height'][i], input_units=unit)
+                cs_axis = self._length_unit_conversion(df['plane'][i], input_units=unit)
+                inner_radius = self._length_unit_conversion(df['iradius'][i], input_units=unit)
             except:
                 self.logger.info("The column names in the file do not match the expected names")
                 return False
@@ -5794,6 +5800,15 @@ class Icepak(FieldAnalysis3D):
             except:
                 self.logger.info("Unable to create cylinder " + name)
         return True
+
+    def _length_unit_conversion(self, value, input_units):
+        from pyaedt.generic.constants import unit_converter
+        try:
+            converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units="mm")
+            return converted_value
+        except:
+            self.logger.info("Not a proper input unit")
+            return value
 
     def _remove_special_characters(self, text):
         import re
