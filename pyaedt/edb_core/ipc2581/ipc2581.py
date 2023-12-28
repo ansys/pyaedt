@@ -21,7 +21,7 @@ class Ipc2581(object):
         self.content = Content(self)
         self.logistic_header = LogisticHeader()
         self.history_record = HistoryRecord()
-        self.bom = Bom()
+        self.bom = Bom(pedb)
         self.ecad = Ecad(self, pedb, units)
         self.file_path = ""
         self.design_name = ""
@@ -375,9 +375,9 @@ class Ipc2581(object):
             ipc.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
             ipc.set("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
             self.content.write_wml(ipc)
-            # self.logistic_header.write_xml(ipc)
-            # self.history_record.write_xml(ipc)
-            # self.bom.write_xml(ipc)
+            self.logistic_header.write_xml(ipc)
+            self.history_record.write_xml(ipc)
+            self.bom.write_xml(ipc)
             self.ecad.write_xml(ipc)
             try:
                 ET.indent(ipc)

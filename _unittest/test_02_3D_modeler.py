@@ -382,11 +382,8 @@ class TestClass:
         assert cs.change_cs_mode(1)
         assert cs.change_cs_mode(2)
 
-        try:
+        with pytest.raises(ValueError):
             cs.change_cs_mode(3)
-            assert False
-        except ValueError:
-            assert True
         assert cs.change_cs_mode(0)
         assert cs.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
