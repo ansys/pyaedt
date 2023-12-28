@@ -5798,7 +5798,7 @@ class Icepak(FieldAnalysis3D):
         except:
             self.logger.info("Not a proper input unit")
             return value
-      
+
     @pyaedt_function_handler()
     def _create_cylinder(self, df):
         cylinders = []
