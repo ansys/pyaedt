@@ -1,7 +1,7 @@
 # Import required modules
 import os
 import sys
-import time
+import tempfile
 
 from _unittest_solvers.conftest import config
 import pytest
@@ -1182,81 +1182,81 @@ class TestClass:
         results = self.aedtapp.results
         revision = self.aedtapp.results.analyze()
 
-        receivers = revision.get_receiver_names()
-        modeRx = TxRxMode.RX
-        modeTx = TxRxMode.TX
-        modeEmi = ResultType.EMI
         self.aedtapp.set_units("Frequency", "GHz")
 
-        def get_best_rx_channel(results, receiver):
+        def do_run():
             domain = results.interaction_domain()
             rev = results.current_revision
-            # get interferers
-            interferers = rev.get_interferer_names()
-            best_emi = 300.0
-            best_band = None
-            best_freq = None
-
-            combinations_run = 0
-            
-            domain.set_receiver(receiver)
             interaction = rev.run(domain)
 
-            for interferer in interferers:
-                for tx_band in rev.get_band_names(interferer, modeTx):
-                    for tx_freq in rev.get_active_frequencies(interferer, tx_band, modeTx):
-                        domain.set_interferer(interferer, tx_band, tx_freq)
-                        rx_band = rev.get_band_names(receiver, modeRx)[0]
-                        for rx_freq in rev.get_active_frequencies(receiver, rx_band, modeRx):
-                            
-                            domain.set_receiver(receiver, rx_band, rx_freq)
+        number_of_runs = 5
 
-                            if best_band == None:
-                                best_band = rx_band
-                            if best_freq == None:
-                                best_freq = rx_freq
+        # Do a run to ensure the license log exists
+        do_run()
 
-                            try: 
-                                instance = interaction.get_instance(domain)
-                                if instance.has_valid_values():
-                                    emi = instance.get_value(modeEmi)
-                                    if emi < best_emi:
-                                        best_emi = emi
-                                        best_band = rx_band
-                                        best_freq = rx_freq
-                                else:
-                                    assert(f'No valid values found')
-                            except:
-                                assert("No results between " + interferer + ": " + tx_band + 
-                                       ": " + str(tx_freq) + " and " + receiver + ": " + 
-                                       rx_band + ": " + str(rx_freq))
-                            
-                            combinations_run += 1
+        # Find the license log for this process
+        appdata_local_path = tempfile.gettempdir()
+        pid = os.getpid()
+        dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
+        
+        license_file_path = ''
+        with os.scandir(dot_ansys_directory) as dir:
+            for file in dir:
+                filename_pieces = file.name.split('.')
+                # Since machine names can contain periods, there may be over five splits here
+                # We only care about the first split and last three splits
+                if len(filename_pieces) >= 5:
+                    if (filename_pieces[0] == 'ansyscl' and 
+                        filename_pieces[-3] == str(pid) and
+                        filename_pieces[-2].isnumeric() and 
+                        filename_pieces[-1] == 'log'):
+                        license_file_path = os.path.join(dot_ansys_directory, file.name)
+                        break
+        
+        assert license_file_path != ''
+        
+        def count_license_actions(license_file_path):
+            # Count checkout/checkins in most recent license connection
+            checkouts = 0
+            checkins  = 0
+            with open(license_file_path, 'r') as license_file:
+                lines = license_file.read().strip().split('\n')
+                for line in lines:
+                    if 'NEW_CONNECTION' in line:
+                        checkouts = 0
+                        checkins = 0
+                    elif 'CHECKOUT' in line or "SPLIT_CHECKOUT" in line:
+                        checkouts += 1
+                    elif 'CHECKIN' in line:
+                        checkins += 1
+            return (checkouts, checkins)
+        
+        # Figure out how many checkouts and checkins per run we expect
+        # This could change depending on the user's EMIT HPC settings
+        pre_first_run_checkouts, pre_first_run_checkins = count_license_actions(license_file_path)
+        do_run()
+        post_first_run_checkouts, post_first_run_checkins = count_license_actions(license_file_path)
 
-                            if combinations_run >= 20:
-                                return [best_band, best_freq]
-            return [best_band, best_freq]
+        checkouts_per_run = post_first_run_checkouts - pre_first_run_checkouts
+        checkins_per_run = post_first_run_checkins - pre_first_run_checkins
+
+        start_checkouts, start_checkins = count_license_actions(license_file_path)
+
+        # Run without license session
+        for i in range(number_of_runs):
+            do_run()        
         
-        # Warmup in case something isn't solved
-        best_case_rx_ch = {}
-        for rx in [receivers[0]]:
-            best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
-        
-        # Get the time without the license session
-        start = time.perf_counter()
-        best_case_rx_ch = {}
-        for rx in [receivers[0]]:
-            best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
-        end = time.perf_counter()
-        noLicenseSessionTime = end - start
-        
-        # Get the time using the license session
-        start = time.perf_counter()
-        best_case_rx_ch = {}
+        # Run with license session
         with revision.get_license_session():
-            for rx in [receivers[0]]:
-                best_case_rx_ch[rx] = get_best_rx_channel(results, rx)
-        end = time.perf_counter()
-        licenseSessionTime = end - start
+            for i in range(number_of_runs):
+                do_run()
+        
+        end_checkouts, end_checkins = count_license_actions(license_file_path)
 
-        assert (licenseSessionTime*2) < noLicenseSessionTime
+        checkouts = end_checkouts - start_checkouts
+        checkins = end_checkins - start_checkins
+
+        expected_checkouts = checkouts_per_run * (number_of_runs + 1)
+        expected_checkins = checkins_per_run * (number_of_runs + 1)
+
+        assert checkouts == expected_checkouts and checkins == expected_checkins
