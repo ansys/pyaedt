@@ -5794,7 +5794,7 @@ class Icepak(FieldAnalysis3D):
         try:
             converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units="mm")
             return converted_value
-        except:
+        except KeyError:
             self.logger.info("Not a proper input unit")
             return value
 
