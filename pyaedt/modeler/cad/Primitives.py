@@ -7947,13 +7947,18 @@ class GeometryModeler(Modeler):
             if k == "color":
                 o.color = val
             elif k == "transparency":
-                o.transparency = val
+                try:  # Transparency fails when Maxwell 2D objects are not in the Z=0 plane.
+                    o.transparency = val
+                except:
+                    self.logger.warning("Unable to assign transparency to object " + o.name + ".")
             elif k == "display_wireframe":
                 o.display_wireframe = val
             elif k == "solve_inside":
                 o.solve_inside = val
             elif k == "model":
                 o.model = val
+            elif k == "material_name":
+                o.material_name = val
         return o
 
     @pyaedt_function_handler()

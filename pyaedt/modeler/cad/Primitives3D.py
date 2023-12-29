@@ -31,13 +31,13 @@ class Primitives3D(GeometryModeler):
     """Manages primitives in 3D tools.
 
     Each Electonics Desktop application uses an instance of this class
-    to enable geometry operations.  For example, ```hfss.modeler`` or
-    ``icepak.modeler`` is used to call all methods in this class
-    accessible through the primitives variable part of modeler object(
-    e.g. ``hfss.modeler`` or ``icepak.modeler``).
+    as a property to enable geometry operations.  For example, ```hfss.modeler`` or
+    ``icepak.modeler`` are used to call all methods in the ``Primitives3D`` class.
 
-    Geometry primitives created using methods of ``app.modeler`` may be
-    set by passing optional named arguments. The following properties are supported:
+    Primitives created using methods of ``app.modeler`` are of the type
+    ``pyaedt.modeler.cad.object3d.Object3D``. Properties may be
+    initialized by passing optional named arguments when a method is used to create
+    a primitive. The following properties are supported:
     - color : tuple, optional
         (R, G, B) values defining the color. R, G, and B are intengers
         in the range 0-255. The default value is derived from the local
@@ -55,6 +55,9 @@ class Primitives3D(GeometryModeler):
     - model : Boolean, optional
         Set to ``False`` if the object should be *non-model.* The default value
         is ``True`` unless the local Electronics Desktop settings have been modified.
+    - material_name : str, optional
+        Set the material of the primitive. The default value depends on the application
+        settings.
 
 
     Parameters
@@ -72,7 +75,7 @@ class Primitives3D(GeometryModeler):
     ...                              matname="copper", color=(240, 120, 0),
     ...                              transparency=0.5)
 
-    In the previous example, ``color`` and ``transparency`` are the variable named arguments that
+    In this example, ``color`` and ``transparency`` are the variable named arguments that
     can be passed to any method that creates a primitive.
     """
 
@@ -500,6 +503,9 @@ class Primitives3D(GeometryModeler):
             Name of the material.  The default is ``None``, in which case the
             default material is assigned. If the material name supplied is
             invalid, the default material is assigned.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -616,6 +622,9 @@ class Primitives3D(GeometryModeler):
             the default material is assigned.
         cs_axis : str, optional
             Coordinate system axis. The default is ``"Z"``.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -733,6 +742,9 @@ class Primitives3D(GeometryModeler):
             the default material is assigned.
         is_covered : bool, optional
             Whether the rectangle is covered. The default is ``True``.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -799,6 +811,9 @@ class Primitives3D(GeometryModeler):
             default material is assigned.
         non_model : bool, optional
              Either if create the new object as model or non-model. The default is ``False``.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -877,6 +892,9 @@ class Primitives3D(GeometryModeler):
         matname : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -995,6 +1013,9 @@ class Primitives3D(GeometryModeler):
             Type of the bend for the cross-section. The default is ``None``, in which
             case the bend type is set to ``"Corner"``. For the type ``"Circle"``, the
             bend type should be set to ``"Curved"``.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -1103,6 +1124,9 @@ class Primitives3D(GeometryModeler):
         radius_increment : float, optional
             Radius change per turn. The default value is ``0.0``.
         thread : float
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
@@ -1310,6 +1334,9 @@ class Primitives3D(GeometryModeler):
             Spiral material. Default is `"copper"`.
         name : str, optional
             Spiral name. Default is `None`.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------

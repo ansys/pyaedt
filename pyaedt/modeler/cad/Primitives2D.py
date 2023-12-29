@@ -31,7 +31,9 @@ class Primitives2D(GeometryModeler, object):
         GeometryModeler.__init__(self, application, is3d=False)
 
     @pyaedt_function_handler()
-    def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None, non_model=False):
+    def create_circle(
+        self, position, radius, num_sides=0, is_covered=True, name=None, matname=None, non_model=False, **kwargs
+    ):
         """Create a circle.
 
         Parameters
@@ -52,6 +54,9 @@ class Primitives2D(GeometryModeler, object):
             the default material is assigned.
         non_model : bool, optional
              Either to create the new object as model or non-model. The default is ``False``.
+         **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
 
         Returns
@@ -87,10 +92,20 @@ class Primitives2D(GeometryModeler, object):
 
         vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None, non_model=False):
+    def create_ellipse(
+        self,
+        position,
+        major_radius,
+        ratio,
+        is_covered=True,
+        name=None,
+        matname=None,
+        non_model=False,
+        **kwargs,
+    ):
         """Create an ellipse.
 
         Parameters
@@ -111,6 +126,10 @@ class Primitives2D(GeometryModeler, object):
              the default material is assigned.
         non_model : bool, optional
              Either if create the new object as model or non-model. The default is ``False``.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+
 
         Returns
         -------
@@ -142,10 +161,12 @@ class Primitives2D(GeometryModeler, object):
 
         vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None, non_model=False):
+    def create_rectangle(
+        self, position, dimension_list, is_covered=True, name=None, matname=None, non_model=False, **kwargs
+    ):
         """Create a rectangle.
 
         Parameters
@@ -182,6 +203,7 @@ class Primitives2D(GeometryModeler, object):
         ...                                          name="MyCircle", matname="Copper")
 
         """
+        # TODO: Primitives in Maxwell 2D must have Z=0, otherwise the transparency cannot be changed. (issue 4071)
         axis = self.plane2d
         x_start, y_start, z_start = self._pos_with_arg(position)
         width = self._arg_with_dim(dimension_list[0])
@@ -198,10 +220,19 @@ class Primitives2D(GeometryModeler, object):
 
         vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_regular_polygon(self, position, start_point, num_sides=6, name=None, matname=None, non_model=False):
+    def create_regular_polygon(
+        self,
+        position,
+        start_point,
+        num_sides=6,
+        name=None,
+        matname=None,
+        non_model=False,
+        **kwargs,
+    ):
         """Create a rectangle.
 
         Parameters
@@ -220,6 +251,9 @@ class Primitives2D(GeometryModeler, object):
              the default material is assigned.
         non_model : bool, optional
              Either if create the new object as model or non-model. The default is ``False``.
+         **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
 
 
         Returns
@@ -258,7 +292,7 @@ class Primitives2D(GeometryModeler, object):
 
         vArg2 = self._default_object_attributes(name=name, matname=matname, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
-        return self._create_object(new_object_name)
+        return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
     def create_region(self, pad_percent=300, is_percentage=True):
