@@ -96,15 +96,7 @@ class Primitives2D(GeometryModeler, object):
 
     @pyaedt_function_handler()
     def create_ellipse(
-        self,
-        position,
-        major_radius,
-        ratio,
-        is_covered=True,
-        name=None,
-        matname=None,
-        non_model=False,
-        **kwargs,
+        self, position, major_radius, ratio, is_covered=True, name=None, matname=None, non_model=False, **kwargs
     ):
         """Create an ellipse.
 
@@ -224,14 +216,7 @@ class Primitives2D(GeometryModeler, object):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self,
-        position,
-        start_point,
-        num_sides=6,
-        name=None,
-        matname=None,
-        non_model=False,
-        **kwargs,
+        self, position, start_point, num_sides=6, name=None, matname=None, non_model=False, **kwargs
     ):
         """Create a rectangle.
 
