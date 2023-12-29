@@ -1,0 +1,5 @@
+# Blocks Cylinder,,,,,,,,,,,,,,,,,,,
+#,,,,,,,,,,,,,,,,,,,
+name,xc,yc,zc,xc2,yc2,zc2,volume_flag,changes,plane,radius,iradius,radius2,iradius2,height,start_angle,end_angle,xoff,yoff,zoff
+Cylinder,0,0,0,0,0,0,1,0,2,40,0,0,0,70,0,0,0,0,0
+Cylinder_with_hole,10,10,0,0,0,0,1,0,2,40,20,0,0,70,0,0,0,0,0

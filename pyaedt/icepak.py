@@ -6126,7 +6126,6 @@ class Icepak(FieldAnalysis3D):
                 self.logger.info("The column names in the file do not match the expected names")
                 return False
             try:
-                self.logger.info("Creating cylinder: " + name)
                 if inner_radius == 0:
                     outer_cylinder = self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
                 elif radius > inner_radius:

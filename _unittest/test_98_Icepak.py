@@ -1427,3 +1427,10 @@ class TestClass:
             power_law_constant=1.5,
             power_law_exponent="3",
         )
+
+    def test_73_csv_import(self):
+        self.aedtapp.insert_design("csv_import")
+        csv_file = os.path.join(
+            local_path, "../_unittest/example_models", test_subfolder, "cylinder_geometry_creation.csv"
+        )
+        assert self.aedtapp.create_geometry_from_csv(csv_file=csv_file, geo_type="cylinder")
