@@ -23,8 +23,8 @@ class Primitives2D(GeometryModeler, object):
         """Create a 2D plane."""
         plane = "Z"
         if self._app.design_type == "Maxwell 2D":
-            if self._app._odesign.GetGeometryMode() == "about Z":
-                plane = "Y"
+            if self._app._odesign.GetGeometryMode() == "about Z":  # Add "XY". It looks like there was a
+                plane = "Y"  # syntax change in the native API.
         return plane
 
     def __init__(self, application):
@@ -262,7 +262,7 @@ class Primitives2D(GeometryModeler, object):
         x_start, y_start, z_start = self._pos_with_arg(start_point)
 
         n_sides = int(num_sides)
-        assert n_sides > 2
+        assert n_sides > 2  # TODO: Replace assert with an exception.
 
         vArg1 = ["NAME:RegularPolygonParameters"]
         vArg1.append("XCenter:="), vArg1.append(x_center)

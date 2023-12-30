@@ -7943,22 +7943,23 @@ class GeometryModeler(Modeler):
                 new_id = o.id
             self.objects[new_id] = o
             self._object_names_to_ids[o.name] = new_id
-        for k, val in kwargs.items():
-            if k == "color":
-                o.color = val
-            elif k == "transparency":
-                try:  # Transparency fails when Maxwell 2D objects are not in the Z=0 plane.
-                    o.transparency = val
-                except:
-                    self.logger.warning("Unable to assign transparency to object " + o.name + ".")
-            elif k == "display_wireframe":
-                o.display_wireframe = val
-            elif k == "solve_inside":
-                o.solve_inside = val
-            elif k == "model":
-                o.model = val
-            elif k == "material_name":
-                o.material_name = val
+
+        #  Set properties from kwargs.
+        if len(kwargs) > 0:
+            props = [
+                attr
+                for attr in dir(o)
+                if isinstance(getattr(type(o), attr, None), property)  # Get a list of settable properties.
+                and getattr(type(o), attr).fset is not None
+            ]
+            for k, val in kwargs.items():
+                if k in props:  # Only try to set valid properties.
+                    try:
+                        setattr(o, k, val)
+                    except:
+                        self.logger.warning("Unable to assign " + str(k) + " to object " + o.name + ".")
+                else:
+                    self.logger.error("'" + str(k) + "' is not a valid property of the primitive ")
         return o
 
     @pyaedt_function_handler()

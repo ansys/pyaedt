@@ -28,37 +28,37 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Primitives3D(GeometryModeler):
-    """Manages primitives in 3D tools.
+    """Manages primitives in applications using the 3D modeler.
 
     Each Electonics Desktop application uses an instance of this class
-    as a property to enable geometry operations.  For example, ```hfss.modeler`` or
-    ``icepak.modeler`` are used to call all methods in the ``Primitives3D`` class.
+    as a property to allow creation and manipulation of geometry.  For example,
+    ``hfss.modeler`` or
+    ``icepak.modeler`` are used to access methods and properties in the ``Primitives3D``
+    class.
 
     Primitives created using methods of ``app.modeler`` are of the type
-    ``pyaedt.modeler.cad.object3d.Object3D``. Properties may be
+    ``pyaedt.modeler.cad.object3d.Object3D``. All settable properties may be
     initialized by passing optional named arguments when a method is used to create
-    a primitive. The following properties are supported:
-    - color : tuple, optional
+    a primitive. Some examples are:
+    - ``color`` : tuple, optional
         (R, G, B) values defining the color. R, G, and B are intengers
         in the range 0-255. The default value is derived from the local
         settings for Electronics Desktop.
-    - transparency : float, optional
+    - ``transparency`` : float, optional
         Value between 0 - 1 defining the transparency. 0 is opaque. The default
         value is defined in the local settings for Electronics Desktop.
-    - display_wireframe : Boolean, optional
+    - ``display_wireframe`` : Boolean, optional
         Set to ``True`` if the object should be displayed as a wireframe. The
         default value is defined in the local settings for Electronics Desktop.
-    - solve_inside : Boolean, optional
-        Set to ``True`` if a field solution should be calculated inside the object.
-        This setting applies only to HFSS. The default value is ``True`` for
-        non-conducting objects.
-    - model : Boolean, optional
+    - ``model`` : Boolean, optional
         Set to ``False`` if the object should be *non-model.* The default value
         is ``True`` unless the local Electronics Desktop settings have been modified.
-    - material_name : str, optional
+    - ``material_name`` : str, optional
         Set the material of the primitive. The default value depends on the application
         settings.
 
+    This list is not exhaustive and the properties that can be set using named arguments may depend on the
+    specific primitive being created.
 
     Parameters
     ----------
