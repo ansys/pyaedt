@@ -7895,24 +7895,7 @@ class GeometryModeler(Modeler):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, *args, **kwargs):
-        # Set default values for keyword arguments.  Need to handle arguments when
-        # they are passed by order and not name.
-        try:
-            pid = args[0]
-        except:
-            if "pid" in kwargs.keys():
-                pid = kwargs["pid"]
-            else:
-                pid = 0
-        try:
-            use_cached = args[1]
-        except:
-            if "use_cached" in kwargs.keys():
-                use_cached = kwargs["use_cached"]
-            else:
-                use_cached = False
-
+    def _create_object(self, name, pid=0, use_cached=False, **kwargs):
         if use_cached:
             line_names = self._lines
         else:

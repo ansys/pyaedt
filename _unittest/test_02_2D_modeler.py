@@ -40,25 +40,22 @@ class TestClass:
 
     def test_04_create_rectangle(self):
         test_color = (220, 90, 0)
-        test_transp = 1.0
-        rect1 = self.aedtapp.modeler.create_rectangle([0, -2, 0], [3, 8])
+        rect1 = self.aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, -2, 0],
+            position=[10, -2, -2],
             dimension_list=[3, 10],
             name="MyRectangle",
-            matname="Copper",
+            material_name="Copper",
             color=test_color,
-            transparency=test_transp,
         )
         assert rect1.solve_inside
         assert rect1.model
         assert rect1.material_name == "vacuum"
         assert rect2.color == test_color
-        assert rect2.transparency == test_transp
         assert isclose(rect1.faces[0].area, 3.0 * 8.0)
 
         list_of_pos = [ver.position for ver in rect1.vertices]
-        assert sorted(list_of_pos) == [[0.0, -2.0, 0.0], [0.0, 6.0, 0.0], [3.0, -2.0, 0.0], [3.0, 6.0, 0.0]]
+        assert sorted(list_of_pos) == [[0.0, -2.0, -2.0], [0.0, 6.0, -2.0], [3.0, -2.0, -2.0], [3.0, 6.0, -2.0]]
 
         assert rect2.solve_inside
         assert rect2.model
@@ -66,7 +63,7 @@ class TestClass:
         assert isclose(rect2.faces[0].area, 3.0 * 10.0)
 
         list_of_pos = [ver.position for ver in rect2.vertices]
-        assert sorted(list_of_pos) == [[10.0, -2.0, 0.0], [10.0, 8.0, 0.0], [13.0, -2.0, 0.0], [13.0, 8.0, 0.0]]
+        assert sorted(list_of_pos) == [[10.0, -2.0, -2.0], [10.0, 8.0, -2.0], [13.0, -2.0, -2.0], [13.0, 8.0, -2.0]]
 
     def test_05_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"
@@ -164,9 +161,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
-        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [2, 0, 0])
+        self.aedtapp.solution_type = "MagnetostaticZ"
+        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[2, 0, 0], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)

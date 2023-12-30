@@ -22,7 +22,7 @@ class Primitives2D(GeometryModeler, object):
     def plane2d(self):
         """Create a 2D plane."""
         plane = "Z"
-        if self._app.design_type == "Maxwell 2D":
+        if self._app.design_type == "Maxwell 2D":  # Cylindrical symmetry about the z-axis.
             if self._app._odesign.GetGeometryMode() == "about Z":
                 plane = "Y"
         return plane
