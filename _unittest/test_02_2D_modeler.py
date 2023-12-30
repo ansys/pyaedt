@@ -164,9 +164,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
-        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
+        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [2, 0, 0])
         self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[2, 0, 0], num_sides=3, name="MyPolygon", matname="Copper"
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
