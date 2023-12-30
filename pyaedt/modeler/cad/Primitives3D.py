@@ -237,8 +237,8 @@ class Primitives3D(GeometryModeler):
     def create_polyhedron(
         self,
         cs_axis=None,
-        center_position=[0.0, 0.0, 0.0],
-        start_position=[0.0, 1.0, 0.0],
+        center_position=(0.0, 0.0, 0.0),
+        start_position=(0.0, 1.0, 0.0),
         height=1.0,
         num_sides=12,
         name=None,
