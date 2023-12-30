@@ -23,8 +23,8 @@ class Primitives2D(GeometryModeler, object):
         """Create a 2D plane."""
         plane = "Z"
         if self._app.design_type == "Maxwell 2D":
-            if self._app._odesign.GetGeometryMode() == "about Z":  # Add "XY". It looks like there was a
-                plane = "Y"  # syntax change in the native API.
+            if self._app._odesign.GetGeometryMode() == "about Z":
+                plane = "Y"
         return plane
 
     def __init__(self, application):
@@ -77,6 +77,7 @@ class Primitives2D(GeometryModeler, object):
 
 
         """
+        # TODO: kwargs such as 'matname' and 'nonmodel' should be deprecated.
         szAxis = self.plane2d
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         Radius = self._arg_with_dim(radius)
