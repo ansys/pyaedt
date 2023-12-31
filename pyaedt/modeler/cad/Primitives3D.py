@@ -233,18 +233,10 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
+    # fmt: off
     @pyaedt_function_handler()
-    def create_polyhedron(
-        self,
-        cs_axis=None,
-        center_position=(0.0, 0.0, 0.0),
-        start_position=(0.0, 1.0, 0.0),
-        height=1.0,
-        num_sides=12,
-        name=None,
-        matname=None,
-        **kwargs,
-    ):
+    def create_polyhedron(self, cs_axis=None, center_position=(0.0, 0.0, 0.0), start_position=(0.0, 1.0, 0.0),
+                          height=1.0, num_sides=12, name=None, matname=None, **kwargs):  # fmt: on
         """Create a regular polyhedron.
 
         Parameters
@@ -558,23 +550,10 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
+    # fmt: off
     @pyaedt_function_handler()
-    def create_bondwire(
-        self,
-        start_position,
-        end_position,
-        h1=0.2,
-        h2=0,
-        alpha=80,
-        beta=5,
-        bond_type=0,
-        diameter=0.025,
-        facets=6,
-        name=None,
-        matname=None,
-        cs_axis="Z",
-        **kwargs,
-    ):
+    def create_bondwire(self,  start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
+                        diameter=0.025,  facets=6, name=None,  matname=None, cs_axis="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.
@@ -777,19 +756,10 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
+    # fmt: off
     @pyaedt_function_handler()
-    def create_circle(
-        self,
-        cs_plane,
-        position,
-        radius,
-        numSides=0,
-        is_covered=True,
-        name=None,
-        matname=None,
-        non_model=False,
-        **kwargs,
-    ):
+    def create_circle(self, cs_plane, position, radius, numSides=0, is_covered=True, name=None,
+                      matname=None, non_model=False, **kwargs):  # fmt: on
         """Create a circle.
 
         Parameters
@@ -949,25 +919,11 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
+    # fmt: off
     @pyaedt_function_handler()
-    def create_equationbased_curve(
-        self,
-        x_t=0,
-        y_t=0,
-        z_t=0,
-        t_start=0,
-        t_end=1,
-        num_points=0,
-        name=None,
-        xsection_type=None,
-        xsection_orient=None,
-        xsection_width=1,
-        xsection_topwidth=1,
-        xsection_height=1,
-        xsection_num_seg=0,
-        xsection_bend_type=None,
-        **kwargs,
-    ):
+    def create_equationbased_curve(self, x_t=0, y_t=0, z_t=0, t_start=0, t_end=1, num_points=0, name=None,
+                                   xsection_type=None, xsection_orient=None, xsection_width=1, xsection_topwidth=1,
+                                   xsection_height=1, xsection_num_seg=0, xsection_bend_type=None, **kwargs):  # fmt: on
         """Create an equation-based curve.
 
         Parameters
@@ -1089,20 +1045,10 @@ class Primitives3D(GeometryModeler):
         new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
         return self._create_object(new_name, **kwargs)
 
+    # fmt: off
     @pyaedt_function_handler()
-    def create_helix(
-        self,
-        polyline_name,
-        position,
-        x_start_dir,
-        y_start_dir,
-        z_start_dir,
-        num_thread=1,
-        right_hand=True,
-        radius_increment=0.0,
-        thread=1,
-        **kwargs,
-    ):
+    def create_helix(self, polyline_name, position, x_start_dir, y_start_dir, z_start_dir, num_thread=1,
+                     right_hand=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
         """Create an helix from a polyline.
 
         Parameters
@@ -1298,20 +1244,10 @@ class Primitives3D(GeometryModeler):
         else:
             return False
 
+    # fmt: off
     @pyaedt_function_handler()
-    def create_spiral(
-        self,
-        internal_radius=10,
-        spacing=1,
-        faces=8,
-        turns=10,
-        width=2,
-        thickness=1,
-        elevation=0,
-        material="copper",
-        name=None,
-        **kwargs,
-    ):
+    def create_spiral(self, internal_radius=10, spacing=1, faces=8, turns=10, width=2, thickness=1, elevation=0,
+                      material="copper", name=None, **kwargs):  # fmt: on
         """Create a spiral inductor from a polyline.
 
         Parameters
