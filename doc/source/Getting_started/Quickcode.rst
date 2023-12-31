@@ -50,9 +50,14 @@ Explicit AEDT declaration and error management
     # Launch AEDT 2023 R1 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
-    with Desktop(specified_version="2023.1",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False):
+
+    with Desktop(
+        specified_version="2023.1",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    ):
         circuit = Circuit()
         ...
         # Any error here will be caught by Desktop.
@@ -69,8 +74,8 @@ Implicit AEDT declaration and error management
     # Launch the latest installed version of AEDT in graphical mode
 
     from pyaedt import Circuit
-    with Circuit(specified_version="2023.1",
-                 non_graphical=False) as circuit:
+
+    with Circuit(specified_version="2023.1", non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.
         ...
@@ -90,6 +95,7 @@ On a CPython server:
     # Launch PyAEDT remote server on CPython
 
     from pyaedt.common_rpc import pyaedt_service_manager
+
     pyaedt_service_manager()
 
 
@@ -98,6 +104,7 @@ On any Windows client machine:
 .. code:: python
 
     from pyaedt.common_rpc import create_session
+
     cl1 = create_session("server_name")
     cl1.aedt(port=50000, non_graphical=False)
     hfss = Hfss(machine="server_name", port=50000)
@@ -109,9 +116,10 @@ Variables
 .. code:: python
 
     from pyaedt.HFSS import HFSS
+
     with HFSS as hfss:
-         hfss["dim"] = "1mm"   # design variable
-         hfss["$dim"] = "1mm"  # project variable
+        hfss["dim"] = "1mm"  # design variable
+        hfss["$dim"] = "1mm"  # project variable
 
 
 Modeler
@@ -122,6 +130,6 @@ Modeler
     # Create a box, assign variables, and assign materials.
 
     from pyaedt.hfss import Hfss
+
     with Hfss as hfss:
-         hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                 "mybox", "aluminum")
+        hfss.modeler.create_box([0, 0, 0], [10, "dim", 10], "mybox", "aluminum")

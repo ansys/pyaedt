@@ -20,11 +20,11 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = '2023.2'
+desktopVersion = "2023.2"
 
-sName = 'MySetupAuto'
-sType = 'Electrostatic'
-dName = 'Design1'
+sName = "MySetupAuto"
+sType = "Electrostatic"
+dName = "Design1"
 pName = pyaedt.generate_unique_project_name()
 non_graphical = False
 
@@ -41,34 +41,28 @@ file_name_xlsx = pyaedt.downloads.download_file("field_line_traces", "my_copper.
 # Initialize dictionaries that contain all the definitions for the design variables.
 
 geom_params_circle = {
-    'circle_x0': '-10mm',
-    'circle_y0': '0mm',
-    'circle_z0': '0mm',
-    'circle_axis': 'Z',
-    'circle_radius': '1mm'
+    "circle_x0": "-10mm",
+    "circle_y0": "0mm",
+    "circle_z0": "0mm",
+    "circle_axis": "Z",
+    "circle_radius": "1mm",
 }
 
-geom_params_rectangle = {
-    'r_x0': '1mm',
-    'r_y0': '5mm',
-    'r_z0': '0mm',
-    'r_axis': 'Z',
-    'r_dx': '-1mm',
-    'r_dy': '-10mm'
-}
+geom_params_rectangle = {"r_x0": "1mm", "r_y0": "5mm", "r_z0": "0mm", "r_axis": "Z", "r_dx": "-1mm", "r_dy": "-10mm"}
 
 ##################################################################################
 # Launch Maxwell 2D
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(projectname=pName,
-                       specified_version=desktopVersion,
-                       designname=dName,
-                       solution_type=sType,
-                       new_desktop_session=True,
-                       non_graphical=non_graphical
-                       )
+M2D = pyaedt.Maxwell2d(
+    projectname=pName,
+    specified_version=desktopVersion,
+    designname=dName,
+    solution_type=sType,
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 
 ##################################################################################
 # Create object to access 2D modeler
@@ -102,22 +96,28 @@ mats = M2D.materials.import_materials_from_excel(file_name_xlsx)
 # Create rectangle and a circle and assign the material read from the .xlsx file.
 # Create two new polylines and a region.
 
-rect = mod2D.create_rectangle(position=['r_x0', 'r_y0', 'r_z0'],
-                              dimension_list=['r_dx', 'r_dy', 0],
-                              name='Ground', matname=mats[0])
+rect = mod2D.create_rectangle(
+    position=["r_x0", "r_y0", "r_z0"], dimension_list=["r_dx", "r_dy", 0], name="Ground", matname=mats[0]
+)
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
 
-circle = mod2D.create_circle(position=['circle_x0', 'circle_y0', 'circle_z0'], radius='circle_radius',
-                             num_sides='0', is_covered=True, name='Electrode', matname=mats[0])
+circle = mod2D.create_circle(
+    position=["circle_x0", "circle_y0", "circle_z0"],
+    radius="circle_radius",
+    num_sides="0",
+    is_covered=True,
+    name="Electrode",
+    matname=mats[0],
+)
 circle.color = (0, 0, 255)  # rgb
 circle.solve_inside = False
 
-poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0],[8, 2, 0]]
+poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod2D.create_polyline(position_list=poly1_points,segment_type='Spline', name='Poly1')
-poly2_id = mod2D.create_polyline(position_list=poly2_points, name='Poly2')
-mod2D.split([poly1_id, poly2_id], 'YZ', sides='NegativeOnly')
+poly1_id = mod2D.create_polyline(position_list=poly1_points, segment_type="Spline", name="Poly1")
+poly2_id = mod2D.create_polyline(position_list=poly2_points, name="Poly2")
+mod2D.split([poly1_id, poly2_id], "YZ", sides="NegativeOnly")
 mod2D.create_region([20, 100, 20, 100])
 
 ##################################################################################
@@ -125,15 +125,15 @@ mod2D.create_region([20, 100, 20, 100])
 # ~~~~~~~~~~~~~~~~~~
 # Assign voltage excitations to rectangle and circle.
 
-M2D.assign_voltage(rect.id, amplitude=0, name='Ground')
-M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
+M2D.assign_voltage(rect.id, amplitude=0, name="Ground")
+M2D.assign_voltage(circle.id, amplitude=50e6, name="50kV")
 
 ##################################################################################
 # Create initial mesh settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
-M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
+M2D.mesh.assign_surface_mesh_manual(names=["Ground"], surf_dev=0.001)
 
 ##################################################################################
 # Create, validate and analyze the setup
@@ -141,7 +141,7 @@ M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
 # Create, update, validate and analyze the setup.
 
 setup = M2D.create_setup(setupname=sName)
-setup.props['PercentError'] = 0.5
+setup.props["PercentError"] = 0.5
 setup.update()
 M2D.validate_simple()
 M2D.analyze_setup(sName)
@@ -152,7 +152,7 @@ M2D.analyze_setup(sName)
 # Evaluate the E Field tangential component along the given polylines.
 # Add these operations to the Named Expression list in Field Calculator.
 
-fields = M2D.odesign.GetModule('FieldsReporter')
+fields = M2D.odesign.GetModule("FieldsReporter")
 fields.CalcStack("clear")
 fields.EnterQty("E")
 fields.EnterEdge("Poly1")
@@ -172,9 +172,7 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # the ground, the electrode and the region
 # and as ``In surface objects`` only the region.
 
-plot = M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"],
-                                             "Region",
-                                             plot_name="LineTracesTest")
+plot = M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"], "Region", plot_name="LineTracesTest")
 
 ###################################################################################
 # Update Field Line Traces Plot

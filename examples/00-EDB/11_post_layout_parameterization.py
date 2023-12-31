@@ -16,24 +16,23 @@ layers = ["16_Bottom"]  # Specify layers to be parameterized
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 import os
 import tempfile
+
 import pyaedt
-
-from pyaedt import downloads
 from pyaedt import Edb
+from pyaedt import downloads
 
-temppath =  pyaedt.generate_unique_folder_name()
+temppath = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
 # Download and open example layout file in edb format
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-edb_fpath = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=temppath)
+edb_fpath = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temppath)
 appedb = Edb(edb_fpath, edbversion="2023.2")
 
 ###############################################################################
 # Cutout
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-appedb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"],
-              remove_single_pin_components=True)
+appedb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"], remove_single_pin_components=True)
 
 ###############################################################################
 # Get all trace segments from the signal net

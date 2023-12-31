@@ -17,7 +17,6 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-
 test_subfolder = "T26"
 
 
@@ -29,8 +28,6 @@ def aedtapp(add_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 class TestClass:
-
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
@@ -209,37 +206,37 @@ class TestClass:
             assert start_freq == 0.0001
             # test band.set_band_start_frequency
             start_freq = 10
-            units = 'MHz'
+            units = "MHz"
             radio.set_band_start_frequency(band, start_freq, units=units)
             assert radio.band_start_frequency(band, units=units) == start_freq
             start_freq = 20000000
             radio.set_band_start_frequency(band, start_freq)
-            assert radio.band_start_frequency(band, units='Hz') == start_freq
+            assert radio.band_start_frequency(band, units="Hz") == start_freq
             # test band.set_band_stop_frequency
             stop_freq = 30
-            units = 'MHz'
+            units = "MHz"
             radio.set_band_stop_frequency(band, stop_freq, units=units)
             assert radio.band_stop_frequency(band, units=units) == stop_freq
             stop_freq = 40000000
             radio.set_band_stop_frequency(band, stop_freq)
-            assert radio.band_stop_frequency(band, units='Hz') == stop_freq
+            assert radio.band_stop_frequency(band, units="Hz") == stop_freq
             # test corner cases for band start and stop frequencies
             start_freq = 10
             stop_freq = 9
-            units = 'Hz'
+            units = "Hz"
             radio.set_band_start_frequency(band, start_freq, units=units)
             radio.set_band_stop_frequency(band, stop_freq, units=units)
             assert radio.band_start_frequency(band, units="Hz") == 8
             radio.set_band_start_frequency(band, 10, units=units)
             assert radio.band_stop_frequency(band, units="Hz") == 11
-            units = 'wrong'
+            units = "wrong"
             radio.set_band_stop_frequency(band, 10, units=units)
-            assert radio.band_stop_frequency(band, units='Hz') == 10
+            assert radio.band_stop_frequency(band, units="Hz") == 10
             radio.set_band_start_frequency(band, 10, units=units)
-            assert radio.band_start_frequency(band, units='Hz') == 10
+            assert radio.band_start_frequency(band, units="Hz") == 10
             with pytest.raises(ValueError) as e:
                 start_freq = 101
-                units = 'GHz'
+                units = "GHz"
                 radio.set_band_start_frequency(band, start_freq, units=units)
                 assert "Frequency should be within 1Hz to 100 GHz." in str(e)
                 stop_freq = 102
@@ -1123,9 +1120,7 @@ class TestClass:
             assert antenna_nodes[key].name == antenna_names[i]
             i += 1
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1")
     def test_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit)
@@ -1172,9 +1167,7 @@ class TestClass:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2."
-    )
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
     def test_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
@@ -1197,40 +1190,42 @@ class TestClass:
         # Find the license log for this process
         appdata_local_path = tempfile.gettempdir()
         pid = os.getpid()
-        dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
-        
-        license_file_path = ''
+        dot_ansys_directory = os.path.join(appdata_local_path, ".ansys")
+
+        license_file_path = ""
         with os.scandir(dot_ansys_directory) as dir:
             for file in dir:
-                filename_pieces = file.name.split('.')
+                filename_pieces = file.name.split(".")
                 # Since machine names can contain periods, there may be over five splits here
                 # We only care about the first split and last three splits
                 if len(filename_pieces) >= 5:
-                    if (filename_pieces[0] == 'ansyscl' and 
-                        filename_pieces[-3] == str(pid) and
-                        filename_pieces[-2].isnumeric() and 
-                        filename_pieces[-1] == 'log'):
+                    if (
+                        filename_pieces[0] == "ansyscl"
+                        and filename_pieces[-3] == str(pid)
+                        and filename_pieces[-2].isnumeric()
+                        and filename_pieces[-1] == "log"
+                    ):
                         license_file_path = os.path.join(dot_ansys_directory, file.name)
                         break
-        
-        assert license_file_path != ''
-        
+
+        assert license_file_path != ""
+
         def count_license_actions(license_file_path):
             # Count checkout/checkins in most recent license connection
             checkouts = 0
-            checkins  = 0
-            with open(license_file_path, 'r') as license_file:
-                lines = license_file.read().strip().split('\n')
+            checkins = 0
+            with open(license_file_path, "r") as license_file:
+                lines = license_file.read().strip().split("\n")
                 for line in lines:
-                    if 'NEW_CONNECTION' in line:
+                    if "NEW_CONNECTION" in line:
                         checkouts = 0
                         checkins = 0
-                    elif 'CHECKOUT' in line or "SPLIT_CHECKOUT" in line:
+                    elif "CHECKOUT" in line or "SPLIT_CHECKOUT" in line:
                         checkouts += 1
-                    elif 'CHECKIN' in line:
+                    elif "CHECKIN" in line:
                         checkins += 1
             return (checkouts, checkins)
-        
+
         # Figure out how many checkouts and checkins per run we expect
         # This could change depending on the user's EMIT HPC settings
         pre_first_run_checkouts, pre_first_run_checkins = count_license_actions(license_file_path)
@@ -1244,13 +1239,13 @@ class TestClass:
 
         # Run without license session
         for i in range(number_of_runs):
-            do_run()        
-        
+            do_run()
+
         # Run with license session
         with revision.get_license_session():
             for i in range(number_of_runs):
                 do_run()
-        
+
         end_checkouts, end_checkins = count_license_actions(license_file_path)
 
         checkouts = end_checkouts - start_checkouts

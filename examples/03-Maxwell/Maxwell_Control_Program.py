@@ -12,14 +12,14 @@ plot field line traces, relevant for an electrostatic analysis.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
+from pyaedt import Maxwell2d
 from pyaedt import downloads
 from pyaedt import generate_unique_folder_name
-from pyaedt import Maxwell2d
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -37,10 +37,9 @@ ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", 
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D.
 
-m2d = Maxwell2d(projectname=aedt_file,
-                specified_version="2023.2",
-                new_desktop_session=True,
-                non_graphical=non_graphical)
+m2d = Maxwell2d(
+    projectname=aedt_file, specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+)
 
 ##################################################################################
 # Set active design
@@ -76,7 +75,7 @@ setup.analyze()
 # ~~~~~~~~~~~~
 # Plot Solved Results.
 
-sols = m2d.post.get_solution_data("FluxLinkage(Winding1)",variations={"Time":["All"]},  primary_sweep_variable="Time")
+sols = m2d.post.get_solution_data("FluxLinkage(Winding1)", variations={"Time": ["All"]}, primary_sweep_variable="Time")
 sols.plot()
 
 ###################################################################################

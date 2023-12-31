@@ -15,7 +15,7 @@ import pyaedt
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -128,7 +128,7 @@ cs5 = hfss.modeler.create_coordinate_system(name="CS5", mode="axisrotation", u=[
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Face coordinate systems are bound to an object face.
 # First create a box and then define the face coordinate system on one of its
-# faces. To create the reference face for the face coordinate system, you must 
+# faces. To create the reference face for the face coordinate system, you must
 # specify starting and ending points for the axis.
 
 box = hfss.modeler.create_box([0, 0, 0], [2, 2, 2])
@@ -202,8 +202,8 @@ cs_fcs = hfss.modeler.create_coordinate_system(
 # Create object coordinate system with origin on face
 
 obj_cs = hfss.modeler.create_object_coordinate_system(
-            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="box_obj_cs"
-        )
+    obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="box_obj_cs"
+)
 obj_cs.rename("new_obj_cs")
 
 ###############################################################################
@@ -212,8 +212,8 @@ obj_cs.rename("new_obj_cs")
 # Create object coordinate system with origin on edge
 
 obj_cs_1 = hfss.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_1"
-        )
+    obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_1"
+)
 obj_cs_1.set_as_working_cs()
 
 ###############################################################################
@@ -222,8 +222,8 @@ obj_cs_1.set_as_working_cs()
 # Create object coordinate system with origin specified on point
 
 obj_cs_2 = hfss.modeler.create_object_coordinate_system(
-            obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_2"
-        )
+    obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_2"
+)
 new_obj_cs_2 = hfss.modeler.duplicate_coordinate_system_to_global(obj_cs_2)
 obj_cs_2.delete()
 
@@ -233,8 +233,8 @@ obj_cs_2.delete()
 # Create object coordinate system with origin on vertex
 
 obj_cs_3 = hfss.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs_3"
-        )
+    obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs_3"
+)
 obj_cs_3.props["MoveToEnd"] = False
 obj_cs_3.update()
 

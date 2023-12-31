@@ -6,6 +6,7 @@ These classes are the containers of ``setup`` classes in EDB for both HFSS and S
 .. code:: python
 
     from pyaedt import Edb
+
     edb = Edb(myedb, edbversion="2023.1")
 
     # this call create a setup and returns the object

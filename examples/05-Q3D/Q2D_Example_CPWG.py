@@ -10,12 +10,13 @@ in 2D Extractor and run a simulation.
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -26,11 +27,13 @@ desktop_version = "2023.2"
 # Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(specified_version=desktop_version,
-               non_graphical=non_graphical,
-               new_desktop_session=True,
-               projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
-               designname="coplanar_waveguide")
+q = pyaedt.Q2d(
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+    projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
+    designname="coplanar_waveguide",
+)
 
 ###############################################################################
 # Define variables
@@ -87,14 +90,16 @@ q.modeler.move(objid=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a coplanar ground.
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
-                                          name="co_gnd_left")
+base_line_obj = q.modeler.create_polyline(
+    position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left"
+)
 top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
-                                          name="co_gnd_right")
+base_line_obj = q.modeler.create_polyline(
+    position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right"
+)
 top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
@@ -122,9 +127,9 @@ q.modeler.create_rectangle(
 # Create a conformal coating.
 
 sm_obj_list = []
-ids = [1,2,3]
+ids = [1, 2, 3]
 if desktop_version >= "2023.1":
-    ids = [0,1,2]
+    ids = [0, 1, 2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
     obj = q.modeler.get_object_from_name(obj_name)
@@ -182,7 +187,7 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 # Create setup, analyze, and plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup, analyze it, and plot solution data.
- 
+
 setup = q.create_setup(setupname="new_setup")
 
 sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")

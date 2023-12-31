@@ -9,14 +9,14 @@ This example shows how you can use PyAEDT to create a project in HFSS and create
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
-
 import os
+
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False

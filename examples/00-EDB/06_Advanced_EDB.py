@@ -9,9 +9,10 @@ This example shows how you can use EDB to create a layout.
 # Perform required imports.
 
 import os
-import numpy as np
-import pyaedt
 
+import numpy as np
+
+import pyaedt
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("via_opt") + ".aedb")
 
@@ -26,6 +27,7 @@ aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_u
 # Create ground plane
 # ~~~~~~~~~~~~~~~~~~~
 # Create a ground plane on specific layers.
+
 
 def _create_ground_planes(edb, layers):
     plane = edb.modeler.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["3mm", "3mm"])
@@ -55,10 +57,14 @@ trace_in_layer = "TOP"
 trace_out_layer = "L10"
 gvia_num = 10
 gvia_angle = 30
-edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner,
-                                     outer_layer_thickness=cond_thickness_outer,
-                                     soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
-                                     dielectric_material=diel_material_name)
+edb.stackup.create_symmetric_stackup(
+    layer_count=layout_count,
+    inner_layer_thickness=cond_thickness_inner,
+    outer_layer_thickness=cond_thickness_outer,
+    soldermask_thickness=soldermask_thickness,
+    dielectric_thickness=diel_thickness,
+    dielectric_material=diel_material_name,
+)
 
 
 ##################################################################################
@@ -82,12 +88,13 @@ edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 # Create two definitions, one for the ground and one for the signal. The definitions
 # are parametric.
 
-edb.padstacks.create(padstackname="SVIA",
-                     holediam="$via_hole_size",
-                     antipaddiam="$antipaddiam",
-                     paddiam="$paddiam",
-                     start_layer=trace_in_layer,
-                     stop_layer=trace_out_layer
+edb.padstacks.create(
+    padstackname="SVIA",
+    holediam="$via_hole_size",
+    antipaddiam="$antipaddiam",
+    paddiam="$paddiam",
+    start_layer=trace_in_layer,
+    stop_layer=trace_out_layer,
 )
 edb.padstacks.create(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
@@ -107,7 +114,6 @@ edb.padstacks.place([0, 0], "SVIA", net_name="RF")
 gvia_num_side = gvia_num / 2
 
 if gvia_num_side % 2:
-
     # Even number of ground vias on each side
     edb.padstacks.place(["via_pitch", 0], "GVIA", net_name="GND")
     edb.padstacks.place(["via_pitch*-1", 0], "GVIA", net_name="GND")
@@ -120,7 +126,6 @@ if gvia_num_side % 2:
         edb.padstacks.place([xloc + "*-1", yloc], "GVIA", net_name="GND")
         edb.padstacks.place([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
 else:
-
     # Odd number of ground vias on each side
     for i in np.arange(0, gvia_num_side / 2):
         xloc = "{}*{}".format(np.cos(giva_angle_rad * (i + 0.5)), "via_pitch")
@@ -137,7 +142,12 @@ else:
 # Generate and place parametric traces.
 
 edb.modeler.create_trace(
-    [[0, 0], [0, "-3mm"]], layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
+    [[0, 0], [0, "-3mm"]],
+    layer_name=trace_in_layer,
+    net_name="RF",
+    width="trace_in_width",
+    start_cap_style="Flat",
+    end_cap_style="Flat",
 )
 
 edb.modeler.create_trace(
@@ -164,7 +174,7 @@ _create_ground_planes(edb=edb, layers=ground_layers)
 # ~~~~~~~~~~~
 # Generate and plot the layout.
 
-#edb.nets.plot(layers=["TOP", "L10"])
+# edb.nets.plot(layers=["TOP", "L10"])
 edb.stackup.plot(plot_definitions=["GVIA", "SVIA"])
 
 

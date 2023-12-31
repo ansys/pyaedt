@@ -21,7 +21,7 @@ m2d = pyaedt.Maxwell2d(
     new_desktop_session=True,
     close_on_exit=True,
     solution_type="DCConduction",
-    designname="Ansys_resistor"
+    designname="Ansys_resistor",
 )
 
 ##################################################################################
@@ -44,7 +44,7 @@ m2d.modeler.import_3d_cad(ParasolidPath)
 # and MaterialIndex referring to the material array
 
 m2d["MaterialThickness"] = "5mm"
-m2d["ConductorMaterial"] = "[\"Copper\", \"Aluminum\", \"silver\", \"gold\"]"
+m2d["ConductorMaterial"] = '["Copper", "Aluminum", "silver", "gold"]'
 MaterialIndex = 0
 m2d["MaterialIndex"] = str(MaterialIndex)
 no_materials = 4
@@ -73,7 +73,7 @@ m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 1V is the source, 0V ground
 
-m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
+m2d.assign_matrix(sources=["1V"], group_sources=["0V"], matrix_name="Matrix1")
 
 ##################################################################################
 # Assign mesh operation
@@ -89,12 +89,13 @@ m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlen
 # Enable expression cache to observe the convergence.
 
 setup1 = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
-setup1.enable_expression_cache( # doesn't work?
+setup1.enable_expression_cache(  # doesn't work?
     report_type="DCConduction",
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
     isconvergence=True,
     conv_criteria=1,
-    use_cache_for_freq=False)
+    use_cache_for_freq=False,
+)
 setup1.analyze()
 
 ##################################################################################
@@ -103,9 +104,7 @@ setup1.analyze()
 # Create parametric sweep to sweep all the entries in the material array.
 # Save fields and mesh and use the mesh for all the materials.
 
-param_sweep = m2d.parametrics.add(
-    "MaterialIndex", 0, no_materials-1, 1, "LinearStep",
-    parametricname="MaterialSweep")
+param_sweep = m2d.parametrics.add("MaterialIndex", 0, no_materials - 1, 1, "LinearStep", parametricname="MaterialSweep")
 param_sweep["SaveFields"] = True
 param_sweep["CopyMesh"] = True
 param_sweep["SolveWithCopiedMeshOnly"] = True
@@ -128,8 +127,6 @@ report = m2d.post.create_report(
 d = report.get_solution_data()
 d.primary_sweep = "MaterialIndex"
 d.plot()
-
-
 
 
 ##################################################################################
@@ -165,7 +162,7 @@ animated = m2d.post.plot_animated_field(
     object_list=conductor_surface,
     export_path=m2d.working_directory,
     variation_variable="MaterialIndex",
-    variation_list=[0,1,2,3],
+    variation_list=[0, 1, 2, 3],
     show=False,
     export_gif=False,
     log_scale=True,

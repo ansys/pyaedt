@@ -352,10 +352,10 @@ $begin 'AnsoftProject'
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                6000000                    27 
-                4000001                    27 
-                4000000                    17 
-                2001000                    17 
+                6000000                    27
+                4000001                    27
+                4000000                    17
+                2001000                    17
                 2000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -432,10 +432,10 @@ $begin 'AnsoftProject'
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               10000000                    40 
-                6000001                    40 
-                6000000                    30 
-                2000001                    30 
+               10000000                    40
+                6000001                    40
+                6000000                    30
+                2000001                    30
                 2000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -731,7 +731,7 @@ $begin 'AnsoftProject'
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               50000000                    70 
+               50000000                    70
                15000000                    50 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -917,7 +917,7 @@ $begin 'AnsoftProject'
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               60000000                    70 
+               60000000                    70
                30000000                    50 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -1102,7 +1102,7 @@ $begin 'AnsoftProject'
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               50000000                    70 
+               50000000                    70
                20460000                    50 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -1355,7 +1355,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               22100000                    35 
+               22100000                    35
                30000000                    35 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -1540,7 +1540,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               22100000                    35 
+               22100000                    35
                30000000                    35 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -1767,10 +1767,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -1959,10 +1959,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -2120,8 +2120,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    15 
-               54000000                    15 
+               36100000                    15
+               54000000                    15
                36000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -2306,8 +2306,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    15 
-               54000000                    15 
+               36100000                    15
+               54000000                    15
                36000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -2492,10 +2492,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    25 
-               18100000                    11 
-               18000000                     0 
-               54000000                    25 
+               36100000                    25
+               18100000                    11
+               18000000                     0
+               54000000                    25
                36000000                    11 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -2680,10 +2680,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    25 
-               18100000                    11 
-               18000000                     0 
-               54000000                    25 
+               36100000                    25
+               18100000                    11
+               18000000                     0
+               54000000                    25
                36000000                    11 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -2910,10 +2910,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               40000000                    40 
-               30000000                    40 
-               20000000                    28 
-               11000000                    20 
+               40000000                    40
+               30000000                    40
+               20000000                    28
+               11000000                    20
                 9000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -3102,10 +3102,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -3294,10 +3294,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               40000000                    40 
-               30000000                    40 
-               20000000                    28 
-               11000000                    20 
+               40000000                    40
+               30000000                    40
+               20000000                    28
+               11000000                    20
                 9000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -3486,10 +3486,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -3647,8 +3647,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -3833,8 +3833,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -4019,8 +4019,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -4205,8 +4205,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -4433,8 +4433,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -4623,8 +4623,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -4813,8 +4813,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -5003,8 +5003,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -5159,8 +5159,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    35 
-               22100000                    35 
+               66000000                    35
+               22100000                    35
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -5345,8 +5345,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    35 
-               22100000                    35 
+               66000000                    35
+               22100000                    35
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -5572,10 +5572,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -5764,10 +5764,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -5925,8 +5925,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36000000                    14 
-               26999990                     0 
+               36000000                    14
+               26999990                     0
                27000000                    14 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -6111,8 +6111,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               76000000                    14 
-               56999990                     0 
+               76000000                    14
+               56999990                     0
                57000000                    14 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -6339,10 +6339,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -6531,10 +6531,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-              160000000                    40 
-              120000000                    40 
-               80000000                    28 
-               42000000                    20 
+              160000000                    40
+              120000000                    40
+               80000000                    28
+               42000000                    20
                38000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -6774,10 +6774,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               72000000                    25 
-               54000000                    11 
-               36000000                     0 
-               54100000                    25 
+               72000000                    25
+               54000000                    11
+               36000000                     0
+               54100000                    25
                36100000                    11 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -6879,8 +6879,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    15 
-               54000000                    15 
+               36100000                    15
+               54000000                    15
                36000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -7107,10 +7107,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               40000000                    40 
-               30000000                    40 
-               20000000                    28 
-               11000000                    20 
+               40000000                    40
+               30000000                    40
+               20000000                    28
+               11000000                    20
                 9000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -7299,10 +7299,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -7532,10 +7532,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                6000000                    27 
-                4000001                    27 
-                4000000                    17 
-                2001000                    17 
+                6000000                    27
+                4000001                    27
+                4000000                    17
+                2001000                    17
                 2000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -7612,10 +7612,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               10000000                    40 
-                6000001                    40 
-                6000000                    30 
-                2000001                    30 
+               10000000                    40
+                6000001                    40
+                6000000                    30
+                2000001                    30
                 2000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -7907,7 +7907,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               50000000                    70 
+               50000000                    70
                15000000                    50 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -8093,7 +8093,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               60000000                    70 
+               60000000                    70
                30000000                    50 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -8278,7 +8278,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               50000000                    70 
+               50000000                    70
                20460000                    50 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -8631,7 +8631,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               22100000                    35 
+               22100000                    35
                30000000                    35 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -8816,7 +8816,7 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               22100000                    35 
+               22100000                    35
                30000000                    35 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -9043,10 +9043,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -9235,10 +9235,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -9396,8 +9396,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    15 
-               54000000                    15 
+               36100000                    15
+               54000000                    15
                36000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -9582,8 +9582,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    15 
-               54000000                    15 
+               36100000                    15
+               54000000                    15
                36000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -9768,10 +9768,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    25 
-               18100000                    11 
-               18000000                     0 
-               54000000                    25 
+               36100000                    25
+               18100000                    11
+               18000000                     0
+               54000000                    25
                36000000                    11 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -9956,10 +9956,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    25 
-               18100000                    11 
-               18000000                     0 
-               54000000                    25 
+               36100000                    25
+               18100000                    11
+               18000000                     0
+               54000000                    25
                36000000                    11 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -10186,10 +10186,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               40000000                    40 
-               30000000                    40 
-               20000000                    28 
-               11000000                    20 
+               40000000                    40
+               30000000                    40
+               20000000                    28
+               11000000                    20
                 9000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -10378,10 +10378,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -10570,10 +10570,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               40000000                    40 
-               30000000                    40 
-               20000000                    28 
-               11000000                    20 
+               40000000                    40
+               30000000                    40
+               20000000                    28
+               11000000                    20
                 9000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -10762,10 +10762,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -10923,8 +10923,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -11109,8 +11109,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -11295,8 +11295,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -11481,8 +11481,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                4010000                     3 
-                8000000                     3 
+                4010000                     3
+                8000000                     3
                 4000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -11709,8 +11709,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -11899,8 +11899,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -12089,8 +12089,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -12279,8 +12279,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-                3000000                    60 
-                2000000                    40 
+                3000000                    60
+                2000000                    40
                 1000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -12435,8 +12435,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    35 
-               22100000                    35 
+               66000000                    35
+               22100000                    35
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -12621,8 +12621,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    35 
-               22100000                    35 
+               66000000                    35
+               22100000                    35
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -12848,10 +12848,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -13040,10 +13040,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               66000000                    50 
-               44000001                    50 
-               44000000                    30 
-               22000001                    30 
+               66000000                    50
+               44000001                    50
+               44000000                    30
+               22000001                    30
                22000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -13201,8 +13201,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36000000                    14 
-               26999990                     0 
+               36000000                    14
+               26999990                     0
                27000000                    14 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -13387,8 +13387,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               76000000                    14 
-               56999990                     0 
+               76000000                    14
+               56999990                     0
                57000000                    14 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -13615,10 +13615,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -13807,10 +13807,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-              160000000                    40 
-              120000000                    40 
-               80000000                    28 
-               42000000                    20 
+              160000000                    40
+              120000000                    40
+               80000000                    28
+               42000000                    20
                38000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -14050,10 +14050,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               72000000                    25 
-               54000000                    11 
-               36000000                     0 
-               54100000                    25 
+               72000000                    25
+               54000000                    11
+               36000000                     0
+               54100000                    25
                36100000                    11 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -14155,8 +14155,8 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               36100000                    15 
-               54000000                    15 
+               36100000                    15
+               54000000                    15
                36000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -14383,10 +14383,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               40000000                    40 
-               30000000                    40 
-               20000000                    28 
-               11000000                    20 
+               40000000                    40
+               30000000                    40
+               20000000                    28
+               11000000                    20
                 9000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'
@@ -14575,10 +14575,10 @@ This is an approximate model of the 802.11-2012 standard which incorporated the 
 
 @ BeginData
 #             Bandwidth      Attenuation (dB)
-               80000000                    40 
-               60000000                    40 
-               40000000                    28 
-               22000000                    20 
+               80000000                    40
+               60000000                    40
+               40000000                    28
+               22000000                    20
                18000000                     0 $end_cdata$
 							$end 'file'
 						$end 'files'

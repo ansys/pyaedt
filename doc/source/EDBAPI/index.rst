@@ -23,6 +23,7 @@ Example:
 .. code:: python
 
     from pyaedt import Edb
+
     edb = Edb("my_project.aedb", edbversion="2023.1")
     edb.core_components.components["R1"].r_value = 40
     edb.close_edb()

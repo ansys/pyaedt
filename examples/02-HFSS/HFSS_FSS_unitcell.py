@@ -10,6 +10,7 @@ This example shows how you can use PyAEDT to create a FSS unitcell simulations i
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="FSS")
@@ -72,9 +73,9 @@ periodicity_x = bounding_dimensions[0]
 periodicity_y = bounding_dimensions[1]
 
 region = hfss.modeler.create_air_region(
-        z_pos=10 * bounding_dimensions[2],
-        is_percentage=False,
-    )
+    z_pos=10 * bounding_dimensions[2],
+    is_percentage=False,
+)
 
 [x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box
 
@@ -91,8 +92,14 @@ hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
 # Assign Floquet port.
 
 id_z_pos = region.top_face_z
-hfss.create_floquet_port(id_z_pos, [0, 0, z_max], [0, y_max, z_max], [x_max, 0, z_max],
-                                     portname='port_z_max', deembed_dist=10 * bounding_dimensions[2])
+hfss.create_floquet_port(
+    id_z_pos,
+    [0, 0, z_max],
+    [0, y_max, z_max],
+    [x_max, 0, z_max],
+    portname="port_z_max",
+    deembed_dist=10 * bounding_dimensions[2],
+)
 
 
 ###############################################################################

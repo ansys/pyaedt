@@ -6,9 +6,10 @@ The main component object is called directly from main application using the pro
 .. code:: python
 
     from pyaedt import Edb
+
     edb = Edb(myedb, edbversion="2023.1")
 
-    pins =edb.components.get_pin_from_component("U2A5")
+    pins = edb.components.get_pin_from_component("U2A5")
 
     ...
 
@@ -41,6 +42,7 @@ These classes are the containers of data management for components reference des
 .. code:: python
 
     from pyaedt import Edb
+
     edb = Edb(myedb, edbversion="2023.1")
 
     comp = edb.components["C1"]

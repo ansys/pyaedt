@@ -24,7 +24,9 @@ This example shows how to
 ######################################################################
 
 import os
+
 import numpy as np
+
 import pyaedt
 
 ansys_version = "2023.2"
@@ -174,11 +176,19 @@ h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=ansys_version, new_deskto
 # Place 3D component
 # ~~~~~~~~~~~~~~~~~~
 
-component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_SURFACE_MOUNT.a3dcomp",)
+component3d = pyaedt.downloads.download_file(
+    "component_3d",
+    "SMA_RF_SURFACE_MOUNT.a3dcomp",
+)
 
 comp = h3d.modeler.place_3d_component(
-    component_path=component3d, number_of_terminals=1, placement_layer="TOP", component_name="my_connector",
-    pos_x="5mm", pos_y=0.000)
+    component_path=component3d,
+    number_of_terminals=1,
+    placement_layer="TOP",
+    component_name="my_connector",
+    pos_x="5mm",
+    pos_y=0.000,
+)
 
 ##########
 # Analysis

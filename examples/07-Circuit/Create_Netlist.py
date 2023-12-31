@@ -28,7 +28,7 @@ desktopVersion = "2023.2"
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``NewThread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.

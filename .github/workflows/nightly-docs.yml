@@ -74,7 +74,7 @@ jobs:
 
       - name: Display structure of downloaded files
         run: ls -R
-      
+
       - name: "Deploy the dev documentation index for PyAEDT API"
         uses: ansys/actions/doc-deploy-index@v5
         with:

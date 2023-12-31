@@ -11,6 +11,7 @@ and set up a doppler analysis.
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # Launch AEDT
@@ -25,7 +26,7 @@ library_path = pyaedt.downloads.download_multiparts()
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -44,7 +45,7 @@ app = pyaedt.Hfss(
     new_desktop_session=True,
     projectname=project_name,
     close_on_exit=True,
-    non_graphical=non_graphical
+    non_graphical=non_graphical,
 )
 
 app.autosave_disable()
@@ -144,7 +145,7 @@ app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"
 # Solve and release AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Solve and release AEDT. To solve, uncomment the ``app.analyze_setup`` command
-# to activate the simulation. 
+# to activate the simulation.
 
 # app.analyze_setup(sweep.name)
 app.save_project()

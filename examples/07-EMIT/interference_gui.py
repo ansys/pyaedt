@@ -3,20 +3,23 @@ EMIT: Classify interference type GUI
 ----------------------------------------
 This example uses a GUI to open an AEDT project with
 an EMIT design and analyze the results to classify the
-worst-case interference. 
+worst-case interference.
 """
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import sys
-from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
-from pyaedt import Emit
-from pyaedt import get_pyaedt_app
-import pyaedt
 import os
 import subprocess
+import sys
+
+import pyaedt
+from pyaedt import Emit
+from pyaedt import get_pyaedt_app
+from pyaedt.emit_core.emit_constants import InterfererType
+from pyaedt.emit_core.emit_constants import ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode
 import pyaedt.generic.constants as consts
 
 # Check that emit is a compatible version
@@ -26,23 +29,28 @@ if emitapp_desktop_version < "2023.2":
     sys.exit()
 
 # Check to see which Python libraries have been installed
-reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
-installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+reqs = subprocess.check_output([sys.executable, "-m", "pip", "freeze"])
+installed_packages = [r.decode().split("==")[0] for r in reqs.split()]
+
 
 # Install required packages if they are not installed
 def install(package):
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
 
 # Install required libraries for GUI and Excel exporting (internet connection needed)
-required_packages = ['PySide6', 'openpyxl']
+required_packages = ["PySide6", "openpyxl"]
 for package in required_packages:
     if package not in installed_packages:
         install(package)
 
 # Import PySide6 and openpyxl libraries
-from PySide6 import QtWidgets, QtUiTools, QtGui, QtCore
-from openpyxl.styles import PatternFill
+from PySide6 import QtCore
+from PySide6 import QtGui
+from PySide6 import QtUiTools
+from PySide6 import QtWidgets
 import openpyxl
+from openpyxl.styles import PatternFill
 
 # Uncomment if there are Qt plugin errors
 # import PySide6
@@ -57,13 +65,15 @@ desktop = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thre
 
 # Add emitapi to system path
 emit_path = os.path.join(desktop.install_path, "Delcross")
-sys.path.insert(0,emit_path)
+sys.path.insert(0, emit_path)
 import EmitApiPython
+
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
 ui_file = pyaedt.downloads.download_file("emit", "interference_gui.ui")
 Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
+
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, decimals, values, max_power, min_power):
@@ -84,7 +94,7 @@ class DoubleDelegate(QtWidgets.QStyledItemDelegate):
                 max_val = self.max_power
             elif cur_row == num_rows - 1:
                 min_val = self.min_power
-                max_val = self.values[cur_row-1]
+                max_val = self.values[cur_row - 1]
             else:
                 min_val = self.values[cur_row + 1]
                 max_val = self.values[cur_row - 1]
@@ -95,6 +105,7 @@ class DoubleDelegate(QtWidgets.QStyledItemDelegate):
 
     def update_values(self, values):
         self.values = values
+
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -107,20 +118,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ###############################################################################
     # Setup widgets
     # ~~~~~~~~~~~~~
-    # Define all widgets from the UI file, connect the widgets to functions, define 
-    # table colors, and format table settings. 
-    
+    # Define all widgets from the UI file, connect the widgets to functions, define
+    # table colors, and format table settings.
+
     def setup_widgets(self):
         # Widget definitions for file selection/tab management
         self.file_select_btn = self.findChild(QtWidgets.QToolButton, "file_select_btn")
-        self.file_path_box = self.findChild(QtWidgets.QLineEdit, "file_path_box") 
+        self.file_path_box = self.findChild(QtWidgets.QLineEdit, "file_path_box")
         self.design_name_dropdown = self.findChild(QtWidgets.QComboBox, "design_name_dropdown")
         self.design_name_dropdown.setEnabled(True)
         self.tab_widget = self.findChild(QtWidgets.QTabWidget, "tab_widget")
 
         # Widget definitions for protection level classification
         self.protection_results_btn = self.findChild(QtWidgets.QPushButton, "protection_results_btn")
-        self.protection_matrix = self.findChild(QtWidgets.QTableWidget, "protection_matrix")    
+        self.protection_matrix = self.findChild(QtWidgets.QTableWidget, "protection_matrix")
         self.protection_legend_table = self.findChild(QtWidgets.QTableWidget, "protection_legend_table")
 
         self.damage_check = self.findChild(QtWidgets.QCheckBox, "damage_check")
@@ -130,7 +141,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_export_btn = self.findChild(QtWidgets.QPushButton, "protection_export_btn")
         self.radio_specific_levels = self.findChild(QtWidgets.QCheckBox, "radio_specific_levels")
         self.radio_dropdown = self.findChild(QtWidgets.QComboBox, "radio_dropdown")
-        self.protection_save_img_btn = self.findChild(QtWidgets.QPushButton, 'protection_save_img_btn')
+        self.protection_save_img_btn = self.findChild(QtWidgets.QPushButton, "protection_save_img_btn")
 
         # warning label
         self.warning_label = self.findChild(QtWidgets.QLabel, "warnings")
@@ -144,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_results_btn.setEnabled(False)
         self.protection_export_btn.setEnabled(False)
         self.protection_save_img_btn.setEnabled(False)
-        self.file_select_btn.clicked.connect(self.open_file_dialog) 
+        self.file_select_btn.clicked.connect(self.open_file_dialog)
         self.protection_export_btn.clicked.connect(self.save_results_excel)
         self.protection_results_btn.clicked.connect(self.protection_results)
         self.protection_legend_table.resizeRowsToContents()
@@ -156,8 +167,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_legend_table.setEditTriggers(QtWidgets.QTableWidget.DoubleClicked)
         self.global_protection_level = True
         self.protection_levels = {}
-        values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
-        self.protection_levels['Global'] = values
+        values = [
+            float(self.protection_legend_table.item(row, 0).text())
+            for row in range(self.protection_legend_table.rowCount())
+        ]
+        self.protection_levels["Global"] = values
         self.changing = False
         self.radio_dropdown.currentIndexChanged.connect(self.radio_dropdown_changed)
         self.protection_legend_table.itemChanged.connect(self.table_changed)
@@ -165,7 +179,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Widget definitions for interference type
         self.interference_results_btn = self.findChild(QtWidgets.QPushButton, "interference_results_btn")
-        self.interference_matrix = self.findChild(QtWidgets.QTableWidget, "interference_matrix")    
+        self.interference_matrix = self.findChild(QtWidgets.QTableWidget, "interference_matrix")
         self.interference_legend_table = self.findChild(QtWidgets.QTableWidget, "interference_legend_table")
 
         # set the items read only
@@ -179,15 +193,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.out_in_check = self.findChild(QtWidgets.QCheckBox, "out_in_check")
         self.out_out_check = self.findChild(QtWidgets.QCheckBox, "out_out_check")
         self.interference_export_btn = self.findChild(QtWidgets.QPushButton, "interference_export_btn")
-        self.interference_save_img_btn = self.findChild(QtWidgets.QPushButton, 'interference_save_img_btn')
-        
+        self.interference_save_img_btn = self.findChild(QtWidgets.QPushButton, "interference_save_img_btn")
+
         # Setup for interference type buttons and table
         self.interference_results_btn.setEnabled(False)
         self.interference_export_btn.setEnabled(False)
         self.interference_save_img_btn.setEnabled(False)
         self.interference_export_btn.clicked.connect(self.save_results_excel)
         self.interference_results_btn.clicked.connect(self.interference_results)
-        self.interference_legend_table.resizeRowsToContents() 
+        self.interference_legend_table.resizeRowsToContents()
         self.interference_legend_table.resizeColumnsToContents()
         self.in_in_check.stateChanged.connect(self.interference_results)
         self.in_out_check.stateChanged.connect(self.interference_results)
@@ -197,13 +211,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.interference_save_img_btn.clicked.connect(self.save_image)
 
         # Color definition dictionary and previous project/design names
-        self.color_dict = {"green": [QtGui.QColor(125, 115, 202),'#7d73ca'], 
-                           "yellow":[QtGui.QColor(211, 89, 162), '#d359a2'], 
-                           "orange": [QtGui.QColor(255, 99, 97), '#ff6361'], 
-                           "red": [QtGui.QColor(255, 166, 0), '#ffa600'], 
-                           "white": [QtGui.QColor("white"),'#ffffff']}
-        self.previous_design = ''
-        self.previous_project = ''
+        self.color_dict = {
+            "green": [QtGui.QColor(125, 115, 202), "#7d73ca"],
+            "yellow": [QtGui.QColor(211, 89, 162), "#d359a2"],
+            "orange": [QtGui.QColor(255, 99, 97), "#ff6361"],
+            "red": [QtGui.QColor(255, 166, 0), "#ffa600"],
+            "white": [QtGui.QColor("white"), "#ffffff"],
+        }
+        self.previous_design = ""
+        self.previous_project = ""
 
         # Set the legend tables to strech resize mode
         header = self.protection_legend_table.horizontalHeader()
@@ -225,20 +241,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         v_header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         # Input validation for protection level legend table
-        self.delegate = DoubleDelegate(decimals=2, values=values,
-                                  max_power=1000, min_power=-200)
+        self.delegate = DoubleDelegate(decimals=2, values=values, max_power=1000, min_power=-200)
         self.protection_legend_table.setItemDelegateForColumn(0, self.delegate)
         self.open_file_dialog()
 
     ###############################################################################
     # Open file dialog and select project
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Open the file dialog for project selection and populate the design dropdown 
-    # with all EMIT designs in the project. 
+    # Open the file dialog for project selection and populate the design dropdown
+    # with all EMIT designs in the project.
 
     def open_file_dialog(self):
-        fname, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "Ansys Electronics Desktop Files (*.aedt)", )
-        if fname: 
+        fname, _filter = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            "Select EMIT Project",
+            "",
+            "Ansys Electronics Desktop Files (*.aedt)",
+        )
+        if fname:
             self.file_path_box.setText(fname)
 
             # Close previous project and open specified one
@@ -254,7 +274,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 msg.setWindowTitle("Error: Project missing designs.")
                 msg.setText(
                     "The selected project has no designs. Projects must have at least "
-                    "one EMIT design. See AEDT log for more information.")
+                    "one EMIT design. See AEDT log for more information."
+                )
                 x = msg.exec()
                 return
 
@@ -262,10 +283,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if desktop_proj.lock_file == None:
                 msg = QtWidgets.QMessageBox()
                 msg.setWindowTitle("Error: Project already open")
-                msg.setText("Project is locked. Close or remove the lock before proceeding. See AEDT log for more information.")
+                msg.setText(
+                    "Project is locked. Close or remove the lock before proceeding. See AEDT log for more information."
+                )
                 x = msg.exec()
                 return
-            
+
             # Populate design dropdown with all design names
             designs = desktop_proj.design_list
             emit_designs = []
@@ -304,8 +327,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.radio_dropdown.clear()
                 self.radio_dropdown.setEnabled(False)
                 self.protection_levels = {}
-                values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
-                self.protection_levels['Global'] = values
+                values = [
+                    float(self.protection_legend_table.item(row, 0).text())
+                    for row in range(self.protection_legend_table.rowCount())
+                ]
+                self.protection_levels["Global"] = values
 
             self.radio_specific_levels.setEnabled(True)
             self.protection_results_btn.setEnabled(True)
@@ -344,21 +370,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.radio_dropdown.isEnabled():
             self.emitapp.set_active_design(self.design_name_dropdown.currentText())
             radios = self.emitapp.modeler.components.get_radios()
-            values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
             for radio in radios:
                 if radios[radio].has_rx_channels():
                     self.protection_levels[radio] = values
                     self.radio_dropdown.addItem(radio)
         else:
             self.radio_dropdown.clear()
-            values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
-            self.protection_levels['Global'] = values
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
+            self.protection_levels["Global"] = values
         self.global_protection_level = not self.radio_specific_levels.isChecked()
-    
+
     ###############################################################################
     # Update legend table
     # ~~~~~~~~~~~~~~~~~~~
-    # Update shown legend table values when the radio dropdown value changes. 
+    # Update shown legend table values when the radio dropdown value changes.
 
     def radio_dropdown_changed(self):
         if self.radio_dropdown.isEnabled():
@@ -368,29 +400,33 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 item.setText(str(self.protection_levels[self.radio_dropdown.currentText()][row]))
             self.changing = False
             # update the validator so min/max for each row is properly set
-            values = [float(self.protection_legend_table.item(row, 0).text()) for row in
-                      range(self.protection_legend_table.rowCount())]
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
             self.delegate.update_values(values)
 
     ###############################################################################
     # Save legend table values
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # Save inputted radio protection level threshold values every time one is changed 
+    # Save inputted radio protection level threshold values every time one is changed
     # in the legend table.
 
     def table_changed(self):
         if self.changing == False:
-            values = [float(self.protection_legend_table.item(row, 0).text()) for row in
-                      range(self.protection_legend_table.rowCount())]
-            if self.radio_dropdown.currentText() == '':
-                index = 'Global'
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
+            if self.radio_dropdown.currentText() == "":
+                index = "Global"
             else:
                 index = self.radio_dropdown.currentText()
             self.protection_levels[index] = values
             self.delegate.update_values(values)
 
     ###############################################################################
-    # Save scenario matrix to as PNG file 
+    # Save scenario matrix to as PNG file
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Save the scenario matrix table as a PNG file.
 
@@ -400,14 +436,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             table = self.interference_matrix
 
-        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Scenario Matrix", "png (*.png)")
+        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save Scenario Matrix", "Scenario Matrix", "png (*.png)"
+        )
         if fname:
             image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
             table.render(image)
             image.save(fname)
 
     ###############################################################################
-    # Save scenario matrix to Excel file 
+    # Save scenario matrix to Excel file
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Write the scenario matrix results to an Excel file with color coding.
 
@@ -420,7 +458,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             table = self.interference_matrix
             defaultName = "Interference Type Classification"
 
-        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", defaultName, "xlsx (*.xlsx)")
+        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save Scenario Matrix", defaultName, "xlsx (*.xlsx)"
+        )
 
         if fname:
             workbook = openpyxl.Workbook()
@@ -428,35 +468,48 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             header = self.tx_radios[:]
             header.insert(0, "Tx/Rx")
             worksheet.append(header)
-            for row in range(2, table.rowCount()+2):
-                worksheet.cell(row = row, column = 1, value = str(self.rx_radios[row-2]))
-                for col in range(2, table.columnCount()+2):
-                    text = str(table.item(row-2, col-2).text())
-                    worksheet.cell(row = row, column = col, value = text)
+            for row in range(2, table.rowCount() + 2):
+                worksheet.cell(row=row, column=1, value=str(self.rx_radios[row - 2]))
+                for col in range(2, table.columnCount() + 2):
+                    text = str(table.item(row - 2, col - 2).text())
+                    worksheet.cell(row=row, column=col, value=text)
                     cell = worksheet.cell(row, col)
-                    cell.fill = PatternFill(start_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:], 
-                                            end_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:], 
-                                            fill_type = "solid")
+                    cell.fill = PatternFill(
+                        start_color=self.color_dict[self.all_colors[col - 2][row - 2]][1][1:],
+                        end_color=self.color_dict[self.all_colors[col - 2][row - 2]][1][1:],
+                        fill_type="solid",
+                    )
             workbook.save(fname)
 
     ###############################################################################
-    # Run interference type simulation 
+    # Run interference type simulation
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Run interference type simulation and classify results.
 
     def interference_results(self):
         # Initialize filter check marks and expected filter results
-        self.interference_checks = [self.in_in_check.isChecked(), self.out_in_check.isChecked(),
-                                  self.in_out_check.isChecked(), self.out_out_check.isChecked()]
+        self.interference_checks = [
+            self.in_in_check.isChecked(),
+            self.out_in_check.isChecked(),
+            self.in_out_check.isChecked(),
+            self.out_out_check.isChecked(),
+        ]
 
-        self.interference_filters =["TxFundamental:In-band", ["TxHarmonic/Spurious:In-band","Intermod:In-band", "Broadband:In-band"], 
-                                    "TxFundamental:Out-of-band", ["TxHarmonic/Spurious:Out-of-band","Intermod:Out-of-band", "Broadband:Out-of-band"]]
+        self.interference_filters = [
+            "TxFundamental:In-band",
+            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
+            "TxFundamental:Out-of-band",
+            ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
+        ]
 
         # Create list of problem types to analyze according to inputted filters
-        filter = [i for (i,v) in zip(self.interference_filters, self.interference_checks) if v]
+        filter = [i for (i, v) in zip(self.interference_filters, self.interference_checks) if v]
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
-            if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
+            if (
+                self.previous_design != self.design_name_dropdown.currentText()
+                or self.previous_project != self.file_path_box.text()
+            ):
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
@@ -465,7 +518,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText(
+                        "An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information."
+                    )
                     x = msg.exec()
                     return
 
@@ -485,29 +540,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # at the input to each receiver due to each of the transmitters. Compute
             # which, if any, type of interference occured.
             domain = self.emitapp.results.interaction_domain()
-            self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, use_filter = True, filter_list = filter)
+            self.all_colors, self.power_matrix = self.rev.interference_type_classification(
+                domain, use_filter=True, filter_list=filter
+            )
 
             # Save project and plot results on table widget
             self.emitapp.save_project()
             self.populate_table()
 
     ###############################################################################
-    # Run protection level simulation 
+    # Run protection level simulation
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Run protection level simulation and classify results accroding to inputted 
+    # Run protection level simulation and classify results accroding to inputted
     # threshold levels.
 
     def protection_results(self):
         # Initialize filter check marks and expected filter results
-        self.protection_checks = [self.damage_check.isChecked(), self.overload_check.isChecked(),
-                                  self.intermodulation_check.isChecked(), self.desensitization_check.isChecked()]
+        self.protection_checks = [
+            self.damage_check.isChecked(),
+            self.overload_check.isChecked(),
+            self.intermodulation_check.isChecked(),
+            self.desensitization_check.isChecked(),
+        ]
 
-        self.protection_filters = ['damage', 'overload', 'intermodulation', 'desensitization']
+        self.protection_filters = ["damage", "overload", "intermodulation", "desensitization"]
 
-        filter = [i for (i,v) in zip(self.protection_filters, self.protection_checks) if v]
+        filter = [i for (i, v) in zip(self.protection_filters, self.protection_checks) if v]
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
-            if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
+            if (
+                self.previous_design != self.design_name_dropdown.currentText()
+                or self.previous_project != self.file_path_box.text()
+            ):
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
@@ -516,10 +580,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText(
+                        "An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information."
+                    )
                     x = msg.exec()
                     return
-                
+
                 # Get results and design radios
                 self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rev = self.emitapp.results.analyze()
@@ -531,14 +597,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 return
 
             domain = self.emitapp.results.interaction_domain()
-            self.all_colors, self.power_matrix = self.rev.protection_level_classification(domain, 
-                                                                                 self.global_protection_level, 
-                                                                                 self.protection_levels['Global'], 
-                                                                                 self.protection_levels, use_filter = True, 
-                                                                                 filter_list = filter)
+            self.all_colors, self.power_matrix = self.rev.protection_level_classification(
+                domain,
+                self.global_protection_level,
+                self.protection_levels["Global"],
+                self.protection_levels,
+                use_filter=True,
+                filter_list=filter,
+            )
 
             self.populate_table()
-    
+
     ###############################################################################
     # Populate the scenario matrix
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -568,7 +637,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 table.setItem(row, col, item)
                 cell = table.item(row, col)
                 cell.setBackground(self.color_dict[self.all_colors[col][row]][0])
-        
+
         button.setEnabled(True)
         img_btn.setEnabled(True)
 
@@ -606,13 +675,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             desktop.release_desktop(True, True)
 
+
 ###############################################################################
 # Run GUI
 # ~~~~~~~
 # Launch the GUI. If you want to run the GUI, uncomment the ``window.show()`` and
-# ``app.exec_()`` method calls. 
+# ``app.exec_()`` method calls.
 
-if __name__ == '__main__' and  os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if __name__ == "__main__" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     app = QtWidgets.QApplication([])
     window = MainWindow()
     window.show()

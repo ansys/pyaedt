@@ -19,11 +19,12 @@ directory as this module. An example of the contents of local_config.json
 """
 import json
 import os
+import random
 import shutil
+import string
 import sys
 import tempfile
-import random
-import string
+
 import pytest
 
 from pyaedt.generic.settings import settings
@@ -37,14 +38,13 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 
 
-from pyaedt.aedt_logger import pyaedt_logger
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import inside_desktop
-
 from pyaedt import Desktop
 from pyaedt import Edb
 from pyaedt import Hfss
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.misc.misc import list_installed_ansysem
 
 local_path = os.path.dirname(os.path.realpath(__file__))

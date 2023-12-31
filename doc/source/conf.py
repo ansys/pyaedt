@@ -2,63 +2,68 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
+from importlib import import_module
+import json
 import os
 import pathlib
+from pprint import pformat
+import shutil
 import sys
 import warnings
 
-import pyvista
-import numpy as np
-import json
-from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match, pyansys_logo_black,
-                                watermark, 
-                                ansys_logo_white, 
-                                ansys_logo_white_cropped, latex)
-from importlib import import_module
-from pprint import pformat
-from docutils.parsers.rst import Directive
+from ansys_sphinx_theme import ansys_favicon
+from ansys_sphinx_theme import ansys_logo_white
+from ansys_sphinx_theme import ansys_logo_white_cropped
+from ansys_sphinx_theme import get_version_match
+from ansys_sphinx_theme import latex
+from ansys_sphinx_theme import pyansys_logo_black
+from ansys_sphinx_theme import watermark
 from docutils import nodes
+from docutils.parsers.rst import Directive
+import numpy as np
+import pyvista
 from sphinx import addnodes
-import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
 # This issue can be resolved by migrating to the autoapi format.
-# Additionally, when documenting images in formats other than the supported ones, 
+# Additionally, when documenting images in formats other than the supported ones,
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+from sphinx_gallery.sorting import FileNameSortKey
 
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp"]
+
+from docutils.nodes import Element
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
-from docutils.nodes import Element
+
 
 def visit_desc_content(self, node: Element) -> None:
-    self.body.append(CR + r'\pysigstopsignatures')
+    self.body.append(CR + r"\pysigstopsignatures")
     self.in_desc_signature = False
+
+
 LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
 
+
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+
     required_arguments = 1
 
     def run(self):
-        module_path, member_name = self.arguments[0].rsplit('.', 1)
+        module_path, member_name = self.arguments[0].rsplit(".", 1)
 
         member_data = getattr(import_module(module_path), member_name)
         code = pformat(member_data, 2, width=68)
 
         literal = nodes.literal_block(code, code)
-        literal['language'] = 'python'
+        literal["language"] = "python"
 
-        return [
-                addnodes.desc_name(text=member_name),
-                addnodes.desc_content('', literal)
-        ]
+        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
 
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
@@ -72,15 +77,14 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
 
 
 def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build.
-    """
+    """Remove the .doctree directory created during the documentation build."""
     shutil.rmtree(app.doctreedir)
 
 
 def setup(app):
-    app.add_directive('pprint', PrettyPrintDirective)
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect('build-finished', remove_doctree)
+    app.add_directive("pprint", PrettyPrintDirective)
+    app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.connect("build-finished", remove_doctree)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -89,7 +93,6 @@ root_path = module_path.parent.parent
 try:
     from pyaedt import __version__
 except ImportError:
-
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
     from pyaedt import __version__
@@ -166,8 +169,8 @@ numpydoc_validation_checks = {
     "GL09",  # Deprecation warning should precede extended summary
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
-    "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."
+    "RT04",  # Return value description should start with a capital letter"
+    "RT05",  # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -256,7 +259,6 @@ if not os.path.exists(pyvista.FIGURE_PATH):
 
 # gallery build requires AEDT install
 if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
-
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
         "ignore",
@@ -362,7 +364,7 @@ html_static_path = ["_static"]
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'custom.css',
+    "custom.css",
 ]
 
 

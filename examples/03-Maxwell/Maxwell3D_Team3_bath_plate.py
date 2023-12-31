@@ -10,12 +10,13 @@ solve it using the Maxwell 3D Eddy Current solver.
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 ##################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -25,7 +26,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and Maxwell 3D after first setting up the project and design names,
 # the solver, and the version. The following code also creates an instance of the
-# ``Maxwell3d`` class named ``M3D``. 
+# ``Maxwell3d`` class named ``M3D``.
 
 project_name = "COMPUMAG"
 design_name = "TEAM 3 Bath Plate"
@@ -72,8 +73,9 @@ m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw a ladder plate and assign it the newly created material ``team3_aluminium``.
 
-m3d.modeler.create_box(position=[-30, -55, 0], dimensions_list=[60, 110, -6.35], name="LadderPlate",
-                       matname="team3_aluminium")
+m3d.modeler.create_box(
+    position=[-30, -55, 0], dimensions_list=[60, 110, -6.35], name="LadderPlate", matname="team3_aluminium"
+)
 m3d.modeler.create_box(position=[-20, -35, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool1")
 m3d.modeler.create_box(position=[-20, 5, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool2")
 m3d.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
@@ -88,7 +90,7 @@ m3d.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name=
 ################################################################################
 # Draw search coil and assign excitation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw a search coil and assign it a ``stranded`` current excitation. 
+# Draw a search coil and assign it a ``stranded`` current excitation.
 # The stranded type forces the current density to be constant in the coil.
 
 m3d.modeler.create_cylinder(

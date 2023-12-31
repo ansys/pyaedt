@@ -8,6 +8,7 @@ interact with a 3D layout.
 
 import os
 import tempfile
+
 import pyaedt
 
 tmpfold = tempfile.gettempdir()
@@ -28,7 +29,7 @@ aedt_file = targetfile[:-12] + "aedt"
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False

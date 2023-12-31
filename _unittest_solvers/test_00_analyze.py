@@ -3,18 +3,16 @@ import os
 import sys
 import time
 
-import pytest
-
-
+from _unittest.conftest import config
 from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
+import pytest
 
-
-from pyaedt import is_linux
-from pyaedt import Icepak
+from pyaedt import Circuit
 from pyaedt import Hfss3dLayout
-from pyaedt import Circuit, Maxwell3d
-from _unittest.conftest import config
+from pyaedt import Icepak
+from pyaedt import Maxwell3d
+from pyaedt import is_linux
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
@@ -43,6 +41,7 @@ def array(add_app):
     yield app
     app.close_project(save_project=False)
 
+
 @pytest.fixture()
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
@@ -56,7 +55,7 @@ def hfss_app(add_app):
     yield app
     app.close_project(save_project=False)
 
-    
+
 @pytest.fixture(scope="class")
 def icepak_app(add_app):
     app = add_app(application=Icepak, design_name="SolveTest")
@@ -68,11 +67,13 @@ def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
+
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
@@ -81,7 +82,6 @@ def m3dtransient(add_app):
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, local_scratch, icepak_app, hfss3dl_solve):
         self.local_scratch = local_scratch
@@ -153,21 +153,13 @@ class TestClass:
         from pyaedt.generic.DataHandlers import json_to_dict
 
         if config["desktopVersion"] > "2023.1":
-            dict_in = json_to_dict(
-                os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json")
-            )
-            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
-                local_path, "example_models", test_subfolder, component
-            )
+            dict_in = json_to_dict(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
+            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         else:
-            dict_in = json_to_dict(
-                os.path.join(local_path, "example_models", test_subfolder, "array_simple.json")
-            )
-            dict_in["Circ_Patch_5GHz1"] = os.path.join(
-                local_path, "example_models", test_subfolder, component
-            )
+            dict_in = json_to_dict(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
+            dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         hfss_app.add_3d_component_array_from_json(dict_in)
@@ -209,17 +201,27 @@ class TestClass:
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
 
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A") # check usage of deprecated arguments
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B")
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C")
-        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]), ("C_Temperature.csv", ["box"])]:
-            with open(os.path.join(self.icepak_app.working_directory, file_name), 'r', newline='') as csv_file:
+        assert self.icepak_app.export_summary(
+            self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
+        )  # check usage of deprecated arguments
+        assert self.icepak_app.export_summary(
+            self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B"
+        )
+        assert self.icepak_app.export_summary(
+            self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C"
+        )
+        for file_name, entities in [
+            ("A_Temperature.csv", ["box", "Region"]),
+            ("B_Temperature.csv", ["box", "Region"]),
+            ("C_Temperature.csv", ["box"]),
+        ]:
+            with open(os.path.join(self.icepak_app.working_directory, file_name), "r", newline="") as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for _ in range(4):
                     _ = next(csv_reader)
                 header = next(csv_reader)
                 entity_index = header.index("Entity")
-                csv_entities=[row[entity_index] for row in csv_reader]
+                csv_entities = [row[entity_index] for row in csv_reader]
                 assert all(e in csv_entities for e in entities)
 
         box = [i.id for i in self.icepak_app.modeler["box"].faces]
@@ -340,7 +342,7 @@ class TestClass:
         assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
-    def test_05d_circuit_push_excitation_time(self,circuit_app):
+    def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
         setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)

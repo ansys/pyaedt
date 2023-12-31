@@ -11,6 +11,7 @@ HFSS antenna and run a simulation.
 # directory.
 
 import os
+
 import pyaedt
 
 project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
@@ -18,7 +19,7 @@ project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -35,13 +36,14 @@ target = pyaedt.Hfss(
     solution_type="SBR+",
     specified_version="2023.2",
     new_desktop_session=True,
-    non_graphical=non_graphical
+    non_graphical=non_graphical,
 )
 
-source = pyaedt.Hfss(projectname=target.project_name,
-                     designname="feeder",
-                     specified_version="2023.2",
-                     )
+source = pyaedt.Hfss(
+    projectname=target.project_name,
+    designname="feeder",
+    specified_version="2023.2",
+)
 
 ###############################################################################
 # Define linked antenna

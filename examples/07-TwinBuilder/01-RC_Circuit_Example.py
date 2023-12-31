@@ -11,6 +11,7 @@ and run a Twin Builder time-domain simulation.
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 ###############################################################################
@@ -35,11 +36,12 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
-                        specified_version=desktop_version,
-                        non_graphical=non_graphical,
-                        new_desktop_session=new_thread
-                        )
+tb = pyaedt.TwinBuilder(
+    projectname=pyaedt.generate_unique_project_name(),
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=new_thread,
+)
 tb.modeler.schematic_units = "mil"
 
 ###############################################################################

@@ -6,7 +6,7 @@ and run a Twin Builder time-domain simulation.
 
 .. note::
     This example uses functionality only available in Twin Builder 2023 R2 and later.
-    For 2023 R2, the build date must be 8/7/2022 or later. 
+    For 2023 R2, the build date must be 8/7/2022 or later.
 """
 
 ###############################################################################
@@ -14,14 +14,16 @@ and run a Twin Builder time-domain simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import os
 import math
+import os
 import shutil
+
 import matplotlib.pyplot as plt
+
 from pyaedt import TwinBuilder
-from pyaedt import generate_unique_project_name
-from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
+from pyaedt import generate_unique_folder_name
+from pyaedt import generate_unique_project_name
 from pyaedt import settings
 
 ###############################################################################
@@ -52,17 +54,19 @@ source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_z
 source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True)
 source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
 
-# Uncomment the following line for local testing 
+# Uncomment the following line for local testing
 # source_data_folder = "D:\\Scratch\\TempStatic"
 
 data_folder = os.path.join(source_data_folder, "Ex04")
 
 # Unzip training data and config file
 downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
-shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
-                os.path.join(data_folder, source_build_conf_file))
-shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
-                os.path.join(data_folder, source_props_conf_file))
+shutil.copyfile(
+    os.path.join(source_data_folder, source_build_conf_file), os.path.join(data_folder, source_build_conf_file)
+)
+shutil.copyfile(
+    os.path.join(source_data_folder, source_props_conf_file), os.path.join(data_folder, source_props_conf_file)
+)
 
 ###############################################################################
 # Launch Twin Builder and build ROM component
@@ -70,8 +74,12 @@ shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version,
-                 non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = TwinBuilder(
+    projectname=generate_unique_project_name(),
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=new_thread,
+)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Static ROM feature is only available with a twin builder license.
@@ -87,17 +95,17 @@ static_rom_builder = rom_manager.GetStaticROMBuilder()
 
 # Build the static ROM with specified configuration file
 confpath = os.path.join(data_folder, source_build_conf_file)
-static_rom_builder.Build(confpath.replace('\\', '/'))
+static_rom_builder.Build(confpath.replace("\\", "/"))
 
 # Test if ROM was created sucessfully
-static_rom_path = os.path.join(data_folder, 'StaticRom.rom')
+static_rom_path = os.path.join(data_folder, "StaticRom.rom")
 if os.path.exists(static_rom_path):
     tb.logger.info("Built intermediate rom file sucessfully at: %s", static_rom_path)
 else:
     tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 
 # Create the ROM component definition in Twin Builder
-rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'), 'staticrom')
+rom_manager.CreateROMComponent(static_rom_path.replace("\\", "/"), "staticrom")
 
 ###############################################################################
 # Create schematic

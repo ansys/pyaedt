@@ -9,9 +9,10 @@ This example shows how you can use HFSS 3D Layout to create and solve a 5G linea
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import tempfile
-import pyaedt
 import os
+import tempfile
+
+import pyaedt
 
 ##########################################################
 # Set non-graphical mode
@@ -213,8 +214,9 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS 3D Layout and open EDB.
 
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.2", new_desktop_session=True,
-                          non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(
+    projectname=aedb_path, specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+)
 
 ###############################################################################
 # Plot geometry
@@ -228,7 +230,7 @@ h3d.modeler.edb.nets.plot(None)
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Getters and setters facilitate the settings on the nested property dictionary.
 # Previously, you had to use these commands:
-# 
+#
 # - ``setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"``
 # - ``setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4``
 #

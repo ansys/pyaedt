@@ -9,10 +9,11 @@ files (STEP and CSV) and an AEDB board.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports and set paths.
 
-import time
-import os
-import pyaedt
 import datetime
+import os
+import time
+
+import pyaedt
 
 # Set paths
 project_folder = pyaedt.generate_unique_folder_name()
@@ -21,7 +22,7 @@ input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` value either to ``True`` or ``False``.
 
 non_graphical = False
@@ -76,8 +77,9 @@ component_name = "from_ODB"
 # Import a PCB from an AEDB file.
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
-ipk.create_pcb_from_3dlayout(component_name=component_name, project_name=odb_path, design_name=aedt_odb_design_name,
-                             extenttype="Polygon")
+ipk.create_pcb_from_3dlayout(
+    component_name=component_name, project_name=odb_path, design_name=aedt_odb_design_name, extenttype="Polygon"
+)
 
 ###############################################################################
 # Create offset coordinate system
@@ -167,8 +169,9 @@ ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.
 # Mesh settings that is tailored for PCB
 # Max iterations is set to 20 for quick demonstration, please increase to at least 100 for better accuracy.
 
-ipk.globalMeshSettings(3, gap_min_elements='1', noOgrids=True, MLM_en=True,
-                            MLM_Type='2D', edge_min_elements='2', object='Region')
+ipk.globalMeshSettings(
+    3, gap_min_elements="1", noOgrids=True, MLM_en=True, MLM_Type="2D", edge_min_elements="2", object="Region"
+)
 
 setup1 = ipk.create_setup()
 setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
@@ -184,7 +187,10 @@ ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 point1 = ipk.assign_point_monitor(ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
 ipk.modeler.set_working_coordinate_system("Global")
-line = ipk.modeler.create_polyline([ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position], non_model=True)
+line = ipk.modeler.create_polyline(
+    [ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position],
+    non_model=True,
+)
 ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable="X")
 
 ###############################################################################
@@ -199,7 +205,7 @@ ipk.assign_priority_on_intersections()
 # Compute power budget
 # ~~~~~~~~~~~~~~~~~~~~
 
-power_budget, total = ipk.post.power_budget("W" )
+power_budget, total = ipk.post.power_budget("W")
 print(total)
 
 ###############################################################################
@@ -214,7 +220,7 @@ ipk.save_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
-ipk.post.plot_field("SurfPressure",ipk.modeler["COMP_U10"].faces,export_path=ipk.working_directory, show=False)
+ipk.post.plot_field("SurfPressure", ipk.modeler["COMP_U10"].faces, export_path=ipk.working_directory, show=False)
 
 
 ###############################################################################
@@ -228,5 +234,3 @@ end = time.time() - start
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(ipk.project_file))
 ipk.release_desktop()
-
-

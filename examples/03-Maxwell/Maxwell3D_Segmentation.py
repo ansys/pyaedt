@@ -9,14 +9,14 @@ The method is valid and usable for any object the user would like to segment.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
+from pyaedt import Maxwell3d
 from pyaedt import downloads
 from pyaedt import generate_unique_folder_name
-from pyaedt import Maxwell3d
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -33,10 +33,9 @@ aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D.
 
-m3d = Maxwell3d(projectname=aedt_file,
-                specified_version="2023.2",
-                new_desktop_session=True,
-                non_graphical=non_graphical)
+m3d = Maxwell3d(
+    projectname=aedt_file, specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+)
 
 ##################################################################################
 # Create object to access 3D modeler

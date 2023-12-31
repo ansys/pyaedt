@@ -10,6 +10,7 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 
 import json
 import os
+
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="choke")
@@ -17,7 +18,7 @@ project_name = pyaedt.generate_unique_project_name(project_name="choke")
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -27,11 +28,13 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launches HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.2",
-                   non_graphical=non_graphical,
-                   new_desktop_session=True,
-                   solution_type="Terminal")
+hfss = pyaedt.Hfss(
+    projectname=project_name,
+    specified_version="2023.2",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+    solution_type="Terminal",
+)
 
 ###############################################################################
 # Rules and information of use
@@ -43,7 +46,7 @@ hfss = pyaedt.Hfss(projectname=project_name,
 # dictionaries as values. The keys of these dictionaries are secondary keys
 # of the dictionary values, such as ``"1"``, ``"2"``, ``"3"``, ``"4"``, and
 # ``"Simple"``.
-# 
+#
 # You must not modify the primary or secondary keys. You can modify only their values.
 # You must not change the data types for these keys. For the dictionaries from
 # ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
@@ -102,7 +105,7 @@ values = {
 # Convert dictionary to JSON file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert a dictionary to a JSON file. You must supply the path of the
-# JSON file as an argument. 
+# JSON file as an argument.
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")
 
@@ -124,7 +127,7 @@ print(dictionary_values)
 ###############################################################################
 # Create choke
 # ~~~~~~~~~~~~
-# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# Create the choke. The ``create_choke`` method takes the JSON file path as an
 # argument.
 
 list_object = hfss.modeler.create_choke(json_path)
@@ -158,10 +161,7 @@ port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
-    hfss.lumped_port(signal=sheet.name,
-                     name="port_" + str(port_position_list.index(position) + 1),
-                     reference=[ground]
-    )
+    hfss.lumped_port(signal=sheet.name, name="port_" + str(port_position_list.index(position) + 1), reference=[ground])
 
 ###############################################################################
 # Create mesh

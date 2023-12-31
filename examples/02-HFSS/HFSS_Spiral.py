@@ -10,6 +10,7 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
@@ -17,7 +18,7 @@ project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 #############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -53,6 +54,7 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 # Standardize the polyline using the ``create_line`` method to fix
 # the width, thickness, and material.
 
+
 def create_line(pts):
     p.create_polyline(pts, xsection_type="Rectangle", xsection_width=width, xsection_height=thickness, matname="copper")
 
@@ -83,20 +85,19 @@ ind = hfss.modeler.create_spiral(
 x0, y0, z0 = ind.points[0]
 x1, y1, z1 = ind.points[-1]
 create_line([(x0 - width / 2, y0, -gap), (abs(x1) + 5, y0, -gap)])
-p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2],
-             [width, width, gap + thickness],
-             matname="copper")
+p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2], [width, width, gap + thickness], matname="copper")
 
 ################################################################
 # Create port 1
 # ~~~~~~~~~~~~~
 # Create port 1.
 
-p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
-                   position=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
-                   dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
-                   name="port1"
-                   )
+p.create_rectangle(
+    csPlane=pyaedt.constants.PLANE.YZ,
+    position=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
+    dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
+    name="port1",
+)
 hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
@@ -105,9 +106,7 @@ hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
-p.create_rectangle(pyaedt.constants.PLANE.YZ, [x1 - 5, y1 - width / 2, -thickness / 2],
-                   [width, "-Tsub"],
-                   name="port2")
+p.create_rectangle(pyaedt.constants.PLANE.YZ, [x1 - 5, y1 - width / 2, -thickness / 2], [width, "-Tsub"], name="port2")
 hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
@@ -115,13 +114,17 @@ hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the silicon substrate and the ground plane.
 
-p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
-             [-2 * x1 + 40, -2 * x1 + 40, "Tsub"],
-             matname="silicon")
+p.create_box(
+    [x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
+    [-2 * x1 + 40, -2 * x1 + 40, "Tsub"],
+    matname="silicon",
+)
 
-p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
-             [-2 * x1 + 40, -2 * x1 + 40, -0.1],
-             matname="PEC")
+p.create_box(
+    [x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
+    [-2 * x1 + 40, -2 * x1 + 40, -0.1],
+    matname="PEC",
+)
 
 ################################################################
 # Assign airbox and radiation
@@ -132,7 +135,7 @@ box = p.create_box(
     [x1 - 20, x1 - 20, "-Tsub-{}{}/2 - 0.1{}".format(thickness, hfss.modeler.model_units, hfss.modeler.model_units)],
     [-2 * x1 + 40, -2 * x1 + 40, 100],
     name="airbox",
-    matname="air"
+    matname="air",
 )
 
 hfss.assign_radiation_boundary_to_objects("airbox")
@@ -159,8 +162,9 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 
 setup1 = hfss.create_setup(setupname="setup1")
 setup1.props["Frequency"] = "10GHz"
-hfss.create_linear_count_sweep(setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451,
-                               sweep_type="Interpolating")
+hfss.create_linear_count_sweep(
+    setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451, sweep_type="Interpolating"
+)
 hfss.save_project()
 hfss.analyze()
 
@@ -191,7 +195,7 @@ data.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabe
 # Export results to csv file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export results to csv file
-data.export_data_to_csv(os.path.join(hfss.toolkit_directory,"output.csv"))
+data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 ################################################################
 # Save project and close AEDT

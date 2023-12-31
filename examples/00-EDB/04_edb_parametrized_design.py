@@ -10,8 +10,9 @@ This example shows how you can use HFSS 3D Layout to create and solve a parametr
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
 # and initializing it on version 2023 R2.
 
-import pyaedt
 import os
+
+import pyaedt
 
 ##########################################################
 # Set non-graphical mode
@@ -34,19 +35,21 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 # ~~~~~~~~~~~~~~~~~
 # Define the parameters.
 
-params = {"$ms_width": "0.4mm",
-          "$sl_width": "0.2mm",
-          "$ms_spacing": "0.2mm",
-          "$sl_spacing": "0.1mm",
-          "$via_spacing": "0.5mm",
-          "$via_diam": "0.3mm",
-          "$pad_diam": "0.6mm",
-          "$anti_pad_diam": "0.7mm",
-          "$pcb_len": "30mm",
-          "$pcb_w": "5mm",
-          "$x_size": "1.2mm",
-          "$y_size": "1mm",
-          "$corner_rad": "0.5mm"}
+params = {
+    "$ms_width": "0.4mm",
+    "$sl_width": "0.2mm",
+    "$ms_spacing": "0.2mm",
+    "$sl_spacing": "0.1mm",
+    "$via_spacing": "0.5mm",
+    "$via_diam": "0.3mm",
+    "$pad_diam": "0.6mm",
+    "$anti_pad_diam": "0.7mm",
+    "$pcb_len": "30mm",
+    "$pcb_w": "5mm",
+    "$x_size": "1.2mm",
+    "$y_size": "1mm",
+    "$corner_rad": "0.5mm",
+}
 
 for par_name in params:
     edb.add_project_variable(par_name, params[par_name])
@@ -57,21 +60,28 @@ for par_name in params:
 # Define the stackup layers from bottom to top.
 
 
-layers = [{"name": "bottom", "layer_type": "signal", "thickness": "35um", "material": "copper"},
-          {"name": "diel_3", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "sig_2", "layer_type": "signal", "thickness": "35um", "material": "copper"},
-          {"name": "diel_2", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "sig_1", "layer_type": "signal", "thickness": "35um", "material": "copper"},
-          {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"}]
+layers = [
+    {"name": "bottom", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+    {"name": "diel_3", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+    {"name": "sig_2", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+    {"name": "diel_2", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+    {"name": "sig_1", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+    {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+    {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+]
 
 
 # Create EDB stackup.
 # Bottom layer
 prev = None
 for layer in layers:
-    edb.stackup.add_layer(layer["name"], base_layer=prev, layer_type=layer["layer_type"], thickness=layer["thickness"],
-                                          material=layer["material"])
+    edb.stackup.add_layer(
+        layer["name"],
+        base_layer=prev,
+        layer_type=layer["layer_type"],
+        thickness=layer["thickness"],
+        material=layer["material"],
+    )
     prev = layer["name"]
 
 ###############################################################################
@@ -81,17 +91,17 @@ for layer in layers:
 
 signal_via_padstack = "automated_via"
 edb.padstacks.create(
-            padstackname=signal_via_padstack,
-            holediam="$via_diam",
-            paddiam="$pad_diam",
-            antipaddiam="",
-            antipad_shape="Bullet",
-            x_size="$x_size",
-            y_size="$y_size",
-            corner_radius="$corner_rad",
-            start_layer=layers[-1]["name"],
-            stop_layer=layers[-3]["name"]
-        )
+    padstackname=signal_via_padstack,
+    holediam="$via_diam",
+    paddiam="$pad_diam",
+    antipaddiam="",
+    antipad_shape="Bullet",
+    x_size="$x_size",
+    y_size="$y_size",
+    corner_radius="$corner_rad",
+    start_layer=layers[-1]["name"],
+    stop_layer=layers[-3]["name"],
+)
 
 ###############################################################################
 # Assign net names
@@ -107,35 +117,35 @@ net_n = "n"
 # Place signal vias.
 
 edb.padstacks.place(
-            position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
-            definition_name=signal_via_padstack,
-            net_name=net_p,
-            via_name="",
-            rotation=90.0
+    position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+    definition_name=signal_via_padstack,
+    net_name=net_p,
+    via_name="",
+    rotation=90.0,
 )
 
 edb.padstacks.place(
-            position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
-            definition_name=signal_via_padstack,
-            net_name=net_p,
-            via_name="",
-            rotation=90.0,
+    position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+    definition_name=signal_via_padstack,
+    net_name=net_p,
+    via_name="",
+    rotation=90.0,
 )
 
 edb.padstacks.place(
-            position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
-            definition_name=signal_via_padstack,
-            net_name=net_n,
-            via_name="",
-            rotation=-90.0,
+    position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+    definition_name=signal_via_padstack,
+    net_name=net_n,
+    via_name="",
+    rotation=-90.0,
 )
 
 edb.padstacks.place(
-            position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
-            definition_name=signal_via_padstack,
-            net_name=net_n,
-            via_name="",
-            rotation=-90.0,
+    position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+    definition_name=signal_via_padstack,
+    net_name=net_n,
+    via_name="",
+    rotation=-90.0,
 )
 
 
@@ -146,52 +156,58 @@ edb.padstacks.place(
 # Trace the width and the routing (Microstrip-Stripline-Microstrip).
 # Applies to both p and n nets.
 
-width = ["$ms_width", "$sl_width", "$ms_width"]                       # Trace width, n and p
-route_layer = [layers[-1]["name"], layers[4]["name"], layers[-1]["name"]]    # Routing layer, n and p
+width = ["$ms_width", "$sl_width", "$ms_width"]  # Trace width, n and p
+route_layer = [layers[-1]["name"], layers[4]["name"], layers[-1]["name"]]  # Routing layer, n and p
 
 # Define points for three traces in the "p" net
 
 points_p = [
-           [["0.0", "($ms_width+$ms_spacing)/2"],
-            ["$pcb_len/3-2*$via_spacing", "($ms_width+$ms_spacing)/2"],
-            ["$pcb_len/3-$via_spacing", "($ms_width+$ms_spacing+$via_spacing)/2"],
-            ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
-           ],
-           [["$pcb_len/3", "($ms_width+$sl_spacing+$via_spacing)/2"],
-            ["$pcb_len/3+$via_spacing", "($ms_width+$sl_spacing+$via_spacing)/2"],
-            ["$pcb_len/3+2*$via_spacing", "($sl_width+$sl_spacing)/2"],
-            ["2*$pcb_len/3-2*$via_spacing", "($sl_width+$sl_spacing)/2"],
-            ["2*$pcb_len/3-$via_spacing", "($ms_width+$sl_spacing+$via_spacing)/2"],
-            ["2*$pcb_len/3", "($ms_width+$sl_spacing+$via_spacing)/2"],
-           ],
-           [["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
-            ["2*$pcb_len/3+$via_spacing", "($ms_width+$ms_spacing+$via_spacing)/2"],
-            ["2*$pcb_len/3+2*$via_spacing", "($ms_width+$ms_spacing)/2"],
-            ["$pcb_len", "($ms_width+$ms_spacing)/2"],
-           ],
-          ]
+    [
+        ["0.0", "($ms_width+$ms_spacing)/2"],
+        ["$pcb_len/3-2*$via_spacing", "($ms_width+$ms_spacing)/2"],
+        ["$pcb_len/3-$via_spacing", "($ms_width+$ms_spacing+$via_spacing)/2"],
+        ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+    ],
+    [
+        ["$pcb_len/3", "($ms_width+$sl_spacing+$via_spacing)/2"],
+        ["$pcb_len/3+$via_spacing", "($ms_width+$sl_spacing+$via_spacing)/2"],
+        ["$pcb_len/3+2*$via_spacing", "($sl_width+$sl_spacing)/2"],
+        ["2*$pcb_len/3-2*$via_spacing", "($sl_width+$sl_spacing)/2"],
+        ["2*$pcb_len/3-$via_spacing", "($ms_width+$sl_spacing+$via_spacing)/2"],
+        ["2*$pcb_len/3", "($ms_width+$sl_spacing+$via_spacing)/2"],
+    ],
+    [
+        ["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+        ["2*$pcb_len/3+$via_spacing", "($ms_width+$ms_spacing+$via_spacing)/2"],
+        ["2*$pcb_len/3+2*$via_spacing", "($ms_width+$ms_spacing)/2"],
+        ["$pcb_len", "($ms_width+$ms_spacing)/2"],
+    ],
+]
 
 # Define points for three traces in the "n" net
 
 points_n = [
-          [["0.0", "-($ms_width+$ms_spacing)/2"],
-           ["$pcb_len/3-2*$via_spacing", "-($ms_width+$ms_spacing)/2"],
-           ["$pcb_len/3-$via_spacing", "-($ms_width+$ms_spacing+$via_spacing)/2"],
-           ["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
-          ],
-          [["$pcb_len/3", "-($ms_width+$sl_spacing+$via_spacing)/2"],
-           ["$pcb_len/3+$via_spacing", "-($ms_width+$sl_spacing+$via_spacing)/2"],
-           ["$pcb_len/3+2*$via_spacing", "-($ms_width+$sl_spacing)/2"],
-           ["2*$pcb_len/3-2*$via_spacing", "-($ms_width+$sl_spacing)/2"],
-           ["2*$pcb_len/3-$via_spacing", "-($ms_width+$sl_spacing+$via_spacing)/2"],
-           ["2*$pcb_len/3", "-($ms_width+$sl_spacing+$via_spacing)/2"],
-          ],
-          [["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
-           ["2*$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing)/2"],
-           ["2*$pcb_len/3 + 2*$via_spacing", "-($ms_width+$ms_spacing)/2"],
-           ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
-          ],
-         ]
+    [
+        ["0.0", "-($ms_width+$ms_spacing)/2"],
+        ["$pcb_len/3-2*$via_spacing", "-($ms_width+$ms_spacing)/2"],
+        ["$pcb_len/3-$via_spacing", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+        ["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+    ],
+    [
+        ["$pcb_len/3", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+        ["$pcb_len/3+$via_spacing", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+        ["$pcb_len/3+2*$via_spacing", "-($ms_width+$sl_spacing)/2"],
+        ["2*$pcb_len/3-2*$via_spacing", "-($ms_width+$sl_spacing)/2"],
+        ["2*$pcb_len/3-$via_spacing", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+        ["2*$pcb_len/3", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+    ],
+    [
+        ["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+        ["2*$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+        ["2*$pcb_len/3 + 2*$via_spacing", "-($ms_width+$ms_spacing)/2"],
+        ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
+    ],
+]
 # ###############################################################################
 # Add traces to EDB
 # ~~~~~~~~~~~~~~~~~
@@ -208,56 +224,56 @@ for n in range(len(points_p)):
 # ~~~~~~~~~~~~~~~~~
 # Create wave ports:
 
-edb.hfss.create_differential_wave_port(trace_p[0].id, ["0.0", "($ms_width+$ms_spacing)/2"],
-                                            trace_n[0].id, ["0.0", "-($ms_width+$ms_spacing)/2"],
-                                            "wave_port_1")
-edb.hfss.create_differential_wave_port(trace_p[2].id, ["$pcb_len", "($ms_width+$ms_spacing)/2"],
-                                            trace_n[2].id, ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
-                                            "wave_port_2")
+edb.hfss.create_differential_wave_port(
+    trace_p[0].id,
+    ["0.0", "($ms_width+$ms_spacing)/2"],
+    trace_n[0].id,
+    ["0.0", "-($ms_width+$ms_spacing)/2"],
+    "wave_port_1",
+)
+edb.hfss.create_differential_wave_port(
+    trace_p[2].id,
+    ["$pcb_len", "($ms_width+$ms_spacing)/2"],
+    trace_n[2].id,
+    ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
+    "wave_port_2",
+)
 
 ###############################################################################
 # Draw ground polygons
 # ~~~~~~~~~~~~~~~~~~~~
 # Draw ground polygons.
 
-gnd_poly = [[0.0, "-$pcb_w/2"],
-            ["$pcb_len", "-$pcb_w/2"],
-            ["$pcb_len", "$pcb_w/2"],
-            [0.0, "$pcb_w/2"]]
+gnd_poly = [[0.0, "-$pcb_w/2"], ["$pcb_len", "-$pcb_w/2"], ["$pcb_len", "$pcb_w/2"], [0.0, "$pcb_w/2"]]
 gnd_shape = edb.modeler.Shape("polygon", points=gnd_poly)
 
 # Void in ground for traces on the signal routing layer
 
-void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
-             ["$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
-             ["$pcb_len/3 + 2*$via_spacing",
-             "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
-             ["2*$pcb_len/3 - 2*$via_spacing",
-             "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
-             ["2*$pcb_len/3 - $via_spacing",
-             "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
-             ["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
-             ["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
-             ["2*$pcb_len/3 - $via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
-             ["2*$pcb_len/3 - 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
-             ["$pcb_len/3 + 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
-             ["$pcb_len/3 + $via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
-             ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
-             ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"]]
+void_poly = [
+    ["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+    ["$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+    ["$pcb_len/3 + 2*$via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+    ["2*$pcb_len/3 - 2*$via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+    ["2*$pcb_len/3 - $via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+    ["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+    ["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+    ["2*$pcb_len/3 - $via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+    ["2*$pcb_len/3 - 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+    ["$pcb_len/3 + 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+    ["$pcb_len/3 + $via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+    ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+    ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+]
 
 void_shape = edb.modeler.Shape("polygon", points=void_poly)
 
 # Add ground layers
 
 for layer in layers[:-1:2]:
-
     # add void if the layer is the signal routing layer.
     void = [void_shape] if layer["name"] == route_layer[1] else []
 
-    edb.modeler.create_polygon(main_shape=gnd_shape,
-                                       layer_name=layer["name"],
-                                       voids=void,
-                                       net_name="gnd")
+    edb.modeler.create_polygon(main_shape=gnd_shape, layer_name=layer["name"], voids=void, net_name="gnd")
 
 
 ###############################################################################
@@ -281,8 +297,9 @@ edb.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.2",
-                          non_graphical=non_graphical, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(
+    projectname=aedb_path, specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True
+)
 
 ###############################################################################
 # Add HFSS simulation setup
@@ -328,9 +345,6 @@ h3d.analyze()
 
 solutions = h3d.post.get_solution_data(["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs")
 solutions.plot()
-
-
-
 
 
 h3d.release_desktop()

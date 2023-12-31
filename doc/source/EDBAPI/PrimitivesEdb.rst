@@ -7,11 +7,12 @@ Primitives are planes, lines, rectangles, and circles.
 .. code:: python
 
     from pyaedt import Edb
+
     edb = Edb(myedb, edbversion="2023.1")
 
-    top_layer_obj = edb.modeler.create_rectangle("TOP", net_name="gnd",
-                                                 lower_left_point=plane_lw_pt,
-                                                 upper_right_point=plane_up_pt)
+    top_layer_obj = edb.modeler.create_rectangle(
+        "TOP", net_name="gnd", lower_left_point=plane_lw_pt, upper_right_point=plane_up_pt
+    )
 
     ...
 
@@ -43,6 +44,7 @@ These classes are the containers of data management for primitives and arcs.
 .. code:: python
 
     from pyaedt import Edb
+
     edb = Edb(myedb, edbversion="2023.1")
 
     polygon = edbapp.modeler.polygons[0]

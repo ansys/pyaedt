@@ -9,14 +9,18 @@ This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar 
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
+from math import cos
+from math import radians
+from math import sin
+from math import sqrt
 import os
-from math import radians, sin, cos, sqrt
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -26,10 +30,9 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(specified_version="2023.2",
-                   solution_type="DrivenTerminal",
-                   new_desktop_session=True,
-                   non_graphical=non_graphical)
+hfss = pyaedt.Hfss(
+    specified_version="2023.2", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical
+)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
@@ -58,6 +61,7 @@ xt = (total_length - r * radians(theta)) / 2
 # ~~~~~~~~~~~
 # Create the bend. The ``create_bending`` method creates a list of points for
 # the bend based on the curvature radius and extension.
+
 
 def create_bending(radius, extension=0):
     position_list = [(-xt, 0, -radius), (0, 0, -radius)]
@@ -152,7 +156,6 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     port_block = hfss.modeler.thicken_sheet(s.name, -5)
     port_block.name = blockname
     for f in port_block.faces:
-
         if [round(i, 6) for i in f.center] == center:
             port_faces.append(f)
 

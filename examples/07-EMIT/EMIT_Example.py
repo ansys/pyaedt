@@ -12,14 +12,15 @@ the simulation of an antenna.
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import os
-import pyaedt
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
+import pyaedt
+from pyaedt.emit_core.emit_constants import ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The ``NewThread`` Boolean variable defines whether to create a new instance
 # of AEDT or try to connect to existing instance of it if one is available.
@@ -63,17 +64,17 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 ###############################################################################
 # Run EMIT simulation
 # ~~~~~~~~~~~~~~~~~~~
-# Run the EMIT simulation. 
+# Run the EMIT simulation.
 #
-# This part of the example requires Ansys AEDT 2023 R2. 
+# This part of the example requires Ansys AEDT 2023 R2.
 
 if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX) 
-    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX) 
+    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
+    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
-    domain.set_interferer(rad3.name,tx_bands[0])
+    domain.set_interferer(rad3.name, tx_bands[0])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(ResultType.EMI)
     if worst.has_valid_values():

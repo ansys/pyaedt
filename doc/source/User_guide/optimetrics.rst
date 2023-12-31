@@ -8,6 +8,7 @@ present in a design, edit them, and create them:
 
 
     from pyaedt import Maxwell3d
+
     m3d = Maxwell3d()
     m3d.parametrics.add("Rload", 0.1, 1, 0.1)
 

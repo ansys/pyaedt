@@ -10,9 +10,10 @@ This example shows how you can use PyAEDT to import a gds from an IC file.
 # Perform required imports, which includes importing a section.
 
 import os
-import tempfile
-import pyaedt
 import shutil
+import tempfile
+
+import pyaedt
 from pyaedt.edb_core.edb_data.control_file import ControlFile
 
 ###############################################################################
@@ -20,14 +21,12 @@ from pyaedt.edb_core.edb_data.control_file import ControlFile
 # ~~~~~~~~~~~~~
 # Download the AEDB file and copy it in the temporary folder.
 temppath = tempfile.gettempdir()
-local_path = pyaedt.downloads.download_file('gds')
-c_file_in = os.path.join(
-    local_path, "sky130_fictitious_dtc_example_control_no_map.xml"
-)
+local_path = pyaedt.downloads.download_file("gds")
+c_file_in = os.path.join(local_path, "sky130_fictitious_dtc_example_control_no_map.xml")
 c_map = os.path.join(local_path, "dummy_layermap.map")
 gds_in = os.path.join(local_path, "sky130_fictitious_dtc_example.gds")
 gds_out = os.path.join(temppath, "example.gds")
-shutil.copy2(gds_in,gds_out )
+shutil.copy2(gds_in, gds_out)
 ###############################################################################
 # Control file
 # ~~~~~~~~~~~~

@@ -1,7 +1,7 @@
 Variables
 =========
 PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
-You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
+You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix
 for the variable name, a project-wide variable is created:
 
 .. code:: python

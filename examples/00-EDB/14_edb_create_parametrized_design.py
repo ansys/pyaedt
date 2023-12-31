@@ -22,10 +22,11 @@ This example shows how to
 ######################################################################
 
 import os
+
 import pyaedt
 
 project_path = pyaedt.generate_unique_folder_name()
-target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_path)
+target_aedb = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=project_path)
 print("Project folder will be", target_aedb)
 
 aedt_version = "2023.2"
@@ -37,8 +38,7 @@ print("EDB is located at {}".format(target_aedb))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 simulation_configuration = edb.new_simulation_configuration()
-simulation_configuration.signal_nets = ["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N",
-                                        "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"]
+simulation_configuration.signal_nets = ["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"]
 simulation_configuration.power_nets = ["GND"]
 simulation_configuration.components = ["X1", "U1"]
 simulation_configuration.do_cutout_subdesign = True

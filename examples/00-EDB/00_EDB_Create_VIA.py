@@ -18,8 +18,9 @@ This example shows how you can use EDB to create a layout.
 # Import the EDB layout object and initialize it on version 2023 R2.
 ######################################################################
 
-import time
 import os
+import time
+
 import pyaedt
 
 start = time.time()

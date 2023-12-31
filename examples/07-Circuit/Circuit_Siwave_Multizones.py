@@ -9,9 +9,11 @@ This example shows how you can use PyAEDT simulate multi-zones with Siwave.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports, which includes importing a section.
 
-from pyaedt import Edb, Circuit
 import os.path
+
 import pyaedt
+from pyaedt import Circuit
+from pyaedt import Edb
 
 ###############################################################################
 # Download file
@@ -22,8 +24,9 @@ temp_folder = pyaedt.generate_unique_folder_name()
 edb_file = pyaedt.downloads.download_file(destination=temp_folder, directory="edb/siwave_multi_zones.aedb")
 working_directory = os.path.join(temp_folder, "workdir")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
-circuit_project_file = os.path.join(working_directory, os.path.splitext(os.path.basename(edb_file))[0] +
-                               "multizone_clipped_circuit.aedt")
+circuit_project_file = os.path.join(
+    working_directory, os.path.splitext(os.path.basename(edb_file))[0] + "multizone_clipped_circuit.aedt"
+)
 print(edb_file)
 
 
@@ -70,14 +73,14 @@ defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, commo
 # Create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit.
 
 circuit = Circuit(specified_version=edb_version, projectname=circuit_project_file)
-circuit.connect_circuit_models_from_multi_zone_cutout(project_connections=project_connexions,
-                                                      edb_zones_dict=edb_zones, ports=defined_ports,
-                                                      model_inc=70)
+circuit.connect_circuit_models_from_multi_zone_cutout(
+    project_connections=project_connexions, edb_zones_dict=edb_zones, ports=defined_ports, model_inc=70
+)
 ###############################################################################
 # Setup
 # ~~~~~
 #  Add Nexxim LNA simulation setup.
-circuit_setup= circuit.create_setup("Pyedt_LNA")
+circuit_setup = circuit.create_setup("Pyedt_LNA")
 
 ###############################################################################
 # Frequency sweep
@@ -94,10 +97,12 @@ circuit.analyze()
 ###############################################################################
 # Define differential pairs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-circuit.set_differential_pair(diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP",
-                              negative_terminal="U0.via_39.B2B_SIGN")
-circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP",
-                              negative_terminal="U1.via_33.B2B_SIGN")
+circuit.set_differential_pair(
+    diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP", negative_terminal="U0.via_39.B2B_SIGN"
+)
+circuit.set_differential_pair(
+    diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP", negative_terminal="U1.via_33.B2B_SIGN"
+)
 
 ###############################################################################
 # Plot results

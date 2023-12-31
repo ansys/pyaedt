@@ -7,6 +7,7 @@ analysis.
 
 import os
 import tempfile
+
 import pyaedt
 
 ###############################################################################
@@ -29,50 +30,34 @@ appedb = pyaedt.Edb(local_path, edbversion=edbversion)
 
 gnd_name = "GND"
 appedb.siwave.create_pin_group_on_net(
-    reference_designator="U3A1",
-    net_name="BST_V3P3_S5",
-    group_name="U3A1-BST_V3P3_S5")
+    reference_designator="U3A1", net_name="BST_V3P3_S5", group_name="U3A1-BST_V3P3_S5"
+)
 
 #####################################################################################
 # Create pin group on VRM negative pins
 
-appedb.siwave.create_pin_group_on_net(
-    reference_designator="U3A1",
-    net_name="GND",
-    group_name="U3A1-GND")
+appedb.siwave.create_pin_group_on_net(reference_designator="U3A1", net_name="GND", group_name="U3A1-GND")
 
 #####################################################################################
 # Create voltage source between VRM positive and negative pin groups
 appedb.siwave.create_voltage_source_on_pin_group(
-    pos_pin_group_name="U3A1-BST_V3P3_S5",
-    neg_pin_group_name="U3A1-GND",
-    magnitude=3.3,
-    name="U3A1-BST_V3P3_S5"
+    pos_pin_group_name="U3A1-BST_V3P3_S5", neg_pin_group_name="U3A1-GND", magnitude=3.3, name="U3A1-BST_V3P3_S5"
 )
 
 #####################################################################################
 # Create pin group on sink component positive pins
 
-appedb.siwave.create_pin_group_on_net(
-    reference_designator="U2A5",
-    net_name="V3P3_S5",
-    group_name="U2A5-V3P3_S5")
+appedb.siwave.create_pin_group_on_net(reference_designator="U2A5", net_name="V3P3_S5", group_name="U2A5-V3P3_S5")
 
 #####################################################################################
 # Create pin group on sink component negative pins
 
-appedb.siwave.create_pin_group_on_net(
-    reference_designator="U2A5",
-    net_name="GND",
-    group_name="U2A5-GND")
+appedb.siwave.create_pin_group_on_net(reference_designator="U2A5", net_name="GND", group_name="U2A5-GND")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create place current source between sink component positive and negative pin groups
 appedb.siwave.create_current_source_on_pin_group(
-    pos_pin_group_name="U2A5-V3P3_S5",
-    neg_pin_group_name="U2A5-GND",
-    magnitude=1,
-    name="U2A5-V3P3_S5"
+    pos_pin_group_name="U2A5-V3P3_S5", neg_pin_group_name="U2A5-GND", magnitude=1, name="U2A5-V3P3_S5"
 )
 
 ###############################################################################
@@ -122,11 +107,8 @@ print(via)
 # Get voltage
 # ~~~~~~~~~~~
 # Get voltage from dcir solution data
-voltage = hfss3dl.get_dcir_solution_data(
-    setup_name="my_setup",
-    show="Sources",
-    category="Voltage")
-print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
+voltage = hfss3dl.get_dcir_solution_data(setup_name="my_setup", show="Sources", category="Voltage")
+print({expression: voltage.data_magnitude(expression) for expression in voltage.expressions})
 
 ###############################################################################
 # Close AEDT

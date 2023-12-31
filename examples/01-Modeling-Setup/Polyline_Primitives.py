@@ -10,12 +10,13 @@ This example shows how you can use PyAEDT to create and manipulate polylines.
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -24,8 +25,13 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a :class:`pyaedt.maxwell.Maxwell3d` object and set the unit type to ``"mm"``.
 
-M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2023.2",
-                       new_desktop_session=True, non_graphical=non_graphical, )
+M3D = pyaedt.Maxwell3d(
+    solution_type="Transient",
+    designname="test_polyline_3D",
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler
 
@@ -94,7 +100,7 @@ P = prim3D.create_polyline(
 # center point. The rotation occurs in a plane parallel to the XY, YZ, or ZX
 # plane of the active coordinate system. The starting point and the center point
 # must therefore have one coordinate value (X, Y, or Z) with the same value.
-# 
+#
 # Here ``start-point`` and ``center-point`` have a common Z coordinate, ``"0mm"``.
 # The curve is therefore rotated in the XY plane with Z = ``"0mm"``.
 
@@ -127,7 +133,7 @@ P = prim3D.create_polyline(
 
 ###############################################################################
 # Compound polylines
-# ------------------ 
+# ------------------
 # You can use a list of points in a single command to create a multi-segment
 # polyline.
 #

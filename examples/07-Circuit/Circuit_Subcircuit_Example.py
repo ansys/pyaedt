@@ -10,13 +10,13 @@ It pushes down the child subcircuit and pops up to the parent design.
 # Perform the required import.
 
 import os
-import pyaedt
 
+import pyaedt
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -26,11 +26,12 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                         specified_version="2023.2",
-                         non_graphical=non_graphical,
-                         new_desktop_session=True
-                         )
+circuit = pyaedt.Circuit(
+    projectname=pyaedt.generate_unique_project_name(),
+    specified_version="2023.2",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 circuit.modeler.schematic_units = "mil"
 
 ###############################################################################

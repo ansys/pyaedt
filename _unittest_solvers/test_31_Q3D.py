@@ -26,14 +26,17 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, bondwire_project_name)
+    example_project = os.path.join(
+        local_path, "../_unittest_solvers/example_models", test_subfolder, bondwire_project_name
+    )
     test_project = local_scratch.copyfile(example_project)
-    test_matrix = local_scratch.copyfile(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
+    test_matrix = local_scratch.copyfile(
+        os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt")
+    )
     return test_project, test_matrix
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, examples, local_scratch):
         self.aedtapp = aedtapp

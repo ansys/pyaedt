@@ -10,8 +10,13 @@ features added by PyAEDT.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
-from pyaedt import Icepak, generate_unique_folder_name, downloads, settings
 import os
+
+from pyaedt import Icepak
+from pyaedt import downloads
+from pyaedt import generate_unique_folder_name
+from pyaedt import settings
+
 # Download needed files
 temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
@@ -21,17 +26,22 @@ package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_f
 # ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
-ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"), specified_version="2023.2", non_graphical=True,
-             close_on_exit=True, new_desktop_session=True)
+ipk = Icepak(
+    projectname=os.path.join(temp_folder, "Heatsink.aedt"),
+    specified_version="2023.2",
+    non_graphical=True,
+    close_on_exit=True,
+    new_desktop_session=True,
+)
 
 # Remove air region created by default because it is not needed as the heatsink will be exported as a 3dcomponent
 ipk.modeler.get_object_from_name("Region").delete()
 
 # Definition of heatsink with boxes
 hs_base = ipk.modeler.create_box(position=[0, 0, 0], dimensions_list=[37.5, 37.5, 2], name="HS_Base")
-hs_base.material_name="Al-Extruded"
+hs_base.material_name = "Al-Extruded"
 hs_fin = ipk.modeler.create_box(position=[0, 0, 2], dimensions_list=[37.5, 1, 18], name="HS_Fin1")
-hs_fin.material_name="Al-Extruded"
+hs_fin.material_name = "Al-Extruded"
 hs_fin.duplicate_along_line([0, 3.65, 0], nclones=11)
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "Heatsink.jpg"))
@@ -52,10 +62,12 @@ mesh_region.update()
 # Assignment of monitor objects
 hs_fin5_object = ipk.modeler.get_object_from_name("HS_Fin1_5")
 point_monitor_position = [0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)] + [
-    hs_fin5_object.bounding_box[-1]]  # average x,y, top z
+    hs_fin5_object.bounding_box[-1]
+]  # average x,y, top z
 
-ipk.monitor.assign_point_monitor(point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"],
-                                 monitor_name="TopPoint")
+ipk.monitor.assign_point_monitor(
+    point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
+)
 ipk.monitor.assign_face_monitor(hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom")
 ipk.monitor.assign_point_monitor_in_object("HS_Fin1_5", monitor_quantity="Temperature", monitor_name="Fin5Center")
 
@@ -63,9 +75,7 @@ ipk.monitor.assign_point_monitor_in_object("HS_Fin1_5", monitor_quantity="Temper
 # monitor objects along with the .a3dcomp file.
 os.mkdir(os.path.join(temp_folder, "componentLibrary"))
 ipk.modeler.create_3dcomponent(
-    os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
-    component_name="Heatsink",
-    auxiliary_dict=True
+    os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"), component_name="Heatsink", auxiliary_dict=True
 )
 ipk.close_project(save_project=False)
 
@@ -93,20 +103,17 @@ ipk.create_dataset(
 )
 
 # Assign source power condition to the die.
-ipk.create_source_power(
-    "DieSource",
-    thermal_dependent_dataset="PowerDissipationDataset",
-    source_name="DieSource"
-)
+ipk.create_source_power("DieSource", thermal_dependent_dataset="PowerDissipationDataset", source_name="DieSource")
 
 # Assign thickness to the die attach surface.
-ipk.create_conduting_plate(face_id="Die_Attach",
-                           thermal_specification="Thickness",
-                           shell_conduction=True,
-                           thickness="0.05mm",
-                           solid_material="Epoxy Resin-Typical",
-                           bc_name="Die_Attach",
-                           )
+ipk.create_conduting_plate(
+    face_id="Die_Attach",
+    thermal_specification="Thickness",
+    shell_conduction=True,
+    thickness="0.05mm",
+    solid_material="Epoxy Resin-Typical",
+    bc_name="Die_Attach",
+)
 
 # Assign monitor objects.
 ipk.monitor.assign_point_monitor_in_object("QFP2_die", monitor_quantity="Temperature", monitor_name="DieCenter")
@@ -118,7 +125,7 @@ ipk.modeler.create_3dcomponent(
     os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
     component_name="QFP",
     auxiliary_dict=True,
-    datasets=["PowerDissipationDataset"]
+    datasets=["PowerDissipationDataset"],
 )
 ipk.close_project(save_project=False)
 
@@ -142,11 +149,13 @@ cs = ipk.modeler.create_coordinate_system(
 )
 heatsink_obj = ipk.modeler.insert_3d_component(
     comp_file=os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
-    targetCS="HeatsinkCS", auxiliary_dict=True)
+    targetCS="HeatsinkCS",
+    auxiliary_dict=True,
+)
 
 QFP2_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
-    targetCS="Global", auxiliary_dict=True)
+    comp_file=os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"), targetCS="Global", auxiliary_dict=True
+)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package.jpg"))
 
 # Create a coordinate system at the xmin, ymin, zmin of the model
@@ -168,7 +177,7 @@ ipk.modeler.create_3dcomponent(
     component_name="PCBAssembly",
     auxiliary_dict=True,
     included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
-    reference_cs="PCB_Assembly"
+    reference_cs="PCB_Assembly",
 )
 
 ipk.close_project(save_project=False)
@@ -181,7 +190,7 @@ ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"))
 
 # Create a support for multiple PCB assemblies
 support_obj = ipk.modeler.create_box(position=[-60, -160, 0], dimensions_list=[270, 580, -10], name="PCB_support")
-support_obj.material_name="plexiglass"
+support_obj.material_name = "plexiglass"
 
 # Create two coordinate systems to place two electronic package assemblies
 cs1 = ipk.modeler.create_coordinate_system(
@@ -202,11 +211,15 @@ cs2 = ipk.modeler.create_coordinate_system(
 # Import the electronic packages on the support
 PCB1_obj = ipk.modeler.insert_3d_component(
     comp_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
-    targetCS=cs1.name, auxiliary_dict=True)
+    targetCS=cs1.name,
+    auxiliary_dict=True,
+)
 
 PCB2_obj = ipk.modeler.insert_3d_component(
     comp_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
-    targetCS=cs2.name, auxiliary_dict=True)
+    targetCS=cs2.name,
+    auxiliary_dict=True,
+)
 
 # To demonstrate once again the flexibility of this method: flatten the nested components structure again and export the whole assembly as a 3d component
 ipk.flatten_3d_components()
@@ -215,8 +228,12 @@ ipk.modeler.create_3dcomponent(
     component_name="MainAssembly",
     auxiliary_dict=True,
     native_components=True,
-    included_cs=["PCBAssembly1_PCB_Assembly", "PCBAssembly2_PCB_Assembly",
-                 "PCBAssembly1_PCB_Assembly_ref", "PCBAssembly2_PCB_Assembly_ref"]
+    included_cs=[
+        "PCBAssembly1_PCB_Assembly",
+        "PCBAssembly2_PCB_Assembly",
+        "PCBAssembly1_PCB_Assembly_ref",
+        "PCBAssembly2_PCB_Assembly_ref",
+    ],
 )
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "main_assembly.jpg"))

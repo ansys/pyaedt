@@ -19,7 +19,10 @@ Link HFSS to transient thermal solver to find temperature rise in tissue near im
 # Perform required imports.
 import os.path
 
-from pyaedt import Hfss, Mechanical, Icepak, downloads
+from pyaedt import Hfss
+from pyaedt import Icepak
+from pyaedt import Mechanical
+from pyaedt import downloads
 
 ###############################################################################
 # Set non-graphical mode
@@ -39,8 +42,12 @@ non_graphical = False
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain #electrical and thermal properties.
 project_path = downloads.download_file(directory="mri")
-hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version="2023.2", non_graphical=non_graphical,
-            new_desktop_session=True)
+hfss = Hfss(
+    os.path.join(project_path, "background_SAR.aedt"),
+    specified_version="2023.2",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 ###############################################################################
 # Insert 3D component
 # ~~~~~~~~~~~~~~~~~~~
@@ -68,7 +75,8 @@ hfss.setups[0].enable_expression_cache(
     isconvergence=True,
     isrelativeconvergence=False,
     conv_criteria=2.5,
-    use_cache_for_freq=False)
+    use_cache_for_freq=False,
+)
 hfss.setups[0].props["MaximumPasses"] = 2
 im_traces
 
@@ -98,20 +106,24 @@ hfss.analyze(num_cores=6)
 # Plot averagedSAR on GlobalYZ plane
 # Draw Point1 at origin of the implant coordinate system
 
-hfss.sar_setup(-1, Average_SAR_method=1, TissueMass=1, MaterialDensity=1, )
-hfss.post.create_fieldplot_cutplane(objlist="implant:YZ",
-                                    quantityName="Average_SAR",
-                                    filter_objects=["implant_box"])
+hfss.sar_setup(
+    -1,
+    Average_SAR_method=1,
+    TissueMass=1,
+    MaterialDensity=1,
+)
+hfss.post.create_fieldplot_cutplane(objlist="implant:YZ", quantityName="Average_SAR", filter_objects=["implant_box"])
 
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point([0, 0, 0], name="Point1")
 
-hfss.post.plot_field(quantity="Average_SAR",
-                     object_list="implant:YZ",
-                     plot_type="CutPlane",
-                     show_legend=False,
-                     filter_objects=["implant_box"],
-                     )
+hfss.post.plot_field(
+    quantity="Average_SAR",
+    object_list="implant:YZ",
+    plot_type="CutPlane",
+    show_legend=False,
+    filter_objects=["implant_box"],
+)
 
 ###############################################################################
 # Adjust Input Power to MRI Coil
@@ -122,10 +134,9 @@ hfss.post.plot_field(quantity="Average_SAR",
 # input_scale = 1/AverageSAR at Point1
 
 
-sol_data = hfss.post.get_solution_data(expressions="Average_SAR",
-                                       primary_sweep_variable="Freq",
-                                       context="Point1",
-                                       report_category="Fields")
+sol_data = hfss.post.get_solution_data(
+    expressions="Average_SAR", primary_sweep_variable="Freq", context="Point1", report_category="Fields"
+)
 sol_data.data_real()
 
 hfss["input_scale"] = 1 / sol_data.data_real()[0]
@@ -207,22 +218,25 @@ mech.analyze(num_cores=6)
 # Plot Temperature on point.
 
 
-mech.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"],
-                                    intrinsincDict={"Time": "10s"})
+mech.post.create_fieldplot_cutplane(
+    "implant:YZ", "Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "10s"}
+)
 mech.save_project()
 
-data = mech.post.get_solution_data("Temperature", primary_sweep_variable="Time", context="Point1",
-                                   report_category="Fields")
+data = mech.post.get_solution_data(
+    "Temperature", primary_sweep_variable="Time", context="Point1", report_category="Fields"
+)
 data.plot()
 
-mech.post.plot_animated_field(quantity="Temperature",
-                              object_list="implant:YZ",
-                              plot_type="CutPlane",
-                              intrinsics={"Time": "10s"},
-                              variation_variable="Time",
-                              variation_list=["10s", "20s", "30s", "40s", "50s", "60s"],
-                              filter_objects=["implant_box"],
-                              )
+mech.post.plot_animated_field(
+    quantity="Temperature",
+    object_list="implant:YZ",
+    plot_type="CutPlane",
+    intrinsics={"Time": "10s"},
+    variation_variable="Time",
+    variation_list=["10s", "20s", "30s", "40s", "50s", "60s"],
+    filter_objects=["implant_box"],
+)
 
 ###############################################################################
 # Thermal Simulation
@@ -265,7 +279,7 @@ setup = ipk.create_setup()
 setup.props["Stop Time"] = 60
 setup.props["N Steps"] = 2
 setup.props["Time Step"] = 5
-setup.props['Convergence Criteria - Energy'] = 1e-12
+setup.props["Convergence Criteria - Energy"] = 1e-12
 
 ################################################################################
 # Mesh Region
@@ -297,9 +311,10 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # Plot Temperature on cut plane.
 # Plot Temperature on monitor point.
 
-ipk.analyze(num_cores=4,num_tasks=4)
-ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"],
-                                   intrinsincDict={"Time": "0s"})
+ipk.analyze(num_cores=4, num_tasks=4)
+ipk.post.create_fieldplot_cutplane(
+    "implant:YZ", "Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "0s"}
+)
 ipk.save_project()
 
 data = ipk.post.get_solution_data("Point1.Temperature", primary_sweep_variable="Time", report_category="Monitor")

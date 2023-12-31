@@ -10,12 +10,13 @@ This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 
 import json
 import os
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -26,12 +27,13 @@ version = "2023.2"
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
-                       solution_type="EddyCurrent",
-                       specified_version=version,
-                       non_graphical=non_graphical,
-                       new_desktop_session=True
-                       )
+m3d = pyaedt.Maxwell3d(
+    projectname=pyaedt.generate_unique_project_name(),
+    solution_type="EddyCurrent",
+    specified_version=version,
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 
 ###############################################################################
 # Rules and information of use
@@ -43,7 +45,7 @@ m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
 # dictionaries as values. The keys of these dictionaries are secondary keys
 # of the dictionary values, such as ``"1"``, ``"2"``, ``"3"``, ``"4"``, and
 # ``"Simple"``.
-# 
+#
 # You must not modify the primary or secondary keys. You can modify only their values.
 # You must not change the data types for these keys. For the dictionaries from
 # ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
@@ -53,7 +55,7 @@ m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
 # values must be strings, floats, or integers.
 #
 # Descriptions follow for primary keys:
-# 
+#
 # - ``"Number of Windings"``: Number of windings around the core
 # - ``"Layer"``: Number of layers of all windings
 # - ``"Layer Type"``: Whether layers of a winding are linked to each other
@@ -124,7 +126,7 @@ print(dictionary_values)
 ###############################################################################
 # Create choke
 # ~~~~~~~~~~~~
-# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# Create the choke. The ``create_choke`` method takes the JSON file path as an
 # argument.
 
 list_object = m3d.modeler.create_choke(json_path)

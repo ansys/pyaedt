@@ -24,12 +24,13 @@ Install these libraries with:
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -39,8 +40,13 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Insert a Maxwell 2D design and save the project.
 
-maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="2023.2", non_graphical=non_graphical,
-                              new_desktop_session=True, projectname=pyaedt.generate_unique_project_name())
+maxwell_2d = pyaedt.Maxwell2d(
+    solution_type="TransientXY",
+    specified_version="2023.2",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+    projectname=pyaedt.generate_unique_project_name(),
+)
 
 ###############################################################################
 # Create rectangle and duplicate it

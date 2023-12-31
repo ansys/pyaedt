@@ -26,11 +26,13 @@ This example shows how to
 ######################################################################
 
 import os
+
 import pyaedt
 from pyaedt import Edb
 
-aedb_path = os.path.join(pyaedt.generate_unique_folder_name(),
-                         pyaedt.generate_unique_name("component_example") + ".aedb")
+aedb_path = os.path.join(
+    pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("component_example") + ".aedb"
+)
 
 
 edb = Edb(edbpath=aedb_path, edbversion="2023.2")
@@ -55,18 +57,23 @@ conectors_position = [[0, 0], [10e-3, 0]]
 ################
 # Create stackup
 # ~~~~~~~~~~~~~~
-edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner,
-                                     outer_layer_thickness=cond_thickness_outer,
-                                     soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
-                                     dielectric_material=diel_material_name)
+edb.stackup.create_symmetric_stackup(
+    layer_count=layout_count,
+    inner_layer_thickness=cond_thickness_inner,
+    outer_layer_thickness=cond_thickness_outer,
+    soldermask_thickness=soldermask_thickness,
+    dielectric_thickness=diel_thickness,
+    dielectric_material=diel_material_name,
+)
 
 ######################
 # Create ground planes
 # ~~~~~~~~~~~~~~~~~~~~
 #
 
-ground_layers = [layer_name for layer_name in edb.stackup.signal_layers.keys() if layer_name not in
-                 [trace_in_layer, trace_out_layer]]
+ground_layers = [
+    layer_name for layer_name in edb.stackup.signal_layers.keys() if layer_name not in [trace_in_layer, trace_out_layer]
+]
 plane_shape = edb.modeler.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["13mm", "3mm"])
 for i in ground_layers:
     edb.modeler.create_polygon(plane_shape, i, net_name="VSS")
@@ -85,47 +92,69 @@ edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 # Create padstack definition
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-edb.padstacks.create_padstack(padstackname="Via", holediam="$via_hole_size", antipaddiam="$antipaddiam",
-                              paddiam="$paddiam")
+edb.padstacks.create_padstack(
+    padstackname="Via", holediam="$via_hole_size", antipaddiam="$antipaddiam", paddiam="$paddiam"
+)
 
 ####################
 # Create connector 1
 # ~~~~~~~~~~~~~~~~~~
 
-component1_pins = [edb.padstacks.place_padstack(conectors_position[0], "Via", net_name="VDD", fromlayer=trace_in_layer,
-                                                tolayer=trace_out_layer),
-                   edb.padstacks.place_padstack([conectors_position[0][0] - connector_size / 2,
-                                                 conectors_position[0][1] - connector_size / 2],
-                                                "Via", net_name="VSS"),
-                   edb.padstacks.place_padstack([conectors_position[0][0] + connector_size / 2,
-                                                 conectors_position[0][1] - connector_size / 2],
-                                                "Via", net_name="VSS"),
-                   edb.padstacks.place_padstack([conectors_position[0][0] + connector_size / 2,
-                                                 conectors_position[0][1] + connector_size / 2],
-                                                "Via", net_name="VSS"),
-                   edb.padstacks.place_padstack([conectors_position[0][0] - connector_size / 2,
-                                                 conectors_position[0][1] + connector_size / 2],
-                                                "Via", net_name="VSS")]
+component1_pins = [
+    edb.padstacks.place_padstack(
+        conectors_position[0], "Via", net_name="VDD", fromlayer=trace_in_layer, tolayer=trace_out_layer
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[0][0] - connector_size / 2, conectors_position[0][1] - connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[0][0] + connector_size / 2, conectors_position[0][1] - connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[0][0] + connector_size / 2, conectors_position[0][1] + connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[0][0] - connector_size / 2, conectors_position[0][1] + connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+]
 
 ####################
 # Create connector 2
 # ~~~~~~~~~~~~~~~~~~
 
 component2_pins = [
-    edb.padstacks.place_padstack(conectors_position[-1], "Via", net_name="VDD", fromlayer=trace_in_layer,
-                                 tolayer=trace_out_layer),
-    edb.padstacks.place_padstack([conectors_position[1][0] - connector_size / 2,
-                                  conectors_position[1][1] - connector_size / 2],
-                                 "Via", net_name="VSS"),
-    edb.padstacks.place_padstack([conectors_position[1][0] + connector_size / 2,
-                                  conectors_position[1][1] - connector_size / 2],
-                                 "Via", net_name="VSS"),
-    edb.padstacks.place_padstack([conectors_position[1][0] + connector_size / 2,
-                                  conectors_position[1][1] + connector_size / 2],
-                                 "Via", net_name="VSS"),
-    edb.padstacks.place_padstack([conectors_position[1][0] - connector_size / 2,
-                                  conectors_position[1][1] + connector_size / 2],
-                                 "Via", net_name="VSS")]
+    edb.padstacks.place_padstack(
+        conectors_position[-1], "Via", net_name="VDD", fromlayer=trace_in_layer, tolayer=trace_out_layer
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[1][0] - connector_size / 2, conectors_position[1][1] - connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[1][0] + connector_size / 2, conectors_position[1][1] - connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[1][0] + connector_size / 2, conectors_position[1][1] + connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+    edb.padstacks.place_padstack(
+        [conectors_position[1][0] - connector_size / 2, conectors_position[1][1] + connector_size / 2],
+        "Via",
+        net_name="VSS",
+    ),
+]
 
 ####################
 # Create layout pins
@@ -138,8 +167,8 @@ for padstack_instance in list(edb.padstacks.instances.values()):
 # create component from pins
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-edb.components.create(component1_pins, 'connector_1')
-edb.components.create(component2_pins, 'connector_2')
+edb.components.create(component1_pins, "connector_1")
+edb.components.create(component2_pins, "connector_2")
 
 ################################################################################
 # Creating ports and adding simulation setup using SimulationConfiguration class

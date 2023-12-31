@@ -16,17 +16,18 @@ import os
 
 # Import required modules
 import pyaedt
+from pyaedt.emit_core.emit_constants import ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 ###############################################################################
 ## Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
-# 
+#
 # The following code uses AEDT 2023 R2.
 
 non_graphical = False
@@ -113,15 +114,15 @@ for link in aedtapp.couplings.coupling_names:
 # ~~~~~~~~~~~~~~~~~~~
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
 #
-# This part of the example requires Ansys AEDT 2023 R2. 
+# This part of the example requires Ansys AEDT 2023 R2.
 
 if desktop_version > "2023.1":
     rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX) 
-    tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX) 
+    rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX)
+    tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX)
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferer(rad2.name,tx_bands[0])
+    domain.set_interferer(rad2.name, tx_bands[0])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(ResultType.EMI)
     if worst.has_valid_values():

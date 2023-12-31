@@ -10,6 +10,7 @@ This example shows how you can use PyAEDT to export an IPC2581 file.
 # Perform required imports, which includes importing a section.
 
 import os
+
 import pyaedt
 
 ###############################################################################
@@ -19,7 +20,7 @@ import pyaedt
 
 
 temp_folder = pyaedt.generate_unique_folder_name()
-targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
+targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_folder)
 
 
 ipc2581_file = os.path.join(temp_folder, "Ansys_Hsd.xml")
@@ -53,14 +54,17 @@ for net in edb.nets.netlist:
     if "PCIe" in net:
         signal_list.append(net)
 power_list = ["GND"]
-edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",
-           expansion_size=0.002,
-           use_round_corner=False,
-           number_of_threads=4,
-           remove_single_pin_components=True,
-           use_pyaedt_extent_computing=True,
-           extent_defeature=0,
-           )
+edb.cutout(
+    signal_list=signal_list,
+    reference_list=power_list,
+    extent_type="ConvexHull",
+    expansion_size=0.002,
+    use_round_corner=False,
+    number_of_threads=4,
+    remove_single_pin_components=True,
+    use_pyaedt_extent_computing=True,
+    extent_defeature=0,
+)
 
 ###############################################################################
 # Plot cutout

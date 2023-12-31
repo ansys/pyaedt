@@ -10,8 +10,10 @@ run a Nexxim time-domain simulation, and create an eye diagram.
 # Perform required imports.
 
 import os
+
 from matplotlib import pyplot as plt
 import numpy as np
+
 import pyaedt
 
 ###############################################################################
@@ -28,18 +30,19 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                     specified_version="2023.2",
-                     new_desktop_session=True,
-                     non_graphical=non_graphical
-                     )
+cir = pyaedt.Circuit(
+    projectname=pyaedt.generate_unique_project_name(),
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 
 ###############################################################################
 # Read IBIS file
 # ~~~~~~~~~~~~~~
 # Read an IBIS file and place a buffer in the schematic.
 
-ibis = cir.get_ibis_model_from_file(os.path.join(cir.desktop_install_dir, 'buflib', 'IBIS', 'u26a_800.ibs'))
+ibis = cir.get_ibis_model_from_file(os.path.join(cir.desktop_install_dir, "buflib", "IBIS", "u26a_800.ibs"))
 ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 
 ###############################################################################
@@ -114,12 +117,14 @@ new_report.create()
 if not non_graphical:
     new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
     vout = new_report.traces[0]
-    vout.set_trace_properties(trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
-                              color=(0, 0, 255))
+    vout.set_trace_properties(
+        trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous, color=(0, 0, 255)
+    )
     vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
     ll = new_report.limit_lines[0]
-    ll.set_line_properties(style=ll.LINESTYLE.Solid, width=4, hatch_above=True, violation_emphasis=True, hatch_pixels=2,
-                           color=(0, 0, 255))
+    ll.set_line_properties(
+        style=ll.LINESTYLE.Solid, width=4, hatch_above=True, violation_emphasis=True, hatch_pixels=2, color=(0, 0, 255)
+    )
 new_report.time_start = "20ns"
 new_report.time_stop = "100ns"
 new_report.create()
@@ -129,7 +134,7 @@ sol.plot()
 ###############################################################################
 # Create eye diagram inside AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create an eye diagram inside AEDT using the ``new_eye`` object. 
+# Create an eye diagram inside AEDT using the ``new_eye`` object.
 
 new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
 new_eye.unit_interval = "1e-9s"
@@ -152,10 +157,11 @@ while i < tstop:
     i += 2 * unit_interval
     t_steps.append(i)
 
-t = [[i for i in solutions.intrinsics["Time"] if k - 2 * unit_interval < i <= k] for k in
-     t_steps]
-ys = [[i / 1000 for i, j in zip(solutions.data_real(), solutions.intrinsics["Time"]) if
-       k - 2 * unit_interval < j <= k] for k in t_steps]
+t = [[i for i in solutions.intrinsics["Time"] if k - 2 * unit_interval < i <= k] for k in t_steps]
+ys = [
+    [i / 1000 for i, j in zip(solutions.data_real(), solutions.intrinsics["Time"]) if k - 2 * unit_interval < j <= k]
+    for k in t_steps
+]
 fig, ax = plt.subplots(sharex=True)
 cellst = np.array([])
 cellsv = np.array([])
@@ -165,7 +171,7 @@ for a, b in zip(t, ys):
     bn = np.array(b)
     cellst = np.append(cellst, an)
     cellsv = np.append(cellsv, bn)
-plt.plot(cellst.T,  cellsv.T, zorder=0)
+plt.plot(cellst.T, cellsv.T, zorder=0)
 plt.show()
 
 ###############################################################################

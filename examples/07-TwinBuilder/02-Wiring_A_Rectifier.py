@@ -10,9 +10,11 @@ and run a Twin Builder time-domain simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import os
 import math
+import os
+
 import matplotlib.pyplot as plt
+
 import pyaedt
 
 ###############################################################################
@@ -36,17 +38,18 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
-                        specified_version=desktop_version,
-                        non_graphical=non_graphical,
-                        new_desktop_session=new_thread
-                        )
+tb = pyaedt.TwinBuilder(
+    projectname=pyaedt.generate_unique_project_name(),
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=new_thread,
+)
 
 ###############################################################################
 # Create components for bridge rectifier
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create components for a bridge rectifier with a capacitor filter.
- 
+
 # Define the grid distance for ease in calculations.
 
 G = 0.00254
@@ -89,7 +92,9 @@ tb.modeler.schematic.create_wire(points_array=[diode3.pins[1].location, diode4.p
 # Wire the AC source.
 
 tb.modeler.schematic.create_wire(points_array=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
-tb.modeler.schematic.create_wire(points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
+tb.modeler.schematic.create_wire(
+    points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]]
+)
 
 # Wire the filter capacitor and load resistor.
 

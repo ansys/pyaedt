@@ -9,16 +9,18 @@ conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import Maxwell3d
-from pyaedt import generate_unique_project_name
-import numpy as np
 import csv
 import os
+
+import numpy as np
+
+from pyaedt import Maxwell3d
+from pyaedt import generate_unique_project_name
 
 ###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -27,7 +29,7 @@ non_graphical = False
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
-# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
+# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``.
 
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
@@ -40,7 +42,7 @@ M3D = Maxwell3d(
     solution_type=Solver,
     specified_version=DesktopVersion,
     non_graphical=non_graphical,
-    new_desktop_session=True
+    new_desktop_session=True,
 )
 M3D.modeler.model_units = "mm"
 modeler = M3D.modeler
@@ -157,8 +159,9 @@ mat.conductivity = 3.526e7
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
 
-plate = M3D.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
-                               matname="team7_aluminium")
+plate = M3D.modeler.create_box(
+    position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate", matname="team7_aluminium"
+)
 M3D.modeler.fit_all()
 hole = M3D.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
 M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
@@ -178,9 +181,11 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # used in the coil.
 
 M3D.eddy_effects_on(object_list="Plate")
-M3D.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
-                    activate_eddy_effects=False,
-                    activate_displacement_current=False)
+M3D.eddy_effects_on(
+    object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
+    activate_eddy_effects=False,
+    activate_displacement_current=False,
+)
 
 ################################################################################
 # Create expression for Z component of B in Gauss

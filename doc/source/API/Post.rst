@@ -6,11 +6,11 @@ plots in AEDT. They are accessible through the ``post`` property.
 .. note::
    Some capabilities of the ``AdvancedPostProcessing`` module require Python 3 and
    installations of the `numpy <https://numpy.org/doc/stable/>`_,
-   `matplotlib <https://matplotlib.org/>`_, and `pyvista <https://docs.pyvista.org/>`_ 
+   `matplotlib <https://matplotlib.org/>`_, and `pyvista <https://docs.pyvista.org/>`_
    packages.
 
 .. note::
-   Some functionalities are available only when AEDT is running 
+   Some functionalities are available only when AEDT is running
    in graphical mode.
 
 
@@ -29,15 +29,22 @@ plots in AEDT. They are accessible through the ``post`` property.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2023.1",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2023.1",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the PostProcessor class
     post = app.post
 
     # This call returns a FieldPlot object
-    plotf = post.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
+    plotf = post.create_fieldplot_volume(
+        object_list, quantityname, setup_name, intrinsic_dict
+    )
 
     # This call returns a SolutionData object
     my_data = post.get_solution_data(expressions=trace_names)

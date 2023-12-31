@@ -1,6 +1,6 @@
 Modeler
 =======
-The AEDT 3D and 2D Modelers use object-oriented programming to create and manage objects. 
+The AEDT 3D and 2D Modelers use object-oriented programming to create and manage objects.
 You can use getters and setters to create an object and change its properties:
 
 .. code:: python

@@ -54,17 +54,15 @@ data.plot_fext_xtalk_losses(tx_prefix="U1", rx_prefix="U7")
 worst_rl, global_mean = data.get_worst_curve(
     freq_min=1, freq_max=20, worst_is_higher=True, curve_list=data.get_return_loss_index()
 )
-worst_il, mean2 = data.get_worst_curve(freq_min=1,
-                                       freq_max=20,
-                                       worst_is_higher=False,
-                                       curve_list=data.get_insertion_loss_index()
-                                       )
-worst_fext, mean3 = data.get_worst_curve(freq_min=1,
-                                         freq_max=20,
-                                         worst_is_higher=True,
-                                         curve_list=data.get_fext_xtalk_index_from_prefix(tx_prefix="U1",
-                                                                                          rx_prefix="U7")
-                                         )
+worst_il, mean2 = data.get_worst_curve(
+    freq_min=1, freq_max=20, worst_is_higher=False, curve_list=data.get_insertion_loss_index()
+)
+worst_fext, mean3 = data.get_worst_curve(
+    freq_min=1,
+    freq_max=20,
+    worst_is_higher=True,
+    curve_list=data.get_fext_xtalk_index_from_prefix(tx_prefix="U1", rx_prefix="U7"),
+)
 worst_next, mean4 = data.get_worst_curve(
     freq_min=1, freq_max=20, worst_is_higher=True, curve_list=data.get_next_xtalk_index("U1")
 )

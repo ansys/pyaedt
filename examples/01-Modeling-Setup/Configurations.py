@@ -31,12 +31,13 @@ design has changed, the boundary fails to apply.
 # Perform required imports from PyAEDT.
 
 import os
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -48,8 +49,9 @@ non_graphical = False
 
 project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = pyaedt.Icepak(projectname=project_full_name, specified_version="2023.2",
-                    new_desktop_session=True, non_graphical=non_graphical)
+ipk = pyaedt.Icepak(
+    projectname=project_full_name, specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+)
 ipk.autosave_disable()
 
 ###############################################################################
@@ -90,8 +92,9 @@ ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 filename = ipk.design_name
 file_path = os.path.join(ipk.working_directory, filename + ".step")
-ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_format=".step", object_list=[],
-                    removed_objects=[])
+ipk.export_3d_model(
+    file_name=filename, file_path=ipk.working_directory, file_format=".step", object_list=[], removed_objects=[]
+)
 
 ###############################################################################
 # Export configuration files

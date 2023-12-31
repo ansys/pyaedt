@@ -11,19 +11,19 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # Perform required imports.
 import os
 import tempfile
-import pyaedt
 
+import pyaedt
 
 ###############################################################################
 # Setup project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download of needed project file and setup of temporary project directory.
-project_dir =  pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=project_dir)
+project_dir = pyaedt.generate_unique_folder_name()
+aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=project_dir)
 
 project_name = pyaedt.generate_unique_name("HSD")
-output_edb = os.path.join(project_dir, project_name + '.aedb')
-output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
+output_edb = os.path.join(project_dir, project_name + ".aedb")
+output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 
 
 ###############################################################################
@@ -32,8 +32,12 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
 edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
-edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
-                              use_pyaedt_extent_computing=True, )
+edb.cutout(
+    ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
+    ["GND"],
+    output_aedb_path=output_edb,
+    use_pyaedt_extent_computing=True,
+)
 
 
 ###############################################################################
@@ -85,22 +89,24 @@ setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
 
 
-
 ###############################################################################
 # Open Q3D
 # ~~~~~~~~
 # Launch the newly created q3d project and plot it.
 
 q3d = pyaedt.Q3d(output_q3d)
-q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(
+    show=False,
+    objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
+    export_path=os.path.join(q3d.working_directory, "Q3D.jpg"),
+    plot_air_objects=False,
+)
 
 ###############################################################################
 # Assing Source and Sink
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.
-
 
 
 f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, obj_name="CLOCK_I2C_SCL")

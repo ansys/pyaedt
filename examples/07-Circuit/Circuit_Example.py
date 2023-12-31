@@ -11,8 +11,9 @@ and run a Nexxim time-domain simulation.
 
 # sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
 
-import pyaedt
 import os
+
+import pyaedt
 
 ###############################################################################
 # Launch AEDT
@@ -24,7 +25,7 @@ desktop_version = "2023.2"
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
@@ -70,7 +71,7 @@ pins_resistor = resistor.pins
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a port and a ground, which are needed for the circuit analysis.
 
-port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-200, 0] )
+port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-200, 0])
 gnd = aedt_app.modeler.components.create_gnd(location=[1200, -100])
 
 ###############################################################################

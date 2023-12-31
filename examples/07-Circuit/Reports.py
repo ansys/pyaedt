@@ -10,7 +10,9 @@ This example shows how you can use PyAEDT to create reports automatically using 
 # Perform required imports and set the local path to the path for PyAEDT.
 
 import os
+
 from IPython.display import Image
+
 import pyaedt
 
 # Set local path to path for PyAEDT
@@ -27,7 +29,7 @@ desktopVersion = "2023.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
@@ -41,11 +43,12 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
-                     non_graphical=non_graphical,
-                     specified_version=desktopVersion,
-                     new_desktop_session=True
-                     )
+cir = pyaedt.Circuit(
+    projectname=os.path.join(project_path, "CISPR25_Radiated_Emissions_Example23R1.aedtz"),
+    non_graphical=non_graphical,
+    specified_version=desktopVersion,
+    new_desktop_session=True,
+)
 cir.analyze()
 
 ###############################################################################
@@ -57,7 +60,7 @@ cir.analyze()
 # notes and edit axes, the grid, and the legend. You can create custom reports
 # in non-graphical mode in AEDT 2023 R2 and later.
 
-report1 = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Basic.json'))
+report1 = cir.post.create_report_from_configuration(os.path.join(project_path, "Spectrum_CISPR_Basic.json"))
 out = cir.post.export_report_to_jpg(cir.working_directory, report1.plot_name)
 Image(out)
 
@@ -66,7 +69,7 @@ Image(out)
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Every aspect of the report can be customized.
 
-report1_full = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Custom.json'))
+report1_full = cir.post.create_report_from_configuration(os.path.join(project_path, "Spectrum_CISPR_Custom.json"))
 out = cir.post.export_report_to_jpg(cir.working_directory, report1_full.plot_name)
 Image(out)
 ###############################################################################
@@ -78,7 +81,7 @@ Image(out)
 # mode in AEDT 2023 R2 and later.
 
 
-props = pyaedt.data_handler.json_to_dict(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
+props = pyaedt.data_handler.json_to_dict(os.path.join(project_path, "Transient_CISPR_Custom.json"))
 
 report2 = cir.post.create_report_from_configuration(input_dict=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)
@@ -102,7 +105,7 @@ Image(out)
 # Create an eye diagram. If the JSON file contains an eye mask, you can create
 # an eye diagram and fully customize it.
 
-report4 = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Basic.json'))
+report4 = cir.post.create_report_from_configuration(os.path.join(project_path, "EyeDiagram_CISPR_Basic.json"))
 out = cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
 Image(out)
 
@@ -112,7 +115,7 @@ Image(out)
 # You can create custom reports in
 # non-graphical mode in AEDT 2023 R2 and later.
 
-report4_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Custom.json'))
+report4_full = cir.post.create_report_from_configuration(os.path.join(project_path, "EyeDiagram_CISPR_Custom.json"))
 
 out = cir.post.export_report_to_jpg(cir.working_directory, report4_full.plot_name)
 Image(out)

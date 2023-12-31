@@ -8,14 +8,14 @@ This example shows how you can use EDB to interact with a layout.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import shutil
-
 import os
+import shutil
 import time
+
 import pyaedt
 
 temp_folder = pyaedt.generate_unique_folder_name()
-targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
+targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_folder)
 
 siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
@@ -120,7 +120,6 @@ edb.nets.delete("PDEN")
 print(edb.stackup.limits())
 
 
-
 ###############################################################################
 # Create voltage source and Siwave DCIR analysis
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,14 +133,13 @@ setup.set_dc_slider = 0
 setup.add_source_terminal_to_ground("V1", 1)
 
 
-
 ###############################################################################
 # Save modifications
 # ~~~~~~~~~~~~~~~~~~
 # Save modifications.
 
 edb.save_edb()
-edb.nets.plot(None, "1_Top",plot_components_on_top=True)
+edb.nets.plot(None, "1_Top", plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 
@@ -149,7 +147,10 @@ siw_file = edb.solve_siwave()
 # Export Siwave Reports
 # ~~~~~~~~~~~~~~~~~~~~~
 # Export all DC Reports quantities.
-outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
+outputs = edb.export_siwave_dc_results(
+    siw_file,
+    setup.name,
+)
 
 ###############################################################################
 # Close EDB

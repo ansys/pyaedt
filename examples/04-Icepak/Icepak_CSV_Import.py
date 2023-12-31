@@ -10,17 +10,18 @@ a *.csv input file
 # Perform required imports including the opertaing system, regular expression, csv, Ansys PyAEDT
 # and its boundary objects.
 
+from collections import OrderedDict
+import csv
 import os
 import re
-import csv
-from collections import OrderedDict
+
 import pyaedt
 from pyaedt.modules.Boundary import BoundaryObject
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -32,11 +33,12 @@ non_graphical = False
 
 temp_folder = pyaedt.generate_unique_folder_name()
 
-ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
-                    specified_version="2023.2",
-                    new_desktop_session=True,
-                    non_graphical=non_graphical
-                    )
+ipk = pyaedt.Icepak(
+    projectname=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 
 ipk.autosave_disable()
 
@@ -62,11 +64,11 @@ ipk.autosave_disable()
 #
 #
 
-filename = pyaedt.downloads.download_file('icepak','blocks-list.csv',destination=temp_folder)
+filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv", destination=temp_folder)
 fields = []
 rows = []
 
-with open(filename, 'r') as csvFile:
+with open(filename, "r") as csvFile:
     csvReader = csv.reader(csvFile)
     fields = next(csvReader)
     for row in csvReader:
@@ -78,8 +80,8 @@ with open(filename, 'r') as csvFile:
 # This function will be called in the next step if the blcok type is network.
 # It will read the board side as well as thetaj values and assign them to the block.
 
-def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
 
+def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
     board_side = board_side.casefold()  # returns the board side with all letters in lower case
 
     if board_side == "minx":
@@ -115,7 +117,7 @@ def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
         {
             "Case_side(" + case_side + ")": [case_faceID, "NoResistance"],
             "Board_side(" + board_side + ")": [board_faceID, "NoResistance"],
-            "Internal": [power + 'W'],
+            "Internal": [power + "W"],
         }
     )
 
@@ -137,6 +139,7 @@ def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
         ipk.boundaries.append(bound)
         ipk.modeler.primitives[object3d.name].solve_inside = False
 
+
 ###############################################################################
 # Final stage to create the blocks
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,7 +150,6 @@ def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
 # For example, rows[i][1] is the first item in the list that has the block name information.
 
 for i in range(len(rows)):
-
     origin = [float(rows[i][2]), float(rows[i][3]), float(rows[i][4])]  # blcok starting point
     dimensions = [float(rows[i][5]), float(rows[i][6]), float(rows[i][7])]  # blcok lengths in 3 dimentions
     block_name = rows[i][1]  # blcok name
@@ -177,7 +179,7 @@ for i in range(len(rows)):
 
     # Create temperature monitor points if assigned value is 1 in the last column of the csv file
 
-    if rows[i][13] == '1':
+    if rows[i][13] == "1":
         # calculates the location of the monitoir point based on the starting point an dlength of the block
 
         mon_loc_x = float(rows[i][2]) + 0.5 * float(rows[i][5])

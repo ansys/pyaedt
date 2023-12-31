@@ -1,7 +1,6 @@
-import unittest
 from datetime import datetime
 import os
-
+import unittest
 
 from pyaedt import Circuit
 from pyaedt import Hfss
@@ -13,7 +12,6 @@ from pyaedt import Mechanical
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import TwinBuilder
-
 
 run_dir = os.path.abspath(os.path.dirname(__file__))
 log_filename = os.path.join(run_dir, "pyaedt_unit_test_ironpython.log")
@@ -35,11 +33,10 @@ def run_tests(filename):
 
         f.write("\n<unittest.runner.TextTestResult Total Test run={}>\n".format(num_runs))
         if not result.wasSuccessful():
-            f.write("\n<unittest.runner.TextTestResult errors={}>\n".format(num_errors+num_failures))
+            f.write("\n<unittest.runner.TextTestResult errors={}>\n".format(num_errors + num_failures))
 
 
 class TestIronPython(unittest.TestCase):
-
     def test_run_desktop_mechanical(self):
         aedtapp = Mechanical()
         self.assertTrue(aedtapp.design_type == "Mechanical")
@@ -139,5 +136,5 @@ class TestIronPython(unittest.TestCase):
         self.assertTrue(aedtapp.variable_manager)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_tests(log_filename)

@@ -15,8 +15,14 @@ You can start AEDT in non-graphical mode from Python:
     # Launch AEDT 2023 R1 in non-graphical mode
 
     import pyaedt
-    with pyaedt.Desktop(specified_version="2023.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
-                 student_version=False):
+
+    with pyaedt.Desktop(
+        specified_version="2023.1",
+        non_graphical=True,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    ):
         circuit = pyaedt.Circuit()
         ...
         # Any error here will be caught by Desktop.
@@ -39,6 +45,7 @@ You can obtain the same result with:
     # Launch the latest installed version of AEDT in graphical mode.
 
     import pyaedt
+
     with pyaedt.Circuit(specified_version="2023.1", non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.

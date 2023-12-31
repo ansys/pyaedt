@@ -9,7 +9,7 @@ in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with this guide, paying particular attention to `Guidelines and Best Practices
 <https://dev.docs.pyansys.com/how-to/index.html>`_, before attempting
 to contribute to PyAEDT.
- 
+
 The following contribution information is specific to PyAEDT.
 
 Clone the repository
@@ -34,7 +34,7 @@ To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@a
 View PyAEDT documentation
 -------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
-`PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.  
+`PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.
 
 In the upper right corner of the documentation's title bar, there is an option
 for switching from viewing the documentation for the latest stable release
@@ -110,7 +110,7 @@ For example:
    def my_method(self, var):
        pass
 
-Every method can return a value of ``True`` when successful or 
+Every method can return a value of ``True`` when successful or
 ``False`` when failed. When a failure occurs, the error
 handler returns information about the error in both the console and
 log file.

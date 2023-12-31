@@ -4,12 +4,13 @@ HFSS: 3D Components
 This example shows how you can use PyAEDT to place 3D Components in Hfss and in Hfss 3D Layout.
 """
 import os
+
 import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -33,7 +34,10 @@ new_session = True
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # File to be used in the example
 
-component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
+component3d = pyaedt.downloads.download_file(
+    "component_3d",
+    "SMA_RF_Jack.a3dcomp",
+)
 
 ###############################################################################
 # Hfss Example
@@ -110,9 +114,11 @@ p2.add_via(0, 0)
 # The trace will connect the pin to the port on layer L1.
 
 t1 = s1.add_trace(trace_width, trace_length)
-rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZ,
-                                                 position=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
-                                                 dimension_list=["15*" + t1.width.name, "-3*" + stackup.thickness.name])
+rect1 = hfss.modeler.create_rectangle(
+    csPlane=hfss.PLANE.YZ,
+    position=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
+    dimension_list=["15*" + t1.width.name, "-3*" + stackup.thickness.name],
+)
 p1 = hfss.wave_port(signal=rect1, reference="G1", name="P1")
 
 ###############################################################################
@@ -180,8 +186,12 @@ h3d.modeler.layers.add_layer("G1", "signal", thickness=sig_height, isnegative=Tr
 # Place a 3d component by specifying the .a3dcomp file path.
 
 comp = h3d.modeler.place_3d_component(
-    component_path=component3d, number_of_terminals=1, placement_layer="G1", component_name="my_connector",
-    pos_x=0.000, pos_y=0.000
+    component_path=component3d,
+    number_of_terminals=1,
+    placement_layer="G1",
+    component_name="my_connector",
+    pos_x=0.000,
+    pos_y=0.000,
 )
 
 ###############################################################################
@@ -192,7 +202,12 @@ comp = h3d.modeler.place_3d_component(
 h3d["len"] = str(trace_length) + "mm"
 h3d["w1"] = str(trace_width) + "mm"
 line = h3d.modeler.create_line("L1", [[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
-h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, iswave=True, wave_horizontal_extension=15, )
+h3d.create_edge_port(
+    line,
+    h3d.modeler[line].top_edge_x,
+    iswave=True,
+    wave_horizontal_extension=15,
+)
 
 ###############################################################################
 # Create void on Ground plane for pin
@@ -207,8 +222,12 @@ h3d.modeler.create_circle("G1", 0, 0, 0.5)
 # Iterations will be reduced to reduce simulation time.
 
 h3d.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
-h3d.edit_hfss_extents(diel_extent_horizontal_padding="0.2", air_vertical_positive_padding="0",
-                      air_vertical_negative_padding="2", airbox_values_as_dim=False)
+h3d.edit_hfss_extents(
+    diel_extent_horizontal_padding="0.2",
+    air_vertical_positive_padding="0",
+    air_vertical_negative_padding="2",
+    airbox_values_as_dim=False,
+)
 setup1 = h3d.create_setup()
 sweep1 = h3d.create_linear_count_sweep(setup1.name, "GHz", 0.01, 8, 1601, sweep_type="Interpolating")
 setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = freq
