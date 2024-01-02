@@ -6095,7 +6095,7 @@ class Icepak(FieldAnalysis3D):
     def _remove_special_characters(self, text):
         import re
         sanitized_text = re.sub('[^a-zA-Z0-9_ \n]', '_', text)
-        self.logger.info(f"Renamed {text} to {sanitized_text}")
+        self.logger.info("Renamed " + text + " to " + sanitized_text)
         return sanitized_text
 
     @pyaedt_function_handler()
