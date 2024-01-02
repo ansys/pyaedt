@@ -2383,6 +2383,11 @@ class TestClass:
             reference_designator="U7", net_name="GND", group_name="U7_GND"
         )
         U7.pins["F7"].create_port(reference=pin_group)
+        padstack_instance_terminals = [
+            term for term in list(edbapp.terminals.values()) if "PadstackInstanceTerminal" in str(term.type)
+        ]
+        for term in padstack_instance_terminals:
+            assert term.position
         edbapp.close()
 
     def test_134_siwave_source_setter(self):
@@ -3031,3 +3036,65 @@ class TestClass:
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, desktop_version)
         assert edbapp.nets.merge_nets_polygons(["net1", "net2"])
+        edbapp.close_edb()
+
+    def test_155_layout_auto_parametrization(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_auto_parameters", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        edbapp.auto_parametrize_design(
+            layers=True,
+            layer_filter="1_Top",
+            materials=False,
+            via_holes=False,
+            pads=False,
+            antipads=False,
+            traces=False,
+        )
+        assert "$1_Top_thick" in edbapp.variables
+        edbapp.auto_parametrize_design(
+            layers=True, materials=False, via_holes=False, pads=False, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.keys())) == len(list(edbapp.stackup.stackup_layers.keys()))
+        edbapp.auto_parametrize_design(
+            layers=False,
+            materials=True,
+            via_holes=False,
+            pads=False,
+            antipads=False,
+            traces=False,
+            material_filter=["copper"],
+        )
+        assert "$sigma_copper" in edbapp.variables
+        edbapp.auto_parametrize_design(
+            layers=False, materials=True, via_holes=False, pads=False, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 26
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=True, pads=False, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 65
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=False, pads=True, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 469
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=False, pads=False, antipads=True, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 469
+        edbapp.auto_parametrize_design(
+            layers=False,
+            materials=False,
+            via_holes=False,
+            pads=False,
+            antipads=False,
+            traces=True,
+            trace_net_filter=["SFPA_Tx_Fault", "SFPA_Tx_Disable", "SFPA_SDA", "SFPA_SCL", "SFPA_Rx_LOS"],
+        )
+        assert len(list(edbapp.variables.keys())) == 474
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=False, pads=False, antipads=False, traces=True
+        )
+        assert len(list(edbapp.variables.values())) == 2308
+        edbapp.close_edb()

@@ -11,6 +11,7 @@ an interior permanent magnet electric motor.
 # Perform required imports.
 
 from math import sqrt as mysqrt
+from pyaedt import generate_unique_folder_name
 import csv
 import os
 import pyaedt
@@ -726,6 +727,33 @@ M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', 
 
 M2D.save_project()
 M2D.analyze_setup(sName, use_auto_settings=False)
+
+###############################################
+# Get solution data
+# ~~~~~~~~~~~~~~~~~
+# Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+# Plot the desired expression by using Matplotlib plot().
+
+solutions = M2D.post.get_solution_data(expressions="Moving1.Torque",
+                                       primary_sweep_variable="Time")
+solutions.plot()
+
+###############################################
+# Retrieve the data magnitude of an expression
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# List of shaft torque points and compute average.
+
+mag = solutions.data_magnitude()
+avg = sum(mag)/len(mag)
+
+###############################################
+# Export a report to a file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Export a 2D Plot data to a .csv file.
+
+M2D.post.export_report_to_file(output_dir=M2D.toolkit_directory,
+                               plot_name="TorquePlots",
+                               extension=".csv")
 
 ###############################################
 # Close AEDT

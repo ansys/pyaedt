@@ -1428,7 +1428,32 @@ class TestClass:
             power_law_exponent="3",
         )
 
-    def test_73_csv_import(self):
+    def test_73_conducting_plate(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
+        box_face = box.top_face_x
+        assert self.aedtapp.assign_conducting_plate_with_thickness(
+            box_face.id, total_power=1, high_side_rad_material="Steel-oxidised-surface"
+        )
+        assert self.aedtapp.assign_conducting_plate_with_resistance(
+            box_face.id, low_side_rad_material="Steel-oxidised-surface"
+        )
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surfPlateTest")
+        assert self.aedtapp.assign_conducting_plate_with_impedance("surfPlateTest")
+        x = [1, 2, 3]
+        y = [3, 4, 5]
+        self.aedtapp.create_dataset1d_design("Test_DataSet_Plate", x, y)
+        assert self.aedtapp.assign_conducting_plate_with_conductance(
+            "surfPlateTest",
+            total_power={
+                "Type": "Temp Dep",
+                "Function": "Piecewise Linear",
+                "Values": "Test_DataSet_Plate",
+            },
+        )
+        with pytest.raises(AttributeError):
+            self.aedtapp.assign_conducting_plate_with_conductance([box_face.id, "surfPlateTest"])
+
+    def test_74_csv_import(self):
         self.aedtapp.insert_design("csv_import")
         csv_file = os.path.join(
             local_path, "../_unittest/example_models", test_subfolder, "cylinder_geometry_creation.csv"
