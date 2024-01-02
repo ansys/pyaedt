@@ -7,7 +7,7 @@ a *.csv input file
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports including the opertaing system, regular expression, csv, Ansys PyAEDT
+# Perform required imports including the operating system, regular expression, csv, Ansys PyAEDT
 # and its boundary objects.
 
 import os
@@ -75,7 +75,7 @@ with open(filename, 'r') as csvFile:
 ###############################################################################
 # Defining a function for network block types
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This function will be called in the next step if the blcok type is network.
+# This function will be called in the next step if the block type is network.
 # It will read the board side as well as thetaj values and assign them to the block.
 
 def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
@@ -148,9 +148,9 @@ def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
 
 for i in range(len(rows)):
 
-    origin = [float(rows[i][2]), float(rows[i][3]), float(rows[i][4])]  # blcok starting point
-    dimensions = [float(rows[i][5]), float(rows[i][6]), float(rows[i][7])]  # blcok lengths in 3 dimentions
-    block_name = rows[i][1]  # blcok name
+    origin = [float(rows[i][2]), float(rows[i][3]), float(rows[i][4])]  # block starting point
+    dimensions = [float(rows[i][5]), float(rows[i][6]), float(rows[i][7])]  # block lengths in 3 dimensions
+    block_name = rows[i][1]  # block name
     block_name = re.sub("\W", "_", block_name)
 
     # Define material name
