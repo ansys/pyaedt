@@ -6074,7 +6074,7 @@ class Icepak(FieldAnalysis3D):
             Map of the csv columns names to the accepted column names.
         geo_type: str, optional
             Type of geometry that the csv file describes. Accepted values are: ``"cylinder"``.
-            Default is 'cylinder'.
+            Default is ``"cylinder"``.
         unit : str , optional
             Unit of values used to create geometry. Default unit is "mm".
 
