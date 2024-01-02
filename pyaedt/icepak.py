@@ -6076,7 +6076,7 @@ class Icepak(FieldAnalysis3D):
             Type of geometry that the csv file describes. Accepted values are: ``"cylinder"``.
             Default is ``"cylinder"``.
         unit : str , optional
-            Unit of values used to create geometry. Default unit is "mm".
+            Unit of values used to create geometry. Default unit is ``"mm"``.
 
         Returns
         -------
