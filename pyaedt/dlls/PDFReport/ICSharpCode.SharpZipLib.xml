@@ -8890,7 +8890,7 @@
             <summary>
             Delegate invoked during <see cref="M:ICSharpCode.SharpZipLib.Zip.ZipFile.TestArchive(System.Boolean,ICSharpCode.SharpZipLib.Zip.TestStrategy,ICSharpCode.SharpZipLib.Zip.ZipTestResultHandler)">testing</see> if supplied indicating current progress and status.
             </summary>
-            <remarks>If the message is non-null an error has occured.  If the message is null
+            <remarks>If the message is non-null an error has occurred.  If the message is null
             the operation as found in <see cref="T:ICSharpCode.SharpZipLib.Zip.TestStatus">status</see> has started.</remarks>
         </member>
         <member name="T:ICSharpCode.SharpZipLib.Zip.FileUpdateMode">
@@ -10739,7 +10739,7 @@
             if entry passed is null.
             </exception>
             <exception cref="T:System.IO.IOException">
-            if an I/O error occured.
+            if an I/O error occurred.
             </exception>
             <exception cref="T:System.InvalidOperationException">
             if stream was finished

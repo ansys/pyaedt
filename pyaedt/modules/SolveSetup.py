@@ -14,13 +14,13 @@ import re
 import time
 import warnings
 
-from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -1618,6 +1618,7 @@ class Setup3DLayout(CommonSetup):
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
                 self.props = SetupProps(self, OrderedDict())
+                settings.logger.error("Unable to set props.")
 
     @property
     def is_solved(self):
@@ -2104,6 +2105,7 @@ class Setup3DLayout(CommonSetup):
             SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
         return True
 
+    @pyaedt_function_handler()
     def export_to_json(self, file_path, overwrite=False):
         """Export all setup properties into a json file.
 
@@ -2114,10 +2116,11 @@ class Setup3DLayout(CommonSetup):
         overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
-        if os.path.isdir(file_path):  # pragma no cover
+        if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                pyaedt_logger.error("File {} already exists. Configure file is not exported".format(file_path))
-        return self.props._export_properties_to_json(file_path)
+                settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
+                return False
+        return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
 
 class SetupHFSS(Setup, object):
