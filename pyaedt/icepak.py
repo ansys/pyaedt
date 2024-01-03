@@ -6072,7 +6072,7 @@ class Icepak(FieldAnalysis3D):
             The default is ``2``.
         column_mapping : dict, optional
             Map of the CSV columns names to the accepted column names.
-            The default value is ``None``.
+            The default is ``None``.
         geo_type: str, optional
             Type of geometry that the csv file describes. Accepted values are: ``"cylinder"``.
             Default is ``"cylinder"``.
