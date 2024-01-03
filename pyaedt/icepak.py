@@ -6054,7 +6054,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, geo_type='cylinder', unit="mm"):
-        """Creates geometry from csv file containing geometry data.
+        """Create geometry from csv file containing geometry data.
 
         Parameters
         ----------
@@ -6091,6 +6091,7 @@ class Icepak(FieldAnalysis3D):
             return self._create_cylinder(df, unit=unit)
         else:
             raise ValueError("Geometry type not supported yet.")
+            return False
 
     @pyaedt_function_handler()
     def _remove_special_characters(self, text):
