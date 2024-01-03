@@ -155,7 +155,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
 
         >>> oEditor.GetActiveUnits
-        >>> oEditor.SetActivelUnits
+        >>> oEditor.SetActiveUnits
         """
         return self.oeditor.GetActiveUnits()
 
@@ -163,7 +163,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         """Set the model units as a string (for example, "mm")."""
-        self.oeditor.SetActiveUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self.oeditor.SetActiveUnits(units)
 
     @property
     def primitives(self):
