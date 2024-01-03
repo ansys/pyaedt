@@ -1006,8 +1006,8 @@ class Configurations(object):
         Returns
         -------
         bool
-            ``True`` if the configuration file is valid, otherwise ``False``.
-            If the validation fails, a warning will also be written to the logger.
+            ``True`` if the configuration file is valid, ``False`` otherwise.
+            If the validation fails, a warning is also written to the logger.
         """
 
         if isinstance(config, str):
