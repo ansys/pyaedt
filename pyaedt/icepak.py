@@ -6069,9 +6069,9 @@ class Icepak(FieldAnalysis3D):
             (plane on which the cylinder base lies).
         header_line : int, optional
             The line marking the start of data.
-            The default value is 2.
+            The default is ``2``.
         column_mapping : dict, optional
-            Map of the csv columns names to the accepted column names.
+            Map of the CSV columns names to the accepted column names.
             The default value is ``None``.
         geo_type: str, optional
             Type of geometry that the csv file describes. Accepted values are: ``"cylinder"``.
