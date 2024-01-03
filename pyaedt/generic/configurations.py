@@ -1540,8 +1540,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions):
 
 
 class Configurations3DLayout(Configurations):
-    """Configurations3DLayout Class.
-    Enable export and import configuration options to be applied to a
+    """Enables export and import configuration options to be applied to a
     new or existing 3DLayout design.
     """
 
