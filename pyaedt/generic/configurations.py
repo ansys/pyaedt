@@ -679,7 +679,6 @@ class ImportResults(object):
 
 
 class Configurations(object):
-    """Configuration Class.
     Enable export and import of `*.json` configuration that can be applied to a new or existing design.
     """
 
