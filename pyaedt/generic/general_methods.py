@@ -683,8 +683,11 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
     """
     func_name = None
-    if function.__name__ == "InvokeAedtObjMethod":
-        func_name = args[1]
+    try:
+        if function.__name__ == "InvokeAedtObjMethod":
+            func_name = args[1]
+    except:
+        pass
     retry = 0
     ret_val = None
     inclusion_list = [
