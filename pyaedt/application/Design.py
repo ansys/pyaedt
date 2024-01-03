@@ -205,7 +205,7 @@ class Design(AedtObjects):
             not is_ironpython
             and project_name
             and os.path.exists(project_name)
-            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
+            and os.path.splitext(project_name)[1] == ".aedt"
         ):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
