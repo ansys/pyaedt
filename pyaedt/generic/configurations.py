@@ -1550,8 +1550,7 @@ class Configurations3DLayout(Configurations):
 
 
 class ConfigurationsIcepak(Configurations):
-    """Enables export and import configuration options to be applied on a new or existing design.
-    """
+    """Enables export and import configuration options to be applied on a new or existing design."""
 
     def __init__(self, app):
         Configurations.__init__(self, app)
