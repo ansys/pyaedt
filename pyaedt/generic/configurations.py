@@ -679,7 +679,7 @@ class ImportResults(object):
 
 
 class Configurations(object):
-    Enable export and import of `*.json` configuration that can be applied to a new or existing design.
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design.
     """
 
     def __init__(self, app):
