@@ -1001,7 +1001,7 @@ class Configurations(object):
         Parameters
         ----------
         config : str, dict
-            Configuration as json (file) or dict.
+            Configuration as a JSON file or dictionary.
 
         Returns
         -------
