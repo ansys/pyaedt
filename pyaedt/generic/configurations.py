@@ -1037,7 +1037,7 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
+        """Import configuration settings from a JSON file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
