@@ -495,7 +495,7 @@ class FieldAnalysis3D(Analysis, object):
         removed_objects=None,
         major_version=-1,
         minor_version=-1,
-        **kwargs,
+        **kwargs  # fmt: skip
     ):
         """Export the 3D model.
 
