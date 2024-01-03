@@ -93,7 +93,7 @@ class TestClass:
         filename = q3dtest.design_name
         file_path = os.path.join(q3dtest.working_directory, filename + ".x_b")
         q3dtest.export_3d_model(filename, q3dtest.working_directory, ".x_b", [], [])
-        time.sleep(1)
+        time.sleep(2)
         app = add_app(application=Q3d, project_name="new_proj_Q3d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -106,9 +106,9 @@ class TestClass:
 
         assert os.path.exists(conf_file)
         filename = q2dtest.design_name
-        file_path = os.path.join(q2dtest.working_directory, filename + ".x_b")
-        q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_b", [], [])
-        time.sleep(1)
+        file_path = os.path.join(q2dtest.working_directory, filename + ".x_t")
+        q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_t", [], [])
+        time.sleep(2)
         app = add_app(application=Q2d, project_name="new_proj_Q2d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -297,7 +297,7 @@ class TestClass:
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        # app.close_project(save_project=False)
 
     def test_05a_hfss3dlayout_setup(self, hfss3dl_a, local_scratch):
         setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")

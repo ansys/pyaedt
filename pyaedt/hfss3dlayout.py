@@ -9,13 +9,13 @@ import os
 import re
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 

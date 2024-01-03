@@ -8,8 +8,8 @@ import unittest.mock
 
 import pytest
 
-from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
+from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
 
@@ -103,10 +103,7 @@ class TestClass:
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
         assert "Elapsed time:" in content[12]
-        # self.aedtapp.logger.handlers.pop()
-        # self.aedtapp.logger.project.handlers.pop()
-        # if len(self.aedtapp.logger.design.handlers) > 0:
-        #     self.aedtapp.logger.design.handlers.pop()
+
         shutil.rmtree(path, ignore_errors=True)
 
     def test_03_stdout_with_app_filter(self):

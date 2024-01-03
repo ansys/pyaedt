@@ -8,7 +8,6 @@ import time
 from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
-from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
@@ -22,6 +21,7 @@ from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
 np = None
@@ -2093,6 +2093,7 @@ class FfdSolutionData(object):
         export_image_path=None,
         show=True,
         show_as_standalone=False,
+        default_scale_value=3,
     ):
         """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
 
@@ -2190,7 +2191,9 @@ class FfdSolutionData(object):
         # ff_mesh_inst = p.add_mesh(uf.output,smooth_shading=True,cmap="jet",scalar_bar_args=sargs,opacity=0.5)
         # not sure why, but smooth_shading causes this to not update
 
-        ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs)
+        ff_mesh_inst = p.add_mesh(
+            uf.output, cmap="jet", clim=[plot_min, self.max_gain], scalar_bar_args=sargs, opacity=0.5
+        )
         cad_mesh = self._get_geometry()
         if cad_mesh:
 
@@ -2218,7 +2221,8 @@ class FfdSolutionData(object):
                 slider_min = slider_max
                 slider_max = 0
                 value = slider_min / 3
-
+            if default_scale_value:
+                value = default_scale_value
             p.add_slider_widget(
                 scale,
                 [slider_min, slider_max],

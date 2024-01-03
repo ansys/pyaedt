@@ -516,7 +516,10 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        try:
+            v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        except:
+            v = []
         if not v:
             for el in self.edges:
                 pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]

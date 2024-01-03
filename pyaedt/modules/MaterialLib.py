@@ -13,12 +13,12 @@ import re
 import sys
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import OrderedDict

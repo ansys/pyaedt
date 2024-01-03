@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 
@@ -9,6 +8,7 @@ class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
+        self._logger = None
         self._enable_logger = True
         self._enable_desktop_logs = True
         self._enable_screen_logs = True
@@ -291,10 +291,11 @@ class Settings(object):
     @property
     def logger(self):
         """Active logger."""
-        try:
-            return logging.getLogger("Global")
-        except:  # pragma: no cover
-            return logging.getLogger(__name__)
+        return self._logger
+
+    @logger.setter
+    def logger(self, val):
+        self._logger = val
 
     @property
     def enable_error_handler(self):

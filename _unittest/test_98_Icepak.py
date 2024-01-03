@@ -5,7 +5,7 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Icepak
-from pyaedt import settings
+from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -707,12 +707,8 @@ class TestClass:
             datasets=["test_dataset"],
         )
         fan.delete()
-        fan2.delete()
-        fan_obj.delete()
-        pcb.delete()
-        box1.delete()
-        surf1.delete()
         fan_obj_3d.delete()
+        self.aedtapp.delete_design("advanced3dcompTest")
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_51_advanced3dcomp_import(self):
