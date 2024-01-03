@@ -727,7 +727,7 @@ class EDBPadstack(object):
             self.edb_padstack.SetData(cloned_padstackdef_data)
 
     @pyaedt_function_handler()
-    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15):
+    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15, delete_padstack_def=True):
         """Convert actual padstack instance to microvias 3D Objects with a given aspect ratio.
 
         Parameters
@@ -739,6 +739,9 @@ class EDBPadstack(object):
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
             The default value is ``15``.
             The bottom hole will be ``0.75*HoleDepth/HoleDiam``.
+        delete_padstack_def: bool, optional
+            Either to remove or not padstack definition. Defaults is ``True``.
+            When set to False padstack definition is not removed and hole size is set to zero.
 
         Returns
         -------
@@ -828,7 +831,13 @@ class EDBPadstack(object):
                         i += 1
                     if stop == via.stop_layer:
                         break
-                via.delete()
+                if delete_padstack_def:
+                    via.delete()
+                else:
+                    pedf = self._ppadstack.definitions[via.padstack_definition]
+                    pedf.hole_properties = 0
+                    self._ppadstack._pedb.logger.info("Padstack definition kept, hole size set to 0.")
+
         self._ppadstack._pedb.logger.info("{} Converted successfully to 3D Objects.".format(i))
         return True
 
