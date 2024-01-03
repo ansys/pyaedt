@@ -1026,6 +1026,8 @@ class Configurations(object):
             return False
 
         if is_ironpython:
+            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
+        else:
             try:
                 validate(instance=config_data, schema=self._schema)
                 return True
@@ -1033,9 +1035,7 @@ class Configurations(object):
                 self._app.logger.warning("Configuration is invalid.")
                 self._app.logger.warning("Validation error:" + e.message)
                 return False
-        else:
-            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
-            return True
+        return True
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
@@ -1456,9 +1456,9 @@ class Configurations(object):
             )
         dict_out = {}
         self._export_general(dict_out)
-        for key, value in vars(self.options).items():
+        for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
-                getattr(self, key)(dict_out)
+                getattr(self, key)(dict_out)  # Call private export method to update dict_out.
 
         # update the json if it exists already
 
@@ -1468,7 +1468,7 @@ class Configurations(object):
                     dict_in = json.load(json_file)
                 except Exception:
                     dict_in = {}
-            try:
+            try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
                         if k not in dict_out:
@@ -1477,8 +1477,8 @@ class Configurations(object):
                             for i, j in v.items():
                                 if i not in dict_out[k]:
                                     dict_out[k][i] = j
-            except KeyError:
-                pass
+            except KeyError as e:
+                self._app.logger.error(str(e))
         # write the updated json to file
         if _create_json_file(dict_out, config_file):
             self._app.logger.info("Json file {} created correctly.".format(config_file))

@@ -6,7 +6,20 @@
    "properties":{
       "general":{
          "type":"object",
-         "description":"Model configuration meta-data."
+         "description":"Model configuration meta-data.",
+         "properties": {
+            "pyaedt_version": {"type":  "string"},
+            "model_units":
+               {"type": "string",
+                "enum": ["nm", "um", "mm", "in", "inches", "mil", "cm", "dm", "meter", "km"]
+               },
+            "design_name": {"type": "string"},
+            "date": {"type":  "string", "format":  "date-time"},
+            "object_mapping": {"type":  "object"},
+            "output_variables": {"type":  "object"},
+            "variables": {"type":  "object"},
+            "postprocessing_variables": {"type":  "object"}
+         }
       },
       "setups":{
          "type":"object",
