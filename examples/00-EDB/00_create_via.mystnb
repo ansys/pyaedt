@@ -4,7 +4,7 @@ jupytext:
     extension: .mystnb
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -37,8 +37,6 @@ print(aedb_path)
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 ```
 
-+++
-
 ## Add stackup layers
 
 Add stackup layers.
@@ -49,7 +47,6 @@ edb.stackup.add_layer("GND")
 edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
 edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 ```
-
 
 ## Create a signal net and ground planes
 
@@ -66,7 +63,6 @@ points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, 
 edb.modeler.create_polygon(points, "TOP")
 ```
 
-
 ## Create vias with parametric positions
 
 ```{code-cell} ipython3
@@ -81,20 +77,17 @@ edb.padstacks.place([35e-3, -5e-3], "MyVia")
 edb.padstacks.place([45e-3, -5e-3], "MyVia")
 ```
 
-
 ## Geometry Plot
 
 ```{code-cell} ipython3
 edb.nets.plot(None, color_by_net=True)
 ```
 
-
 ## Stackup Plot
 
 ```{code-cell} ipython3
 edb.stackup.plot(plot_definitions="MyVia")
 ```
-
 
 ## Save and close EDB
 
