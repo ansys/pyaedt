@@ -2,8 +2,9 @@ from pyaedt.generic.general_methods import ET
 
 
 class Bom(object):
-    def __init__(self):
-        self.name = "bom"
+    def __init__(self, edb):
+        self._edb = edb
+        self.name = self._edb.cell_names[0]
         self.revision = "1.0"
         self.step_ref = "1.0"
         self.bom_items = []

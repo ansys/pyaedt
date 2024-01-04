@@ -75,7 +75,7 @@ jobs:
           dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}.zip
 
       - name: Upload Wheelhouse
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}
           path: '*.zip'
