@@ -66,7 +66,7 @@ class MessageList:
                 self.error_level.append(line)
             elif "[debug]" in line.lower():
                 self.debug_level.append(line)
-            else:
+            else:  # pragma: no cover
                 self.unknown_level.append(line)
             if global_label in line:
                 self.global_level.append(line)
@@ -668,7 +668,7 @@ class AedtLogger(object):
         """
         if self._oproject:
             return self._oproject
-        return None
+        return None  # pragma: no cover
 
     @property
     def odesign(self):
@@ -680,14 +680,14 @@ class AedtLogger(object):
         """
         if self._odesign:
             return self._odesign
-        return None
+        return None  # pragma: no cover
 
     @oproject.setter
     def oproject(self, val):
         self._oproject = val
         try:
             self._project_name = self._oproject.GetName()
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             self._project_name = ""
 
     @odesign.setter
@@ -695,7 +695,7 @@ class AedtLogger(object):
         self._odesign = val
         try:
             self._design_name = self._odesign.GetName()
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             self._design_name = ""
 
     @property

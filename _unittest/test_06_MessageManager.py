@@ -78,6 +78,7 @@ class TestClass:
         msg.add_info_message("Test Debug")
         msg.add_info_message("Test Debug", "Project")
         msg.add_info_message("Test Debug", "Global")
+        assert len(msg.messages) > 0
         assert len(msg.aedt_messages.global_level) >= 4
         assert len(msg.aedt_messages.project_level) >= 4
         assert len(msg.aedt_messages.design_level) >= 4
