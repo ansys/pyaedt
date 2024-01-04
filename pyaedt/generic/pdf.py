@@ -1,42 +1,196 @@
+import json
 import os
-import warnings
+
+from fpdf import FPDF
 
 from pyaedt import __version__
-from pyaedt import pyaedt_path
-from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.clr_module import List
-from pyaedt.generic.clr_module import _clr
-from pyaedt.generic.clr_module import is_clr
-
-try:
-    _clr.AddReference("AnsysReport")
-    from AnsysReport import CreatePdfReport
-    from AnsysReport import ReportSpec
-except ImportError:
-    msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
-    warnings.warn(msg)
+from pyaedt.generic.constants import unit_converter
 
 
-class AnsysReport:
-    """Generate a pdf report."""
+class ReportSpec:
+    document_prefix = "ANSS"
+    ansys_version = "2023R2"
+    revision = "Rev 1.0"
+    logo_name = os.path.join(os.path.dirname(__file__), "Ansys.png")
+    company_name = "Ansys Inc."
+    template_name = os.path.join(os.path.dirname(__file__), "AnsysTemplate.json")
+    design_name = "Design1"
+    project_name = "Project1"
+    pyaedt_version = __version__
 
+
+class TemplateData:
+    """Class containing default template data."""
+
+    units = "cm"
+    top_margin = 3.0
+    bottom_margin = 2.0
+    left_margin = 1.0
+    right_margin = 1.0
+    footer_font_size = 7
+    footer_text = "Copyright (c) 2023, ANSYS Inc. unauthorised use, distribution or duplication is prohibited"
+    header_font_size = 7
+    header_image_width = 3.3
+    title_font_size = 14
+    subtitle_font_size = 12
+    text_font_size = 11
+    table_font_size = 9
+    caption_font_size = 9
+    cover_title_font_size = 28
+    cover_subtitle_font_size = 24
+    font = "helvetica"
+    chart_width = 16
+    font_color = [0, 0, 0]
+    font_chapter_color = [255, 0, 0]
+    font_subchapter_color = [0, 128, 0]
+    font_header_color = [0, 0, 255]
+    font_caption_color = [125, 0, 100]
+
+
+class AnsysReport(FPDF):
     def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
-        assert is_clr, ".Net Core 3.1 is needed to run AnsysReport."
+        super().__init__()
         self.report_specs = ReportSpec()
-        self.report_specs.AnsysVersion = version
-        self.report_specs.DesignName = design_name
-        self.report_specs.ProjectName = project_name
-        self.report_specs.PyAEDTVersion = __version__
+        self.report_specs.ansys_version = version
+        self.report_specs.design_name = design_name
+        self.report_specs.project_name = project_name
         if tempplate_json_file:
-            self.report_specs.TemplateName = tempplate_json_file
+            self.report_specs.template_name = tempplate_json_file
+        self._read_template()
+        self._chapter_idx = 0
+        self._sub_chapter_idx = 0
+        self._figure_idx = 1
+        self.set_top_margin(unit_converter(self.template_data.top_margin, input_units=self.template_data.units))
+        self.set_right_margin(unit_converter(self.template_data.right_margin, input_units=self.template_data.units))
+        self.set_left_margin(unit_converter(self.template_data.left_margin, input_units=self.template_data.units))
+        self.set_auto_page_break(
+            True, margin=unit_converter(self.template_data.bottom_margin, input_units=self.template_data.units)
+        )
+        self.alias_nb_pages()
 
-    def create(self, add_header=True, add_first_page=True):
+    def _read_template(self):
+        self.template_data = TemplateData()
+        tdata = {}
+        with open(self.report_specs.template_name, "r") as f:
+            tdata = json.load(f)
+        for k, v in tdata.items():
+            if k in self.template_data.__dict__:
+                self.template_data.__dict__[k] = v
+
+    def _add_cover_page(self):
+        self.add_page()
+        self.set_font(self.template_data.font.lower(), "b", self.template_data.cover_subtitle_font_size)
+        self.y += 40
+        self.cell(
+            0,
+            12,
+            "Simulation Report",
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="L",
+        )
+        self.ln(10)
+        self.set_font(self.template_data.font.lower(), "B", self.template_data.cover_title_font_size)
+        self.cell(
+            0,
+            16,
+            f"Project Name: {self.report_specs.project_name}",
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="L",
+        )
+        self.cell(
+            0,
+            16,
+            f"Design Name: {self.report_specs.design_name}",
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="L",
+        )
+
+    def header(self):
+        # Logo
+        self.set_y(15)
+        line_x = self.x
+        line_y = self.y
+        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
+        self.set_text_color(*self.template_data.font_header_color)
+
+        def add_field(field_name, field_value):
+            self.set_font(self.template_data.font.lower(), size=self.template_data.header_font_size)
+            self.cell(
+                0,
+                3,
+                field_name,
+                new_x="LMARGIN",
+                new_y="NEXT",
+                align="L",
+            )
+            self.set_x(line_x)
+            self.cell(
+                0,
+                3,
+                field_value,
+                new_x="LMARGIN",
+                new_y="NEXT",
+                align="L",
+            )
+
+        add_field("Project Name", self.report_specs.project_name)
+        self.set_y(line_y)
+        line_x += delta
+        self.set_x(line_x)
+        add_field("Design Name", self.report_specs.design_name)
+
+        self.set_y(line_y)
+        line_x += delta
+        self.set_x(line_x)
+        add_field("Ansys Version", self.report_specs.ansys_version)
+        self.set_y(line_y)
+        line_x += delta
+        self.set_x(line_x)
+        add_field("PyAEDT Version", self.report_specs.pyaedt_version)
+        self.set_y(line_y)
+        line_x += delta
+        self.set_x(line_x)
+        from datetime import date
+
+        add_field("Date", str(date.today()))
+        self.set_y(line_y)
+        line_x += delta
+        self.set_x(line_x)
+        add_field("Revision", self.report_specs.revision)
+        self.set_y(10)
+        line_x += delta
+        self.set_x(self.w - self.r_margin - 33)
+        self.image(
+            self.report_specs.logo_name,
+            self.x,
+            self.y,
+            unit_converter(self.template_data.header_image_width, input_units=self.template_data.units),
+        )
+        self.set_x(self.l_margin)
+        self.set_y(self.t_margin)
+        self.line(x1=self.l_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
+
+    # Page footer
+    def footer(self):
+        # Position at 1.5 cm from bottom
+        self.set_y(-15)
+        # Arial italic 8
+        self.set_font("helvetica", "I", 8)
+        self.set_text_color(*self.template_data.font_header_color)
+        # Page number
+        self.cell(0, 10, self.template_data.footer_text, 0, align="L")
+        self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
+
+    def create(self, add_cover_page=True, add_toc=True):
         """Create a new report using ``report_specs`` properties.
 
         Parameters
         ----------
-        add_header :bool, optional
-            Whether to add pdf header or not. Default is ``True``.
+        add_toc :bool, optional
+            Whether to add pdf table of content or not. Default is ``True``.
         add_first_page :bool, optional
             Whether to add first page with title  or not. Default is ``True``.
 
@@ -44,13 +198,15 @@ class AnsysReport:
         -------
         :class:`AnsysReport`
         """
-        self.report = CreatePdfReport(os.path.join(pyaedt_path, "dlls", "PDFReport"))
-        self.report.Specs = self.report_specs
-        if add_header:
-            self.report.AddAnsysHeader(-1)
-        if add_first_page:
-            self.report.AddFirstPage()
-        return self.report
+        if add_cover_page:
+            self._add_cover_page()
+
+        if add_toc:
+            if not add_cover_page:
+                self.add_page()
+            self.add_toc()
+
+        return True
 
     @property
     def template_name(self):
@@ -62,11 +218,11 @@ class AnsysReport:
         -------
         str
         """
-        return self.report_specs.TemplateName
+        return self.report_specs.template_name
 
     @template_name.setter
     def template_name(self, value):
-        self.report_specs.TemplateName = value
+        self.report_specs.template_name = value
 
     @property
     def design_name(self):
@@ -76,11 +232,11 @@ class AnsysReport:
         -------
         str
         """
-        return self.report_specs.DesignName
+        return self.report_specs.design_name
 
     @design_name.setter
     def design_name(self, value):
-        self.report_specs.DesignName = value
+        self.report_specs.design_name = value
 
     @property
     def project_name(self):
@@ -90,11 +246,11 @@ class AnsysReport:
         -------
         str
         """
-        return self.report_specs.ProjectName
+        return self.report_specs.project_name
 
     @project_name.setter
     def project_name(self, value):
-        self.report_specs.ProjectName = value
+        self.report_specs.project_name = value
 
     @property
     def aedt_version(self):
@@ -104,53 +260,91 @@ class AnsysReport:
         -------
         str
         """
-        return self.report_specs.AnsysVersion
+        return self.report_specs.ansys_version
 
     @aedt_version.setter
     def aedt_version(self, value):
-        self.report_specs.AnsysVersion = value
+        self.report_specs.ansys_version = value
 
-    def add_section(self, portrait=True):
+    def add_section(self, portrait=True, format="a4"):
         """Add a new section to Pdf.
 
         Parameters
         ----------
         portrait : bool, optional
             Section orientation. Default ``True`` for portrait.
+        format : str, optional
+            Currently supported formats are a3, a4, a5, letter, legal or a tuple (width, height).
 
         Returns
         -------
         int,
             Section id.
         """
-        orientation = "P" if portrait else "L"
-        return self.report.CreateNewSection(orientation)
+        orientation = "portrait"
+        if not portrait:
+            orientation = "landscape"
+        self.add_page(orientation=orientation, format=format)
 
-    def add_chapter(self, chapter_name, section_id=0):
+    def add_chapter(self, chapter_name):
         """Add a new chapter.
 
         Parameters
         ----------
         chapter_name : str
             Chapter name.
-        section_id : int, optional
-            Section on which add the chapter. Default is 0 which use current section.
         """
-        self.report.AddChapter(chapter_name, section_id)
+        self._chapter_idx += 1
+        self._sub_chapter_idx = 0
+        txt = f"{self._chapter_idx} {chapter_name}"
+        self.set_font(self.template_data.font.lower(), "B", self.template_data.title_font_size)
+        self.start_section(txt)
+        self.set_text_color(*self.template_data.font_chapter_color)
+        self.cell(
+            0,
+            12,
+            txt,
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="L",
+        )
+        self.set_font(self.template_data.font.lower(), "I", self.template_data.text_font_size)
+        self.set_text_color(*self.template_data.font_color)
+        return True
 
-    def add_sub_chapter(self, chapter_name, section_id=0):
+    def add_sub_chapter(self, chapter_name):
         """Add a new sub-chapter.
 
         Parameters
         ----------
         chapter_name : str
             Chapter name.
-        section_id : int, optional
-            Section on which add the subchapter. Default is 0 which use current section.
         """
-        return self.report.AddSubChapter(chapter_name, section_id)
+        self._sub_chapter_idx += 1
+        txt = f"     {self._chapter_idx}.{self._sub_chapter_idx} {chapter_name}"
+        self.set_font(self.template_data.font.lower(), "I", self.template_data.subtitle_font_size)
+        self.start_section(txt.strip(), level=1)
+        self.set_text_color(*self.template_data.font_subchapter_color)
+        self.cell(
+            0,
+            10,
+            txt,
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="L",
+        )
+        self.set_font(self.template_data.font.lower(), "I", self.template_data.text_font_size)
+        self.set_text_color(*self.template_data.font_color)
 
-    def add_image(self, path, caption="", width=10, section_id=0):
+        return True
+
+    def add_image(
+        self,
+        path,
+        caption="",
+        width=0,
+        height=0,
+    ):
         """Add a new image.
 
         Parameters
@@ -160,55 +354,65 @@ class AnsysReport:
         caption : str, optional
             Image caption.
         width : int, optional
-            Image width in centimeters.
-        section_id : int, optional
-            Section on which add the chapter. Default is 0 which use current section.
+            Image width in millimeters.
+        height : int, optional
+            Image height in millimeters.
         """
-        return self.report.AddImageWithCaption(path, caption, width, section_id)
+        if width == 0:
+            width = self.epw
 
-    def add_caption(self, content, section_id=0):
+        self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self.l_margin)
+        if caption:
+            caption = f"Figure {self._figure_idx}. {caption}"
+            self.add_caption(caption)
+            self._figure_idx += 1
+        return True
+
+    def add_caption(self, content):
         """Add a new caption.
 
         Parameters
         ----------
         content : str
             Caption name.
-        section_id : int, optional
-            Section on which add the caption. Default is 0 which use current section.
-        """
-        return self.report.AddCaption(content, section_id)
 
-    def add_empty_line(self, num_lines=1, section_id=0):
+        """
+        self.set_font(self.template_data.font.lower(), "I", self.template_data.caption_font_size)
+        self.set_text_color(*self.template_data.font_caption_color)
+        self.start_section(content, level=1)
+        self.cell(
+            0,
+            6,
+            content,
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="C",
+        )
+        self.set_font(self.template_data.font.lower(), "I", self.template_data.text_font_size)
+        self.set_text_color(*self.template_data.font_color)
+
+    def add_empty_line(self, num_lines=1):
         """Add a new empty line.
 
         Parameters
         ----------
         num_lines : int, optional
             Number of lines to add.
-        section_id : int, optional
-            Section on which add the lines. Default is 0 which use current section.
         """
-        return self.report.AddEmptyLines(num_lines, section_id)
+        self.ln(num_lines)
 
-    def add_page_break(self, section_id=0):
+    def add_page_break(self):
         """Add a new page break line.
 
         Parameters
         ----------
-        section_id : int, optional
-            Section on which add the lines. Default is 0 which use current section.
         """
-        return self.report.AddPageBreak(section_id)
+        self.add_page()
 
     def add_table(
         self,
         title,
         content,
-        is_centered=True,
-        transposed=True,
-        bold_first_row=True,
-        bold_first_column=True,
-        section_id=0,
     ):
         """Add a new table from a list of data.
         Data shall be a list of list where every line is either a row or a column.
@@ -219,25 +423,25 @@ class AnsysReport:
             Table title.
         content : list of list
             Table content.
-        is_centered : bool, optional
-            Whether if table is centered or not. Default is ``True``.
-        transposed : bool, optional
-            Whether if data are transposed or not. Default is ``True``.
-        bold_first_row : bool, optional
-            Whether if first row will be bolded or not. Default is ``True``.
-        bold_first_column : bool, optional
-            Whether if first column will be bolded or not. Default is ``True``.
-        section_id : int, optional
-            Section on which add the lines. Default is 0 which use current section.
         """
-        content_sharp = List[type(List[str]())]()
-        for el in content:
-            content_sharp.Add(convert_py_list_to_net_list([str(i) for i in el]))
-        return self.report.AddTableFromList(
-            title, content_sharp, is_centered, transposed, bold_first_row, bold_first_column, section_id
-        )
+        self.set_font(self.template_data.font.lower(), size=self.template_data.text_font_size)
+        self.add_caption(f"Table {title}")
 
-    def add_text(self, content, bold=False, italic=False, section_id=0):
+        self.set_font(self.template_data.font.lower(), size=self.template_data.table_font_size)
+        with self.table(
+            borders_layout="MINIMAL",
+            cell_fill_color=200,  # grey
+            cell_fill_mode="ROWS",
+            line_height=self.font_size * 2.5,
+            text_align="CENTER",
+            width=160,
+        ) as table:
+            for data_row in content:
+                row = table.row()
+                for datum in data_row:
+                    row.cell(datum)
+
+    def add_text(self, content, bold=False, italic=False):
         """Add a new text.
 
         Parameters
@@ -248,16 +452,63 @@ class AnsysReport:
             Whether if text is bold or not. Default is ``True``.
         italic : bool, optional
             Whether if text is italic or not. Default is ``True``.
-        section_id : int, optional
-            Section on which add the caption. Default is 0 which use current section.
         """
-        self.report.AddText(content, bold, italic, section_id)
+        type = ""
+        if bold:
+            type = "B"
+        if italic:
+            type += "I"
+        self.set_font(self.template_data.font.lower(), type.lower(), self.template_data.text_font_size)
+        self.set_text_color(*self.template_data.font_color)
+
+        self.multi_cell(
+            0,
+            6,
+            content,
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="L",
+        )
 
     def add_toc(self):
         """Add Table of content."""
-        self.report.AddTableOfContent()
 
-    def save_pdf(self, file_path, file_name=None, open=False):
+        def p(pdf, text, **kwargs):
+            "Inserts a paragraph"
+            pdf.multi_cell(
+                w=pdf.epw,
+                h=pdf.font_size,
+                text=text,
+                new_x="LMARGIN",
+                new_y="NEXT",
+                **kwargs,
+            )
+
+        def render_toc(pdf, outline):
+            pdf.set_font(self.template_data.font.lower(), size=self.template_data.title_font_size)
+            self.set_text_color(*self.template_data.font_color)
+            pdf.underline = True
+            pdf.x = pdf.l_margin
+            p(pdf, "Table of contents:")
+            pdf.underline = False
+            pdf.y += 10
+            pdf.set_font("Courier", size=12)
+            for section in outline:
+                link = pdf.add_link()
+
+                pdf.set_link(link, page=section.page_number)
+                p(
+                    pdf,
+                    f'{" " * section.level * 2} {section.name} '
+                    f'{"." * (60 - section.level * 2 - len(section.name))} {section.page_number}',
+                    align="C",
+                    link=link,
+                )
+
+        self.add_page()
+        self.insert_toc_placeholder(render_toc)
+
+    def save_pdf(self, file_path, file_name=None):
         """Save pdf.
 
         Parameters
@@ -266,19 +517,12 @@ class AnsysReport:
             Pdf path.
         file_name : str, optional
             File name.
-        open : bool, optional
-            Whether if open the pdf at the end or not.
         """
-        if open:
-            if not file_name:
-                file_name = self.report_specs.ProjectName + "_" + self.report_specs.Revision + ".pdf"
-            self.report.SaveAndOpenPDF(os.path.join(file_path, file_name))
-            return os.path.join(file_path, file_name)
-        else:
-            return self.report.SavePDF(file_path, file_name)
+        self.output(os.path.join(file_path, file_name))
+        return os.path.join(file_path, file_name)
 
-    def add_chart(self, x_values, y_values, x_caption, y_caption, title, section_id=0):
-        """Add a chart to the report.
+    def add_chart(self, x_values, y_values, x_caption, y_caption, title):
+        """Add a chart to the report using matplotlib.
 
         Parameters
         ----------
@@ -292,14 +536,26 @@ class AnsysReport:
             Y axis caption.
         title : str
             Chart title.
-        section_id : int, optional
-            Section on which add the caption. Default is 0 which use current section.
         """
-        self.report.CreateCustomChart(
-            convert_py_list_to_net_list(x_values, float),
-            convert_py_list_to_net_list(y_values, float),
-            x_caption,
-            y_caption,
-            title,
-            section_id,
-        )
+        from PIL import Image
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        from matplotlib.figure import Figure
+        import numpy as np
+
+        dpi = 100.0
+        figsize = (2000 / dpi, 2000 / dpi)
+        fig = Figure(figsize=figsize, dpi=dpi)
+        fig.subplots_adjust(top=0.8)
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_ylabel(y_caption)
+        ax.set_title(title)
+        x = np.array(x_values)
+        y = np.array(y_values)
+        (line,) = ax.plot(x, y, color="blue", lw=2)
+
+        ax.set_xlabel(x_caption)
+        # Converting Figure to an image:
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        img = Image.fromarray(np.asarray(canvas.buffer_rgba()))
+        self.image(img, w=self.epw)  # Make the image full width

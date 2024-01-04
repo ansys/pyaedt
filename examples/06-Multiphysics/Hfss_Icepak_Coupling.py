@@ -331,8 +331,6 @@ my_data.plot(trace_names, "db20",
 # Generate a pdf report with output of simultion.
 report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name,version=desktopVersion)
 report.create()
-
-
 report.add_section()
 report.add_chapter("Hfss Results")
 report.add_sub_chapter("Field Plot")
@@ -348,7 +346,6 @@ report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
 
 #report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
-report.add_toc()
 report.save_pdf(results_folder, "AEDT_Results.pdf")
 
 
