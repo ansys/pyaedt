@@ -3336,13 +3336,11 @@ class Primitives3D(GeometryModeler):
     @pyaedt_function_handler()
     def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, geo_type="cylinder", unit="mm"):
         """Create geometry from csv file containing geometry data.
-
         Parameters
         ----------
         csv_file : str
             Csv file containing the geometry details.
             Expected column headers are dependent on the geometry type:
-
             - if ``geo_type=='cylinder'``, expected fields are ``'xc'`` (base
             center x coordinate),``'yc'`` (base center y coordinate), ``'zc'``
             (base center z coordinate), ``'height'``, ``'radius'``,
@@ -3359,7 +3357,6 @@ class Primitives3D(GeometryModeler):
             Default is ``"cylinder"``.
         unit : str , optional
             Unit of values used to create geometry. Default unit is ``"mm"``.
-
         Returns
         -------
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
