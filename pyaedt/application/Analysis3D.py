@@ -510,7 +510,7 @@ class FieldAnalysis3D(Analysis, object):
         object_list : list, optional
             List of objects to export. The default is ``None``.
         removed_objects : list, optional
-            The default is ``None``.
+            List of objects to remove. The default is ``None``.
         major_version : int, optional
             File format major version. Default is -1.
         minor_version : int, optional
