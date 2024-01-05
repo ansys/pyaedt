@@ -6069,12 +6069,12 @@ class Icepak(FieldAnalysis3D):
             (plane on which the cylinder base lies).
         header_line : int, optional
             The line marking the start of data.
-            The default value is 2.
+            The default value is ``2``.
         column_mapping : dict, optional
             Map of the csv columns names to the accepted column names.
             The default value is ``None``.
         geo_type: str, optional
-            Type of geometry that the csv file describes. Accepted values are: ``"cylinder"``.
+            Type of geometry that the csv file describe. Accepted value is: ``"cylinder"``.
             Default is ``"cylinder"``.
         unit : str , optional
             Unit of values used to create geometry. Default unit is ``"mm"``.
@@ -6091,7 +6091,6 @@ class Icepak(FieldAnalysis3D):
             return self._create_cylinder(df, unit=unit)
         else:
             raise ValueError("Geometry type not supported yet.")
-            return False
 
     @pyaedt_function_handler()
     def _remove_special_characters(self, text):
@@ -6103,12 +6102,8 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler()
     def _length_unit_conversion(self, value, input_units):
         from pyaedt.generic.constants import unit_converter
-        try:
-            converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units="mm")
-            return converted_value
-        except KeyError:
-            self.logger.info("Not a proper input unit")
-            return value
+        converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units="mm")
+        return converted_value
 
     @pyaedt_function_handler()
     def _create_cylinder(self, df, unit):
@@ -6127,19 +6122,26 @@ class Icepak(FieldAnalysis3D):
             except KeyError:
                 self.logger.info("The column names in the file do not match the expected names")
                 return False
-            try:
-                if inner_radius == 0:
+
+            if inner_radius == 0:
+                try:
                     outer_cylinder = self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
-                elif radius > inner_radius:
+                except Exception:  # pragma: no cover
+                    self.logger.info("Unable to create cylinder " + name)
+                    return False
+            elif radius > inner_radius:
+                try:
                     outer_cylinder = self.modeler.create_cylinder(cs_axis, position, radius, height, name=name)
                     inner_cylinder = self.modeler.create_cylinder(cs_axis, position, inner_radius, height,
                                                                   name=name + "_inner")
                     outer_cylinder.subtract([inner_cylinder], keep_originals=False)
-                else:
-                    self.logger.info("Inner radius is greater than outer radius")
-                self.logger.info("Created cylinder: " + name)
-                cylinders.append(outer_cylinder)
-            except Exception:
-                self.logger.info("Unable to create cylinder " + name)
-                return False
+                except Exception:  # pragma: no cover
+                    self.logger.info("Unable to create cylinder " + name)
+                    return False
+            else:
+                self.logger.info("Inner radius is greater than outer radius")
+                raise ValueError("Inner radius is greater than outer radius")
+            self.logger.info("Created cylinder: " + name)
+            cylinders.append(outer_cylinder)
+
         return cylinders
