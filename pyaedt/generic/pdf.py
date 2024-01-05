@@ -184,15 +184,15 @@ class AnsysReport(FPDF):
         self.cell(0, 10, self.template_data.footer_text, 0, align="L")
         self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
 
-    def create(self, add_cover_page=True, add_toc=True):
+    def create(self, add_cover_page=True, add_new_section_after=True):
         """Create a new report using ``report_specs`` properties.
 
         Parameters
         ----------
-        add_toc :bool, optional
-            Whether to add pdf table of content or not. Default is ``True``.
-        add_first_page :bool, optional
-            Whether to add first page with title  or not. Default is ``True``.
+        add_cover_page :bool, optional
+            Whether to add cover page or not. Default is ``True``.
+        add_new_section_after : bool, optional
+            Whether if add a new section after the cover page or not.
 
         Returns
         -------
@@ -200,12 +200,8 @@ class AnsysReport(FPDF):
         """
         if add_cover_page:
             self._add_cover_page()
-
-        if add_toc:
-            if not add_cover_page:
-                self.add_page()
-            self.add_toc()
-
+        if add_new_section_after:
+            self.add_page()
         return True
 
     @property
@@ -471,42 +467,45 @@ class AnsysReport(FPDF):
         )
 
     def add_toc(self):
-        """Add Table of content."""
-
-        def p(pdf, text, **kwargs):
+        def p(section, **kwargs):
             "Inserts a paragraph"
-            pdf.multi_cell(
-                w=pdf.epw,
-                h=pdf.font_size,
-                text=text,
-                new_x="LMARGIN",
-                new_y="NEXT",
-                **kwargs,
-            )
-
-        def render_toc(pdf, outline):
-            pdf.set_font(self.template_data.font.lower(), size=self.template_data.title_font_size)
-            self.set_text_color(*self.template_data.font_color)
-            pdf.underline = True
-            pdf.x = pdf.l_margin
-            p(pdf, "Table of contents:")
-            pdf.underline = False
-            pdf.y += 10
-            pdf.set_font("Courier", size=12)
-            for section in outline:
-                link = pdf.add_link()
-
-                pdf.set_link(link, page=section.page_number)
-                p(
-                    pdf,
-                    f'{" " * section.level * 2} {section.name} '
-                    f'{"." * (60 - section.level * 2 - len(section.name))} {section.page_number}',
-                    align="C",
-                    link=link,
-                )
+            self.cell(w=self.epw, h=self.font_size, text=section, new_x="LMARGIN", new_y="NEXT", **kwargs)
 
         self.add_page()
-        self.insert_toc_placeholder(render_toc)
+        self.set_font(self.template_data.font.lower(), size=self.template_data.title_font_size)
+        self.set_text_color(*self.template_data.font_color)
+        self.underline = True
+        self.x = self.l_margin
+        p("Table of contents:")
+        self.underline = False
+        self.y += 10
+        self.set_font(self.template_data.font, size=12)
+
+        for section in self._outline:
+            link = self.add_link()
+            self.set_link(link, page=section.page_number)
+            string1 = f'{" " * section.level * 2} {section.name}'
+            string2 = f"Page {section.page_number}"
+            self.set_x(self.l_margin * 2)
+            self.cell(
+                w=self.epw - self.l_margin - self.r_margin,
+                h=self.font_size,
+                text=string1,
+                new_x="LMARGIN",
+                new_y="LAST",
+                align="L",
+                link=link,
+            )
+            self.set_x(self.l_margin * 2)
+            self.cell(
+                w=self.epw - self.l_margin - self.r_margin,
+                h=self.font_size,
+                text=string2,
+                new_x="LMARGIN",
+                new_y="NEXT",
+                align="R",
+                link=link,
+            )
 
     def save_pdf(self, file_path, file_name=None):
         """Save pdf.

@@ -344,7 +344,7 @@ report.add_section()
 report.add_chapter("Icepak Results")
 report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
-
+report.add_toc()
 #report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
 report.save_pdf(results_folder, "AEDT_Results.pdf")
 

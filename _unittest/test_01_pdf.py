@@ -39,4 +39,5 @@ class TestClass(object):
         report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
         report.add_section()
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
+        report.add_toc()
         assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
