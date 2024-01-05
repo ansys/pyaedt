@@ -747,6 +747,11 @@ class EDBPadstack(object):
         -------
         bool
         """
+
+        if len(self.hole_properties) == 0:
+            self._ppadstack._pedb.logger.error("Microvias cannot be applied on vias using hole shape polygon")
+            return
+
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
         layout = self._ppadstack._pedb.active_layout
