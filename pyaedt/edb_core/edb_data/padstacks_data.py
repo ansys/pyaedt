@@ -740,8 +740,8 @@ class EDBPadstack(object):
             The default value is ``15``.
             The bottom hole will be ``0.75*HoleDepth/HoleDiam``.
         delete_padstack_def: bool, optional
-            Either to remove or not padstack definition. Defaults is ``True``.
-            When set to False padstack definition is not removed and hole size is set to zero.
+            Whether to delete the padstack definition. The default is ``True``.
+            If ``False`` the padstack definition is not deleted and the hole size is set to zero.
 
         Returns
         -------
