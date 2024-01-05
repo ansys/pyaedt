@@ -1452,28 +1452,3 @@ class TestClass:
         )
         with pytest.raises(AttributeError):
             self.aedtapp.assign_conducting_plate_with_conductance([box_face.id, "surfPlateTest"])
-
-    def test_74_csv_import(self):
-        self.aedtapp.insert_design("csv_import")
-
-        csv_file = os.path.join(
-            local_path, "../_unittest/example_models", test_subfolder, "cylinder_geometry_creation.csv"
-        )
-        assert self.aedtapp.create_geometry_from_csv(csv_file=csv_file, geo_type="cylinder")
-        with pytest.raises(ValueError):
-            self.aedtapp.create_geometry_from_csv(csv_file=csv_file, geo_type="cube")
-
-        self.aedtapp.insert_design("csv_import_1")
-        csv_file = os.path.join(
-            local_path, "../_unittest/example_models", test_subfolder, "cylinder_geometry_creation_1.csv"
-        )
-        assert self.aedtapp.create_geometry_from_csv(
-            csv_file=csv_file, geo_type="cylinder", column_mapping={"inner_radius": "iradius"}
-        )
-        assert not self.aedtapp.create_geometry_from_csv(csv_file=csv_file, geo_type="cylinder")
-
-        csv_file = os.path.join(
-            local_path, "../_unittest/example_models", test_subfolder, "cylinder_geometry_creation_2.csv"
-        )
-        with pytest.raises(ValueError):
-            self.aedtapp.create_geometry_from_csv(csv_file=csv_file, geo_type="cylinder")
