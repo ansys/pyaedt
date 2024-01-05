@@ -1505,4 +1505,3 @@ class Modeler3D(Primitives3D):
             return create_region.SetPropValue("Coordinate System", region_cs)
         except (GrpcApiError, SystemExit):
             return False
-            
