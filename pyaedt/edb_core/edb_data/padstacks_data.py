@@ -737,8 +737,8 @@ class EDBPadstack(object):
         hole_wall_angle : float, optional
             Angle of laser penetration in deg. It will define the bottom hole diameter with the following formula:
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
-            The default value is ``15``.
-            The bottom hole will be ``0.75*HoleDepth/HoleDiam``.
+            The default is ``15``.
+            The bottom hole is ``0.75*HoleDepth/HoleDiam``.
         delete_padstack_def: bool, optional
             Whether to delete the padstack definition. The default is ``True``.
             If ``False`` the padstack definition is not deleted and the hole size is set to zero.
