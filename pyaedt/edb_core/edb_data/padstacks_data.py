@@ -834,8 +834,8 @@ class EDBPadstack(object):
                 if delete_padstack_def:
                     via.delete()
                 else:
-                    pedf = self._ppadstack.definitions[via.padstack_definition]
-                    pedf.hole_properties = 0
+                    padstack_def = self._ppadstack.definitions[via.padstack_definition]
+                    padstack_def.hole_properties = 0
                     self._ppadstack._pedb.logger.info("Padstack definition kept, hole size set to 0.")
 
         self._ppadstack._pedb.logger.info("{} Converted successfully to 3D Objects.".format(i))
