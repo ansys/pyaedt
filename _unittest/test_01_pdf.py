@@ -35,7 +35,7 @@ class TestClass(object):
         report.add_empty_line(2)
         report.add_page_break()
         report.add_image(os.path.join(local_path, "example_models", "Coax_HFSS.jpg"), "Coaxial Cable")
-        report.add_section("L")
+        report.add_section(portrait=False, page_format="a3")
         report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
         report.add_section()
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")

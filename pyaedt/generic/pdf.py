@@ -262,14 +262,14 @@ class AnsysReport(FPDF):
     def aedt_version(self, value):
         self.report_specs.ansys_version = value
 
-    def add_section(self, portrait=True, format="a4"):
+    def add_section(self, portrait=True, page_format="a4"):
         """Add a new section to Pdf.
 
         Parameters
         ----------
         portrait : bool, optional
             Section orientation. Default ``True`` for portrait.
-        format : str, optional
+        page_format : str, optional
             Currently supported formats are a3, a4, a5, letter, legal or a tuple (width, height).
 
         Returns
@@ -280,7 +280,7 @@ class AnsysReport(FPDF):
         orientation = "portrait"
         if not portrait:
             orientation = "landscape"
-        self.add_page(orientation=orientation, format=format)
+        self.add_page(orientation=orientation, format=page_format)
 
     def add_chapter(self, chapter_name):
         """Add a new chapter.
@@ -449,12 +449,12 @@ class AnsysReport(FPDF):
         italic : bool, optional
             Whether if text is italic or not. Default is ``True``.
         """
-        type = ""
+        font_type = ""
         if bold:
-            type = "B"
+            font_type = "B"
         if italic:
-            type += "I"
-        self.set_font(self.template_data.font.lower(), type.lower(), self.template_data.text_font_size)
+            font_type += "I"
+        self.set_font(self.template_data.font.lower(), font_type.lower(), self.template_data.text_font_size)
         self.set_text_color(*self.template_data.font_color)
 
         self.multi_cell(
@@ -550,7 +550,7 @@ class AnsysReport(FPDF):
         ax.set_title(title)
         x = np.array(x_values)
         y = np.array(y_values)
-        (line,) = ax.plot(x, y, color="blue", lw=2)
+        ax.plot(x, y, color="blue", lw=2)
 
         ax.set_xlabel(x_caption)
         # Converting Figure to an image:
