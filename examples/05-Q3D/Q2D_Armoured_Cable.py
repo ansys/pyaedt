@@ -1,11 +1,13 @@
 """
 Q2D: Cable parameter identification
 ---------------------------------------------------
-This example shows how you can use PyAEDT to:
- - create a Q2D design using the Modeler primitives and importing part of the geometry
- - set up the whole simulation
- - link the solution to a Simplorer design
- - reference: https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html
+This example shows how you can use PyAEDT to perform these tasks:
+
+ - Create a Q2D design using the Modeler primitives and importing part of the geometry.
+ - Set up the entire simulation.
+ - Link the solution to a Simplorer design.
+
+ For cable information, see `4 Core Armoured Power Cable <https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html>`_
 
 """
 #################################################################################
@@ -15,8 +17,8 @@ import pyaedt
 import math
 
 #################################################################################
-# Initialize core strands dimensions and positions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize core strand dimensions and positions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize cable sizing - radii in mm
 c_strand_radius = 2.575
 cable_n_cores = 4
@@ -25,7 +27,7 @@ core_xlpe_ins_thickness = 0.5
 core_xy_coord = math.ceil(3*c_strand_radius+2*core_xlpe_ins_thickness)
 
 #################################################################################
-# Initialize filling and sheat dimensions
+# Initialize filling and sheet dimensions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize radii of further structures incrementally adding thicknesses
 filling_radius = 1.4142*(core_xy_coord+3*c_strand_radius+core_xlpe_ins_thickness+0.5)
@@ -35,8 +37,8 @@ armour_radius = inner_sheat_radius+armour_thickness
 outersheat_radius = armour_radius +2
 
 #################################################################################
-# Initialize armature strands dimensions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize armature strand dimensions
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize radii
 armour_centre_pos = inner_sheat_radius+armour_thickness/2.0
 arm_strand_rad    = armour_thickness/2.0-0.2
@@ -101,8 +103,8 @@ mod2D.model_units = "mm"
 #################################################################################
 # Initialize required material properties
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Cable insulators required specific materials not included in the Sys Library
-# Plastic, PE (cross-linked, wire and cable grade)
+# Cable insulators require specific materials not included in the Sys Library
+# Plastic, PE (cross-linked, wire, and cable grade)
 mat_pe_cable_grade = Q2D_DS.materials.add_material("plastic_pe_cable_grade")
 mat_pe_cable_grade.update()
 mat_pe_cable_grade.conductivity = "1.40573e-16"
@@ -114,8 +116,8 @@ mat_pp.update()
 mat_pp.conductivity = "0.0003161"
 
 #####################################################################################
-# Create geometry for core strands, filling and XLPE insulation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create geometry for core strands, filling, and XLPE insulation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 mod2D.create_coordinate_system(['c_strand_xy_coord','c_strand_xy_coord','0mm'],name='CS_c_strand_1')
 mod2D.set_working_coordinate_system('CS_c_strand_1')
 c1_id = mod2D.create_circle(['0mm','0mm','0mm'],'c_strand_radius',name='c_strand_1', matname='copper')
@@ -140,7 +142,7 @@ cond_names = Q2D_DS.get_all_conductors_names()
 filling_id = mod2D.create_circle(['0mm','0mm','0mm'],'filling_radius',name='Filling', matname='plastic_pp_carbon_fiber')
 filling_id.color=(255,255,180)
 #####################################################################################
-# Create geometry for inner sheat object
+# Create geometry for inner sheet object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 inner_sheat_id = mod2D.create_circle(['0mm','0mm','0mm'],'inner_sheat_radius',name='Inner_Sheat', matname='PVC plastic')
 inner_sheat_id .color=(0,0,0)
@@ -152,7 +154,7 @@ arm_fill_id = mod2D.create_circle(['0mm','0mm','0mm'],'armour_radius',name='Armo
 arm_fill_id.color=(255,255,255)
 
 #####################################################################################
-# Create geometry for outer sheat
+# Create geometry for outer sheet
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 outer_sheat_id = mod2D.create_circle(['0mm','0mm','0mm'],'outersheat_radius',name='OuterSheat', matname='PVC plastic')
 outer_sheat_id.color= (0,0,0)
@@ -166,7 +168,7 @@ arm_strand_1_id.duplicate_around_axis('Z','360deg/n_arm_strands',nclones='n_arm_
 arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 
 #####################################################################################
-# Create Region
+# Create region
 # ~~~~~~~~~~~~~
 oeditor = Q2D_DS.odesign.SetActiveEditor("3D Modeler")
 oeditor.CreateRegion(
@@ -220,7 +222,7 @@ oeditor.CreateRegion(
 	])
 
 ##########################################################
-# Assign Conductors and Reference Ground
+# Assign conductors and reference ground
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 obj = [Q2D_DS.modeler.get_object_from_name(i) for i in cond_names]
 [Q2D_DS.assign_single_conductor(name ='C1'+str(obj.index(i)+1),target_objects=i,conductor_type='SignalLine') for i in obj]
@@ -229,16 +231,16 @@ Q2D_DS.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="R
 mod2D.fit_all()
 
 ##########################################################
-# Design Settings
-# ~~~~~~~~~~~~~~~
+# Assign design settings
+# ~~~~~~~~~~~~~~~~~~~~~~
 lumped_length = "100m"
 q2d_des_settings = Q2D_DS.design_settings()
 q2d_des_settings['LumpedLength'] = lumped_length
 Q2D_DS.change_design_settings(q2d_des_settings)
 
 ##########################################################
-# Insert Setup & Frequency Sweep
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Insert setup and frequency sweep
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 q2d_setup = Q2D_DS.create_setup(setupname=sName)
 q2d_sweep = q2d_setup.add_sweep(sweepname=swName)
 q2d_sweep.props["RangeType"] = "LogScale"
@@ -249,18 +251,18 @@ q2d_sweep.props["RangeSamples"] = 1
 q2d_sweep.update()
 
 ##########################################################
-# Analyze Setup
+# Analyze setup
 # ~~~~~~~~~~~~~
 Q2D_DS.analyze(setup_name=sName,num_cores=4,num_tasks=2)
 
 ###################################################################
-# Add a Simplorer/Twin Builder Design and the Q3D Dynamic Component
+# Add a Simplorer/Twin Builder design and the Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 TB_DS = pyaedt.TwinBuilder(designname=twinb_dname)
 
 ###################################################################
-# Preparing the lists to call the Dynamic Component import function
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Prepare the lists to call the dynamic component import function
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 exc_list = Q2D_DS.design_excitations
 sl_name_list = [item.name for item in exc_list if item.type == 'SignalLine']
 num_ports = 2*sl_name_list.__len__()
@@ -291,8 +293,8 @@ my_last_list = ["COMPONENT_DEPTH",lumped_length]
 des_prop_list.append(my_last_list)
 
 ##########################################################
-# Adding a Q3D Dynamic Component
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Add a Q3D dynamic component
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 o_def_manager =TB_DS.oproject.GetDefinitionManager()
 dyn_component = o_def_manager.GetManager("Component")
@@ -350,10 +352,8 @@ TB_DS.oeditor.CreateComponent(
 	])
 
 ##########################################################
-# Save project and Release Desktop instructions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Save project and release desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 TB_DS.save_project()
 TB_DS.release_desktop(False, False)
-
-
 
