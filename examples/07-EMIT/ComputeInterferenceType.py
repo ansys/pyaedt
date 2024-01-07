@@ -77,7 +77,7 @@ if tx_radios is None or rx_radios is None:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
-# which, if any, type of interference occured.
+# which, if any, type of interference occurred.
 
 power_matrix=[]
 all_colors=[]
