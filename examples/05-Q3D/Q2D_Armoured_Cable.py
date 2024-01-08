@@ -29,22 +29,22 @@ core_xlpe_ins_thickness = 0.5
 core_xy_coord = math.ceil(3 * c_strand_radius + 2 * core_xlpe_ins_thickness)
 
 #################################################################################
-# Initialize filling and sheet dimensions
+# Initialize filling and sheath dimensions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize radii of further structures incrementally adding thicknesses
 
 filling_radius = 1.4142 * (core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5)
-inner_sheet_radius = filling_radius + 0.75
+inner_sheath_radius = filling_radius + 0.75
 armour_thickness = 3
-armour_radius = inner_sheet_radius + armour_thickness
-outer_sheet_radius = armour_radius + 2
+armour_radius = inner_sheath_radius + armour_thickness
+outer_sheath_radius = armour_radius + 2
 
 #################################################################################
 # Initialize armature strand dimensions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize radii
 
-armour_centre_pos = inner_sheet_radius + armour_thickness / 2.0
+armour_centre_pos = inner_sheath_radius + armour_thickness / 2.0
 arm_strand_rad = armour_thickness / 2.0 - 0.2
 n_arm_strands = 30
 
@@ -62,9 +62,9 @@ core_params = {
 }
 outer_params = {
     "filling_radius": str(filling_radius) + 'mm',
-    "inner_sheet_radius": str(inner_sheet_radius) + 'mm',
+    "inner_sheath_radius": str(inner_sheath_radius) + 'mm',
     "armour_radius": str(armour_radius) + 'mm',
-    "outer_sheet_radius": str(outer_sheet_radius) + 'mm'
+    "outer_sheath_radius": str(outer_sheath_radius) + 'mm'
 }
 armour_params = {
     "armour_centre_pos": str(armour_centre_pos) + 'mm',
@@ -156,12 +156,12 @@ filling_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'filling_radius', name='
 filling_id.color = (255, 255, 180)
 
 #####################################################################################
-# Create geometry for inner sheet object
+# Create geometry for inner sheath object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-inner_sheet_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'inner_sheet_radius', name='InnerSheet',
+inner_sheath_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'inner_sheath_radius', name='InnerSheath',
                                      matname='PVC plastic')
-inner_sheet_id.color = (0, 0, 0)
+inner_sheath_id.color = (0, 0, 0)
 
 #####################################################################################
 # Create geometry for armature fill
@@ -172,12 +172,12 @@ arm_fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'armour_radius', name='
 arm_fill_id.color = (255, 255, 255)
 
 #####################################################################################
-# Create geometry for outer sheet
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create geometry for outer sheath
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-outer_sheet_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'outer_sheet_radius', name='OuterSheet',
+outer_sheath_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'outer_sheath_radius', name='OuterSheath',
                                      matname='PVC plastic')
-outer_sheet_id.color = (0, 0, 0)
+outer_sheath_id.color = (0, 0, 0)
 
 #####################################################################################
 # Create geometry for armature steel strands
@@ -201,7 +201,7 @@ region.material_name = "vacuum"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
-[q2d.assign_single_conductor(name ='C1 ' +str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
+[q2d.assign_single_conductor(name='C1' + str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
  in obj]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
 q2d.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
@@ -233,7 +233,7 @@ q2d_sweep.update()
 # Analyze setup
 # ~~~~~~~~~~~~~
 
-q2d.analyze(setup_name=setup_name, num_cores=4, num_tasks=2)
+# q2d.analyze(setup_name=setup_name)
 
 ###################################################################
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
@@ -274,13 +274,13 @@ for i_var in range(len(des_var_list)):
     des_prop_list.append(my_list)
 # last element component depth
 des_prop_list.append("paramProp:=")
-my_last_list = ["COMPONENT_DEPTH", lumped_length]
+my_last_list = ["component_depth", lumped_length]
 des_prop_list.append(my_last_list)
 
 ##########################################################
 # Add a Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
+
 o_def_manager = tb.oproject.GetDefinitionManager()
 dyn_component = o_def_manager.GetManager("Component")
 name_comp = "SimpQ3DData1"
@@ -299,10 +299,10 @@ dyn_component.AddDynamicNPortData(
         "CouplingMatrixName:=", "Original",
         "SaveProject:=", False,
         "CloseProject:=", False,
-        "StaticLink:="	, False,
-		"CouplingType:="	, "Q2DRLGCTBLink",
-		"VariationKey:="	, "",
-		"NewToOldMap:="		, [],
+        "StaticLink:=", False,
+        "CouplingType:=", "Q2DRLGCTBLink",
+        "VariationKey:=", "",
+        "NewToOldMap:="	, [],
 		"OldToNewMap:="		, [],
 		"ModelText:="		, "",
 		"SolvedVariationKey:="	, "",
