@@ -159,7 +159,7 @@ filling_id.color = (255, 255, 180)
 # Create geometry for inner sheet object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-inner_sheet_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'inner_sheet_radius', name='InnerSheat',
+inner_sheet_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'inner_sheet_radius', name='InnerSheet',
                                      matname='PVC plastic')
 inner_sheet_id.color = (0, 0, 0)
 
@@ -175,7 +175,7 @@ arm_fill_id.color = (255, 255, 255)
 # Create geometry for outer sheet
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-outer_sheet_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'outer_sheet_radius', name='OuterSheat',
+outer_sheet_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'outer_sheet_radius', name='OuterSheet',
                                      matname='PVC plastic')
 outer_sheet_id.color = (0, 0, 0)
 
