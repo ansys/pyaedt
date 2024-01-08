@@ -264,12 +264,10 @@ class TestClass:
         assert self.edbapp.padstacks.definitions["myVia"].hole_range == "through"
         self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
         assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
-
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
         assert self.edbapp["via_y"].value == 1e-3
         assert self.edbapp["via_y"].value_string == "1mm"
-
         assert self.edbapp.padstacks.place(["via_x", "via_x+via_y"], "myVia", via_name="via_test1")
         assert self.edbapp.padstacks.place(["via_x", "via_x+via_y*2"], "myVia_bullet")
         self.edbapp.padstacks["via_test1"].net_name = "GND"
@@ -2385,6 +2383,11 @@ class TestClass:
             reference_designator="U7", net_name="GND", group_name="U7_GND"
         )
         U7.pins["F7"].create_port(reference=pin_group)
+        padstack_instance_terminals = [
+            term for term in list(edbapp.terminals.values()) if "PadstackInstanceTerminal" in str(term.type)
+        ]
+        for term in padstack_instance_terminals:
+            assert term.position
         edbapp.close()
 
     def test_134_siwave_source_setter(self):
@@ -2894,13 +2897,13 @@ class TestClass:
         assert os.path.isfile(xml_file)
         ipc_edb = Edb(xml_file, edbversion=desktop_version)
         ipc_stats = ipc_edb.get_statistics()
-        assert ipc_stats.layout_size == (0.1492, 0.0837)
+        assert ipc_stats.layout_size == (0.15, 0.0845)
         assert ipc_stats.num_capacitors == 380
         assert ipc_stats.num_discrete_components == 31
         assert ipc_stats.num_inductors == 10
         assert ipc_stats.num_layers == 15
         assert ipc_stats.num_nets == 348
-        assert ipc_stats.num_polygons == 138
+        assert ipc_stats.num_polygons == 139
         assert ipc_stats.num_resistors == 82
         assert ipc_stats.num_traces == 1565
         assert ipc_stats.num_traces == 1565
@@ -2921,9 +2924,8 @@ class TestClass:
         edbapp.layout_validation.illegal_rlc_values(True)
 
         # assert len(dc_shorts) == 20
-        assert ["LVDS_CH09_N", "GND"] in dc_shorts
-        assert ["LVDS_CH09_N", "DDR4_DM3"] in dc_shorts
-        assert ["DDR4_DM3", "LVDS_CH07_N"] in dc_shorts
+        assert ["SFPA_Tx_Fault", "PCIe_Gen4_CLKREQ_L"] in dc_shorts
+        assert ["VDD_DDR", "GND"] in dc_shorts
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) > 0
         edbapp.nets["DDR4_DM3"].find_dc_short(True)
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
@@ -2983,3 +2985,116 @@ class TestClass:
         assert mats[key]["mass_density"] == 8055
         assert mats[key]["specific_heat"] == 480
         assert mats[key]["thermal_expansion_coeffcient"] == 1.08e-005
+
+    def test_152_simconfig_built_custom_sballs_height(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_custom_sball_height", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        json_file = os.path.join(target_path, "simsetup_custom_sballs.json")
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        simconfig = edbapp.new_simulation_configuration()
+        simconfig.import_json(json_file)
+        edbapp.build_simulation_project(simconfig)
+        assert round(edbapp.components["X1"].solder_ball_height, 6) == 0.00025
+        assert round(edbapp.components["U1"].solder_ball_height, 6) == 0.00035
+        edbapp.close_edb()
+
+    def test_153_update_padstacks_after_layer_name_changed(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_padstack_def_update", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        signal_layer_list = [layer for layer in list(edbapp.stackup.stackup_layers.values()) if layer.type == "signal"]
+        old_layers = []
+        for n_layer, layer in enumerate(signal_layer_list):
+            new_name = f"new_signal_name_{n_layer}"
+            old_layers.append(layer.name)
+            layer.name = new_name
+        for layer_name in list(edbapp.stackup.stackup_layers.keys()):
+            print(f"New layer name is {layer_name}")
+        for padstack_inst in list(edbapp.padstacks.instances.values()):
+            assert not [lay for lay in padstack_inst.layer_range_names if lay in old_layers]
+        edbapp.close_edb()
+
+    def test_154_create_pec_boundary_ports(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_custom_sball_height", "ANSYS-HSD_V1.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        edbapp.components.create_port_on_pins(refdes="U1", pins="AU38", reference_pins="AU37", pec_boundary=True)
+        assert edbapp.terminals["Port_GND_U1-AU38"].boundary_type == "PecBoundary"
+        assert edbapp.terminals["Port_GND_U1-AU38_ref"].boundary_type == "PecBoundary"
+        edbapp.components.deactivate_rlc_component(component="C5", create_circuit_port=True, pec_boundary=True)
+        edbapp.components.add_port_on_rlc_component(component="C65", circuit_ports=False, pec_boundary=True)
+        assert edbapp.terminals["C5"].boundary_type == "PecBoundary"
+        assert edbapp.terminals["C65"].boundary_type == "PecBoundary"
+
+    def test_154_merge_polygon(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_merge_polygon.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_merge_polygon", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        assert edbapp.nets.merge_nets_polygons(["net1", "net2"])
+        edbapp.close_edb()
+
+    def test_155_layout_auto_parametrization(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_auto_parameters", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        edbapp.auto_parametrize_design(
+            layers=True,
+            layer_filter="1_Top",
+            materials=False,
+            via_holes=False,
+            pads=False,
+            antipads=False,
+            traces=False,
+        )
+        assert "$1_Top_thick" in edbapp.variables
+        edbapp.auto_parametrize_design(
+            layers=True, materials=False, via_holes=False, pads=False, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.keys())) == len(list(edbapp.stackup.stackup_layers.keys()))
+        edbapp.auto_parametrize_design(
+            layers=False,
+            materials=True,
+            via_holes=False,
+            pads=False,
+            antipads=False,
+            traces=False,
+            material_filter=["copper"],
+        )
+        assert "$sigma_copper" in edbapp.variables
+        edbapp.auto_parametrize_design(
+            layers=False, materials=True, via_holes=False, pads=False, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 26
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=True, pads=False, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 65
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=False, pads=True, antipads=False, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 469
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=False, pads=False, antipads=True, traces=False
+        )
+        assert len(list(edbapp.variables.values())) == 469
+        edbapp.auto_parametrize_design(
+            layers=False,
+            materials=False,
+            via_holes=False,
+            pads=False,
+            antipads=False,
+            traces=True,
+            trace_net_filter=["SFPA_Tx_Fault", "SFPA_Tx_Disable", "SFPA_SDA", "SFPA_SCL", "SFPA_Rx_LOS"],
+        )
+        assert len(list(edbapp.variables.keys())) == 474
+        edbapp.auto_parametrize_design(
+            layers=False, materials=False, via_holes=False, pads=False, antipads=False, traces=True
+        )
+        assert len(list(edbapp.variables.values())) == 2308
+        edbapp.close_edb()

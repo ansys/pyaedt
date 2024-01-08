@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -74,7 +74,7 @@ jobs:
           dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
 
       - name: Upload Wheelhouse
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}
           path: '*.zip'

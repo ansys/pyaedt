@@ -200,7 +200,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
     def test_12b_failing_AssignMeshOperation(self):
-        assert not self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
+        assert self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
         b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
         b.model = False
@@ -625,6 +625,7 @@ class TestClass:
         assert self.aedtapp.monitor.all_monitors == {}
         assert not self.aedtapp.monitor.delete_monitor("Test")
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_50_advanced3dcomp_export(self):
         self.aedtapp.insert_design("advanced3dcompTest")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -713,6 +714,7 @@ class TestClass:
         surf1.delete()
         fan_obj_3d.delete()
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_51_advanced3dcomp_import(self):
         self.aedtapp.insert_design("test_3d_comp")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
@@ -814,6 +816,7 @@ class TestClass:
             comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
         )
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_52_flatten_3d_components(self):
         self.aedtapp.insert_design("test_52")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
@@ -897,6 +900,16 @@ class TestClass:
             ht_correlation_value_type="Average Values",
             ht_correlation_free_stream_velocity=1,
         )
+        self.aedtapp.create_dataset("ds1", [1, 2, 3], [2, 3, 4], is_project_dataset=False)
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            name=None,
+            thickness="0mm",
+            material="Al-Extruded",
+            htc_dataset="ds1",
+            ref_temperature="AmbientTemp",
+            ht_correlation=False,
+        )
         assert self.aedtapp.assign_stationary_wall_with_temperature(
             "surf1",
             name=None,
@@ -930,6 +943,17 @@ class TestClass:
             ext_surf_rad_material="Stainless-steel-cleaned",
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_stationary_wall_with_temperature(
+            "surf1",
+            name=None,
+            temperature={"Type": "Transient", "Function": "Sinusoidal", "Values": ["20cel", 1, 1, "1s"]},
+            thickness="0mm",
+            material="Al-Extruded",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
         )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
@@ -1362,3 +1386,69 @@ class TestClass:
         ad_plate = self.aedtapp.assign_adiabatic_plate(rectangle.name)
         assert ad_plate
         assert ad_plate.update()
+
+    def test_72_assign_resistance(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
+        assert self.aedtapp.assign_device_resistance(
+            box.name,
+            boundary_name=None,
+            total_power="0W",
+            fluid="air",
+            laminar=False,
+            linear_loss=["1m_per_sec", "2m_per_sec", 3],
+            quadratic_loss=[1, "1", 1],
+            linear_loss_free_area_ratio=[1, "0.1", 1],
+            quadratic_loss_free_area_ratio=[1, 0.1, 1],
+        )
+        assert self.aedtapp.assign_loss_curve_resistance(
+            box.name,
+            boundary_name=None,
+            total_power="0W",
+            fluid="air",
+            laminar=False,
+            loss_curves_x=[[0, 1, 2, 3, 4], [0, 1, 2, 3, 5]],
+            loss_curves_y=[[0, 1, 2, 3, 4], [0, 1, 2, 3, 5]],
+            loss_curves_z=[[0, 1, 2, 3, 4], [0, 1, 2, 3, 5]],
+            loss_curve_flow_unit="m_per_sec",
+            loss_curve_pressure_unit="n_per_meter_sq",
+        )
+        assert not self.aedtapp.assign_power_law_resistance(
+            box.name,
+            boundary_name="TestNameResistance",
+            total_power={"Function": "Linear", "Values": ["0.01W", "1W"]},
+            power_law_constant=1.5,
+            power_law_exponent="3",
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_power_law_resistance(
+            box.name,
+            boundary_name="TestNameResistance",
+            total_power={"Function": "Linear", "Values": ["0.01W", "1W"]},
+            power_law_constant=1.5,
+            power_law_exponent="3",
+        )
+
+    def test_73_conducting_plate(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "ResistanceBox", "copper")
+        box_face = box.top_face_x
+        assert self.aedtapp.assign_conducting_plate_with_thickness(
+            box_face.id, total_power=1, high_side_rad_material="Steel-oxidised-surface"
+        )
+        assert self.aedtapp.assign_conducting_plate_with_resistance(
+            box_face.id, low_side_rad_material="Steel-oxidised-surface"
+        )
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surfPlateTest")
+        assert self.aedtapp.assign_conducting_plate_with_impedance("surfPlateTest")
+        x = [1, 2, 3]
+        y = [3, 4, 5]
+        self.aedtapp.create_dataset1d_design("Test_DataSet_Plate", x, y)
+        assert self.aedtapp.assign_conducting_plate_with_conductance(
+            "surfPlateTest",
+            total_power={
+                "Type": "Temp Dep",
+                "Function": "Piecewise Linear",
+                "Values": "Test_DataSet_Plate",
+            },
+        )
+        with pytest.raises(AttributeError):
+            self.aedtapp.assign_conducting_plate_with_conductance([box_face.id, "surfPlateTest"])

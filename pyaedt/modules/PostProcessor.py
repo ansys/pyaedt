@@ -1585,6 +1585,15 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        if not domain:
+            domain = "Sweep"
+            setup_name = setup_sweep_name.split(":")[0]
+            if setup_name:
+                for setup in self._app.setups:
+                    if setup.name == setup_name and "Time" in setup.default_intrinsics:
+                        domain = "Time"
         if domain in ["Spectral", "Spectrum"]:
             report_category = "Spectrum"
         elif not report_category and not self._app.design_solutions.report_type:
@@ -1598,8 +1607,7 @@ class PostProcessorCommon(object):
             report_class = TEMPLATES_BY_NAME["Fields"]
         else:
             report_class = TEMPLATES_BY_NAME["Standard"]
-        if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
+
         report = report_class(self, report_category, setup_sweep_name)
         if not expressions:
             expressions = [
@@ -1607,6 +1615,15 @@ class PostProcessorCommon(object):
             ]
         report.expressions = expressions
         report.domain = domain
+        if not variations and domain == "Sweep":
+            variations = self._app.available_variations.nominal_w_values_dict
+            if variations:
+                variations["Freq"] = "All"
+            else:
+                variations = {"Freq": ["All"]}
+        elif not variations and domain != "Sweep":
+            variations = self._app.available_variations.nominal_w_values_dict
+        report.variations = variations
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
         elif domain == "DCIR":  # pragma: no cover
@@ -1617,8 +1634,8 @@ class PostProcessorCommon(object):
                 variations = {"Index": "All"}
         if secondary_sweep_variable:
             report.secondary_sweep = secondary_sweep_variable
-        if variations:
-            report.variations = variations
+
+        report.variations = variations
         report.report_type = plot_type
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
@@ -1669,7 +1686,7 @@ class PostProcessorCommon(object):
         self,
         expressions=None,
         setup_sweep_name=None,
-        domain="Sweep",
+        domain=None,
         variations=None,
         primary_sweep_variable=None,
         report_category=None,
@@ -1696,7 +1713,7 @@ class PostProcessorCommon(object):
             Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
             Dictionary of all families including the primary sweep.
-            The default is ``None`` which will use the nominal variations of the design.
+            The default is ``None`` which will use the nominal variations of the setup.
         primary_sweep_variable : str, optional
             Name of the primary sweep. The default is ``"None"`` which, depending on the context,
             will internally assign the primary sweep to:
@@ -1784,6 +1801,15 @@ class PostProcessorCommon(object):
         ...)
         """
         expressions = [expressions] if isinstance(expressions, str) else expressions
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        if not domain:
+            domain = "Sweep"
+            setup_name = setup_sweep_name.split(":")[0]
+            if setup_name:
+                for setup in self._app.setups:
+                    if setup.name == setup_name and "Time" in setup.default_intrinsics:
+                        domain = "Time"
         if domain in ["Spectral", "Spectrum"]:
             report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
@@ -1797,8 +1823,7 @@ class PostProcessorCommon(object):
             report_class = TEMPLATES_BY_NAME["Fields"]
         else:
             report_class = TEMPLATES_BY_NAME["Standard"]
-        if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
+
         report = report_class(self, report_category, setup_sweep_name)
         if not expressions:
             expressions = [
@@ -1810,8 +1835,15 @@ class PostProcessorCommon(object):
         report.domain = domain
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
-        if variations:
-            report.variations = variations
+        if not variations and domain == "Sweep":
+            variations = self._app.available_variations.nominal_w_values_dict
+            if variations:
+                variations["Freq"] = "All"
+            else:
+                variations = {"Freq": ["All"]}
+        elif not variations and domain != "Sweep":
+            variations = self._app.available_variations.nominal_w_values_dict
+        report.variations = variations
         report.sub_design_id = subdesign_id
         report.point_number = polyline_points
         if context == "Differential Pairs":

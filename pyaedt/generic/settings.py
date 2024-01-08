@@ -62,7 +62,7 @@ class Settings(object):
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
-        self._desktop_launch_timeout = 90
+        self._desktop_launch_timeout = 120
         self._number_of_grpc_api_retries = 6
         self._retry_n_times_time_interval = 0.1
         self._wait_for_license = False

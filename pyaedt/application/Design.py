@@ -205,7 +205,7 @@ class Design(AedtObjects):
             not is_ironpython
             and project_name
             and os.path.exists(project_name)
-            and os.path.splitext(project_name)[1] == ".aedt"
+            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
@@ -314,6 +314,11 @@ class Design(AedtObjects):
             bb = list(self.oboundary.GetBoundaries())
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
+        if "GetHybridRegions" in self.oboundary.__dir__():
+            hybrid_regions = self.oboundary.GetHybridRegions()
+            for region in hybrid_regions:
+                bb.append(region)
+                bb.append("FE-BI")
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:

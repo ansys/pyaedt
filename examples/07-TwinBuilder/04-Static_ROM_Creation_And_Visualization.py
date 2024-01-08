@@ -89,10 +89,10 @@ static_rom_builder = rom_manager.GetStaticROMBuilder()
 confpath = os.path.join(data_folder, source_build_conf_file)
 static_rom_builder.Build(confpath.replace('\\', '/'))
 
-# Test if ROM was created sucessfully
+# Test if ROM was created successfully
 static_rom_path = os.path.join(data_folder, 'StaticRom.rom')
 if os.path.exists(static_rom_path):
-    tb.logger.info("Built intermediate rom file sucessfully at: %s", static_rom_path)
+    tb.logger.info("Built intermediate rom file successfully at: %s", static_rom_path)
 else:
     tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 

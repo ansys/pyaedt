@@ -8,7 +8,7 @@ for a CPWG (coplanar waveguide with ground).
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Peform required imports. Importing the ``Hfss3dlayout`` object initializes it
+# Perform required imports. Importing the ``Hfss3dlayout`` object initializes it
 # on version 2023 R2.
 
 import pyaedt
