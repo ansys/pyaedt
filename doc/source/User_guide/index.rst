@@ -1,8 +1,8 @@
 .. _ref_user_guide:
 
-==========
-User guide
-==========
+========
+Tutorial
+========
 PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython (limited capabilities) or CPython
 environment and initializes AEDT accordingly. PyAEDT also provides
@@ -52,9 +52,10 @@ You can obtain the same result with:
    :hidden:
    :maxdepth: 2
 
-   variables
    modeler
    mesh
    setup
+   variables
    optimetrics
    postprocessing
+   files

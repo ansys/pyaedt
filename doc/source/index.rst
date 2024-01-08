@@ -28,8 +28,8 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
    .. grid-item-card::
             :img-top: _static/assets/index_user_guide.png
 
-            User guide
-            ^^^^^^^^^^
+            Tutorial
+            ^^^^^^^^
 
             Understand key concepts and approaches for primitives,
             modeler, mesh, setup and post-processing.
@@ -41,7 +41,7 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
                :outline:
                :click-parent:
 
-                  User guide
+                  Tutorial
 
 
 
