@@ -7,7 +7,7 @@ HFSS antenna and run a simulation.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perrform rquired imports and set up the local path to the path for the PyAEDT
+# Perrform required imports and set up the local path to the path for the PyAEDT
 # directory.
 
 import os

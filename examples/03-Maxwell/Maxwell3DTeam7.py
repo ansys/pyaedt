@@ -1,7 +1,7 @@
 """
 Maxwell 3D: asymmetric conductor analysis
 -----------------------------------------
-This example uses PyAEDT to set up the TEAM 7 problem for an asymetric
+This example uses PyAEDT to set up the TEAM 7 problem for an asymmetric
 conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 """
 ###########################################################################################
