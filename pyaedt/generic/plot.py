@@ -1522,6 +1522,7 @@ class ModelPlotter(CommonPlotter):
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.enable_ssao()
+        self.pv.enable_parallel_projection()
         self.meshes = None
         if self.background_image:
             self.pv.add_background_image(self.background_image)
