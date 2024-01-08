@@ -66,7 +66,7 @@ outer_params = {
     "armour_radius": str(armour_radius) + 'mm',
     "outer_sheet_radius": str(outer_sheet_radius) + 'mm'
 }
-arm_params = {
+armour_params = {
     "armour_centre_pos": str(armour_centre_pos) + 'mm',
     "arm_strand_rad": str(arm_strand_rad) + 'mm',
     "n_arm_strands": str(n_arm_strands)
@@ -78,13 +78,13 @@ arm_params = {
 # Initialize Q2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = "2023.2"
+desktop_version = "2023.2"
 project_name = 'Q2D_ArmouredCableExample'
 q2d_design_name = '2D_Extractor_Cable'
-sName = "MySetupAuto"
-swName = "sweep1"
+setup_name = "MySetupAuto"
+sweep_name = "sweep1"
 twinb_design_name = 'CableSystem'
-q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktopVersion)
+q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktop_version)
 
 ##########################################################
 # Define variables from dictionaries
@@ -95,7 +95,7 @@ for k, v in core_params.items():
     q2d[k] = v
 for k, v in outer_params.items():
     q2d[k] = v
-for k, v in arm_params.items():
+for k, v in armour_params.items():
     q2d[k] = v
 
 ##########################################################
@@ -220,8 +220,8 @@ q2d.change_design_settings(q2d_des_settings)
 # Insert setup and frequency sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-q2d_setup = q2d.create_setup(setupname=sName)
-q2d_sweep = q2d_setup.add_sweep(sweepname=swName)
+q2d_setup = q2d.create_setup(setupname=setup_name)
+q2d_sweep = q2d_setup.add_sweep(sweepname=sweep_name)
 q2d_sweep.props["RangeType"] = "LogScale"
 q2d_sweep.props["RangeStart"] = "0Hz"
 q2d_sweep.props["RangeEnd"] = "3MHz"
@@ -233,7 +233,7 @@ q2d_sweep.update()
 # Analyze setup
 # ~~~~~~~~~~~~~
 
-q2d.analyze(setup_name=sName, num_cores=4, num_tasks=2)
+q2d.analyze(setup_name=setup_name, num_cores=4, num_tasks=2)
 
 ###################################################################
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
@@ -295,7 +295,7 @@ dyn_component.AddDynamicNPortData(
         "IsWBLink:=", False,
         "WBSystemId:=", "",
         "CouplingDesignName:=", q2d_design_name,
-        "CouplingSolutionName:=", sName + ' : ' + swName,
+        "CouplingSolutionName:=", setup_name + ' : ' + sweep_name,
         "CouplingMatrixName:=", "Original",
         "SaveProject:=", False,
         "CloseProject:=", False,
