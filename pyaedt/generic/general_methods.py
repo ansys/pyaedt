@@ -1387,6 +1387,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
     }
 
     if function_str not in available_functions:
+        logging.error("Specified conversion is not available.")
         return False
 
     data = available_functions[function_str](data)
