@@ -1353,7 +1353,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
 
     Returns
     -------
-    list or bool
+    numpy.array or bool
         Converted data, ``False`` otherwise.
 
     Examples
