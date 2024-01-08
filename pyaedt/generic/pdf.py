@@ -48,7 +48,7 @@ class TemplateData:
 
 
 class AnsysReport(FPDF):
-    def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
+    def __init__(self, version="2023R2", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()
         self.report_specs.ansys_version = version
@@ -56,10 +56,10 @@ class AnsysReport(FPDF):
         self.report_specs.project_name = project_name
         if tempplate_json_file:
             self.report_specs.template_name = tempplate_json_file
-        self._read_template()
-        self._chapter_idx = 0
-        self._sub_chapter_idx = 0
-        self._figure_idx = 1
+        self.__read_template()
+        self.__chapter_idx = 0
+        self.__sub_chapter_idx = 0
+        self.__figure_idx = 1
         self.set_top_margin(unit_converter(self.template_data.top_margin, input_units=self.template_data.units))
         self.set_right_margin(unit_converter(self.template_data.right_margin, input_units=self.template_data.units))
         self.set_left_margin(unit_converter(self.template_data.left_margin, input_units=self.template_data.units))
@@ -68,7 +68,7 @@ class AnsysReport(FPDF):
         )
         self.alias_nb_pages()
 
-    def _read_template(self):
+    def __read_template(self):
         self.template_data = TemplateData()
         tdata = {}
         with open(self.report_specs.template_name, "r") as f:
@@ -77,7 +77,7 @@ class AnsysReport(FPDF):
             if k in self.template_data.__dict__:
                 self.template_data.__dict__[k] = v
 
-    def _add_cover_page(self):
+    def __add_cover_page(self):
         self.add_page()
         self.set_font(self.template_data.font.lower(), "b", self.template_data.cover_subtitle_font_size)
         self.y += 40
@@ -109,12 +109,7 @@ class AnsysReport(FPDF):
         )
 
     def header(self):
-        # Logo
-        self.set_y(15)
-        line_x = self.x
-        line_y = self.y
-        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
-        self.set_text_color(*self.template_data.font_header_color)
+        from datetime import date
 
         def add_field(field_name, field_value):
             self.set_font(self.template_data.font.lower(), size=self.template_data.header_font_size)
@@ -135,6 +130,13 @@ class AnsysReport(FPDF):
                 new_y="NEXT",
                 align="L",
             )
+        
+        # Logo
+        self.set_y(15)
+        line_x = self.x
+        line_y = self.y
+        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
+        self.set_text_color(*self.template_data.font_header_color)
 
         add_field("Project Name", self.report_specs.project_name)
         self.set_y(line_y)
@@ -153,7 +155,6 @@ class AnsysReport(FPDF):
         self.set_y(line_y)
         line_x += delta
         self.set_x(line_x)
-        from datetime import date
 
         add_field("Date", str(date.today()))
         self.set_y(line_y)
@@ -199,7 +200,7 @@ class AnsysReport(FPDF):
         :class:`AnsysReport`
         """
         if add_cover_page:
-            self._add_cover_page()
+            self.__add_cover_page()
         if add_new_section_after:
             self.add_page()
         return True
@@ -290,9 +291,9 @@ class AnsysReport(FPDF):
         chapter_name : str
             Chapter name.
         """
-        self._chapter_idx += 1
-        self._sub_chapter_idx = 0
-        txt = f"{self._chapter_idx} {chapter_name}"
+        self.__chapter_idx += 1
+        self.__sub_chapter_idx = 0
+        txt = f"{self.__chapter_idx} {chapter_name}"
         self.set_font(self.template_data.font.lower(), "B", self.template_data.title_font_size)
         self.start_section(txt)
         self.set_text_color(*self.template_data.font_chapter_color)
@@ -316,8 +317,8 @@ class AnsysReport(FPDF):
         chapter_name : str
             Chapter name.
         """
-        self._sub_chapter_idx += 1
-        txt = f"     {self._chapter_idx}.{self._sub_chapter_idx} {chapter_name}"
+        self.__sub_chapter_idx += 1
+        txt = f"     {self.__chapter_idx}.{self.__sub_chapter_idx} {chapter_name}"
         self.set_font(self.template_data.font.lower(), "I", self.template_data.subtitle_font_size)
         self.start_section(txt.strip(), level=1)
         self.set_text_color(*self.template_data.font_subchapter_color)
@@ -359,9 +360,9 @@ class AnsysReport(FPDF):
 
         self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self.l_margin)
         if caption:
-            caption = f"Figure {self._figure_idx}. {caption}"
+            caption = f"Figure {self.__figure_idx}. {caption}"
             self.add_caption(caption)
-            self._figure_idx += 1
+            self.__figure_idx += 1
         return True
 
     def add_caption(self, content):
