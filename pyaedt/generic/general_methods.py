@@ -291,7 +291,7 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
         Local path to save the file to.
     remote_path : str
         Path to the remote file.
-    overwrite : bool
+    overwrite : bool, optional
         Whether to overwrite the file if it already exits locally.
         The default is ``True``.
 
@@ -333,7 +333,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
         Local path to save the folder to.
     remote_path : str
         Path to the remote folder.
-    overwrite : bool
+    overwrite : bool, optional
         Whether to overwrite the folder if it already exits locally.
         The default is ``True``.
 
@@ -497,7 +497,7 @@ def env_value(input_version):
     Examples
     --------
     >>> env_value("2021.2")
-    "ANSYSEM_ROOT211"
+    "ANSYSEM_ROOT212"
     """
     return "ANSYSEM_ROOT{0}{1}".format(
         get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
@@ -548,7 +548,7 @@ def env_value_student(input_version):
     Examples
     --------
     >>> env_value_student("2021.2")
-    "ANSYSEMSV_ROOT211"
+    "ANSYSEMSV_ROOT212"
     """
     return "ANSYSEMSV_ROOT{0}{1}".format(
         get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
@@ -580,11 +580,11 @@ def generate_unique_name(rootname, suffix="", n=6):
 
     Parameters
     ----------
-    rootname :
+    rootname : string
         Root name to add random characters to.
-    suffix : string
+    suffix : string, optional
         Suffix to add. The default is ``''``.
-    n : int
+    n : int, optional
         Number of random characters to add to the name. The default value is ``6``.
 
     Returns
@@ -669,7 +669,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
     Parameters
     ----------
-    n :
+    n : int
 
     function :
 

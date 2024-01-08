@@ -476,6 +476,20 @@ class PadstackInstanceTerminal(Terminal):
     def __init__(self, pedb, edb_object):
         super().__init__(pedb, edb_object)
 
+    @property
+    def position(self):
+        """Return terminal position.
+
+        Returns
+        -------
+        Position [x,y] : [float, float]
+
+        """
+        edb_padstack_instance = self._edb_object.GetParameters()
+        if edb_padstack_instance[0]:
+            return EDBPadstackInstance(edb_padstack_instance[1], self._pedb).position
+        return False
+
     def create(self, padstack_instance, name=None, layer=None, is_ref=False):
         """Create an edge terminal.
 

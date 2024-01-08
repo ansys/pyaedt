@@ -3,12 +3,14 @@ import copy
 from datetime import datetime
 import json
 import os
+import pkgutil
 import tempfile
 
 from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
 from pyaedt import get_pyaedt_app
+from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
@@ -25,6 +27,10 @@ from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
+
+if not is_ironpython:
+    from jsonschema import exceptions
+    from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -54,7 +60,7 @@ class ConfigurationsOptions(object):
     """Options class for the configurations.
     User can enable or disable import export components."""
 
-    def __init__(self):
+    def __init__(self, is_layout=False):
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -673,14 +679,17 @@ class ImportResults(object):
 
 
 class Configurations(object):
-    """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
-    """
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
     def __init__(self, app):
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
+
+        # Read the default configuration schema from pyaedt
+        schema_bytes = pkgutil.get_data(__name__, "../misc/config.schema.json")
+        schema_string = schema_bytes.decode("utf-8")
+        self._schema = json.loads(schema_string)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -985,8 +994,50 @@ class Configurations(object):
             )
 
     @pyaedt_function_handler()
+    def validate(self, config):
+        """Validate a configuration file against the schema. The default schema
+            can be found in ``pyaedt/misc/config.schema.json``.
+
+        Parameters
+        ----------
+        config : str, dict
+            Configuration as a JSON file or dictionary.
+
+        Returns
+        -------
+        bool
+            ``True`` if the configuration file is valid, ``False`` otherwise.
+            If the validation fails, a warning is also written to the logger.
+        """
+
+        if isinstance(config, str):
+            try:  # Try to parse config as a file
+                with open(config, "r") as config_file:
+                    config_data = json.load(config_file)
+            except OSError:
+                self._app.logger.warning("Unable to parse %s", config)
+                return False
+        elif isinstance(config, dict):
+            config_data = config
+        else:
+            self._app.logger.warning("Incorrect data type.")
+            return False
+
+        if is_ironpython:
+            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
+        else:
+            try:
+                validate(instance=config_data, schema=self._schema)
+                return True
+            except exceptions.ValidationError as e:
+                self._app.logger.warning("Configuration is invalid.")
+                self._app.logger.warning("Validation error:" + e.message)
+                return False
+        return True
+
+    @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
+        """Import configuration settings from a JSON file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -1079,7 +1130,16 @@ class Configurations(object):
         #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
         #         if not self._update_face_coordinate_systems(name, props):
         #             self.results.import_face_coordinate_systems = False
-        self._app.modeler.set_working_coordinate_system("Global")
+
+        # Only set global CS in the appropriate context.
+        if self._app.design_type not in [
+            "HFSS 3D Layout Design",
+            "HFSS3DLayout",
+            "RMxprt",
+            "Twin Builder",
+            "Circuit Design",
+        ]:
+            self._app.modeler.set_working_coordinate_system("Global")
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -1394,9 +1454,9 @@ class Configurations(object):
             )
         dict_out = {}
         self._export_general(dict_out)
-        for key, value in vars(self.options).items():
+        for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
-                getattr(self, key)(dict_out)
+                getattr(self, key)(dict_out)  # Call private export method to update dict_out.
 
         # update the json if it exists already
 
@@ -1406,7 +1466,7 @@ class Configurations(object):
                     dict_in = json.load(json_file)
                 except Exception:
                     dict_in = {}
-            try:
+            try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
                         if k not in dict_out:
@@ -1415,8 +1475,8 @@ class Configurations(object):
                             for i, j in v.items():
                                 if i not in dict_out[k]:
                                     dict_out[k][i] = j
-            except KeyError:
-                pass
+            except KeyError as e:
+                self._app.logger.error(str(e))
         # write the updated json to file
         if _create_json_file(dict_out, config_file):
             self._app.logger.info("Json file {} created correctly.".format(config_file))
@@ -1425,7 +1485,7 @@ class Configurations(object):
         return False
 
 
-class ConfigurationsOptionsIcepak(ConfigurationsOptions):
+class ConfigurationOptionsIcepak(ConfigurationsOptions):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1466,14 +1526,35 @@ class ConfigurationsOptionsIcepak(ConfigurationsOptions):
         self._export_native_components = val
 
 
-class ConfigurationsIcepak(Configurations):
-    """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
+class ConfigurationOptions3DLayout(ConfigurationsOptions):
+    def __init__(self, app):
+        ConfigurationsOptions.__init__(self)
+        self._export_mesh_operations = False
+        self._export_coordinate_systems = False
+        self._export_boundaries = False
+        self._export_object_properties = False
+        self._import_mesh_operations = False
+        self._import_coordinate_systems = False
+        self._import_boundaries = False
+        self._import_object_properties = False
+
+
+class Configurations3DLayout(Configurations):
+    """Enables export and import configuration options to be applied to a
+    new or existing 3DLayout design.
     """
 
     def __init__(self, app):
         Configurations.__init__(self, app)
-        self.options = ConfigurationsOptionsIcepak(app)
+        self.options = ConfigurationOptions3DLayout(app)
+
+
+class ConfigurationsIcepak(Configurations):
+    """Enables export and import configuration options to be applied on a new or existing design."""
+
+    def __init__(self, app):
+        Configurations.__init__(self, app)
+        self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
     def _update_object_properties(self, name, val):

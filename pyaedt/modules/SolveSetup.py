@@ -8,7 +8,6 @@ It is based on templates to allow for easy creation and modification of setup pr
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
-import logging
 import os.path
 from random import randrange
 import re
@@ -21,6 +20,7 @@ from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -1618,6 +1618,7 @@ class Setup3DLayout(CommonSetup):
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
                 self.props = SetupProps(self, OrderedDict())
+                settings.logger.error("Unable to set props.")
 
     @property
     def is_solved(self):
@@ -1637,6 +1638,12 @@ class Setup3DLayout(CommonSetup):
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(
                 setup_name=combined_name,
+                expressions=expressions[0],
+            )
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwaveDCIR":
+            expressions = self.p_app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
+            sol = self._app.post.reports_by_category.standard(
+                setup_name=self.name,
                 expressions=expressions[0],
             )
         else:
@@ -2098,6 +2105,7 @@ class Setup3DLayout(CommonSetup):
             SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
         return True
 
+    @pyaedt_function_handler()
     def export_to_json(self, file_path, overwrite=False):
         """Export all setup properties into a json file.
 
@@ -2108,10 +2116,11 @@ class Setup3DLayout(CommonSetup):
         overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
-        if os.path.isdir(file_path):  # pragma no cover
+        if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                logging.error("File {} already exists. Configure file is not exported".format(file_path))
-        return self.props._export_properties_to_json(file_path)
+                settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
+                return False
+        return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
 
 class SetupHFSS(Setup, object):
