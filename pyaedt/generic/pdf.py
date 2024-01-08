@@ -130,7 +130,7 @@ class AnsysReport(FPDF):
                 new_y="NEXT",
                 align="L",
             )
-        
+
         # Logo
         self.set_y(15)
         line_x = self.x
