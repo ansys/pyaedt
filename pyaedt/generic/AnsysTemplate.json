@@ -4,7 +4,7 @@
     "bottom_margin":2.0,
     "left_margin":1.0,
     "right_margin":1.0,
-    "footer_font_size ": 7,
+    "footer_font_size": 7,
     "footer_text":"Copyright (c) 2023, ANSYS Inc. unauthorised use, distribution or duplication is prohibited",
     "header_font_size":7,
     "header_image_width":3.3,

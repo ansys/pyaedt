@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from dataclasses import field
 import json
 import os
 
@@ -7,79 +9,79 @@ from pyaedt import __version__
 from pyaedt.generic.constants import unit_converter
 
 
+@dataclass
 class ReportSpec:
-    document_prefix = "ANSS"
-    ansys_version = "2023R2"
-    revision = "Rev 1.0"
-    logo_name = os.path.join(os.path.dirname(__file__), "Ansys.png")
-    company_name = "Ansys Inc."
-    template_name = os.path.join(os.path.dirname(__file__), "AnsysTemplate.json")
-    design_name = "Design1"
-    project_name = "Project1"
-    pyaedt_version = __version__
+    """Data class containing all report template specifications."""
 
-
-class TemplateData:
-    """Class containing default template data."""
-
-    units = "cm"
-    top_margin = 3.0
-    bottom_margin = 2.0
-    left_margin = 1.0
-    right_margin = 1.0
-    footer_font_size = 7
-    footer_text = "Copyright (c) 2023, ANSYS Inc. unauthorised use, distribution or duplication is prohibited"
-    header_font_size = 7
-    header_image_width = 3.3
-    title_font_size = 14
-    subtitle_font_size = 12
-    text_font_size = 11
-    table_font_size = 9
-    caption_font_size = 9
-    cover_title_font_size = 28
-    cover_subtitle_font_size = 24
-    font = "helvetica"
-    chart_width = 16
-    font_color = [0, 0, 0]
-    font_chapter_color = [255, 0, 0]
-    font_subchapter_color = [0, 128, 0]
-    font_header_color = [0, 0, 255]
-    font_caption_color = [125, 0, 100]
+    document_prefix: str = "ANSS"
+    ansys_version: str = "2023R2"
+    revision: str = "Rev 1.0"
+    logo_name: str = os.path.join(os.path.dirname(__file__), "Ansys.png")
+    company_name: str = "Ansys Inc."
+    template_name: str = os.path.join(os.path.dirname(__file__), "AnsysTemplate.json")
+    design_name: str = "Design1"
+    project_name: str = "Project1"
+    pyaedt_version: str = __version__
+    units: str = "cm"
+    top_margin: float = 3.0
+    bottom_margin: float = 2.0
+    left_margin: float = 1.0
+    right_margin: float = 1.0
+    footer_font_size: int = 7
+    footer_text: str = "Copyright (c) 2023, ANSYS Inc. unauthorised use, distribution or duplication is prohibited"
+    header_font_size: int = 7
+    header_image_width: float = 3.3
+    title_font_size: int = 14
+    subtitle_font_size: int = 12
+    text_font_size: int = 11
+    table_font_size: int = 9
+    caption_font_size: int = 9
+    cover_title_font_size: int = 28
+    cover_subtitle_font_size: int = 24
+    font: str = "helvetica"
+    chart_width: float = 16.0
+    font_color: list = field(default_factory=lambda: [0, 0, 0])
+    font_chapter_color: list = field(default_factory=lambda: [0, 0, 0])
+    font_subchapter_color: list = field(default_factory=lambda: [0, 0, 0])
+    font_header_color: list = field(default_factory=lambda: [0, 0, 0])
+    font_caption_color: list = field(default_factory=lambda: [0, 0, 0])
 
 
 class AnsysReport(FPDF):
     def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()
+        self.read_template(tempplate_json_file)
         self.report_specs.ansys_version = version
         self.report_specs.design_name = design_name
         self.report_specs.project_name = project_name
-        if tempplate_json_file:
-            self.report_specs.template_name = tempplate_json_file
-        self._read_template()
         self._chapter_idx = 0
         self._sub_chapter_idx = 0
         self._figure_idx = 1
-        self.set_top_margin(unit_converter(self.template_data.top_margin, input_units=self.template_data.units))
-        self.set_right_margin(unit_converter(self.template_data.right_margin, input_units=self.template_data.units))
-        self.set_left_margin(unit_converter(self.template_data.left_margin, input_units=self.template_data.units))
+        self.set_top_margin(unit_converter(self.report_specs.top_margin, input_units=self.report_specs.units))
+        self.set_right_margin(unit_converter(self.report_specs.right_margin, input_units=self.report_specs.units))
+        self.set_left_margin(unit_converter(self.report_specs.left_margin, input_units=self.report_specs.units))
         self.set_auto_page_break(
-            True, margin=unit_converter(self.template_data.bottom_margin, input_units=self.template_data.units)
+            True, margin=unit_converter(self.report_specs.bottom_margin, input_units=self.report_specs.units)
         )
         self.alias_nb_pages()
 
-    def _read_template(self):
-        self.template_data = TemplateData()
-        tdata = {}
-        with open(self.report_specs.template_name, "r") as f:
-            tdata = json.load(f)
-        for k, v in tdata.items():
-            if k in self.template_data.__dict__:
-                self.template_data.__dict__[k] = v
+    def read_template(self, template_file):
+        """Reade pdf template
+
+        template_file : str
+            Path to the json template file.
+        """
+        if template_file:
+            self.report_specs.template_name = template_file
+        if os.path.exists(self.report_specs.template_name):
+            with open(self.report_specs.template_name, "r") as f:
+                tdata = json.load(f)
+            self.report_specs = ReportSpec(**tdata)
 
     def _add_cover_page(self):
         self.add_page()
-        self.set_font(self.template_data.font.lower(), "b", self.template_data.cover_subtitle_font_size)
+        self.set_font(self.report_specs.font.lower(), "b", self.report_specs.cover_subtitle_font_size)
         self.y += 40
         self.cell(
             0,
@@ -90,7 +92,7 @@ class AnsysReport(FPDF):
             align="L",
         )
         self.ln(10)
-        self.set_font(self.template_data.font.lower(), "B", self.template_data.cover_title_font_size)
+        self.set_font(self.report_specs.font.lower(), "B", self.report_specs.cover_title_font_size)
         self.cell(
             0,
             16,
@@ -114,10 +116,10 @@ class AnsysReport(FPDF):
         line_x = self.x
         line_y = self.y
         delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
-        self.set_text_color(*self.template_data.font_header_color)
+        self.set_text_color(*self.report_specs.font_header_color)
 
         def add_field(field_name, field_value):
-            self.set_font(self.template_data.font.lower(), size=self.template_data.header_font_size)
+            self.set_font(self.report_specs.font.lower(), size=self.report_specs.header_font_size)
             self.cell(
                 0,
                 3,
@@ -167,7 +169,7 @@ class AnsysReport(FPDF):
             self.report_specs.logo_name,
             self.x,
             self.y,
-            unit_converter(self.template_data.header_image_width, input_units=self.template_data.units),
+            unit_converter(self.report_specs.header_image_width, input_units=self.report_specs.units),
         )
         self.set_x(self.l_margin)
         self.set_y(self.t_margin)
@@ -179,9 +181,9 @@ class AnsysReport(FPDF):
         self.set_y(-15)
         # Arial italic 8
         self.set_font("helvetica", "I", 8)
-        self.set_text_color(*self.template_data.font_header_color)
+        self.set_text_color(*self.report_specs.font_header_color)
         # Page number
-        self.cell(0, 10, self.template_data.footer_text, 0, align="L")
+        self.cell(0, 10, self.report_specs.footer_text, 0, align="L")
         self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
 
     def create(self, add_cover_page=True, add_new_section_after=True):
@@ -293,9 +295,9 @@ class AnsysReport(FPDF):
         self._chapter_idx += 1
         self._sub_chapter_idx = 0
         txt = f"{self._chapter_idx} {chapter_name}"
-        self.set_font(self.template_data.font.lower(), "B", self.template_data.title_font_size)
+        self.set_font(self.report_specs.font.lower(), "B", self.report_specs.title_font_size)
         self.start_section(txt)
-        self.set_text_color(*self.template_data.font_chapter_color)
+        self.set_text_color(*self.report_specs.font_chapter_color)
         self.cell(
             0,
             12,
@@ -304,8 +306,8 @@ class AnsysReport(FPDF):
             new_y="NEXT",
             align="L",
         )
-        self.set_font(self.template_data.font.lower(), "I", self.template_data.text_font_size)
-        self.set_text_color(*self.template_data.font_color)
+        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
+        self.set_text_color(*self.report_specs.font_color)
         return True
 
     def add_sub_chapter(self, chapter_name):
@@ -318,9 +320,9 @@ class AnsysReport(FPDF):
         """
         self._sub_chapter_idx += 1
         txt = f"     {self._chapter_idx}.{self._sub_chapter_idx} {chapter_name}"
-        self.set_font(self.template_data.font.lower(), "I", self.template_data.subtitle_font_size)
+        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.subtitle_font_size)
         self.start_section(txt.strip(), level=1)
-        self.set_text_color(*self.template_data.font_subchapter_color)
+        self.set_text_color(*self.report_specs.font_subchapter_color)
         self.cell(
             0,
             10,
@@ -329,8 +331,8 @@ class AnsysReport(FPDF):
             new_y="NEXT",
             align="L",
         )
-        self.set_font(self.template_data.font.lower(), "I", self.template_data.text_font_size)
-        self.set_text_color(*self.template_data.font_color)
+        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
+        self.set_text_color(*self.report_specs.font_color)
 
         return True
 
@@ -373,8 +375,8 @@ class AnsysReport(FPDF):
             Caption name.
 
         """
-        self.set_font(self.template_data.font.lower(), "I", self.template_data.caption_font_size)
-        self.set_text_color(*self.template_data.font_caption_color)
+        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.caption_font_size)
+        self.set_text_color(*self.report_specs.font_caption_color)
         self.start_section(content, level=1)
         self.cell(
             0,
@@ -384,8 +386,8 @@ class AnsysReport(FPDF):
             new_y="NEXT",
             align="C",
         )
-        self.set_font(self.template_data.font.lower(), "I", self.template_data.text_font_size)
-        self.set_text_color(*self.template_data.font_color)
+        self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
+        self.set_text_color(*self.report_specs.font_color)
 
     def add_empty_line(self, num_lines=1):
         """Add a new empty line.
@@ -420,10 +422,10 @@ class AnsysReport(FPDF):
         content : list of list
             Table content.
         """
-        self.set_font(self.template_data.font.lower(), size=self.template_data.text_font_size)
+        self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.add_caption(f"Table {title}")
 
-        self.set_font(self.template_data.font.lower(), size=self.template_data.table_font_size)
+        self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
         with self.table(
             borders_layout="MINIMAL",
             cell_fill_color=200,  # grey
@@ -454,8 +456,8 @@ class AnsysReport(FPDF):
             font_type = "B"
         if italic:
             font_type += "I"
-        self.set_font(self.template_data.font.lower(), font_type.lower(), self.template_data.text_font_size)
-        self.set_text_color(*self.template_data.font_color)
+        self.set_font(self.report_specs.font.lower(), font_type.lower(), self.report_specs.text_font_size)
+        self.set_text_color(*self.report_specs.font_color)
 
         self.multi_cell(
             0,
@@ -472,14 +474,14 @@ class AnsysReport(FPDF):
             self.cell(w=self.epw, h=self.font_size, text=section, new_x="LMARGIN", new_y="NEXT", **kwargs)
 
         self.add_page()
-        self.set_font(self.template_data.font.lower(), size=self.template_data.title_font_size)
-        self.set_text_color(*self.template_data.font_color)
+        self.set_font(self.report_specs.font.lower(), size=self.report_specs.title_font_size)
+        self.set_text_color(*self.report_specs.font_color)
         self.underline = True
         self.x = self.l_margin
         p("Table of contents:")
         self.underline = False
         self.y += 10
-        self.set_font(self.template_data.font, size=12)
+        self.set_font(self.report_specs.font, size=12)
 
         for section in self._outline:
             link = self.add_link()
