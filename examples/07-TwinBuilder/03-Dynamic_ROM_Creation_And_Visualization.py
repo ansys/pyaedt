@@ -15,7 +15,6 @@ and run a Twin Builder time-domain simulation.
 # Perform required imports.
 
 import os
-import math
 import shutil
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
