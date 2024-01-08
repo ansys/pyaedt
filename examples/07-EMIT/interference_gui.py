@@ -518,7 +518,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText(
+                        "An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information."
+                    )
                     x = msg.exec()
                     return
 
@@ -578,7 +580,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText(
+                        "An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information."
+                    )
                     x = msg.exec()
                     return
 

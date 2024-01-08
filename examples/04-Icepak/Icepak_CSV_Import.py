@@ -150,7 +150,6 @@ def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
 # For example, rows[i][1] is the first item in the list that has the block name information.
 
 for i in range(len(rows)):
-
     origin = [float(rows[i][2]), float(rows[i][3]), float(rows[i][4])]  # block starting point
     dimensions = [float(rows[i][5]), float(rows[i][6]), float(rows[i][7])]  # block lengths in 3 dimensions
     block_name = rows[i][1]  # block name
