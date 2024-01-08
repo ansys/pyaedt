@@ -84,7 +84,7 @@ q2d_design_name = '2D_Extractor_Cable'
 sName = "MySetupAuto"
 swName = "sweep1"
 twinb_design_name = 'CableSystem'
-Q2D_DS = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktopVersion)
+q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktopVersion)
 
 ##########################################################
 # Define variables from dictionaries
@@ -92,18 +92,18 @@ Q2D_DS = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specif
 # Define design variables from the created dictionaries.
 
 for k, v in core_params.items():
-    Q2D_DS[k] = v
+    q2d[k] = v
 for k, v in outer_params.items():
-    Q2D_DS[k] = v
+    q2d[k] = v
 for k, v in arm_params.items():
-    Q2D_DS[k] = v
+    q2d[k] = v
 
 ##########################################################
 # Create object to access 2D modeler
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the object ``mod2D`` to access the 2D modeler easily.
 
-mod2D = Q2D_DS.modeler
+mod2D = q2d.modeler
 mod2D.delete()
 mod2D.model_units = "mm"
 
@@ -113,13 +113,13 @@ mod2D.model_units = "mm"
 # Cable insulators require specific materials not included in the Sys Library
 # Plastic, PE (cross-linked, wire, and cable grade)
 
-mat_pe_cable_grade = Q2D_DS.materials.add_material("plastic_pe_cable_grade")
+mat_pe_cable_grade = q2d.materials.add_material("plastic_pe_cable_grade")
 mat_pe_cable_grade.update()
 mat_pe_cable_grade.conductivity = "1.40573e-16"
 mat_pe_cable_grade.permittivity = "2.09762"
 mat_pe_cable_grade.dielectric_loss_tangent = "0.000264575"
 # Plastic, PP (10% carbon fiber)
-mat_pp = Q2D_DS.materials.add_material("plastic_pp_carbon_fiber")
+mat_pp = q2d.materials.add_material("plastic_pp_carbon_fiber")
 mat_pp.update()
 mat_pp.conductivity = "0.0003161"
 
@@ -132,7 +132,7 @@ mod2D.set_working_coordinate_system('CS_c_strand_1')
 c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', matname='copper')
 c2_id = c1_id.duplicate_along_line(vector=['0mm', '2.0*c_strand_radius', '0mm'], nclones=2)
 mod2D.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
-c_unite_name = mod2D.unite(Q2D_DS.get_all_conductors_names())
+c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
 
 fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius', name='c_strand_fill',
                               matname='plastic_pp_carbon_fiber')
@@ -143,9 +143,9 @@ xlpe_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius+' + str(
 xlpe_id.color = (0, 128, 128)
 
 mod2D.set_working_coordinate_system('Global')
-all_obj_names = Q2D_DS.get_all_conductors_names() + Q2D_DS.get_all_dielectrics_names()
+all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
 mod2D.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
-cond_names = Q2D_DS.get_all_conductors_names()
+cond_names = q2d.get_all_conductors_names()
 
 #####################################################################################
 # Create geometry for filling object
@@ -193,66 +193,18 @@ arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 # Create region
 # ~~~~~~~~~~~~~
 
-oeditor = Q2D_DS.odesign.SetActiveEditor("3D Modeler")
-oeditor.CreateRegion(
-    [
-        "NAME:RegionParameters",
-        "+XPaddingType:=", "Percentage Offset",
-        "+XPadding:=", "500",
-        "-XPaddingType:=", "Percentage Offset",
-        "-XPadding:=", "500",
-        "+YPaddingType:=", "Percentage Offset",
-        "+YPadding:=", "500",
-        "-YPaddingType:=", "Percentage Offset",
-        "-YPadding:=", "500",
-        "+ZPaddingType:=", "Percentage Offset",
-        "+ZPadding:=", "0",
-        "-ZPaddingType:=", "Percentage Offset",
-        "-ZPadding:="	, "0",
-		[
-			"NAME:BoxForVirtualObjects",
-			[
-				"NAME:LowPoint",
-				1,
-				1,
-				1
-			],
-			[
-				"NAME:HighPoint",
-				-1,
-				-1,
-				-1
-			]
-		]
-	],
-	[
-		"NAME:Attributes",
-		"Name:="		, "Region",
-		"Flags:="		, "Wireframe#",
-		"Color:="		, "(143 175 143)",
-		"Transparency:="	, 0,
-		"PartCoordinateSystem:=", "Global",
-		"UDMId:="		, "",
-		"MaterialValue:="	, "\"vacuum\"",
-		"SurfaceMaterialValue:=", "\"\"",
-		"SolveInside:="		, False,
-		"ShellElement:="	, False,
-		"ShellElementThickness:=", "nan ",
-		"ReferenceTemperature:=", "nan ",
-		"IsMaterialEditable:="	, True,
-		"UseMaterialAppearance:=", False,
-		"IsLightweight:="	, False
-	])
+region = q2d.modeler.create_region([500, 500, 500, 500, 0, 0])
+region.material_name = "vacuum"
 
 ##########################################################
 # Assign conductors and reference ground
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-obj = [Q2D_DS.modeler.get_object_from_name(i) for i in cond_names]
-[Q2D_DS.assign_single_conductor(name ='C1 ' +str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
+obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
+[q2d.assign_single_conductor(name ='C1 ' +str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
  in obj]
-obj = [Q2D_DS.modeler.get_object_from_name(i) for i in arm_strand_names]
-Q2D_DS.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
+obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
+q2d.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
 mod2D.fit_all()
 
 ##########################################################
@@ -260,15 +212,15 @@ mod2D.fit_all()
 # ~~~~~~~~~~~~~~~~~~~~~~
 
 lumped_length = "100m"
-q2d_des_settings = Q2D_DS.design_settings()
+q2d_des_settings = q2d.design_settings()
 q2d_des_settings['LumpedLength'] = lumped_length
-Q2D_DS.change_design_settings(q2d_des_settings)
+q2d.change_design_settings(q2d_des_settings)
 
 ##########################################################
 # Insert setup and frequency sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-q2d_setup = Q2D_DS.create_setup(setupname=sName)
+q2d_setup = q2d.create_setup(setupname=sName)
 q2d_sweep = q2d_setup.add_sweep(sweepname=swName)
 q2d_sweep.props["RangeType"] = "LogScale"
 q2d_sweep.props["RangeStart"] = "0Hz"
@@ -281,19 +233,19 @@ q2d_sweep.update()
 # Analyze setup
 # ~~~~~~~~~~~~~
 
-Q2D_DS.analyze(setup_name=sName, num_cores=4, num_tasks=2)
+q2d.analyze(setup_name=sName, num_cores=4, num_tasks=2)
 
 ###################################################################
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TB_DS = pyaedt.TwinBuilder(designname=twinb_design_name)
+tb = pyaedt.TwinBuilder(designname=twinb_design_name)
 
 ###################################################################
 # Prepare the lists to call the dynamic component import function
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-exc_list = Q2D_DS.design_excitations
+exc_list = q2d.design_excitations
 signal_line_list = [item.name for item in exc_list if item.type == 'SignalLine']
 num_ports = 2 * signal_line_list.__len__()
 port_info_listA = []
@@ -311,7 +263,7 @@ port_info_list = ["NAME:PortInfo"]
 port_info_list.extend(port_info_listA)
 port_info_list.extend(port_info_listB)
 
-des_var_list = Q2D_DS.variable_manager.design_variables
+des_var_list = q2d.variable_manager.design_variables
 # sort dictionary in alphabetical order
 des_var_list_sorted = sorted(des_var_list.keys(), key=lambda x: x.lower())
 des_prop_list = ["NAME:Properties"]
@@ -329,7 +281,7 @@ des_prop_list.append(my_last_list)
 # Add a Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-o_def_manager = TB_DS.oproject.GetDefinitionManager()
+o_def_manager = tb.oproject.GetDefinitionManager()
 dyn_component = o_def_manager.GetManager("Component")
 name_comp = "SimpQ3DData1"
 dyn_component.AddDynamicNPortData(
@@ -369,7 +321,7 @@ dyn_component.AddDynamicNPortData(
 		port_info_list,
 	])
 
-TB_DS.oeditor.CreateComponent(
+tb.oeditor.CreateComponent(
 	[
 		"NAME:ComponentProps",
 		"Name:="		, name_comp,
@@ -388,5 +340,5 @@ TB_DS.oeditor.CreateComponent(
 # Save project and release desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TB_DS.save_project()
-TB_DS.release_desktop(False, False)
+tb.save_project()
+tb.release_desktop(False, False)
