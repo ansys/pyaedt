@@ -1339,7 +1339,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
     - `"real"`: Computes the real part of the data.
     - `"imag"`: Computes the imaginary part of the data.
     - `"norm"`: Normalizes the data to have values between 0 and 1.
-    - `"ang"`: Computes the phase angle of the data.
+    - `"ang"`: Computes the phase angle of the data in radians.
     - `"ang_deg"`: Computes the phase angle of the data in degrees.
 
     If an invalid function string is specified, the method returns ``False``.
