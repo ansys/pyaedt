@@ -48,7 +48,7 @@ class ReportSpec:
 
 
 class AnsysReport(FPDF):
-    def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
+    def __init__(self, version="2023R2", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()
         self.read_template(tempplate_json_file)
@@ -79,7 +79,7 @@ class AnsysReport(FPDF):
                 tdata = json.load(f)
             self.report_specs = ReportSpec(**tdata)
 
-    def _add_cover_page(self):
+    def __add_cover_page(self):
         self.add_page()
         self.set_font(self.report_specs.font.lower(), "b", self.report_specs.cover_subtitle_font_size)
         self.y += 40
@@ -111,12 +111,7 @@ class AnsysReport(FPDF):
         )
 
     def header(self):
-        # Logo
-        self.set_y(15)
-        line_x = self.x
-        line_y = self.y
-        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
-        self.set_text_color(*self.report_specs.font_header_color)
+        from datetime import date
 
         def add_field(field_name, field_value):
             self.set_font(self.report_specs.font.lower(), size=self.report_specs.header_font_size)
@@ -138,6 +133,13 @@ class AnsysReport(FPDF):
                 align="L",
             )
 
+        # Logo
+        self.set_y(15)
+        line_x = self.x
+        line_y = self.y
+        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
+        self.set_text_color(*self.report_specs.font_header_color)
+
         add_field("Project Name", self.report_specs.project_name)
         self.set_y(line_y)
         line_x += delta
@@ -155,7 +157,6 @@ class AnsysReport(FPDF):
         self.set_y(line_y)
         line_x += delta
         self.set_x(line_x)
-        from datetime import date
 
         add_field("Date", str(date.today()))
         self.set_y(line_y)
@@ -201,7 +202,7 @@ class AnsysReport(FPDF):
         :class:`AnsysReport`
         """
         if add_cover_page:
-            self._add_cover_page()
+            self.__add_cover_page()
         if add_new_section_after:
             self.add_page()
         return True
@@ -292,9 +293,9 @@ class AnsysReport(FPDF):
         chapter_name : str
             Chapter name.
         """
-        self._chapter_idx += 1
-        self._sub_chapter_idx = 0
-        txt = f"{self._chapter_idx} {chapter_name}"
+        self.__chapter_idx += 1
+        self.__sub_chapter_idx = 0
+        txt = f"{self.__chapter_idx} {chapter_name}"
         self.set_font(self.report_specs.font.lower(), "B", self.report_specs.title_font_size)
         self.start_section(txt)
         self.set_text_color(*self.report_specs.font_chapter_color)
@@ -318,8 +319,8 @@ class AnsysReport(FPDF):
         chapter_name : str
             Chapter name.
         """
-        self._sub_chapter_idx += 1
-        txt = f"     {self._chapter_idx}.{self._sub_chapter_idx} {chapter_name}"
+        self.__sub_chapter_idx += 1
+        txt = f"     {self.__chapter_idx}.{self.__sub_chapter_idx} {chapter_name}"
         self.set_font(self.report_specs.font.lower(), "I", self.report_specs.subtitle_font_size)
         self.start_section(txt.strip(), level=1)
         self.set_text_color(*self.report_specs.font_subchapter_color)
@@ -361,9 +362,9 @@ class AnsysReport(FPDF):
 
         self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self.l_margin)
         if caption:
-            caption = f"Figure {self._figure_idx}. {caption}"
+            caption = f"Figure {self.__figure_idx}. {caption}"
             self.add_caption(caption)
-            self._figure_idx += 1
+            self.__figure_idx += 1
         return True
 
     def add_caption(self, content):
