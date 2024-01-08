@@ -1,5 +1,5 @@
 """
-EDB: paramterized design
+EDB: parameterized design
 ------------------------
 This example shows how to
 1, Create an HFSS simulation project using SimulationConfiguration class.

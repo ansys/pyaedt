@@ -72,7 +72,7 @@ hfss.assign_perfecte_to_sheets(patch)
 # Advanced Modeler functions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Thanks to Python capabilities a lot of additional functionalities have been added to the Modeler of PyAEDT.
-# in this example there is a property to retrive automatically top and bottom faces of an objects.
+# in this example there is a property to retrieve automatically top and bottom faces of an objects.
 
 
 side_face = [i for i in via_outer.faces if i.id not in [via_outer.top_face_z.id, via_outer.bottom_face_z.id]]

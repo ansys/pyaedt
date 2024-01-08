@@ -29,7 +29,7 @@ access the ``variable_manager`` object for a more comprehensive set of functions
         >>> hfss["$PrjVar3"] = "34 * $PrjVar1/$PrjVar2"
         >>> hfss["$PrjVar3"]
         2.13628300444106
-        >>> hfss["$PrjVar3"].value
+        >>> hfss.evaluate_expression(hfss["$PrjVar3"])
         2.13628300444106
         hfss.variable_manager["$PrjVar3"].expression
         '34 * $PrjVar1/$PrjVar2'

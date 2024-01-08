@@ -7,7 +7,7 @@ The *.emn/*.emp combination can also be used in a similar way.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports including the opertaing system, Ansys PyAEDT packages.
+# Perform required imports including the operating system, Ansys PyAEDT packages.
 
 
 # Generic Python packages

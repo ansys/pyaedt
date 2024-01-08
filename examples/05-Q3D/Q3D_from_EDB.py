@@ -103,7 +103,7 @@ q3d.plot(
 )
 
 ###############################################################################
-# Assing Source and Sink
+# Assign Source and Sink
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.
