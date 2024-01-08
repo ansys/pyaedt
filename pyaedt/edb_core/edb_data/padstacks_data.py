@@ -735,13 +735,13 @@ class EDBPadstack(object):
         convert_only_signal_vias : bool, optional
             Either to convert only vias belonging to signal nets or all vias. Defaults is ``True``.
         hole_wall_angle : float, optional
-            Angle of laser penetration in deg. It will define the bottom hole diameter with the following formula:
+            Angle of laser penetration in degrees. The angle defines the bottom hole diameter with this formula:
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
             The default is ``15``.
             The bottom hole is ``0.75*HoleDepth/HoleDiam``.
         delete_padstack_def: bool, optional
             Whether to delete the padstack definition. The default is ``True``.
-            If ``False`` the padstack definition is not deleted and the hole size is set to zero.
+            If ``False``, the padstack definition is not deleted and the hole size is set to zero.
 
         Returns
         -------
@@ -750,7 +750,7 @@ class EDBPadstack(object):
 
         if len(self.hole_properties) == 0:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied on vias using hole shape polygon")
-            return
+            return True
 
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
