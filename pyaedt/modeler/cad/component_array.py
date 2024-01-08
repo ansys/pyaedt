@@ -614,9 +614,9 @@ class ComponentArray(object):
                     scaled_center = [
                         float(cen) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for cen in center
                     ]
-                    component_info[component] = [scaled_center, str(part_name)]
+                    component_info[component] = (scaled_center, str(part_name))
                 else:
-                    component_info[component].append(str(part_name))
+                    component_info[component] = component_info[component] + (str(part_name),)
 
         return component_info
 
@@ -626,8 +626,8 @@ class ComponentArray(object):
 
         Returns
         -------
-        dict
-            Dictionary of the center position and part name for all 3D components.
+        list
+            List of the center position and part name for all cells.
 
         """
         cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
@@ -656,12 +656,12 @@ class ComponentArray(object):
                     y_position = row_cell * y_spacing
                     x_position = col_cell * x_spacing
 
-                cell_info[row_cell][col_cell] = [
+                cell_info[row_cell][col_cell] = (
                     cells[row_cell][col_cell].component,
                     [x_position, y_position, 0.0],
                     cells[row_cell][col_cell].rotation,
                     [row_cell + 1, col_cell + 1],
-                ]
+                )
         return cell_info
 
     @pyaedt_function_handler()
