@@ -55,9 +55,9 @@ class AnsysReport(FPDF):
         self.report_specs.ansys_version = version
         self.report_specs.design_name = design_name
         self.report_specs.project_name = project_name
-        self._chapter_idx = 0
-        self._sub_chapter_idx = 0
-        self._figure_idx = 1
+        self.__chapter_idx = 0
+        self.__sub_chapter_idx = 0
+        self.__figure_idx = 1
         self.set_top_margin(unit_converter(self.report_specs.top_margin, input_units=self.report_specs.units))
         self.set_right_margin(unit_converter(self.report_specs.right_margin, input_units=self.report_specs.units))
         self.set_left_margin(unit_converter(self.report_specs.left_margin, input_units=self.report_specs.units))
