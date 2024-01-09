@@ -1605,7 +1605,6 @@ class Edb(Database):
         preserve_components_with_model=False,
         simple_pad_check=True,
         keep_lines_as_path=False,
-        return_extent=False,
     ):
         """Create a cutout using an approach entirely based on PyAEDT.
         This method replaces all legacy cutout methods in PyAEDT.
@@ -1682,10 +1681,6 @@ class Edb(Database):
             This feature works only in Electronics Desktop (3D Layout).
             If the flag is set to ``True`` it can cause issues in SiWave once the Edb is imported.
             Default is ``False`` to generate PolygonData of cut lines.
-        return_extent : bool, optional
-            When ``True`` extent used for clipping is returned, if ``False`` only the boolean indicating whether
-            clipping succeed or not is returned. Not applicable with custom extent usage.
-            Default is ``False``.
 
         Returns
         -------
@@ -1776,7 +1771,6 @@ class Edb(Database):
                         include_partial=include_partial_instances,
                         simple_pad_check=simple_pad_check,
                         keep_lines_as_path=keep_lines_as_path,
-                        return_extent=return_extent,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1817,7 +1811,6 @@ class Edb(Database):
                     include_partial=include_partial_instances,
                     simple_pad_check=simple_pad_check,
                     keep_lines_as_path=keep_lines_as_path,
-                    return_extent=return_extent,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -1939,7 +1932,7 @@ class Edb(Database):
                 self.components.delete_single_pin_rlc()
                 self.logger.info_timer("Single Pins components deleted")
                 self.components.refresh_components()
-        return True
+        return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(_poly.GetPolygonWithoutArcs().Points)]
 
     @pyaedt_function_handler()
     def create_cutout(
@@ -2024,7 +2017,6 @@ class Edb(Database):
         include_partial=False,
         simple_pad_check=True,
         keep_lines_as_path=False,
-        return_extent=False,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -2123,7 +2115,7 @@ class Edb(Database):
 
         if not _poly or _poly.IsNull():
             self._logger.error("Failed to create Extent.")
-            return False
+            return []
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
         _poly_list = convert_py_list_to_net_list([_poly])
@@ -2228,10 +2220,7 @@ class Edb(Database):
             self.save_edb()
         self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
-        if return_extent:
-            if _poly:
-                return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(_poly.GetPolygonWithoutArcs().Points)]
-        return True
+        return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(_poly.GetPolygonWithoutArcs().Points)]
 
     @pyaedt_function_handler()
     def create_cutout_multithread(
@@ -2578,7 +2567,7 @@ class Edb(Database):
             db2 = self.create(output_aedb_path)
             if not db2.Save():
                 self.logger.error("Failed to create new Edb. Check if the path already exists and remove it.")
-                return False
+                return []
             _dbCells = convert_py_list_to_net_list(_dbCells)
             cell_copied = db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(cell_copied)[0]
@@ -2605,7 +2594,7 @@ class Edb(Database):
                         self.logger.warning("aedb def file manually created.")
                     except:
                         pass
-        return True
+        return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(polygonData.GetPolygonWithoutArcs().Points)]
 
     @pyaedt_function_handler()
     def create_cutout_on_point_list(

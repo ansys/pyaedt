@@ -3134,14 +3134,6 @@ class TestClass:
         extent = edbapp.cutout(
             signal_list=["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"],
             reference_list=["GND"],
-            return_extent=False,
-        )
-        assert isinstance(extent, bool)
-        assert extent
-        extent = edbapp.cutout(
-            signal_list=["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"],
-            reference_list=["GND"],
-            return_extent=True,
         )
         assert extent
         assert len(extent) == 55
