@@ -1575,6 +1575,12 @@ class TestClass:
 
         assert array.b_size == 8
 
+        assert array.a_length == 0.64
+
+        assert array.b_length == 0.64
+
+        assert len(array.lattice_vector()) == 6
+
         assert array.padding_cells == 0
         array.padding_cells = 2
         assert oarray.GetPropValue("Padding") == "2"
@@ -1588,6 +1594,10 @@ class TestClass:
         array_info = array.parse_array_info_from_csv(array_csv)
         assert len(array_info) == 4
         assert array_info["component"][1] == "02_Patch1"
+
+        assert len(array.get_component_objects()) == 4
+
+        assert len(array.get_cell_position()) == array.a_size
 
         # Delete 3D Component
         hfss_array.modeler.user_defined_components["03_Radome_Side1"].delete()

@@ -174,23 +174,6 @@ new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_a
 new_report.primary_sweep = "Theta"
 new_report.far_field_sphere = "3D"
 solutions = new_report.get_solution_data()
-# solutions = hfss.post.get_solution_data(
-#     "GainTotal",
-#     hfss.nominal_adaptive,
-#     variations,
-#     primary_sweep_variable="Theta",
-#     context="3D",
-#     report_category="Far Fields",
-# )
-#
-# solutions_custom = hfss.post.get_solution_data(
-#     "GainTotal",
-#     hfss.nominal_adaptive,
-#     variations,
-#     primary_sweep_variable="Theta",
-#     context="Sphere_Custom",
-#     report_category="Far Fields",
-# )
 
 ###############################################################################
 # Generate 3D plot using Matplotlib
@@ -215,6 +198,28 @@ solutions_custom.plot_3d()
 # plot or a rectangular plot.
 
 solutions.plot(math_formula="db20", is_polar=True)
+
+##########################################################
+# Get far field data
+# ~~~~~~~~~~~~~~~~~~
+# Get far field data. After the simulation completes, the far
+# field data is generated port by port and stored in a data class, , user can use this data
+# once AEDT is released.
+
+ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Sphere_Custom", setup_name=hfss.nominal_adaptive,
+                                            frequencies=["1000MHz"])
+
+##########################################################
+# Generate 2D cutout plot
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Generate 2D cutout plot. You can define the Theta scan
+# and Phi scan.
+
+ffdata.plot_2d_cut(primary_sweep="theta", secondary_sweep_value=0,
+                   farfield_quantity='RealizedGain',
+                   title='FarField',
+                   quantity_format="dB20",
+                   is_polar=True)
 
 ###############################################################################
 # Close AEDT
