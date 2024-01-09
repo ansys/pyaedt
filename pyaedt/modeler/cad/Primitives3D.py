@@ -3375,7 +3375,7 @@ class Primitives3D(GeometryModeler):
         if geo_type == "cylinder":
             return self._create_cylinder(df, unit=unit)
         else:
-            raise ValueError("Geometry type not supported yet.")
+            raise ValueError("Geometry type is not supported.")
 
     @pyaedt_function_handler()
     def _remove_special_characters(self, text):
@@ -3407,7 +3407,7 @@ class Primitives3D(GeometryModeler):
                 zc = self._length_unit_conversion(df["zc"][i], input_units=unit)
                 position = (xc, yc, zc)
             except KeyError:
-                self.logger.info("The column names in the file do not match the expected names")
+                self.logger.info("The column names in the file do not match the expected names.")
                 return False
 
             if inner_radius == 0:
@@ -3425,8 +3425,8 @@ class Primitives3D(GeometryModeler):
                     self.logger.info("Unable to create cylinder " + name)
                     return False
             else:
-                self.logger.info("Inner radius is greater than outer radius")
-                raise ValueError("Inner radius is greater than outer radius")
+                self.logger.info("Inner radius is greater than outer radius.")
+                raise ValueError("Inner radius is greater than outer radius.")
             self.logger.info("Created cylinder: " + name)
             cylinders.append(outer_cylinder)
 
