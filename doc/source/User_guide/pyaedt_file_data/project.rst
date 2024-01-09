@@ -16,6 +16,7 @@ This file can be created using the following command:
                         object_list=[],
                         removed_objects=[])
     conf_file = ipk.configurations.export_config()
+    ipk.release_desktop()
 
 
 The command is often combined with the ``export_3d_model`` method which allows to export the geometry

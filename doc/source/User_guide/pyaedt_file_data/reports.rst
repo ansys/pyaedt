@@ -16,7 +16,6 @@ This file can be created using the following command:
     hfss.post.create_report_from_configuration(input_file=filename)
     hfss.release_desktop()
 
-The main file skeleton is shown below.
-Few example files can be found at:
+The main file skeleton is shown below:
 
 :download:`HFSS report example <../../Resources/hfss_report_example.json>`
