@@ -18,4 +18,4 @@ This file can be created using the following command:
 
 The main file skeleton is shown below.
 
-:download:`Material example <../../Resources/array_example.json>`
+:download:`Array example <../../Resources/array_example.json>`
