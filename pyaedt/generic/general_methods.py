@@ -1347,7 +1347,7 @@ def conversion_function(data, function_str=None):  # pragma: no cover
     Parameters
     ----------
     data : list, numpy.array
-        Numerical values that are to be converted. Format can be `list` or `numpy.array`.
+        Numerical values to convert. The format can be ``list`` or ``numpy.array``.
     function_str : str, optional
         Conversion function. The default is `"dB10"`.
 
