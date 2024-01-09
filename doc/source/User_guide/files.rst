@@ -39,21 +39,21 @@ The most used are described in this chapter.
             :link-type: doc
             :margin: 2 2 0 0
 
-            Discover how to generate parametric models and run optimizations.
+            File to control 3D Component array geometry.
 
    .. grid-item-card:: Cables
             :link: pyaedt_file_data/cable
             :link-type: doc
             :margin: 2 2 0 0
 
-            Usage of PyAEDT with input and output files.
+            File to control cable design.
 
    .. grid-item-card:: Choke
             :link: pyaedt_file_data/choke
             :link-type: doc
             :margin: 2 2 0 0
 
-            Usage of PyAEDT with input and output files.
+            File to control choke synthesis.
 
 
 

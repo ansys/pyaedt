@@ -1,7 +1,7 @@
 Reports file
 ============
 
-The report configuration file allows to create a new report based on json file or dictionary of properties.
+The report configuration file allows to create a new report based on JSON file or dictionary of properties.
 This file can be created using the following command:
 
 .. code:: python

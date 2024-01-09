@@ -1,7 +1,7 @@
 Materials File
 ==============
 
-The material configuration file allows to import and create materials from a JSON file.
+The material configuration file allows to create materials from a JSON file.
 
 This file can be created using the following command:
 
