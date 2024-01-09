@@ -1,13 +1,13 @@
 .. _ref_user_guide:
 
-========
-Tutorial
-========
+=========
+Tutorials
+=========
 
 This page contains a selection of tutorials to assist users in understanding and effectively utilizing PyAEDT.
 
-For additional examples and practical demonstrations, you can visit the PyAEDT examples page
-`PyAEDT examples <https://aedt.docs.pyansys.com/version/stable/examples>`_..
+For additional examples and practical demonstrations, you can visit the
+`PyAEDT examples <https://aedt.docs.pyansys.com/version/stable/examples>`_ page.
 
 
 .. grid:: 2
@@ -69,5 +69,5 @@ For additional examples and practical demonstrations, you can visit the PyAEDT e
    mesh
    setup
    variables
-   optimetrics
    files
+   postprocessing

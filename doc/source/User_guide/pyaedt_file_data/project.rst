@@ -31,9 +31,9 @@ In the same way the file can be imported using the following command:
 The main file skeleton is shown below.
 Few example files can be found at:
 
- -  :download:`Icepak Example <../Resources/icepak_project_example.json>`
- -  :download:`HFSS 3D Layout Example <../Resources/hfss3dlayout_project_example.json>`
+:download:`Icepak Example <../../Resources/icepak_project_example.json>`
 
+:download:`HFSS 3D Layout Example <../../Resources/hfss3dlayout_project_example.json>`
 
 .. code-block:: json
 
