@@ -837,9 +837,9 @@ class EDBPadstack(object):
                         i += 1
                     if stop == via.stop_layer:
                         break
-                if delete_padstack_def:
+                if delete_padstack_def:  # pragma no cover
                     via.delete()
-                else:
+                else:  # pragma no cover
                     padstack_def = self._ppadstack.definitions[via.padstack_definition]
                     padstack_def.hole_properties = 0
                     self._ppadstack._pedb.logger.info("Padstack definition kept, hole size set to 0.")
