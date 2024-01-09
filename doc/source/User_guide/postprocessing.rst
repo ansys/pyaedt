@@ -146,3 +146,8 @@ Here you can find an example of a pdf report.
 
     report.add_toc()
     report.save_pdf(r'c:\temp', "postprocessing.pdf")
+
+
+.. image:: ../Resources/pdf_report.jpg
+  :width: 800
+  :alt: Pdf report output example
