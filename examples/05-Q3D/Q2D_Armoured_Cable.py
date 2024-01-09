@@ -110,7 +110,7 @@ mod2D.model_units = "mm"
 #################################################################################
 # Initialize required material properties
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Cable insulators require specific materials not included in the Sys Library
+# Cable insulators require the definition of specific materials since they are not included in the Sys Library.
 # Plastic, PE (cross-linked, wire, and cable grade)
 
 mat_pe_cable_grade = q2d.materials.add_material("plastic_pe_cable_grade")
