@@ -746,11 +746,12 @@ class EDBPadstack(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
 
         if len(self.hole_properties) == 0:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied on vias using hole shape polygon")
-            return True
+            return False
 
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
