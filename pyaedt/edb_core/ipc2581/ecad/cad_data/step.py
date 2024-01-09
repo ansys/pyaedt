@@ -234,16 +234,16 @@ class Step(object):
                 pdef_name = (
                     padstack_instance._pdef if padstack_instance._pdef else padstack_instance.padstack_definition
                 )
-                padstack_def = padstack_defs[pdef_name]
-
-                comp_name = padstack_instance.GetComponent().GetName()
-                if padstack_instance.is_pin and comp_name:
-                    component_inst = self._pedb.components.components[comp_name]
-                    layers[layer_name].add_component_padstack_instance_feature(
-                        component_inst, padstack_instance, top_bottom_layers, padstack_def
-                    )
-                else:
-                    layers[layer_name].add_via_instance_feature(padstack_instance, padstack_def, layer_name)
+                if pdef_name in padstack_defs:  # pragma no cover
+                    padstack_def = padstack_defs[pdef_name]
+                    comp_name = padstack_instance.GetComponent().GetName()
+                    if padstack_instance.is_pin and comp_name:
+                        component_inst = self._pedb.components.components[comp_name]
+                        layers[layer_name].add_component_padstack_instance_feature(
+                            component_inst, padstack_instance, top_bottom_layers, padstack_def
+                        )
+                    else:
+                        layers[layer_name].add_via_instance_feature(padstack_instance, padstack_def, layer_name)
 
     @pyaedt_function_handler()
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):  # pragma no cover
