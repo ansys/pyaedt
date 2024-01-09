@@ -263,6 +263,7 @@ class TestClass:
         self.edbapp.padstacks.definitions["myVia"].hole_range = "through"
         assert self.edbapp.padstacks.definitions["myVia"].hole_range == "through"
         self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        assert isinstance(self.edbapp.padstacks.definitions["myVia"].instances, list)
         assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"

@@ -399,6 +399,12 @@ class EDBPadstack(object):
         pass
 
     @property
+    def instances(self):
+        """Definitions Instances."""
+        name = self.name
+        return [i for i in self._ppadstack.instances.values() if i.padstack_definition == name]
+
+    @property
     def name(self):
         """Padstack Definition Name."""
         return self.edb_padstack.GetName()
@@ -761,8 +767,16 @@ class EDBPadstack(object):
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
-        start_elevation = layers[self.via_start_layer].lower_elevation
-        diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
+        try:
+            start_elevation = layers[self.via_start_layer].lower_elevation
+        except KeyError:  # pragma: no cover
+            start_elevation = layers[self.instances[0].start_layer].lower_elevation
+        try:
+            stop_elevation = layers[self.via_start_layer].upper_elevation
+        except KeyError:  # pragma: no cover
+            stop_elevation = layers[self.instances[0].stop_layer].upper_elevation
+
+        diel_thick = abs(start_elevation - stop_elevation)
         rad1 = self.hole_properties[0] / 2
         rad2 = self.hole_properties[0] / 2 - math.tan(hole_wall_angle * diel_thick * math.pi / 180)
 
