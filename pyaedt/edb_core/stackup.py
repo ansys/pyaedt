@@ -1642,71 +1642,75 @@ class Stackup(object):
     @pyaedt_function_handler
     def _import_dict(self, json_dict):
         """Import stackup from a dictionary."""
-        for k, v in json_dict.items():
-            if k == "materials":
-                for material in v.values():
-                    self._pedb.materials._load_materials(material)
-            if k == "layers":
-                if len(list(v.values())) == len(list(self.stackup_layers.values())):
-                    imported_layers_list = [l_dict["name"] for l_dict in list(v.values())]
-                    layout_layer_list = list(self.stackup_layers.keys())
-                    for layer_name in imported_layers_list:
-                        layer_index = imported_layers_list.index(layer_name)
-                        if layout_layer_list[layer_index] != layer_name:
-                            self.stackup_layers[layout_layer_list[layer_index]].name = layer_name
-                prev_layer = None
-                for layer_name, layer in v.items():
-                    if layer["name"] not in self.stackup_layers:
-                        default_layer = {
-                            "name": "default",
-                            "type": "signal",
-                            "material": "copper",
-                            "dielectric_fill": "fr4_epoxy",
-                            "thickness": 3.5000000000000004e-05,
-                            "etch_factor": 0.0,
-                            "roughness_enabled": False,
-                            "top_hallhuray_nodule_radius": 0.0,
-                            "top_hallhuray_surface_ratio": 0.0,
-                            "bottom_hallhuray_nodule_radius": 0.0,
-                            "bottom_hallhuray_surface_ratio": 0.0,
-                            "side_hallhuray_nodule_radius": 0.0,
-                            "side_hallhuray_surface_ratio": 0.0,
-                            "upper_elevation": 0.0,
-                            "lower_elevation": 0.0,
-                            "color": [242, 140, 102],
-                        }
+        for name in list(self.layers.keys()):
+            self.remove_layer(name)
 
-                        if not layer["type"] == "signal":
-                            default_layer["color"] = [27, 110, 76]
+        mats = json_dict["materials"]
+        for material in mats.values():
+            self._pedb.materials._load_materials(material)
 
-                        for k, v in layer.items():
-                            default_layer[k] = v
+        prev_layer = None
+        for layer_name, layer in json_dict["layers"].items():
+            default_layer = {
+                "name": "default",
+                "type": "signal",
+                "material": "copper",
+                "dielectric_fill": "fr4_epoxy",
+                "thickness": 3.5000000000000004e-05,
+                "etch_factor": 0.0,
+                "roughness_enabled": False,
+                "top_hallhuray_nodule_radius": 0.0,
+                "top_hallhuray_surface_ratio": 0.0,
+                "bottom_hallhuray_nodule_radius": 0.0,
+                "bottom_hallhuray_surface_ratio": 0.0,
+                "side_hallhuray_nodule_radius": 0.0,
+                "side_hallhuray_surface_ratio": 0.0,
+                "upper_elevation": 0.0,
+                "lower_elevation": 0.0,
+                "color": [242, 140, 102],
+            }
 
-                        layer = default_layer
+            if "color" in layer:
+                default_layer["color"] = layer["color"]
+            elif not layer["type"] == "signal":
+                default_layer["color"] = [27, 110, 76]
 
-                        if not prev_layer:
-                            self.add_layer(
-                                layer_name,
-                                method="add_on_top",
-                                layer_type=layer["type"],
-                                material=layer["material"],
-                                fillMaterial=layer["dielectric_fill"],
-                                thickness=layer["thickness"],
-                            )
-                            prev_layer = layer_name
-                        else:
-                            self.add_layer(
-                                layer_name,
-                                base_layer=layer_name,
-                                method="insert_below",
-                                layer_type=layer["type"],
-                                material=layer["material"],
-                                fillMaterial=layer["dielectric_fill"],
-                                thickness=layer["thickness"],
-                            )
-                            prev_layer = layer_name
-                    if layer_name in self.stackup_layers:
-                        self.stackup_layers[layer["name"]]._load_layer(layer)
+            for k, v in layer.items():
+                default_layer[k] = v
+
+            if not prev_layer:
+                new_layer = self.add_layer(
+                    layer_name,
+                    method="add_on_top",
+                    layer_type=default_layer["type"],
+                    material=default_layer["material"],
+                    fillMaterial=default_layer["dielectric_fill"],
+                    thickness=default_layer["thickness"],
+                )
+                prev_layer = layer_name
+            else:
+                new_layer = self.add_layer(
+                    layer_name,
+                    base_layer=layer_name,
+                    method="insert_below",
+                    layer_type=default_layer["type"],
+                    material=default_layer["material"],
+                    fillMaterial=default_layer["dielectric_fill"],
+                    thickness=default_layer["thickness"],
+                )
+                prev_layer = layer_name
+
+            new_layer.color = default_layer["color"]
+            new_layer.etch_factor = default_layer["etch_factor"]
+
+            new_layer.roughness_enabled = default_layer["roughness_enabled"]
+            new_layer.top_hallhuray_nodule_radius = default_layer["top_hallhuray_nodule_radius"]
+            new_layer.top_hallhuray_surface_ratio = default_layer["top_hallhuray_surface_ratio"]
+            new_layer.bottom_hallhuray_nodule_radius = default_layer["bottom_hallhuray_nodule_radius"]
+            new_layer.bottom_hallhuray_surface_ratio = default_layer["bottom_hallhuray_surface_ratio"]
+            new_layer.side_hallhuray_nodule_radius = default_layer["side_hallhuray_nodule_radius"]
+            new_layer.side_hallhuray_surface_ratio = default_layer["side_hallhuray_surface_ratio"]
+
         return True
 
     @pyaedt_function_handler

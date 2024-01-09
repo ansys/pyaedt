@@ -725,12 +725,17 @@ class EdbPath(EDBPrimitives, PathDotNet):
         float
             Path length in meters.
         """
-        center_line = self.get_center_line()
-        length = 0
-        for pt_ind in range(len(center_line)):
-            if pt_ind < len(center_line) - 1:
-                length += GeometryOperators.points_distance(center_line[pt_ind], center_line[pt_ind + 1])
-        return length
+
+        center_line_arcs = list(self.center_line.GetArcData())
+        path_length = 0.0
+        for arc in center_line_arcs:
+            path_length += arc.GetLength()
+        if self.end_cap_style[0]:
+            if not self.end_cap_style[1].value__ == 1:
+                path_length += self.width / 2
+            if not self.end_cap_style[2].value__ == 1:
+                path_length += self.width / 2
+        return path_length
 
     @pyaedt_function_handler
     def add_point(self, x, y, incremental=False):

@@ -10,7 +10,6 @@ and run a Twin Builder time-domain simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import os
 import math
 import matplotlib.pyplot as plt
 import pyaedt
