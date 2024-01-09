@@ -8,8 +8,6 @@ This example shows how you can use EDB to interact with a layout.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import shutil
-
 import os
 import time
 import pyaedt

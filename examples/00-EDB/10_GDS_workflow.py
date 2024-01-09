@@ -33,7 +33,7 @@ shutil.copy2(gds_in,gds_out )
 # ~~~~~~~~~~~~
 # A Control file is an xml file which purpose if to provide additional
 # information during import phase. It can include, materials, stackup, setup, boundaries and settings.
-# In this example we will import an exising xml, integrate it with a layer mapping file of gds
+# In this example we will import an existing xml, integrate it with a layer mapping file of gds
 # and then adding setup and boundaries.
 
 c = ControlFile(c_file_in, layer_map=c_map)

@@ -15,7 +15,6 @@ and run a Twin Builder time-domain simulation.
 # Perform required imports.
 
 import os
-import math
 import shutil
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
@@ -85,7 +84,7 @@ dynamic_rom_builder = rom_manager.GetDynamicROMBuilder()
 conf_file_path = os.path.join(data_folder,source_build_conf_file)
 dynamic_rom_builder.Build(conf_file_path.replace('\\', '/'))
 
-# Test if ROM was created sucessfully
+# Test if ROM was created successfully
 dynamic_rom_path = os.path.join(data_folder,'DynamicRom.dyn')
 if os.path.exists(dynamic_rom_path):
 	tb._odesign.AddMessage("Info","path exists: {}".format(dynamic_rom_path.replace('\\', '/')), "")

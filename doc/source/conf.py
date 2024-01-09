@@ -277,7 +277,7 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             "examples_dirs": ["../../examples/"],
             # path where to save gallery generated examples
             "gallery_dirs": ["examples"],
-            # Patter to search for examples files
+            # Pattern to search for examples files
             "filename_pattern": r"\.py",
             # Remove the "Download all examples" button from the top level gallery
             "download_all_examples": False,

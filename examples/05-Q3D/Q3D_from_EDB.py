@@ -10,7 +10,6 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 import os
-import tempfile
 import pyaedt
 
 
