@@ -1782,7 +1782,7 @@ class FfdSolutionData(object):
         -------
         :class:`matplotlib.plt`
             If ``show=True``, the Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the x, y ,z coordinates of the 3D far field are returned.
+            If ``show=False``, the x, y , z coordinates of the 3D far field are returned.
 
         Examples
         --------
