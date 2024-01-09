@@ -75,8 +75,6 @@ To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@a
             Usage of PyAEDT with input and output files.
 
 
-
-
 .. toctree::
    :hidden:
    :maxdepth: 2
@@ -87,5 +85,4 @@ To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@a
    setup
    variables
    optimetrics
-   postprocessing
    files

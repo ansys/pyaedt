@@ -109,3 +109,40 @@ It can generate jpeg images and animation (gif).
 .. image:: ../Resources/pyvista_plot.jpg
   :width: 800
   :alt: Post Processing features
+
+
+PyAEDT includes a powerful class to generate pdf report that is based on python package ``fpdf2``.
+Here you can find an example of a pdf report.
+
+ :download:`PDF Report Example: <../Resources/postprocessing.pdf>`
+
+.. code:: python
+
+    from pyaedt.generic.pdf import AnsysReport
+    import os
+    report = AnsysReport()
+    report.aedt_version = "2024R1"
+    report.template_name = "AnsysTemplate"
+    report.project_name = "Coaxial1"
+    report.design_name = "Design2"
+    report.template_data.font = "times"
+    report.create()
+    report.add_chapter("Chapter 1")
+    report.add_sub_chapter("C1")
+    report.add_text("Hello World.\nlorem ipsum....")
+    report.add_text("ciao2", True, True)
+    report.add_empty_line(2)
+    report.add_page_break()
+    report.add_chapter("Chapter 2")
+    report.add_sub_chapter("Charts")
+    local_path = r'C:\ansysdev\Jupyter_Examples\Workshop\Workshops\PCIE_Compliance\result'
+    report.add_section(portrait=False, page_format="a3")
+
+    report.add_image(os.path.join(local_path, "return_loss.jpg"), width=400, caption="S-Parameters")
+    report.add_section(portrait=False, page_format="a5")
+    report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
+    report.add_section()
+    report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
+
+    report.add_toc()
+    report.save_pdf(r'c:\temp', "postprocessing.pdf")
