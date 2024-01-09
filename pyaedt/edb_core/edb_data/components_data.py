@@ -797,6 +797,20 @@ class EDBComponent(object):
         return self.edbcomponent.GetPlacementLayer().Clone().GetName()
 
     @property
+    def is_top(self):
+        """Check if a component is placed at top layer.
+
+        Returns
+        -------
+        bool
+            ``True`` component is placed at top ``False`` at bottom.
+
+        """
+        if self.placement_layer == list(self._pedb.stackup.signal_layers.values())[0].name:
+            return True
+        return False
+
+    @property
     def lower_elevation(self):
         """Lower elevation of the placement layer.
 
