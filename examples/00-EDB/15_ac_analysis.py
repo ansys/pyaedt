@@ -31,7 +31,7 @@ print(targetfile)
 # ~~~~~~~~~~~~~
 # Launch the :class:`pyaedt.Edb` class, using EDB 2024 R1.
 
-edbapp = pyaedt.Edb(edbpath=targetfile, edbversion="2024.1")
+edbapp = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
 
 # Generate extended nets. An extended net is a connection between two nets that are usually connected
 # through a passive component like a resistor or capacitor.
