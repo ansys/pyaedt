@@ -739,7 +739,7 @@ class EDBPadstack(object):
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
             The default is ``15``.
             The bottom hole is ``0.75*HoleDepth/HoleDiam``.
-        delete_padstack_def: bool, optional
+        delete_padstack_def : bool, optional
             Whether to delete the padstack definition. The default is ``True``.
             If ``False``, the padstack definition is not deleted and the hole size is set to zero.
 
