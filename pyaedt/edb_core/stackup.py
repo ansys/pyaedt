@@ -1649,9 +1649,8 @@ class Stackup(object):
         for material in mats.values():
             self._pedb.materials._load_materials(material)
 
-        layers = json_dict["layers"]
         prev_layer = None
-        for layer_name, layer in layers.items():
+        for layer_name, layer in json_dict["layers"].items():
             default_layer = {
                 "name": "default",
                 "type": "signal",
@@ -1671,13 +1670,16 @@ class Stackup(object):
                 "color": [242, 140, 102],
             }
 
-            if not layer["type"] == "signal":
+            if "color" in layer:
+                default_layer["color"] = layer["color"]
+            elif not layer["type"] == "signal":
                 default_layer["color"] = [27, 110, 76]
+
             for k, v in layer.items():
                 default_layer[k] = v
 
             if not prev_layer:
-                self.add_layer(
+                new_layer = self.add_layer(
                     layer_name,
                     method="add_on_top",
                     layer_type=default_layer["type"],
@@ -1687,7 +1689,7 @@ class Stackup(object):
                 )
                 prev_layer = layer_name
             else:
-                self.add_layer(
+                new_layer = self.add_layer(
                     layer_name,
                     base_layer=layer_name,
                     method="insert_below",
@@ -1697,6 +1699,18 @@ class Stackup(object):
                     thickness=default_layer["thickness"],
                 )
                 prev_layer = layer_name
+
+            new_layer.color = default_layer["color"]
+            new_layer.etch_factor = default_layer["etch_factor"]
+
+            new_layer.roughness_enabled = default_layer["roughness_enabled"]
+            new_layer.top_hallhuray_nodule_radius = default_layer["top_hallhuray_nodule_radius"]
+            new_layer.top_hallhuray_surface_ratio = default_layer["top_hallhuray_surface_ratio"]
+            new_layer.bottom_hallhuray_nodule_radius = default_layer["bottom_hallhuray_nodule_radius"]
+            new_layer.bottom_hallhuray_surface_ratio = default_layer["bottom_hallhuray_surface_ratio"]
+            new_layer.side_hallhuray_nodule_radius = default_layer["side_hallhuray_nodule_radius"]
+            new_layer.side_hallhuray_surface_ratio = default_layer["side_hallhuray_surface_ratio"]
+
         return True
 
     @pyaedt_function_handler
