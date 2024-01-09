@@ -74,6 +74,12 @@ To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@a
 
             Usage of PyAEDT with input and output files.
 
+   .. grid-item-card:: Postprocessing
+            :link: postprocessing
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Usage of PyAEDT to generate reports, images and pdf.
 
 .. toctree::
    :hidden:
