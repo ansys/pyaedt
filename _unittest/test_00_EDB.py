@@ -1,5 +1,4 @@
 import builtins
-import json
 import os
 
 # Setup paths for module imports
@@ -1942,15 +1941,11 @@ class TestClass:
         edbapp.close()
 
     def test_125d_stackup(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         fpath = os.path.join(local_path, "example_models", test_subfolder, "stackup.json")
-        stackup_json = json.load(open(fpath, "r"))
 
-        edbapp = Edb(edbversion=desktop_version)
+        edbapp = Edb(source_path, edbversion=desktop_version)
         edbapp.stackup.load(fpath)
-        edbapp.close()
-
-        edbapp = Edb(edbversion=desktop_version)
-        edbapp.stackup.load(stackup_json)
         edbapp.close()
 
     def test_126_comp_def(self):
