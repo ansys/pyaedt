@@ -1511,7 +1511,7 @@ class FfdSolutionData(object):
             phi_scan=0,
             theta_scan=0,
             title="RectangularPlot",
-            format_quantity="dB10",
+            quantity_format="dB10",
             export_image_path=None,
             levels=64,
             show=True,
@@ -1532,7 +1532,7 @@ class FfdSolutionData(object):
             Theta scan angle in degrees. The default is ``0``.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
-        format_quantity : str, optional
+        quantity_format : str, optional
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
@@ -1563,8 +1563,8 @@ class FfdSolutionData(object):
 
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
+            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1575,7 +1575,7 @@ class FfdSolutionData(object):
             return False
 
         data_to_plot = data[farfield_quantity]
-        data_to_plot = conversion_function(data_to_plot, format_quantity)
+        data_to_plot = conversion_function(data_to_plot, quantity_format)
         if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -1605,7 +1605,7 @@ class FfdSolutionData(object):
             phi_scan=0,
             theta_scan=0,
             title="Far Field Cut",
-            format_quantity="dB10",
+            quantity_format="dB10",
             export_image_path=None,
             show=True,
             is_polar=False,
@@ -1631,7 +1631,7 @@ class FfdSolutionData(object):
             Theta scan angle in degrees. The default is ``0``.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
-        format_quantity : str, optional
+        quantity_format : str, optional
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
@@ -1664,8 +1664,8 @@ class FfdSolutionData(object):
         """
 
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
+            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1691,7 +1691,7 @@ class FfdSolutionData(object):
             for el in data[y_key]:
                 idx = self._find_nearest(data[y_key], el)
                 y = temp[idx]
-                y = conversion_function(y, format_quantity)
+                y = conversion_function(y, quantity_format)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
                     self.logger.error("Format of quantity is wrong.")
                     return False
@@ -1702,7 +1702,7 @@ class FfdSolutionData(object):
                 theta_idx = self._find_nearest(data[y_key], el)
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
-                    y = conversion_function(y, format_quantity)
+                    y = conversion_function(y, quantity_format)
                     if not isinstance(y, np.ndarray):  # pragma: no cover
                         self.logger.error("Format of quantity is wrong.")
                         return False
@@ -1711,7 +1711,7 @@ class FfdSolutionData(object):
         else:
             theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
-            y = conversion_function(y, format_quantity)
+            y = conversion_function(y, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
                 self.logger.error("Wrong format quantity")
                 return False
@@ -1750,7 +1750,7 @@ class FfdSolutionData(object):
             phi_scan=0,
             theta_scan=0,
             title="3D Plot",
-            format_quantity="dB10",
+            quantity_format="dB10",
             export_image_path=None,
             show=True,
             **kwargs
@@ -1770,7 +1770,7 @@ class FfdSolutionData(object):
             Theta scan angle in degree. The default is ``0``.
         title : str, optional
             Plot title. The default is ``"3D Plot"``.
-        format_quantity : str, optional
+        quantity_format : str, optional
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
@@ -1799,8 +1799,8 @@ class FfdSolutionData(object):
 
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
+            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1810,7 +1810,7 @@ class FfdSolutionData(object):
             self.logger.error("Far field quantity is not available.")
             return False
 
-        ff_data = conversion_function(data[farfield_quantity], format_quantity)
+        ff_data = conversion_function(data[farfield_quantity], quantity_format)
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
             self.logger.error("Format of the quantity is wrong.")
             return False
@@ -1838,7 +1838,7 @@ class FfdSolutionData(object):
     def polar_plot_3d_pyvista(
             self,
             farfield_quantity="RealizedGain",
-            format_quantity="dB10",
+            quantity_format="dB10",
             rotation=None,
             export_image_path=None,
             show=True,
@@ -1859,7 +1859,7 @@ class FfdSolutionData(object):
             Quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
-        format_quantity : str, optional
+        quantity_format : str, optional
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
@@ -1899,12 +1899,12 @@ class FfdSolutionData(object):
         >>> frequencies = [77e9]
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
-        >>> data.polar_plot_3d_pyvista(qty_str="RealizedGain", format_quantity="dB10")
+        >>> data.polar_plot_3d_pyvista(qty_str="RealizedGain", quantity_format="dB10")
 
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `format_quantity` instead.")
-            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
+            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
+            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
         if "qty_str" in kwargs:  # pragma: no cover
             self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
             farfield_quantity = kwargs["qty_str"]
@@ -1925,7 +1925,7 @@ class FfdSolutionData(object):
 
         self.farfield_data = farfield_data
 
-        self.mesh = self.get_far_field_mesh(qty_str=farfield_quantity, quantity_format=format_quantity)
+        self.mesh = self.get_far_field_mesh(qty_str=farfield_quantity, quantity_format=quantity_format)
 
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -1942,7 +1942,7 @@ class FfdSolutionData(object):
         else:  # pragma: no cover
             p = pyvista_object
 
-        uf = UpdateBeamForm(self, farfield_quantity, format_quantity)
+        uf = UpdateBeamForm(self, farfield_quantity, quantity_format)
 
         default_background = [255, 255, 255]
         axes_color = [i / 255 for i in default_background]
@@ -1999,7 +1999,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self.farfield_data[farfield_quantity], function_str=format_quantity)
+        data = conversion_function(self.farfield_data[farfield_quantity], function_str=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -2119,7 +2119,7 @@ class FfdSolutionData(object):
         return True
 
     @pyaedt_function_handler()
-    def get_far_field_mesh(self, farfield_quantity="RealizedGain", format_quantity="dB10", **kwargs):
+    def get_far_field_mesh(self, farfield_quantity="RealizedGain", quantity_format="dB10", **kwargs):
         """Generate a PyVista ``UnstructuredGrid`` object that represents the far field mesh.
 
         Parameters
@@ -2128,7 +2128,7 @@ class FfdSolutionData(object):
             Far field quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
             ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
-        format_quantity : str, optional
+        quantity_format : str, optional
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
@@ -2141,7 +2141,7 @@ class FfdSolutionData(object):
         """
         if "convert_to_db" in kwargs:  # pragma: no cover
             self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
-            format_quantity = "dB10" if kwargs["convert_to_db"] else "abs"
+            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
 
         if farfield_quantity not in self.farfield_data:
             self.logger.error("Far field quantity is not available.")
@@ -2149,7 +2149,7 @@ class FfdSolutionData(object):
 
         data = self.farfield_data[farfield_quantity]
 
-        ff_data = conversion_function(data, format_quantity)
+        ff_data = conversion_function(data, quantity_format)
 
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
             self.logger.error("Format of the quantity is wrong.")
@@ -2551,13 +2551,15 @@ class UpdateBeamForm:
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.
+        Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
+        ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
     quantity_format : str, optional
         Conversion data function.
         Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
     """
 
-    def __init__(self, ff, farfield_quantity, quantity_format):
+    def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
         self.output = ff.mesh
         self._phi = 0
         self._theta = 0
