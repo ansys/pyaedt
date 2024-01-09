@@ -3342,7 +3342,7 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, geo_type="cylinder", unit="mm"):
-        """Create geometry from csv file containing geometry data.
+        """Create geometry from a CSV file containing geometry data.
         Parameters
         ----------
         csv_file : str
