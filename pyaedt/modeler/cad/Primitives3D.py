@@ -3341,7 +3341,7 @@ class Primitives3D(GeometryModeler):
         return receiving_variable, are_inequations_checkable
 
     @pyaedt_function_handler()
-    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, geo_type="cylinder", unit="mm"):
+    def create_geometry_from_file(self, csv_file, header_line=2, column_mapping=None, geo_type="cylinder", unit="mm"):
         """Create geometry from a CSV file containing geometry data.
         Parameters
         ----------
