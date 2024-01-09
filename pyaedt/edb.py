@@ -1684,8 +1684,9 @@ class Edb(Database):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed. Or [[float, float]] is return_extent is ``True``.
+        List
+            List of coordinate points defining the extent used for clipping the design. If it failed return an empty
+            list.
 
         Examples
         --------
