@@ -1618,7 +1618,7 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+            Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         primary_sweep : str, optional.
             X axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
@@ -1762,7 +1762,7 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
+            Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
             ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
         phi_scan : float, int, optional
             Phi scan angle in degree. The default is ``0``.
@@ -1857,7 +1857,7 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
+            Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         format_quantity : str, optional
             Conversion data function.
@@ -2126,7 +2126,7 @@ class FfdSolutionData(object):
         ----------
         farfield_quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
-            Available functions are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
+            Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
             ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
         format_quantity : str, optional
             Conversion data function.
