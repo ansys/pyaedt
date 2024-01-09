@@ -1945,7 +1945,7 @@ class FfdSolutionData(object):
 
         self.farfield_data = farfield_data
 
-        self.mesh = self.get_far_field_mesh(qty_str=farfield_quantity, quantity_format=quantity_format)
+        self.mesh = self.get_far_field_mesh(farfield_quantity=farfield_quantity, quantity_format=quantity_format)
 
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -2047,7 +2047,7 @@ class FfdSolutionData(object):
             if not scale_farfield:
                 if self._is_array[self._freq_index]:
                     slider_max = int(
-                        np.ceil((np.max(self._array_dimension[self._freq_index]) / np.min(np.abs(p.bounds))))
+                        np.ceil(np.abs(np.max(self._array_dimension[self._freq_index]) / np.min(np.abs(p.bounds))))
                     )
                 else:  # pragma: no cover
                     slider_max = int(np.ceil((np.max(p.bounds) / 2 / np.min(np.abs(p.bounds)))))
