@@ -1251,7 +1251,7 @@ class FfdSolutionData(object):
         """Taper type.
 
         Options are:
-        
+
         - ``"cosine"``
         - ``"flat"``
         - ``"hamming"``
@@ -1539,7 +1539,7 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
-                Colormap levels. The default is ``64``.
+            Color map levels. The default is ``64``.
         show : bool, optional
             Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib
             instance of the plot is shown.

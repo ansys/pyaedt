@@ -595,7 +595,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     title : str, optional
         Plot Title Label. Default is `""`.
     levels : int, optional
-        Colormap levels. Default is `64`.
+        Color map levels. Default is `64`.
     snapshot_path : str, optional
         Full path to image to save. Default is None.
 
