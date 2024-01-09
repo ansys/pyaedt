@@ -1251,7 +1251,7 @@ class FfdSolutionData(object):
         """Taper type.
 
         Options are:
-        
+
         - ``"cosine"``
         - ``"flat"``
         - ``"hamming"``
