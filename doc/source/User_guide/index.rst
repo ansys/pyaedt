@@ -53,6 +53,12 @@ For additional examples and practical demonstrations, you can visit the PyAEDT e
 
             Usage of PyAEDT with input and output files.
 
+   .. grid-item-card:: Postprocessing
+            :link: postprocessing
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Usage of PyAEDT to generate reports, images and pdf.
 
 .. toctree::
    :hidden:
