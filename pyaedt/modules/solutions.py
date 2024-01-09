@@ -1562,12 +1562,17 @@ class FfdSolutionData(object):
         >>> data.plot_farfield_contour()
 
         """
-        if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
-            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-        if "qty_str" in kwargs:  # pragma: no cover
-            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
-            farfield_quantity = kwargs["qty_str"]
+        for k in kwargs:
+            if k == "convert_to_db":  # pragma: no cover
+                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
+                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
+            elif k == "qty_str":  # pragma: no cover
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
+                farfield_quantity = kwargs["qty_str"]
+            else:  # pragma: no cover
+                msg = "{} not valid.".format(k)
+                self.logger.error(msg)
+                raise TypeError(msg)
 
         data = self.combine_farfield(phi_scan, theta_scan)
         if farfield_quantity not in data:  # pragma: no cover
@@ -1663,12 +1668,17 @@ class FfdSolutionData(object):
 
         """
 
-        if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
-            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-        if "qty_str" in kwargs:  # pragma: no cover
-            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
-            farfield_quantity = kwargs["qty_str"]
+        for k in kwargs:
+            if k == "convert_to_db":  # pragma: no cover
+                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
+                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
+            elif k == "qty_str":  # pragma: no cover
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
+                farfield_quantity = kwargs["qty_str"]
+            else:  # pragma: no cover
+                msg = "{} not valid.".format(k)
+                self.logger.error(msg)
+                raise TypeError(msg)
 
         data = self.combine_farfield(phi_scan, theta_scan)
         if farfield_quantity not in data:  # pragma: no cover
@@ -1798,12 +1808,17 @@ class FfdSolutionData(object):
         >>> data.polar_plot_3d(theta_scan=10)
 
         """
-        if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
-            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-        if "qty_str" in kwargs:  # pragma: no cover
-            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
-            farfield_quantity = kwargs["qty_str"]
+        for k in kwargs:
+            if k == "convert_to_db":  # pragma: no cover
+                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
+                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
+            elif k == "qty_str":  # pragma: no cover
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
+                farfield_quantity = kwargs["qty_str"]
+            else:  # pragma: no cover
+                msg = "{} not valid.".format(k)
+                self.logger.error(msg)
+                raise TypeError(msg)
 
         data = self.combine_farfield(phi_scan, theta_scan)
         if farfield_quantity not in data:  # pragma: no cover
@@ -1902,12 +1917,17 @@ class FfdSolutionData(object):
         >>> data.polar_plot_3d_pyvista(qty_str="RealizedGain", quantity_format="dB10")
 
         """
-        if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.5. Use `quantity_format` instead.")
-            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-        if "qty_str" in kwargs:  # pragma: no cover
-            self.logger.warning("`qty_str` is deprecated since v0.7.5. Use `farfield_quantity` instead.")
-            farfield_quantity = kwargs["qty_str"]
+        for k in kwargs:
+            if k == "convert_to_db":  # pragma: no cover
+                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
+                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
+            elif k == "qty_str":  # pragma: no cover
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
+                farfield_quantity = kwargs["qty_str"]
+            else:  # pragma: no cover
+                msg = "{} not valid.".format(k)
+                self.logger.error(msg)
+                raise TypeError(msg)
 
         if not rotation:
             rotation = np.eye(3)
@@ -2139,9 +2159,14 @@ class FfdSolutionData(object):
             ``UnstructuredGrid`` object representing the far field mesh.
 
         """
-        if "convert_to_db" in kwargs:  # pragma: no cover
-            self.logger.warning("`convert_to_db` is deprecated since v0.7.0. Use `quantity_format` instead.")
-            quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
+        for k in kwargs:
+            if k == "convert_to_db":  # pragma: no cover
+                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
+                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
+            else:  # pragma: no cover
+                msg = "{} not valid.".format(k)
+                self.logger.error(msg)
+                raise TypeError(msg)
 
         if farfield_quantity not in self.farfield_data:
             self.logger.error("Far field quantity is not available.")
@@ -2158,8 +2183,6 @@ class FfdSolutionData(object):
         theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
         phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
-        # translated_mesh = mesh.copy()
-        # translated_mesh.translate(self.origin)
         return mesh
 
     @pyaedt_function_handler()
