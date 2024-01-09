@@ -1,9 +1,9 @@
 Modeler
 =======
 The AEDT 3D and 2D Modelers use object-oriented programming to create and manage objects. 
-You can use getters and setters to create an object and change its properties:
+You can use getters and setters to create an object and change its properties.
 
-In the following example we create a box and change the color to red.
+In the following example we create a box and change the color to red:
 
 .. code:: python
 
@@ -52,7 +52,6 @@ This example shows how easily you can go deeper into edges and vertices of faces
 All objects support executing any modeler operation, such as union or subtraction:
 
 .. code:: python
-
 
      box = hfss.modeler["mybox2"]
      cyl = hfss.modeler["mycyl"]

@@ -3,32 +3,11 @@
 ========
 Tutorial
 ========
-Documentation for the latest stable release of PyAEDT is hosted at
-`PyAEDT documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
 
-In the upper right corner of the documentation's title bar, there is an option
-for switching from viewing the documentation for the latest stable release
-to viewing the documentation for the development version or previously
-released versions.
+This page contains a selection of tutorials to assist users in understanding and effectively utilizing PyAEDT.
 
-You can also view or download PyAEDT cheat sheets, which are one-page references
-providing syntax rules and commands for using the PyAEDT API and PyEDB API:
-
-- `View PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
-  `download PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
-  PyAEDT API cheat sheet.
-
-- `View EDB cheat sheet <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
-  `download EDB cheat sheet  <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
-  PyAEDT API cheat sheet.
-
-
-On the `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page, you can
-create issues to report bugs and request new features. On the `PyAEDT Discussions
-<https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
-page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback.
-
-To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+For additional examples and practical demonstrations, you can visit the PyAEDT examples page
+`PyAEDT examples <https://aedt.docs.pyansys.com/version/stable/examples>`_..
 
 
 .. grid:: 2

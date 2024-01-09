@@ -1,5 +1,6 @@
 Variables
 =========
+
 PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
 You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
 for the variable name, a project-wide variable is created:
@@ -41,12 +42,12 @@ access the ``variable_manager`` object for a more comprehensive set of functions
 
 Optimetrics
 ===========
+
 Optimetrics allow you to set up parametric analysis, sensitivity analysis, optimization,
-and Design of Experiments (DOE). PyAEDT can read all optimetrics setups already
-present in a design, edit them, and create them:
+and Design of Experiments (DOE). PyAEDT provides the capability to seamlessly interact with
+optimetrics setups by allowing users to read existing configurations, make edits, and create new setups:
 
 .. code:: python
-
 
     from pyaedt import Maxwell3d
     m3d = Maxwell3d()

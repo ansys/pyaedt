@@ -1,17 +1,17 @@
 Mesh
 ====
-Mesh operations are very important in engineering simulation. PyAEDT can read all mesh
-operations already present in a design, edit them, and create them. All mesh operations
-are listed in the mesh object:
+
+Mesh operations are very important in engineering simulation.
+PyAEDT can read existing mesh operations in a design, make edits, and create new operations.
+All mesh operations are conveniently listed within the mesh object:
 
 .. code:: python
-
 
     from pyaedt import Maxwell3d
     m3d = Maxwell3d()
     all_mesh_ops = m3d.mesh.meshoperations
     my_mesh_op = all_mesh_ops[0]
-    # all properties are in props dictionary.
+    # All properties are in props dictionary.
     my_mesh_op.props["my_prop"] = "my_value"
     my_mesh_op.update()
 
@@ -22,11 +22,14 @@ are listed in the mesh object:
 
 
 Icepak has a different approach to the mesh operations.
-Those are managed through mesh regions and they can be edited directly from pyaedt object.
+Those are managed through mesh regions and they can be edited directly from the pyaedt object.
 
 .. code:: python
 
     icepak_b = Icepak()
+
+    # Global mesh region
+
     icepak_b.mesh.global_mesh_region.MaxElementSizeX = "2mm"
     icepak_b.mesh.global_mesh_region.MaxElementSizeY = "3mm"
     icepak_b.mesh.global_mesh_region.MaxElementSizeZ = "4mm"
@@ -38,13 +41,13 @@ Those are managed through mesh regions and they can be edited directly from pyae
     icepak_b.mesh.global_mesh_region.update()
 
     box1 = icepak_b.modeler.create_box([0,0,0], [10,20,20])
+
+    # Local mesh region
+
     new_mesh_region = icepak_b.mesh.assign_mesh_region([box1.name])
-    icepak_b.mesh.global_mesh_region.MaxLevels = 3
-    icepak_b.mesh.global_mesh_region.UserSpecifiedSettings = True
-    icepak_b.mesh.global_mesh_region.update()
 
 
-Also in HFSS 3D Layout user can add mesh operations to nets and layers
+Also in HFSS 3D Layout user can add mesh operations to nets and layers:
 
 .. code:: python
 

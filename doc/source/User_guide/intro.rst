@@ -1,12 +1,11 @@
 Minimal Example
 ===============
 
-You can start AEDT in non-graphical mode from Python:
+You can initiate AEDT in non-graphical mode from Python using the following code:
 
 .. code:: python
 
-    # Launch AEDT 2023 R1 in non-graphical mode
-
+    # Launch AEDT 2023 R2 in non-graphical mode
     import pyaedt
     with pyaedt.Desktop(specified_version="2023.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
                  student_version=False):
@@ -14,9 +13,7 @@ You can start AEDT in non-graphical mode from Python:
         ...
         # Any error here will be caught by Desktop.
         ...
-
     # Desktop is automatically closed here.
-
 
 The preceding code launches AEDT and initializes a new Circuit design.
 
@@ -24,17 +21,14 @@ The preceding code launches AEDT and initializes a new Circuit design.
   :width: 800
   :alt: Electronics Desktop Launched
 
-
-Here a minimal example to create a new project and save it with PyAEDT :
+Here a minimal example to create a new project and save it with PyAEDT:
 
 .. code:: python
 
     # Launch the latest installed version of AEDT in graphical mode.
-
     import pyaedt
-    cir =  pyaedt.Circuit(specified_version="2023.2", non_graphical=False)
+    cir =  pyaedt.Circuit(non_graphical=False)
     cir.save_project(my_path)
     ...
     cir.release_desktop(save_project=True, close_desktop=True)
-    # Desktop is automatically released here.
-
+    # Desktop is released here.
