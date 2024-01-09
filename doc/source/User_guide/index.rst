@@ -3,48 +3,77 @@
 ========
 Tutorial
 ========
-PyAEDT works both inside AEDT and as a standalone application.
-It automatically detects whether it is running in an IronPython (limited capabilities) or CPython
-environment and initializes AEDT accordingly. PyAEDT also provides
-advanced error management.
+Documentation for the latest stable release of PyAEDT is hosted at
+`PyAEDT documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
 
-You can start AEDT in non-graphical mode from Python:
+In the upper right corner of the documentation's title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.
 
-.. code:: python
+You can also view or download PyAEDT cheat sheets, which are one-page references
+providing syntax rules and commands for using the PyAEDT API and PyEDB API:
 
-    # Launch AEDT 2023 R1 in non-graphical mode
+- `View PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
+  `download PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
+  PyAEDT API cheat sheet.
 
-    import pyaedt
-    with pyaedt.Desktop(specified_version="2023.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
-                 student_version=False):
-        circuit = pyaedt.Circuit()
-        ...
-        # Any error here will be caught by Desktop.
-        ...
-
-    # Desktop is automatically closed here.
+- `View EDB cheat sheet <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
+  `download EDB cheat sheet  <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
+  PyAEDT API cheat sheet.
 
 
-The preceding code launches AEDT and initializes a new Circuit design.
+On the `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page, you can
+create issues to report bugs and request new features. On the `PyAEDT Discussions
+<https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
+page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback.
 
-.. image:: ../Resources/aedt_first_page.png
-  :width: 800
-  :alt: Electronics Desktop Launched
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 
-You can obtain the same result with:
+.. grid:: 2
 
-.. code:: python
+   .. grid-item-card:: Minimal Example
+            :link: intro
+            :link-type: doc
 
-    # Launch the latest installed version of AEDT in graphical mode.
+            Here's a brief example on how to launch Electronics Desktop and create a project.
 
-    import pyaedt
-    with pyaedt.Circuit(specified_version="2023.1", non_graphical=False) as circuit:
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+   .. grid-item-card:: Modeler
+            :link: modeler
+            :link-type: doc
+            :margin: 2 2 0 0
 
-    # Desktop is automatically released here.
+            Here's a brief example on how to play with 2D and 3D Modeler.
+
+   .. grid-item-card:: Mesh
+            :link: mesh
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Here's a brief example of how PyAEDT handles mesh operations.
+
+   .. grid-item-card:: Setup
+            :link: setup
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Create Setup and run simulations.
+
+   .. grid-item-card:: Variables & Optimetrics
+            :link: variables
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Discover how to generate parametrics models and run optimizations.
+
+   .. grid-item-card:: Load and manage files
+            :link: files
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Usage of PyAEDT with input and output files.
+
 
 
 
@@ -52,6 +81,7 @@ You can obtain the same result with:
    :hidden:
    :maxdepth: 2
 
+   intro
    modeler
    mesh
    setup

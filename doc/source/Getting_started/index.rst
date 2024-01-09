@@ -16,12 +16,12 @@ Getting started
 
             Learn how to install PyAEDT from PyPi or conda.
 
-   .. grid-item-card:: Quick code
-            :link: Quickcode
+   .. grid-item-card:: Tutorial
+            :link: ../User_guide/index
             :link-type: doc
             :margin: 2 2 0 0
 
-            Here's a brief example of how PyAEDT works.
+            Learn how to use PyAEDT.
 
    .. grid-item-card:: Client-Server
             :link: ClientServer
@@ -100,9 +100,9 @@ page on the Ansys website.
 
    Installation
    Troubleshooting
+   ../User_guide/index
    ClientServer
    versioning
    Contributing
-   Quickcode
    About
 
