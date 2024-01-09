@@ -1646,8 +1646,9 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`matplotlib.plt`
-           If ``show=True``, a Matplotlib instance of the plot is returned.
-           If ``show=False``, the plot of the curves is shown.
+            Whether to show the plotted curve.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
 
 
         Examples
@@ -1782,8 +1783,9 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`matplotlib.plt`
-            If ``show=True``, the Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the x, y ,z coordinates of the 3D far field are returned.
+            Whether to show the plotted curve.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
 
         Examples
         --------
