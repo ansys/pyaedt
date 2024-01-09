@@ -20,7 +20,7 @@ import math
 #################################################################################
 # Initialize core strand dimensions and positions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize cable sizing - radii in mm
+# Initialize cable sizing - radii in mm.
 
 c_strand_radius = 2.575
 cable_n_cores = 4
@@ -31,7 +31,7 @@ core_xy_coord = math.ceil(3 * c_strand_radius + 2 * core_xlpe_ins_thickness)
 #################################################################################
 # Initialize filling and sheath dimensions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize radii of further structures incrementally adding thicknesses
+# Initialize radii of further structures incrementally adding thicknesses.
 
 filling_radius = 1.4142 * (core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5)
 inner_sheath_radius = filling_radius + 0.75
@@ -42,7 +42,7 @@ outer_sheath_radius = armour_radius + 2
 #################################################################################
 # Initialize armature strand dimensions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize radii
+# Initialize radii.
 
 armour_centre_pos = inner_sheath_radius + armour_thickness / 2.0
 arm_strand_rad = armour_thickness / 2.0 - 0.2
@@ -101,7 +101,7 @@ for k, v in armour_params.items():
 ##########################################################
 # Create object to access 2D modeler
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the object ``mod2D`` to access the 2D modeler easily.
+# Create the ``mod2D`` object to access the 2D modeler easily.
 
 mod2D = q2d.modeler
 mod2D.delete()
