@@ -56,7 +56,7 @@ def hfss_app(add_app):
     yield app
     app.close_project(save_project=False)
 
-    
+
 @pytest.fixture(scope="class")
 def icepak_app(add_app):
     app = add_app(application=Icepak, design_name="SolveTest")
@@ -99,7 +99,7 @@ class TestClass:
             primary_sweep="theta",
             secondary_sweep_value=[75],
             theta_scan=20,
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
             quantity_format="dB10",
             export_image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
@@ -107,10 +107,9 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
         ffdata2.polar_plot_3d_pyvista(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             show=False,
-            position=[-0.11749961434125, -1.68, 0.20457438854331],
             rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
             export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
         )
