@@ -1605,6 +1605,7 @@ class Edb(Database):
         preserve_components_with_model=False,
         simple_pad_check=True,
         keep_lines_as_path=False,
+        return_extent=False,
     ):
         """Create a cutout using an approach entirely based on PyAEDT.
         This method replaces all legacy cutout methods in PyAEDT.
@@ -1681,11 +1682,15 @@ class Edb(Database):
             This feature works only in Electronics Desktop (3D Layout).
             If the flag is set to ``True`` it can cause issues in SiWave once the Edb is imported.
             Default is ``False`` to generate PolygonData of cut lines.
+        return_extent : bool, optional
+            When ``True`` extent used for clipping is returned, if ``False`` only the boolean indicating whether
+            clipping succeed or not is returned. Not applicable with custom extent usage.
+            Default is ``False``.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed. Or [[float, float]] is return_extent is ``True``.
 
         Examples
         --------
@@ -1771,6 +1776,7 @@ class Edb(Database):
                         include_partial=include_partial_instances,
                         simple_pad_check=simple_pad_check,
                         keep_lines_as_path=keep_lines_as_path,
+                        return_extent=return_extent,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1811,6 +1817,7 @@ class Edb(Database):
                     include_partial=include_partial_instances,
                     simple_pad_check=simple_pad_check,
                     keep_lines_as_path=keep_lines_as_path,
+                    return_extent=return_extent,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -2017,6 +2024,7 @@ class Edb(Database):
         include_partial=False,
         simple_pad_check=True,
         keep_lines_as_path=False,
+        return_extent=False,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -2220,6 +2228,9 @@ class Edb(Database):
             self.save_edb()
         self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
+        if return_extent:
+            if _poly:
+                return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(_poly.GetPolygonWithoutArcs().Points)]
         return True
 
     @pyaedt_function_handler()
@@ -2237,6 +2248,7 @@ class Edb(Database):
         use_pyaedt_extent_computing=False,
         extent_defeature=0,
         keep_lines_as_path=False,
+        return_extent=False,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -2282,6 +2294,11 @@ class Edb(Database):
             This feature works only in Electronics Desktop (3D Layout).
             If the flag is set to True it can cause issues in SiWave once the Edb is imported.
             Default is ``False`` to generate PolygonData of cut lines.
+        return_extent : bool, optional
+            When ``True`` extent used for clipping is returned, if ``False`` only the boolean indicating whether
+            clipping succeed or not is returned. Not applicable with custom extent usage.
+            Default is ``False``.
+
 
         Returns
         -------
@@ -2322,6 +2339,7 @@ class Edb(Database):
             use_pyaedt_extent_computing=use_pyaedt_extent_computing,
             extent_defeature=extent_defeature,
             keep_lines_as_path=keep_lines_as_path,
+            return_extent=return_extent,
         )
 
     @pyaedt_function_handler()

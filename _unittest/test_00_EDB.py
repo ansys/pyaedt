@@ -3125,3 +3125,30 @@ class TestClass:
             net5_length += path.length
         assert net5_length == 0.026285623899038543
         edbapp.close_edb()
+
+    def test_157_cutout_return_clipping_extent(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_return_clipping_extent", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        extent = edbapp.cutout(
+            signal_list=["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"],
+            reference_list=["GND"],
+            return_extent=False,
+        )
+        assert isinstance(extent, bool)
+        assert extent
+        extent = edbapp.cutout(
+            signal_list=["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"],
+            reference_list=["GND"],
+            return_extent=True,
+        )
+        assert extent
+        assert len(extent) == 55
+        assert extent[0] == [0.011025799702099603, 0.04451508810211455]
+        assert extent[10] == [0.022142311790681247, 0.02851039231475559]
+        assert extent[20] == [0.06722930398844625, 0.026054683772800503]
+        assert extent[30] == [0.06793706863503707, 0.02961898962849831]
+        assert extent[40] == [0.06550327418370948, 0.031478931749766806]
+        assert extent[54] == [0.01102500189, 0.044555027391504444]
+        edbapp.close_edb()
