@@ -3346,24 +3346,23 @@ class Primitives3D(GeometryModeler):
         Parameters
         ----------
         csv_file : str
-            The CSV file containing the geometry details.
+            CSV file containing the geometry data.
             Expected column headers are dependent on the geometry type:
-            - if ``geo_type=='cylinder'``, expected fields are ``'xc'`` (base
+            - If ``geo_type=='cylinder'``, expected fields are ``'xc'`` (base
             center x coordinate),``'yc'`` (base center y coordinate), ``'zc'``
             (base center z coordinate), ``'height'``, ``'radius'``,
-            ``'iradius'`` (inner radius for hollow cylinder), ``'plane'``
+            ``'iradius'`` (inner radius for hollow cylinder), and ``'plane'``
             (plane on which the cylinder base lies).
         header_line : int, optional
-            The line marking the start of data.
-            The default value is ``2``.
+            Line marking the start of data.
+            The default is ``2``.
         column_mapping : dict, optional
-            Map of the csv columns names to the accepted column names.
-            The default value is ``None``.
+            Map of the CSV column names to the accepted column names.
+            The default is ``None``.
         geo_type: str, optional
-            Type of geometry that the csv file describe. Accepted value is: ``"cylinder"``.
-            Default is ``"cylinder"``.
+            Type of geometry that the CSV file describe. The default is ``"cylinder"``.
         unit : str , optional
-            Unit of values used to create geometry. Default unit is ``"mm"``.
+            Unit of values to use to create the geometry. The default is ``"mm"``.
         Returns
         -------
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`.
