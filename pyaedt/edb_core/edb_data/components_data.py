@@ -797,8 +797,8 @@ class EDBComponent(object):
         return self.edbcomponent.GetPlacementLayer().Clone().GetName()
 
     @property
-    def is_top(self):
-        """Check if a component is placed facing up or down the layout.
+    def is_mounted_up(self):
+        """Check if a component is mounted facing up or down the layout.
 
         Returns
         -------
