@@ -806,7 +806,8 @@ class EDBComponent(object):
             ``True`` component is placed at top ``False`` at bottom.
 
         """
-        if self.placement_layer == list(self._pedb.stackup.signal_layers.values())[0].name:
+        signal_layers = [lay.name for lay in list(self._pedb.stackup.signal_layers.values())]
+        if self.placement_layer in signal_layers[: int(len(signal_layers) / 2)]:
             return True
         return False
 
