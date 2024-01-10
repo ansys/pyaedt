@@ -797,13 +797,13 @@ class EDBComponent(object):
         return self.edbcomponent.GetPlacementLayer().Clone().GetName()
 
     @property
-    def is_mounted_up(self):
-        """Check if a component is mounted facing up or down the layout.
+    def is_top_mounted(self):
+        """Check if a component is mounted on top or bottom of the layout.
 
         Returns
         -------
         bool
-            ``True`` component is facing up, ``False`` facing down.
+            ``True`` component is mounted on top, ``False`` on down.
 
         """
         signal_layers = [lay.name for lay in list(self._pedb.stackup.signal_layers.values())]
