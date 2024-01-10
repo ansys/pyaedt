@@ -5,6 +5,7 @@ import os
 import re
 
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import read_csv
 
@@ -255,6 +256,28 @@ class ComponentArray(object):
         # Bug in 2024.1, not possible to change cell count.
         # self._oarray.SetPropValue("B Cell Count", val)
         self.logger.warning("B size cannot be modified.")
+
+    @property
+    def a_length(self):
+        """Length of the array in A direction."""
+        lattice_vector = self.lattice_vector()
+        if lattice_vector[0] != 0:  # pragma: no cover
+            x_spacing = lattice_vector[0]
+        else:
+            x_spacing = lattice_vector[3]
+
+        return x_spacing * self.a_size
+
+    @property
+    def b_length(self):
+        """Length of the array in B direction."""
+        lattice_vector = self.lattice_vector()
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
+        else:  # pragma: no cover
+            y_spacing = lattice_vector[4]
+
+        return y_spacing * self.b_size
 
     @property
     def padding_cells(self):
@@ -566,7 +589,80 @@ class ComponentArray(object):
         >>> oModule.GetLatticeVectors()
 
         """
-        return self.__app.omodelsetup.GetLatticeVectors()
+        lattice_vectors = self.__app.omodelsetup.GetLatticeVectors()
+
+        lattice_vectors = [float(vec) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for vec in lattice_vectors]
+        return lattice_vectors
+
+    @pyaedt_function_handler()
+    def get_component_objects(self):
+        """Get 3D component center.
+
+        Returns
+        -------
+        dict
+            Dictionary of the center position and part name for all 3D components.
+
+        """
+        component_info = {}
+        component_names = self.component_names
+        for component in component_names.values():
+            parts = self.__app.modeler.user_defined_components[component].parts
+            for part_name in parts.values():
+                if component not in component_info:
+                    center = self.__app.modeler.user_defined_components[component].center
+                    scaled_center = [
+                        float(cen) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for cen in center
+                    ]
+                    component_info[component] = (scaled_center, str(part_name))
+                else:
+                    component_info[component] = component_info[component] + (str(part_name),)
+
+        return component_info
+
+    @pyaedt_function_handler()
+    def get_cell_position(self):
+        """Get cell position.
+
+        Returns
+        -------
+        list
+            List of the center position and part name for all cells.
+
+        """
+        cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
+        lattice_vector = self.lattice_vector()
+        # Perpendicular lattice vector
+        a_x_dir = True
+        if lattice_vector[0] != 0:  # pragma: no cover
+            x_spacing = lattice_vector[0]
+        else:
+            a_x_dir = False
+            x_spacing = lattice_vector[3]
+
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
+        else:  # pragma: no cover
+            y_spacing = lattice_vector[4]
+
+        cells = self.cells
+        for row_cell in range(0, self.a_size):
+            for col_cell in range(0, self.b_size):
+                if a_x_dir:  # pragma: no cover
+                    y_position = col_cell * y_spacing
+                    x_position = row_cell * x_spacing
+
+                else:
+                    y_position = row_cell * y_spacing
+                    x_position = col_cell * x_spacing
+
+                cell_info[row_cell][col_cell] = (
+                    cells[row_cell][col_cell].component,
+                    [x_position, y_position, 0.0],
+                    cells[row_cell][col_cell].rotation,
+                    [row_cell + 1, col_cell + 1],
+                )
+        return cell_info
 
     @pyaedt_function_handler()
     def __get_properties_from_aedt(self):

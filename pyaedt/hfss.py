@@ -5779,10 +5779,10 @@ class Hfss(FieldAnalysis3D, object):
         sphere_name=None,
         variations=None,
         overwrite=True,
-        taper="flat",
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object. For
-        phased array cases, only one phased array will be calculated.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionDataExporter`` object.
+
+        For phased array cases, only one phased array is calculated.
 
         Parameters
         ----------
@@ -5793,20 +5793,17 @@ class Hfss(FieldAnalysis3D, object):
         sphere_name : str, optional
             Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
             one is created.
-        variations : ditc, optional
+        variations : dict, optional
             Variation dictionary.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
-        taper : str, optional
-            Type of taper to apply. The default is ``"flat"``. Options are
-            ``"cosine"``, ``"triangular"``, ``"hamming"``, and ``"flat"``.
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.FfdSolutionData`
+        :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
             SolutionData object.
         """
-        from pyaedt.modules.solutions import FfdSolutionData
+        from pyaedt.modules.solutions import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
@@ -5832,21 +5829,13 @@ class Hfss(FieldAnalysis3D, object):
             )
             self.logger.info("Far field sphere %s is created.", setup_name)
 
-        component_name = None
-        if self.solution_type == "SBR+" and self.modeler.user_defined_component_names:
-            antenna = self.modeler.user_defined_components[self.modeler.user_defined_component_names[0]]
-            if antenna.native_properties["Type"] == "Linked Antenna":
-                component_name = antenna.name
-
-        return FfdSolutionData(
+        return FfdSolutionDataExporter(
             self,
             sphere_name=sphere_name,
             setup_name=setup_name,
             frequencies=frequencies,
             variations=variations,
             overwrite=overwrite,
-            taper=taper,
-            sbr_3d_comp_name=component_name,
         )
 
     @pyaedt_function_handler()
@@ -5998,7 +5987,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.desktop_class.is_grpc_api:  # pragma: no cover
-            self.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually")
+            self.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually.")
             return False
 
         port_names = []

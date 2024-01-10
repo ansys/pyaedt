@@ -730,7 +730,9 @@ class Materials(object):
         if not material:
             return
         if material["name"].lower() not in mat_keys:
-            if material["conductivity"] > 1e4:
+            if "conductivity" not in material:
+                self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
+            elif material["conductivity"] > 1e4:
                 self.add_conductor_material(material["name"], material["conductivity"])
             else:
                 self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
