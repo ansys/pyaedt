@@ -21,6 +21,7 @@ step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
+primitive_json_file = "primitives_file.json"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -1841,3 +1842,9 @@ class TestClass:
             volume_padding=None,
             priority=None,
         )
+
+    def test_88_import_primitives_file(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
+        primitives = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        x = 1

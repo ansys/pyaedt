@@ -1,0 +1,65 @@
+{
+	"Primitives":
+	[
+		{
+			"Primitive Type": "Cylinder",
+			"Name": "Small",
+			"Plane": 0,
+			"Height": 10.0,
+			"Radius": "3.0mm",
+			"Internal Radius": 0.0,
+			"Number of Segments": 0
+		},
+		{
+			"Primitive Type": "Cylinder",
+			"Name": "Big",
+			"Plane": 0,
+			"Height": 50.0,
+			"Radius": 10.0
+		},
+		{
+			"Primitive Type": "Cylinder",
+			"Name": "Big_hole",
+			"Plane": 0,
+			"Height": 50.0,
+			"Radius": 10.0,
+			"Internal Radius": 5.0
+		},
+		{
+			"Primitive Type": "Box",
+			"Name": "Cube",
+			"Xsize": 10,
+			"Ysize": 10,
+			"Zsize": 10
+		}
+	],
+	"Instances":
+	[
+		{
+			"Name":"Small",
+			"CS": "Global",
+			"Origin": ["0mm",0,0]
+		},
+		{
+			"Name":"Small",
+			"CS": "Global",
+			"Origin": ["20um",10,0]
+		},
+		{
+			"Name":"Big",
+			"CS": "Global",
+			"Origin": [0,0,50]
+		},
+		{
+			"Name":"Big",
+			"CS": "Global",
+			"Origin": [10,10,10]
+		},
+		{
+			"Name":"Big_hole",
+			"CS": "Global",
+			"Origin": [0,0,50]
+		}
+	],
+	"Units": "mm"
+}

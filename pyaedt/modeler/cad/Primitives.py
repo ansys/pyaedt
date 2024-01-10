@@ -14,6 +14,7 @@ import warnings
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _uname
@@ -4643,6 +4644,11 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler()
+    def import_primitives_from_file(self, input_file=None, input_dict=None):
+        primitives_loaded = PrimitivesBuilder(self._app, input_file, input_dict)
+        primitives_loaded.create()
+
+    @pyaedt_function_handler()
     def modeler_variable(self, value):
         """Modeler variable.
 
@@ -8213,3 +8219,108 @@ class GeometryModeler(Modeler):
                 ]
             )
         return True
+
+
+class PrimitivesBuilder(object):
+    """Create primitives based on json file or dictionary of properties.
+
+    Parameters
+    ----------
+    app :
+        Inherited parent object.
+    is3d : bool, optional
+        Whether the model is 3D. The default is ``True``.
+    """
+
+    def __init__(self, app, input_file=None, input_dict=None):
+        self._app = app
+        if not input_dict and not input_file:  # pragma: no cover
+            msg = "Either one of a json file or a dictionary has to be passed as input."
+            self.logger.error(msg)
+            raise TypeError(msg)
+        if input_file:
+            props = json_to_dict(input_file)
+        else:
+            props = input_dict
+
+        if not props or not all(key in props for key in ["Primitives", "Instances"]):
+            msg = "Wrong input data."
+            self.logger.error(msg)
+            raise AttributeError(msg)
+
+        if "Units" in props:
+            self.units = props["Units"]
+        else:
+            self.units = "mm"
+        self.primitives = props["Primitives"]
+        self.instances = props["Instances"]
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @pyaedt_function_handler()
+    def create(self):
+        self.create_instances()
+        return True
+
+    def create_instances(self):
+        created_instances = []
+
+        for instance_data in self.instances:
+            name = instance_data["Name"]
+            cs = instance_data["CS"]
+            origin = self.convert_units(instance_data["Origin"])
+
+            primitive_data = next((p for p in self.primitives if p["Name"] == name), None)
+
+            if primitive_data:
+                instance = self.create_instance(name, cs, origin, primitive_data)
+                created_instances.append(instance)
+
+        return created_instances
+
+    def create_instance(self, name, cs, origin, primitive_data):
+        # Determine the primitive type and create an instance based on that
+        primitive_type = primitive_data["Primitive Type"]
+
+        if primitive_type == "Cylinder":
+            instance = self.create_cylinder_instance(name, cs, origin, primitive_data)
+        elif primitive_type == "Box":
+            instance = self.create_box_instance(name, cs, origin, primitive_data)
+        else:
+            raise ValueError(f"Unsupported primitive type: {primitive_type}")
+
+        return instance
+
+    @pyaedt_function_handler()
+    def create_cylinder_instance(self, name, cs, origin, data):
+        return {
+            "type": "Cylinder",
+            "name": name,
+            "cs": cs,
+            "origin": origin,
+            "height": data.get("Height", 0.0),
+            "radius": data.get("Radius", 0.0),
+            "internal_radius": data.get("Internal Radius", 0.0),
+        }
+
+    @pyaedt_function_handler()
+    def create_box_instance(self, name, cs, origin, data):
+        return {
+            "type": "Box",
+            "name": name,
+            "cs": cs,
+            "origin": origin,
+            "x_size": data.get("Xsize", 0),
+            "y_size": data.get("Ysize", 0),
+            "z_size": data.get("Zsize", 0),
+        }
+
+    @pyaedt_function_handler()
+    def _length_unit_conversion(self, value, input_units):
+        from pyaedt.generic.constants import unit_converter
+
+        converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units=self.units)
+        return converted_value
