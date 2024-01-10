@@ -6,8 +6,8 @@ PyAEDT documentation  |version|
 `Source Repository <https://github.com/ansys/pyaedt>`_ |
 `Issues <https://github.com/ansys/pyaedt/issues>`_
 
-PyAEDT is a Python library that interacts directly with the API for
-Ansys Electronics Desktop (AEDT) to make scripting simpler.
+PyAEDT is a Python library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
+enabling straightforward and efficient automation in your workflow.
 
 In the upper right corner of the documentation’s title bar, you will find a version switcher dropdown.
 This feature allows you to easily switch between different versions of the documentation.
