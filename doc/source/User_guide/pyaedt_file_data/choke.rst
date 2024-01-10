@@ -17,3 +17,6 @@ This file can be created using the following command:
 The main file skeleton is shown below.
 
 :download:`Choke example <../../Resources/choke_example.json>`
+
+For a practical demonstration, refer to the provided example in the following link:
+`Choke example <https://aedt.docs.pyansys.com/version/stable/examples/02-HFSS/HFSS_Choke.html#sphx-glr-examples-02-hfss-hfss-choke-py>`_

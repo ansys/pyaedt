@@ -18,3 +18,6 @@ This file can be created using the following command:
 The main file skeleton is shown below.
 
 :download:`Cable example <../../Resources/cable_example.json>`
+
+For a practical demonstration, refer to the provided example in the following link:
+`Cable API <https://aedt.docs.pyansys.com/version/stable/API/CableModeling.html>`_

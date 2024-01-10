@@ -16,12 +16,12 @@ Getting started
 
             Learn how to install PyAEDT from PyPi or conda.
 
-   .. grid-item-card:: Tutorial
+   .. grid-item-card:: Tutorials
             :link: ../User_guide/index
             :link-type: doc
             :margin: 2 2 0 0
 
-            Learn how to use PyAEDT.
+            This section provides in-depth information on PyAEDT key concepts.
 
    .. grid-item-card:: Client-Server
             :link: ClientServer
@@ -79,35 +79,28 @@ faster resolution of complex simulations for design and optimization.
 For more information, see `Ansys Electronics <https://https://www.ansys.com/products/electronics>`_
 on the Ansys website.
 
-PyAEDT Documentation
---------------------
+PyAEDT Cheat Sheets
+-------------------
 
-In the upper right corner of the documentation’s title bar, you will find a version switcher dropdown.
-This feature allows you to easily switch between different versions of the documentation.
+PyAEDT cheat sheet introduces the basics that you need to use PyAEDT.
+PyAEDT cheat sheet is one-page reference providing syntax rules and commands
+for using the PyAEDT API and EDB API:
 
-   - **Latest Stable Release:** This option provides access to the documentation for the most
-    recent stable release.
+**PyAEDT Cheat Sheet:** `PyAEDT API <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_
 
-   - **Development Version:** Switch to this option to explore the documentation for the latest development version.
-
-Use this version switcher to access the relevant documentation based on your needs.
-
-You can also view or download PyAEDT cheat sheets, which are one-page references
-providing syntax rules and commands for using the PyAEDT API and PyEDB API:
-
-- `View PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.png>`_ or
-  `download PyAEDT cheat sheet <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_ the
-  PyAEDT API cheat sheet.
-
-- `View EDB cheat sheet <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png>`_ or
-  `download EDB cheat sheet  <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_ the
-  PyAEDT API cheat sheet.
+**EDB Cheat Sheet:** `EDB API <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_
 
 
-On the `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page, you can
-create issues to report bugs and request new features. On the `PyAEDT Discussions
+Get Help
+--------
+
+**Development Issues:** For PyAEDT development-related matters (e.g., bug reports), please see
+`PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_.
+You can create issues to report bugs and request new features.
+
+**User questions:** The best way to get help is to post your question on the `PyAEDT Discussions
 <https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
-page on the Ansys Developer portal, you can post questions, share ideas, and get community feedback.
+page on the Ansys Developer portal. You can post questions, share ideas, and get community feedback.
 
 
 License

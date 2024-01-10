@@ -107,7 +107,7 @@ PyAEDT includes a powerful class to generate pdf report that is based on python 
 As an illustration of the capabilities offered by PyAEDT,
 you can explore a sample PDF report generated using this class:
 
-:download:`PDF Report Example: <../Resources/report_example.pdf>`
+:download:`PDF Report Example <../Resources/report_example.pdf>`
 
 Previous file was created with the following code:
 

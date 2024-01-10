@@ -155,5 +155,5 @@ Few example files can be found at:
     }
     }
 
-
-
+For a practical demonstration, refer to the provided example in the following link:
+`Project configuration file example <https://aedt.docs.pyansys.com/version/stable/examples/01-Modeling-Setup/Configurations.html#sphx-glr-examples-01-modeling-setup-configurations-py>`_

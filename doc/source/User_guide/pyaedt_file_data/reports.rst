@@ -19,3 +19,6 @@ This file can be created using the following command:
 The main file skeleton is shown below:
 
 :download:`HFSS report example <../../Resources/hfss_report_example.json>`
+
+For a practical demonstration, refer to the provided example in the following link:
+`Report configuration file example <https://aedt.docs.pyansys.com/version/stable/examples/07-Circuit/Reports.html#sphx-glr-examples-07-circuit-reports-py>`_
