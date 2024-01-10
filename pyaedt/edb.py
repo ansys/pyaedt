@@ -14,6 +14,7 @@ import warnings
 
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.edb_core.configuration import Configuration
 from pyaedt.edb_core.components import Components
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
@@ -687,6 +688,10 @@ class Edb(Database):
         """
         warnings.warn("Use new property :func:`components` instead.", DeprecationWarning)
         return self.components
+
+    @property
+    def configuration(self):
+        return Configuration(self)
 
     @property
     def components(self):
