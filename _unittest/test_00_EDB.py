@@ -3150,7 +3150,7 @@ class TestClass:
         target_path = os.path.join(self.local_scratch.path, "test_is_top_property", "test.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, desktop_version)
-        assert edbapp.components.instances["U1"].is_top
-        assert not edbapp.components.instances["C347"].is_top
-        assert not edbapp.components.instances["R67"].is_top
+        assert edbapp.components.instances["U1"].is_top_mounted
+        assert not edbapp.components.instances["C347"].is_top_mounted
+        assert not edbapp.components.instances["R67"].is_top_mounted
         edbapp.close_edb()
