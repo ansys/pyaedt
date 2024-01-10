@@ -798,12 +798,12 @@ class EDBComponent(object):
 
     @property
     def is_top(self):
-        """Check if a component is placed at top layer.
+        """Check if a component is placed facing up or down the layout.
 
         Returns
         -------
         bool
-            ``True`` component is placed at top ``False`` at bottom.
+            ``True`` component is facing up, ``False`` facing down.
 
         """
         signal_layers = [lay.name for lay in list(self._pedb.stackup.signal_layers.values())]
