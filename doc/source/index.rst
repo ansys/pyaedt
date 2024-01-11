@@ -19,7 +19,7 @@ In the upper right corner of the documentation’s title bar, you will find a ve
             Getting started
             ^^^^^^^^^^^^^^^
 
-            New to PyAEDT? In this section you will find all the information you need to get started with PyAEDT.
+            New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
 
             +++
 
