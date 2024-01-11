@@ -79,7 +79,7 @@ faster resolution of complex simulations for design and optimization.
 For more information, see `Ansys Electronics <https://https://www.ansys.com/products/electronics>`_
 on the Ansys website.
 
-PyAEDT Cheat Sheets
+PyAEDT cheat sheets
 -------------------
 
 PyAEDT cheat sheet introduces the basics that you need to use PyAEDT.
