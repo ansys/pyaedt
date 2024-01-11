@@ -4,7 +4,7 @@
 
 # ## Final expected project
 
-# ![Differential Vias](../../_static/diff_via.png)
+# <img src="../../_static/diff_via.png" width="600">
 
 # ## Import EDB layout object
 
@@ -16,13 +16,10 @@ import os
 import pyaedt
 
 start = time.time()
-# -
-
-start = time.time()
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
-
+# -
 
 # ## Add stackup layers
 
