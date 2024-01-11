@@ -22,7 +22,7 @@ All mesh operations are conveniently listed within the mesh object:
 
 
 Icepak has a different approach to the mesh operations.
-Those are managed through mesh regions and they can be edited directly from the pyaedt object.
+Those are managed through mesh regions and can be edited directly from the pyaedt object.
 
 .. code:: python
 
