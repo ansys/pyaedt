@@ -5732,10 +5732,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
         thickness : str or float, optional
             If ``thermal_specification="Thickness"``, this parameter represents the
             thickness to model with the plate. The default is ``"1mm"``. If a float,
@@ -5783,10 +5784,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
         thermal_resistance : str or float, optional
             If ``thermal_specification="Thermal Resistance"``, this parameter represents the
             thermal resistance of the plate. The default is ``"0Kel_per_W"``. If a float, the
@@ -5830,10 +5832,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
         thermal_impedance : str or float, optional
             If ``thermal_specification="Thermal Impedance"``, this parameter represents the
             thermal impedance of the plate. The default is ``"0Cel_m2_per_W"``. If a float, the
@@ -5877,10 +5880,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
         conductance : str or float, optional
              If ``thermal_specification="Conductance"``, this parameter represents the
              conductance of the plate. The default is ``"0W_per_Cel"``. If a float, the default
