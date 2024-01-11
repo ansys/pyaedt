@@ -36,7 +36,7 @@ You can also generate reports in Matplotlib:
 
 .. image:: ../Resources/sparams_w_matplotlib.jpg
   :width: 800
-  :alt: S-Parameters report created with matplotlib
+  :alt: S-Parameters report created with Matplotlib
 
 
 PyAEDT can be used to plot any kind of report available in the Electronics Desktop interface.
