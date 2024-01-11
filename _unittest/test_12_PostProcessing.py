@@ -9,10 +9,11 @@ from pyaedt import Icepak
 from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import settings
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
+from pyaedt.generic.settings import settings
+from pyaedt.modules.solutions import FfdSolutionData
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
@@ -552,15 +553,73 @@ class TestClass:
             os.path.join(local_path, "example_models", "report_json", "Spectral_Report.json"), solution_name="Transient"
         )
 
+    def test_70_far_field_data(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        eep_file1 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
+        eep_file2 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
+        frequencies = [0.9e9, "0.9GHz"]
+        eep_files = [eep_file1, eep_file2]
+
+        ffdata = FfdSolutionData(frequencies=frequencies[1], eep_files=eep_file1)
+        assert len(ffdata.frequencies) == 1
+
+        ffdata = FfdSolutionData(frequencies=frequencies, eep_files=eep_files)
+        assert len(ffdata.frequencies) == 2
+        farfield = ffdata.combine_farfield()
+        assert "rETheta" in farfield
+
+        ffdata.taper = "cosine"
+        assert ffdata.combine_farfield()
+        ffdata.taper = "taper"
+        assert not ffdata.taper == "taper"
+
+        ffdata.origin = [0, 2]
+        assert ffdata.origin != [0, 2]
+        ffdata.origin = [0, 0, 1]
+        assert ffdata.origin == [0, 0, 1]
+
+        img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
+        ffdata.plot_2d_cut(secondary_sweep_value="all", primary_sweep="Theta", export_image_path=img1)
+        assert os.path.exists(img1)
+        img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
+        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], export_image_path=img2)
+        assert os.path.exists(img2)
+        img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
+        ffdata.plot_2d_cut(export_image_path=img3)
+        assert os.path.exists(img3)
+        curve_2d = ffdata.plot_2d_cut(show=False)
+        assert len(curve_2d[0]) == 3
+        data = ffdata.polar_plot_3d(show=False)
+        assert len(data) == 3
+
+        img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
+        ffdata.polar_plot_3d_pyvista(
+            farfield_quantity="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=img4,
+            background=[255, 0, 0],
+            show_geometry=False,
+        )
+        assert os.path.exists(img4)
+        data_pyvista = ffdata.polar_plot_3d_pyvista(
+            farfield_quantity="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            background=[255, 0, 0],
+            show_geometry=False,
+        )
+        assert data_pyvista
+
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
         ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
-        ffdata.phase_offset = [0, 90, 0, 90]
-        assert ffdata.phase_offset == [0.0]
-        ffdata.phase_offset = [90]
+        ffdata.phase_offset = [0, 90]
+        assert ffdata.phase_offset == [0, 90]
+        ffdata.phase_offset = [0]
         assert ffdata.phase_offset != [0.0]
         assert ffdata.plot_farfield_contour(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             title="Contour at {}Hz".format(ffdata.frequency),
             export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
@@ -570,32 +629,30 @@ class TestClass:
         ffdata.plot_2d_cut(
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
             primary_sweep="phi",
             secondary_sweep_value=30,
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
         ffdata.polar_plot_3d_pyvista(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             show=False,
             export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
@@ -603,7 +660,7 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
 
         try:
-            p = ffdata.polar_plot_3d_pyvista(qty_str="RealizedGain", convert_to_db=True, show=False)
+            p = ffdata.polar_plot_3d_pyvista(farfield_quantity="RealizedGain", convert_to_db=True, show=False)
             assert isinstance(p, object)
         except:
             assert True
@@ -613,7 +670,7 @@ class TestClass:
         ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             title="Contour at {}Hz".format(ffdata.frequency),
             export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
@@ -623,32 +680,30 @@ class TestClass:
         ffdata.plot_2d_cut(
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
             primary_sweep="phi",
             secondary_sweep_value=30,
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
         ffdata.polar_plot_3d_pyvista(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             show=False,
             export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
@@ -656,7 +711,7 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
         ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
         assert ffdata1.plot_farfield_contour(
-            qty_str="RealizedGain",
+            farfield_quantity="RealizedGain",
             convert_to_db=True,
             title="Contour at {}Hz".format(ffdata1.frequency),
             export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),

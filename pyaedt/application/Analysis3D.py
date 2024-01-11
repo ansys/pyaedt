@@ -3,13 +3,13 @@ import ntpath
 import os
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -487,7 +487,15 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler()
     def export_3d_model(
-        self, file_name="", file_path="", file_format=".step", object_list=None, removed_objects=None, **kwargs
+        self,
+        file_name="",
+        file_path="",
+        file_format=".step",
+        object_list=None,
+        removed_objects=None,
+        major_version=-1,
+        minor_version=-1,
+        **kwargs  # fmt: skip
     ):
         """Export the 3D model.
 
@@ -502,7 +510,11 @@ class FieldAnalysis3D(Analysis, object):
         object_list : list, optional
             List of objects to export. The default is ``None``.
         removed_objects : list, optional
-            The default is ``None``.
+            List of objects to remove. The default is ``None``.
+        major_version : int, optional
+            File format major version. Default is -1.
+        minor_version : int, optional
+            File format major version. Default is -1.
 
         Returns
         -------
@@ -556,12 +568,14 @@ class FieldAnalysis3D(Analysis, object):
             allObjects = object_list[:]
 
         self.logger.debug("Exporting {} objects".format(len(allObjects)))
-        major = -1
-        minor = -1
+
         # actual version supported by AEDT is 29.0
-        if file_format in [".sm3", ".sat", ".sab"]:
-            major = 29
-            minor = 0
+        if major_version == -1:
+            if file_format in [".sm3", ".sat", ".sab"]:
+                major_version = 29
+        if minor_version == -1:
+            if file_format in [".sm3", ".sat", ".sab"]:
+                minor_version = 0
         stringa = ",".join(allObjects)
         arg = [
             "NAME:ExportParameters",
@@ -574,9 +588,9 @@ class FieldAnalysis3D(Analysis, object):
             "File Name:=",
             os.path.join(file_path, file_name + file_format).replace("\\", "/"),
             "Major Version:=",
-            major,
+            major_version,
             "Minor Version:=",
-            minor,
+            minor_version,
         ]
 
         self.modeler.oeditor.Export(arg)

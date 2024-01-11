@@ -5,7 +5,7 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Icepak
-from pyaedt import settings
+from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -447,6 +447,7 @@ class TestClass:
         fan = self.aedtapp.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
+        self.aedtapp.delete_design()
 
     def test_36_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
@@ -461,6 +462,7 @@ class TestClass:
             rotation=45,
             tolerance=0.005,
         )
+        self.aedtapp.delete_design()
 
     def test_37_check_bounding_box(self):
         self.aedtapp.insert_design("Bbox")
@@ -480,6 +482,7 @@ class TestClass:
         exp_bounding = [0.2, 0.2, 0.2, 0.5, 0.6, 0.4]
         real_bound = obj_2_bbox
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
+        self.aedtapp.delete_design()
 
     @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
     def test_38_export_fluent_mesh(self, add_app):
@@ -508,10 +511,7 @@ class TestClass:
         assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=self.source_project_path)
 
     def test_42_import_idf(self):
-        self.aedtapp.insert_design("IDF")
-        assert self.aedtapp.import_idf(
-            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "A1_uprev Cadence172.bdf")
-        )
+        self.aedtapp.insert_design("IDF_2")
         assert self.aedtapp.import_idf(
             os.path.join(local_path, "../_unittest/example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
             filter_cap=True,
@@ -627,6 +627,7 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_50_advanced3dcomp_export(self):
+        self.aedtapp.logger.clear_messages("", "")
         self.aedtapp.insert_design("advanced3dcompTest")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         box1 = self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
@@ -707,15 +708,12 @@ class TestClass:
             datasets=["test_dataset"],
         )
         fan.delete()
-        fan2.delete()
-        fan_obj.delete()
-        pcb.delete()
-        box1.delete()
-        surf1.delete()
         fan_obj_3d.delete()
+        self.aedtapp.delete_design("advanced3dcompTest")
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_51_advanced3dcomp_import(self):
+        self.aedtapp.logger.clear_messages("", "")
         self.aedtapp.insert_design("test_3d_comp")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         box1 = self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
@@ -811,13 +809,16 @@ class TestClass:
         dup = self.aedtapp.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], nclones=2)
         self.aedtapp.modeler.refresh_all_ids()
         self.aedtapp.modeler.user_defined_components[dup[0]].delete()
+        self.aedtapp.delete_design()
         self.aedtapp.insert_design("test_51_2")
         self.aedtapp.modeler.insert_3d_component(
             comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
         )
+        self.aedtapp.delete_design()
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_52_flatten_3d_components(self):
+        self.aedtapp.logger.clear_messages("", "")
         self.aedtapp.insert_design("test_52")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
@@ -844,6 +845,7 @@ class TestClass:
             ]
         )
         assert "test_dataset" in self.aedtapp.design_datasets
+        self.aedtapp.delete_design()
 
     def test_53_create_conduting_plate(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")

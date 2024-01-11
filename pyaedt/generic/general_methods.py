@@ -12,7 +12,6 @@ from functools import update_wrapper
 import inspect
 import itertools
 import json
-import logging
 import math
 import os
 import random
@@ -23,6 +22,7 @@ import tempfile
 import time
 import traceback
 
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.settings import settings
 
@@ -683,8 +683,11 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
     """
     func_name = None
-    if function.__name__ == "InvokeAedtObjMethod":
-        func_name = args[1]
+    try:
+        if function.__name__ == "InvokeAedtObjMethod":
+            func_name = args[1]
+    except:
+        pass
     retry = 0
     ret_val = None
     inclusion_list = [
@@ -837,7 +840,7 @@ def read_csv_pandas(filename, encoding="utf-8"):
 
         return pd.read_csv(filename, encoding=encoding, header=0, na_values=".")
     except ImportError:
-        logging.error("Pandas is not available. Install it.")
+        pyaedt_logger.error("Pandas is not available. Install it.")
         return None
 
 
@@ -1313,7 +1316,7 @@ def compute_fft(time_vals, value):  # pragma: no cover
     try:
         import numpy as np
     except ImportError:
-        logging.error("NumPy is not available. Install it.")
+        pyaedt_logger.error("NumPy is not available. Install it.")
         return False
 
     deltaT = time_vals[-1] - time_vals[0]
@@ -1325,6 +1328,73 @@ def compute_fft(time_vals, value):  # pragma: no cover
     n = np.arange(num_points)
     freq = n / deltaT
     return freq, valueFFT
+
+
+@pyaedt_function_handler()
+def conversion_function(data, function_str=None):  # pragma: no cover
+    """Convert input data based on a specified function string.
+
+    The available functions are:
+
+    - `"dB10"`: Converts the data to decibels using base 10 logarithm.
+    - `"dB20"`: Converts the data to decibels using base 20 logarithm.
+    - `"abs"`: Computes the absolute value of the data.
+    - `"real"`: Computes the real part of the data.
+    - `"imag"`: Computes the imaginary part of the data.
+    - `"norm"`: Normalizes the data to have values between 0 and 1.
+    - `"ang"`: Computes the phase angle of the data in radians.
+    - `"ang_deg"`: Computes the phase angle of the data in degrees.
+
+    If an invalid function string is specified, the method returns ``False``.
+
+    Parameters
+    ----------
+    data : list, numpy.array
+        Numerical values to convert. The format can be ``list`` or ``numpy.array``.
+    function_str : str, optional
+        Conversion function. The default is `"dB10"`.
+
+    Returns
+    -------
+    numpy.array or bool
+        Converted data, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> data = [1, 2, 3, 4]
+    >>> conversion_function(data, "dB10")
+    array([-inf, 0., 4.77, 6.02])
+
+    >>> conversion_function(data, "abs")
+    array([1, 2, 3, 4])
+
+    >>> conversion_function(data, "ang_deg")
+    array([ 0., 0., 0., 0.])
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        logging.error("NumPy is not available. Install it.")
+        return False
+
+    function_str = function_str or "dB10"
+    available_functions = {
+        "dB10": lambda x: 10 * np.log10(np.abs(x)),
+        "dB20": lambda x: 20 * np.log10(np.abs(x)),
+        "abs": np.abs,
+        "real": np.real,
+        "imag": np.imag,
+        "norm": lambda x: np.abs(x) / np.max(np.abs(x)),
+        "ang": np.angle,
+        "ang_deg": lambda x: np.angle(x, deg=True),
+    }
+
+    if function_str not in available_functions:
+        logging.error("Specified conversion is not available.")
+        return False
+
+    data = available_functions[function_str](data)
+    return data
 
 
 def parse_excitation_file(
@@ -1366,7 +1436,7 @@ def parse_excitation_file(
     try:
         import numpy as np
     except ImportError:
-        logging.error("NumPy is not available. Install it.")
+        pyaedt_logger.error("NumPy is not available. Install it.")
         return False
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
