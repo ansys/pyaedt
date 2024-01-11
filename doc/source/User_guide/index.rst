@@ -39,7 +39,7 @@ For additional practical demonstrations, see
 
             This tutorial shows how to create a setup and run simulations.
 
-   .. grid-item-card:: Variables & Optimetrics
+   .. grid-item-card:: Variables and Optimetrics
             :link: variables
             :link-type: doc
             :margin: 2 2 0 0
