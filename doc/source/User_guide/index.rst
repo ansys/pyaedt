@@ -58,7 +58,7 @@ For additional practical demonstrations, see
             :link-type: doc
             :margin: 2 2 0 0
 
-            Usage of PyAEDT to generate reports, images and pdf.
+            This tutorial shows how to generate reports, images, and PDF files.
 
 .. toctree::
    :hidden:
