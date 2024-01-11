@@ -1,7 +1,7 @@
 Minimal Example
 ===============
 
-You can initiate AEDT in non-graphical mode from Python using the following code:
+You can initiate AEDT in non-graphical mode from Python using this code:
 
 .. code:: python
 
