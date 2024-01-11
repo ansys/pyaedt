@@ -1,6 +1,7 @@
 """
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
+from abc import abstractmethod
 from collections import OrderedDict
 import copy
 import re
@@ -4519,3 +4520,232 @@ def _create_boundary(bound):
             raise Exception
     except Exception:  # pragma: no cover
         return None
+
+
+class BoundaryDictionary:
+    """
+    Class that handles Icepak transient and temperature dependent boundary conditions assignments.
+
+    Parameters
+    ----------
+    assignment_type : str
+        The type of assignment represented by the class. It can be ``"Temp Dep"``
+        or ``"Transient"``.
+    function_type : str
+        The variation function to be assigned. If ``assignment_type=="Temp Dep"``,
+        it can only be ``"Piecewise Linear"``, else it can be ``"Piecewise Linear"``,
+        ``"Linear"``, ``"Sinusoidal"``, ``"Power Law"``, ``"Exponential"``,
+        and ``"Square Wave"``.
+    """
+
+    def __init__(self, assignment_type, function_type):
+        if assignment_type not in ["Temp Dep", "Transient"]:
+            raise AttributeError("The argument {} for ``assignment_type`` is not valid.".format(assignment_type))
+        if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":
+            raise AttributeError(
+                "Temperature dependent assignments only support"
+                ' ``"Piecewise Linear"`` as ``function_type`` argument.'.format(assignment_type)
+            )
+        self.assignment_type = assignment_type
+        self.function_type = function_type
+
+    @property
+    def props(self):
+        return {
+            "Type": self.assignment_type,
+            "Function": self.function_type,
+            "Values": self._parse_value(),
+        }
+
+    @abstractmethod
+    def _parse_value(self):
+        pass
+
+    @pyaedt_function_handler
+    def __getitem__(self, k):
+        return self.props.get(k)
+
+
+class LinearDictionary(BoundaryDictionary):
+    """
+    Class for managing linear conditions assignments, children of BoundaryDictionary.
+
+    It applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*t``
+
+    Parameters
+    ----------
+    intercept : str
+        Value of the assignment condition at initial time.
+        Corresponds to the coefficient ``a`` in the formula.
+    slope : str
+        Slope of the assignment condition.
+        Corresponds to the coefficient ``b`` in the formula.
+    """
+
+    def __init__(self, intercept, slope):
+        super().__init__("Transient", "Linear")
+        self.intercept = intercept
+        self.slope = slope
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.slope, self.intercept]
+
+
+class PowerLawDictionary(BoundaryDictionary):
+    """
+    Class for managing power law conditions assignments, children of BoundaryDictionary.
+
+    It applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*t^c``
+
+    Parameters
+    ----------
+    intercept : str
+        Value of the assignment condition at initial time.
+        Corresponds to the coefficient ``a`` in the formula.
+    coefficient : str
+        Coefficient that multiplies the power term.
+        Corresponds to the coefficient ``b`` in the formula.
+    scaling_exponent : str
+        Exponent of the power term.
+        Corresponds to the coefficient ``c`` in the formula.
+    """
+
+    def __init__(self, intercept, coefficient, scaling_exponent):
+        super().__init__("Transient", "Power Law")
+        self.intercept = intercept
+        self.coefficient = coefficient
+        self.scaling_exponent = scaling_exponent
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.intercept, self.coefficient, self.scaling_exponent]
+
+
+class ExponentialDictionary(BoundaryDictionary):
+    """
+    Class for managing exponential conditions assignments, children of BoundaryDictionary.
+
+    It applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*exp(c*t)``
+
+    Parameters
+    ----------
+    vertical_offset : str
+        Vertical offset summed to the exponential law.
+        Corresponds to the coefficient ``a`` in the formula.
+    coefficient : str
+        Coefficient that multiplies the exponential term.
+        Corresponds to the coefficient ``b`` in the formula.
+    exponent_coefficient : str
+        Coefficient in the exponential term.
+        Corresponds to the coefficient ``c`` in the formula.
+    """
+
+    def __init__(self, vertical_offset, coefficient, exponent_coefficient):
+        super().__init__("Transient", "Exponential")
+        self.vertical_offset = vertical_offset
+        self.coefficient = coefficient
+        self.exponent_coefficient = exponent_coefficient
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.vertical_offset, self.coefficient, self.exponent_coefficient]
+
+
+class SinusoidalDictionary(BoundaryDictionary):
+    """
+    Class for managing sinusoidal conditions assignments, children of BoundaryDictionary.
+
+    It applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*sin(2*pi(t-t0)/T)``
+
+    Parameters
+    ----------
+    vertical_offset : str
+        Vertical offset summed to the sinusoidal law.
+        Corresponds to the coefficient ``a`` in the formula.
+    vertical_scaling : str
+        Coefficient that multiplies the sinusoidal term.
+        Corresponds to the coefficient ``b`` in the formula.
+    period : str
+        Period of the sinusoid.
+        Corresponds to the coefficient ``T`` in the formula.
+    period_offset : str
+        Offset of the sinusoid.
+        Corresponds to the coefficient ``t0`` in the formula.
+    """
+
+    def __init__(self, vertical_offset, vertical_scaling, period, period_offset):
+        super().__init__("Transient", "Sinusoidal")
+        self.vertical_offset = vertical_offset
+        self.vertical_scaling = vertical_scaling
+        self.period = period
+        self.period_offset = period_offset
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.vertical_offset, self.vertical_scaling, self.period, self.period_offset]
+
+
+class SquareWaveDictionary(BoundaryDictionary):
+    """
+    Class for managing square wave conditions assignments, children of BoundaryDictionary.
+
+    Parameters
+    ----------
+    on_value : str
+        Maximum value of the square wave.
+    initial_time_off : str
+        Time after which the square wave assignment starts
+    on_time : str
+        Time for which the square wave keeps the maximum value during one period.
+    off_time : str
+        Time for which the square wave keeps the minimum value during one period.
+    off_value : str
+        Minimum value of the square wave.
+    """
+
+    def __init__(self, on_value, initial_time_off, on_time, off_time, off_value):
+        super().__init__("Transient", "Square Wave")
+        self.on_value = on_value
+        self.initial_time_off = initial_time_off
+        self.on_time = on_time
+        self.off_time = off_time
+        self.off_value = off_value
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.on_value, self.initial_time_off, self.on_time, self.off_time, self.off_value]
+
+
+class PieceWiseLinearDictionary(BoundaryDictionary):
+    """
+    Class for managing dataset conditions assignments, children of BoundaryDictionary.
+
+    Parameters
+    ----------
+    assignment_type : str
+        The type of assignment represented by the class.
+        It can be ``"Temp Dep"`` or ``"Transient"``.
+    ds : str
+        Dataset name to be assigned.
+    scale : str
+        Scaling factor for the y values of the dataset.
+    """
+
+    def __init__(self, assignment_type, ds, scale):
+        super().__init__(assignment_type, "Piecewise Linear")
+        self.scale = scale
+        self._assignment_type = assignment_type
+        self.dataset = ds
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.scale, self.dataset.name]
+
+    @property
+    def dataset_name(self):
+        return self.dataset.name
