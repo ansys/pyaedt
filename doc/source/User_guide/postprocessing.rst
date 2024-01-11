@@ -17,7 +17,7 @@ To use PyAEDT to create a report in AEDT, you can follow this general structure:
 
 .. image:: ../Resources/sparams.jpg
   :width: 800
-  :alt: AEDT Report
+  :alt: AEDT report
 
 
 You can also generate reports in Matplotlib:
