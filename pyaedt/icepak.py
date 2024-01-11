@@ -4972,23 +4972,12 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
             provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
             volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
+            where the default unit "W" will be used.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5092,7 +5081,7 @@ class Icepak(FieldAnalysis3D):
                     "Y": [str(i) for i in values[1]]
                 }
 
-        if isinstance(total_power, dict):
+        if isinstance(total_power, (dict, BoundaryDictionary)):
             if not self.solution_type == "Transient":
                 self.logger.error("Transient assignment is supported only in transient designs.")
                 return None
@@ -5134,23 +5123,12 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
             provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
             volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
+            where the default unit "W" will be used.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5200,23 +5178,12 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
             provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
             volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
+            where the default unit "W" will be used.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5284,23 +5251,12 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
             provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
             volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
+            where the default unit "W" will be used.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
