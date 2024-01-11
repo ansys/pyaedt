@@ -73,7 +73,7 @@ You can plot the field plot directly in HFSS and export it to image files.
 
 .. image:: ../Resources/field_plot.png
   :width: 800
-  :alt: Post Processing features
+  :alt: Postprocessing features
 
 
 PyAEDT leverages PyVista to export and plot fields outside AEDT, generating images and animations:
