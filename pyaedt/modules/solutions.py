@@ -10,7 +10,6 @@ import time
 
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
-from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
@@ -26,6 +25,7 @@ from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
 np = None

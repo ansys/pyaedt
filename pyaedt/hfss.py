@@ -9,7 +9,6 @@ import os
 import tempfile
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
@@ -19,6 +18,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler import cad
 from pyaedt.modeler.cad.component_array import ComponentArray
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
@@ -1202,6 +1202,8 @@ class Hfss(FieldAnalysis3D, object):
     def _create_native_component(
         self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
     ):
+        from pyaedt.modeler.cad.Modeler import CoordinateSystem
+
         if antenna_name is None:
             antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))
         if not model_units:
@@ -1210,6 +1212,8 @@ class Hfss(FieldAnalysis3D, object):
         native_props = OrderedDict(
             {"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type, "Unit": model_units})}
         )
+        if isinstance(target_cs, CoordinateSystem):
+            target_cs = target_cs.name
         native_props["TargetCS"] = target_cs
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:

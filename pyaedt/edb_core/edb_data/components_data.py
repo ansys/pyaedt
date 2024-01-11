@@ -1,4 +1,3 @@
-import logging
 import re
 import warnings
 
@@ -13,6 +12,7 @@ if not is_ironpython:
             "The NumPy module is required to run some functionalities of EDB.\n"
             "Install with \n\npip install numpy\n\nRequires CPython."
         )
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -589,7 +589,7 @@ class EDBComponent(object):
     @is_parallel_rlc.setter
     def is_parallel_rlc(self, value):  # pragma no cover
         if not len(self._pin_pairs):
-            logging.warning(self.refdes, " has no pin pair.")
+            pyaedt_logger.warning(self.refdes, " has no pin pair.")
         else:
             if isinstance(value, bool):
                 componentProperty = self.edbcomponent.GetComponentProperty()
@@ -860,7 +860,7 @@ class EDBComponent(object):
         comp_prop = self.component_property
         comp_prop.SetModel(model)
         if not self.edbcomponent.SetComponentProperty(comp_prop):
-            logging.error("Fail to assign model on {}.".format(self.refdes))
+            pyaedt_logger.error("Fail to assign model on {}.".format(self.refdes))
             return False
         return True
 
@@ -898,7 +898,7 @@ class EDBComponent(object):
                 model.AddTerminalPinPair(pn, str(terminal))
                 terminal += 1
         else:  # pragma: no cover
-            logging.error("Wrong number of Pins")
+            pyaedt_logger.error("Wrong number of Pins")
             return False
         return self._set_model(model)
 
