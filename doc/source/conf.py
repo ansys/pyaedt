@@ -10,7 +10,7 @@ import warnings
 import pyvista
 import numpy as np
 import json
-from sphinx_gallery.sorting import FileNameSortKey
+# from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (ansys_favicon, 
                                 get_version_match, pyansys_logo_black,
                                 watermark, 
@@ -41,6 +41,9 @@ def visit_desc_content(self, node: Element) -> None:
 LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
+
+path = pathlib.Path(__file__).parent.parent.parent / "examples"
+EXAMPLES_DIRECTORY = path.resolve()
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -77,9 +80,27 @@ def remove_doctree(app, exception):
     shutil.rmtree(app.doctreedir)
 
 
+def copy_examples(app):
+    """Copy directory examples (root directory) files into the doc/source/examples directory.
+    """
+    DESTINATION_DIRECTORY = pathlib.Path(app.srcdir, "examples").resolve()
+    print(f"Copying examples from {EXAMPLES_DIRECTORY} to {DESTINATION_DIRECTORY} directory")
+    if os.path.exists(DESTINATION_DIRECTORY):
+        shutil.rmtree(DESTINATION_DIRECTORY)
+    shutil.copytree(EXAMPLES_DIRECTORY, DESTINATION_DIRECTORY)
+    print("Done")
+
+def remove_examples(app, exception):
+    """Remove the doc/source/examples directory created during the documentation build.
+    """
+    DESTINATION_DIRECTORY = pathlib.Path(app.srcdir) / "examples"
+    shutil.rmtree(DESTINATION_DIRECTORY)
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect("builder-inited", copy_examples)
+    app.connect("build-finished", remove_examples)
     app.connect('build-finished', remove_doctree)
 
 
@@ -120,6 +141,9 @@ os.environ["PYAEDT_DOC_GENERATION"] = "1"
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.graphviz",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
@@ -129,13 +153,15 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_jinja",
+    "nbsphinx",
     "recommonmark",
-    "sphinx.ext.graphviz",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.inheritance_diagram",
     "numpydoc",
     "ansys_sphinx_theme.extension.linkcode",
+    # "myst_parser"
 ]
+
+# MathJax config
+# myst_update_mathjax = False
 
 # Intersphinx mapping
 intersphinx_mapping = {
@@ -212,7 +238,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt"]
+exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt", "conf.py", "Resources/PyAEDTInstallerFromDesktop.py"]
 
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
 inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
@@ -235,6 +261,18 @@ master_doc = "index"
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
+
+# Warning suppresses
+nbsphinx_execute = "always"
+
+# Sphinx gallery customization
+nbsphinx_thumbnails = {
+    "examples/00-EDB/00_EDB_Create_VIA": "_static/thumbnails/diff_via.png",
+}
+
+nbsphinx_custom_formats = {
+    ".py": ["jupytext.reads", {"fmt": ""}],
+}
 
 
 # Manage errors
@@ -267,33 +305,33 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
-    if config["run_examples"]:
-        extensions.append("sphinx_gallery.gen_gallery")
+    # if config["run_examples"]:
+    #     extensions.append("sphinx_gallery.gen_gallery")
 
-        sphinx_gallery_conf = {
-            # convert rst to md for ipynb
-            "pypandoc": True,
-            # path to your examples scripts
-            "examples_dirs": ["../../examples/"],
-            # path where to save gallery generated examples
-            "gallery_dirs": ["examples"],
-            # Pattern to search for examples files
-            "filename_pattern": r"\.py",
-            # Remove the "Download all examples" button from the top level gallery
-            "download_all_examples": False,
-            # Sort gallery examples by file name instead of number of lines (default)
-            "within_subsection_order": FileNameSortKey,
-            # directory where function granular galleries are stored
-            "backreferences_dir": None,
-            # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-pyaedt",
-            "image_scrapers": ("pyvista", "matplotlib"),
-            "ignore_pattern": "flycheck*",
-            "thumbnail_size": (350, 350),
-            # 'first_notebook_cell': ("%matplotlib inline\n"
-            #                         "from pyvista import set_plot_theme\n"
-            #                         "set_plot_theme('document')"),
-        }
+    #     sphinx_gallery_conf = {
+    #         # convert rst to md for ipynb
+    #         "pypandoc": True,
+    #         # path to your examples scripts
+    #         "examples_dirs": ["../../examples/"],
+    #         # path where to save gallery generated examples
+    #         "gallery_dirs": ["examples"],
+    #         # Pattern to search for examples files
+    #         "filename_pattern": r"\.py",
+    #         # Remove the "Download all examples" button from the top level gallery
+    #         "download_all_examples": False,
+    #         # Sort gallery examples by file name instead of number of lines (default)
+    #         "within_subsection_order": FileNameSortKey,
+    #         # directory where function granular galleries are stored
+    #         "backreferences_dir": None,
+    #         # Modules for which function level galleries are created.  In
+    #         "doc_module": "ansys-pyaedt",
+    #         "image_scrapers": ("pyvista", "matplotlib"),
+    #         "ignore_pattern": "flycheck*",
+    #         "thumbnail_size": (350, 350),
+    #         # 'first_notebook_cell': ("%matplotlib inline\n"
+    #         #                         "from pyvista import set_plot_theme\n"
+    #         #                         "set_plot_theme('document')"),
+    #     }
 
 jinja_contexts = {
     "main_toctree": {

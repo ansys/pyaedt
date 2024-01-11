@@ -11,6 +11,8 @@ set SOURCEDIR=source
 set BUILDDIR=_build
 
 if "%1" == "" goto help
+if "%1" == "clean" goto clean
+if "%1" == "html" goto html
 if "%1" == "pdf" goto pdf
 
 %SPHINXBUILD% >NUL 2>NUL
@@ -32,11 +34,37 @@ goto end
 :help
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 
+:clean
+rmdir /s /q %SOURCEDIR%\%BUILDDIR%
+for /d /r %SOURCEDIR% %%d in (_autosummary) do @if exist "%%d" rmdir /s /q "%%d"
+goto end
+
+:html
+%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% -v %O%
+goto build-examples-py
+
+:build-examples-py
+cd "%BUILDDIR%\html\examples"
+for /d %%D in (*) do (
+Echo Processing examples folder... %%D
+cd %%D
+for %%f in (*.ipynb) do (
+	jupytext --to py "%%f"
+)
+cd ../
+)
+goto end
+
 :pdf
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
 pdflatex "%%f" --interaction=nonstopmode)
+if NOT EXIST pyaedt.pdf (
+	Echo "no pdf generated!"
+	exit /b 1)
+Echo "pdf generated!"
+goto end 	
 
 :end
 popd

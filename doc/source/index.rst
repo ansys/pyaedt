@@ -6,24 +6,6 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
 
 .. grid:: 2
 
-   .. grid-item-card::
-            :img-top: _static/assets/index_getting_started.png
-
-            Getting started
-            ^^^^^^^^^^^^^^^
-
-            Learn how to run install PyAEDT, to launch Electronics Desktop and
-            install link button in AEDT.
-
-            +++
-
-            .. button-link:: Getting_started/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  Getting started
 
    .. grid-item-card::
             :img-top: _static/assets/index_user_guide.png
@@ -42,46 +24,6 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
                :click-parent:
 
                   User guide
-
-
-
-.. grid:: 2
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
-
-            AEDT API reference
-            ^^^^^^^^^^^^^^^^^^
-
-            Understand PyAEDT API endpoints, their capabilities,
-            and how to interact with them programmatically.
-
-            +++
-            .. button-link:: API/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  AEDT API reference
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
-
-            EDB API reference
-            ^^^^^^^^^^^^^^^^^
-
-            Understand PyAEDT EDB API endpoints, their capabilities,
-            and how to interact with them programmatically.
-
-            +++
-            .. button-link:: EDBAPI/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  EDB API reference
 
 .. jinja:: main_toctree
 
@@ -136,10 +78,7 @@ Indices and tables
     .. toctree::
        :hidden:
 
-       Getting_started/index
        User_guide/index
-       API/index
-       EDBAPI/index
        {% if run_examples %}
        examples/index
        {% endif %}

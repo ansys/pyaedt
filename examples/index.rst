@@ -1,4 +1,10 @@
-.. _ref_example_gallery:
+.. _ref_examples:
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   00-EDB/index
 
 Examples
 ========
@@ -8,3 +14,4 @@ notebooks and run them locally.
 
 .. note::
     Some examples require additional Python packages.
+

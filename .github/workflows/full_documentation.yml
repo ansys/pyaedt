@@ -10,19 +10,7 @@ env:
   MEILISEARCH_HOST_URL: https://backend.search.pyansys.com
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 # Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    tags:
-     - v*
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-      tags:
-        description: 'Test scenario tags'
+on: [pull_request, workflow_dispatch]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -71,7 +59,8 @@ jobs:
       - name: Create HTML Documentations
         run: |
           testenv\Scripts\Activate.ps1
-          sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+          cd doc
+          .\make.bat html
 
 #      - name: Create PDF Documentations
 #        run: |
@@ -83,13 +72,6 @@ jobs:
         with:
           name: documentation-html
           path: doc/_build/html
-          retention-days: 7
-
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-html-edb
-          path: doc/_build/html/EDBAPI
           retention-days: 7
 
 #      - name: Upload PDF documentation artifact
