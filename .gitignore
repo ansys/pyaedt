@@ -381,6 +381,9 @@ test-output.xml
 # Scratch Jupyter Notebooks
 scratch_notebooks/
 
+# Ipython notebook checkpoints
+.ipynb_checkpoints
+
 # Visual studio code local settings
 .vscode/
 
