@@ -47,7 +47,7 @@ To access all available category, use the ``reports_by_category`` class.
     from pyaedt import Hfss
     hfss = Hfss()
     hfss.analyze_nominal()
-    # Create a 3d far field
+    # Create a 3D far field
     new_report = hfss.post.reports_by_category.far_field(expressions="db(RealizedGainTotal)",
                                                          setup_name=hfss.nominal_adaptive)
 
