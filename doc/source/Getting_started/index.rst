@@ -83,8 +83,8 @@ PyAEDT cheat sheets
 -------------------
 
 PyAEDT cheat sheets introduce the basics that you need to use PyAEDT.
-PyAEDT cheat sheet is one-page reference providing syntax rules and commands
-for using the PyAEDT API and EDB API:
+These one-page references providing syntax rules and commands
+for using PyAEDT API and EDB API:
 
 **PyAEDT Cheat Sheet:** `PyAEDT API <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_
 
