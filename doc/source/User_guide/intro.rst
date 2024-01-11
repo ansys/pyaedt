@@ -19,7 +19,7 @@ The preceding code launches AEDT and initializes a new Circuit design.
 
 .. image:: ../Resources/aedt_first_page.png
   :width: 800
-  :alt: Electronics Desktop Launched
+  :alt: Electronics Desktop launched
 
 This code creates a project and saves it with PyAEDT:
 
