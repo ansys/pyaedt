@@ -32,8 +32,14 @@ from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import ExponentialDictionary
+from pyaedt.modules.Boundary import LinearDictionary
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.Boundary import PieceWiseLinearDictionary
+from pyaedt.modules.Boundary import PowerLawDictionary
+from pyaedt.modules.Boundary import SinusoidalDictionary
+from pyaedt.modules.Boundary import SquareWaveDictionary
 from pyaedt.modules.Boundary import _create_boundary
 from pyaedt.modules.monitor_icepak import Monitor
 
@@ -6051,3 +6057,193 @@ class Icepak(FieldAnalysis3D):
                                             shell_conduction=shell_conduction,
                                             low_side_rad_material=low_side_rad_material,
                                             high_side_rad_material=high_side_rad_material)
+
+    @pyaedt_function_handler
+    def _create_dataset_assignment(self, type_assignment, ds_name, scale):
+        ds = None
+        try:
+            if ds_name.startswith("$"):
+                raise AttributeError("Only design datasets are supported.")
+            else:
+                ds = self.design_datasets[ds_name]
+        except KeyError:
+            raise AttributeError("Dataset {} not found.".format({ds_name}))
+        if not isinstance(scale, str):
+            scale = str(scale)
+        return PieceWiseLinearDictionary(type_assignment, ds, scale)
+
+    @pyaedt_function_handler
+    def create_temp_dep_assignment(self, ds_name, scale=1):
+        """
+        Create a temperature-dependent assignment from dataset.
+
+        Parameters
+        ----------
+        ds_name : str
+            The name of the dataset.
+        scale : float or str, optional
+            Value used to scale y value of the dataset. Default is 1.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.PieceWiseLinearDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+
+        """
+        return self._create_dataset_assignment("Temp Dep", ds_name, scale)
+
+    @pyaedt_function_handler
+    def create_dataset_transient_assignment(self, ds_name, scale=1):
+        """
+        Create a transient assignment from dataset.
+
+        Parameters
+        ----------
+        ds_name : str
+            The name of the dataset.
+        scale : float or str, optional
+            Value used to scale y value of the dataset. Default is 1.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.PieceWiseLinearDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+
+        """
+        return self._create_dataset_assignment("Transient", ds_name, scale)
+
+    @pyaedt_function_handler
+    def create_linear_transient_assignment(self, intercept, slope):
+        """
+        Create object to assign linear transient condition.
+
+        It applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*t^c``
+
+        Parameters
+        ----------
+        intercept : str
+            Value of the assignment condition at initial time.
+            Corresponds to the coefficient ``a`` in the formula.
+        coefficient : str
+            Coefficient that multiplies the power term.
+            Corresponds to the coefficient ``b`` in the formula.
+        scaling_exponent : str
+            Exponent of the power term.
+            Corresponds to the coefficient ``c`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.LinearDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return LinearDictionary(intercept, slope)
+
+    @pyaedt_function_handler
+    def create_powerlaw_transient_assignment(self, intercept, coefficient, scaling_exponent):
+        """
+        Create object to assign power law transient condition.
+
+        It applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*t^c``
+
+        Parameters
+        ----------
+        intercept : str
+            Value of the assignment condition at initial time.
+            Corresponds to the coefficient ``a`` in the formula.
+        coefficient : str
+            Coefficient that multiplies the power term.
+            Corresponds to the coefficient ``b`` in the formula.
+        scaling_exponent : str
+            Exponent of the power term.
+            Corresponds to the coefficient ``c`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.PowerLawDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return PowerLawDictionary(intercept, coefficient, scaling_exponent)
+
+    @pyaedt_function_handler
+    def create_exponential_transient_assignment(self, vertical_offset, coefficient, exponent_coefficient):
+        """
+        Create object to assign exponential transient condition.
+
+        It applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*exp(c*t)``
+
+        Parameters
+        ----------
+        vertical_offset : str
+            Vertical offset summed to the exponential law.
+            Corresponds to the coefficient ``a`` in the formula.
+        coefficient : str
+            Coefficient that multiplies the exponential term.
+            Corresponds to the coefficient ``b`` in the formula.
+        exponent_coefficient : str
+            Coefficient in the exponential term.
+            Corresponds to the coefficient ``c`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.ExponentialDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
+
+    @pyaedt_function_handler
+    def create_sinusoidal_transient_assignment(self, vertical_offset, vertical_scaling, period, period_offset):
+        """
+        Create object to assign sinusoidal transient condition.
+
+        It applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*sin(2*pi(t-t0)/T)``
+
+        Parameters
+        ----------
+        vertical_offset : str
+            Vertical offset summed to the sinusoidal law.
+            Corresponds to the coefficient ``a`` in the formula.
+        vertical_scaling : str
+            Coefficient that multiplies the sinusoidal term.
+            Corresponds to the coefficient ``b`` in the formula.
+        period : str
+            Period of the sinusoid.
+            Corresponds to the coefficient ``T`` in the formula.
+        period_offset : str
+            Offset of the sinusoid.
+            Corresponds to the coefficient ``t0`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.SinusoidalDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
+
+    @pyaedt_function_handler
+    def create_square_wave_transient_assignment(self, on_value, initial_time_off, on_time, off_time, off_value):
+        """
+        Create object to assign square wave transient condition.
+
+        Parameters
+        ----------
+        on_value : str
+            Maximum value of the square wave.
+        initial_time_off : str
+            Time after which the square wave assignment starts
+        on_time : str
+            Time for which the square wave keeps the maximum value during one period.
+        off_time : str
+            Time for which the square wave keeps the minimum value during one period.
+        off_value : str
+            Minimum value of the square wave.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.SquareWaveDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
