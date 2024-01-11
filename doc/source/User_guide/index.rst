@@ -12,7 +12,7 @@ For additional practical demonstrations, see
 
 .. grid:: 2
 
-   .. grid-item-card:: Minimal Example
+   .. grid-item-card:: Basic tutorial
             :link: intro
             :link-type: doc
 
