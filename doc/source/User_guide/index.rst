@@ -16,7 +16,7 @@ For additional practical demonstrations, see
             :link: intro
             :link-type: doc
 
-            Here's a brief example on how to launch Electronics Desktop and create a project.
+            This tutorial shows how to launch Electronics Desktop and create a project.
 
    .. grid-item-card:: Modeler
             :link: modeler
