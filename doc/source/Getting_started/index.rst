@@ -82,7 +82,7 @@ on the Ansys website.
 PyAEDT cheat sheets
 -------------------
 
-PyAEDT cheat sheet introduces the basics that you need to use PyAEDT.
+PyAEDT cheat sheets introduce the basics that you need to use PyAEDT.
 PyAEDT cheat sheet is one-page reference providing syntax rules and commands
 for using the PyAEDT API and EDB API:
 
