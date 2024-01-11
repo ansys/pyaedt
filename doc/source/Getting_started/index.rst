@@ -94,7 +94,7 @@ for using PyAEDT API and EDB API:
 Get help
 --------
 
-**Development Issues:** For PyAEDT development-related matters (e.g., bug reports), please see
+**Development issues:** For PyAEDT development-related matters, see the
 `PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_.
 You can create issues to report bugs and request new features.
 
