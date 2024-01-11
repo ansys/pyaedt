@@ -5,16 +5,37 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Configuration:
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
+
     def __init__(self, pedb):
         self._pedb = pedb
 
     @pyaedt_function_handler
-    def load(self, cfg):
-        if isinstance(cfg, SimulationConfiguration):
-            return self._pedb.build_simulation_project(cfg)
+    def load(self, config_file):
+        """Import configuration settings from a JSON file and apply it to the current design.
+
+        Parameters
+        ----------
+        config_file : str, SimulationConfiguration
+            Full path to json file.
+
+        Returns
+        -------
+        dict
+            Config dictionary.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("ansys_pcb.aedb")
+        >>> edbapp.configuration.load("configure.json")
+        """
+
+        if isinstance(config_file, SimulationConfiguration):
+            return self._pedb.build_simulation_project(config_file)
 
         components = self._pedb.components.components
-        with open(cfg, "r") as f:
+        with open(config_file, "r") as f:
             data = json.load(f)
 
         for comp in data["components"]:
@@ -25,6 +46,7 @@ class Configuration:
             comp_layout.type = part_type
 
             if part_type in ["Resistor", "Capacitor", "Inductor"]:
+                comp_layout.is_enabled = comp["Enabled"]
                 rlc_model = comp["RLCModel"] if "RLCModel" in comp else None
                 n_port_model = comp["NPortModel"] if "NPortModel" in comp else None
                 netlist_model = comp["NetlistModel"] if "NetlistModel" in comp else None
@@ -75,6 +97,7 @@ class Configuration:
             else:
                 pass  # Todo
 
+            # Configure port properties
             port_properties = comp["PortProperties"] if "PortProperties" in comp else None
             if port_properties:
                 ref_offset = port_properties["ReferenceOffset"]
@@ -87,6 +110,7 @@ class Configuration:
                 ref_size_x = 0
                 ref_size_y = 0
 
+            # Configure solder ball properites
             solder_ball_properties = comp["SolderballProperties"] if "SolderballProperties" in comp else None
             if solder_ball_properties:
                 shape = solder_ball_properties["Shape"]
@@ -108,10 +132,8 @@ class Configuration:
                     reference_size_y=ref_size_y,
                 )
 
+            # Configure ports
             if "Ports" in comp:
-                if part_type in ["Resistor", "Capacitor", "Inductor"]:
-                    comp_layout.is_enabled = False
-
                 for port in comp["Ports"]:
                     port_type = port["Type"]
                     pos = port["From"]
@@ -152,6 +174,31 @@ class Configuration:
                     else:
                         self._pedb.create_port(pos_terminal)
 
-    @pyaedt_function_handler
-    def launch_hfss_3d_layout(self):
-        return True
+        # Configue HFSS setup
+        hfss_setup = data["HfssSetup"] if "HfssSetup" in data else None
+        if hfss_setup:
+            name = hfss_setup["Name"]
+
+            setup = self._pedb.create_hfss_setup(name)
+            setup.set_solution_single_frequency(
+                hfss_setup["Fadapt"], max_num_passes=hfss_setup["MaxNumPasses"], max_delta_s=hfss_setup["MaxMagDeltaS"]
+            )
+            if "FreqSweep" in hfss_setup:
+                for fsweep in hfss_setup["FreqSweep"]:
+                    freqs = []
+                    if "LinearStep" in fsweep:
+                        for i in fsweep["LinearStep"]:
+                            freqs.append(
+                                [
+                                    "linear scale",
+                                    self._pedb.edb_value(i["Start"]).ToString(),
+                                    self._pedb.edb_value(i["Stop"]).ToString(),
+                                    self._pedb.edb_value(i["Step"]).ToString(),
+                                ]
+                            )
+
+                    setup.add_frequency_sweep(
+                        fsweep["Name"],
+                        frequency_sweep=freqs,
+                    )
+        return data
