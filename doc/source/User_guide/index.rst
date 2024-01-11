@@ -23,7 +23,7 @@ For additional practical demonstrations, see
             :link-type: doc
             :margin: 2 2 0 0
 
-            Here's a brief example on how to play with 2D and 3D Modeler.
+            This tutorial shows how to use 2D and 3D Modeler.
 
    .. grid-item-card:: Mesh
             :link: mesh
