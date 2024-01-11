@@ -47,7 +47,7 @@ Those are managed through mesh regions and can be edited directly from the pyaed
     new_mesh_region = icepak_b.mesh.assign_mesh_region([box1.name])
 
 
-Also in HFSS 3D Layout user can add mesh operations to nets and layers:
+In HFSS 3D Layout, you add mesh operations to nets and layers like this:
 
 .. code:: python
 
