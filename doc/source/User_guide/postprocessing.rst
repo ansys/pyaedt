@@ -5,7 +5,7 @@ Postprocessing is essential in simulation. PyAEDT offers the capability to read 
 both within AEDT and externally using the `pyvista <https://www.pyvista.org/>`_
 and `matplotlib <https://matplotlib.org/>`_ packages.
 
-To create a report in AEDT using PyAEDT, you can follow a general structure like the one below:
+To use PyAEDT to create a report in AEDT, you can follow this general structure:
 
 .. code:: python
 
