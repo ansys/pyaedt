@@ -16,7 +16,7 @@ class Model(ObjBase):
 
 
 class PinPairModel(Model):
-    """Manamges pin pair model class."""
+    """Manages pin pair model class."""
 
     def __init__(self, pedb, edb_object=None):
         super().__init__(pedb, edb_object)

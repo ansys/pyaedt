@@ -310,6 +310,7 @@ class EDBComponent(object):
 
     @property
     def model(self):
+        """Component model."""
         edb_object = self.component_property.GetModel().Clone()
         model_type = edb_object.ToString().split(".")[-1]
         if model_type == "PinPairModel":

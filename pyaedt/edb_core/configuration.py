@@ -48,9 +48,9 @@ class Configuration:
             if part_type in ["Resistor", "Capacitor", "Inductor"]:
                 comp_layout.is_enabled = comp["Enabled"]
                 rlc_model = comp["RLCModel"] if "RLCModel" in comp else None
-                n_port_model = comp["NPortModel"] if "NPortModel" in comp else None
-                netlist_model = comp["NetlistModel"] if "NetlistModel" in comp else None
-                spice_model = comp["SpiceModel"] if "SpiceModel" in comp else None
+                #n_port_model = comp["NPortModel"] if "NPortModel" in comp else None
+                #netlist_model = comp["NetlistModel"] if "NetlistModel" in comp else None
+                #spice_model = comp["SpiceModel"] if "SpiceModel" in comp else None
 
                 if rlc_model:
                     model_layout = comp_layout.model
@@ -107,7 +107,7 @@ class Configuration:
                 ref_size_x = 0
                 ref_size_y = 0
 
-            # Configure solder ball properites
+            # Configure solder ball properteis
             solder_ball_properties = comp["SolderballProperties"] if "SolderballProperties" in comp else None
             if solder_ball_properties:
                 shape = solder_ball_properties["Shape"]
@@ -171,7 +171,7 @@ class Configuration:
                     else:
                         self._pedb.create_port(pos_terminal)
 
-        # Configue HFSS setup
+        # Configure HFSS setup
         hfss_setup = data["HfssSetup"] if "HfssSetup" in data else None
         if hfss_setup:
             name = hfss_setup["Name"]
