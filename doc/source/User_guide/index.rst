@@ -37,7 +37,7 @@ For additional practical demonstrations, see
             :link-type: doc
             :margin: 2 2 0 0
 
-            Create Setup and run simulations.
+            This tutorial shows how to create a setup and run simulations.
 
    .. grid-item-card:: Variables & Optimetrics
             :link: variables
