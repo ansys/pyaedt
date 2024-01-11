@@ -1,6 +1,5 @@
 import json
 
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
