@@ -76,8 +76,8 @@ In the upper right corner of the documentation’s title bar, you will find a ve
             EDB API reference
             ^^^^^^^^^^^^^^^^^
 
-            The PyAEDT EDB API reference contains a detailed description of the functions and modules included in PyAEDT.
-            It describes how the methods work and which parameter can be used.
+            The PyAEDT EDB API reference contains descriptions of the functions and modules included in PyAEDT.
+            It describes how the methods work and the parameter that can be used.
 
             +++
             .. button-link:: EDBAPI/index.html
