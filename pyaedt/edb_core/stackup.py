@@ -7,12 +7,12 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import json
-import logging
 import math
 import re
 import warnings
 
 from pyaedt import generate_unique_name
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.edb_data.layer_data import StackupLayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -33,8 +33,6 @@ if not is_ironpython:
         import pandas as pd
     except ImportError:
         pd = None
-
-logger = logging.getLogger(__name__)
 
 
 class Stackup(object):

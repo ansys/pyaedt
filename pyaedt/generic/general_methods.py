@@ -12,7 +12,6 @@ from functools import update_wrapper
 import inspect
 import itertools
 import json
-import logging
 import math
 import os
 import random
@@ -23,6 +22,7 @@ import tempfile
 import time
 import traceback
 
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.settings import settings
 
@@ -683,8 +683,11 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
     """
     func_name = None
-    if function.__name__ == "InvokeAedtObjMethod":
-        func_name = args[1]
+    try:
+        if function.__name__ == "InvokeAedtObjMethod":
+            func_name = args[1]
+    except:
+        pass
     retry = 0
     ret_val = None
     inclusion_list = [
@@ -837,7 +840,7 @@ def read_csv_pandas(filename, encoding="utf-8"):
 
         return pd.read_csv(filename, encoding=encoding, header=0, na_values=".")
     except ImportError:
-        logging.error("Pandas is not available. Install it.")
+        pyaedt_logger.error("Pandas is not available. Install it.")
         return None
 
 
@@ -1313,7 +1316,7 @@ def compute_fft(time_vals, value):  # pragma: no cover
     try:
         import numpy as np
     except ImportError:
-        logging.error("NumPy is not available. Install it.")
+        pyaedt_logger.error("NumPy is not available. Install it.")
         return False
 
     deltaT = time_vals[-1] - time_vals[0]
@@ -1433,7 +1436,7 @@ def parse_excitation_file(
     try:
         import numpy as np
     except ImportError:
-        logging.error("NumPy is not available. Install it.")
+        pyaedt_logger.error("NumPy is not available. Install it.")
         return False
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
