@@ -691,6 +691,7 @@ class Edb(Database):
 
     @property
     def configuration(self):
+        """Edb configuration."""
         return Configuration(self)
 
     @property
