@@ -817,17 +817,12 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
+        group_name = None
         if "Group" in self.valid_properties:
             group_name = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Group")
-        else:
-            group_name = None
-        if self._m_groupName is None:
-            return group_name
-        elif group_name is not None and self._m_groupName != group_name:
-            self._m_groupName = None
-            return group_name
-        else:
-            return self._m_groupName
+        if group_name is not None:
+            self._m_groupName = group_name
+        return self._m_groupName
 
     @group_name.setter
     def group_name(self, name):
@@ -879,6 +874,7 @@ class Object3d(object):
         else:
             vgroup = ["NAME:Group", "Value:=", name]
             self._change_property(vgroup)
+        self._m_groupName = name
 
     @property
     def is_conductor(self):
