@@ -5,11 +5,11 @@ import uuid
 from _unittest.conftest import config
 import pytest
 
-from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
+from pyaedt.generic.settings import settings
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"

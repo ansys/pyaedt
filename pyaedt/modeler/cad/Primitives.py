@@ -14,6 +14,7 @@ import warnings
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _uname
@@ -4643,6 +4644,12 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler()
+    def import_primitives_from_file(self, input_file=None, input_dict=None):
+        primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
+        primitive_names = primitives_builder.create()
+        return primitive_names
+
+    @pyaedt_function_handler()
     def modeler_variable(self, value):
         """Modeler variable.
 
@@ -8212,4 +8219,338 @@ class GeometryModeler(Modeler):
                     ],
                 ]
             )
+        return True
+
+
+class PrimitivesBuilder(object):
+    """Create primitives based on json file or dictionary of properties.
+
+    Parameters
+    ----------
+    app :
+        Inherited parent object.
+    input_file : str, optional
+        Path to a json file containing primitive settings.
+    input_dict : dict, optional
+        Dictionary containing primitive settings.
+
+    Returns
+    -------
+    :class:`pyaedt.modeler.cad.PrimitivesBuilder`
+        Primitives builder object if succeeded.
+
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
+    >>> aedtapp = Hfss()
+    >>> primitive_file = "primitive_file.json"
+    >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
+    >>> primitives_builder.create()
+    >>> aedtapp.release_desktop()
+    """
+
+    def __init__(self, app, input_file=None, input_dict=None):
+        self._app = app
+        if not input_dict and not input_file:  # pragma: no cover
+            msg = "Either one of a json file or a dictionary has to be passed as input."
+            self.logger.error(msg)
+            raise TypeError(msg)
+        elif input_file:
+            props = json_to_dict(input_file)
+        else:
+            props = input_dict
+
+        if not props or not all(key in props for key in ["Primitives", "Instances"]):
+            msg = "Wrong input data."
+            self.logger.error(msg)
+            raise AttributeError(msg)
+
+        if "Units" in props:
+            self.units = props["Units"]
+        else:
+            self.units = "mm"
+        self._app.modeler.units = self.units
+        self.primitives = props["Primitives"]
+        self.instances = props["Instances"]
+        self.coordinate_systems = None
+        if "Coordinate Systems" in props:
+            self.coordinate_systems = props["Coordinate Systems"]
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create instances of defined primitives.
+
+        Returns
+        -------
+        list
+            List of instance names created.
+        """
+        created_instances = []
+
+        if self.coordinate_systems:
+            cs_flag = self._create_coordinate_system()
+            if not cs_flag:
+                self.logger.error("Wrong coordinate system definition.")
+                return False
+
+        cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
+
+        for instance_data in self.instances:
+            name = instance_data.get("Name")
+            if not name:
+                self.logger.error("``Name`` parameter not defined.")
+                return False
+
+            cs = instance_data.get("Coordinate System")
+            if not cs:
+                self.logger.warning("``Coordinate System`` parameter not defined, ``Global`` is assigned.")
+                instance_data["Coordinate System"] = "Global"
+                cs = instance_data.get("Coordinate System")
+            elif instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names:
+                self.logger.error("Coordinate system {} does not exist.".format(cs))
+                return False
+
+            origin = instance_data.get("Origin")
+            if not origin:
+                self.logger.warning("``Origin`` parameter not defined, ``[0, 0, 0]`` is assigned.")
+                instance_data["Origin"] = [0, 0, 0]
+                origin = instance_data.get("Origin")
+            else:
+                origin = self.convert_units(origin)
+
+            primitive_data = next((primitive for primitive in self.primitives if primitive["Name"] == name), None)
+
+            if primitive_data:
+                instance = self._create_instance(name, cs, origin, primitive_data)
+                created_instances.append(instance)
+
+        return created_instances
+
+    @pyaedt_function_handler()
+    def _create_instance(self, name, cs, origin, primitive_data):
+        """Create primitive instance.
+
+        Determine the primitive type and create an instance based on that
+
+        Parameters
+        ----------
+        name : str
+            Name for the primitive.
+        cs : str
+            Reference coordinate system.
+        origin : list
+            Instance origin position.
+        primitive_data : dict
+            Primitive information.
+
+        Returns
+        -------
+        str
+            Instance name.
+        """
+        primitive_type = primitive_data["Primitive Type"]
+        instance = None
+        if primitive_type == "Cylinder":
+            if self._app.modeler._is3d:
+                instance = self._create_cylinder_instance(name, cs, origin, primitive_data)
+
+        if not instance:
+            self.logger.warning(f"Unsupported primitive type: {primitive_type}")
+            return None
+
+        return instance
+
+    @pyaedt_function_handler()
+    def _create_cylinder_instance(self, name, cs, origin, data):
+        """Create cylinder instance.
+
+        Create a cylinder instance.
+
+        Parameters
+        ----------
+        name : str
+            Name for the primitive.
+        cs : str
+            Reference coordinate system.
+        origin : list
+            Instance origin position.
+        data : dict
+            Cylinder information.
+
+        Returns
+        -------
+        str
+            Instance name.
+        """
+        if not data.get("Plane"):
+            data["Plane"] = 0
+        if not data.get("Radius"):
+            data["Radius"] = 10
+        if not data.get("Height"):
+            data["Height"] = 50
+        if not data.get("Number of Segments"):
+            data["Number of Segments"] = 0
+
+        self._app.modeler.set_working_coordinate_system(cs)
+
+        cyl1 = self._app.modeler.create_cylinder(
+            cs_axis=data.get("Plane"),
+            position=origin,
+            radius=data.get("Radius"),
+            height=data.get("Height"),
+            numSides=int(data.get("Number of Segments")),
+            name=name,
+        )
+
+        internal_radius = data.get("Internal Radius")
+        if internal_radius:
+            internal_radius = self.convert_units([internal_radius])[0]
+            radius = self.convert_units([data.get("Radius")])[0]
+            if internal_radius > radius:
+                self.logger.warning("Internal radius is bigger than external radius.")
+            elif internal_radius != 0:
+                cyl2 = self._app.modeler.create_cylinder(
+                    cs_axis=data.get("Plane"),
+                    position=origin,
+                    radius=internal_radius,
+                    height=data.get("Height"),
+                    numSides=data.get("Number of Segments"),
+                    name=name,
+                )
+                self._app.modeler.subtract(blank_list=cyl1, tool_list=cyl2, keep_originals=False)
+
+        return cyl1
+
+    @pyaedt_function_handler()
+    def convert_units(self, values):
+        """Convert input values to default units.
+
+        If the value has units, it is converted to a numeric value with the default units.
+
+        Parameters
+        ----------
+        values : list
+            List of values.
+
+        Returns
+        -------
+        list
+            List of numeric values.
+        """
+        extracted_values = []
+        for value in values:
+            if isinstance(value, (int, float)):
+                extracted_values.append(value)
+            elif isinstance(value, str):
+                value_number, units = decompose_variable_value(value)
+                if units:
+                    value_number = self._length_unit_conversion(value_number, units)
+                extracted_values.append(value_number)
+
+        return extracted_values
+
+    @pyaedt_function_handler()
+    def _length_unit_conversion(self, value, input_units):
+        """Convert value to input units."""
+        from pyaedt.generic.constants import unit_converter
+
+        converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units=self.units)
+        return converted_value
+
+    @pyaedt_function_handler()
+    def _create_coordinate_system(self):
+        """Create coordinate system defined in the object."""
+        for cs in self.coordinate_systems:
+            cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
+            name = cs.get("Name")
+            if not name:
+                self.logger.warning("Coordinate system does not have Name parameter.")
+                return False
+            if name in cs_names:
+                self.logger.warning("Coordinate system {} already exists.".format(name))
+                continue
+            mode = cs.get("Mode")
+            if not mode or not any(key in mode for key in ["Axis/Position", "Euler Angle ZYZ", "Euler Angle ZXZ"]):
+                self.logger.warning(
+                    "Coordinate system does not have Mode parameter or it is not valid, "
+                    "available modes are Axis/Position, Euler Angle ZYZ, Euler Angle ZXZ."
+                )
+                return False
+
+            origin = cs.get("Origin")
+            reference_cs = cs.get("Reference CS")
+            if not origin:
+                origin = [0, 0, 0]
+                cs["Origin"] = origin
+            else:
+                origin = self.convert_units(origin)
+
+            if not reference_cs:
+                reference_cs = "Global"
+                cs["Reference CS"] = reference_cs
+
+            if mode == "Axis/Position":
+                x_axis = cs.get("X Axis")
+                y_point = cs.get("Y Point")
+
+                if not x_axis:
+                    x_axis = [1, 0, 0]
+                    cs["X Axis"] = x_axis
+                if not y_point:
+                    y_point = [0, 1, 0]
+                    cs["Y Point"] = y_point
+                new_cs = self._app.modeler.create_coordinate_system(
+                    origin=origin,
+                    reference_cs=reference_cs,
+                    name=name,
+                    mode="axis",
+                    x_pointing=x_axis,
+                    y_pointing=y_point,
+                    psi=0,
+                    theta=0,
+                    phi=0,
+                )
+                cs["Name"] = new_cs.name
+            else:
+                phi = cs.get("Phi")
+                theta = cs.get("Theta")
+                psi = cs.get("Psi")
+
+                if not phi:
+                    phi = "0deg"
+                    cs["Phi"] = phi
+                elif isinstance(phi, (int, float)):
+                    phi = str(phi) + "deg"
+                    cs["Phi"] = phi
+
+                if not theta:
+                    theta = "0deg"
+                    cs["Theta"] = theta
+                elif isinstance(theta, (int, float)):
+                    theta = str(theta) + "deg"
+                    cs["Theta"] = theta
+
+                if not psi:
+                    psi = "0deg"
+                    cs["Psi"] = psi
+                elif isinstance(psi, (int, float)):
+                    psi = str(psi) + "deg"
+                    cs["Psi"] = psi
+
+                if mode == "Euler Angle ZYZ":
+                    cs_mode = "zyz"
+                else:
+                    cs_mode = "zxz"
+
+                new_cs = self._app.modeler.create_coordinate_system(
+                    origin=origin, reference_cs=reference_cs, name=name, mode=cs_mode, psi=psi, theta=theta, phi=phi
+                )
+                cs["Name"] = new_cs.name
+
         return True

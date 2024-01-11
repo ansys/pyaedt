@@ -639,7 +639,7 @@ class ConfigurationsOptions(object):
 
 class ImportResults(object):
     """Import Results Class.
-    Contains the results of the import operations. Each reusult can be ``True`` or ``False``.
+    Contains the results of the import operations. Each result can be ``True`` or ``False``.
     """
 
     def __init__(self):

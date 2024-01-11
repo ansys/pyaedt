@@ -12,7 +12,6 @@ and run a Nexxim time-domain simulation.
 # sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
 
 import pyaedt
-import os
 
 ###############################################################################
 # Launch AEDT

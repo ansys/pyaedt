@@ -32,6 +32,7 @@ dependencies = [
     "rpyc==5.3.1",
     "psutil",
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
+    "fpdf2"
 ]
 
 [project.optional-dependencies]
