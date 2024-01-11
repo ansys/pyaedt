@@ -2,7 +2,7 @@ Load and manage files
 =====================
 
 PyAEDT supports different files formats to manage simulation and setup data.
-The most used are described in this chapter.
+Descriptions follow for the most used formats.
 
 
 .. grid:: 2
