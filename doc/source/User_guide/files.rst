@@ -18,7 +18,7 @@ Descriptions follow for the most used formats.
             :link-type: doc
             :margin: 2 2 0 0
 
-            The report configuration files allows to easily create customized AEDT reports.
+            The report configuration files allows you to easily create customized AEDT reports.
 
    .. grid-item-card:: Materials file
             :link: pyaedt_file_data/materials
