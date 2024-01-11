@@ -51,7 +51,7 @@ For additional practical demonstrations, see
             :link-type: doc
             :margin: 2 2 0 0
 
-            Usage of PyAEDT with input and output files.
+            This tutorial shows how to load and manage input and output files.
 
    .. grid-item-card:: Postprocessing
             :link: postprocessing
