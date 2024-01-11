@@ -5536,7 +5536,7 @@ class Icepak(FieldAnalysis3D):
         if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
             self.logger.warning(
                 '``start_time`` and ``end_time`` only effect steady-state simulations.')
-        elif self.solution_type == "Transient" and not (start_time and end_time):
+        elif self.solution_type == "Transient" and not (start_time is not None and end_time is not None):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
             start_time = "0s"
