@@ -5624,10 +5624,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
         thermal_specification : str, optional
             Type of condition to apply. The default is `"Thickness"``.
             Options are ``"Conductance"``, ``"Thermal Impedance"``,
@@ -5676,7 +5677,7 @@ class Icepak(FieldAnalysis3D):
         else:
             raise AttributeError("Invalid ``obj_plate`` argument.")
 
-        if isinstance(total_power, dict):
+        if isinstance(total_power, (dict, BoundaryDictionary)):
             assignment = self._parse_variation_data(
                 "Total Power",
                 total_power["Type"],
