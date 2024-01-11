@@ -39,8 +39,8 @@ You can also generate reports in Matplotlib:
   :alt: S-Parameters report created with Matplotlib
 
 
-PyAEDT can be used to plot any kind of report available in the Electronics Desktop interface.
-All available category can be accessed using ``reports_by_category`` class.
+You can use PyAEDT to plot any kind of report available in the Electronics Desktop interface.
+To access all available category, use the ``reports_by_category`` class.
 
 .. code:: python
 
