@@ -52,7 +52,7 @@ To access all available category, use the ``reports_by_category`` class.
                                                          setup_name=hfss.nominal_adaptive)
 
 
-Field plot can be plot directly in HFSS and can be exported to image files.
+You can plot the field plot directly in HFSS and export it to image files.
 
 .. code:: python
 
