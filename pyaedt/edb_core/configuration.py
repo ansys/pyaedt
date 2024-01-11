@@ -48,9 +48,9 @@ class Configuration:
             if part_type in ["Resistor", "Capacitor", "Inductor"]:
                 comp_layout.is_enabled = comp["Enabled"]
                 rlc_model = comp["RLCModel"] if "RLCModel" in comp else None
-                #n_port_model = comp["NPortModel"] if "NPortModel" in comp else None
-                #netlist_model = comp["NetlistModel"] if "NetlistModel" in comp else None
-                #spice_model = comp["SpiceModel"] if "SpiceModel" in comp else None
+                # n_port_model = comp["NPortModel"] if "NPortModel" in comp else None
+                # netlist_model = comp["NetlistModel"] if "NetlistModel" in comp else None
+                # spice_model = comp["SpiceModel"] if "SpiceModel" in comp else None
 
                 if rlc_model:
                     model_layout = comp_layout.model
