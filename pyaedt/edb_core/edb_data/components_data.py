@@ -5,7 +5,6 @@ from pyaedt.edb_core.edb_data.component_model import PinPairModel
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
-
 if not is_ironpython:
     try:
         import numpy as np
