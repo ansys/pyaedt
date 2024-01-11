@@ -3917,18 +3917,13 @@ class Icepak(FieldAnalysis3D):
         thermal_condition : str
             Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
             ``"Temperature"``.
-        assignment_value : str or dict
+        assignment_value : str or dict or BoundaryDictionary
             Value and units of the input power, surface heat or temperature (depending on
-            ``thermal_condition``). A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-             support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed.
+            ``thermal_condition``).
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+            Assign a temperature-dependent condition using the result of a
+            function with the pattern `create_temp_dep_assignment`.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the boundary name
             is generated automatically.
@@ -3937,10 +3932,11 @@ class Icepak(FieldAnalysis3D):
         voltage_current_choice : str or bool, optional
             Whether to assign ``"Voltage"`` or ``"Current"`` or none of them. The default is
             ``False`` (none of them is assigned).
-        voltage_current_value : str or dict, optional
-            Value and units of current or voltage assignment. A dictionary can be used for
-            transient assignment. The dictionary must be structured as described for the
-            ``assignment_value`` argument. The default is ``None``.
+        voltage_current_value : str or dict or BoundaryDictionary, optional
+            Value and units of current or voltage assignment.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+            The default is ``None``.
 
         Returns
         -------
@@ -3977,7 +3973,7 @@ class Icepak(FieldAnalysis3D):
         props["Thermal Condition"] = thermal_condition
         for quantity, value in default_values.items():
             if quantity == thermal_condition:
-                if isinstance(assignment_value, dict):
+                if isinstance(assignment_value, (dict, BoundaryDictionary)):
                     assignment_value = self._parse_variation_data(
                         quantity,
                         assignment_value["Type"],
@@ -3997,7 +3993,7 @@ class Icepak(FieldAnalysis3D):
         props["Voltage/Current Option"] = voltage_current_choice
         for quantity, value in default_values.items():
             if voltage_current_choice == quantity:
-                if isinstance(voltage_current_value, dict):
+                if isinstance(voltage_current_value, (dict, BoundaryDictionary)):
                     if voltage_current_value["Type"] == "Temp Dep":
                         self.logger.error("Voltage or Current assignment does not support temperature dependence.")
                         return None
