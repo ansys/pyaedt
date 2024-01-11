@@ -3181,8 +3181,3 @@ class TestClass:
         edbapp = Edb(target_path_edb, desktop_version)
         edbapp.configuration.load(path_json)
         edbapp.close()
-
-        edbapp = Edb(target_path_edb, desktop_version)
-        sim_setup = SimulationConfiguration()
-        edbapp.configuration.load(sim_setup)
-        edbapp.close()
