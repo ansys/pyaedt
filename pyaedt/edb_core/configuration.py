@@ -16,7 +16,7 @@ class Configuration:
 
         Parameters
         ----------
-        config_file : str, SimulationConfiguration
+        config_file : str
             Full path to json file.
 
         Returns
@@ -30,9 +30,6 @@ class Configuration:
         >>> edbapp = Edb("ansys_pcb.aedb")
         >>> edbapp.configuration.load("configure.json")
         """
-
-        if isinstance(config_file, SimulationConfiguration):
-            return self._pedb.build_simulation_project(config_file)
 
         components = self._pedb.components.components
         with open(config_file, "r") as f:
