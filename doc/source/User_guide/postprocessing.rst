@@ -102,7 +102,7 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
   :alt: Postprocessing features
 
 
-PyAEDT includes a powerful class to generate pdf report that is based on python package ``fpdf2``.
+PyAEDT includes a powerful class to generate a PDF report that is based on the Python ``fpdf2`` package.
 
 As an illustration of the capabilities offered by PyAEDT,
 you can explore a sample PDF report generated using this class:
