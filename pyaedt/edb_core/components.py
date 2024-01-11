@@ -765,7 +765,7 @@ class Components(object):
         if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
             cmp_pins = []
             for pin_name in pins:
-                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name in pin.name]
+                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name == pin.name]
                 if cmp_pin:
                     cmp_pins.append(cmp_pin[0])
             if not cmp_pins:
@@ -779,7 +779,7 @@ class Components(object):
         if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
             ref_cmp_pins = []
             for ref_pin_name in reference_pins:
-                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name in pin.name]
+                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name == pin.name]
                 if cmp_ref_pin:
                     ref_cmp_pins.append(cmp_ref_pin[0])
             if not ref_cmp_pins:
