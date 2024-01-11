@@ -44,7 +44,7 @@ For additional practical demonstrations, see
             :link-type: doc
             :margin: 2 2 0 0
 
-            Discover how to generate parametrics models and run optimizations.
+            This tutorial shows how to generate parametric models and run optimizations.
 
    .. grid-item-card:: Load and manage files
             :link: files
