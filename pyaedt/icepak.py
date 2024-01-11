@@ -5320,20 +5320,10 @@ class Icepak(FieldAnalysis3D):
             Type of the thermal assignment across the two recirculation
             faces. The default is ``"Temperature"``. Options are
             ``"Conductance"``, ``"Heat Input"``, and ``"Temperature"``.
-        assignment_value : str or dict, optional
-            String with value and units of the thermal assignment. For a
-            transient assignment, a dictionary can be used. The dictionary
-            should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, options are
-            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
-            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing the
-            parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each ``"Function"``
-            key selection, see the Icepak documentation.
-            The parameters must contain the units where needed.
+        assignment_value : str or dict or BoundaryDictionary, optional
+            String with value and units of the thermal assignment.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             The default value is ``"0cel"``.
         conductance_external_temperature : str, optional
             External temperature value, which is needed if
@@ -5343,20 +5333,10 @@ class Icepak(FieldAnalysis3D):
             Flow specification for the recirculation zone. The default is
             ``"Mass Flow"``. Options are: ``"Mass Flow"``, ``"Mass Flux"``,
             and ``"Volume Flow"``.
-        flow_assignment : str or dict, optional
-            String with the value and units of the flow assignment. For a
-            transient assignment, a dictionary can be used. The dictionary
-            should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, options are
-            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
-            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing the
-            parameters required by the ``"Function"`` key selection. For
-            example, when``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-            The parameters must contain the units where needed.
+        flow_assignment : str or dict or BoundaryDictionary, optional
+            String with the value and units of the flow assignment.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             The default value is ``"0kg_per_s_m2"``.
         flow_direction : list, optional
             Flow direction enforced at the recirculation zone. The default value
@@ -5426,7 +5406,7 @@ class Icepak(FieldAnalysis3D):
             extract_face = [extract_face.id]
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
-        if isinstance(assignment_value, dict):
+        if isinstance(assignment_value, (dict, BoundaryDictionary)):
             if not self.solution_type == "Transient":
                 self.logger.error("Transient assignment is supported only in transient designs.")
                 return None
@@ -5441,7 +5421,7 @@ class Icepak(FieldAnalysis3D):
             props[assignment_dict[thermal_specification]] = assignment_value
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
-        if isinstance(flow_assignment, dict):
+        if isinstance(flow_assignment, (dict, BoundaryDictionary)):
             if not self.solution_type == "Transient":
                 self.logger.error("Transient assignment is supported only in transient designs.")
                 return None
