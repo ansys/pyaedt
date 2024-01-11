@@ -37,22 +37,22 @@
 	[
 		{
 			"Name":"Small",
-			"CS": "Global",
-			"Origin": ["0mm",0,0]
+			"Coordinate System": "Global",
+			"Origin": ["0mm","1.052dm","2"]
 		},
 		{
 			"Name":"Small",
-			"CS": "Global",
-			"Origin": ["20um",10,0]
+			"Coordinate System": "Global",
+			"Origin": ["20um",10,"2.2"]
 		},
 		{
 			"Name":"Big",
-			"CS": "Global",
-			"Origin": [0,0,50]
+			"Coordinate System": "Global",
+			"Origin": ["2.0mm",0,50.5]
 		},
 		{
 			"Name":"Big",
-			"CS": "Global",
+			"Coordinate System": "Global",
 			"Origin": [10,10,10]
 		},
 		{

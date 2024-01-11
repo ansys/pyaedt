@@ -8252,6 +8252,7 @@ class PrimitivesBuilder(object):
             self.units = props["Units"]
         else:
             self.units = "mm"
+        self._app.modeler.units = self.units
         self.primitives = props["Primitives"]
         self.instances = props["Instances"]
 
@@ -8269,9 +8270,23 @@ class PrimitivesBuilder(object):
         created_instances = []
 
         for instance_data in self.instances:
+            if "Name" not in instance_data:
+                self.logger.warning("Instance does not have Name parameter.")
+                return False
             name = instance_data["Name"]
-            cs = instance_data["CS"]
-            origin = self.convert_units(instance_data["Origin"])
+            if "Coordinate System" not in instance_data:
+                self.logger.warning("Instance does not have Coordinate system parameter, Global is assigned.")
+                instance_data["Coordinate System"] = "Global"
+            # elif instance_data["Coordinate System"] not in self._app.modeler.coordinate_systems:
+            #     self.logger.error("Coordinate system {} is not defined.".format(instance_data["Coordinate System"]))
+            #     return False
+            cs = instance_data["Coordinate System"]
+            if "Origin" not in instance_data:
+                self.logger.warning("Instance does not have Origin parameter, [0, 0, 0] is assigned.")
+                instance_data["Origin"] = [0, 0, 0]
+                origin = instance_data["Origin"]
+            else:
+                origin = self.convert_units(instance_data["Origin"])
 
             primitive_data = next((p for p in self.primitives if p["Name"] == name), None)
 
@@ -8284,27 +8299,42 @@ class PrimitivesBuilder(object):
     def create_instance(self, name, cs, origin, primitive_data):
         # Determine the primitive type and create an instance based on that
         primitive_type = primitive_data["Primitive Type"]
-
+        instance = None
         if primitive_type == "Cylinder":
-            instance = self.create_cylinder_instance(name, cs, origin, primitive_data)
+            if self._app.modeler._is3d:
+                instance = self.create_cylinder_instance(name, cs, origin, primitive_data)
+
         elif primitive_type == "Box":
-            instance = self.create_box_instance(name, cs, origin, primitive_data)
-        else:
-            raise ValueError(f"Unsupported primitive type: {primitive_type}")
+            if self._app.modeler._is3d:
+                instance = self.create_box_instance(name, cs, origin, primitive_data)
+
+        if not instance:
+            self.logger.warning(f"Unsupported primitive type: {primitive_type}")
+            return None
 
         return instance
 
     @pyaedt_function_handler()
     def create_cylinder_instance(self, name, cs, origin, data):
-        return {
-            "type": "Cylinder",
-            "name": name,
-            "cs": cs,
-            "origin": origin,
-            "height": data.get("Height", 0.0),
-            "radius": data.get("Radius", 0.0),
-            "internal_radius": data.get("Internal Radius", 0.0),
-        }
+        if not data.get("Plane"):
+            data["Plane"] = 0
+        if not data.get("Radius"):
+            data["Radius"] = 10
+        if not data.get("Height"):
+            data["Height"] = 50
+        if not data.get("Number of Segments"):
+            data["Number of Segments"] = 0
+
+        cyl = self._app.modeler.create_cylinder(
+            cs_axis=data.get("Plane"),
+            position=origin,
+            radius=data.get("Radius"),
+            height=data.get("Height"),
+            numSides=data.get("Number of Segments"),
+            name=name,
+        )
+
+        return cyl
 
     @pyaedt_function_handler()
     def create_box_instance(self, name, cs, origin, data):
@@ -8317,6 +8347,20 @@ class PrimitivesBuilder(object):
             "y_size": data.get("Ysize", 0),
             "z_size": data.get("Zsize", 0),
         }
+
+    @pyaedt_function_handler()
+    def convert_units(self, values):
+        extracted_values = []
+        for value in values:
+            if isinstance(value, (int, float)):
+                extracted_values.append(value)
+            elif isinstance(value, str):
+                value_number, units = decompose_variable_value(value)
+                if units:
+                    value_number = self._length_unit_conversion(value_number, units)
+                extracted_values.append(value_number)
+
+        return extracted_values
 
     @pyaedt_function_handler()
     def _length_unit_conversion(self, value, input_units):
