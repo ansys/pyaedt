@@ -43,9 +43,9 @@ access the ``variable_manager`` object for a more comprehensive set of functions
 Optimetrics
 ===========
 
-Optimetrics allow you to set up parametric analysis, sensitivity analysis, optimization,
-and Design of Experiments (DOE). PyAEDT provides the capability to seamlessly interact with
-optimetrics setups by allowing users to read existing configurations, make edits, and create new setups:
+Optimetrics allows you to set up parametric analyses, sensitivity analyses, optimization,
+and design of experiments. PyAEDT provides the capability to seamlessly interact with
+optimetrics setups by allowing you to read existing configurations, make edits, and create setups:
 
 .. code:: python
 

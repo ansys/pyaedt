@@ -17,9 +17,9 @@ This code shows how to create the JSON file:
     hfss.post.create_report_from_configuration(input_file=filename)
     hfss.release_desktop()
 
-The main file skeleton is shown below:
+File structure example:
 
 :download:`HFSS report example <../../Resources/hfss_report_example.json>`
 
-For a practical demonstration, refer to the provided example in the following link:
+For a practical demonstration, see the
 `Report configuration file example <https://aedt.docs.pyansys.com/version/stable/examples/07-Circuit/Reports.html#sphx-glr-examples-07-circuit-reports-py>`_

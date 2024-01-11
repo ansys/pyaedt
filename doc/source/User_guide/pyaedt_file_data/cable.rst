@@ -1,7 +1,7 @@
 Cable file
 ==========
 
-The cable configuration file allows to create a cable geometry with shielding from a JSON file.
+The cable configuration file allows you to create a cable geometry with shielding from a JSON file.
 
 This file can be created using the following command:
 
@@ -15,9 +15,9 @@ This file can be created using the following command:
     cable.create_cable()
     hfss.release_desktop()
 
-The main file skeleton is shown below.
+File structure example:
 
 :download:`Cable example <../../Resources/cable_example.json>`
 
-For a practical demonstration, refer to the provided example in the following link:
-`Cable API <https://aedt.docs.pyansys.com/version/stable/API/CableModeling.html>`_
+For a practical demonstration, see the
+`Cable API <https://aedt.docs.pyansys.com/version/stable/API/CableModeling.html>`_ example.

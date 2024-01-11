@@ -1,8 +1,8 @@
 .. _ref_user_guide:
 
-=========
-Tutorials
-=========
+==========
+User guide
+==========
 
 This section provides brief tutorials for helping you understand how to effectively use PyAEDT.
 

@@ -9,8 +9,6 @@ PyAEDT documentation  |version|
 PyAEDT is a Python library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
 enabling straightforward and efficient automation in your workflow.
 
-In the upper right corner of the documentation’s title bar, you will find a version switcher dropdown.
-
 .. grid:: 2
 
    .. grid-item-card::
@@ -34,8 +32,8 @@ In the upper right corner of the documentation’s title bar, you will find a ve
    .. grid-item-card::
             :img-top: _static/assets/index_user_guide.png
 
-            Tutorials
-            ^^^^^^^^^
+            User guide
+            ^^^^^^^^^^
 
             This section provides in-depth information on PyAEDT key concepts.
 
@@ -46,7 +44,7 @@ In the upper right corner of the documentation’s title bar, you will find a ve
                :outline:
                :click-parent:
 
-                  Tutorials
+                  User guide
 
 
 

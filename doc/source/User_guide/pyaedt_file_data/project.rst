@@ -3,7 +3,7 @@ Project Configuration file
 
 The project configuration file is the most comprehensive format that allows to apply a set of variables, materials,
 setup, mesh and boundaries to a new project or save an existing one.
-This file can be created using the following command:
+This code creates the JSON file:
 
 .. code:: python
 
@@ -19,9 +19,7 @@ This file can be created using the following command:
     ipk.release_desktop()
 
 
-The command is often combined with the ``export_3d_model`` method which allows to export the geometry
-to a 3D cad format.
-In the same way the file can be imported using the following command:
+This code imports the project configuration from the JSON file:
 
 
 .. code:: python
@@ -29,8 +27,7 @@ In the same way the file can be imported using the following command:
     app.modeler.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
 
-The main file skeleton is shown below.
-Few example files can be found at:
+File structure examples:
 
 :download:`Icepak Example <../../Resources/icepak_project_example.json>`
 
@@ -155,5 +152,5 @@ Few example files can be found at:
     }
     }
 
-For a practical demonstration, refer to the provided example in the following link:
+For a practical demonstration, see the
 `Project configuration file example <https://aedt.docs.pyansys.com/version/stable/examples/01-Modeling-Setup/Configurations.html#sphx-glr-examples-01-modeling-setup-configurations-py>`_

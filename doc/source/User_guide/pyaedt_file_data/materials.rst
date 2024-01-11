@@ -1,9 +1,9 @@
-Materials File
+Materials file
 ==============
 
-The material configuration file allows to create materials from a JSON file.
+The material configuration file allows you to create materials from a JSON file.
 
-This file can be created using the following command:
+This code creates the JSON file:
 
 .. code:: python
 
@@ -12,7 +12,7 @@ This file can be created using the following command:
     maxwell.materials.export_materials_to_file("materials.json")
     maxwell.release_desktop()
 
-You can import this file:
+This code imports materials from the JSON file:
 
 .. code:: python
 
@@ -22,6 +22,6 @@ You can import this file:
     maxwell.release_desktop()
 
 
-The main file skeleton is shown below.
+File structure example:
 
 :download:`Material example <../../Resources/material_example.json>`

@@ -1,7 +1,7 @@
-Antenna Array file
+Antenna array file
 ==================
 
-The array configuration file allows to create a 3D Component array from a JSON file.
+The array configuration file allows you to create a 3D Component array from a JSON file.
 
 This file can be created using the following command:
 
@@ -16,9 +16,9 @@ This file can be created using the following command:
     component_array = hfss.add_3d_component_array_from_json(dict_in)
     hfss.release_desktop()
 
-The main file skeleton is shown below.
+File structure example:
 
 :download:`Antenna Array example <../../Resources/array_example.json>`
 
-For a practical demonstration, refer to the provided example in the following link:
-`Antenna array example <https://aedt.docs.pyansys.com/version/stable/examples/02-HFSS/Array.html#sphx-glr-examples-02-hfss-array-py>`_
+For a practical demonstration, see the `Antenna array
+ example<https://aedt.docs.pyansys.com/version/stable/examples/02-HFSS/Array.html#sphx-glr-examples-02-hfss-array-py>`_.

@@ -1,9 +1,9 @@
 Choke file
 ==========
 
-The choke configuration file allows to synthesize a choke from a JSON file.
+The choke configuration file allows you to synthesize a choke from a JSON file.
 
-This file can be created using the following command:
+This code creates the choke geometry:
 
 .. code:: python
 
@@ -14,7 +14,7 @@ This file can be created using the following command:
     choke = hfss.modeler.create_choke(choke_file1)
     hfss.release_desktop()
 
-The main file skeleton is shown below.
+File structure example:
 
 :download:`Choke example <../../Resources/choke_example.json>`
 

@@ -16,7 +16,7 @@ Getting started
 
             Learn how to install PyAEDT from PyPi or Conda.
 
-   .. grid-item-card:: Tutorials
+   .. grid-item-card:: User guide
             :link: ../User_guide/index
             :link-type: doc
             :margin: 2 2 0 0

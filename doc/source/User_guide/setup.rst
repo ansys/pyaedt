@@ -1,11 +1,11 @@
 Setup
 =====
 
-Setup and sweeps are the last operations before running analysis.
+Setup and sweeps are the last operations before running an analysis.
 PyAEDT facilitates seamless interaction with these operations by enabling
 the reading, editing, and creation of setups and sweeps within a design.
 All setup operations are conveniently accessible and organized in the setups list,
-providing a clear and intuitive interface for users to manage and customize these
+providing a clear and intuitive interface for managing and customizing these
 essential components of the simulation process:
 
 .. code:: python

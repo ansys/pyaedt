@@ -106,9 +106,9 @@ PyAEDT includes a powerful class to generate a PDF report that is based on the P
 
 To see the capabilities offered by PyAEDT, download a sample PDF report that uses this class:
 
-:download:`PDF Report Example <../Resources/report_example.pdf>`
+:download:`PDF report example <../Resources/report_example.pdf>`
 
-Previous file was created with the following code:
+This code creates the previous PDF report:
 
 .. code:: python
 
@@ -142,4 +142,4 @@ Previous file was created with the following code:
 
 .. image:: ../Resources/pdf_report.jpg
   :width: 800
-  :alt: Pdf report output example
+  :alt: PDF report output example
