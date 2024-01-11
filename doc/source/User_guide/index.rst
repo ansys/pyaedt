@@ -6,7 +6,7 @@ Tutorials
 
 This section provides brief tutorials for helping you understand how to effectively use PyAEDT.
 
-For additional examples and practical demonstrations, you can visit the
+For additional practical demonstrations, see
 `PyAEDT examples <https://aedt.docs.pyansys.com/version/stable/examples>`_ page.
 
 
