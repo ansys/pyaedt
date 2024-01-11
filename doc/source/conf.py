@@ -6,6 +6,7 @@ import os
 import pathlib
 import sys
 import warnings
+from sphinx.util import logging
 
 import pyvista
 import numpy as np
@@ -42,6 +43,8 @@ LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
 
+logger = logging.getLogger(__name__)
+
 path = pathlib.Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 
@@ -63,6 +66,18 @@ class PrettyPrintDirective(Directive):
                 addnodes.desc_content('', literal)
         ]
 
+# Sphinx event hooks
+
+def directory_size(directory_path):
+    """Compute the size (in mega bytes) of a directory."""
+    res = 0
+    for path, _, files in os.walk(directory_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            res += os.stat(fp).st_size
+    # Convert in mega bytes
+    res /= 1e6
+    return res
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     try:
@@ -73,34 +88,42 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
     # return True if exclude else None
 
-
 def remove_doctree(app, exception):
     """Remove the .doctree directory created during the documentation build.
     """
+    size = directory_size(app.doctreedir)
+    logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
     shutil.rmtree(app.doctreedir)
-
+    logger.info(f"Doctree removed.")
 
 def copy_examples(app):
     """Copy directory examples (root directory) files into the doc/source/examples directory.
     """
     DESTINATION_DIRECTORY = pathlib.Path(app.srcdir, "examples").resolve()
-    print(f"Copying examples from {EXAMPLES_DIRECTORY} to {DESTINATION_DIRECTORY} directory")
+    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {DESTINATION_DIRECTORY}.")
     if os.path.exists(DESTINATION_DIRECTORY):
+        size = directory_size(DESTINATION_DIRECTORY)
+        logger.info(f"Directory {DESTINATION_DIRECTORY} ({size} MB) already exist, removing it.")
         shutil.rmtree(DESTINATION_DIRECTORY)
+        logger.info(f"Directory removed.")
+
     shutil.copytree(EXAMPLES_DIRECTORY, DESTINATION_DIRECTORY)
-    print("Done")
+    logger.info(f"Copy performed")
 
 def remove_examples(app, exception):
     """Remove the doc/source/examples directory created during the documentation build.
     """
     DESTINATION_DIRECTORY = pathlib.Path(app.srcdir) / "examples"
+    size = directory_size(DESTINATION_DIRECTORY)
+    logger.info(f"Removing directory {DESTINATION_DIRECTORY} ({size} MB).")
     shutil.rmtree(DESTINATION_DIRECTORY)
+    logger.info(f"Directory removed.")
 
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect("builder-inited", copy_examples)
-    app.connect("build-finished", remove_examples)
+    app.connect('builder-inited', copy_examples)
+    app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
 
 
@@ -262,7 +285,7 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# Warning suppresses
+# Execute notebooks before convertion
 nbsphinx_execute = "always"
 
 # Sphinx gallery customization
@@ -273,7 +296,6 @@ nbsphinx_thumbnails = {
 nbsphinx_custom_formats = {
     ".py": ["jupytext.reads", {"fmt": ""}],
 }
-
 
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
