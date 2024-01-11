@@ -95,7 +95,7 @@ Get help
 --------
 
 **Development issues:** For PyAEDT development-related matters, see the
-`PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_.
+`PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page.
 You can create issues to report bugs and request new features.
 
 **User questions:** The best way to get help is to post your question on the `PyAEDT Discussions
