@@ -1,15 +1,13 @@
 import json
-import logging
 import os
 import re
 import traceback
 
 import pyaedt
-from pyaedt import settings
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_if_path_exists
-
-logger = logging.getLogger(__name__)
+from pyaedt.generic.settings import settings
 
 
 class Component:
