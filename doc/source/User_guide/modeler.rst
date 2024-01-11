@@ -21,7 +21,7 @@ The following code creates a box and changes the color to red:
   :alt: Modeler Object
 
 
-Similarly other properties can be changed like the material, transparency, etc....
+Similarly, you can change other properties, such as the material and transparency.
 
 .. code:: python
 
