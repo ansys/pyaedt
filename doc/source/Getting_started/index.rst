@@ -91,7 +91,7 @@ for using PyAEDT API and EDB API:
 **EDB cheat sheet:** `EDB API <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_
 
 
-Get Help
+Get help
 --------
 
 **Development Issues:** For PyAEDT development-related matters (e.g., bug reports), please see
