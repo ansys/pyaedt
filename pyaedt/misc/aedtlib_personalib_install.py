@@ -60,8 +60,8 @@ def add_pyaedt_to_aedt(
 ):
     if not (sys_dir or pers_dir):
         from pyaedt import Desktop
-        from pyaedt import settings
         from pyaedt.generic.general_methods import grpc_active_sessions
+        from pyaedt.generic.settings import settings
 
         sessions = grpc_active_sessions(aedt_version, is_student_version)
         close_on_exit = True

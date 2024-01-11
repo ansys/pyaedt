@@ -5,8 +5,6 @@ This module contains EDB general methods and related methods.
 
 from __future__ import absolute_import  # noreorder
 
-import logging
-
 from pyaedt import is_ironpython
 from pyaedt.generic.clr_module import Dictionary
 from pyaedt.generic.clr_module import List
@@ -20,8 +18,6 @@ if not is_ironpython:  # pragma: no cover
         Enum = None
 else:  # pragma: no cover
     Enum = object
-
-logger = logging.getLogger(__name__)
 
 
 @pyaedt_function_handler()

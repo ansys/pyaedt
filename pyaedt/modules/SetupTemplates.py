@@ -562,6 +562,7 @@ NexximAMI = OrderedDict(
         "OutputQuantities": OutputQuantities,
         "NoiseOutputQuantities": NoiseOutputQuantities,
         "Name": "AMIAnalysis",
+        "InputType": 1,
         "AMIAnalysis": [32, False, False],
     }
 )
