@@ -4539,9 +4539,9 @@ class BoundaryDictionary:
     """
 
     def __init__(self, assignment_type, function_type):
-        if assignment_type not in ["Temp Dep", "Transient"]:
+        if assignment_type not in ["Temp Dep", "Transient"]:  # pragma : no cover
             raise AttributeError("The argument {} for ``assignment_type`` is not valid.".format(assignment_type))
-        if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":
+        if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
             raise AttributeError(
                 "Temperature dependent assignments only support"
                 ' ``"Piecewise Linear"`` as ``function_type`` argument.'.format(assignment_type)
@@ -4558,7 +4558,7 @@ class BoundaryDictionary:
         }
 
     @abstractmethod
-    def _parse_value(self):
+    def _parse_value(self):  # pragma : no cover
         pass
 
     @pyaedt_function_handler
