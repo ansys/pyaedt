@@ -107,7 +107,7 @@ class Configuration:
                 ref_size_x = 0
                 ref_size_y = 0
 
-            # Configure solder ball properteis
+            # Configure solder ball properties
             solder_ball_properties = comp["SolderballProperties"] if "SolderballProperties" in comp else None
             if solder_ball_properties:
                 shape = solder_ball_properties["Shape"]
