@@ -31,6 +31,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryDictionary
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import ExponentialDictionary
 from pyaedt.modules.Boundary import LinearDictionary
