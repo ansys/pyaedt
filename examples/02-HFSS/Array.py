@@ -12,6 +12,7 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 
 import os
 import pyaedt
+from pyaedt.modules.solutions import FfdSolutionData
 
 ##########################################################
 # Set non-graphical mode
@@ -93,7 +94,34 @@ ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Infinite Sphere1", setu
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(qty_str='RealizedGain', convert_to_db=True,
+ffdata.plot_farfield_contour(farfield_quantity='RealizedGain',
+                             title='Contour at {}Hz'.format(ffdata.frequency))
+
+##########################################################
+# Release AEDT
+# ~~~~~~~~~~~~
+# Release AEDT.
+# Far field post-processing can be performed without AEDT because the data is stored.
+
+eep_file = ffdata.eep_files
+frequencies = ffdata.frequencies
+
+hfss.release_desktop()
+
+##########################################################
+# Load far field data
+# ~~~~~~~~~~~~~~~~~~~
+# Load far field data stored.
+
+ffdata = FfdSolutionData(frequencies=frequencies[0], eep_files=eep_file[0])
+
+##########################################################
+# Generate contour plot
+# ~~~~~~~~~~~~~~~~~~~~~
+# Generate a contour plot. You can define the Theta scan
+# and Phi scan.
+
+ffdata.plot_farfield_contour(farfield_quantity='RealizedGain',
                              title='Contour at {}Hz'.format(ffdata.frequency))
 
 ##########################################################
@@ -103,14 +131,14 @@ ffdata.plot_farfield_contour(qty_str='RealizedGain', convert_to_db=True,
 # and Phi scan.
 
 ffdata.plot_2d_cut(primary_sweep='theta', secondary_sweep_value=[-180, -75, 75],
-                   qty_str='RealizedGain',
+                   farfield_quantity='RealizedGain',
                    title='Azimuth at {}Hz'.format(ffdata.frequency),
-                   convert_to_db=True)
+                   quantity_format="dB10")
 
 ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
-                   qty_str='RealizedGain',
+                   farfield_quantity='RealizedGain',
                    title='Elevation',
-                   convert_to_db=True)
+                   quantity_format="dB10")
 
 ##########################################################
 # Generate 3D polar plots in Matplotlib
@@ -118,8 +146,7 @@ ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
 # Generate 3D polar plots in Matplotlib. You can define
 # the Theta scan and Phi scan.
 
-ffdata.polar_plot_3d(qty_str='RealizedGain',
-                     convert_to_db=True)
+ffdata.polar_plot_3d(farfield_quantity='RealizedGain')
 
 ##########################################################
 # Generate 3D plots in PyVista
@@ -128,14 +155,5 @@ ffdata.polar_plot_3d(qty_str='RealizedGain',
 # scan angles. You can change the easy-to-use interactive plot
 # that is generated on the fly. 
 
-ffdata.polar_plot_3d_pyvista(qty_str='RealizedGain',
-                             convert_to_db=True,
-                             export_image_path=os.path.join(hfss.working_directory, "picture.jpg"),
+ffdata.polar_plot_3d_pyvista(farfield_quantity='RealizedGain',
                              show=False)
-
-##########################################################
-# Release AEDT
-# ~~~~~~~~~~~~
-# Release AEDT.
-
-hfss.release_desktop()

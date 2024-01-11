@@ -6,8 +6,8 @@ import tempfile
 import time
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.aedt_logger import pyaedt_logger as logger
+from pyaedt.generic.settings import settings
 from pyaedt.misc import list_installed_ansysem
 
 # import sys

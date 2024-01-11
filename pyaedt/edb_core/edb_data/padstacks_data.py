@@ -399,6 +399,12 @@ class EDBPadstack(object):
         pass
 
     @property
+    def instances(self):
+        """Definitions Instances."""
+        name = self.name
+        return [i for i in self._ppadstack.instances.values() if i.padstack_definition == name]
+
+    @property
     def name(self):
         """Padstack Definition Name."""
         return self.edb_padstack.GetName()
@@ -727,7 +733,7 @@ class EDBPadstack(object):
             self.edb_padstack.SetData(cloned_padstackdef_data)
 
     @pyaedt_function_handler()
-    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15):
+    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15, delete_padstack_def=True):
         """Convert actual padstack instance to microvias 3D Objects with a given aspect ratio.
 
         Parameters
@@ -735,15 +741,24 @@ class EDBPadstack(object):
         convert_only_signal_vias : bool, optional
             Either to convert only vias belonging to signal nets or all vias. Defaults is ``True``.
         hole_wall_angle : float, optional
-            Angle of laser penetration in deg. It will define the bottom hole diameter with the following formula:
+            Angle of laser penetration in degrees. The angle defines the bottom hole diameter with this formula:
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
-            The default value is ``15``.
-            The bottom hole will be ``0.75*HoleDepth/HoleDiam``.
+            The default is ``15``.
+            The bottom hole is ``0.75*HoleDepth/HoleDiam``.
+        delete_padstack_def : bool, optional
+            Whether to delete the padstack definition. The default is ``True``.
+            If ``False``, the padstack definition is not deleted and the hole size is set to zero.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
+
+        if len(self.hole_properties) == 0:
+            self._ppadstack._pedb.logger.error("Microvias cannot be applied on vias using hole shape polygon")
+            return False
+
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
         layout = self._ppadstack._pedb.active_layout
@@ -752,8 +767,16 @@ class EDBPadstack(object):
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
-        start_elevation = layers[self.via_start_layer].lower_elevation
-        diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
+        try:
+            start_elevation = layers[self.via_start_layer].lower_elevation
+        except KeyError:  # pragma: no cover
+            start_elevation = layers[self.instances[0].start_layer].lower_elevation
+        try:
+            stop_elevation = layers[self.via_start_layer].upper_elevation
+        except KeyError:  # pragma: no cover
+            stop_elevation = layers[self.instances[0].stop_layer].upper_elevation
+
+        diel_thick = abs(start_elevation - stop_elevation)
         rad1 = self.hole_properties[0] / 2
         rad2 = self.hole_properties[0] / 2 - math.tan(hole_wall_angle * diel_thick * math.pi / 180)
 
@@ -828,7 +851,13 @@ class EDBPadstack(object):
                         i += 1
                     if stop == via.stop_layer:
                         break
-                via.delete()
+                if delete_padstack_def:  # pragma no cover
+                    via.delete()
+                else:  # pragma no cover
+                    padstack_def = self._ppadstack.definitions[via.padstack_definition]
+                    padstack_def.hole_properties = 0
+                    self._ppadstack._pedb.logger.info("Padstack definition kept, hole size set to 0.")
+
         self._ppadstack._pedb.logger.info("{} Converted successfully to 3D Objects.".format(i))
         return True
 
