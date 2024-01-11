@@ -25,7 +25,7 @@ Descriptions follow for the most used formats.
             :link-type: doc
             :margin: 2 2 0 0
 
-            The report configuration files allows to import and export materials in AEDT.
+            The report configuration files allows you to import and export materials in AEDT.
 
    .. grid-item-card:: Primitives file
             :link: pyaedt_file_data/primitives
