@@ -11,7 +11,7 @@ Descriptions follow for the most used formats.
             :link: pyaedt_file_data/project
             :link-type: doc
 
-            The project configuration file allows to apply a set of variables, materials, setup, mesh and boundaries.
+            The project configuration file allows you to apply a set of variables, materials, setup, mesh, and boundaries.
 
    .. grid-item-card:: Report file
             :link: pyaedt_file_data/reports
