@@ -4475,44 +4475,42 @@ class Icepak(FieldAnalysis3D):
             IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
         flow_type : int or str, optional
             Prescribed radiation flow type at the boundary. Available options are ``"Pressure"``,
             ``"Velocity"``, and ``"Mass Flow"``. The default is ``"Pressure"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment` as an element of the list.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
-        mass_flow_rate : float or str or dict, optional
+        mass_flow_rate : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
+            the unit ``'kg_per_s'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             Default is ``"0kg_per_s"``.
         inflow : bool, optional
             Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
@@ -4590,7 +4588,7 @@ class Icepak(FieldAnalysis3D):
                 ("Z Velocity", velocity[2]),
             ]
         for quantity, assignment in possible_transient_properties:
-            if isinstance(assignment, dict):
+            if isinstance(assignment, (dict, BoundaryDictionary)):
                 if not self.solution_type == "Transient":
                     self.logger.error("Transient assignment is supported only in transient designs.")
                     return None
@@ -4632,30 +4630,28 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str or list
-           Integer indicating a face ID or a string indicating an object name. A list of face
-           IDs or object names is also accepted.
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
-            acceptable values associated with those keys can be found in the Icepak
-            documentation. The default is ``"AmbientPressure"``.
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+            The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
 
@@ -4706,32 +4702,30 @@ class Icepak(FieldAnalysis3D):
             IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
-            acceptable values associated with those keys can be found in the Icepak
-            documentation. The default is ``"AmbientPressure"``.
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+            The default is ``"AmbientPressure"``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment` as an element of the list.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
 
 
@@ -4779,36 +4773,34 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str or list
-           Integer indicating a face ID or a string indicating an object name. A list of face
-           IDs or object names is also accepted.
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         boundary_name : str, optional
-            Boundary name. The default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+            Boundary name. Default is ``None``, in which case the name is generated automatically.
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
-            acceptable values associated with those keys can be found in the Icepak
-            documentation. The default is ``"AmbientPressure"``.
-        mass_flow_rate : float or str or dict, optional
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
+            The default is ``"AmbientPressure"``.
+        mass_flow_rate : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
+            the unit ``'kg_per_s'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the pattern `create_*_transient_assignment`.
             Default is ``"0kg_per_s"``.
         inflow : bool, optional
             Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
