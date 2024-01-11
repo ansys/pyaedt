@@ -3098,3 +3098,21 @@ class TestClass:
         )
         assert len(list(edbapp.variables.values())) == 2308
         edbapp.close_edb()
+
+    def test_156_json_configuration(self):
+        example_folder = os.path.join(local_path, "example_models", test_subfolder)
+        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
+        path_json = os.path.join(example_folder, "edb_cfg_example.json")
+
+        target_path_edb = os.path.join(self.local_scratch.path, "configuration", "test.aedb")
+
+        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
+
+        edbapp = Edb(target_path_edb, desktop_version)
+        edbapp.configuration.load(path_json)
+        edbapp.close()
+
+        edbapp = Edb(target_path_edb, desktop_version)
+        sim_setup = SimulationConfiguration()
+        edbapp.configuration.load(sim_setup)
+        edbapp.close()

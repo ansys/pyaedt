@@ -73,19 +73,19 @@ class Configuration:
                             rlc = self._pedb.edb_api.utility.Rlc()
 
                             rlc.IsParallel = False if rlc_model_type == "Series" else True
-                            if r:
+                            if not r is None:
                                 rlc.REnabled = True
                                 rlc.R = self._pedb.edb_value(r)
                             else:
                                 rlc.REnabled = False
 
-                            if l:
+                            if not l is None:
                                 rlc.LEnabled = True
                                 rlc.L = self._pedb.edb_value(l)
                             else:
                                 rlc.LEnabled = False
 
-                            if c:
+                            if not c is None:
                                 rlc.CEnabled = True
                                 rlc.C = self._pedb.edb_value(c)
                             else:
@@ -93,9 +93,6 @@ class Configuration:
 
                             model_layout.set_pin_pair_rlc(pin_pair, rlc)
                         comp_layout.model = model_layout
-
-            else:
-                pass  # Todo
 
             # Configure port properties
             port_properties = comp["PortProperties"] if "PortProperties" in comp else None
