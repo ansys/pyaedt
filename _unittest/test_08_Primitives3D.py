@@ -6,6 +6,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
+from pyaedt import Icepak
+from pyaedt import Q2d
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -1846,5 +1848,77 @@ class TestClass:
     def test_88_import_primitives_file(self):
         self.aedtapp.insert_design("PrimitiveFromFile")
         primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
-        primitives = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
-        x = 1
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 5
+
+    def test_89_primitives_builder(self, add_app):
+        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
+
+        ipk = add_app(application=Icepak)
+
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
+        primitive_dict = json_to_dict(primitive_file)
+
+        with pytest.raises(TypeError):
+            PrimitivesBuilder(ipk)
+
+        del primitive_dict["Primitives"]
+        with pytest.raises(AttributeError):
+            PrimitivesBuilder(ipk, input_dict=primitive_dict)
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Name"]
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Mode"]
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Origin"]
+        del primitive_dict["Coordinate Systems"][0]["Y Point"]
+        del primitive_dict["Coordinate Systems"][1]["Phi"]
+        del primitive_dict["Coordinate Systems"][1]["Theta"]
+        primitive_dict["Coordinate Systems"][1]["Mode"] = "Euler Angle ZXZ"
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.coordinate_systems[0]["X Axis"]
+        del primitives_builder.coordinate_systems[1]["Psi"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 5
+
+        ipk.modeler.coordinate_systems[0].delete()
+        ipk.modeler.coordinate_systems[0].delete()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Name"]
+        assert not primitives_builder.create()
+        assert len(primitive_names) == 5
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Coordinate System"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 5
+        ipk.modeler.coordinate_systems[0].delete()
+        ipk.modeler.coordinate_systems[0].delete()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        primitives_builder.instances[0]["Coordinate System"] = "Invented"
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Origin"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 5
+
+        q2d = add_app(application=Q2d)
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
+        primitive_names = primitives_builder.create()
+        assert all(element is None for element in primitive_names)
