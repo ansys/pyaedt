@@ -328,7 +328,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         component_name=None,
         save_project=True,
     ):
-        """Add a Q3D dynamic component to a Twin Builder design.
+        """Add a Q2D or Q3D dynamic component to a Twin Builder design.
 
         Parameters
         ----------
@@ -343,7 +343,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         coupling_matrix_name : str
             Coupling matrix name.
         model_depth : str, optional
-            2D model depth specified as value + unit.
+            2D model depth specified as value with unit.
             To be provided if design is Q2D.
             The default value is ``1meter``
         maximum_order : float, optional
@@ -354,7 +354,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         error_tolerance : float, optional
             Error Tolerance sets the error tolerance for S-Matrix fitting.
             The default value is ``0.005``.
-        z_ref : float,optional
+        z_ref : float, optional
             Sets the value of the Z (ref) in ohms.
             The default value is ``50``.
         state_space_dynamic_link_type : str, optional
@@ -379,9 +379,27 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         References
         ----------
         >>> oComponentManager.AddDynamicNPortData
+
+        Examples
+        --------
+        Create an instance of Twin Builder.
+
+        >>> from pyaedt import TwinBuilder
+        >>> tb = TwinBuilder()
+
+        Add a Q2D dynamic link component.
+
+        >>> tb.add_q3d_dynamic_component("Q2D_ArmouredCableExample",
+        ...                             "2D_Extractor_Cable",
+        ...                             "MySetupAuto",
+        ...                             "sweep1",
+        ...                             "Original",
+        ...                             "100mm")
+        >>> tb.release_desktop()
         """
         dkp = self.desktop_class
         is_loaded = False
+        app = None
         if os.path.isfile(source_project):
             if os.path.exists(source_project):
                 project_path = source_project
