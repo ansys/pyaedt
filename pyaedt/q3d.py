@@ -1425,9 +1425,7 @@ class Q3d(QExtractor, object):
         for i in self.boundaries:
             if (
                 i.type == "Sink"
-                and i.props.get("Net", None) == net_name
-                or i.type == "Sink"
-                and i.props.get("Net", None) == net_id
+                and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id]))
             ):
                 sinks.append(i.name)
         return sinks
