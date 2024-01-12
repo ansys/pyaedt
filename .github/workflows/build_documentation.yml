@@ -38,7 +38,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.10"
+
+      - name: Update pip
+        run: |
+          pip install --upgrade pip
 
       - name: Install pyaedt
         run: |

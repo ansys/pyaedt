@@ -1,7 +1,7 @@
-import logging
 import re
 import warnings
 
+from pyaedt.edb_core.edb_data.component_model import PinPairModel
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
@@ -13,6 +13,7 @@ if not is_ironpython:
             "The NumPy module is required to run some functionalities of EDB.\n"
             "Install with \n\npip install numpy\n\nRequires CPython."
         )
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -307,6 +308,20 @@ class EDBComponent(object):
         ]
 
     @property
+    def model(self):
+        """Component model."""
+        edb_object = self.component_property.GetModel().Clone()
+        model_type = edb_object.ToString().split(".")[-1]
+        if model_type == "PinPairModel":
+            return PinPairModel(self._pedb, edb_object)
+
+    @model.setter
+    def model(self, value):
+        comp_prop = self.component_property
+        comp_prop.SetModel(value._edb_object)
+        self.edbcomponent.SetComponentProperty(comp_prop)
+
+    @property
     def is_enabled(self):
         """Get or Set the component to active mode.
 
@@ -589,7 +604,7 @@ class EDBComponent(object):
     @is_parallel_rlc.setter
     def is_parallel_rlc(self, value):  # pragma no cover
         if not len(self._pin_pairs):
-            logging.warning(self.refdes, " has no pin pair.")
+            pyaedt_logger.warning(self.refdes, " has no pin pair.")
         else:
             if isinstance(value, bool):
                 componentProperty = self.edbcomponent.GetComponentProperty()
@@ -797,6 +812,21 @@ class EDBComponent(object):
         return self.edbcomponent.GetPlacementLayer().Clone().GetName()
 
     @property
+    def is_top_mounted(self):
+        """Check if a component is mounted on top or bottom of the layout.
+
+        Returns
+        -------
+        bool
+            ``True`` component is mounted on top, ``False`` on down.
+
+        """
+        signal_layers = [lay.name for lay in list(self._pedb.stackup.signal_layers.values())]
+        if self.placement_layer in signal_layers[: int(len(signal_layers) / 2)]:
+            return True
+        return False
+
+    @property
     def lower_elevation(self):
         """Lower elevation of the placement layer.
 
@@ -845,7 +875,7 @@ class EDBComponent(object):
         comp_prop = self.component_property
         comp_prop.SetModel(model)
         if not self.edbcomponent.SetComponentProperty(comp_prop):
-            logging.error("Fail to assign model on {}.".format(self.refdes))
+            pyaedt_logger.error("Fail to assign model on {}.".format(self.refdes))
             return False
         return True
 
@@ -883,7 +913,7 @@ class EDBComponent(object):
                 model.AddTerminalPinPair(pn, str(terminal))
                 terminal += 1
         else:  # pragma: no cover
-            logging.error("Wrong number of Pins")
+            pyaedt_logger.error("Wrong number of Pins")
             return False
         return self._set_model(model)
 

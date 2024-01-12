@@ -3,58 +3,71 @@
 ==========
 User guide
 ==========
-PyAEDT works both inside AEDT and as a standalone application.
-It automatically detects whether it is running in an IronPython (limited capabilities) or CPython
-environment and initializes AEDT accordingly. PyAEDT also provides
-advanced error management.
 
-You can start AEDT in non-graphical mode from Python:
+This section provides brief tutorials for helping you understand how to effectively use PyAEDT.
 
-.. code:: python
-
-    # Launch AEDT 2023 R1 in non-graphical mode
-
-    import pyaedt
-    with pyaedt.Desktop(specified_version="2023.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
-                 student_version=False):
-        circuit = pyaedt.Circuit()
-        ...
-        # Any error here will be caught by Desktop.
-        ...
-
-    # Desktop is automatically closed here.
+For additional practical demonstrations, see
+`PyAEDT examples <https://aedt.docs.pyansys.com/version/stable/examples>`_ page.
 
 
-The preceding code launches AEDT and initializes a new Circuit design.
+.. grid:: 2
 
-.. image:: ../Resources/aedt_first_page.png
-  :width: 800
-  :alt: Electronics Desktop Launched
+   .. grid-item-card:: Basic tutorial
+            :link: intro
+            :link-type: doc
 
+            This tutorial shows how to launch Electronics Desktop and create a project.
 
-You can obtain the same result with:
+   .. grid-item-card:: Modeler
+            :link: modeler
+            :link-type: doc
+            :margin: 2 2 0 0
 
-.. code:: python
+            This tutorial shows how to use 2D and 3D Modeler.
 
-    # Launch the latest installed version of AEDT in graphical mode.
+   .. grid-item-card:: Mesh
+            :link: mesh
+            :link-type: doc
+            :margin: 2 2 0 0
 
-    import pyaedt
-    with pyaedt.Circuit(specified_version="2023.1", non_graphical=False) as circuit:
-        ...
-        # Any error here will be caught by Desktop.
-        ...
+            This tutorial shows how PyAEDT handles mesh operations.
 
-    # Desktop is automatically released here.
+   .. grid-item-card:: Setup
+            :link: setup
+            :link-type: doc
+            :margin: 2 2 0 0
 
+            This tutorial shows how to create a setup and run simulations.
 
+   .. grid-item-card:: Variables and Optimetrics
+            :link: variables
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            This tutorial shows how to generate parametric models and run optimizations.
+
+   .. grid-item-card:: Load and manage files
+            :link: files
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            This tutorial shows how to load and manage input and output files.
+
+   .. grid-item-card:: Postprocessing
+            :link: postprocessing
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            This tutorial shows how to generate reports, images, and PDF files.
 
 .. toctree::
    :hidden:
    :maxdepth: 2
 
-   variables
+   intro
    modeler
    mesh
    setup
-   optimetrics
+   variables
+   files
    postprocessing

@@ -595,7 +595,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     title : str, optional
         Plot Title Label. Default is `""`.
     levels : int, optional
-        Colormap levels. Default is `64`.
+        Color map levels. Default is `64`.
     snapshot_path : str, optional
         Full path to image to save. Default is None.
 
@@ -1125,7 +1125,9 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def add_object(self, cad_path, cad_color="dodgerblue", opacity=1, units="mm"):
-        """Add an mesh file to the scenario. It can be obj or any of pyvista supported files.
+        """Add a mesh file to the scenario.
+
+        The mesh file can be an object or any of the PyVista supported files.
 
         Parameters
         ----------
@@ -1522,6 +1524,7 @@ class ModelPlotter(CommonPlotter):
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.enable_ssao()
+        self.pv.enable_parallel_projection()
         self.meshes = None
         if self.background_image:
             self.pv.add_background_image(self.background_image)

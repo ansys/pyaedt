@@ -32,6 +32,7 @@ dependencies = [
     "rpyc==5.3.1",
     "psutil",
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
+    "fpdf2"
 ]
 
 [project.optional-dependencies]
@@ -62,9 +63,10 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf",
+    "jsonschema",
 ]
 doc = [
-    "ansys-sphinx-theme==0.12.2",
+    "ansys-sphinx-theme==0.13.1",
     "imageio==2.31.5",
     "imageio-ffmpeg==0.4.9",
     "ipython==8.13.0; python_version < '3.9'",

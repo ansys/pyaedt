@@ -1,5 +1,5 @@
 """
-EDB: paramterized design
+EDB: parameterized design
 ------------------------
 This example shows how to
 1, Create an HFSS simulation project using SimulationConfiguration class.
@@ -28,7 +28,7 @@ project_path = pyaedt.generate_unique_folder_name()
 target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_path)
 print("Project folder will be", target_aedb)
 
-aedt_version = "2024.1"
+aedt_version = "2023.2"
 edb = pyaedt.Edb(edbpath=target_aedb, edbversion=aedt_version)
 print("EDB is located at {}".format(target_aedb))
 
@@ -55,7 +55,6 @@ edb.build_simulation_project(simulation_configuration)
 #############################
 # Generated design parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
 
 edb.auto_parametrize_design(layers=True, materials=True, via_holes=True, pads=True, antipads=True, traces=True)
 edb.save_edb()
@@ -65,5 +64,6 @@ edb.close_edb()
 # Open project in AEDT
 # ~~~~~~~~~~~~~~~~~~~~
 
-hfss = pyaedt.Hfss3dLayout(projectname=target_aedb, specified_version=aedt_version)
-hfss.release_desktop(False, False)
+# Uncomment the following line to open the design in HFSS 3D Layout
+# hfss = pyaedt.Hfss3dLayout(projectname=target_aedb, specified_version=aedt_version, new_desktop_session=True)
+# hfss.release_desktop()

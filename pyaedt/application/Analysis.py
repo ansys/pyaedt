@@ -18,7 +18,6 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
-from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
@@ -33,6 +32,7 @@ from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
@@ -877,7 +877,7 @@ class Analysis(Design, object):
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
             if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
-                data_vals = list(data_vals)
+                data_vals = [data_vals]
             for ds in data_vals:
                 try:
                     if isinstance(ds, (OrderedDict, dict)):

@@ -1,6 +1,7 @@
 import os
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations3DLayout
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
@@ -89,6 +90,17 @@ class FieldAnalysis3DLayout(Analysis):
         self._modeler = None
         self._mesh = None
         self._post = None
+        self._configurations = Configurations3DLayout(self)
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def post(self):

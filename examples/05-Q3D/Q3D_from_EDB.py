@@ -10,7 +10,6 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 import os
-import tempfile
 import pyaedt
 
 
@@ -96,7 +95,7 @@ q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
          export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
 
 ###############################################################################
-# Assing Source and Sink
+# Assign Source and Sink
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.

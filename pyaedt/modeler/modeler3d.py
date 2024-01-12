@@ -82,6 +82,7 @@ class Modeler3D(Primitives3D):
         monitor_objects=None,
         datasets=None,
         native_components=None,
+        create_folder=True,
     ):
         """Create a 3D component file.
 
@@ -145,6 +146,9 @@ class Modeler3D(Primitives3D):
             List of native_components names to export. The default is all
             native_components. This argument is relevant only if ``auxiliary_dict_file``
             is set to ``True``.
+        create_folder : Bool, optional
+            If the specified path to the folder where the 3D component should be saved
+            does not exist, then create the folder. Default is ``True``.
 
         Returns
         -------
@@ -371,6 +375,14 @@ class Modeler3D(Primitives3D):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
+        if not os.path.isdir(os.path.dirname(component_file)):
+            self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
+            if create_folder:  # Folder doesn't exist.
+                os.mkdir(os.path.dirname(component_file))
+                self.logger.warning("Created folder '" + os.path.dirname(component_file) + "'")
+            else:
+                self.logger.warning("Unable to create 3D Component: '" + component_file + "'")
+                return False
         self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
         return True
 

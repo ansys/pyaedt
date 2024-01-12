@@ -39,7 +39,7 @@ if NOT [%usewheel%]==[] (
 
 	) ELSE (
 	echo ----------------------------------------------------------------------------------------------
-	echo WheelHouse has been spefified. Make sure you are using the same version of Python interpreter.
+	echo WheelHouse has been specified. Make sure you are using the same version of Python interpreter.
 	echo ----------------------------------------------------------------------------------------------
 
 	)

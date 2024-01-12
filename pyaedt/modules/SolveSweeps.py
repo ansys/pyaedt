@@ -10,6 +10,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
 from pyaedt.modules.SetupTemplates import SweepSiwave
@@ -865,7 +866,7 @@ class SetupProps(OrderedDict):
     def _setitem_without_update(self, key, value):
         OrderedDict.__setitem__(self, key, value)
 
-    def _export_properties_to_json(self, file_path):
+    def _export_properties_to_json(self, file_path, overwrite=False):
         """Export all setup properties to a JSON file.
 
         Parameters
@@ -880,9 +881,13 @@ class SetupProps(OrderedDict):
         for k, v in self.items():
             if k not in FILTER_KEYS:
                 export_dict[k] = v
-        with open3(file_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
-        return True
+        if os.path.isfile(file_path) and not overwrite:
+            settings.logger.warning("Unable to overwrite file: %s." % (file_path))
+            return False
+        else:
+            with open3(file_path, "w", encoding="utf-8") as f:
+                f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
+            return True
 
     def _import_properties_from_json(self, file_path):
         """Import setup properties from a JSON file.

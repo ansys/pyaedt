@@ -1,0 +1,76 @@
+{
+  "Options": {
+    "PortNamingConvention": {
+      "Value": "$REFDES_$NETNAME_$PINNAME"
+    }
+  },
+  "components": [
+    {
+      "RefDes": "C375",
+      "PartType": "Capacitor",
+      "Enabled": false,
+      "RLCModel": {
+        "PinPairs": [
+          {"Type": "Series","p1": "1", "p2": "2"}
+        ]
+      },
+      "Ports": [
+        {"Type": "Circuit","From": {"Pin": "1"},"To": {"Pin": "2"}}
+      ]
+    },
+    {
+      "RefDes": "C376",
+      "PartType": "Capacitor",
+      "Enabled": true,
+      "RLCModel": {
+        "PinPairs": [
+          {"Type": "Series","C": "100nF", "R": 0, "L": 0 ,"p1": "1", "p2": "2"}
+        ]
+      }
+    },
+    {
+      "RefDes": "U1",
+      "PartType": "IO",
+      "SolderballProperties": {"Shape": "Cylinder","Diameter": "244um","Height": "406um"},
+      "PortProperties": {"ReferenceOffset": 0,"ReferenceSizeAuto": true,"ReferenceSizeX": 0,"ReferenceSizeY": 0},
+      "Ports": [
+        {"Type": "Coax", "From": {"Pin": "AM17"}},
+        {"Type": "Coax", "From": {"Net": "PCIe_Gen4_TX2_CAP_N"}}
+      ]
+    },
+    {
+      "RefDes": "X1",
+      "PartType": "IO",
+      "Ports": [
+        {"Type": "Circuit", "From": {"Pin": "B8"},"To": {"Net": "GND"}},
+        {"Type": "Circuit", "From": {"Pin": "B9"},"To": {"Net": "GND"}}
+      ]
+    },
+    {
+      "RefDes": "U7",
+      "PartType": "IO",
+      "Ports": [
+        {"Type": "Circuit", "From": {"Net": "VDD_DDR"},"To": {"Net": "GND"}}
+      ]
+    }
+  ],
+  "Boundaries": {
+    "Extents": {
+      "Type": "conformal"
+    }
+  },
+  "HfssSetup": {
+    "Name": "hfss_setup",
+    "Fadapt": "5GHz",
+    "MaxNumPasses": 10,
+    "MaxMagDeltaS": 0.02,
+    "FreqSweep": [
+      {
+        "Name": "Sweep1",
+        "LinearStep": [
+         {"Start": 0,"Stop": 5e9,"Step": 10e7}
+        ]
+        }
+    ]
+  }
+}

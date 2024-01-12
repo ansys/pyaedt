@@ -7,7 +7,7 @@ The *.emn/*.emp combination can also be used in a similar way.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports including the opertaing system, Ansys PyAEDT packages.
+# Perform required imports including the operating system, Ansys PyAEDT packages.
 
 
 # Generic Python packages 
@@ -62,7 +62,7 @@ ipk.autosave_disable()                                                    # Save
 #    :alt: LDF image.
 #
 #
-# Imports the idf files with several filtering options incluing caps, resistors, inductors, power, size, ...
+# Imports the idf files with several filtering options including caps, resistors, inductors, power, size, ...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes). 
 # In this examples, the default values are used for the PCB.
 # The imported PCB here will be deleted later and replaced by a PCB that has the trace information for higher accuracy.
