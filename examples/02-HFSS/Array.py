@@ -105,6 +105,7 @@ ffdata.plot_farfield_contour(farfield_quantity='RealizedGain',
 
 eep_file = ffdata.eep_files
 frequencies = ffdata.frequencies
+working_directory = hfss.working_directory
 
 hfss.release_desktop()
 
@@ -156,7 +157,7 @@ ffdata.polar_plot_3d(farfield_quantity='RealizedGain')
 # that is generated on the fly. 
 
 ffdata.polar_plot_3d_pyvista(farfield_quantity='RealizedGain',
-                             show=False, export_image_path=os.path.join(hfss.working_directory, "picture.jpg"))
+                             show=False, export_image_path=os.path.join(working_directory, "picture.jpg"))
 
 ###############################################################################
 # Analyze and release
