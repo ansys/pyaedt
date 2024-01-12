@@ -128,6 +128,9 @@ class TestClass:
             "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
         )
         assert tb.add_q3d_dynamic_component(
+            self.dynamic_link, "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+        )
+        assert tb.add_q3d_dynamic_component(
             self.dynamic_link_copy_import,
             "2D_Extractor_Cable",
             "MySetupAuto",
@@ -136,3 +139,11 @@ class TestClass:
             model_depth="100mm",
         )
         assert tb.add_q3d_dynamic_component(self.q3d_dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(
+                "", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+            )
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(
+                "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+            )
