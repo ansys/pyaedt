@@ -373,6 +373,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
