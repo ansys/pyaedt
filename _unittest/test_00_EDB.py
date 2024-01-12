@@ -3168,3 +3168,16 @@ class TestClass:
         assert not edbapp.components.instances["C347"].is_top_mounted
         assert not edbapp.components.instances["R67"].is_top_mounted
         edbapp.close_edb()
+
+    def test_159_json_configuration(self):
+        example_folder = os.path.join(local_path, "example_models", test_subfolder)
+        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
+        path_json = os.path.join(example_folder, "edb_cfg_example.json")
+
+        target_path_edb = os.path.join(self.local_scratch.path, "configuration", "test.aedb")
+
+        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
+
+        edbapp = Edb(target_path_edb, desktop_version)
+        edbapp.configuration.load(path_json)
+        edbapp.close()
