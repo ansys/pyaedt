@@ -40,6 +40,10 @@ jobs:
         with:
           python-version: 3.8
 
+      - name: Update pip
+        run: |
+          pip install --upgrade pip
+
       - name: Install pyaedt
         run: |
           pip install .[doc]
