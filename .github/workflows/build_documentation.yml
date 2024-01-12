@@ -46,6 +46,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
+          pip install ansys-sphinx-theme==0.13.1
           pip install .[doc]
 
       - name: Verify pyaedt can be imported
