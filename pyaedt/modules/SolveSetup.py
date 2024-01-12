@@ -935,16 +935,14 @@ class Setup(CommonSetup):
         auto_update = self.auto_update
         try:
             self.auto_update = False
-            self.props["MeshLink"] = True
-            self.props["PrevSoln"] = True
-            self.props["Project"] = project_name
-            self.props["Product"] = "Maxwell"
-            self.props["Design"] = design_name
-            self.props["Soln"] = solution_name
-            self.props["Params"] = OrderedDict({})
+            params = OrderedDict({})
             parameters_dict = self.p_app.available_variations.nominal_w_values_dict
-            for el in parameters_dict:
-                self.props["Params"][el] = el
+            for k, v in parameters_dict.items():
+                params[k] = v
+            self.props["PrevSoln"] = OrderedDict(
+                {"Project": project_name, "Product": "Maxwell", "Design": design_name, "Soln": solution_name}
+            )
+            self.props["PrevSoln"]["Params"] = params
             self.props["ForceSourceToSolve"] = force_source_to_solve
             self.props["PreservePartnerSoln"] = preserve_partner_solution
             self.props["PathRelativeTo"] = "TargetProject"
