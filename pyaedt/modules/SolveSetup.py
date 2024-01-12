@@ -888,6 +888,73 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
+    @pyaedt_function_handler()
+    def start_continue_from_previous_setup(
+        self,
+        design_name,
+        solution_name=None,
+        parameters_dict=None,
+        project_name="This Project*",
+        force_source_to_solve=True,
+        preserve_partner_solution=True,
+        adapt_port=True,
+    ):
+        """Start or continue from a previously solved setup.
+
+        Parameters
+        ----------
+        design_name : str
+            Name of the design.
+        solution_name : str, optional
+            Name of the solution in the format ``"setupname : solutionname"``.
+            If ``None`` the default value is ``setupname : LastAdaptive``.
+        parameters_dict : dict, optional
+            Dictionary of the parameters.
+            If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
+        project_name : str, optional
+            Name of the project with the design. The default is ``"This Project*"``.
+            However, you can supply the full path and name to another project.
+        force_source_to_solve : bool, optional
+            Default value is ``True``.
+        preserve_partner_solution : bool, optional
+            Default value is ``True``.
+        adapt_port : bool, optional
+            Perform port adapt/seeding in target solve setup.
+            Default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+        """
+        auto_update = self.auto_update
+        try:
+            self.auto_update = False
+            self.props["MeshLink"] = True
+            self.props["PrevSoln"] = True
+            self.props["Project"] = project_name
+            self.props["Product"] = "Maxwell"
+            self.props["Design"] = design_name
+            self.props["Soln"] = solution_name
+            self.props["Params"] = OrderedDict({})
+            parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+            for el in parameters_dict:
+                self.props["Params"][el] = el
+            self.props["ForceSourceToSolve"] = force_source_to_solve
+            self.props["PreservePartnerSoln"] = preserve_partner_solution
+            self.props["PathRelativeTo"] = "TargetProject"
+            self.update()
+            self.auto_update = auto_update
+            return True
+        except:
+            self.auto_update = auto_update
+            return False
+
 
 class SetupCircuit(CommonSetup):
     """Initializes, creates, and updates a circuit setup.
