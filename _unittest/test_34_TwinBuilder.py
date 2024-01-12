@@ -133,6 +133,8 @@ class TestClass:
         assert tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
         with pytest.raises(ValueError):
             tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "Setup1GHz", "sweep1", "Original")
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "setup", "sweep1", "Original")
         assert tb.add_q3d_dynamic_component(
             self.dynamic_link_copy_import,
             "2D_Extractor_Cable",
