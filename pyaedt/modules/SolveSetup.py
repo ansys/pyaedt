@@ -1874,6 +1874,7 @@ class Setup3DLayout(CommonSetup):
     def _get_net_names(self, app, file_fullname):
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         via_per_nets = self._get_via_position_per_net()
+        pass
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())

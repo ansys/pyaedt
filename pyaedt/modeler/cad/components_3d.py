@@ -227,6 +227,8 @@ class UserDefinedComponent(object):
         group = None
         if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
             group = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Group")
+        if group is not None:
+            self._group_name = group
         return group
 
     @group_name.setter

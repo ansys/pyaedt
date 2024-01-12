@@ -12,9 +12,9 @@ import time
 import traceback
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core.components import Components
+from pyaedt.edb_core.configuration import Configuration
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -59,6 +59,7 @@ from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 if is_linux and is_ironpython:
@@ -687,6 +688,11 @@ class Edb(Database):
         """
         warnings.warn("Use new property :func:`components` instead.", DeprecationWarning)
         return self.components
+
+    @property
+    def configuration(self):
+        """Edb configuration."""
+        return Configuration(self)
 
     @property
     def components(self):
@@ -1684,8 +1690,9 @@ class Edb(Database):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        List
+            List of coordinate points defining the extent used for clipping the design. If it failed return an empty
+            list.
 
         Examples
         --------
@@ -1932,7 +1939,7 @@ class Edb(Database):
                 self.components.delete_single_pin_rlc()
                 self.logger.info_timer("Single Pins components deleted")
                 self.components.refresh_components()
-        return True
+        return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(_poly.GetPolygonWithoutArcs().Points)]
 
     @pyaedt_function_handler()
     def create_cutout(
@@ -2115,7 +2122,7 @@ class Edb(Database):
 
         if not _poly or _poly.IsNull():
             self._logger.error("Failed to create Extent.")
-            return False
+            return []
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
         _poly_list = convert_py_list_to_net_list([_poly])
@@ -2220,7 +2227,7 @@ class Edb(Database):
             self.save_edb()
         self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
-        return True
+        return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(_poly.GetPolygonWithoutArcs().Points)]
 
     @pyaedt_function_handler()
     def create_cutout_multithread(
@@ -2237,6 +2244,7 @@ class Edb(Database):
         use_pyaedt_extent_computing=False,
         extent_defeature=0,
         keep_lines_as_path=False,
+        return_extent=False,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -2282,6 +2290,11 @@ class Edb(Database):
             This feature works only in Electronics Desktop (3D Layout).
             If the flag is set to True it can cause issues in SiWave once the Edb is imported.
             Default is ``False`` to generate PolygonData of cut lines.
+        return_extent : bool, optional
+            When ``True`` extent used for clipping is returned, if ``False`` only the boolean indicating whether
+            clipping succeed or not is returned. Not applicable with custom extent usage.
+            Default is ``False``.
+
 
         Returns
         -------
@@ -2322,6 +2335,7 @@ class Edb(Database):
             use_pyaedt_extent_computing=use_pyaedt_extent_computing,
             extent_defeature=extent_defeature,
             keep_lines_as_path=keep_lines_as_path,
+            return_extent=return_extent,
         )
 
     @pyaedt_function_handler()
@@ -2560,7 +2574,7 @@ class Edb(Database):
             db2 = self.create(output_aedb_path)
             if not db2.Save():
                 self.logger.error("Failed to create new Edb. Check if the path already exists and remove it.")
-                return False
+                return []
             _dbCells = convert_py_list_to_net_list(_dbCells)
             cell_copied = db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(cell_copied)[0]
@@ -2587,7 +2601,7 @@ class Edb(Database):
                         self.logger.warning("aedb def file manually created.")
                     except:
                         pass
-        return True
+        return [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in list(polygonData.GetPolygonWithoutArcs().Points)]
 
     @pyaedt_function_handler()
     def create_cutout_on_point_list(

@@ -259,6 +259,8 @@ class Design(AedtObjects):
         self._temp_solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
+        self._logger.oproject = self.oproject
+        self._logger.odesign = self.odesign
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
         if t:
@@ -611,9 +613,11 @@ class Design(AedtObjects):
         >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
         """
+        from pyaedt.generic.general_methods import _retry_ntimes
+
         if not self.odesign:
             return None
-        name = self.odesign.GetName()
+        name = _retry_ntimes(5, self.odesign.GetName)
         if ";" in name:
             return name.split(";")[1]
         else:
@@ -1412,8 +1416,8 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.info("Global info message")
-        >>> hfss.logger.project.info("Project info message")
-        >>> hfss.logger.design.info("Design info message")
+        >>> hfss.logger.project_logger.info("Project info message")
+        >>> hfss.logger.design_logger.info("Design info message")
 
         """
         warnings.warn(
@@ -1421,9 +1425,9 @@ class Design(AedtObjects):
             DeprecationWarning,
         )
         if message_type.lower() == "project":
-            self.logger.project.info(message_text)
+            self.logger.project_logger.info(message_text)
         elif message_type.lower() == "design":
-            self.logger.design.info(message_text)
+            self.logger.design_logger.info(message_text)
         else:
             self.logger.info(message_text)
         return True
@@ -1455,8 +1459,8 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.warning("Global warning message", "Global")
-        >>> hfss.logger.project.warning("Project warning message", "Project")
-        >>> hfss.logger.design.warning("Design warning message")
+        >>> hfss.logger.project_logger.warning("Project warning message", "Project")
+        >>> hfss.logger.design_logger.warning("Design warning message")
 
         """
         warnings.warn(
@@ -1465,9 +1469,9 @@ class Design(AedtObjects):
         )
 
         if message_type.lower() == "project":
-            self.logger.project.warning(message_text)
+            self.logger.project_logger.warning(message_text)
         elif message_type.lower() == "design":
-            self.logger.design.warning(message_text)
+            self.logger.design_logger.warning(message_text)
         else:
             self.logger.warning(message_text)
         return True
@@ -1499,8 +1503,8 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.error("Global error message", "Global")
-        >>> hfss.logger.project.error("Project error message", "Project")
-        >>> hfss.logger.design.error("Design error message")
+        >>> hfss.logger.project_logger.error("Project error message", "Project")
+        >>> hfss.logger.design_logger.error("Design error message")
 
         """
         warnings.warn(
@@ -1509,9 +1513,9 @@ class Design(AedtObjects):
         )
 
         if message_type.lower() == "project":
-            self.logger.project.error(message_text)
+            self.logger.project_logger.error(message_text)
         elif message_type.lower() == "design":
-            self.logger.design.error(message_text)
+            self.logger.design_logger.error(message_text)
         else:
             self.logger.error(message_text)
         return True
