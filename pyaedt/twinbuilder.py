@@ -401,14 +401,13 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         is_loaded = False
         app = None
         if os.path.isfile(source_project):
-            if os.path.exists(source_project):
-                project_path = source_project
-                project_name = os.path.splitext(os.path.basename(source_project))[0]
-                if project_name in dkp.project_list():
-                    app = dkp[[project_name, source_design_name]]
-                else:
-                    app = dkp.load_project(project_path, source_design_name)
-                    is_loaded = True
+            project_path = source_project
+            project_name = os.path.splitext(os.path.basename(source_project))[0]
+            if project_name in dkp.project_list():
+                app = dkp[[project_name, source_design_name]]
+            else:
+                app = dkp.load_project(project_path, source_design_name)
+                is_loaded = True
         elif source_project in self.project_list:
             project_name = source_project
             project_path = os.path.join(self.project_path, project_name + ".aedt")
