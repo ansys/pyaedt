@@ -156,4 +156,12 @@ ffdata.polar_plot_3d(farfield_quantity='RealizedGain')
 # that is generated on the fly. 
 
 ffdata.polar_plot_3d_pyvista(farfield_quantity='RealizedGain',
-                             show=False)
+                             show=False, export_image_path=os.path.join(hfss.working_directory, "picture.jpg"))
+
+###############################################################################
+# Analyze and release
+# ~~~~~~~~~~~~~~~~~~~~
+# Uncomment the ``hfss.analyze`` command if you want to analyze the
+# model and release AEDT.
+
+hfss.release_desktop()
