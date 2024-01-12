@@ -1437,6 +1437,11 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
+        self.logger.oproject = None
+        self.logger.odesign = None
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            close_projects = True
+            close_on_exit = True
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:

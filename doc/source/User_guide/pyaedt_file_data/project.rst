@@ -1,8 +1,8 @@
-Project Configuration file
+Project configuration file
 ==========================
 
 The project configuration file is the most comprehensive format that allows to apply a set of variables, materials,
-setup, mesh and boundaries to a new project or save an existing one.
+setup, mesh, and boundaries to a new project or save an existing one.
 This code creates the JSON file:
 
 .. code:: python

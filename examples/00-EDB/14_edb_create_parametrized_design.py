@@ -55,7 +55,6 @@ edb.build_simulation_project(simulation_configuration)
 #############################
 # Generated design parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
 
 edb.auto_parametrize_design(layers=True, materials=True, via_holes=True, pads=True, antipads=True, traces=True)
 edb.save_edb()
@@ -65,5 +64,6 @@ edb.close_edb()
 # Open project in AEDT
 # ~~~~~~~~~~~~~~~~~~~~
 
-hfss = pyaedt.Hfss3dLayout(projectname=target_aedb, specified_version=aedt_version)
-hfss.release_desktop(False, False)
+# Uncomment the following line to open the design in HFSS 3D Layout
+# hfss = pyaedt.Hfss3dLayout(projectname=target_aedb, specified_version=aedt_version, new_desktop_session=True)
+# hfss.release_desktop()
