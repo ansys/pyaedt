@@ -1439,7 +1439,7 @@ class Desktop(object):
         """
         self.logger.oproject = None
         self.logger.odesign = None
-        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             close_projects = True
             close_on_exit = True
         if close_projects:
