@@ -149,16 +149,6 @@ ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
 
 ffdata.polar_plot_3d(farfield_quantity='RealizedGain')
 
-##########################################################
-# Generate 3D plots in PyVista
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate 3D plots in PyVista. You can define the Theta and Phi
-# scan angles. You can change the easy-to-use interactive plot
-# that is generated on the fly. 
-
-ffdata.polar_plot_3d_pyvista(farfield_quantity='RealizedGain',
-                             show=False, export_image_path=os.path.join(working_directory, "picture.jpg"))
-
 ###############################################################################
 # Analyze and release
 # ~~~~~~~~~~~~~~~~~~~~
