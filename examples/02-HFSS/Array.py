@@ -98,17 +98,6 @@ ffdata.plot_farfield_contour(farfield_quantity='RealizedGain',
                              title='Contour at {}Hz'.format(ffdata.frequency))
 
 ##########################################################
-# Generate 3D plots in PyVista
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate 3D plots in PyVista. You can define the Theta and Phi
-# scan angles. You can change the easy-to-use interactive plot
-# that is generated on the fly.
-
-ffdata.polar_plot_3d_pyvista(farfield_quantity='RealizedGain',
-                             export_image_path=os.path.join(hfss.working_directory, "Image.jpg"),
-                             show=False)
-
-##########################################################
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT.
