@@ -3,6 +3,7 @@
 # -- Project information -----------------------------------------------------
 import datetime
 import os
+import re
 import pathlib
 import sys
 import warnings
@@ -172,6 +173,32 @@ def add_ipython_time(app, docname, source):
     source[0] = "\n".join(modified_lines)
     # logger.info(source[0])
 
+def remove_ipython_time_from_html(app, exception):
+    """This function removes '# %%time' from the generated HTML files.
+    """
+    if exception is not None:
+        return
+
+    # Walk through the HTML files
+    for dirpath, _, filenames in os.walk(app.builder.outdir):
+        for filename in filenames:
+            # Check if this is an HTML example file
+            if not os.path.dirname(dirpath).endswith('examples') or \
+                    not filename.endswith('.html') or \
+                    filename == "index.html":
+                continue
+            logger.info(f"Removing '# %%time' from file {filename}")
+            filepath = os.path.join(dirpath, filename)
+            with open(filepath, 'r') as file:
+                content = file.read()
+
+            # Define the pattern that matches the '%%time' line and replace it
+            pattern = r'<span class="o">%%time<\/span>\n'
+            content = re.sub(pattern, '', content)
+
+            with open(filepath, 'w') as file:
+                file.write(content)
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
@@ -179,7 +206,7 @@ def setup(app):
     app.connect('builder-inited', copy_examples)
     app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
-    app.connect('source-read', add_time_cell)
+    app.connect('build-finished', remove_ipython_time_from_html)
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
