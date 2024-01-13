@@ -119,16 +119,17 @@ def remove_examples(app, exception):
     shutil.rmtree(DESTINATION_DIRECTORY)
     logger.info(f"Directory removed.")
 
-def add_time_cell(app, docname, source):
+def add_ipython_time(app, docname, source):
     """Add '# %%time' to every code cell in an example Python script.
     """
     # Get the full path to the document
     docpath = os.path.join(app.srcdir, docname)
 
-    # Check if this is a .py file
+    # Check if this is a .py example file
     if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
         return
 
+    logger.info(f"Adding '# %%time' to file {docname}.py")
     lines = source[0].split("\n")
     modified_lines = []
     in_code_cell = False
@@ -136,7 +137,6 @@ def add_time_cell(app, docname, source):
 
     for line in lines:
         stripped_line = line.strip()
-        logger.info(stripped_line)
         # Detect the start of a new code cell
         if stripped_line.startswith('# +'):
             in_code_cell = True
@@ -175,6 +175,7 @@ def add_time_cell(app, docname, source):
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('source-read', add_ipython_time)
     app.connect('builder-inited', copy_examples)
     app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
