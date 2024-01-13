@@ -10,3 +10,5 @@ You can either use EDB standalone or embedded in HFSS 3D Layout in AEDT.
 .. nbgallery::
 
     00_EDB_Create_VIA.py
+    psd_example.py
+    pwm_spectrum.py
