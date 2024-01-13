@@ -369,7 +369,11 @@ pygments_style = "sphinx"
 # Execute notebooks before convertion
 nbsphinx_execute = "always"
 
+# Allow errors to help debug.
+nbsphinx_allow_errors = True
+
 # Sphinx gallery customization
+
 nbsphinx_thumbnails = {
     "examples/00-EDB/00_EDB_Create_VIA": "_static/thumbnails/diff_via.png",
 }
