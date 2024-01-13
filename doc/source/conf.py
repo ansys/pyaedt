@@ -119,13 +119,66 @@ def remove_examples(app, exception):
     shutil.rmtree(DESTINATION_DIRECTORY)
     logger.info(f"Directory removed.")
 
+def add_time_cell(app, docname, source):
+    """Add '# %%time' to every code cell in an example Python script.
+    """
+    # Get the full path to the document
+    docpath = os.path.join(app.srcdir, docname)
+
+    # Check if this is a .py file
+    if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
+        return
+
+    lines = source[0].split("\n")
+    modified_lines = []
+    in_code_cell = False
+    in_code_cell_plus = False
+
+    for line in lines:
+        stripped_line = line.strip()
+        logger.info(stripped_line)
+        # Detect the start of a new code cell
+        if stripped_line.startswith('# +'):
+            in_code_cell = True
+            in_code_cell_plus = True
+            modified_lines.append(line)
+            modified_lines.append('# %%time')
+        # Detect the end of a code cell
+        elif stripped_line.startswith('# -'):
+            in_code_cell = False
+            in_code_cell_plus = False
+            modified_lines.append(line)
+        # Detect already being in a code cell
+        elif in_code_cell and in_code_cell_plus:
+            modified_lines.append(line)
+        elif in_code_cell and not in_code_cell_plus:
+            # Detect being out of a code cell
+            if stripped_line == "":
+                in_code_cell = False
+            modified_lines.append(line)
+        elif not in_code_cell:
+            # Detect the start of a new code cell
+            if not stripped_line.startswith("# ") and stripped_line != "":
+                in_code_cell = True
+                modified_lines.append('# %%time')
+                modified_lines.append(line)
+            # Detect already being out of a code cell
+            else:
+                modified_lines.append(line)
+        else:
+            raise Exception("not handled")
+
+    # Update the source
+    source[0] = "\n".join(modified_lines)
+    # logger.info(source[0])
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('builder-inited', copy_examples)
     app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
-
+    app.connect('source-read', add_time_cell)
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
@@ -294,6 +347,7 @@ nbsphinx_thumbnails = {
 }
 
 nbsphinx_custom_formats = {
+    # ".py": ["jupytext.reads", {"fmt": "",  "cell_metadata_filter": "ExecuteTime"}],
     ".py": ["jupytext.reads", {"fmt": ""}],
 }
 
