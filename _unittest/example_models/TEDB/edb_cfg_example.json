@@ -1,21 +1,151 @@
 {
-  "Options": {
-    "PortNamingConvention": {
-      "Value": "$REFDES_$NETNAME_$PINNAME"
-    }
+  "Stackup": {
+    "Materials": [
+      {
+        "Name": "copper",
+        "Conductivity": 58000000
+      },
+      {
+        "Name": "Megtron4",
+        "Permittivity": 3.77,
+        "DielectricLossTangent": 0.005
+      },
+      {
+        "Name": "Megtron4_2",
+        "Permittivity": 3.77,
+        "DielectricLossTangent": 0.005
+      },
+      {
+        "Name": "Solder Resist",
+        "Permittivity": 4,
+        "DielectricLossTangent": 0
+      }
+    ],
+    "Layers": [
+      {
+        "FillMaterial": "Solder Resist",
+        "Material": "copper",
+        "Name": "1_Top",
+        "Thickness": "0.035mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4_2",
+        "Name": "DE1",
+        "Thickness": "0.1mm",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Megtron4",
+        "Material": "copper",
+        "Name": "Inner1(GND1)",
+        "Thickness": "0.017mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4",
+        "Name": "DE2",
+        "Thickness": "0.088mm",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Megtron4",
+        "Material": "copper",
+        "Name": "Inner2(PWR1)",
+        "Thickness": "0.017mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4",
+        "Name": "DE3",
+        "Thickness": "0.1mm",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Megtron4",
+        "Material": "copper",
+        "Name": "Inner3(Sig1)",
+        "Thickness": "0.017mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4",
+        "Name": "Megtron4-1mm",
+        "Thickness": "1",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Megtron4",
+        "Material": "copper",
+        "Name": "Inner4(Sig2)",
+        "Thickness": "0.017mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4",
+        "Name": "DE5",
+        "Thickness": "0.1mm",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Megtron4",
+        "Material": "copper",
+        "Name": "Inner5(PWR2)",
+        "Thickness": "0.017mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4",
+        "Name": "DE6",
+        "Thickness": "0.088mm",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Megtron4",
+        "Material": "copper",
+        "Name": "Inner6(GND2)",
+        "Thickness": "0.017mm",
+        "Type": "signal"
+      },
+      {
+        "Material": "Megtron4",
+        "Name": "DE7",
+        "Thickness": "0.1mm",
+        "Type": "dielectric"
+      },
+      {
+        "FillMaterial": "Solder Resist",
+        "Material": "copper",
+        "Name": "16_Bottom",
+        "Thickness": "0.035mm",
+        "Type": "signal"
+      }
+    ]
   },
-  "components": [
+  "Components": [
     {
       "RefDes": "C375",
       "PartType": "Capacitor",
       "Enabled": false,
       "RLCModel": {
         "PinPairs": [
-          {"Type": "Series","p1": "1", "p2": "2"}
+          {
+            "Type": "Series",
+            "p1": "1",
+            "p2": "2"
+          }
         ]
       },
       "Ports": [
-        {"Type": "Circuit","From": {"Pin": "1"},"To": {"Pin": "2"}}
+        {
+          "Type": "Circuit",
+          "From": {
+            "Pin": "1"
+          },
+          "To": {
+            "Pin": "2"
+          }
+        }
       ]
     },
     {
@@ -24,33 +154,83 @@
       "Enabled": true,
       "RLCModel": {
         "PinPairs": [
-          {"Type": "Series","C": "100nF", "R": 0, "L": 0 ,"p1": "1", "p2": "2"}
+          {
+            "Type": "Series",
+            "C": "100nF",
+            "R": 0,
+            "L": 0,
+            "p1": "1",
+            "p2": "2"
+          }
         ]
       }
     },
     {
       "RefDes": "U1",
       "PartType": "IO",
-      "SolderballProperties": {"Shape": "Cylinder","Diameter": "244um","Height": "406um"},
-      "PortProperties": {"ReferenceOffset": 0,"ReferenceSizeAuto": true,"ReferenceSizeX": 0,"ReferenceSizeY": 0},
+      "SolderballProperties": {
+        "Shape": "Cylinder",
+        "Diameter": "244um",
+        "Height": "406um"
+      },
+      "PortProperties": {
+        "ReferenceOffset": 0,
+        "ReferenceSizeAuto": true,
+        "ReferenceSizeX": 0,
+        "ReferenceSizeY": 0
+      },
       "Ports": [
-        {"Type": "Coax", "From": {"Pin": "AM17"}},
-        {"Type": "Coax", "From": {"Net": "PCIe_Gen4_TX2_CAP_N"}}
+        {
+          "Type": "Coax",
+          "From": {
+            "Pin": "AM17"
+          }
+        },
+        {
+          "Type": "Coax",
+          "From": {
+            "Net": "PCIe_Gen4_TX2_CAP_N"
+          }
+        }
       ]
     },
     {
       "RefDes": "X1",
       "PartType": "IO",
       "Ports": [
-        {"Type": "Circuit", "From": {"Pin": "B8"},"To": {"Net": "GND"}},
-        {"Type": "Circuit", "From": {"Pin": "B9"},"To": {"Net": "GND"}}
+        {
+          "Type": "Circuit",
+          "From": {
+            "Pin": "B8"
+          },
+          "To": {
+            "Net": "GND"
+          }
+        },
+        {
+          "Type": "Circuit",
+          "From": {
+            "Pin": "B9"
+          },
+          "To": {
+            "Net": "GND"
+          }
+        }
       ]
     },
     {
       "RefDes": "U7",
       "PartType": "IO",
       "Ports": [
-        {"Type": "Circuit", "From": {"Net": "VDD_DDR"},"To": {"Net": "GND"}}
+        {
+          "Type": "Circuit",
+          "From": {
+            "Net": "VDD_DDR"
+          },
+          "To": {
+            "Net": "GND"
+          }
+        }
       ]
     }
   ],
@@ -59,18 +239,69 @@
       "Type": "conformal"
     }
   },
-  "HfssSetup": {
-    "Name": "hfss_setup",
-    "Fadapt": "5GHz",
-    "MaxNumPasses": 10,
-    "MaxMagDeltaS": 0.02,
-    "FreqSweep": [
-      {
-        "Name": "Sweep1",
-        "LinearStep": [
-         {"Start": 0,"Stop": 5e9,"Step": 10e7}
-        ]
+  "Setups": [
+    {
+      "Name": "hfss_setup_1",
+      "Type": "HFSS",
+      "Fadapt": "5GHz",
+      "MaxNumPasses": 10,
+      "MaxMagDeltaS": 0.02,
+      "FreqSweep": [
+        {
+          "Name": "Sweep1",
+          "Type": "Interpolation",
+          "Frequencies": [
+            {
+              "Distribution": "LinearStep",
+              "Start": 0,
+              "Stop": 5e9,
+              "Step": 10e7
+            }
+          ]
         }
-    ]
-  }
+      ]
+    },
+    {
+      "Name": "hfss_setup_2",
+      "Type": "HFSS",
+      "Fadapt": "5GHz",
+      "MaxNumPasses": 10,
+      "MaxMagDeltaS": 0.02,
+      "FreqSweep": [
+        {
+          "Name": "Sweep1",
+          "Type": "Interpolation",
+          "Frequencies": [
+            {
+              "Distribution": "LinearCount",
+              "Start": 0,
+              "Stop": 5e9,
+              "Points": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "hfss_setup_3",
+      "Type": "HFSS",
+      "Fadapt": "5GHz",
+      "MaxNumPasses": 10,
+      "MaxMagDeltaS": 0.02,
+      "FreqSweep": [
+        {
+          "Name": "Sweep1",
+          "Type": "Interpolation",
+          "Frequencies": [
+            {
+              "Distribution": "LogScale",
+              "Start": 1e6,
+              "Stop": 1e9,
+              "Samples": 10
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

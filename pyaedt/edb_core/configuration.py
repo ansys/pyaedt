@@ -34,7 +34,7 @@ class Configuration:
         with open(config_file, "r") as f:
             data = json.load(f)
 
-        for comp in data["components"]:
+        for comp in data["Components"]:
             refdes = comp["RefDes"]
             part_type = comp["PartType"]
 
@@ -168,30 +168,85 @@ class Configuration:
                         self._pedb.create_port(pos_terminal)
 
         # Configure HFSS setup
-        hfss_setup = data["HfssSetup"] if "HfssSetup" in data else None
-        if hfss_setup:
-            name = hfss_setup["Name"]
+        setups = data["Setups"] if "Setups" in data else []
+        for setup in setups:
+            setup_type = setup["Type"]
+            if setup_type == "HFSS":
+                name = setup["Name"]
+                hfss_setup = self._pedb.create_hfss_setup(name)
+                hfss_setup.set_solution_single_frequency(
+                    setup["Fadapt"], max_num_passes=setup["MaxNumPasses"], max_delta_s=setup["MaxMagDeltaS"]
+                )
+                if "FreqSweep" in setup:
+                    for fsweep in setup["FreqSweep"]:
+                        frequencies = fsweep["Frequencies"]
+                        freqs = []
 
-            setup = self._pedb.create_hfss_setup(name)
-            setup.set_solution_single_frequency(
-                hfss_setup["Fadapt"], max_num_passes=hfss_setup["MaxNumPasses"], max_delta_s=hfss_setup["MaxMagDeltaS"]
-            )
-            if "FreqSweep" in hfss_setup:
-                for fsweep in hfss_setup["FreqSweep"]:
-                    freqs = []
-                    if "LinearStep" in fsweep:
-                        for i in fsweep["LinearStep"]:
-                            freqs.append(
-                                [
-                                    "linear scale",
-                                    self._pedb.edb_value(i["Start"]).ToString(),
-                                    self._pedb.edb_value(i["Stop"]).ToString(),
-                                    self._pedb.edb_value(i["Step"]).ToString(),
-                                ]
-                            )
+                        for d in frequencies:
+                            if d["Distribution"] == "LinearStep":
+                                freqs.append(
+                                    [
+                                        "linear scale",
+                                        self._pedb.edb_value(d["Start"]).ToString(),
+                                        self._pedb.edb_value(d["Stop"]).ToString(),
+                                        self._pedb.edb_value(d["Step"]).ToString(),
+                                    ]
+                                )
+                            elif d["Distribution"] == "LinearCount":
+                                freqs.append(
+                                    [
+                                        "linear count",
+                                        self._pedb.edb_value(d["Start"]).ToString(),
+                                        self._pedb.edb_value(d["Stop"]).ToString(),
+                                        int(d["Points"]),
+                                    ]
+                                )
+                            elif d["Distribution"] == "LogScale":
+                                freqs.append(
+                                    [
+                                        "log scale",
+                                        self._pedb.edb_value(d["Start"]).ToString(),
+                                        self._pedb.edb_value(d["Stop"]).ToString(),
+                                        int(d["Samples"]),
+                                    ]
+                                )
 
-                    setup.add_frequency_sweep(
-                        fsweep["Name"],
-                        frequency_sweep=freqs,
-                    )
+                        hfss_setup.add_frequency_sweep(
+                            fsweep["Name"],
+                            frequency_sweep=freqs,
+                        )
+
+        # Configure stackup
+        stackup = data["Stackup"] if "Stackup" in data else None
+        if stackup:
+            materials = stackup["Materials"] if "Materials" in stackup else []
+            materials_reformatted = {}
+            for mat in materials:
+                new_mat = {}
+                new_mat["name"] = mat["Name"]
+                if "Conductivity" in mat:
+                    new_mat["conductivity"] = mat["Conductivity"]
+                if "Permittivity" in mat:
+                    new_mat["permittivity"] = mat["Permittivity"]
+                if "DielectricLossTangent" in mat:
+                    new_mat["loss_tangent"] = mat["DielectricLossTangent"]
+
+                materials_reformatted[mat["Name"]] = new_mat
+
+            layers = stackup["Layers"]
+            layers_reformatted = {}
+
+            for l in layers:
+                lyr = {
+                    "name": l["Name"],
+                    "type": l["Type"],
+                    "material": l["Material"],
+                    "thickness": l["Thickness"],
+                }
+                if "FillMaterial" in l:
+                    lyr["dielectric_fill"] = l["FillMaterial"]
+                layers_reformatted[l["Name"]] = lyr
+            stackup_reformated = {"layers": layers_reformatted, "materials": materials_reformatted}
+            self._pedb.stackup.load(stackup_reformated)
+
         return data
