@@ -1940,7 +1940,8 @@ class TestClass:
         assert self.aedtapp.modeler.create_geometry_from_csv(
             csv_file=csv_file, geo_type="cylinder", column_mapping={"inner_radius": "iradius"}
         )
-        assert not self.aedtapp.modeler.create_geometry_from_csv(csv_file=csv_file, geo_type="cylinder")
+        with pytest.raises(KeyError):
+            self.aedtapp.modeler.create_geometry_from_csv(csv_file=csv_file, geo_type="cylinder")
 
         """csv_file = os.path.join(
             local_path, "../_unittest/example_models", test_subfolder, "cylinder_geometry_creation_2.csv"
