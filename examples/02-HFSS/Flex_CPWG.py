@@ -215,6 +215,7 @@ my_plot.show_grid = False
 my_plot.plot(
     os.path.join(hfss.working_directory, "Image.jpg"),
 )
+
 ###############################################################################
 # Analyze and release
 # ~~~~~~~~~~~~~~~~~~~~

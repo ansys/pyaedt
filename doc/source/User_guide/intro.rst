@@ -1,4 +1,4 @@
-Minimal Example
+Minimal example
 ===============
 
 You can initiate AEDT in non-graphical mode from Python using this code:
