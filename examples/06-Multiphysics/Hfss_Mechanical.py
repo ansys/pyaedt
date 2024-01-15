@@ -37,6 +37,7 @@ version = "2023.2"
 hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
                    new_desktop_session=True)
 pin_names = hfss.excitations
+hfss.change_material_override(True)
 
 ###############################################################################
 # Start Circuit
@@ -114,7 +115,7 @@ circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 
 mech = pyaedt.Mechanical()
 mech.copy_solid_bodies_from(hfss)
-
+mech.change_material_override(True)
 
 ###############################################################################
 # Get losses from HFSS and assign convection to Mechanical

@@ -141,6 +141,7 @@ class AedtLogger(object):
         self._std_out_handler = None
         self._files_handlers = []
         self.level = level
+        self._non_graphical = None
         self.filename = filename or settings.logger_file_path
         self._messages = []
         settings.logger_file_path = self.filename
@@ -649,6 +650,8 @@ class AedtLogger(object):
 
         >>> hfss.clear_messages(proj_name="", des_name="", level=3)
         """
+        if self.non_graphical:
+            return
         if proj_name is None:
             proj_name = self.project_name
         if des_name is None:
@@ -657,6 +660,19 @@ class AedtLogger(object):
             self._desktop.ClearMessages(proj_name, des_name, level)
         except:
             pass
+
+    @property
+    def non_graphical(self):
+        """Check if desktop is graphical or not.
+
+        Returns
+        -------
+        bool
+        """
+        if self._non_graphical is None and self._desktop:
+            self._non_graphical = self._desktop.GetIsNonGraphical()
+
+        return self._non_graphical
 
     @property
     def oproject(self):

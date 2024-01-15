@@ -1450,6 +1450,8 @@ class Desktop(object):
                 except:  # pragma: no cover
                     self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
+        if result:
+            self.logger.info("Desktop has been released")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
