@@ -1676,7 +1676,7 @@ class Stackup(object):
                     default_layer[k] = v
 
                 self.stackup_layers[name]._load_layer(default_layer)
-            else: # Remove layers not in config file.
+            else:  # Remove layers not in config file.
                 self.remove_layer(name)
 
         for layer_name, layer in temp.items():
