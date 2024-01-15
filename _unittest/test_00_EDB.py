@@ -262,6 +262,7 @@ class TestClass:
         self.edbapp.padstacks.definitions["myVia"].hole_range = "through"
         assert self.edbapp.padstacks.definitions["myVia"].hole_range == "through"
         self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        assert isinstance(self.edbapp.padstacks.definitions["myVia"].instances, list)
         assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
@@ -2041,6 +2042,19 @@ class TestClass:
         assert edbapp.padstacks.definitions["Padstack_Circle"].convert_to_3d_microvias(False)
         assert edbapp.padstacks.definitions["Padstack_Rectangle"].convert_to_3d_microvias(False, hole_wall_angle=10)
         assert edbapp.padstacks.definitions["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
+        assert edbapp.padstacks.definitions["MyVia"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+        assert edbapp.padstacks.definitions["MyVia_square"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+        assert edbapp.padstacks.definitions["MyVia_rectangle"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+        assert not edbapp.padstacks.definitions["MyVia_poly"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+
         edbapp.close()
 
     def test_129_split_microvias(self):
@@ -3144,3 +3158,26 @@ class TestClass:
         assert extent[40] == [0.06550327418370948, 0.031478931749766806]
         assert extent[54] == [0.01102500189, 0.044555027391504444]
         edbapp.close_edb()
+
+    def test_158_is_top_component_property(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_is_top_property", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        assert edbapp.components.instances["U1"].is_top_mounted
+        assert not edbapp.components.instances["C347"].is_top_mounted
+        assert not edbapp.components.instances["R67"].is_top_mounted
+        edbapp.close_edb()
+
+    def test_159_json_configuration(self):
+        example_folder = os.path.join(local_path, "example_models", test_subfolder)
+        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
+        path_json = os.path.join(example_folder, "edb_cfg_example.json")
+
+        target_path_edb = os.path.join(self.local_scratch.path, "configuration", "test.aedb")
+
+        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
+
+        edbapp = Edb(target_path_edb, desktop_version)
+        edbapp.configuration.load(path_json)
+        edbapp.close()

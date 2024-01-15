@@ -12,9 +12,9 @@ import time
 import traceback
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core.components import Components
+from pyaedt.edb_core.configuration import Configuration
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -59,6 +59,7 @@ from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 if is_linux and is_ironpython:
@@ -687,6 +688,11 @@ class Edb(Database):
         """
         warnings.warn("Use new property :func:`components` instead.", DeprecationWarning)
         return self.components
+
+    @property
+    def configuration(self):
+        """Edb configuration."""
+        return Configuration(self)
 
     @property
     def components(self):

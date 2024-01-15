@@ -9,10 +9,10 @@ from pyaedt import Icepak
 from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import settings
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
+from pyaedt.generic.settings import settings
 from pyaedt.modules.solutions import FfdSolutionData
 
 if config["desktopVersion"] > "2022.2":
