@@ -173,6 +173,26 @@ def add_ipython_time(app, docname, source):
     source[0] = "\n".join(modified_lines)
     # logger.info(source[0])
 
+def adjust_image_path(app, docname, source):
+    """Adjust the HTML label used to insert images in our examples.
+    
+    The following path makes the examples in the root directory working
+    # <img src="../../doc/source/_static/diff_via.png" width="500">
+    However, it fails when used through the documentation build since
+    reaching the associated path should be "../../_static/diff_via.png".
+    Indeed, directory _static is automatically copied in output directory
+    _build/html/_static.
+    """
+    # Get the full path to the document
+    docpath = os.path.join(app.srcdir, docname)
+
+    # Check if this is a .py example file
+    if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
+        return
+
+    logger.info(f"Changing HTML image path in file {docname}.py")
+    source[0] = source[0].replace('../../doc/source/_static', '../../_static')
+
 def remove_ipython_time_from_html(app, exception):
     """This function removes '# %%time' from the generated HTML files.
     """
@@ -203,6 +223,7 @@ def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('source-read', add_ipython_time)
+    app.connect('source-read', adjust_image_path)
     app.connect('builder-inited', copy_examples)
     app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
