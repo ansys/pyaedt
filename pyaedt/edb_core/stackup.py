@@ -1640,15 +1640,49 @@ class Stackup(object):
     @pyaedt_function_handler
     def _import_dict(self, json_dict):
         """Import stackup from a dictionary."""
-        for name in list(self.layers.keys()):
-            self.remove_layer(name)
-
         mats = json_dict["materials"]
         for material in mats.values():
             self._pedb.materials._load_materials(material)
 
-        prev_layer = None
-        for layer_name, layer in json_dict["layers"].items():
+        temp = {i: j for i, j in json_dict["layers"].items() if j["type"] in ["signal", "dielectric"]}
+        for name in list(self.stackup_layers.keys()):
+            if name in temp:
+                layer = temp[name]
+                default_layer = {
+                    "name": "default",
+                    "type": "signal",
+                    "material": "copper",
+                    "dielectric_fill": "fr4_epoxy",
+                    "thickness": 3.5000000000000004e-05,
+                    "etch_factor": 0.0,
+                    "roughness_enabled": False,
+                    "top_hallhuray_nodule_radius": 0.0,
+                    "top_hallhuray_surface_ratio": 0.0,
+                    "bottom_hallhuray_nodule_radius": 0.0,
+                    "bottom_hallhuray_surface_ratio": 0.0,
+                    "side_hallhuray_nodule_radius": 0.0,
+                    "side_hallhuray_surface_ratio": 0.0,
+                    "upper_elevation": 0.0,
+                    "lower_elevation": 0.0,
+                    "color": [242, 140, 102],
+                }
+
+                if "color" in layer:
+                    default_layer["color"] = layer["color"]
+                elif not layer["type"] == "signal":
+                    default_layer["color"] = [27, 110, 76]
+
+                for k, v in layer.items():
+                    default_layer[k] = v
+
+                self.stackup_layers[name]._load_layer(default_layer)
+            else: # Remove layers not in config file.
+                self.remove_layer(name)
+
+        for layer_name, layer in temp.items():
+            if layer_name in self.stackup_layers:
+                continue  # if layer exist, skip
+
             default_layer = {
                 "name": "default",
                 "type": "signal",
@@ -1676,7 +1710,8 @@ class Stackup(object):
             for k, v in layer.items():
                 default_layer[k] = v
 
-            if not prev_layer:
+            temp_2 = list(temp.keys())
+            if temp_2.index(layer_name) == 0:
                 new_layer = self.add_layer(
                     layer_name,
                     method="add_on_top",
@@ -1685,18 +1720,27 @@ class Stackup(object):
                     fillMaterial=default_layer["dielectric_fill"],
                     thickness=default_layer["thickness"],
                 )
-                prev_layer = layer_name
-            else:
+
+            elif temp_2.index(layer_name) == len(temp_2):
                 new_layer = self.add_layer(
                     layer_name,
                     base_layer=layer_name,
+                    method="add_on_bottom",
+                    layer_type=default_layer["type"],
+                    material=default_layer["material"],
+                    fillMaterial=default_layer["dielectric_fill"],
+                    thickness=default_layer["thickness"],
+                )
+            else:
+                new_layer = self.add_layer(
+                    layer_name,
+                    base_layer=temp_2[temp_2.index(layer_name) - 1],
                     method="insert_below",
                     layer_type=default_layer["type"],
                     material=default_layer["material"],
                     fillMaterial=default_layer["dielectric_fill"],
                     thickness=default_layer["thickness"],
                 )
-                prev_layer = layer_name
 
             new_layer.color = default_layer["color"]
             new_layer.etch_factor = default_layer["etch_factor"]

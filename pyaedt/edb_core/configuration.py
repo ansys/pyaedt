@@ -167,61 +167,104 @@ class Configuration:
                     else:
                         self._pedb.create_port(pos_terminal)
 
+            # Configure sources
+            if "Sources" in comp:
+                for src in comp["Sources"]:
+                    src_type = src["Type"]
+                    pos = src["From"]
+                    if "Pin" in pos:
+                        pin_name = pos["Pin"]
+                        src_name = "{}_{}".format(refdes, pin_name)
+                        pos_terminal = comp_layout.pins[pin_name].get_terminal(src_name, True)
+                    else:  # Net
+                        net_name = pos["Net"]
+                        src_name = "{}_{}".format(refdes, net_name)
+                        pg_name = "pg_{}".format(src_name)
+                        _, pg = self._pedb.siwave.create_pin_group_on_net(refdes, net_name, pg_name)
+                        pos_terminal = pg.get_terminal(src_name, True)
+
+                    neg = src["To"]
+                    if "Pin" in neg:
+                        pin_name = neg["Pin"]
+                        src_name = "{}_{}_ref".format(refdes, pin_name)
+                        neg_terminal = comp_layout.pins[pin_name].get_terminal(src_name, True)
+                    else:
+                        net_name = neg["Net"]
+                        src_name = "{}_{}_ref".format(refdes, net_name)
+                        pg_name = "pg_{}".format(src_name)
+                        if pg_name not in self._pedb.siwave.pin_groups:
+                            _, pg = self._pedb.siwave.create_pin_group_on_net(refdes, net_name, pg_name)
+                        else:
+                            pg = self._pedb.siwave.pin_groups[pg_name]
+                        neg_terminal = pg.get_terminal(src_name, True)
+
+                    if src_type == "Voltage":
+                        src_obj = self._pedb.create_voltage_source(pos_terminal, neg_terminal)
+                        src_obj.magnitude = src["Magnitude"]
+                    elif src_type == "Current":
+                        src_obj = self._pedb.create_current_source(pos_terminal, neg_terminal)
+                        src_obj.magnitude = src["Magnitude"]
+
         # Configure HFSS setup
         setups = data["Setups"] if "Setups" in data else []
         for setup in setups:
             setup_type = setup["Type"]
 
             edb_setup = None
-            if setup_type == "HFSS":
-                name = setup["Name"]
-                edb_setup = self._pedb.create_hfss_setup(name)
-                edb_setup.set_solution_single_frequency(
-                    setup["Fadapt"], max_num_passes=setup["MaxNumPasses"], max_delta_s=setup["MaxMagDeltaS"]
-                )
-            elif setup_type == "SIwaveSYZ":
-                name = setup["Name"]
-                edb_setup = self._pedb.create_siwave_syz_setup(name)
-                edb_setup.si_slider_position = setup["SISliderPosition"]
+            name = setup["Name"]
 
-            if "FreqSweep" in setup:
-                for fsweep in setup["FreqSweep"]:
-                    frequencies = fsweep["Frequencies"]
-                    freqs = []
-
-                    for d in frequencies:
-                        if d["Distribution"] == "LinearStep":
-                            freqs.append(
-                                [
-                                    "linear scale",
-                                    self._pedb.edb_value(d["Start"]).ToString(),
-                                    self._pedb.edb_value(d["Stop"]).ToString(),
-                                    self._pedb.edb_value(d["Step"]).ToString(),
-                                ]
-                            )
-                        elif d["Distribution"] == "LinearCount":
-                            freqs.append(
-                                [
-                                    "linear count",
-                                    self._pedb.edb_value(d["Start"]).ToString(),
-                                    self._pedb.edb_value(d["Stop"]).ToString(),
-                                    int(d["Points"]),
-                                ]
-                            )
-                        elif d["Distribution"] == "LogScale":
-                            freqs.append(
-                                [
-                                    "log scale",
-                                    self._pedb.edb_value(d["Start"]).ToString(),
-                                    self._pedb.edb_value(d["Stop"]).ToString(),
-                                    int(d["Samples"]),
-                                ]
-                            )
-
-                    edb_setup.add_frequency_sweep(
-                        fsweep["Name"],
-                        frequency_sweep=freqs,
+            if setup_type == "SIwaveDC":
+                edb_setup = self._pedb.create_siwave_dc_setup(name)
+                edb_setup.set_dc_slider = setup["DCSliderPosition"]
+            else:
+                if setup_type == "HFSS":
+                    edb_setup = self._pedb.create_hfss_setup(name)
+                    edb_setup.set_solution_single_frequency(
+                        setup["Fadapt"], max_num_passes=setup["MaxNumPasses"], max_delta_s=setup["MaxMagDeltaS"]
                     )
+                elif setup_type == "SIwaveSYZ":
+                    name = setup["Name"]
+                    edb_setup = self._pedb.create_siwave_syz_setup(name)
+                    edb_setup.si_slider_position = setup["SISliderPosition"]
+
+                if "FreqSweep" in setup:
+                    for fsweep in setup["FreqSweep"]:
+                        frequencies = fsweep["Frequencies"]
+                        freqs = []
+
+                        for d in frequencies:
+                            if d["Distribution"] == "LinearStep":
+                                freqs.append(
+                                    [
+                                        "linear scale",
+                                        self._pedb.edb_value(d["Start"]).ToString(),
+                                        self._pedb.edb_value(d["Stop"]).ToString(),
+                                        self._pedb.edb_value(d["Step"]).ToString(),
+                                    ]
+                                )
+                            elif d["Distribution"] == "LinearCount":
+                                freqs.append(
+                                    [
+                                        "linear count",
+                                        self._pedb.edb_value(d["Start"]).ToString(),
+                                        self._pedb.edb_value(d["Stop"]).ToString(),
+                                        int(d["Points"]),
+                                    ]
+                                )
+                            elif d["Distribution"] == "LogScale":
+                                freqs.append(
+                                    [
+                                        "log scale",
+                                        self._pedb.edb_value(d["Start"]).ToString(),
+                                        self._pedb.edb_value(d["Stop"]).ToString(),
+                                        int(d["Samples"]),
+                                    ]
+                                )
+
+                        edb_setup.add_frequency_sweep(
+                            fsweep["Name"],
+                            frequency_sweep=freqs,
+                        )
 
         # Configure stackup
         stackup = data["Stackup"] if "Stackup" in data else None

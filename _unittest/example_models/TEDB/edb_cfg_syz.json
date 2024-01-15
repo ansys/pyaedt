@@ -26,7 +26,7 @@
         "FillMaterial": "Solder Resist",
         "Material": "copper",
         "Name": "1_Top",
-        "Thickness": "0.035mm",
+        "Thickness": "0.05mm",
         "Type": "signal"
       },
       {
