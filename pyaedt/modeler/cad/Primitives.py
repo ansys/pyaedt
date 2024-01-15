@@ -8272,7 +8272,7 @@ class GeometryModeler(Modeler):
 
         df = pd.read_csv(csv_file, header=header_line)
         if column_mapping is not None:
-            df = df.rename(columns=column_mapping)
+            df = df.rename(columns=column_mapping, errors="raise")
 
         col_mapper = {
             "name": "Name",
@@ -8281,7 +8281,7 @@ class GeometryModeler(Modeler):
             "radius": "Radius",
             "iradius": "Internal Radius",
         }
-        df = df.rename(columns=col_mapper)
+        df = df.rename(columns=col_mapper, errors="raise")
         df["Coordinate System"] = "Global"
         df["Origin"] = df[["xc", "yc", "zc"]].values.tolist()
         if geo_type == "cylinder":
