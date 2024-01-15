@@ -302,6 +302,25 @@
           ]
         }
       ]
+    },
+    {
+      "Name": "siwave_syz",
+      "Type": "SIwaveSYZ",
+      "SISliderPosition": 1,
+      "FreqSweep": [
+        {
+          "Name": "Sweep1",
+          "Type": "Interpolation",
+          "Frequencies": [
+            {
+              "Distribution": "LinearCount",
+              "Start": 0,
+              "Stop": 10e9,
+              "Points": 11
+            }
+          ]
+        }
+      ]
     }
   ]
 }

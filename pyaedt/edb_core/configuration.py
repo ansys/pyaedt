@@ -171,50 +171,57 @@ class Configuration:
         setups = data["Setups"] if "Setups" in data else []
         for setup in setups:
             setup_type = setup["Type"]
+
+            edb_setup = None
             if setup_type == "HFSS":
                 name = setup["Name"]
-                hfss_setup = self._pedb.create_hfss_setup(name)
-                hfss_setup.set_solution_single_frequency(
+                edb_setup = self._pedb.create_hfss_setup(name)
+                edb_setup.set_solution_single_frequency(
                     setup["Fadapt"], max_num_passes=setup["MaxNumPasses"], max_delta_s=setup["MaxMagDeltaS"]
                 )
-                if "FreqSweep" in setup:
-                    for fsweep in setup["FreqSweep"]:
-                        frequencies = fsweep["Frequencies"]
-                        freqs = []
+            elif setup_type == "SIwaveSYZ":
+                name = setup["Name"]
+                edb_setup = self._pedb.create_siwave_syz_setup(name)
+                edb_setup.si_slider_position = setup["SISliderPosition"]
 
-                        for d in frequencies:
-                            if d["Distribution"] == "LinearStep":
-                                freqs.append(
-                                    [
-                                        "linear scale",
-                                        self._pedb.edb_value(d["Start"]).ToString(),
-                                        self._pedb.edb_value(d["Stop"]).ToString(),
-                                        self._pedb.edb_value(d["Step"]).ToString(),
-                                    ]
-                                )
-                            elif d["Distribution"] == "LinearCount":
-                                freqs.append(
-                                    [
-                                        "linear count",
-                                        self._pedb.edb_value(d["Start"]).ToString(),
-                                        self._pedb.edb_value(d["Stop"]).ToString(),
-                                        int(d["Points"]),
-                                    ]
-                                )
-                            elif d["Distribution"] == "LogScale":
-                                freqs.append(
-                                    [
-                                        "log scale",
-                                        self._pedb.edb_value(d["Start"]).ToString(),
-                                        self._pedb.edb_value(d["Stop"]).ToString(),
-                                        int(d["Samples"]),
-                                    ]
-                                )
+            if "FreqSweep" in setup:
+                for fsweep in setup["FreqSweep"]:
+                    frequencies = fsweep["Frequencies"]
+                    freqs = []
 
-                        hfss_setup.add_frequency_sweep(
-                            fsweep["Name"],
-                            frequency_sweep=freqs,
-                        )
+                    for d in frequencies:
+                        if d["Distribution"] == "LinearStep":
+                            freqs.append(
+                                [
+                                    "linear scale",
+                                    self._pedb.edb_value(d["Start"]).ToString(),
+                                    self._pedb.edb_value(d["Stop"]).ToString(),
+                                    self._pedb.edb_value(d["Step"]).ToString(),
+                                ]
+                            )
+                        elif d["Distribution"] == "LinearCount":
+                            freqs.append(
+                                [
+                                    "linear count",
+                                    self._pedb.edb_value(d["Start"]).ToString(),
+                                    self._pedb.edb_value(d["Stop"]).ToString(),
+                                    int(d["Points"]),
+                                ]
+                            )
+                        elif d["Distribution"] == "LogScale":
+                            freqs.append(
+                                [
+                                    "log scale",
+                                    self._pedb.edb_value(d["Start"]).ToString(),
+                                    self._pedb.edb_value(d["Stop"]).ToString(),
+                                    int(d["Samples"]),
+                                ]
+                            )
+
+                    edb_setup.add_frequency_sweep(
+                        fsweep["Name"],
+                        frequency_sweep=freqs,
+                    )
 
         # Configure stackup
         stackup = data["Stackup"] if "Stackup" in data else None
