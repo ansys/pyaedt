@@ -411,7 +411,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         elif source_project in self.project_list:
             project_name = source_project
             project_path = os.path.join(self.project_path, project_name + ".aedt")
-            project_path = project_path.replace("/", "\\")
             app = dkp[[source_project, source_design_name]]
         else:
             raise ValueError("Invalid project name or path provided.")
