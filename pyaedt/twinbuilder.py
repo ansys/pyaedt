@@ -420,7 +420,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if not setup:
             raise ValueError("Invalid setup in selected design.")
         else:
-            if [sweep for sweep in setup[0].sweeps if sweep.name == sweep_name]:
+            sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep_name]
+            if sweeps:
                 coupling_solution_name = "{} : {}".format(setup_name, sweep_name)
             else:
                 raise ValueError("Invalid sweep name.")

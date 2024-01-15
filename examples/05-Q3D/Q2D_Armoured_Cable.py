@@ -83,7 +83,7 @@ project_name = 'Q2D_ArmouredCableExample'
 q2d_design_name = '2D_Extractor_Cable'
 setup_name = "MySetupAuto"
 sweep_name = "sweep1"
-twinb_design_name = 'CableSystem'
+tb_design_name = 'CableSystem'
 q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktop_version)
 
 ##########################################################
@@ -114,14 +114,14 @@ mod2D.model_units = "mm"
 # Plastic, PE (cross-linked, wire, and cable grade)
 
 mat_pe_cable_grade = q2d.materials.add_material("plastic_pe_cable_grade")
-mat_pe_cable_grade.update()
 mat_pe_cable_grade.conductivity = "1.40573e-16"
 mat_pe_cable_grade.permittivity = "2.09762"
 mat_pe_cable_grade.dielectric_loss_tangent = "0.000264575"
+mat_pe_cable_grade.update()
 # Plastic, PP (10% carbon fiber)
 mat_pp = q2d.materials.add_material("plastic_pp_carbon_fiber")
-mat_pp.update()
 mat_pp.conductivity = "0.0003161"
+mat_pp.update()
 
 #####################################################################################
 # Create geometry for core strands, filling, and XLPE insulation
@@ -132,7 +132,6 @@ mod2D.set_working_coordinate_system('CS_c_strand_1')
 c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', matname='copper')
 c2_id = c1_id.duplicate_along_line(vector=['0mm', '2.0*c_strand_radius', '0mm'], nclones=2)
 mod2D.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
-c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
 
 fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius', name='c_strand_fill',
                               matname='plastic_pp_carbon_fiber')
@@ -145,7 +144,6 @@ xlpe_id.color = (0, 128, 128)
 mod2D.set_working_coordinate_system('Global')
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
 mod2D.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
-cond_names = q2d.get_all_conductors_names()
 
 #####################################################################################
 # Create geometry for filling object
@@ -200,6 +198,7 @@ region.material_name = "vacuum"
 # Assign conductors and reference ground
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+cond_names = q2d.get_all_conductors_names()
 obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
 [q2d.assign_single_conductor(name='C1' + str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
  in obj]
@@ -239,106 +238,22 @@ q2d_sweep.update()
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tb = pyaedt.TwinBuilder(designname=twinb_design_name)
-
-###################################################################
-# Prepare the lists to call the dynamic component import function
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-exc_list = q2d.design_excitations
-signal_line_list = [item.name for item in exc_list if item.type == 'SignalLine']
-num_ports = 2 * signal_line_list.__len__()
-port_info_listA = []
-port_info_listB = []
-for i_var in range(len(signal_line_list)):
-    port_info_listA.append("OnePortInfo:=")
-    port_info_listB.append("OnePortInfo:=")
-    my_listA = [str(signal_line_list[i_var]) + '_' + str(signal_line_list[i_var]) + '_A', -1,
-                str(signal_line_list[i_var]) + ':' + str(signal_line_list[i_var]) + '_A']
-    my_listB = [str(signal_line_list[i_var]) + '_' + str(signal_line_list[i_var]) + '_B', -1,
-                str(signal_line_list[i_var]) + ':' + str(signal_line_list[i_var]) + '_B']
-    port_info_listA.append(my_listA)
-    port_info_listB.append(my_listB)
-port_info_list = ["NAME:PortInfo"]
-port_info_list.extend(port_info_listA)
-port_info_list.extend(port_info_listB)
-
-des_var_list = q2d.variable_manager.design_variables
-# sort dictionary in alphabetical order
-des_var_list_sorted = sorted(des_var_list.keys(), key=lambda x: x.lower())
-des_prop_list = ["NAME:Properties"]
-for i_var in range(len(des_var_list)):
-    my_list = [des_var_list_sorted[i_var],
-               str(des_var_list[des_var_list_sorted[0]].numeric_value) + des_var_list[des_var_list_sorted[0]].units]
-    des_prop_list.append("paramProp:=")
-    des_prop_list.append(my_list)
-# last element component depth
-des_prop_list.append("paramProp:=")
-my_last_list = ["component_depth", lumped_length]
-des_prop_list.append(my_last_list)
+tb = pyaedt.TwinBuilder(designname=tb_design_name)
 
 ##########################################################
 # Add a Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-o_def_manager = tb.oproject.GetDefinitionManager()
-dyn_component = o_def_manager.GetManager("Component")
-name_comp = "SimpQ3DData1"
-dyn_component.AddDynamicNPortData(
-    [
-        "NAME:ComponentData",
-        "ComponentDataType:=", "SimpQ3DData",
-        "name:=", name_comp,
-        "filename:=", "$PROJECTDIR\\ " + project_name + '.aedt',
-        "numberofports:=", num_ports,
-        "Is3D:=", False,
-        "IsWBLink:=", False,
-        "WBSystemId:=", "",
-        "CouplingDesignName:=", q2d_design_name,
-        "CouplingSolutionName:=", setup_name + ' : ' + sweep_name,
-        "CouplingMatrixName:=", "Original",
-        "SaveProject:=", False,
-        "CloseProject:=", False,
-        "StaticLink:=", False,
-        "CouplingType:=", "Q2DRLGCTBLink",
-        "VariationKey:=", "",
-        "NewToOldMap:="	, [],
-		"OldToNewMap:="		, [],
-		"ModelText:="		, "",
-		"SolvedVariationKey:="	, "",
-		"EnforcePassivity:="	, True,
-		"MaxNumPoles:="		, "10000",
-		"ErrTol:="		, "0.0001",
-		"SSZref:="		, "50ohm",
-		"IsDepthNeeded:="	, True,
-		"Mw2DDepth:="		, lumped_length,
-		"IsScaleNeeded:="	, False,
-		"MwScale:="		, "1",
-		"RefPinStyle:="		, 3,
-		"Q3DModelType:="	, 1,
-		"SaveDataSSOptions:="	, "",
-		des_prop_list,
-		port_info_list,
-	])
-
-tb.oeditor.CreateComponent(
-	[
-		"NAME:ComponentProps",
-		"Name:="		, name_comp,
-		"Id:="			, "6"
-	],
-	[
-		"NAME:Attributes",
-		"Page:="		, 1,
-		"X:="			, -0.44958,
-		"Y:="			, 0.0635,
-		"Angle:="		, 0,
-		"Flip:="		, False
-	])
+tb.add_q3d_dynamic_component(project_name,
+                             q2d_design_name,
+                             setup_name,
+                             sweep_name,
+                             model_depth=lumped_length,
+                             coupling_matrix_name="Original")
 
 ##########################################################
 # Save project and release desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 tb.save_project()
-tb.release_desktop(False, False)
+tb.release_desktop(True, True)
