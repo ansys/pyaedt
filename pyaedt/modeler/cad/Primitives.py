@@ -4657,7 +4657,7 @@ class GeometryModeler(Modeler):
         Returns
         -------
         list
-            List of created primitives
+            List of created primitives.
 
         Examples
         --------
