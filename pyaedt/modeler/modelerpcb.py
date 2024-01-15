@@ -2,7 +2,6 @@ import os
 import re
 from warnings import warn
 
-from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -10,6 +9,7 @@ from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.pcb.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
