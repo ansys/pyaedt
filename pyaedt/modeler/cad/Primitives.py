@@ -8221,6 +8221,79 @@ class GeometryModeler(Modeler):
             )
         return True
 
+    @pyaedt_function_handler()
+    def create_geometry_from_csv(self, csv_file, header_line=2, column_mapping=None, geo_type="cylinder", unit="mm"):
+        """Create geometry from a CSV file containing geometry data.
+        Parameters
+        ----------
+        csv_file : str
+            CSV file containing the geometry data.
+            Expected column headers are dependent on the geometry type:
+            - If ``geo_type=='cylinder'``, expected fields are ``'xc'`` (base
+            center x coordinate),``'yc'`` (base center y coordinate), ``'zc'``
+            (base center z coordinate), ``'height'``, ``'radius'``,
+            ``'iradius'`` (inner radius for hollow cylinder), and ``'plane'``
+            (plane on which the cylinder base lies).
+        header_line : int, optional
+            Line marking the start of data.
+            The default is ``2``.
+        column_mapping : dict, optional
+            Map of the CSV column names to the accepted column names.
+            The default is ``None``.
+        geo_type: str, optional
+            Type of geometry that the CSV file describe. The default is ``"cylinder"``.
+        unit : str , optional
+            Unit of values to use to create the geometry. The default is ``"mm"``.
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`.
+        """
+        import pandas as pd
+
+        df = pd.read_csv(csv_file, header=header_line)
+        if column_mapping is not None:
+            df = df.rename(columns=column_mapping)
+
+        col_mapper = {
+            "name": "Name",
+            "plane": "Plane",
+            "height": "Height",
+            "radius": "Radius",
+            "iradius": "Internal Radius",
+        }
+        df = df.rename(columns=col_mapper)
+        df["Coordinate System"] = "Global"
+        df["Origin"] = df[["xc", "yc", "zc"]].values.tolist()
+        if geo_type == "cylinder":
+            df["Primitive Type"] = "Cylinder"
+            df["Number of Segments"] = 0
+            cylinder_dict = self._create_primitive_dictionary(df, unit=unit)
+            return self.import_primitives_from_file(input_dict=cylinder_dict)
+        else:
+            raise ValueError("Geometry type is not supported.")
+
+    @pyaedt_function_handler()
+    def _create_primitive_dictionary(self, df, unit):
+        csv_data = df.to_dict("index")
+        primitives_key = [
+            "Primitive Type",
+            "Name",
+            "Plane",
+            "Height",
+            "Radius",
+            "Internal Radius",
+            "Number of Segments",
+        ]
+        instance_keys = ["Name", "Coordinate System", "Origin"]
+        primitives_dict = dict()
+        primitives_dict["Primitives"] = list()
+        primitives_dict["Instances"] = list()
+        primitives_dict["Units"] = unit
+        for _, obj_data in csv_data.items():
+            primitives_dict["Primitives"].append({k: obj_data[k] for k in obj_data if k in primitives_key})
+            primitives_dict["Instances"].append({k: obj_data[k] for k in obj_data if k in instance_keys})
+        return primitives_dict
+
 
 class PrimitivesBuilder(object):
     """Create primitives based on json file or dictionary of properties.
