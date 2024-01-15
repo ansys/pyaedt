@@ -1,25 +1,34 @@
 Modeler
 =======
 The AEDT 3D and 2D Modelers use object-oriented programming to create and manage objects. 
-You can use getters and setters to create an object and change its properties:
+You can use getters and setters to create an object and change its properties.
+
+The following code creates a box and changes the color to red:
 
 .. code:: python
 
-    Create a box, assign variables, and assign materials.
-
-    from pyaedt.hfss import Hfss
-    with Hfss as hfss:
-         box = hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                       "mybox", "aluminum")
-         print(box.faces)
-         box.material_name = "copper"
-         box.color = "Red"
+     from pyaedt.hfss import Hfss
+     hfss = Hfss()
+     box = hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
+                                   "mybox", "aluminum")
+     print(box.faces)
+     box.color = "Red"
 
 
 
 .. image:: ../Resources/aedt_box.png
   :width: 800
   :alt: Modeler Object
+
+
+Similarly, you can change other properties, such as the material and transparency.
+
+.. code:: python
+
+    box.material_name = "copper"
+    box.transparency = 0.4
+    print(box.material_name)
+
 
 Once an object is created or is present in the design (from a loaded project), you can
 use a getter to get the related object. A getter works either with an object ID or
@@ -44,10 +53,10 @@ All objects support executing any modeler operation, such as union or subtractio
 
 .. code:: python
 
-
      box = hfss.modeler["mybox2"]
      cyl = hfss.modeler["mycyl"]
-     box.unit(cyl)
+     box.unite(cyl)
+     box.subract(cyl)
 
 
 .. image:: ../Resources/objects_operations.gif

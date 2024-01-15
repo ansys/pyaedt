@@ -1423,7 +1423,7 @@ class Q3d(QExtractor, object):
                 net_id = i.props.get("ID", None)  # pragma: no cover
                 break  # pragma: no cover
         for i in self.boundaries:
-            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
                 sinks.append(i.name)
         return sinks
 
