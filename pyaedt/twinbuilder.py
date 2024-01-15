@@ -415,7 +415,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             app = dkp[[source_project, source_design_name]]
         else:
             raise ValueError("Invalid project name or path provided.")
-        if app is None:
+        if app is None:  # pragma: no cover
             raise ValueError("Invalid project or design name.")
         setup = [s for s in app.setups if s.name == setup_name]
         if not setup:
