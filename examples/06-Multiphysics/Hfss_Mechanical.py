@@ -19,7 +19,7 @@ import pyaedt
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = True
+non_graphical = False
 
 ###############################################################################
 # Download and open project
