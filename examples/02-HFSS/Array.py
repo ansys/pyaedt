@@ -148,11 +148,3 @@ ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
 # the Theta scan and Phi scan.
 
 ffdata.polar_plot_3d(farfield_quantity='RealizedGain')
-
-###############################################################################
-# Analyze and release
-# ~~~~~~~~~~~~~~~~~~~~
-# Uncomment the ``hfss.analyze`` command if you want to analyze the
-# model and release AEDT.
-
-hfss.release_desktop()
