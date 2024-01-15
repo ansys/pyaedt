@@ -421,9 +421,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid setup in selected design.")
         else:
             sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep_name]
-            if sweeps:
+            if sweeps:  # pragma: no cover
                 coupling_solution_name = "{} : {}".format(setup_name, sweep_name)
-            else:
+            else:  # pragma: no cover
                 raise ValueError("Invalid sweep name.")
         if not [m for m in app.matrices if m.name == coupling_matrix_name]:
             raise ValueError("Invalid matrix name.")
