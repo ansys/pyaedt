@@ -4645,6 +4645,26 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def import_primitives_from_file(self, input_file=None, input_dict=None):
+        """Import and create primitives from a json file or dictionary of properties.
+
+        Parameters
+        ----------
+        input_file : str, optional
+            Path to a json file containing report settings.
+        input_dict : dict, optional
+            Dictionary containing report settings.
+
+        Returns
+        -------
+        list
+            List of created primitives
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> aedtapp = Icepak()
+        >>> aedtapp.modeler.import_primitives_from_file(r'C:\temp\primitives.json')
+        """
         primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
         primitive_names = primitives_builder.create()
         return primitive_names
@@ -8434,7 +8454,7 @@ class PrimitivesBuilder(object):
                 instance = self._create_cylinder_instance(name, cs, origin, primitive_data)
 
         if not instance:
-            self.logger.warning(f"Unsupported primitive type: {primitive_type}")
+            self.logger.warning("Unsupported primitive type: {}".format(primitive_type))
             return None
 
         return instance

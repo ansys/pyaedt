@@ -4603,7 +4603,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
@@ -4742,7 +4742,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
@@ -4817,7 +4817,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
@@ -4900,7 +4900,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
