@@ -148,7 +148,7 @@ class TestClass:
                 "invalid",
                 model_depth="100mm",
             )
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             assert tb.add_q3d_dynamic_component(
                 "Q2D_ArmouredCableExample",
                 "2D_Extractor_Cable",
