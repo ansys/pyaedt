@@ -34,7 +34,7 @@ jobs:
     # The type of runner that the job will run on
     name: full_documentation
     runs-on: [windows-latest, pyaedt]
-    timeout-minutes: 480
+    timeout-minutes: 720
     strategy:
       matrix:
         python-version: ['3.10']
@@ -65,7 +65,7 @@ jobs:
         id: version
         run: |
           testenv\Scripts\Activate.ps1
-          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
       - name: Create HTML Documentations
