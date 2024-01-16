@@ -797,7 +797,7 @@ class Components(object):
                 "Disabling PEC boundary creation, this feature is supported on single pin "
                 "ports only, {} pins found".format(len(pins))
             )
-            group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+            group_name = "group_{}".format(port_name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
             term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
 
@@ -810,7 +810,7 @@ class Components(object):
                 "Disabling PEC boundary creation. This feature is supported on single pin"
                 "ports only {} reference pins found.".format(len(reference_pins))
             )
-            ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
+            ref_group_name = "group_{}_ref".format(port_name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
             ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, term_name=port_name + "_ref")
         else:

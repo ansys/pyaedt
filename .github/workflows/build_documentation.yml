@@ -54,7 +54,7 @@ jobs:
       - name: Retrieve PyAEDT version
         id: version
         run: |
-          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
       # - name: Cache docs build directory
