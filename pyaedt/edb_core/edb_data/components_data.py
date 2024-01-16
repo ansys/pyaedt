@@ -1,7 +1,6 @@
 import re
 import warnings
 
-from pyaedt.edb_core.edb_data.component_model import PinPairModel
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
@@ -306,20 +305,6 @@ class EDBComponent(object):
             self._PinPair(self, self.edbcomponent, edb_comp_prop, edb_model, pin_pair)
             for pin_pair in list(edb_model.PinPairs)
         ]
-
-    @property
-    def model(self):
-        """Component model."""
-        edb_object = self.component_property.GetModel().Clone()
-        model_type = edb_object.ToString().split(".")[-1]
-        if model_type == "PinPairModel":
-            return PinPairModel(self._pedb, edb_object)
-
-    @model.setter
-    def model(self, value):
-        comp_prop = self.component_property
-        comp_prop.SetModel(value._edb_object)
-        self.edbcomponent.SetComponentProperty(comp_prop)
 
     @property
     def is_enabled(self):
