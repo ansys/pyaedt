@@ -248,8 +248,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # ~~~~~~~~~~~~~~
 # Launch HFSS 3D.
 
-h3d = pyaedt.Hfss(specified_version="2023.2",new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
-
+h3d = pyaedt.Hfss(specified_version="2023.2", new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
 
 ###############################################################################
 # Add the layout component

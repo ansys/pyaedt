@@ -17,6 +17,7 @@ if config["desktopVersion"] > "2022.2":
     radio_board_name = "RadioBoardIcepak_231"
     coldplate = "ColdPlateExample_231"
     power_budget = "PB_test_231"
+    native_import = "one_native_component"
 
 else:
     coldplate = "ColdPlateExample"
@@ -1510,3 +1511,7 @@ class TestClass:
             start_time="0s",
             end_time="10s",
         )
+
+    def test_75_native_component_load(self, add_app):
+        app = add_app(application=Icepak, project_name=native_import, subfolder=test_subfolder)
+        assert len(app.native_components) == 1

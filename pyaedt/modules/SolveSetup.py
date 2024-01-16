@@ -1807,6 +1807,7 @@ class Setup3DLayout(CommonSetup):
     def _get_net_names(self, app, file_fullname):
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         via_per_nets = self._get_via_position_per_net()
+        pass
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
@@ -2539,6 +2540,66 @@ class SetupHFSS(Setup, object):
         else:
             if self.sweeps:
                 return self.sweeps[0]
+        return False
+
+    @pyaedt_function_handler()
+    def get_sweep_names(self):
+        """Get the names of all sweeps in a given analysis setup.
+
+        Returns
+        -------
+        list of str
+            List of names of all sweeps for the setup.
+
+        References
+        ----------
+
+        >>> oModules.GetSweeps
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweeps = setup.get_sweep_names()
+        """
+        return self.omodule.GetSweeps(self.name)
+
+    @pyaedt_function_handler()
+    def delete_sweep(self, sweepname):
+        """Delete a sweep.
+
+        Parameters
+        ----------
+        sweepname : str
+            Name of the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteSweep
+
+        Examples
+        --------
+        Create a frequency sweep and then delete it.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1.create_frequency_sweep(
+            "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
+        )
+        >>> setup1.delete_sweep("Sweep1")
+        """
+        if sweepname in self.get_sweep_names():
+            self.sweeps = [sweep for sweep in self.sweeps if sweep.name != sweepname]
+            self.omodule.DeleteSweep(self.name, sweepname)
+            return True
         return False
 
     @pyaedt_function_handler()

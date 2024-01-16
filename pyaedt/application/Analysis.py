@@ -877,7 +877,7 @@ class Analysis(Design, object):
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
             if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
-                data_vals = list(data_vals)
+                data_vals = [data_vals]
             for ds in data_vals:
                 try:
                     if isinstance(ds, (OrderedDict, dict)):
