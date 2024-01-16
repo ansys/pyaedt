@@ -995,8 +995,10 @@ class Setup(CommonSetup):
 
             self.props["IsGeneralTransient"] = True
             if self.props["IsHalfPeriodicTransient"] == True:
-                raise UserWarning("Half periodic TDM disabled because is not "
-                                  "supported with start/continue from a previously solved setup.")
+                raise UserWarning(
+                    "Half periodic TDM disabled because is not "
+                    "supported with start/continue from a previously solved setup."
+                )
 
             self.update()
             self.auto_update = auto_update
