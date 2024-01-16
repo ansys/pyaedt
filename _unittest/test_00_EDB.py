@@ -3172,12 +3172,15 @@ class TestClass:
     def test_159_json_configuration(self):
         example_folder = os.path.join(local_path, "example_models", test_subfolder)
         source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
-        path_json = os.path.join(example_folder, "edb_cfg_example.json")
+        path_syz_json = os.path.join(example_folder, "edb_cfg_syz.json")
+        path_dc_json = os.path.join(example_folder, "edb_cfg_dc.json")
 
         target_path_edb = os.path.join(self.local_scratch.path, "configuration", "test.aedb")
 
         self.local_scratch.copyfolder(source_path_edb, target_path_edb)
 
         edbapp = Edb(target_path_edb, desktop_version)
-        edbapp.configuration.load(path_json)
+        edbapp.configuration.load(path_syz_json)
+        edbapp.configuration.load(path_dc_json)
+
         edbapp.close()
