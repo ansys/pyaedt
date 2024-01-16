@@ -3184,3 +3184,20 @@ class TestClass:
         edbapp.configuration.load(path_dc_json)
 
         edbapp.close()
+
+    def test_160_define_component(self):
+        example_folder = os.path.join(local_path, "example_models", test_subfolder)
+        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
+        target_path_edb = os.path.join(self.local_scratch.path, "test_component", "test.aedb")
+        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
+        edbapp = Edb(target_path_edb, desktop_version)
+        comp_pins = edbapp.components.instances["U1"].pins
+        pins = [comp_pins["AM38"], comp_pins["AL37"]]
+        edbapp.components.create(
+            component_part_name="Test_part", component_name="Test", is_rlc=True, r_value=12.2, pins=pins
+        )
+        assert edbapp.components.instances["Test"]
+        assert edbapp.components.instances["Test"].res_value == str(12.2)
+        assert edbapp.components.instances["Test"].ind_value == "0"
+        assert edbapp.components.instances["Test"].cap_value == "0"
+        assert edbapp.components.instances["Test"].center == [0.06800000116, 0.01649999875]
