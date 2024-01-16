@@ -893,11 +893,11 @@ class Setup(CommonSetup):
         self,
         design_name,
         solution_name=None,
+        map_variables_by_name=True,
         parameters_dict=None,
         project_name="This Project*",
         force_source_to_solve=True,
         preserve_partner_solution=True,
-        adapt_port=True,
     ):
         """Start or continue from a previously solved setup.
 
@@ -907,9 +907,11 @@ class Setup(CommonSetup):
             Name of the design.
         solution_name : str, optional
             Name of the solution in the format ``"setupname : solutionname"``.
-            If ``None`` the default value is ``setupname : LastAdaptive``.
+            For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``
+        map_variables_by_name : bool, optional
+            Wether variables are mapped by name from source design or not. The default is True.
         parameters_dict : dict, optional
-            Dictionary of the parameters.
+            Dictionary of the parameters. Not considered if map_variables_by_name = True.
             If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
@@ -917,9 +919,6 @@ class Setup(CommonSetup):
         force_source_to_solve : bool, optional
             Default value is ``True``.
         preserve_partner_solution : bool, optional
-            Default value is ``True``.
-        adapt_port : bool, optional
-            Perform port adapt/seeding in target solve setup.
             Default value is ``True``.
 
         Returns
@@ -931,21 +930,74 @@ class Setup(CommonSetup):
         ----------
 
         >>> oModule.EditSetup
+
+        Examples
+        --------
+        >> > m2d = pyaedt.Maxwell2d()
+        >> > setup = m2d.get_setup("Setup1")
+        >> > setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
+
         """
+
         auto_update = self.auto_update
         try:
             self.auto_update = False
+
+            # parameters
             params = OrderedDict({})
-            parameters_dict = self.p_app.available_variations.nominal_w_values_dict
-            for k, v in parameters_dict.items():
-                params[k] = v
-            self.props["PrevSoln"] = OrderedDict(
-                {"Project": project_name, "Product": "Maxwell", "Design": design_name, "Soln": solution_name}
-            )
+            if map_variables_by_name:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = k
+            elif parameters_dict is None:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = v
+            else:
+                for k, v in parameters_dict.items():
+                    if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                        params[k] = v
+                    else:
+                        params[k] = parameters_dict[v]
+
+            prev_solution = OrderedDict({})
+
+            # project name
+            if project_name != "This Project*":
+                if os.path.exists(project_name):
+                    prev_solution["Project"] = project_name
+                    self.props["PathRelativeTo"] = "SourceProduct"
+                else:
+                    raise ValueError("Project file path provided does not exist.")
+            else:
+                prev_solution["Project"] = project_name
+                self.props["PathRelativeTo"] = "TargetProject"
+
+            # design name
+            if not design_name or design_name is None:
+                raise ValueError("Provide design name to add mesh link to.")
+            elif design_name not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                prev_solution["Design"] = design_name
+
+            # solution name
+            if solution_name:
+                prev_solution["Soln"] = solution_name
+            else:
+                raise ValueError("Provide a valid solution name.")
+
+            self.props["PrevSoln"] = prev_solution
+
             self.props["PrevSoln"]["Params"] = params
             self.props["ForceSourceToSolve"] = force_source_to_solve
             self.props["PreservePartnerSoln"] = preserve_partner_solution
-            self.props["PathRelativeTo"] = "TargetProject"
+
+            self.props["IsGeneralTransient"] = True
+            if self.props["IsHalfPeriodicTransient"] == True:
+                raise UserWarning("Half periodic TDM disabled because is not "
+                                  "supported with start/continue from a previously solved setup.")
+
             self.update()
             self.auto_update = auto_update
             return True
