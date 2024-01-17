@@ -3602,7 +3602,7 @@ class Icepak(FieldAnalysis3D):
             Temperature to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified, the
             unit is degrees Celsius. Assign a transient condition using the
-            result of a function with the pattern `create_*_transient_assignment`.
+            result of a function with the pattern ``create_*_transient_assignment``.
             The default is ``"0cel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified used, the unit is the
