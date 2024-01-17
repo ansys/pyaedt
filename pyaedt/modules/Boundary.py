@@ -4665,17 +4665,17 @@ class SinusoidalDictionary(BoundaryDictionary):
     Parameters
     ----------
     vertical_offset : str
-        Vertical offset summed to the sinusoidal law.
-        Corresponds to the coefficient ``a`` in the formula.
+        Vertical offset summed to the sinusoidal law, which
+        corresponds to the coefficient ``a`` in the formula.
     vertical_scaling : str
-        Coefficient that multiplies the sinusoidal term.
-        Corresponds to the coefficient ``b`` in the formula.
+        Coefficient that multiplies the sinusoidal term, which
+        corresponds to the coefficient ``b`` in the formula.
     period : str
-        Period of the sinusoid.
-        Corresponds to the coefficient ``T`` in the formula.
+        Period of the sinusoid, which
+        corresponds to the coefficient ``T`` in the formula.
     period_offset : str
-        Offset of the sinusoid.
-        Corresponds to the coefficient ``t0`` in the formula.
+        Offset of the sinusoid, which
+        corresponds to the coefficient ``t0`` in the formula.
     """
 
     def __init__(self, vertical_offset, vertical_scaling, period, period_offset):
