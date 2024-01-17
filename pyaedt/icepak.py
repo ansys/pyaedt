@@ -3679,7 +3679,7 @@ class Icepak(FieldAnalysis3D):
         htc : str or float or dict or BoundaryDictionary, optional
             Heat transfer coefficient to assign to the wall. This parameter
             is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
-            float value is specified, the unit is w_per_m2kel.
+            float value is specified, the unit is ``w_per_m2kel``.
             Assign a transient condition using the result of a function with
             the pattern `create_*_transient_assignment`.
             Assign a temperature-dependent condition using the result of a
