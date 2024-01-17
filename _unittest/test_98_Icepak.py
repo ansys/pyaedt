@@ -1482,9 +1482,11 @@ class TestClass:
         assert bc3
         assert self.aedtapp.assign_solid_block(cylinder.name, bc3)
 
-        bc4 = self.aedtapp.create_square_wave_transient_assignment("3m_per_s", "0.5s", "3s", "1s", "0.5m_per_s")
+        bc4 = self.aedtapp.create_square_wave_transient_assignment("3m_per_sec", "0.5s", "3s", "1s", "0.5m_per_sec")
         assert bc4
-        assert self.aedtapp.assign_free_opening(self.aedtapp.modeler["Region"].faces[0].id, velocity=[bc4, 0, 0])
+        assert self.aedtapp.assign_free_opening(
+            self.aedtapp.modeler["Region"].faces[0].id, flow_type="Velocity", velocity=[bc4, 0, 0]
+        )
 
         bondwire = self.aedtapp.modeler.create_bondwire([0, 0, 0], [1, 2, 3])
         bc5 = self.aedtapp.create_linear_transient_assignment("0.01W", "5")
