@@ -3540,7 +3540,7 @@ class Icepak(FieldAnalysis3D):
             Heat flux to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified,
             the unit is ``irrad_W_per_m2``. Assign a transient condition using the
-            result of a function with the pattern `create_*_transient_assignment`.
+            result of a function with the pattern ``create_*_transient_assignment``.
             The default is ``"0irrad_W_per_m2"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is the
