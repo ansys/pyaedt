@@ -1,12 +1,32 @@
 documentation:
-- any-glob-to-any-file: ["doc/source/**/*", "README.md", "README_CN.md"]
+- changed-files:
+  - any-glob-to-any-file:
+    - "doc/source/*"
+    - "README.md"
+    - "README_CN.md"
+
 maintenance:
-- any-glob-to-any-file: [".github/**/*", ".flake8", "pyproject.toml"]
-dependencies:
-- any-glob-to-any-file: [requirements/**/*]
+- changed-files:
+  - any-glob-to-any-file:
+    - ".github/**/*"
+    - ".flake8"
+    - "pyproject.toml"
+
 testing:
-- any-glob-to-any-file: ["_unittest/conftest.py", "_unittest_ironpython/run_unittests.py", "_unittest_ironpython/run_unittests_batchmode.cmd"]
+- changed-files:
+  - any-glob-to-any-file:
+    - "_unittest/conftest.py"
+    - "_unittest_ironpython/run_unittests.py"
+    - "_unittest_ironpython/run_unittests_batchmode.cmd"
+
 # TODO : Remove once EDB is extracted from PyAEDT
 edb:
-- any-glob-to-any-file: ["examples/00-EDB/**", "examples/01-HFSS3DLayout/EDB_in_3DLayout.py", "examples/05-Q3D/Q3D_from_EDB.py", "pyaedt/edb_core/**", "pyaedt/edb.py"]
-
+- changed-files:
+  - any-glob-to-any-file:
+    - "examples/00-EDB/*"
+    - "examples/01-HFSS3DLayout/EDB_in_3DLayout.py"
+    - "examples/01-HFSS3DLayout/Dcir_in_3DLayout.py"
+    - "examples/05-Q3D/Q3D_from_EDB.py"
+    - "examples/05-Q3D/Q3D_DC_IR.py"
+    - "pyaedt/edb_core/**/*"
+    - "pyaedt/edb.py"
