@@ -4568,7 +4568,7 @@ class BoundaryDictionary:
 
 class LinearDictionary(BoundaryDictionary):
     """
-    Class for managing linear conditions assignments, children of BoundaryDictionary.
+    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
     It applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t``
