@@ -180,7 +180,7 @@ def adjust_image_path(app, docname, source):
     # <img src="../../doc/source/_static/diff_via.png" width="500">
     However, examples fail when used through the documentation build because
     reaching the associated path should be "../../_static/diff_via.png".
-    Indeed, directory _static is automatically copied in output directory
+    Indeed, the directory ``_static`` is automatically copied into the output directory
     ``_build/html/_static``.
     """
     # Get the full path to the document
