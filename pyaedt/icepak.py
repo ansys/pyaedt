@@ -6052,9 +6052,9 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler
     def create_sinusoidal_transient_assignment(self, vertical_offset, vertical_scaling, period, period_offset):
         """
-        Create object to assign sinusoidal transient condition.
+        Create an object to assign the sinusoidal transient condition to.
 
-        It applies a condition ``y`` dependent on the time ``t``:
+        This method applies a condition ``y`` dependent on the time ``t``:
             ``y=a+b*sin(2*pi(t-t0)/T)``
 
         Parameters
