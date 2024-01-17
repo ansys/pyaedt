@@ -4558,8 +4558,8 @@ class BoundaryDictionary:
         }
 
     @abstractmethod
-    def _parse_value(self):  # pragma : no cover
-        pass
+    def _parse_value(self):
+        pass  # pragma : no cover
 
     @pyaedt_function_handler
     def __getitem__(self, k):

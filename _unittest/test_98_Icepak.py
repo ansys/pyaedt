@@ -6,6 +6,7 @@ import pytest
 
 from pyaedt import Icepak
 from pyaedt.generic.settings import settings
+from pyaedt.modules.Boundary import BoundaryDictionary
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -1463,6 +1464,7 @@ class TestClass:
         )
         bc1 = self.aedtapp.create_temp_dep_assignment(ds_temp.name)
         assert bc1
+        assert bc1.dataset_name == "ds_temp3"
         assert self.aedtapp.assign_solid_block(box1.name, bc1)
 
         self.aedtapp.solution_type = "Transient"
@@ -1511,6 +1513,18 @@ class TestClass:
             start_time="0s",
             end_time="10s",
         )
+
+        with pytest.raises(AttributeError):
+            BoundaryDictionary("Temp Dep", "Linear")
+        with pytest.raises(AttributeError):
+            BoundaryDictionary("Temperature Dep", "Linear")
+        with pytest.raises(AttributeError):
+            ds1_temp = self.aedtapp.create_dataset(
+                "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, xunit="cel", yunit="W"
+            )
+            bc1 = self.aedtapp.create_temp_dep_assignment(ds1_temp.name)
+        with pytest.raises(AttributeError):
+            bc1 = self.aedtapp.create_temp_dep_assignment("nods")
 
     def test_75_native_component_load(self, add_app):
         app = add_app(application=Icepak, project_name=native_import, subfolder=test_subfolder)
