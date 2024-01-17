@@ -4595,9 +4595,9 @@ class LinearDictionary(BoundaryDictionary):
 
 class PowerLawDictionary(BoundaryDictionary):
     """
-    Class for managing power law conditions assignments, children of BoundaryDictionary.
+   Manages power law conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t^c``
 
     Parameters
