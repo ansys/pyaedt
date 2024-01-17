@@ -1913,6 +1913,22 @@ class TestClass:
         assert os.path.exists(export_stackup_path)
         edbapp.close()
 
+    def test_125c_stackup_json(self):
+        edbapp = Edb(edbversion=desktop_version)
+        temp_json = os.path.join(self.local_scratch.path, "stackup.json")
+        edbapp.stackup.create_symmetric_stackup(6)
+        edbapp.stackup.export(temp_json)
+
+        edbapp.stackup.remove_layer("SMT")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.remove_layer("SMB")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.remove_layer("TOP")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.add_layer("air", layer_type="dielectric")
+        edbapp.stackup.load(temp_json)
+        edbapp.close()
+
     def test_125c_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
