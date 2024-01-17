@@ -176,7 +176,7 @@ def add_ipython_time(app, docname, source):
 def adjust_image_path(app, docname, source):
     """Adjust the HTML label used to insert images in the examples.
     
-    The following path makes the examples in the root directory working
+    The following path makes the examples in the root directory work:
     # <img src="../../doc/source/_static/diff_via.png" width="500">
     However, examples fail when used through the documentation build because
     reaching the associated path should be "../../_static/diff_via.png".
