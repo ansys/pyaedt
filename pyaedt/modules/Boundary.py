@@ -4595,22 +4595,22 @@ class LinearDictionary(BoundaryDictionary):
 
 class PowerLawDictionary(BoundaryDictionary):
     """
-   Manages power law conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    Manages power law conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
-    This class applies a condition ``y`` dependent on the time ``t``:
-        ``y=a+b*t^c``
+     This class applies a condition ``y`` dependent on the time ``t``:
+         ``y=a+b*t^c``
 
-    Parameters
-    ----------
-    intercept : str
-        Value of the assignment condition at the initial time, which
-        corresponds to the coefficient ``a`` in the formula.
-    coefficient : str
-        Coefficient that multiplies the power term, which
-        corresponds to the coefficient ``b`` in the formula.
-    scaling_exponent : str
-        Exponent of the power term, which
-        corresponds to the coefficient ``c`` in the formula.
+     Parameters
+     ----------
+     intercept : str
+         Value of the assignment condition at the initial time, which
+         corresponds to the coefficient ``a`` in the formula.
+     coefficient : str
+         Coefficient that multiplies the power term, which
+         corresponds to the coefficient ``b`` in the formula.
+     scaling_exponent : str
+         Exponent of the power term, which
+         corresponds to the coefficient ``c`` in the formula.
     """
 
     def __init__(self, intercept, coefficient, scaling_exponent):
