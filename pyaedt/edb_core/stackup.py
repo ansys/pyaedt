@@ -1721,7 +1721,7 @@ class Stackup(object):
                     thickness=default_layer["thickness"],
                 )
 
-            elif temp_2.index(layer_name) == len(temp_2)-1:
+            elif temp_2.index(layer_name) == len(temp_2) - 1:
                 new_layer = self.add_layer(
                     layer_name,
                     base_layer=layer_name,
