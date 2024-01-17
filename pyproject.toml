@@ -64,7 +64,6 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf",
-    "jsonschema",
 ]
 doc = [
     "ansys-sphinx-theme==0.13.1",
