@@ -111,7 +111,7 @@ edbapp.cutout(signal_list=nets, reference_list=["GND"], extent_type="Bounding")
 ###############################################################################
 # Create SYZ analysis setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# SIwave SYZ setup is created.
+# Create SIwave SYZ setup.
 
 setup = edbapp.create_siwave_syz_setup("setup1")
 setup.add_frequency_sweep(frequency_sweep=[
