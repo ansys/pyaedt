@@ -4626,9 +4626,9 @@ class PowerLawDictionary(BoundaryDictionary):
 
 class ExponentialDictionary(BoundaryDictionary):
     """
-    Class for managing exponential conditions assignments, children of BoundaryDictionary.
+    Manages exponential conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
 
     Parameters
