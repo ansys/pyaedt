@@ -4,7 +4,7 @@
 
 # ## Final expected project
 
-# <img src="../../doc/source/_static/diff_via.png" width="500">
+# <img src="_static/diff_via.png" width="500">
 
 # ## Import EDB layout object
 

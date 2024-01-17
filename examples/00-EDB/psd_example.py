@@ -1,5 +1,6 @@
 # # PSD Example
-#
+
+
 # This is an example notebook from
 # [matplotlib](https://matplotlib.org/stable/gallery/lines_bars_and_markers/psd_demo.html#sphx-glr-gallery-lines-bars-and-markers-psd-demo-py)
 

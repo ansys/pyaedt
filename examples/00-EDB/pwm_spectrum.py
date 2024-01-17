@@ -1,7 +1,5 @@
-# %matplotlib inline
-
 # # PWM Spectrum
-#
+
 # This example illustrates the impact of switching rise and fall
 # time on the spectrum of a pulse-width modulated (PWM) signal.
 #
@@ -114,6 +112,3 @@ axs["spectrum"].set_ylim(1E-6, 1)
 axs["spectrum"].legend(loc="upper right")
 axs["t_fine"].legend(loc="best")
 plt.show()
-
-#
-
