@@ -3407,7 +3407,7 @@ class Icepak(FieldAnalysis3D):
              is relevant if ``ext_surf_rad=True``.  If a float value is specified, the default
              unit is degrees Celsius.
              Assign a transient condition using the result of a function with
-             the pattern  `create_*_transient_assignment`.
+             the pattern  ``create_*_transient_assignment``.
              The default is ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
