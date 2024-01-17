@@ -4728,10 +4728,10 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
     Parameters
     ----------
     assignment_type : str
-        The type of assignment represented by the class.
-        It can be ``"Temp Dep"`` or ``"Transient"``.
+        Type of assignment represented by the class.
+        Options are ``"Temp Dep"`` and ``"Transient"``.
     ds : str
-        Dataset name to be assigned.
+        Dataset name to assign.
     scale : str
         Scaling factor for the y values of the dataset.
     """
