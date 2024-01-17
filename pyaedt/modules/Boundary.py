@@ -4576,11 +4576,11 @@ class LinearDictionary(BoundaryDictionary):
     Parameters
     ----------
     intercept : str
-        Value of the assignment condition at initial time.
-        Corresponds to the coefficient ``a`` in the formula.
+        Value of the assignment condition at the initial time, which
+        corresponds to the coefficient ``a`` in the formula.
     slope : str
-        Slope of the assignment condition.
-        Corresponds to the coefficient ``b`` in the formula.
+        Slope of the assignment condition, which
+        corresponds to the coefficient ``b`` in the formula.
     """
 
     def __init__(self, intercept, slope):
