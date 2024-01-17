@@ -181,7 +181,7 @@ def adjust_image_path(app, docname, source):
     However, examples fail when used through the documentation build because
     reaching the associated path should be "../../_static/diff_via.png".
     Indeed, directory _static is automatically copied in output directory
-    _build/html/_static.
+    ``_build/html/_static``.
     """
     # Get the full path to the document
     docpath = os.path.join(app.srcdir, docname)
