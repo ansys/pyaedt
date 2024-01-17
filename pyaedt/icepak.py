@@ -6089,7 +6089,7 @@ class Icepak(FieldAnalysis3D):
         on_value : str
             Maximum value of the square wave.
         initial_time_off : str
-            Time after which the square wave assignment starts
+            Time after which the square wave assignment starts.
         on_time : str
             Time for which the square wave keeps the maximum value during one period.
         off_time : str
