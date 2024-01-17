@@ -4539,15 +4539,16 @@ class Icepak(FieldAnalysis3D):
         """
         # Sanitize input
         for i in range(len(velocity)):
-            if not isinstance(velocity[i], str) and not isinstance(velocity[i], dict):
+            if not isinstance(velocity[i], str) and not isinstance(velocity[i], (dict, BoundaryDictionary)):
                 velocity[i] = str(velocity[i]) + "m_per_sec"
-        if not isinstance(mass_flow_rate, str) and not isinstance(mass_flow_rate, dict):
+        if not isinstance(mass_flow_rate, str) and not isinstance(mass_flow_rate, (dict, BoundaryDictionary)):
             mass_flow_rate = str(mass_flow_rate) + "kg_per_s"
-        if not isinstance(temperature, str) and not isinstance(temperature, dict):
+        if not isinstance(temperature, str) and not isinstance(temperature, (dict, BoundaryDictionary)):
             temperature = str(temperature) + "cel"
-        if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, dict):
+        if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, (dict,
+                                                                                                 BoundaryDictionary)):
             radiation_temperature = str(radiation_temperature) + "cel"
-        if not isinstance(pressure, str) and not isinstance(pressure, dict):
+        if not isinstance(pressure, str) and not isinstance(pressure, (dict, BoundaryDictionary)):
             pressure = str(pressure) + "pascal"
         # Dict creation
         props = {}
