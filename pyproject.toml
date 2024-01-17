@@ -32,7 +32,8 @@ dependencies = [
     "rpyc==5.3.1",
     "psutil",
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
-    "fpdf2"
+    "fpdf2",
+    "jsonschema"
 ]
 
 [project.optional-dependencies]
@@ -63,7 +64,6 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf",
-    "jsonschema",
 ]
 doc = [
     "ansys-sphinx-theme==0.13.1",
