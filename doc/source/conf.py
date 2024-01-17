@@ -190,7 +190,7 @@ def adjust_image_path(app, docname, source):
     if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
         return
 
-    logger.info(f"Changing HTML image path in file {docname}.py")
+    logger.info(f"Changing HTML image path in the '{docname}.py' file.")
     source[0] = source[0].replace('../../doc/source/_static', '../../_static')
 
 def remove_ipython_time_from_html(app, exception):
