@@ -4723,7 +4723,7 @@ class SquareWaveDictionary(BoundaryDictionary):
 
 class PieceWiseLinearDictionary(BoundaryDictionary):
     """
-    Class for managing dataset conditions assignments, children of BoundaryDictionary.
+    Manages dataset conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
