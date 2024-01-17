@@ -4529,13 +4529,13 @@ class BoundaryDictionary:
     Parameters
     ----------
     assignment_type : str
-        The type of assignment represented by the class. It can be ``"Temp Dep"``
-        or ``"Transient"``.
+        Type of assignment represented by the class. Options are `"Temp Dep"``
+        and ``"Transient"``.
     function_type : str
-        The variation function to be assigned. If ``assignment_type=="Temp Dep"``,
-        it can only be ``"Piecewise Linear"``, else it can be ``"Piecewise Linear"``,
-        ``"Linear"``, ``"Sinusoidal"``, ``"Power Law"``, ``"Exponential"``,
-        and ``"Square Wave"``.
+        Variation function to assign. If ``assignment_type=="Temp Dep"``,
+        the function can only be ``"Piecewise Linear"``. Otherwise, the function can be
+        ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+        ``"Sinusoidal"``, and ``"Square Wave"``.
     """
 
     def __init__(self, assignment_type, function_type):
