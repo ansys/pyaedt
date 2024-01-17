@@ -3337,9 +3337,9 @@ class Icepak(FieldAnalysis3D):
             is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
             float value is specified, the unit is w_per_m2kel.
             Assign a transient condition using the result of a function with
-            the pattern `create_*_transient_assignment`.
+            the pattern ``create_*_transient_assignment``.
             Assign a temperature-dependent condition using the result of a
-            function with the pattern `create_temp_dep_assignment`.
+            function with the pattern ``create_temp_dep_assignment``.
             The default is ``"0w_per_m2kel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is
