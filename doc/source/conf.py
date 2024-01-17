@@ -174,7 +174,7 @@ def add_ipython_time(app, docname, source):
     # logger.info(source[0])
 
 def adjust_image_path(app, docname, source):
-    """Adjust the HTML label used to insert images in our examples.
+    """Adjust the HTML label used to insert images in the examples.
     
     The following path makes the examples in the root directory working
     # <img src="../../doc/source/_static/diff_via.png" width="500">
