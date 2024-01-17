@@ -4634,14 +4634,14 @@ class ExponentialDictionary(BoundaryDictionary):
     Parameters
     ----------
     vertical_offset : str
-        Vertical offset summed to the exponential law.
-        Corresponds to the coefficient ``a`` in the formula.
+        Vertical offset summed to the exponential law, which
+        corresponds to the coefficient ``a`` in the formula.
     coefficient : str
-        Coefficient that multiplies the exponential term.
-        Corresponds to the coefficient ``b`` in the formula.
+        Coefficient that multiplies the exponential term, which
+        corresponds to the coefficient ``b`` in the formula.
     exponent_coefficient : str
-        Coefficient in the exponential term.
-        Corresponds to the coefficient ``c`` in the formula.
+        Coefficient in the exponential term, which
+        corresponds to the coefficient ``c`` in the formula.
     """
 
     def __init__(self, vertical_offset, coefficient, exponent_coefficient):
