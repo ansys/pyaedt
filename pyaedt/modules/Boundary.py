@@ -4603,14 +4603,14 @@ class PowerLawDictionary(BoundaryDictionary):
     Parameters
     ----------
     intercept : str
-        Value of the assignment condition at initial time.
-        Corresponds to the coefficient ``a`` in the formula.
+        Value of the assignment condition at the initial time, which
+        corresponds to the coefficient ``a`` in the formula.
     coefficient : str
-        Coefficient that multiplies the power term.
-        Corresponds to the coefficient ``b`` in the formula.
+        Coefficient that multiplies the power term, which
+        corresponds to the coefficient ``b`` in the formula.
     scaling_exponent : str
-        Exponent of the power term.
-        Corresponds to the coefficient ``c`` in the formula.
+        Exponent of the power term, which
+        corresponds to the coefficient ``c`` in the formula.
     """
 
     def __init__(self, intercept, coefficient, scaling_exponent):
