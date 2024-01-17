@@ -186,7 +186,7 @@ def adjust_image_path(app, docname, source):
     # Get the full path to the document
     docpath = os.path.join(app.srcdir, docname)
 
-    # Check if this is a .py example file
+    # Check if this is a PY example file
     if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
         return
 
