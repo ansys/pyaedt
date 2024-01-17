@@ -4657,9 +4657,9 @@ class ExponentialDictionary(BoundaryDictionary):
 
 class SinusoidalDictionary(BoundaryDictionary):
     """
-    Class for managing sinusoidal conditions assignments, children of BoundaryDictionary.
+    Manages sinusoidal conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
 
     Parameters
