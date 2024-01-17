@@ -4692,7 +4692,7 @@ class SinusoidalDictionary(BoundaryDictionary):
 
 class SquareWaveDictionary(BoundaryDictionary):
     """
-    Class for managing square wave conditions assignments, children of BoundaryDictionary.
+    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
