@@ -4524,7 +4524,7 @@ def _create_boundary(bound):
 
 class BoundaryDictionary:
     """
-    Class that handles Icepak transient and temperature dependent boundary conditions assignments.
+    Handles Icepak transient and temperature-dependent boundary condition assignments.
 
     Parameters
     ----------
