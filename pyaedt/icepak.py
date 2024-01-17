@@ -3919,7 +3919,7 @@ class Icepak(FieldAnalysis3D):
             Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
             ``"Temperature"``.
         assignment_value : str or dict or BoundaryDictionary
-            Value and units of the input power, surface heat or temperature (depending on
+            Value and units of the input power, surface heat, or temperature (depending on
             ``thermal_condition``).
             Assign a transient condition using the result of a function with
             the pattern ``create_*_transient_assignment``.
@@ -3931,8 +3931,8 @@ class Icepak(FieldAnalysis3D):
         radiate : bool, optional
             Whether to enable radiation. The default is ``False``.
         voltage_current_choice : str or bool, optional
-            Whether to assign ``"Voltage"`` or ``"Current"`` or none of them. The default is
-            ``False`` (none of them is assigned).
+            Whether to assign the ``"Voltage"`` or ``"Current"`` option. The default is
+            ``False``, in which case neither option is assigned.
         voltage_current_value : str or dict or BoundaryDictionary, optional
             Value and units of current or voltage assignment.
             Assign a transient condition using the result of a function with
@@ -4152,7 +4152,7 @@ class Icepak(FieldAnalysis3D):
             boundary name is automatically generated.
         htc : float, str, or dict or BoundaryDictionary, optional
             String with the value and units of the heat transfer coefficient for the
-            external conditions. If a float is provided, the ``"w_per_m2kel"`` unit is used.
+            external conditions. If a float is provided, the unit is ``"w_per_m2kel"``.
             Assign a transient condition using the result of a function with
             the pattern ``create_*_transient_assignment``.
             Assign a temperature-dependent condition using the result of a
@@ -4162,7 +4162,7 @@ class Icepak(FieldAnalysis3D):
             String with the value and units of temperature for the external conditions.
             If a float is provided, the ``"cel"`` unit is used.
             Assign a transient condition using the result of a function with
-            the pattern `create_*_transient_assignment`.
+            the pattern ``create_*_transient_assignment``.
             The default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
             set to ``None``.
 
@@ -5931,7 +5931,7 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler
     def create_temp_dep_assignment(self, ds_name, scale=1):
         """
-        Create a temperature-dependent assignment from dataset.
+        Create a temperature-dependent assignment from a dataset.
 
         Parameters
         ----------
