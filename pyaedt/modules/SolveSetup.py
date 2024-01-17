@@ -2662,6 +2662,66 @@ class SetupHFSS(Setup, object):
         return False
 
     @pyaedt_function_handler()
+    def get_sweep_names(self):
+        """Get the names of all sweeps in a given analysis setup.
+
+        Returns
+        -------
+        list of str
+            List of names of all sweeps for the setup.
+
+        References
+        ----------
+
+        >>> oModules.GetSweeps
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweeps = setup.get_sweep_names()
+        """
+        return self.omodule.GetSweeps(self.name)
+
+    @pyaedt_function_handler()
+    def delete_sweep(self, sweepname):
+        """Delete a sweep.
+
+        Parameters
+        ----------
+        sweepname : str
+            Name of the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteSweep
+
+        Examples
+        --------
+        Create a frequency sweep and then delete it.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1.create_frequency_sweep(
+            "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
+        )
+        >>> setup1.delete_sweep("Sweep1")
+        """
+        if sweepname in self.get_sweep_names():
+            self.sweeps = [sweep for sweep in self.sweeps if sweep.name != sweepname]
+            self.omodule.DeleteSweep(self.name, sweepname)
+            return True
+        return False
+
+    @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
         """Enable HFSS single frequency setup.
 

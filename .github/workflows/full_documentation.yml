@@ -34,7 +34,7 @@ jobs:
     # The type of runner that the job will run on
     name: full_documentation
     runs-on: [windows-latest, pyaedt]
-    timeout-minutes: 480
+    timeout-minutes: 720
     strategy:
       matrix:
         python-version: ['3.10']
@@ -65,7 +65,7 @@ jobs:
         id: version
         run: |
           testenv\Scripts\Activate.ps1
-          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
       - name: Create HTML Documentations
@@ -114,7 +114,7 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v5
+        uses: ansys/actions/doc-deploy-stable@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -135,7 +135,7 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
 
       - name: Display structure of downloaded files
         run: ls -R
@@ -153,7 +153,7 @@ jobs:
           echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
 
       - name: "Deploy the stable documentation index for PyAEDT API"
-        uses: ansys/actions/doc-deploy-index@v5
+        uses: ansys/actions/doc-deploy-index@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/${{ env.VERSION }}
           index-name: pyaedt-v${{ env.VERSION_MEILI }}
@@ -162,7 +162,7 @@ jobs:
           pymeilisearchopts: --stop_urls \"EDBAPI\" # Add EDB API as another index.
 
       - name: "Deploy the stable documentation index for EDB API"
-        uses: ansys/actions/doc-deploy-index@v5
+        uses: ansys/actions/doc-deploy-index@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/${{ env.VERSION }}/EDBAPI/
           index-name: pyedb-v${{ env.VERSION_MEILI }}
