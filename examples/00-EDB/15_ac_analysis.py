@@ -131,7 +131,7 @@ edbapp.close_edb()
 ###############################################################################
 # Launch Hfss3dLayout
 # ~~~~~~~~~~~~~~~~~~~
-# To do SYZ analysis, we need to launch HFSS 3D Layout and import EDB into it.
+# To do SYZ analysis, you must launch HFSS 3D Layout and import EDB into it.
 
 h3d = pyaedt.Hfss3dLayout(targetfile, specified_version="2023.2", new_desktop_session=True)
 
