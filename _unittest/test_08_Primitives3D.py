@@ -24,6 +24,7 @@ component3d = "new.a3dcomp"
 encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
 primitive_json_file = "primitives_file.json"
+primitive_csv_file = "cylinder_geometry_creation.csv"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -1845,13 +1846,19 @@ class TestClass:
             priority=None,
         )
 
-    def test_88_import_primitives_file(self):
+    def test_88_import_primitives_file_json(self):
         self.aedtapp.insert_design("PrimitiveFromFile")
         primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
         primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
         assert len(primitive_names) == 5
 
-    def test_89_primitives_builder(self, add_app):
+    def test_89_import_primitives_csv(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_csv_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 2
+
+    def test_90_primitives_builder(self, add_app):
         from pyaedt.generic.DataHandlers import json_to_dict
         from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
 
@@ -1922,3 +1929,5 @@ class TestClass:
         primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
         primitive_names = primitives_builder.create()
         assert all(element is None for element in primitive_names)
+
+        # CSV Test missed

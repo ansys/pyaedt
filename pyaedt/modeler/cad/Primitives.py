@@ -8272,12 +8272,34 @@ class PrimitivesBuilder(object):
 
     def __init__(self, app, input_file=None, input_dict=None):
         self._app = app
+        props = {}
         if not input_dict and not input_file:  # pragma: no cover
             msg = "Either one of a json file or a dictionary has to be passed as input."
             self.logger.error(msg)
             raise TypeError(msg)
         elif input_file:
-            props = json_to_dict(input_file)
+            file_format = os.path.splitext(os.path.basename(input_file))[1]
+            if file_format == ".json":
+                props = json_to_dict(input_file)
+            elif file_format == ".csv":
+                import re
+
+                from pyaedt.generic.general_methods import read_csv_pandas
+
+                csv_data = read_csv_pandas(filename=input_file)
+                primitive_type = csv_data.columns[0]
+                primitive_type_cleaned = re.sub(r"^#\s*", "", primitive_type)
+
+                if primitive_type_cleaned in ["Blocks Cylinder", "Cylinder"]:
+                    props = self._read_csv_cylinder_props(csv_data)
+                if not props:
+                    msg = "CSV file not valid."
+                    self.logger.error(msg)
+                    raise TypeError(msg)
+            else:
+                msg = "Format not valid."
+                self.logger.error(msg)
+                raise TypeError(msg)
         else:
             props = input_dict
 
@@ -8446,6 +8468,81 @@ class PrimitivesBuilder(object):
                 self._app.modeler.subtract(blank_list=cyl1, tool_list=cyl2, keep_originals=False)
 
         return cyl1
+
+    @pyaedt_function_handler()
+    def _read_csv_cylinder_props(self, csv_data):
+        """Convert csv data to PrimitivesBuilder properties.
+
+        Create a cylinder instance.
+
+        Parameters
+        ----------
+        csv_data : :class:`pandas.DataFrame`
+
+        Returns
+        -------
+        dict
+            PrimitivesBuilder properties.
+        """
+        primitive_props = {
+            "Primitive Type": "Cylinder",
+            "Name": "",
+            "Plane": 0,
+            "Height": 1.0,
+            "Radius": 2,
+            "Internal Radius": 0.0,
+            "Number of Segments": 0,
+        }
+        instances_props = {"Name": "", "Coordinate System": "Global", "Origin": [0, 0, 0]}
+
+        # Take the keys
+        csv_keys = []
+        index_row = 0
+        for index_row, row in csv_data.iterrows():
+            if "#" not in row.iloc[0]:
+                csv_keys = row.array.dropna()
+                csv_keys = csv_keys.tolist()
+                break
+
+        # Create instances and primitives
+        props_cyl = {}
+        row_cont = 0
+        for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
+            row_info = row.dropna().values
+            if len(row_info) != len(csv_keys):
+                msg = "CSV file not valid."
+                self.logger.error(msg)
+                return props_cyl
+
+            if not props_cyl:
+                props_cyl = {"Primitives": [primitive_props], "Instances": [instances_props]}
+            else:
+                props_cyl["Primitives"].append(primitive_props.copy())
+                props_cyl["Instances"].append(instances_props.copy())
+
+            col_cont = 0
+            # Check for nan values in each column
+            for value in row_info:
+                if csv_keys[col_cont] == "name":
+                    props_cyl["Primitives"][row_cont]["Name"] = str(value)
+                    props_cyl["Instances"][row_cont]["Name"] = str(value)
+                elif csv_keys[col_cont] == "xc":
+                    props_cyl["Instances"][row_cont]["Origin"][0] = float(value)
+                elif csv_keys[col_cont] == "yc":
+                    props_cyl["Instances"][row_cont]["Origin"][1] = float(value)
+                elif csv_keys[col_cont] == "zc":
+                    props_cyl["Instances"][row_cont]["Origin"][2] = float(value)
+                elif csv_keys[col_cont] == "plane":
+                    props_cyl["Primitives"][row_cont]["Plane"] = int(value)
+                elif csv_keys[col_cont] == "radius":
+                    props_cyl["Primitives"][row_cont]["Radius"] = float(value)
+                elif csv_keys[col_cont] == "iradius":
+                    props_cyl["Primitives"][row_cont]["Internal Radius"] = float(value)
+                elif csv_keys[col_cont] == "height":
+                    props_cyl["Primitives"][row_cont]["Height"] = float(value)
+                col_cont += 1
+            row_cont += 1
+        return props_cyl
 
     @pyaedt_function_handler()
     def convert_units(self, values):
