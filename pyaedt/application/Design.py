@@ -139,7 +139,7 @@ class Design(AedtObjects):
             exception_to_desktop(ex_value, ex_traceback)
         if self._desktop_class._connected_app_instances > 0:
             self._desktop_class._connected_app_instances -= 1
-        if self._desktop_class._connected_app_instances < 1 and self._desktop_class._initialized_from_design:
+        if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
