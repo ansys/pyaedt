@@ -22,9 +22,23 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    netlist1 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "netlist_small.cir")
-    netlist_file1 = local_scratch.copyfile(netlist1)
-    return netlist_file1, None
+    examples_list = [
+        local_scratch.copyfile(
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "netlist_small.cir")
+        ),
+        local_scratch.copyfile(
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Q2D_ArmouredCableExample.aedt")
+        ),
+        local_scratch.copyfile(
+            os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, "Q2D_ArmouredCableExample_CopyImport.aedt"
+            )
+        ),
+        local_scratch.copyfile(
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Q3D_DynamicLink.aedt")
+        ),
+    ]
+    return examples_list, None
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -45,7 +59,10 @@ class TestClass:
     def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-        self.netlist_file1 = examples[0]
+        self.netlist_file1 = examples[0][0]
+        self.dynamic_link = examples[0][1]
+        self.dynamic_link_copy_import = examples[0][2]
+        self.q3d_dynamic_link = examples[0][3]
 
     def test_01_create_resistor(self):
         id = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
@@ -104,3 +121,62 @@ class TestClass:
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_19_add_dynamic_link(self, add_app):
+        tb = add_app(application=TwinBuilder, project_name=self.dynamic_link, design_name="CableSystem", just_open=True)
+        assert tb.add_q3d_dynamic_component(
+            "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+        )
+        assert tb.add_q3d_dynamic_component(
+            self.dynamic_link, "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+        )
+        with pytest.raises(TypeError):
+            assert tb.add_q3d_dynamic_component(
+                "Q2D_ArmouredCableExample",
+                "2D_Extractor_Cable",
+                "MySetupAuto",
+                "sweep1",
+                "Original",
+                model_depth="invalid",
+            )
+        with pytest.raises(ValueError):
+            assert tb.add_q3d_dynamic_component(
+                "Q2D_ArmouredCableExample",
+                "2D_Extractor_Cable",
+                "MySetupAuto",
+                "sweep1",
+                "invalid",
+                model_depth="100mm",
+            )
+        with pytest.raises(TypeError):
+            assert tb.add_q3d_dynamic_component(
+                "Q2D_ArmouredCableExample",
+                "2D_Extractor_Cable",
+                "MySetupAuto",
+                "sweep1",
+                "Original",
+                model_depth="100mm",
+                state_space_dynamic_link_type="invalid",
+            )
+        assert tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "Setup1GHz", "sweep1", "Original")
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(self.dynamic_link, "Q3D_MSbend", "setup", "sweep1", "Original")
+        assert tb.add_q3d_dynamic_component(
+            self.dynamic_link_copy_import,
+            "2D_Extractor_Cable",
+            "MySetupAuto",
+            "sweep1",
+            "Original",
+            model_depth="100mm",
+        )
+        assert tb.add_q3d_dynamic_component(self.q3d_dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(
+                "", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+            )
+        with pytest.raises(ValueError):
+            tb.add_q3d_dynamic_component(
+                "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
+            )

@@ -114,6 +114,16 @@ class TestClass:
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
+    def test_05a_delete_sweep(self):
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup5", self.aedtapp.SETUPS.HFSSDrivenDefault)
+        setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "My_Sweep1", sweep_type="Fast")
+        sweeps = setup1.get_sweep_names()
+        assert len(sweeps) == 1
+        assert "My_Sweep1" in sweeps
+        setup1.delete_sweep("My_Sweep1")
+        sweeps = setup1.get_sweep_names()
+        assert len(sweeps) == 0
+
     def test_06_sweep_sbr(self):
         self.aedtapp.insert_design("sweepsbr")
         self.aedtapp.solution_type = "SBR+"
