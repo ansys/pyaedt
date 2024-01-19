@@ -25,10 +25,9 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
 # Add stackup layers.
 # A stackup can be created layer by layer or imported from a csv file or xml file.
-
+#
 # ### Test Equations
-
-# This is an inline equation $E>0$ if $m>0$ and $\int_0^\infty f(t) dt >0$
+# This is an inline equation $E>0$ if $m>0$ and $$\int_0^\infty f(t) dt >0$$
 
 edb.stackup.add_layer("GND")
 edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
