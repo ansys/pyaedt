@@ -190,44 +190,27 @@ def adjust_image_path(app, docname, source):
     if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
         return
 
-    logger.info(f"Changing HTML image path in the '{docname}.py' file.")
+    logger.info(f"Changing HTML image path in '{docname}.py' file.")
     source[0] = source[0].replace('../../doc/source/_static', '../../_static')
 
-def remove_ipython_time_from_html(app, exception):
-    """This function removes '# %%time' from the generated HTML files.
+def remove_ipython_time_from_html(app, pagename, templatename, context, doctree):
+    """Remove '# %%time' from examples generated HTML files.
     """
-    if exception is not None:
-        return
+    if pagename.startswith("examples") and not pagename.endswith("/index"):
+        logger.info(f"Removing '# %%time' from file {pagename}")
+        pattern = r'<span class="o">%%time<\/span>\n'
+        context['body'] = re.sub(pattern, '', context['body'])  
 
-    # Walk through the HTML files
-    for dirpath, _, filenames in os.walk(app.builder.outdir):
-        for filename in filenames:
-            # Check if this is an HTML example file
-            if not os.path.dirname(dirpath).endswith('examples') or \
-                    not filename.endswith('.html') or \
-                    filename == "index.html":
-                continue
-            logger.info(f"Removing '# %%time' from file {filename}")
-            filepath = os.path.join(dirpath, filename)
-            with open(filepath, 'r') as file:
-                content = file.read()
-
-            # Define the pattern that matches the '%%time' line and replace it
-            pattern = r'<span class="o">%%time<\/span>\n'
-            content = re.sub(pattern, '', content)
-
-            with open(filepath, 'w') as file:
-                file.write(content)
 
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('builder-inited', copy_examples)
     app.connect('source-read', add_ipython_time)
     app.connect('source-read', adjust_image_path)
-    app.connect('builder-inited', copy_examples)
+    app.connect('html-page-context', remove_ipython_time_from_html)
     app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
-    app.connect('build-finished', remove_ipython_time_from_html)
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
