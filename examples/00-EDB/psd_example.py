@@ -54,7 +54,7 @@ plt.show()
 # - seconds
 # - third
 #
-# This is cool stuff! $ \int_{0}^{00}f(x)dx = 0 $
+# This is cool stuff! $$ \int_{0}^{infty}f(x)dx = 0 $$
 
 # +
 dt = np.pi / 100.
