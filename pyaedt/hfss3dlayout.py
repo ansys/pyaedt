@@ -148,9 +148,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
-
     @pyaedt_function_handler()
     def create_edge_port(
         self,

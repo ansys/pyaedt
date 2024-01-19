@@ -563,6 +563,3 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if is_loaded:
             app.close_project(save_project=False)
         return True
-
-    def __enter__(self):
-        return self
