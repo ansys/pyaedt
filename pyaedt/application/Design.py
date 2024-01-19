@@ -142,7 +142,7 @@ class Design(AedtObjects):
         if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
-    def __enter__(self):
+    def __enter__(self):  # pragma: no cover
         self._desktop_class._connected_app_instances += 1
         return self
 
