@@ -159,7 +159,7 @@ def add_ipython_time(app, docname, source):
             modified_lines.append(line)
         elif not in_code_cell:
             # Detect the start of a new code cell
-            if not stripped_line.startswith("# ") and stripped_line != "":
+            if not stripped_line.startswith("# ") and stripped_line not in ("", "#"):
                 in_code_cell = True
                 modified_lines.append('# %%time')
                 modified_lines.append(line)
