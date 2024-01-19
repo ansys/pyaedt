@@ -171,9 +171,6 @@ class Icepak(FieldAnalysis3D):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
-
     @property
     def problem_type(self):
         """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,

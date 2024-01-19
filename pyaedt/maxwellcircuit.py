@@ -204,6 +204,3 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             return file_to_export
         except:
             return False
-
-    def __enter__(self):
-        return self

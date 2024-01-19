@@ -484,7 +484,7 @@ class Desktop(object):
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
 
-        self._connected_designs = 0
+        self._connected_app_instances = 0
 
         """Initialize desktop."""
         self.launched_by_pyaedt = False
