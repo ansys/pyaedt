@@ -9,13 +9,13 @@
 #
 # The modulatiion index describes the relative maximum "on" time relative to the "off" time during a single PWM cycle.
 #
-# $ \frac{1-m}{2} \le m(t)\le \frac{1+m}{2} $. If the PWM period is $T$, then the instantaneous on-time,
+# $$ \frac{1-m}{2} \le m(t)\le \frac{1+m}{2} $$. If the PWM period is $T$, then the instantaneous on-time,
 #
-# $t_{on} = \frac{1}{T}\int_{t_0}^{t_0+T} 0.5 + 0.5\sin (2 \pi f t) dt $
+# $$ t_{on} = \frac{1}{T}\int_{t_0}^{t_0+T} 0.5 + 0.5\sin (2 \pi f t) dt $$
 #
 # where
 #
-# $ m(t) = \frac{t_{on}}{t_{on}+t_{off}}$
+# $$ m(t) = \frac{t_{on}}{t_{on}+t_{off}} $$
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -72,13 +72,17 @@ for m in range(n_pwm_cycles):  # Build the transient PWM signal.
 lpf = lambda _w, _f: np.convolve(_w / _w.sum(), _f, mode="valid")
 spectrum = lambda _f: np.fft.fft(_f, norm="forward")
 
-# ## Visualize the PWM Signal
-#
+# ## Rise and Fall time
+# Define the rise and fall times for plotting.
+
+trf = np.array([50, 500, 5000]) * 1e-9  # Use 3 values of the rise/fall time to compare spectra.
+
+# ## Generate Spectra
+# Apply filterting to an ideal PWM signal and generate the resulting spectrum. The filter emulate the finite rise/and fall time for the PWM transitions.
 # - Apply the windowing function ``lpf()`` to realize the rise/fall time in ``trf``.
 # - Plot the resulting signal and spectrum.
 
-trf = np.array([50, 500, 5000]) * 1e-9  # Rise/Fall times of pulse.
-
+# +
 fig = plt.figure(figsize=(5.6, 6.9))
 # axs = fig.subplots(nrows=2, sharex=False)
 axs = fig.subplot_mosaic([["all_time"], ["t_fine"], ["spectrum"]])
@@ -112,3 +116,6 @@ axs["spectrum"].set_ylim(1E-6, 1)
 axs["spectrum"].legend(loc="upper right")
 axs["t_fine"].legend(loc="best")
 plt.show()
+# -
+
+
