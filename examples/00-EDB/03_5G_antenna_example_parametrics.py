@@ -5,8 +5,8 @@ This example shows how you can use EDB to create a layout component parametrics 
 """
 
 ###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
 # and initializing it on version 2023 R2.
 
@@ -14,19 +14,14 @@ import tempfile
 import pyaedt
 import os
 
-
 ##########################################################
 # Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
-
-
 
 non_graphical = False
 
 ##########################################################
-# Creating data classes
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Creating data classes
+#
 # Data classes are useful to do calculations and store variables.
 # We create 3 Data classes for Patch, Line and Array
 
@@ -77,23 +72,18 @@ class LinearArray:
             [-1e-3, "{}/2+1e-3".format(self.width)],
         ]
 
+
 ###############################################################################
-# Launch EDB
-# ~~~~~~~~~~
+# ## Launch EDB
+#
 # PyAEDT.Edb allows to open existing Edb project or create a new empty project.
 
-
-tmpfold = tempfile.gettempdir()
-aedb_path = os.path.join(tmpfold, pyaedt.generate_unique_name("pcb") + ".aedb")
-print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+aedb_path = os.path.join(temp_dir.name, "linear_array.aedb")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")  # Create an instance of the Edb class.
 
 ###############################################################################
 # Add stackup layers
-# ~~~~~~~~~~~~~~~~~~
-# Add the stackup layers.
-
-
 
 edb.stackup.add_layer("Virt_GND")
 edb.stackup.add_layer("Gap", "Virt_GND", layer_type="dielectric", thickness="0.05mm", material="Air")
@@ -102,29 +92,24 @@ edb.stackup.add_layer("Substrat", "GND", layer_type="dielectric", thickness="0.5
 edb.stackup.add_layer("TOP", "Substrat")
 
 ###############################################################################
-# Create linear array
-# ~~~~~~~~~~~~~~~~~~~
-# Create the first patch of the linear array.
+# Create the the first patch and feed line using the ``Patch``, ``Line``classes defined above.
 
-
-
+# Define parameters:
 edb["w1"] = 1.4e-3
 edb["h1"] = 1.2e-3
 edb["initial_position"] = 0.0
 edb["l1"] = 2.4e-3
 edb["trace_w"] = 0.3e-3
+
 first_patch = Patch(width="w1", height="h1", position="initial_position")
 edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
-# First line
 
+# First line
 first_line = Line(length="l1", width="trace_w", position=first_patch.width)
 edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
 
 ###############################################################################
-# Patch linear array
-# ~~~~~~~~~~~~~~~~~~
-# Patch the linear array.
-
+# Now use the ``LinearArray`` class to create the array.
 
 edb["w2"] = 2.29e-3
 edb["h2"] = 3.3e-3
@@ -151,18 +136,12 @@ while current_patch <= linear_array.nbpatch:
 linear_array.length = current_position
 
 ###############################################################################
-# Add ground
-# ~~~~~~~~~~
-# Add a ground.
-
+# Add the ground conductor.
 
 edb.modeler.create_polygon(linear_array.points, "GND", net_name="GND")
 
 ###############################################################################
-# Add connector pin
-# ~~~~~~~~~~~~~~~~~
-# Add a central connector pin.
-
+# Add connector pin that will be used to assign the port.
 
 edb.padstacks.create(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
 con_pin = edb.padstacks.place(
@@ -175,10 +154,7 @@ con_pin = edb.padstacks.place(
 )
 
 ###############################################################################
-# Add connector ground
-# ~~~~~~~~~~~~~~~~~~~~
 # Add a connector ground.
-
 
 edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
 edb.padstacks.create("gnd_via", "100um", "0", "0")
@@ -214,56 +190,52 @@ con_ref4 = edb.padstacks.place(
 
 
 ################################################################################
-# Add excitation port
-# ~~~~~~~~~~~~~~~~~~~
-# Add an excitation port.
-
+# Define the port.
 
 edb.padstacks.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
 port_name = edb.padstacks.create_coax_port(con_pin)
 
-
 ###############################################################################
-# Plot geometry
-# ~~~~~~~~~~~~~
-# Plot the geometry.
-
+# Display the model using the ``Edb.nets.plot()`` method.
 
 edb.nets.plot()
 
-
 ###############################################################################
-# Save and close Edb instance prior to opening it in Electronics Desktop.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Save EDB.
-
+# The EDB is complete. Now close the EDB and import it into HFSS as a "Layout Component".
 
 edb.save_edb()
 edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
+###############################################################################
+# ## 3D Component in HFSS
+#
+# First create an instance of the ``pyaedt.Hfss`` class. If you set
+# > ``non_graphical = False
+#
+# then AEDT user interface will be visible after the following cell is executed. It is now possible to monitor the progress in the UI as each of the following cells is executed. All commands can be run without the UI by chaning the value of ``non_graphical``.
+
+h3d = pyaedt.Hfss(specified_version="2023.2", 
+                  new_desktop_session=True, 
+                  non_graphical=non_graphical,
+                  close_on_exit=True, 
+                  solution_type="Terminal")
+
+# Set units to mm.
+h3d.modeler.model_units = "mm"
 
 ###############################################################################
-# Launch HFSS 3D
-# ~~~~~~~~~~~~~~
-# Launch HFSS 3D.
-
-h3d = pyaedt.Hfss(specified_version="2023.2", new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
-
-###############################################################################
-# Add the layout component
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Hfss allows user to add Layout components (aedb) or 3D Components into a 3D Design 
-# and benefit of different functionalities like parametrization, mesh fusion and others.
-
+# ## Import the EDB as a 3D Component
+#
+# One or more layout components can be imported into HFSS. The combination of layout data and 3D CAD data helps streamline
+# model creation and setup.
 
 component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)
 
 ###############################################################################
-# Edit Parameters
-# ~~~~~~~~~~~~~~~
+# ## Expose the Component Paramers
+#
 # If a layout component is parametric, parameters can be exposed and changed in HFSS
-
 
 component.parameters
 
@@ -271,52 +243,39 @@ w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
 h3d[w1_name]= 0.0015
 
 ###############################################################################
-# Boundaries
-# ~~~~~~~~~~
-# To run the simulation we need an airbox to which apply radiation boundaries.
-# We don't need to create ports because are embedded in layout component.
-
+# ### Radiation Boundary Assignment
+#
+# The 3D domain includes the air volume surrounding the antenna. This antenna will be simulted from 20 GHz - 50 GHz.
+#
+# A "radiation boundary" will be assigned to the outer boundaries of the domain. This boundary should be roughly one quarter wavelength away from the radiating strucure:
+#
+# $$ \lambda/4 = \frac{c_0}{4 f} \approx 2.8mm $$
 
 h3d.modeler.fit_all()
 
-
-h3d.modeler.create_air_region(130,400,1000, 130,400,300)
+h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False) 
 h3d.assign_radiation_boundary_to_objects("Region")
 
 ###############################################################################
-# Create setup and sweeps
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# Getters and setters facilitate the settings on the nested property dictionary.
-# 
-# - ``setup.props['Frequency']="20GHz"``
-# 
-# 
-# You can now use the simpler approach that follows.
-# 
-# 
-
+# ### Analysis Setup
+#
+# The finite element mesh is adapted iteratively. The maximum number of adaptive passes is set using the ``MaximumPasses`` property.  This model will converge such that the $S_{11}$ will be independent of the mesh. The default accuracy setting is:
+# $$ \max(|\Delta S|) < 0.02 $$
 
 setup = h3d.create_setup()
-
 setup.props['Frequency']="20GHz"
-setup.props['MaximumPasses'] = 2
+setup.props['MaximumPasses'] = 10
 
-sweep1 = setup.add_sweep()
+# Specify properties of the frequency sweep:
+sweep1 = setup.add_sweep(sweepname="20GHz_to_50GHz")
 sweep1.props["RangeStart"]="20GHz"
 sweep1.props["RangeEnd"]="50GHz"
 sweep1.update()
 
 ###############################################################################
-# Solve setup and create report
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Solve the project and create a report.
-
-
+# Solve the project
 
 h3d.analyze()
-
-
-
 
 ###############################################################################
 # Plot results outside AEDT
@@ -364,8 +323,6 @@ new_report.create("Realized3D")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot Radiation patterns outside AEDT.
 
-
-
 solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
@@ -374,7 +331,6 @@ solutions_custom.plot_3d()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot E Field on nets and layers in AEDT.
 
-
 h3d.post.create_fieldplot_layers_nets(
             [["TOP","Array_antenna"]],
             "Mag_E",
@@ -382,17 +338,19 @@ h3d.post.create_fieldplot_layers_nets(
             plot_name="E_Layers",
         )
 
-
 ###############################################################################
-# Close AEDT
-# ~~~~~~~~~~
-# After the simulation completes, you can close AEDT or release it using the
+# ## Close AEDT
+#
+# After the simulation completes, the application can be released from the 
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
-
 
 h3d.save_project(os.path.join(tmpfold, "test_layout.aedt"))
 h3d.release_desktop()
 
+###############################################################################
+# ### Temp Directory Cleanup
+#
+# The following command removes the project and the temporary directory. If you'd like to save this project, save it to a folder of your choice prior to running the following cell.
 
-
+temp_dir.cleanup()
