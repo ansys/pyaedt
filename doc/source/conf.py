@@ -3,14 +3,16 @@
 # -- Project information -----------------------------------------------------
 import datetime
 import os
+import re
 import pathlib
 import sys
 import warnings
+from sphinx.util import logging
 
 import pyvista
 import numpy as np
 import json
-from sphinx_gallery.sorting import FileNameSortKey
+# from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (ansys_favicon, 
                                 get_version_match, pyansys_logo_black,
                                 watermark, 
@@ -42,6 +44,11 @@ LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
 
+logger = logging.getLogger(__name__)
+
+path = pathlib.Path(__file__).parent.parent.parent / "examples"
+EXAMPLES_DIRECTORY = path.resolve()
+
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
     required_arguments = 1
@@ -60,6 +67,18 @@ class PrettyPrintDirective(Directive):
                 addnodes.desc_content('', literal)
         ]
 
+# Sphinx event hooks
+
+def directory_size(directory_path):
+    """Compute the size (in mega bytes) of a directory."""
+    res = 0
+    for path, _, files in os.walk(directory_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            res += os.stat(fp).st_size
+    # Convert in mega bytes
+    res /= 1e6
+    return res
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     try:
@@ -70,18 +89,128 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
     # return True if exclude else None
 
-
 def remove_doctree(app, exception):
     """Remove the .doctree directory created during the documentation build.
     """
+    size = directory_size(app.doctreedir)
+    logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
     shutil.rmtree(app.doctreedir)
+    logger.info(f"Doctree removed.")
+
+def copy_examples(app):
+    """Copy directory examples (root directory) files into the doc/source/examples directory.
+    """
+    DESTINATION_DIRECTORY = pathlib.Path(app.srcdir, "examples").resolve()
+    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {DESTINATION_DIRECTORY}.")
+    if os.path.exists(DESTINATION_DIRECTORY):
+        size = directory_size(DESTINATION_DIRECTORY)
+        logger.info(f"Directory {DESTINATION_DIRECTORY} ({size} MB) already exist, removing it.")
+        shutil.rmtree(DESTINATION_DIRECTORY)
+        logger.info(f"Directory removed.")
+
+    shutil.copytree(EXAMPLES_DIRECTORY, DESTINATION_DIRECTORY)
+    logger.info(f"Copy performed")
+
+def remove_examples(app, exception):
+    """Remove the doc/source/examples directory created during the documentation build.
+    """
+    DESTINATION_DIRECTORY = pathlib.Path(app.srcdir) / "examples"
+    size = directory_size(DESTINATION_DIRECTORY)
+    logger.info(f"Removing directory {DESTINATION_DIRECTORY} ({size} MB).")
+    shutil.rmtree(DESTINATION_DIRECTORY)
+    logger.info(f"Directory removed.")
+
+def add_ipython_time(app, docname, source):
+    """Add '# %%time' to every code cell in an example Python script.
+    """
+    # Get the full path to the document
+    docpath = os.path.join(app.srcdir, docname)
+
+    # Check if this is a .py example file
+    if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
+        return
+
+    logger.info(f"Adding '# %%time' to file {docname}.py")
+    lines = source[0].split("\n")
+    modified_lines = []
+    in_code_cell = False
+    in_code_cell_plus = False
+
+    for line in lines:
+        stripped_line = line.strip()
+        # Detect the start of a new code cell
+        if stripped_line.startswith('# +'):
+            in_code_cell = True
+            in_code_cell_plus = True
+            modified_lines.append(line)
+            modified_lines.append('# %%time')
+        # Detect the end of a code cell
+        elif stripped_line.startswith('# -'):
+            in_code_cell = False
+            in_code_cell_plus = False
+            modified_lines.append(line)
+        # Detect already being in a code cell
+        elif in_code_cell and in_code_cell_plus:
+            modified_lines.append(line)
+        elif in_code_cell and not in_code_cell_plus:
+            # Detect being out of a code cell
+            if stripped_line == "":
+                in_code_cell = False
+            modified_lines.append(line)
+        elif not in_code_cell:
+            # Detect the start of a new code cell
+            if not stripped_line.startswith("# ") and stripped_line not in ("", "#"):
+                in_code_cell = True
+                modified_lines.append('# %%time')
+                modified_lines.append(line)
+            # Detect already being out of a code cell
+            else:
+                modified_lines.append(line)
+        else:
+            raise Exception("not handled")
+
+    # Update the source
+    source[0] = "\n".join(modified_lines)
+    # logger.info(source[0])
+
+def adjust_image_path(app, docname, source):
+    """Adjust the HTML label used to insert images in the examples.
+    
+    The following path makes the examples in the root directory work:
+    # <img src="../../doc/source/_static/diff_via.png" width="500">
+    However, examples fail when used through the documentation build because
+    reaching the associated path should be "../../_static/diff_via.png".
+    Indeed, the directory ``_static`` is automatically copied into the output directory
+    ``_build/html/_static``.
+    """
+    # Get the full path to the document
+    docpath = os.path.join(app.srcdir, docname)
+
+    # Check if this is a PY example file
+    if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
+        return
+
+    logger.info(f"Changing HTML image path in '{docname}.py' file.")
+    source[0] = source[0].replace('../../doc/source/_static', '../../_static')
+
+def remove_ipython_time_from_html(app, pagename, templatename, context, doctree):
+    """Remove '# %%time' from examples generated HTML files.
+    """
+    if pagename.startswith("examples") and not pagename.endswith("/index"):
+        logger.info(f"Removing '# %%time' from file {pagename}")
+        pattern = r'<span class="o">%%time<\/span>\n'
+        context['body'] = re.sub(pattern, '', context['body'])  
 
 
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('builder-inited', copy_examples)
+    app.connect('source-read', add_ipython_time)
+    app.connect('source-read', adjust_image_path)
+    app.connect('html-page-context', remove_ipython_time_from_html)
+    app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
-
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
@@ -120,6 +249,9 @@ os.environ["PYAEDT_DOC_GENERATION"] = "1"
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.graphviz",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
@@ -129,13 +261,15 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_jinja",
+    "nbsphinx",
     "recommonmark",
-    "sphinx.ext.graphviz",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.inheritance_diagram",
     "numpydoc",
     "ansys_sphinx_theme.extension.linkcode",
+    # "myst_parser"
 ]
+
+# MathJax config
+# myst_update_mathjax = False
 
 # Intersphinx mapping
 intersphinx_mapping = {
@@ -212,7 +346,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt"]
+exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt", "conf.py", "Resources/PyAEDTInstallerFromDesktop.py"]
 
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
 inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
@@ -236,6 +370,22 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
+# Execute notebooks before convertion
+nbsphinx_execute = "always"
+
+# Allow errors to help debug.
+nbsphinx_allow_errors = True
+
+# Sphinx gallery customization
+
+nbsphinx_thumbnails = {
+    "examples/00-EDB/00_EDB_Create_VIA": "_static/thumbnails/diff_via.png",
+}
+
+nbsphinx_custom_formats = {
+    # ".py": ["jupytext.reads", {"fmt": "",  "cell_metadata_filter": "ExecuteTime"}],
+    ".py": ["jupytext.reads", {"fmt": ""}],
+}
 
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
@@ -267,33 +417,33 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
-    if config["run_examples"]:
-        extensions.append("sphinx_gallery.gen_gallery")
+    # if config["run_examples"]:
+    #     extensions.append("sphinx_gallery.gen_gallery")
 
-        sphinx_gallery_conf = {
-            # convert rst to md for ipynb
-            "pypandoc": True,
-            # path to your examples scripts
-            "examples_dirs": ["../../examples/"],
-            # path where to save gallery generated examples
-            "gallery_dirs": ["examples"],
-            # Pattern to search for examples files
-            "filename_pattern": r"\.py",
-            # Remove the "Download all examples" button from the top level gallery
-            "download_all_examples": False,
-            # Sort gallery examples by file name instead of number of lines (default)
-            "within_subsection_order": FileNameSortKey,
-            # directory where function granular galleries are stored
-            "backreferences_dir": None,
-            # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-pyaedt",
-            "image_scrapers": ("pyvista", "matplotlib"),
-            "ignore_pattern": "flycheck*",
-            "thumbnail_size": (350, 350),
-            # 'first_notebook_cell': ("%matplotlib inline\n"
-            #                         "from pyvista import set_plot_theme\n"
-            #                         "set_plot_theme('document')"),
-        }
+    #     sphinx_gallery_conf = {
+    #         # convert rst to md for ipynb
+    #         "pypandoc": True,
+    #         # path to your examples scripts
+    #         "examples_dirs": ["../../examples/"],
+    #         # path where to save gallery generated examples
+    #         "gallery_dirs": ["examples"],
+    #         # Pattern to search for examples files
+    #         "filename_pattern": r"\.py",
+    #         # Remove the "Download all examples" button from the top level gallery
+    #         "download_all_examples": False,
+    #         # Sort gallery examples by file name instead of number of lines (default)
+    #         "within_subsection_order": FileNameSortKey,
+    #         # directory where function granular galleries are stored
+    #         "backreferences_dir": None,
+    #         # Modules for which function level galleries are created.  In
+    #         "doc_module": "ansys-pyaedt",
+    #         "image_scrapers": ("pyvista", "matplotlib"),
+    #         "ignore_pattern": "flycheck*",
+    #         "thumbnail_size": (350, 350),
+    #         # 'first_notebook_cell': ("%matplotlib inline\n"
+    #         #                         "from pyvista import set_plot_theme\n"
+    #         #                         "set_plot_theme('document')"),
+    #     }
 
 jinja_contexts = {
     "main_toctree": {
@@ -362,7 +512,8 @@ html_static_path = ["_static"]
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'custom.css',
+    'css/custom.css',
+    'css/highlight.css',
 ]
 
 
