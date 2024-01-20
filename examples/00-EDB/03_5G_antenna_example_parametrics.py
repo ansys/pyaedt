@@ -278,8 +278,8 @@ sweep1.update()
 h3d.analyze()
 
 ###############################################################################
-# Plot results outside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot results outside AEDT
+#
 # Plot results using Matplotlib.
 
 trace = h3d.get_traces_for_plot()
@@ -288,8 +288,8 @@ solution.plot()
 
 
 ################################################################################
-# Plot Far Fields in AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot Far Fields in AEDT
+#
 # Plot Radiation patterns in AEDT.
 
 
@@ -307,8 +307,8 @@ new_report.create("Realized2D")
 
 
 ################################################################################
-# Plot Far Fields in AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot Far Fields in AEDT
+#
 # Plot Radiation patterns in AEDT.
 
 
@@ -319,16 +319,16 @@ new_report.create("Realized3D")
 
 
 ################################################################################
-# Plot Far Fields outside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot Far Fields outside AEDT
+#
 # Plot Radiation patterns outside AEDT.
 
 solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
 ################################################################################
-# Plot E Field on nets and layers
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot E Field on nets and layers
+#
 # Plot E Field on nets and layers in AEDT.
 
 h3d.post.create_fieldplot_layers_nets(
