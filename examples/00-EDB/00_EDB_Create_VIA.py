@@ -1,13 +1,10 @@
 # # EDB: geometry creation
 
 # This example shows how you can use EDB to create a layout.
-
 # ## Final expected project
-
 # <img src="_static/diff_via.png" width="500">
-
+#
 # ## Import EDB layout object
-
 # Import the EDB layout object and initialize it on version 2023 R2.
 
 # +
@@ -22,7 +19,6 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 # -
 
 # ## Add stackup layers
-
 # Add stackup layers.
 # A stackup can be created layer by layer or imported from a csv file or xml file.
 #
@@ -34,7 +30,6 @@ edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm",
 edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
 # ## Create signal net and ground planes
-
 # Create a signal net and ground planes.
 
 points = [[0.0, 0], [100e-3, 0.0]]
@@ -46,7 +41,6 @@ edb.modeler.create_polygon(points, "TOP")
 
 
 # ## Create vias with parametric positions
-
 # Create vias with parametric positions.
 
 edb.padstacks.create("MyVia")
@@ -69,7 +63,6 @@ edb.nets.plot(None, color_by_net=True)
 edb.stackup.plot(plot_definitions="MyVia")
 
 # ## Save and close EDB
-
 # Save and close EDB.
 
 if edb:
