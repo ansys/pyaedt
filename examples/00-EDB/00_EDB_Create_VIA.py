@@ -11,9 +11,10 @@
 import time
 import os
 import pyaedt
+import tempfile
 
-start = time.time()
-aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
 print(aedb_path)
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 # -
@@ -21,9 +22,6 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 # ## Add stackup layers
 # Add stackup layers.
 # A stackup can be created layer by layer or imported from a csv file or xml file.
-#
-# ### Test Equations
-# This is an inline equation $E>0$ if $m>0$ and $$\int_0^\infty f(t) dt >0$$
 
 edb.stackup.add_layer("GND")
 edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
@@ -69,5 +67,9 @@ if edb:
     edb.save_edb()
     edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
-end = time.time() - start
-print(end)
+
+# ### Temp Directory Cleanup
+#
+# The following command removes the project and the temporary directory. If you'd like to save this project, save it to a folder of your choice prior to running the following cell.
+
+temp_dir.cleanup()
