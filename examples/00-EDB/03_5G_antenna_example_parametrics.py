@@ -215,7 +215,9 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 #
 # then AEDT user interface will be visible after the following cell is executed. It is now possible to monitor the progress in the UI as each of the following cells is executed. All commands can be run without the UI by chaning the value of ``non_graphical``.
 
-h3d = pyaedt.Hfss(specified_version="2023.2", 
+h3d = pyaedt.Hfss(projectname="Demo_3DComp",
+                  designname="Linear_Array",
+                  specified_version="2023.2",
                   new_desktop_session=True, 
                   non_graphical=non_graphical,
                   close_on_exit=True, 
