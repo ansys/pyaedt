@@ -163,7 +163,8 @@ sim_setup.ac_settings.step_freq = "1GHz"
 edb.build_simulation_project(sim_setup)
 
 ###########################
-# Save the EDB and open it in the 3D Layout editor.
+# Save the EDB and open it in the 3D Layout editor. If ``non_graphical==False``
+# there may be a delay while AEDT started.
 
 edb.save_edb()
 edb.close_edb()
@@ -185,7 +186,7 @@ h3d = pyaedt.Hfss3dLayout(specified_version="2023.2",
 h3d.release_desktop(close_projects=True, close_desktop=True)
 
 ###############################################################################
-# ### Temp Directory Cleanup
+# ### Clean up the Temporary Directory
 #
 # The following command cleans up the temporary directory, thereby removing all 
 # project files. If you'd like to save this project, save it to a folder of your choice 
