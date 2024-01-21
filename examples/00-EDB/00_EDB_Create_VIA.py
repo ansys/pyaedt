@@ -2,6 +2,7 @@
 
 # This example shows how you can use EDB to create a layout.
 # ## Final expected project
+#
 # <img src="_static/diff_via.png" width="500">
 #
 # ## Import EDB layout object
