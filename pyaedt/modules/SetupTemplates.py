@@ -1628,8 +1628,6 @@ class SetupKeys:
         "ElectroDCConduction",
         "ElectroDCConduction",
         "IcepakSteadyState",
-        "IcepakSteadyState",
-        "IcepakSteadyState",
         "Matrix",
         "NexximLNA",
         "NexximDC",
