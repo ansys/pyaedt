@@ -25,6 +25,8 @@ encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
 primitive_json_file = "primitives_file.json"
 primitive_csv_file = "cylinder_geometry_creation.csv"
+primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
+primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.csv"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -1857,6 +1859,13 @@ class TestClass:
         primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_csv_file)
         primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
         assert len(primitive_names) == 2
+        self.aedtapp.insert_design("PrimitiveFromFileTest")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_csv_file_wrong_keys)
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_csv_file_missing_values)
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
 
     def test_90_primitives_builder(self, add_app):
         from pyaedt.generic.DataHandlers import json_to_dict

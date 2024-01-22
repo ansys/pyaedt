@@ -8494,7 +8494,7 @@ class PrimitivesBuilder(object):
             "Number of Segments": 0,
         }
         instances_props = {"Name": "", "Coordinate System": "Global", "Origin": [0, 0, 0]}
-
+        required_csv_keys = ["name", "xc", "yc", "zc", "plane", "radius", "iradius", "height"]
         # Take the keys
         csv_keys = []
         index_row = 0
@@ -8504,15 +8504,19 @@ class PrimitivesBuilder(object):
                 csv_keys = csv_keys.tolist()
                 break
 
+        if not all(k in required_csv_keys for k in csv_keys):
+            msg = "The column names in the CSV file do not match the expected names."
+            self.logger.error(msg)
+            raise ValueError
         # Create instances and primitives
         props_cyl = {}
         row_cont = 0
         for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
             row_info = row.dropna().values
             if len(row_info) != len(csv_keys):
-                msg = "CSV file not valid."
+                msg = "Values missing in the CSV file "
                 self.logger.error(msg)
-                return props_cyl
+                raise ValueError
 
             if not props_cyl:
                 props_cyl = {"Primitives": [primitive_props], "Instances": [instances_props]}
