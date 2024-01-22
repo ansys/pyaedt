@@ -909,10 +909,12 @@ class Setup(CommonSetup):
             Name of the solution in the format ``"setupname : solutionname"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``
         map_variables_by_name : bool, optional
-            Wether variables are mapped by name from source design or not. The default is True.
+            Wether variables are mapped by name from the source design. The default is
+            ``True``.
         parameters_dict : dict, optional
-            Dictionary of the parameters. Not considered if map_variables_by_name = True.
-            If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
+            Dictionary of the parameters. This parameter is not considered if
+            ``map_variables_by_name = True``. If ``None``, the default value is
+            ``appname.available_variations.nominal_w_values_dict``.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
