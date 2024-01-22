@@ -996,7 +996,7 @@ class Setup(CommonSetup):
             self.props["PreservePartnerSoln"] = preserve_partner_solution
 
             self.props["IsGeneralTransient"] = True
-            if self.props["IsHalfPeriodicTransient"] == True:
+            if self.props["IsHalfPeriodicTransient"]:
                 raise UserWarning(
                     "Half periodic TDM disabled because is not "
                     "supported with start/continue from a previously solved setup."
