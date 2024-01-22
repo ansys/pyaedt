@@ -909,7 +909,7 @@ class Setup(CommonSetup):
             Name of the solution in the format ``"setupname : solutionname"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``
         map_variables_by_name : bool, optional
-            Wether variables are mapped by name from the source design. The default is
+            Whether variables are mapped by name from the source design. The default is
             ``True``.
         parameters_dict : dict, optional
             Dictionary of the parameters. This parameter is not considered if
@@ -1011,7 +1011,7 @@ class Setup(CommonSetup):
 
 
 class SetupCircuit(CommonSetup):
-    """Initializes, creates, and updates a circuit setup.
+    """Manages a circuit setup.
 
     Parameters
     ----------
