@@ -3215,3 +3215,4 @@ class TestClass:
         assert len(poly_test) == 1
         assert poly_test[0].center == [0.005, 0.005]
         assert poly_test[0].bbox == [0.0, 0.0, 0.01, 0.01]
+        edbapp.close_edb()
