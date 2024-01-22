@@ -21,9 +21,6 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Maxwell(object):
-    def __enter__(self):
-        return self
-
     def __init__(self):
         pass
 
