@@ -3,11 +3,11 @@ from collections import OrderedDict
 import os
 import shutil
 
-import pyaedt
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
+import pyaedt
 from pyaedt import Maxwell2d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -465,34 +465,26 @@ class TestClass:
 
         self.aedtapp.create_setup(setupname="test_setup")
         assert self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="induction_source",
-            solution_name="Setup1 : Transient"
+            design_name="induction_source", solution_name="Setup1 : Transient"
         )
         self.aedtapp.delete_setup(setupname="test_setup")
         self.aedtapp.create_setup(setupname="test_setup")
         assert self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="induction_source",
-            solution_name="Setup1 : Transient",
-            map_variables_by_name=False
+            design_name="induction_source", solution_name="Setup1 : Transient", map_variables_by_name=False
         )
         self.aedtapp.delete_setup(setupname="test_setup")
         self.aedtapp.create_setup(setupname="test_setup")
         assert not self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="",
-            solution_name="Setup1 : Transient"
+            design_name="", solution_name="Setup1 : Transient"
         )
         self.aedtapp.delete_setup(setupname="test_setup")
         self.aedtapp.create_setup(setupname="test_setup")
         assert not self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="induction_source",
-            solution_name=""
+            design_name="induction_source", solution_name=""
         )
         self.aedtapp.delete_setup(setupname="test_setup")
         self.aedtapp.create_setup(setupname="test_setup")
-        assert not self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="",
-            solution_name=""
-        )
+        assert not self.aedtapp.setups[1].start_continue_from_previous_setup(design_name="", solution_name="")
 
         example_project = os.path.join(local_path, "example_models", test_subfolder, test_name + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
@@ -501,7 +493,5 @@ class TestClass:
         self.aedtapp.create_setup(setupname="test_setup")
         assert os.path.exists(example_project_copy)
         assert self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="induction_source",
-            solution_name="Setup1 : Transient",
-            project_name=example_project_copy
+            design_name="induction_source", solution_name="Setup1 : Transient", project_name=example_project_copy
         )
