@@ -892,7 +892,7 @@ class Setup(CommonSetup):
     def start_continue_from_previous_setup(
         self,
         design_name,
-        solution_name=None,
+        solution_name,
         map_variables_by_name=True,
         parameters_dict=None,
         project_name="This Project*",

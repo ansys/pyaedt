@@ -3,6 +3,7 @@ from collections import OrderedDict
 import os
 import shutil
 
+import pyaedt
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
@@ -457,3 +458,50 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_34_start_continue_from_previous_setup(self):
+        self.aedtapp.save_project()
+        self.aedtapp.set_active_design("induction_target")
+
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="induction_source",
+            solution_name="Setup1 : Transient"
+        )
+        self.aedtapp.delete_setup(setupname="test_setup")
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="induction_source",
+            solution_name="Setup1 : Transient",
+            map_variables_by_name=False
+        )
+        self.aedtapp.delete_setup(setupname="test_setup")
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert not self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="",
+            solution_name="Setup1 : Transient"
+        )
+        self.aedtapp.delete_setup(setupname="test_setup")
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert not self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="induction_source",
+            solution_name=""
+        )
+        self.aedtapp.delete_setup(setupname="test_setup")
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert not self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="",
+            solution_name=""
+        )
+
+        example_project = os.path.join(local_path, "example_models", test_subfolder, test_name + ".aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
+        self.aedtapp.set_active_design("induction_target")
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert os.path.exists(example_project_copy)
+        assert self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="induction_source",
+            solution_name="Setup1 : Transient",
+            project_name=example_project_copy
+        )
