@@ -1626,7 +1626,7 @@ class SetupKeys:
         "EddyCurrent",
         "Electrostatic",
         "ElectroDCConduction",
-        "ElectroDCConduction",
+        "ElectricTransient",
         "IcepakSteadyState",
         "IcepakSteadyState",
         "IcepakSteadyState",
