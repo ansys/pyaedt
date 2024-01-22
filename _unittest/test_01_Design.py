@@ -410,3 +410,12 @@ class TestClass:
         assert "AmbRadTemp" in design_settings_dict
         assert "GravityVec" in design_settings_dict
         assert "GravityDir" in design_settings_dict
+
+    def test_41_desktop_reference_counting(self, desktop):
+        num_references = desktop._connected_app_instances
+        with Hfss() as hfss:
+            assert hfss
+            assert desktop._connected_app_instances == num_references + 1
+            hfss.set_active_design(hfss.design_name)
+            assert desktop._connected_app_instances == num_references + 1
+        assert desktop._connected_app_instances == num_references

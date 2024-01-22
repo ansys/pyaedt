@@ -154,9 +154,6 @@ class Circuit(FieldAnalysisCircuit, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
-
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
         value = value.replace("µ", "u")

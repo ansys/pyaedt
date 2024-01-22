@@ -82,9 +82,6 @@ class QExtractor(FieldAnalysis3D, object):
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
 
-    def __enter__(self):
-        return self
-
     @property
     def excitations(self):
         """Get all excitation names.
