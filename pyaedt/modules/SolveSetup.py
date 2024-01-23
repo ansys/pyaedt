@@ -907,7 +907,7 @@ class Setup(CommonSetup):
             Name of the design.
         solution_name : str, optional
             Name of the solution in the format ``"setupname : solutionname"``.
-            For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``
+            For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
         map_variables_by_name : bool, optional
             Whether variables are mapped by name from the source design. The default is
             ``True``.
@@ -919,9 +919,9 @@ class Setup(CommonSetup):
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
         force_source_to_solve : bool, optional
-            Default value is ``True``.
+            The default is ``True``.
         preserve_partner_solution : bool, optional
-            Default value is ``True``.
+            The default is ``True``.
 
         Returns
         -------
@@ -935,9 +935,9 @@ class Setup(CommonSetup):
 
         Examples
         --------
-        >> > m2d = pyaedt.Maxwell2d()
-        >> > setup = m2d.get_setup("Setup1")
-        >> > setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
+        >>> m2d = pyaedt.Maxwell2d()
+        >>> setup = m2d.get_setup("Setup1")
+        >>> setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
 
         """
 
@@ -998,7 +998,7 @@ class Setup(CommonSetup):
             self.props["IsGeneralTransient"] = True
             if self.props["IsHalfPeriodicTransient"]:
                 raise UserWarning(
-                    "Half periodic TDM disabled because is not "
+                    "Half periodic TDM disabled because it is not "
                     "supported with start/continue from a previously solved setup."
                 )
 
