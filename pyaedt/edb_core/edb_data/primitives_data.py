@@ -1031,11 +1031,11 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                     _vector = self._edb.Geometry.PointData(
                         self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
                     )
-                    polygonData = self._edb.Geometry.PolygonData.CreateFromArcs(
+                    polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
                         self.polygon_data.edb_api.GetArcData(), True
                     )
-                    polygonData.Move(_vector)
-                    return self.api_object.SetPolygonData(polygonData)
+                    polygon_data.Move(_vector)
+                    return self.api_object.SetPolygonData(polygon_data)
         return False
 
     @pyaedt_function_handler()
