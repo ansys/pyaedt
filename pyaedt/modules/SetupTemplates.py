@@ -205,7 +205,7 @@ DCConduction = OrderedDict(
         "SolveMatrixAtLast": True,
         "UseNonLinearIterNum": False,
         "UseIterativeSolver": False,
-        "RelativeResidual": 1E-06,
+        "RelativeResidual": 1e-06,
         "NonLinearResidual": 0.001,
     }
 )
@@ -224,7 +224,7 @@ ElectroDCConduction = OrderedDict(
         "SolveMatrixAtLast": True,
         "UseNonLinearIterNum": False,
         "UseIterativeSolver": False,
-        "RelativeResidual": 1E-06,
+        "RelativeResidual": 1e-06,
         "NonLinearResidual": 0.001,
     }
 )
