@@ -1,7 +1,8 @@
 """
 EDB: Layout Components
 ----------------------
-This example shows how you can use EDB to create a layout component parametrics and use it in HFSS 3D.
+This example shows how you can use EDB to create a parametric component using
+ 3D Layout and use it in HFSS 3D.
 """
 
 ###############################################################################

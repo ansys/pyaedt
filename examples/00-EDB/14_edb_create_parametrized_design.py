@@ -2,7 +2,7 @@
 EDB: parameterized design
 ------------------------
 This example shows how to
-1, Create an HFSS simulation project using SimulationConfiguration class.
+1, Set up an HFSS project using SimulationConfiguration class.
 2, Create automatically parametrized design.
 """
 ######################################################################
