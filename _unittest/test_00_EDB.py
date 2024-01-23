@@ -3201,11 +3201,12 @@ class TestClass:
         assert edbapp.components.instances["Test"].ind_value == "0"
         assert edbapp.components.instances["Test"].cap_value == "0"
         assert edbapp.components.instances["Test"].center == [0.06800000116, 0.01649999875]
+        edbapp.close_edb()
 
     def test_161_create_polygon_check(self):
         example_folder = os.path.join(local_path, "example_models", test_subfolder)
         source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
-        target_path_edb = os.path.join(self.local_scratch.path, "test_component", "test.aedb")
+        target_path_edb = os.path.join(self.local_scratch.path, "test_create_polygon", "test.aedb")
         self.local_scratch.copyfolder(source_path_edb, target_path_edb)
         edbapp = Edb(target_path_edb, desktop_version)
         edbapp.modeler.create_polygon(
