@@ -58,7 +58,7 @@ jobs:
     steps:
 
       - name: Deploy development documentation
-        uses: ansys/actions/doc-deploy-dev@v5
+        uses: ansys/actions/doc-deploy-dev@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -70,13 +70,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
 
       - name: Display structure of downloaded files
         run: ls -R
       
       - name: "Deploy the dev documentation index for PyAEDT API"
-        uses: ansys/actions/doc-deploy-index@v5
+        uses: ansys/actions/doc-deploy-index@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev
           index-name: pyaedt-vdev
@@ -85,7 +85,7 @@ jobs:
           pymeilisearchopts: --stop_urls \"EDBAPI\" # Add EDB API as another index to show it in dropdown button
 
       - name: "Deploy the dev documentation index for EDB API"
-        uses: ansys/actions/doc-deploy-index@v5
+        uses: ansys/actions/doc-deploy-index@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev/EDBAPI/
           index-name: pyedb-vdev

@@ -190,10 +190,6 @@ class Emit(Design, object):
         return self._couplings
 
     @pyaedt_function_handler()
-    def __enter__(self):
-        return self
-
-    @pyaedt_function_handler()
     def version(self, detailed=False):
         """
         Get version information.

@@ -239,9 +239,6 @@ class Rmxprt(FieldAnalysisRMxprt):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
-
     @property
     def design_type(self):
         """Machine design type."""
