@@ -457,3 +457,36 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_34_start_continue_from_previous_setup(self):
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+
+        assert self.aedtapp.setups[0].start_continue_from_previous_setup(
+            design_name="design_for_test", solution_name="Setup1 : Transient"
+        )
+        assert self.aedtapp.setups[0].props["PrevSoln"]["Project"] == "This Project*"
+        assert self.aedtapp.setups[0].props["PrevSoln"]["Design"] == "design_for_test"
+        assert self.aedtapp.setups[0].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
+        assert self.aedtapp.setups[1].start_continue_from_previous_setup(
+            design_name="design_for_test", solution_name="Setup1 : Transient", map_variables_by_name=False
+        )
+        assert self.aedtapp.setups[1].props["PrevSoln"]["Project"] == "This Project*"
+        assert self.aedtapp.setups[1].props["PrevSoln"]["Design"] == "design_for_test"
+        assert self.aedtapp.setups[1].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
+        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(
+            design_name="", solution_name="Setup1 : Transient"
+        )
+        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(
+            design_name="design_for_test", solution_name=""
+        )
+        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(design_name="", solution_name="")
+
+        example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
+        assert os.path.exists(example_project_copy)
+        self.aedtapp.create_setup(setupname="test_setup")
+        assert self.aedtapp.setups[2].start_continue_from_previous_setup(
+            design_name="design_for_test", solution_name="Setup1 : Transient", project_name=example_project_copy
+        )
+        assert self.aedtapp.setups[2].props["PrevSoln"]["Project"] == example_project_copy
+        assert self.aedtapp.setups[2].props["PrevSoln"]["Design"] == "design_for_test"
+        assert self.aedtapp.setups[2].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
