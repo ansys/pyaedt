@@ -35,6 +35,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.Boundary import _create_boundary
+from pyaedt.modules.PostProcessor import IcepakPostProcessor
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -167,6 +168,7 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
+        self._post = IcepakPostProcessor(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -4472,51 +4474,10 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.create_fan()
-        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
         """
 
-        if export_file is None:
-            path = self.temp_directory
-            base_name = "{}_{}_FanOpPoint".format(self.project_name, self.design_name)
-            export_file = os.path.join(path, base_name + ".csv")
-            while os.path.exists(export_file):
-                file_name = generate_unique_name(base_name)
-                export_file = os.path.join(path, file_name + ".csv")
-        if setup_name is None:
-            setup_name = "{} : {}".format(self.get_setups()[0], self.solution_type)
-        if timestep is None:
-            timestep = ""
-            if self.solution_type == "Transient":
-                self.logger.warning("No timestep specified. First timestep will be exported.")
-        else:
-            if not self.solution_type == "Transient":
-                self.logger.warning("Simulation is steady-state, timestep argument is ignored.")
-                timestep = ""
-        if design_variation is None:
-            design_variation = ""
-        self.osolution.ExportFanOperatingPoint(
-            [
-                "SolutionName:=",
-                setup_name,
-                "DesignVariationKey:=",
-                design_variation,
-                "ExportFilePath:=",
-                export_file,
-                "Overwrite:=",
-                True,
-                "TimeStep:=",
-                timestep,
-            ]
-        )
-        with open(export_file, "r") as f:
-            reader = csv.reader(f)
-            for line in reader:
-                if "Fan Instances" in line:
-                    vol_flow = line[1]
-                    p_rise = line[2]
-                    break
-            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
-        return [export_file, vol_flow, p_rise, var]
+        return self.post.get_fans_operating_point(export_file, setup_name, timestep, design_variation)
 
     @pyaedt_function_handler()
     def assign_free_opening(

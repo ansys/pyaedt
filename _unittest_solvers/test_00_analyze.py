@@ -207,7 +207,6 @@ class TestClass:
         )
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
-
         assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A") # check usage of deprecated arguments
         assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B")
         assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C")
@@ -225,6 +224,9 @@ class TestClass:
         assert os.path.exists(
             self.icepak_app.eval_surface_quantity_from_field_summary(box, savedir=self.icepak_app.working_directory)
         )
+
+        # new post class
+        assert self.icepak_app.post.evaluate_faces_quantity(box, "Temperature")
 
     def test_03b_icepak_get_output_variable(self):
         value = self.icepak_app.get_output_variable("OutputVariable1")

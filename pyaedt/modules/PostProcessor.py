@@ -8,9 +8,13 @@ from __future__ import absolute_import  # noreorder
 
 import ast
 from collections import OrderedDict
+from collections import defaultdict
+import csv
 import os
 import random
+import re
 import string
+import tempfile
 
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
@@ -4789,3 +4793,213 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 pandas_enabled=waveform_data.enable_pandas_output,
             )
         return outputdata
+
+
+class FieldSummary:
+    def __init__(self, app):
+        self._app = app
+        self.calculations = []
+
+    @pyaedt_function_handler()
+    def add_calculation(
+        self, entity, geometry, geometry_name, quantity, normal="", side="Default", mesh="All", ref_temperature=""
+    ):
+        self.calculations.append(
+            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+        )  # TODO : last argument not documented
+
+    @pyaedt_function_handler()
+    def get_field_summary_data(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
+        self.export_csv(filename, sweep_name, design_variation, intrinsic_value)
+        with open(filename, "r") as f:
+            for _ in range(4):
+                _ = next(f)
+            reader = csv.DictReader(f)
+            out_dict = defaultdict(list)
+            for row in reader:
+                for key in row.keys():
+                    out_dict[key].append(row[key])
+        return out_dict
+
+    @pyaedt_function_handler()
+    def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
+        self._create_field_summary()
+        if not sweep_name:
+            sweep_name = self._app.nominal_sweep
+        dv_string = ""
+        for el in design_variation:
+            dv_string += el + "='" + design_variation[el] + "' "
+        self._app.osolution.ExportFieldsSummary(
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                dv_string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                intrinsic_value,
+            ]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def _create_field_summary(self):
+        arg = []
+        for i in self.calculations:
+            arg.append("Calculation:=")
+            arg.append(i)
+        self._app.osolution.EditFieldsSummarySetting(arg)
+
+
+class IcepakPostProcessor(PostProcessor, object):
+    def __init__(self, app):
+        PostProcessorCommon.__init__(self, app)
+
+    @pyaedt_function_handler()
+    def create_field_summary(self):
+        return FieldSummary(self._app)
+
+    @pyaedt_function_handler()
+    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+        """
+        Get operating point of the fans in the design.
+
+        Parameters
+        ----------
+        export_file : str, optional
+            Name of the file in which the fans' operating point is saved. The default is
+            ``None``, in which case the filename is automatically generated.
+        setup_name : str, optional
+            Setup name from which to determine the fans' operating point. The default is
+            ``None``, in which case the first available setup is used.
+        timestep : str, optional
+            Time, with units, at which to determine the fans' operating point. The default
+            is ``None``, in which case the first available timestep is used. This argument is
+            only relevant in transient simulations.
+        design_variation : str, optional
+            Design variation from which to determine the fans' operating point. The default is
+            ``None``, in which case the nominal variation is used.
+
+        Returns
+        -------
+        list
+            First element of the list is the csv filename, the second and third element of
+            the list are the quantities with units describing the fan operating point,
+            the fourth element contains the dictionary with the name of the fan instances
+            as keys and list with volumetric flow rates and pressure rise floats associated
+            with the operating points.
+
+        References
+        ----------
+
+        >>> oModule.ExportFanOperatingPoint
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.create_fan()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        """
+
+        if export_file is None:
+            path = self._app.temp_directory
+            base_name = "{}_{}_FanOpPoint".format(self._app.project_name, self._app.design_name)
+            export_file = os.path.join(path, base_name + ".csv")
+            while os.path.exists(export_file):
+                file_name = generate_unique_name(base_name)
+                export_file = os.path.join(path, file_name + ".csv")
+        if setup_name is None:
+            setup_name = "{} : {}".format(self._app.get_setups()[0], self._app.solution_type)
+        if timestep is None:
+            timestep = ""
+            if self._app.solution_type == "Transient":
+                self._app.logger.warning("No timestep specified. First timestep will be exported.")
+        else:
+            if not self._app.solution_type == "Transient":
+                self._app.logger.warning("Simulation is steady-state, timestep argument is ignored.")
+                timestep = ""
+        if design_variation is None:
+            design_variation = ""
+        self._app.osolution.ExportFanOperatingPoint(
+            [
+                "SolutionName:=",
+                setup_name,
+                "DesignVariationKey:=",
+                design_variation,
+                "ExportFilePath:=",
+                export_file,
+                "Overwrite:=",
+                True,
+                "TimeStep:=",
+                timestep,
+            ]
+        )
+        with open(export_file, "r") as f:
+            reader = csv.reader(f)
+            for line in reader:
+                if "Fan Instances" in line:
+                    vol_flow = line[1]
+                    p_rise = line[2]
+                    break
+            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
+        return [export_file, vol_flow, p_rise, var]
+
+    @pyaedt_function_handler()
+    def evaluate_faces_quantity(
+        self,
+        faces_list,
+        quantity_name,
+        sweep_name=None,
+        side="Default",
+        parameter_dict_with_values={},
+        ref_temperature="",
+    ):
+        """Export the field surface output.
+
+        This method exports one CSV file for the specified variation.
+
+        Parameters
+        ----------
+        faces_list : list
+            List of faces to apply.
+        quantity_name : str
+            Name of the quantity to export.
+        sweep_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        side : str, optional
+            Select which mesh faces side to use. Available options are ``"Default"``, ``"Adjacent"``,
+            and ``"Combined"``. Default is ``"Default"``.
+        parameter_dict_with_values : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The defaout is ``""``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the following keys and relative values:
+            ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``Unit``.
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        name = generate_unique_name(quantity_name)
+        self._app.modeler.create_face_list(faces_list, name)
+        fs = self.create_field_summary()
+        fs.add_calculation("Object", "Surface", name, quantity_name, side=side, ref_temperature=ref_temperature)
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
+            temp_file.close()
+            content = fs.get_field_summary_data(temp_file.name)
+        pattern = r"\[([^]]*)\]"
+        match = re.search(pattern, content["Quantity"][0])
+        if match:
+            content["Unit"] = [match.group(1)]
+        else:  # pragma : no cover
+            content["Unit"] = [None]
+
+        return {i: content[i][0] for i in ["Min", "Max", "Mean", "Stdev", "Unit"]}
