@@ -107,7 +107,7 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
         },
         "ACConduction": {
-            "name": None,
+            "name": "ACConduction",
             "options": None,
             "report_type": None,
             "default_setup": 8,
@@ -115,7 +115,7 @@ solutions_types = {
             "intrinsics": ["Freq", "Phase"],
         },
         "DCConduction": {
-            "name": None,
+            "name": "DCConduction",
             "options": None,
             "report_type": None,
             "default_setup": 8,

@@ -733,7 +733,9 @@ class SOLUTIONS(object):
             Magnetostatic,
             EddyCurrent,
             ElectroStatic,
+            DCConduction,
             ElectroDCConduction,
+            ACConduction,
             ElectroDCTransient,
             TransientAPhiFormulation,
         ) = (
@@ -741,7 +743,9 @@ class SOLUTIONS(object):
             "Magnetostatic",
             "EddyCurrent",
             "Electrostatic",
+            "DCConduction",
             "ElectroDCConduction",
+            "ACConduction",
             "ElectricTransient",
             "TransientAPhiFormulation",
         )
@@ -758,8 +762,10 @@ class SOLUTIONS(object):
             EddyCurrentZ,
             ElectroStaticXY,
             ElectroStaticZ,
-            ElectroDCConductionX,
+            ElectroDCConductionXY,
             ElectroDCConductionZ,
+            ACConductionXY,
+            ACConductionZ,
             ElectroDCTransientXY,
             ElectroDCTransientZ,
         ) = (
@@ -773,6 +779,8 @@ class SOLUTIONS(object):
             "ElectrostaticZ",
             "ElectroDCConductionXY",
             "ElectroDCConductionZ",
+            "ACConductionXY",
+            "ACConductionZ",
             "ElectricTransientXY",
             "ElectricTransientZ",
         )

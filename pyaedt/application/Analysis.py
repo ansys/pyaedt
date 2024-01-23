@@ -1195,7 +1195,7 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setuptype, name)
         elif setuptype == 4:
             setup = SetupSBR(self, setuptype, name)
-        elif setuptype in [5, 6, 7, 8, 9, 10, 56]:
+        elif setuptype in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
             setup = SetupMaxwell(self, setuptype, name)
         elif setuptype in [14]:
             setup = SetupQ3D(self, setuptype, name)
