@@ -1005,6 +1005,39 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
             return cloned_poly
         return False
 
+    @pyaedt_function_handler
+    def move(self, vector):
+        """
+
+        Parameters
+        ----------
+        vector : List of float or str [x,y].
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_layer_polygon = [poly for poly in edbapp.modeler.polygons if poly.layer_name == "Top Layer"]
+        >>> for polygon in top_layer_polygon:
+        >>>     polygon.move(vector=["2mm", "100um"])
+        """
+        if vector:
+            if isinstance(vector, list):
+                if len(vector) == 2:
+                    _vector = self._edb.Geometry.PointData(
+                        self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
+                    )
+                    polygonData = self._edb.Geometry.PolygonData.CreateFromArcs(
+                        self.polygon_data.edb_api.GetArcData(), True
+                    )
+                    polygonData.Move(_vector)
+                    return self.api_object.SetPolygonData(polygonData)
+        return False
+
     @pyaedt_function_handler()
     def in_polygon(
         self,
