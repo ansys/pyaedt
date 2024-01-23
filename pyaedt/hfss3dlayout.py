@@ -106,7 +106,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> import pyaedt
     >>> edb_path = "/path/to/edbfile.aedb"
     >>> edb = pyaedt.Edb(edb_path, edbversion=231)
-    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
     >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
