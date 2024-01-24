@@ -541,11 +541,3 @@ class TestClass:
         setup = m2d.create_setup(setuptype=m2d.solution_type)
         assert setup
         setup.delete()
-        m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroDCTransientXY
-        setup = m2d.create_setup(setuptype=m2d.solution_type)
-        assert setup
-        setup.delete()
-        m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroDCTransientZ
-        setup = m2d.create_setup(setuptype=m2d.solution_type)
-        assert setup
-        setup.delete()

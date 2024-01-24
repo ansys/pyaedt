@@ -736,7 +736,7 @@ class SOLUTIONS(object):
             DCConduction,
             ElectroDCConduction,
             ACConduction,
-            ElectroDCTransient,
+            ElectricTransient,
             TransientAPhiFormulation,
         ) = (
             "Transient",
@@ -762,12 +762,10 @@ class SOLUTIONS(object):
             EddyCurrentZ,
             ElectroStaticXY,
             ElectroStaticZ,
-            ElectroDCConductionXY,
-            ElectroDCConductionZ,
+            DCConductionXY,
+            DCConductionZ,
             ACConductionXY,
             ACConductionZ,
-            ElectroDCTransientXY,
-            ElectroDCTransientZ,
         ) = (
             "TransientXY",
             "TransientZ",
@@ -777,12 +775,10 @@ class SOLUTIONS(object):
             "EddyCurrentZ",
             "ElectrostaticXY",
             "ElectrostaticZ",
-            "ElectroDCConductionXY",
-            "ElectroDCConductionZ",
+            "DCConductionXY",
+            "DCConductionZ",
             "ACConductionXY",
             "ACConductionZ",
-            "ElectricTransientXY",
-            "ElectricTransientZ",
         )
 
     class Icepak(object):

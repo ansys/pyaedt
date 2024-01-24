@@ -966,7 +966,7 @@ class TestClass:
         setup = m3d.create_setup(setuptype=m3d.solution_type)
         assert setup
         setup.delete()
-        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroDCTransient
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectricTransient
         setup = m3d.create_setup(setuptype=m3d.solution_type)
         assert setup
         setup.delete()
