@@ -936,3 +936,41 @@ class TestClass:
         assert bound2.name != bound3.name
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
         assert not self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
+
+    def test_58_solution_types_setup(self, add_app):
+        m3d = add_app(application=Maxwell3d, design_name="test_setups")
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.DCConduction
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectricTransient
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
