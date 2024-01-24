@@ -490,3 +490,62 @@ class TestClass:
         assert self.aedtapp.setups[2].props["PrevSoln"]["Project"] == example_project_copy
         assert self.aedtapp.setups[2].props["PrevSoln"]["Design"] == "design_for_test"
         assert self.aedtapp.setups[2].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
+
+    def test_35_solution_types_setup(self, add_app):
+        m2d = add_app(application=Maxwell2d, design_name="test_setups")
+        m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.DCConductionXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.DCConductionZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.ACConductionXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.ACConductionZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroDCTransientXY
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
+        m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroDCTransientZ
+        setup = m2d.create_setup(setuptype=m2d.solution_type)
+        assert setup
+        setup.delete()
