@@ -3213,8 +3213,8 @@ class TestClass:
         polygon = edbapp.modeler.create_polygon(points, "TOP")
         assert polygon.center == [0.05, -0.0055]
         assert polygon.move(["1mm", 1e-3])
-        round(polygon.center[0], 6) == 0.051
-        round(polygon.center[1], 6) == -0.0045
+        assert round(polygon.center[0], 6) == 0.051
+        assert round(polygon.center[1], 6) == -0.0045
         assert polygon.rotate(angle=45)
         assert polygon.bbox == [0.012462680425333156, -0.043037319574666846, 0.08953731957466685, 0.034037319574666845]
         assert polygon.rotate(angle=34, center=[0, 0])
