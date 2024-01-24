@@ -1038,6 +1038,113 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                     return self.api_object.SetPolygonData(polygon_data)
         return False
 
+    @pyaedt_function_handler
+    def rotate(self, angle, center=None):
+        """Rotate polygon around a center point by an angle
+
+        Parameters
+        ----------
+
+        angle : float
+            Value of the rotation angle in degree.
+
+        center : List of float or str [x,y], optional
+            If None rotation is done from polygon center.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_layer_polygon = [poly for poly in edbapp.modeler.polygons if poly.layer_name == "Top Layer"]
+        >>> for polygon in top_layer_polygon:
+        >>>     polygon.rotate(angle=45)
+        """
+        if angle:
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            if not center:
+                center = polygon_data.GetBoundingCircleCenter()
+                if center:
+                    polygon_data.Rotate(angle * math.pi / 180, center)
+                    return self.api_object.SetPolygonData(polygon_data)
+            else:
+                center = self._edb.Geometry.PointData(
+                    self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
+                )
+                polygon_data.Rotate(angle * math.pi / 180, center)
+                return self.api_object.SetPolygonData(polygon_data)
+        return False
+
+    @pyaedt_function_handler
+    def scale(self, factor, center=None):
+        """Scales the polygon relative to a center point by a factor.
+
+        Parameters
+        ----------
+        factor : float
+            Scaling factor.
+        center : List of float or str [x,y], optional
+            If None scaling is done from polygon center.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_layer_polygon = [poly for poly in edbapp.modeler.polygons if poly.layer_name == "Top Layer"]
+        >>> for polygon in top_layer_polygon:
+        >>>     polygon.scale(factor=2)
+        """
+        if isinstance(factor, float):
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            if not center:
+                center = polygon_data.GetBoundingCircleCenter()
+                if center:
+                    polygon_data.Scale(factor, center)
+                    return self.api_object.SetPolygonData(polygon_data)
+            else:
+                if isinstance(center, list):
+                    if len(center) == 2:
+                        center = self._edb.Geometry.PointData(
+                            self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
+                        )
+                        polygon_data.Scale(factor, center)
+                        return self.api_object.SetPolygonData(polygon_data)
+        return False
+
+    @pyaedt_function_handler
+    def move_layer(self, layer):
+        """Move polygon to given layer.
+
+        Parameters
+        ----------
+        layer : str
+            layer name.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+        """
+        if layer and isinstance(layer, str):
+            if layer in self._pedb.stackup.signal_layers:
+                polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
+                    self.polygon_data.edb_api.GetArcData(), True
+                )
+                moved_polygon = self._pedb.modeler.create_polygon(
+                    main_shape=polygon_data, net_name=self.net_name, layer_name=layer
+                )
+                if moved_polygon:
+                    self.delete()
+                    return True
+        return False
+
     @pyaedt_function_handler()
     def in_polygon(
         self,
