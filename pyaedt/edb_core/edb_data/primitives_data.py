@@ -1025,17 +1025,15 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
         >>> for polygon in top_layer_polygon:
         >>>     polygon.move(vector=["2mm", "100um"])
         """
-        if vector:
-            if isinstance(vector, list):
-                if len(vector) == 2:
-                    _vector = self._edb.Geometry.PointData(
-                        self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
-                    )
-                    polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
-                        self.polygon_data.edb_api.GetArcData(), True
-                    )
-                    polygon_data.Move(_vector)
-                    return self.api_object.SetPolygonData(polygon_data)
+        if vector and isinstance(vector, list) and len(vector) == 2:
+            _vector = self._edb.Geometry.PointData(
+                self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
+            )
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
+                self.polygon_data.edb_api.GetArcData(), True
+            )
+            polygon_data.Move(_vector)
+            return self.api_object.SetPolygonData(polygon_data)
         return False
 
     @pyaedt_function_handler
