@@ -1007,7 +1007,7 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
 
     @pyaedt_function_handler
     def move(self, vector):
-        """
+        """Move polygon along a vector.
 
         Parameters
         ----------
@@ -1025,17 +1025,13 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
         >>> for polygon in top_layer_polygon:
         >>>     polygon.move(vector=["2mm", "100um"])
         """
-        if vector:
-            if isinstance(vector, list):
-                if len(vector) == 2:
-                    _vector = self._edb.Geometry.PointData(
-                        self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
-                    )
-                    polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
-                        self.polygon_data.edb_api.GetArcData(), True
-                    )
-                    polygon_data.Move(_vector)
-                    return self.api_object.SetPolygonData(polygon_data)
+        if vector and isinstance(vector, list) and len(vector) == 2:
+            _vector = self._edb.Geometry.PointData(
+                self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
+            )
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            polygon_data.Move(_vector)
+            return self.api_object.SetPolygonData(polygon_data)
         return False
 
     @pyaedt_function_handler
@@ -1070,7 +1066,7 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                 if center:
                     polygon_data.Rotate(angle * math.pi / 180, center)
                     return self.api_object.SetPolygonData(polygon_data)
-            else:
+            elif isinstance(center, list) and len(center) == 2:
                 center = self._edb.Geometry.PointData(
                     self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
                 )
@@ -1109,14 +1105,12 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                 if center:
                     polygon_data.Scale(factor, center)
                     return self.api_object.SetPolygonData(polygon_data)
-            else:
-                if isinstance(center, list):
-                    if len(center) == 2:
-                        center = self._edb.Geometry.PointData(
-                            self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
-                        )
-                        polygon_data.Scale(factor, center)
-                        return self.api_object.SetPolygonData(polygon_data)
+            elif isinstance(center, list) and len(center) == 2:
+                center = self._edb.Geometry.PointData(
+                    self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
+                )
+                polygon_data.Scale(factor, center)
+                return self.api_object.SetPolygonData(polygon_data)
         return False
 
     @pyaedt_function_handler
@@ -1133,17 +1127,14 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
         bool
            ``True`` when successful, ``False`` when failed.
         """
-        if layer and isinstance(layer, str):
-            if layer in self._pedb.stackup.signal_layers:
-                polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
-                    self.polygon_data.edb_api.GetArcData(), True
-                )
-                moved_polygon = self._pedb.modeler.create_polygon(
-                    main_shape=polygon_data, net_name=self.net_name, layer_name=layer
-                )
-                if moved_polygon:
-                    self.delete()
-                    return True
+        if layer and isinstance(layer, str) and layer in self._pedb.stackup.signal_layers:
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            moved_polygon = self._pedb.modeler.create_polygon(
+                main_shape=polygon_data, net_name=self.net_name, layer_name=layer
+            )
+            if moved_polygon:
+                self.delete()
+                return True
         return False
 
     @pyaedt_function_handler()
