@@ -3217,3 +3217,28 @@ class TestClass:
         assert poly_test[0].center == [0.005, 0.005]
         assert poly_test[0].bbox == [0.0, 0.0, 0.01, 0.01]
         edbapp.close_edb()
+
+    def test_161_move_and_edit_polygons(self):
+        target_path = os.path.join(self.local_scratch.path, "test_move_edit_polygons", "test.aedb")
+        edbapp = Edb(target_path, edbversion=desktop_version)
+
+        edbapp.stackup.add_layer("GND")
+        edbapp.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
+        edbapp.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
+        points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
+        polygon = edbapp.modeler.create_polygon(points, "TOP")
+        assert polygon.center == [0.05, -0.0055]
+        assert polygon.move(["1mm", 1e-3])
+        assert round(polygon.center[0], 6) == 0.051
+        assert round(polygon.center[1], 6) == -0.0045
+        assert polygon.rotate(angle=45)
+        assert polygon.bbox == [0.012462680425333156, -0.043037319574666846, 0.08953731957466685, 0.034037319574666845]
+        assert polygon.rotate(angle=34, center=[0, 0])
+        assert polygon.bbox == [0.03083951217158376, -0.025151830651067256, 0.05875505636026722, 0.07472816865208806]
+        assert polygon.scale(factor=1.5)
+        assert polygon.bbox == [0.0238606261244129, -0.05012183047685609, 0.06573394240743807, 0.09969816847787688]
+        assert polygon.scale(factor=-0.5, center=[0, 0])
+        assert polygon.bbox == [-0.032866971203719036, -0.04984908423893844, -0.01193031306220645, 0.025060915238428044]
+        assert polygon.move_layer("GND")
+        assert len(edbapp.modeler.polygons) == 1
+        assert edbapp.modeler.polygons[0].layer_name == "GND"
