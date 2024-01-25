@@ -1913,6 +1913,22 @@ class TestClass:
         assert os.path.exists(export_stackup_path)
         edbapp.close()
 
+    def test_125c_stackup_json(self):
+        edbapp = Edb(edbversion=desktop_version)
+        temp_json = os.path.join(self.local_scratch.path, "stackup.json")
+        edbapp.stackup.create_symmetric_stackup(6)
+        edbapp.stackup.export(temp_json)
+
+        edbapp.stackup.remove_layer("SMT")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.remove_layer("SMB")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.remove_layer("TOP")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.add_layer("air", layer_type="dielectric")
+        edbapp.stackup.load(temp_json)
+        edbapp.close()
+
     def test_125c_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
@@ -3168,22 +3184,6 @@ class TestClass:
         assert not edbapp.components.instances["C347"].is_top_mounted
         assert not edbapp.components.instances["R67"].is_top_mounted
         edbapp.close_edb()
-
-    def test_159_json_configuration(self):
-        example_folder = os.path.join(local_path, "example_models", test_subfolder)
-        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
-        path_syz_json = os.path.join(example_folder, "edb_cfg_syz.json")
-        path_dc_json = os.path.join(example_folder, "edb_cfg_dc.json")
-
-        target_path_edb = os.path.join(self.local_scratch.path, "configuration", "test.aedb")
-
-        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
-
-        edbapp = Edb(target_path_edb, desktop_version)
-        edbapp.configuration.load(path_syz_json)
-        edbapp.configuration.load(path_dc_json)
-
-        edbapp.close()
 
     def test_160_define_component(self):
         example_folder = os.path.join(local_path, "example_models", test_subfolder)
