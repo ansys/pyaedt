@@ -1101,7 +1101,8 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
         >>> for polygon in top_layer_polygon:
         >>>     polygon.scale(factor=2)
         """
-        if isinstance(factor, float):
+        if not isinstance(factor, str):
+            factor = float(factor)
             polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
             if not center:
                 center = polygon_data.GetBoundingCircleCenter()
