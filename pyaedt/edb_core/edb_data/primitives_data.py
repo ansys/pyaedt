@@ -1108,14 +1108,12 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                 if center:
                     polygon_data.Scale(factor, center)
                     return self.api_object.SetPolygonData(polygon_data)
-            else:
-                if isinstance(center, list):
-                    if len(center) == 2:
-                        center = self._edb.Geometry.PointData(
-                            self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
-                        )
-                        polygon_data.Scale(factor, center)
-                        return self.api_object.SetPolygonData(polygon_data)
+            elif isinstance(center, list) and len(center) == 2:
+                center = self._edb.Geometry.PointData(
+                    self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
+                )
+                polygon_data.Scale(factor, center)
+                return self.api_object.SetPolygonData(polygon_data)
         return False
 
     @pyaedt_function_handler
