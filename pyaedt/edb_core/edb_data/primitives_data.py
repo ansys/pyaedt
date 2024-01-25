@@ -1007,7 +1007,7 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
 
     @pyaedt_function_handler
     def move(self, vector):
-        """
+        """Move polygon along a vector.
 
         Parameters
         ----------
