@@ -1029,9 +1029,7 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
             _vector = self._edb.Geometry.PointData(
                 self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
             )
-            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
-                self.polygon_data.edb_api.GetArcData(), True
-            )
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
             polygon_data.Move(_vector)
             return self.api_object.SetPolygonData(polygon_data)
         return False
