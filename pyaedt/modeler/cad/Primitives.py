@@ -8401,6 +8401,9 @@ class PrimitivesBuilder(object):
         if primitive_type == "Cylinder":
             if self._app.modeler._is3d:
                 instance = self._create_cylinder_instance(name, cs, origin, primitive_data)
+        if primitive_type == "Box":
+            if self._app.modeler._is3d:
+                instance = self._create_box_instance(name, cs, origin, primitive_data)
 
         if not instance:
             self.logger.warning("Unsupported primitive type: {}".format(primitive_type))
@@ -8468,6 +8471,43 @@ class PrimitivesBuilder(object):
                 self._app.modeler.subtract(blank_list=cyl1, tool_list=cyl2, keep_originals=False)
 
         return cyl1
+
+    def _create_box_instance(self, name, cs, origin, data):
+        """Create cylinder instance.
+
+        Create a box instance.
+
+        Parameters
+        ----------
+        name : str
+            Name for the primitive.
+        cs : str
+            Reference coordinate system.
+        origin : list
+            Instance origin position.
+        data : dict
+            Cylinder information.
+
+        Returns
+        -------
+        str
+            Instance name.
+        """
+        if not data.get("X Length"):
+            data["X Length"] = 10
+        if not data.get("Y Length"):
+            data["Y Length"] = 10
+        if not data.get("Z Length"):
+            data["Z Length"] = 10
+
+        self._app.modeler.set_working_coordinate_system(cs)
+
+        box1 = self._app.modeler.create_box(
+            position=origin,
+            dimensions_list=[data["X Length"], data["Y Length"], data["Z Length"]],
+            name=name,
+        )
+        return box1
 
     @pyaedt_function_handler()
     def _read_csv_cylinder_props(self, csv_data):
