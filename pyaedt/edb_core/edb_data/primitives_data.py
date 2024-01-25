@@ -1070,7 +1070,7 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                 if center:
                     polygon_data.Rotate(angle * math.pi / 180, center)
                     return self.api_object.SetPolygonData(polygon_data)
-            else:
+            elif isinstance(center, list) and len(center) == 2:
                 center = self._edb.Geometry.PointData(
                     self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
                 )
