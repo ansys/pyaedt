@@ -1132,17 +1132,16 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
         bool
            ``True`` when successful, ``False`` when failed.
         """
-        if layer and isinstance(layer, str):
-            if layer in self._pedb.stackup.signal_layers:
-                polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
-                    self.polygon_data.edb_api.GetArcData(), True
-                )
-                moved_polygon = self._pedb.modeler.create_polygon(
-                    main_shape=polygon_data, net_name=self.net_name, layer_name=layer
-                )
-                if moved_polygon:
-                    self.delete()
-                    return True
+        if layer and isinstance(layer, str) and layer in self._pedb.stackup.signal_layers:
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(
+                self.polygon_data.edb_api.GetArcData(), True
+            )
+            moved_polygon = self._pedb.modeler.create_polygon(
+                main_shape=polygon_data, net_name=self.net_name, layer_name=layer
+            )
+            if moved_polygon:
+                self.delete()
+                return True
         return False
 
     @pyaedt_function_handler()
