@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Suggest to add labels
-      uses: peter-evans/create-or-update-comment@v3
+      uses: peter-evans/create-or-update-comment@v4
       # Execute only when no labels have been applied to the pull request
       if: toJSON(github.event.pull_request.labels.*.name) == '{}'
       with:
