@@ -127,10 +127,10 @@ signal_trace.create_edge_port("port_1", "End", "Wave", horizontal_extent_factor=
 #
 # For broadband applications when the simulation results may be used
 # to generate a SPICE model, the outer domain boundary can be
-# located roughly $$ d=\lambda/4 $$ from the internal structures
+# located roughly $$ d=\lambda/8 $$ from the internal structures
 # in the model.
 
-extend_domain = 3E11/4E9/4.0  # Quarter wavelength at 4 GHz.
+extend_domain = 3E11/5E9/8.0  # Quarter wavelength at 4 GHz.
 edb.design_options.antipads_always_on = True
 edb.hfss.hfss_extent_info.air_box_horizontal_extent = extend_domain
 edb.hfss.hfss_extent_info.air_box_positive_vertical_extent = extend_domain

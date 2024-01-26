@@ -736,7 +736,8 @@ def download_file(directory, filename=None, destination=None):
     Parameters
     ----------
     directory : str
-        Directory name.
+        Directory name at https://github.com/ansys/example-data/pyaedt
+        where the source file is located.
     filename : str, optional
         File name to download. The default is all files inside directory.
     destination : str, optional
