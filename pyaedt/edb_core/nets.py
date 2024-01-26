@@ -928,7 +928,21 @@ class EdbNets(object):
 
         Returns
         -------
+        component_data : tuple
+            ``component_data[0]`` is a list of properties for each component
+            in the power tree. The values are:
+                - "refdes"
+                - "pin_name"
+                - "net_name"
+                - "component_type"
+                - "component_partname"
+                - "pin_list"
 
+            ``component_data[1]`` is a list of the keys (that is, "columns") corresponding
+            to the first item in the tuple.
+
+            ``component_data[2]`` is the net group corresponding to the component information
+            in ``component_data[0]``.
         """
         flag_in_ng = False
         net_group = []
