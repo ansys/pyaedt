@@ -1277,6 +1277,94 @@ class FieldAnalysis3D(Analysis, object):
         self.oeditor.ImportDXF(vArg1)
         return True
 
+    @pyaedt_function_handler
+    def import_gds_3d(self, gds_file_path, gds_number_list, elevation_list, thickness_list, color_list,
+                      import_method=1):
+
+        """Import a GDSII file.
+
+        Parameters
+        ----------
+        gds_file_path : str
+            Path to the GDS file.
+        gds_number_list : list
+            List of layer number to import.
+        elevation_list : list
+            List of elevation for each layer number imported.
+            Number of element must be the same as gds_number list.
+            If not elevation, thickness and color will not be applied.
+        thickness_list : list
+            List of thickness for each layer number imported.
+            Number of element must be the same as gds_number list.
+            If not elevation, thickness and color will not be applied.
+        color_list : list
+            List of color for each layer number imported.
+            Number of element must be the same as gds_number list.
+            If not elevation, thickness and color will not be applied.
+        importmethod: integer, optional
+            GDSII import method. The default is 1
+            0 = script, 1 = Parasolid
+
+                Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+
+        if not os.path.exists(gds_file_path):
+            self.logger.error("GDSII file does not exist, no layer imported ")
+            return False
+        if len(gds_number_list) == 0:
+            self.logger.error("GDSII layer number list is empty, no layer imported ")
+            return False
+
+        if (len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list) or
+                len(gds_number_list) != len(color_list)):
+
+            self.logger.warning("One of the list: elevation, thickness or color has different number of element than "
+                                "GDS number. Elevation, thickness and color will be ignored ")
+            layermap = ["NAME:LayerMap"]
+            for i in gds_number_list:
+                layername = "signal" + str(i)
+                layermap.append(
+                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"])
+
+            # ImportMethod: 0 for script, 1for Parasolid
+            self.oeditor.ImportGDSII(
+                [
+                    "NAME:options",
+                    "FileName:=", gds_file_path,
+                    "FlattenHierarchy:=", True,
+                    "ImportMethod:=", import_method,
+                    layermap,
+                ])
+        else:
+            self.logger.warning("GDS layer imported with elevation, thickness and color")
+
+            layermap = ["NAME:LayerMap"]
+            ordermap = []
+            j = 0
+            for i in gds_number_list:
+                layername = "signal" + str(i)
+                layermap.append(
+                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"])
+                ordermap1 = ["entry:=", ["order:=", j, "layer:=", layername, "LayerNumber:=", i, "Thickness:=",
+                                         thickness_list[j], "Elevation:=", elevation_list[j], "Color:=", color_list[j]]]
+                ordermap = ordermap + ordermap1
+                j = j + 1
+
+            # ImportMethod: 0 for script, 1for Parasolid
+            self.oeditor.ImportGDSII(
+                [
+                    "NAME:options",
+                    "FileName:=", gds_file_path,
+                    "FlattenHierarchy:=", True,
+                    "ImportMethod:=", import_method,
+                    layermap,
+                    "OrderMap:=", ordermap,
+                ])
+        return True
+
     @pyaedt_function_handler()
     def _find_indices(self, list_to_check, item_to_find):
         # type: (list, str|int) -> list
