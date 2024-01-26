@@ -1278,9 +1278,9 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(self, gds_file_path, gds_number_list, elevation_list, thickness_list, color_list,
-                      import_method=1):
-
+    def import_gds_3d(
+        self, gds_file_path, gds_number_list, elevation_list, thickness_list, color_list, import_method=1
+    ):
         """Import a GDSII file.
 
         Parameters
@@ -1318,26 +1318,35 @@ class FieldAnalysis3D(Analysis, object):
             self.logger.error("GDSII layer number list is empty, no layer imported ")
             return False
 
-        if (len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list) or
-                len(gds_number_list) != len(color_list)):
-
-            self.logger.warning("One of the list: elevation, thickness or color has different number of element than "
-                                "GDS number. Elevation, thickness and color will be ignored ")
+        if (
+            len(gds_number_list) != len(elevation_list)
+            or len(gds_number_list) != len(thickness_list)
+            or len(gds_number_list) != len(color_list)
+        ):
+            self.logger.warning(
+                "One of the list: elevation, thickness or color has different number of element than "
+                "GDS number. Elevation, thickness and color will be ignored "
+            )
             layermap = ["NAME:LayerMap"]
             for i in gds_number_list:
                 layername = "signal" + str(i)
                 layermap.append(
-                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"])
+                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
+                )
 
             # ImportMethod: 0 for script, 1for Parasolid
             self.oeditor.ImportGDSII(
                 [
                     "NAME:options",
-                    "FileName:=", gds_file_path,
-                    "FlattenHierarchy:=", True,
-                    "ImportMethod:=", import_method,
+                    "FileName:=",
+                    gds_file_path,
+                    "FlattenHierarchy:=",
+                    True,
+                    "ImportMethod:=",
+                    import_method,
                     layermap,
-                ])
+                ]
+            )
         else:
             self.logger.warning("GDS layer imported with elevation, thickness and color")
 
@@ -1347,9 +1356,25 @@ class FieldAnalysis3D(Analysis, object):
             for i in gds_number_list:
                 layername = "signal" + str(i)
                 layermap.append(
-                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"])
-                ordermap1 = ["entry:=", ["order:=", j, "layer:=", layername, "LayerNumber:=", i, "Thickness:=",
-                                         thickness_list[j], "Elevation:=", elevation_list[j], "Color:=", color_list[j]]]
+                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
+                )
+                ordermap1 = [
+                    "entry:=",
+                    [
+                        "order:=",
+                        j,
+                        "layer:=",
+                        layername,
+                        "LayerNumber:=",
+                        i,
+                        "Thickness:=",
+                        thickness_list[j],
+                        "Elevation:=",
+                        elevation_list[j],
+                        "Color:=",
+                        color_list[j],
+                    ],
+                ]
                 ordermap = ordermap + ordermap1
                 j = j + 1
 
@@ -1357,12 +1382,17 @@ class FieldAnalysis3D(Analysis, object):
             self.oeditor.ImportGDSII(
                 [
                     "NAME:options",
-                    "FileName:=", gds_file_path,
-                    "FlattenHierarchy:=", True,
-                    "ImportMethod:=", import_method,
+                    "FileName:=",
+                    gds_file_path,
+                    "FlattenHierarchy:=",
+                    True,
+                    "ImportMethod:=",
+                    import_method,
                     layermap,
-                    "OrderMap:=", ordermap,
-                ])
+                    "OrderMap:=",
+                    ordermap,
+                ]
+            )
         return True
 
     @pyaedt_function_handler()
