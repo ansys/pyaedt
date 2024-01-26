@@ -1301,7 +1301,7 @@ class FieldAnalysis3D(Analysis, object):
             List of color for each layer number imported.
             Number of element must be the same as gds_number list.
             If not elevation, thickness and color will not be applied.
-        importmethod: integer, optional
+        import_method: integer, optional
             GDSII import method. The default is 1
             0 = script, 1 = Parasolid
 
