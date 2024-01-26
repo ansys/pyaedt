@@ -464,19 +464,17 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 if sources:
                     for source in sources:
                         port_info_list_A.append("OnePortInfo:=")
-                        list_A = [net + "_" + source, -1, net + ":" + source]
+                        port_info_list_A.append([net + "_" + source, -1, net + ":" + source])
                 else:
                     port_info_list_A.append("OnePortInfo:=")
-                    list_A = [net + "_", -1, net + ":"]
+                    port_info_list_A.append([net + "_", -1, net + ":"])
                 if sinks:
                     for sink in sinks:
                         port_info_list_B.append("OnePortInfo:=")
-                        list_B = [net + "_" + sink, -1, net + ":" + sink]
+                        port_info_list_B.append([net + "_" + sink, -1, net + ":" + sink])
                 else:
                     port_info_list_B.append("OnePortInfo:=")
-                    list_B = [net + "_", -1, net + ":"]
-                port_info_list_A.append(list_A)
-                port_info_list_B.append(list_B)
+                    port_info_list_B.append([net + "_", -1, net + ":"])
         if port_info_list_A and port_info_list_B:
             port_info_list = ["NAME:PortInfo"]
             port_info_list.extend(port_info_list_A)
