@@ -1615,11 +1615,12 @@ class Edb(Database):
         """Create a cutout using an approach entirely based on PyAEDT.
         This method replaces all legacy cutout methods in PyAEDT.
         It does in sequence:
-        - delete all nets not in list,
-        - create a extent of the nets,
-        - check and delete all vias not in the extent,
-        - check and delete all the primitives not in extent,
-        - check and intersect all the primitives that intersect the extent.
+        - delete all nets that are not passed as input arguments,
+        - define and create the outer simulation domain extents based on the
+          signal nets that were passed as the first argument,
+        - identify and delete all vias that lie outside the domain extent,
+        - identify and delete all the primitives that lie outside the domain extent,
+        - identify and cut all the primitives that intersect the extent.
 
         Parameters
         ----------
