@@ -206,6 +206,3 @@ edb.close_edb()
 # Clean up the temporary files and directory.
 
 temp_dir.cleanup()
-
-""
-
