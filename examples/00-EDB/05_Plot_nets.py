@@ -1,65 +1,69 @@
 """
-EDB: plot nets with Matplotlib
-------------------------------
-This example shows how you can use the ``Edb`` class to plot a net or a layout.
-"""
+# EDB: plot nets with Matplotlib
 
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports, which includes importing a section.
+This example shows how to use the ``Edb`` class to view nets, layers and
+via geometry directly in Python. The methods demonstrated in this example 
+rely on 
+[matplotlib](https://matplotlib.org/cheatsheets/_images/cheatsheets-1.png).
+
+## Perform required imports
+
+Perform required imports, which includes importing a section.
+"""
 
 import os
 import pyaedt
+import tempfile
 
 ###############################################################################
-# Download file
-# ~~~~~~~~~~~~~
-# Download the AEDT file and copy it into the temporary folder.
+# Download the EDB and copy it into the temporary folder.
 
-temp_folder = pyaedt.generate_unique_folder_name()
-
-targetfolder = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
-
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+targetfolder = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', 
+                                              destination=temp_dir.name)
 
 ###############################################################################
-# Launch EDB
-# ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
+# Create an instance of the Electronics Database usig the 
+# `pyaedt.Edb` class. 
+#
+# > Note that units are SI
 
 edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2023.2")
 
 ###############################################################################
-# Plot custom set of nets colored by layer
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot a custom set of nets colored by layer (default).
+# Display the nets on a layer. Net geometry can be displayed directly in Python usig ``matplotlib`` from
+# the ``pyaedt.Edb`` class.
 
 edb.nets.plot("AVCC_1V3")
 
 ###############################################################################
-# Plot custom set of nets colored by nets
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot a custom set of nets colored by nets.
+# Multiple nets may be viewed by passing a list containing the net
+# names to the ``plot`` method.
 
 edb.nets.plot(["GND", "GND_DP", "AVCC_1V3"], color_by_net=True)
 
 ###############################################################################
-# Plot all nets on a layer colored by nets
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot all nets on a layer colored by nets
+# All copper on a single layer may also be displayed by passing ``None``
+# as the first argument. The 2nd argument is a list 
+# of layers to be plotted. In this case, only one 
+# layers is displayed.
 
-edb.nets.plot(None, ["1_Top"], color_by_net=True, plot_components_on_top=True)
-
-###############################################################################
-# Plot stackup and some padstack definition
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot all nets on a layer colored by nets
-
-edb.stackup.plot(scale_elevation=False,plot_definitions=["c100hn140", "c35"])
+edb.nets.plot(None, ["1_Top"], color_by_net=True, 
+              plot_components_on_top=True)
 
 ###############################################################################
-# Close EDB
-# ~~~~~~~~~
-# Close EDB.
+# A side-view of the layers and padstack geometry is displayed using the
+# ``Edb.stackup.plot()`` method.
+
+edb.stackup.plot(scale_elevation=False,
+                 plot_definitions=["c100hn140", "c35"])
+
+###############################################################################
+# Close the EDB.
 
 edb.close_edb()
+
+###############################################################################
+# Remove all files and the temporary directory.
+
+temp_dir.cleanup()

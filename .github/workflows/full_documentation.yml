@@ -71,7 +71,8 @@ jobs:
       - name: Create HTML Documentations
         run: |
           testenv\Scripts\Activate.ps1
-          sphinx-build -j auto --color -b html -a doc/source doc/_build/html
+          cd doc
+          .\make.bat html
 
 #      - name: Create PDF Documentations
 #        run: |

@@ -1,50 +1,47 @@
 """
-EDB: Pin to Pin project
------------------------
-This example shows how you can create a project using a BOM file and configuration files.
-run anlasyis and get results.
+# EDB: Pin to Pin project
 
+This example demonstrates the use of the Electronics
+Database (EDB) interface to create a layout using the BOM and 
+a configuration file.
 """
 
 ###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports. Importing the ``Hfss3dlayout`` object initializes it
+# ## Perform required imports
+#
+# The ``Hfss3dlayout`` class provides an interface to
+# the 3D Layout editor in Elecronics Deskop. 
 # on version 2023 R2.
 
 import os
 import pyaedt
-
-##########################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``True``.
-
-non_graphical = True
+import tempfile
 
 ###############################################################################
-# Download file
-# ~~~~~~~~~~~~~
-# Download the AEDB file and copy it in the temporary folder.
+# Download the AEDB file and copy it to a temporary folder.
 
-
-project_path = pyaedt.generate_unique_folder_name()
-target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_path)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', 
+                                             destination=temp_dir.name)
 print("Project folder will be", target_aedb)
 
 ###############################################################################
-# Launch EDB
-# ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
+# ## Launch EDB
+#
+# Launch the `pyaedt.Edb` class using EDB 2023 R2. Length units are SI.
 
 edbapp = pyaedt.Edb(target_aedb, edbversion="2023.2")
 ###############################################################################
-# Import Definitions
-# ~~~~~~~~~~~~~~~~~~
-# A definitions file is a json containing, for each part name the model associated.
-# Model can be RLC, Sparameter or Spice.
-# Once imported the definition is applied to the board.
-# In this example the json file is stored for convenience in aedb folder and has the following format:
+# ## Import Definitions
+#
+# The definition file uses the [json](https://www.json.org/json-en.html) to
+# map layout part numbers to their corresponding models.
+#
+# The model may be RLC, Sparameter or a
+# [SPICE](https://en.wikipedia.org/wiki/SPICE) model definition.
+# Once imported the, definition is applied to the components in the layout.
+# In this example the json file is in the ``*.aedb`` folder and has the following format:
+# ``` json
 # {
 #     "SParameterModel": {
 #         "GRM32_DC0V_25degC_series": "./GRM32_DC0V_25degC_series.s2p"
@@ -73,23 +70,32 @@ edbapp = pyaedt.Edb(target_aedb, edbversion="2023.2")
 #         }
 #     }
 # }
+# ```
+#
+# The method ``Edb.components.import_definitions`` imports the componet definitions that map electrical models to the components in the simulaton model.
 
-edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
+edbapp.components.import_definition(os.path.join(target_aedb, 
+                                                 "1_comp_definition.json"))
 
 ###############################################################################
-# Import BOM
-# ~~~~~~~~~~
-# This step imports a BOM file in CSV format. The BOM contains the
-# reference designator, part name, component type, and default value.
-# Components not in the BOM are deactivated.
-# In this example the csv file is stored for convenience in aedb folder.
+# ## Import BOM
 #
+# The bill of materials (BOM) file provides the list of all components
+# by reference designator, part name, component type, and nominal value.
+#
+# Components that are not contained in the BOM are deactivated in the
+# simulation model.
+# In this example the csv file was saved in the aedb folder.
+#
+# ```
 # +------------+-----------------------+-----------+------------+
 # | RefDes     | Part name             | Type      | Value      |
 # +============+=======================+===========+============+
 # | C380       | CAPC1005X55X25LL05T10 | Capacitor | 11nF       |
 # +------------+-----------------------+-----------+------------+
-
+# ```
+#
+# Having red the informaton in the BOM and definitions file, electrical models can be assigned to all of the components in the simulation model.
 
 edbapp.components.import_bom(os.path.join(target_aedb, "0_bom.csv"),
                                   refdes_col=0,
@@ -97,37 +103,36 @@ edbapp.components.import_bom(os.path.join(target_aedb, "0_bom.csv"),
                                   comp_type_col=2,
                                   value_col=3)
 
-
-
 ###############################################################################
-# Check Component Values
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Veriify a Component
+#
 # Component property allows to access all components instances and their property with getters and setters.
 
 comp = edbapp.components["C1"]
 comp.model_type, comp.value
 
-
 ###############################################################################
-# Check Component Definition
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Check Component Definition
+#
 # When an s-parameter model is associated to a component it will be available in nport_comp_definition property.
 
 edbapp.components.nport_comp_definition
 
 ###############################################################################
-# Save Edb
-# ~~~~~~~~
+# Save the EDB.
 edbapp.save_edb()
 
 ###############################################################################
-# Configure Setup
-# ~~~~~~~~~~~~~~~
-# This step allows to define the project. It includes:
-#  - Definition of nets to be included into the cutout,
-#  - Cutout details,
-#  - Components on which to create the ports,
-#  - Simulation settings.
+# ## Configure the Simulation Setup
+#
+# This step enables the following:
+#  - Definition of nets to be included in a cutout region
+#  - Cutout details
+#  - Components on which to create the ports
+#  - Simulation settings
+#
+# The method ``Edb.new_simulaton_configuration()`` returns an instance 
+# of the [``SimulationConfiguration``](https://aedt.docs.pyansys.com/version/stable/EDBAPI/SimulationConfigurationEdb.html) class.
 
 sim_setup = edbapp.new_simulation_configuration()
 sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ
@@ -148,55 +153,66 @@ sim_setup.ac_settings.stop_freq = "6GHz"
 sim_setup.ac_settings.step_freq = "10MHz"
 
 ###############################################################################
-# Run Setup
-# ~~~~~~~~~
-# This step allows to create the cutout and apply all settings.
+# ## Implement the Setup
+#
+# The cutout and all other simulation settings are applied to the simulation model.
 
-sim_setup.export_json(os.path.join(project_path, "configuration.json"))
+sim_setup.export_json(os.path.join(temp_dir.name, "configuration.json"))
 edbapp.build_simulation_project(sim_setup)
 
 ###############################################################################
-# Plot Cutout
-# ~~~~~~~~~~~
-# Plot cutout once finished.
+# ## Display the Cutout
+#
+# Plot cutout once finished. The model is ready to simulate.
 
 edbapp.nets.plot(None,None)
 
 ###############################################################################
-# Save and Close EDB
-# ~~~~~~~~~~~~~~~~~~
-# Edb will be saved and closed in order to be opened by Hfss 3D Layout and solved.
+# ## Save and Close EDB
+#
+# Edb will be saved and re-opened in Electronics
+# Deskopt 3D Layout. The HFSS simulation can then be run.
 
 edbapp.save_edb()
 edbapp.close_edb()
 
 ###############################################################################
-# Open Aedt
-# ~~~~~~~~~
-# Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", projectname=target_aedb, non_graphical=non_graphical, new_desktop_session=True)
+# ## Open Electronics Desktop
+#
+# The EDB is opened in AEDT Hfss3DLayout.
+#
+# Set ``non_graphical=True`` to run the simulation in non-graphical mode.
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", 
+                          projectname=target_aedb, 
+                          non_graphical=False, 
+                          new_desktop_session=False)
 
 ###############################################################################
-# Analyze
-# ~~~~~~~
-# Project will be solved.
+# ## Analyze
+#
+# This project is ready to solve. Executing the following cell runs the HFSS simulatoin on the layout.
 h3d.analyze()
 
 ###############################################################################
-# Get Results
-# ~~~~~~~~~~~
-# S Parameter data will be loaded at the end of simulation.
+# ## View Results
+#
+# S-Parameter data will be loaded at the end of simulation.
 solutions = h3d.post.get_solution_data()
 
 ###############################################################################
-# Plot Results
-# ~~~~~~~~~~~~
+# ## Plot Results
+#
 # Plot S Parameter data.
 solutions.plot(solutions.expressions, "db20")
 
 ###############################################################################
-# Save and Close AEDT
-# ~~~~~~~~~~~~~~~~~~~
+# ## Save and Close AEDT
+#
 # Hfss3dLayout is saved and closed.
 h3d.save_project()
 h3d.release_desktop()
+
+###############################################################################
+# Clean up the temporary directory. All files and the temporary project folder will be deleted in the next step.
+
+temp_dir.cleanup()

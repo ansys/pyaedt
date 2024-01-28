@@ -1,44 +1,47 @@
 """
-EDB: geometry creation
-----------------------
-This example shows how to
-1, Create a layout layer stackup.
-2, Create Padstack definition.
-3, Place padstack instances at given location.
-4, Create primitives, polygon and trace.
-5, Create component from pins.
-6, Create HFSS simulation setup and excitation ports.
+# EDB: Layout Creation and Setup
+
+This example demonstrates how to to
+
+1. Create a layout layer stackup.
+2. Define padstacks.
+3. Place padstack instances in the layout where the connectors are located.
+4. Create primitives such as polygons and traces.
+5. Create "components" from the padstack definitions using "pins".
+   >The "component" in EDB acts as a placeholder to enable automatic
+   >placement of electrical models, or
+   >as in this example to assign ports.  In many
+   >cases the EDB is imported from a 3rd party layout, in which case the
+   >concept of a "component" as a placeholder is needed to map
+   >models to the components on the PCB for later use in the
+   >simulation.
+7. Create the HFSS simulation setup and assign ports where the connectors are located.
 """
 ######################################################################
+# ## PCB Trace Model
 #
-# Final expected project
-# ~~~~~~~~~~~~~~~~~~~~~~
+# Here is an image of the model that will be created in this example.
 #
-# .. image:: ../../_static/connector_example.png
-#  :width: 600
-#  :alt: Connector from Vias.
-######################################################################
+# <img src="_static/connector_example.png" width="600">
+#
+# The rectangular sheets at each end of the PCB enable placement of ports where the connectors are located.
 
 ######################################################################
-# Create connector component from pad-stack
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize an empty EDB layout object on version 2023 R2.
-######################################################################
+# Initialize the EDB layout object.
 
 import os
 import pyaedt
+import tempfile
 from pyaedt import Edb
 
-aedb_path = os.path.join(pyaedt.generate_unique_folder_name(),
-                         pyaedt.generate_unique_name("component_example") + ".aedb")
-
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+aedb_path = os.path.join(temp_dir.name, "component_example.aedb")
 
 edb = Edb(edbpath=aedb_path, edbversion="2023.2")
 print("EDB is located at {}".format(aedb_path))
 
 ######################
 # Initialize variables
-# ~~~~~~~~~~~~~~~~~~~~
 
 layout_count = 12
 diel_material_name = "FR4_epoxy"
@@ -52,9 +55,9 @@ trace_width = "200um"
 connector_size = 2e-3
 conectors_position = [[0, 0], [10e-3, 0]]
 
-################
-# Create stackup
-# ~~~~~~~~~~~~~~
+###############################################################################
+# Create the stackup
+
 edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner,
                                      outer_layer_thickness=cond_thickness_outer,
                                      soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
@@ -62,8 +65,6 @@ edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thick
 
 ######################
 # Create ground planes
-# ~~~~~~~~~~~~~~~~~~~~
-#
 
 ground_layers = [layer_name for layer_name in edb.stackup.signal_layers.keys() if layer_name not in
                  [trace_in_layer, trace_out_layer]]
@@ -72,8 +73,13 @@ for i in ground_layers:
     edb.modeler.create_polygon(plane_shape, i, net_name="VSS")
 
 ######################
-# Add design variables
-# ~~~~~~~~~~~~~~~~~~~~
+# ### Design Parameters
+#
+# Parameters that are preceeded by a _"$"_ character have project-wide scope. 
+# Therefore, the padstack **definition** and hence all instances of that padstack rely on the parameters.
+#
+# Parameters such as _"trace_in_width"_ and _"trace_out_width"_ have local scope and
+# are only used in in the design.
 
 edb.add_design_variable("$via_hole_size", "0.3mm")
 edb.add_design_variable("$antipaddiam", "0.7mm")
@@ -82,15 +88,15 @@ edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
 ############################
-# Create padstack definition
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ### Create the Connector Component
+#
+# The component definition is used to place the connector on the PCB. First define the padstacks.
 
 edb.padstacks.create_padstack(padstackname="Via", holediam="$via_hole_size", antipaddiam="$antipaddiam",
                               paddiam="$paddiam")
 
 ####################
-# Create connector 1
-# ~~~~~~~~~~~~~~~~~~
+# Create the first connector
 
 component1_pins = [edb.padstacks.place_padstack(conectors_position[0], "Via", net_name="VDD", fromlayer=trace_in_layer,
                                                 tolayer=trace_out_layer),
@@ -108,8 +114,7 @@ component1_pins = [edb.padstacks.place_padstack(conectors_position[0], "Via", ne
                                                 "Via", net_name="VSS")]
 
 ####################
-# Create connector 2
-# ~~~~~~~~~~~~~~~~~~
+# Create the 2nd connector
 
 component2_pins = [
     edb.padstacks.place_padstack(conectors_position[-1], "Via", net_name="VDD", fromlayer=trace_in_layer,
@@ -128,22 +133,22 @@ component2_pins = [
                                  "Via", net_name="VSS")]
 
 ####################
-# Create layout pins
-# ~~~~~~~~~~~~~~~~~~
+# ### Define "Pins"
+#
+# Pins are fist defined to allow a component to subsequently connect to the remainder 
+# of the model. In this case, ports will be assigned at the connector instances using the "pins".
 
 for padstack_instance in list(edb.padstacks.instances.values()):
     padstack_instance.is_pin = True
 
 ############################
-# create component from pins
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create components from he pins
 
 edb.components.create(component1_pins, 'connector_1')
 edb.components.create(component2_pins, 'connector_2')
 
 ################################################################################
-# Creating ports and adding simulation setup using SimulationConfiguration class
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Creating ports on the pins and insert a simulation setup using the ``SimulationConfiguration`` class.
 
 sim_setup = edb.new_simulation_configuration()
 sim_setup.solver_type = sim_setup.SOLVER_TYPE.Hfss3dLayout
@@ -158,13 +163,33 @@ sim_setup.ac_settings.step_freq = "1GHz"
 edb.build_simulation_project(sim_setup)
 
 ###########################
-# Save EDB and open in AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Save the EDB and open it in the 3D Layout editor. If ``non_graphical==False``
+# there may be a delay while AEDT started.
 
 edb.save_edb()
 edb.close_edb()
 h3d = pyaedt.Hfss3dLayout(specified_version="2023.2",
                           projectname=aedb_path,
-                          non_graphical=False,
+                          non_graphical=False,  # Set non_graphical = False to launch AEDT in graphical mode.
                           new_desktop_session=True)
-h3d.release_desktop(False, False)
+
+###############################################################################
+# ### Release the application from the Python kernel
+#
+# It is important to release the application from the Python kernel after 
+# execution of the script. The default behavior of the ``release_desktop()`` method closes all open
+# projects and closes the application.
+#
+# If you want to conintue working on the project in graphical mode
+# after script execution, call the following method with both arguments set to ``False``.
+
+h3d.release_desktop(close_projects=True, close_desktop=True)
+
+###############################################################################
+# ### Clean up the Temporary Directory
+#
+# The following command cleans up the temporary directory, thereby removing all 
+# project files. If you'd like to save this project, save it to a folder of your choice 
+# prior to running the following cell.
+
+temp_dir.cleanup()
