@@ -1,7 +1,8 @@
 """
 HFSS 3D Layout: SIwave DCIR analysis in HFSS 3D Layout
 ------------------------------------------------------
-This example shows how you can use configure HFSS 3D Layout for SIwave DCIR
+This example shows how to configure a model using the 3D Layout 
+interface for SIwave DC-IR
 analysis.
 """
 
@@ -10,11 +11,9 @@ import tempfile
 import pyaedt
 
 ###############################################################################
-# Configure EDB for DCIR analysis
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copy example into temporary folder
-temp_dir = tempfile.gettempdir()
-dst_dir = os.path.join(temp_dir, pyaedt.generate_unique_name("pyaedt_dcir"))
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+dst_dir = os.path.join(temp_dir.name, "pyaedt_dcir")
 os.mkdir(dst_dir)
 local_path = pyaedt.downloads.download_aedb(dst_dir)
 
@@ -66,8 +65,9 @@ appedb.siwave.create_pin_group_on_net(
     net_name="GND",
     group_name="U2A5-GND")
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create place current source between sink component positive and negative pin groups
+###############################################################################
+# Create place current source between sink component positive and negative pin groups.
+
 appedb.siwave.create_current_source_on_pin_group(
     pos_pin_group_name="U2A5-V3P3_S5",
     neg_pin_group_name="U2A5-GND",
@@ -81,16 +81,12 @@ appedb.siwave.create_current_source_on_pin_group(
 appedb.siwave.add_siwave_dc_analysis(name="my_setup")
 
 ###############################################################################
-# Save and close EDB
-# ~~~~~~~~~~~~~~~~~~
 # Save and close EDB.
 
 appedb.save_edb()
 appedb.close_edb()
 
 ###############################################################################
-# Analysis DCIR in AEDT
-# ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and import the configured EDB and analysis DCIR
 desktop = pyaedt.Desktop(edbversion, non_graphical=False, new_desktop_session=True)
 hfss3dl = pyaedt.Hfss3dLayout(local_path)
@@ -98,30 +94,25 @@ hfss3dl.analyze()
 hfss3dl.save_project()
 
 ###############################################################################
-# Get element data
-# ~~~~~~~~~~~~~~~~~~~
 # Get loop resistance
 
 loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
 print(loop_resistance)
 
-# ~~~~~~~~~~~~~~~~~~~
+###############################################################################
 # Get current source
 
 current_source = hfss3dl.get_dcir_element_data_current_source(setup_name="my_setup")
 print(current_source)
 
-# ~~~~~~~~~~~~~~~~~~~
+###############################################################################
 # Get via information
 
 via = hfss3dl.get_dcir_element_data_via(setup_name="my_setup")
 print(via)
 
-
 ###############################################################################
-# Get voltage
-# ~~~~~~~~~~~
-# Get voltage from dcir solution data
+# Get voltage from the DC-IR solution data.
 voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Sources",
@@ -129,7 +120,12 @@ voltage = hfss3dl.get_dcir_solution_data(
 print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
 
 ###############################################################################
-# Close AEDT
-# ~~~~~~~~~~
+# ## Close AEDT
 hfss3dl.close_project()
 desktop.release_desktop()
+
+""
+Clean up the temporary directory.
+
+""
+temp_dir.cleanup()

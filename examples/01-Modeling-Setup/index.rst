@@ -8,5 +8,5 @@ setup features inside AEDT.
 
     Configurations.py
     HFSS_CoordinateSystem.py
-    Optimentrics.py
+    Optimetrics.py
     Polyline_Primitives.py

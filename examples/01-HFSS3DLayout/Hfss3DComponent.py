@@ -5,18 +5,15 @@ This example shows how you can use PyAEDT to place 3D Components in Hfss and in 
 """
 import os
 import pyaedt
+import tempfile
 
 ###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
 ###############################################################################
-# Common Properties
-# ~~~~~~~~~~~~~~~~~
 # Set common properties.
 
 trace_width = 0.6
@@ -29,38 +26,38 @@ desktop_version = "2023.2"
 new_session = True
 
 ###############################################################################
-# 3D Component Definition
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# File to be used in the example
+# ## 3D Component Definition
+#
+# Download the 3D component file.
 
 component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
 
 ###############################################################################
-# Hfss Example
-# ------------
+# ## Hfss Example
+#
 # This example will create a stackup in Hfss place a 3d component, build a ground plane, a trace,
 # create excitation and solve it in Hfss.
-
-###############################################################################
-# Launch Hfss
-# ~~~~~~~~~~~
+#
 # Launch HFSS application
 
-hfss = pyaedt.Hfss(new_desktop_session=True, specified_version="2023.2", non_graphical=non_graphical)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+projectname = os.path.join("component_demo.aedt")
+hfss = pyaedt.Hfss(projectname=projectname,
+                   new_desktop_session=True, 
+                   specified_version=desktop_version, 
+                   non_graphical=non_graphical)
 
 hfss.solution_type = "Terminal"
 
 ###############################################################################
-# Insert 3d Component
-# ~~~~~~~~~~~~~~~~~~~
 # To insert a 3d component we need to read parameters and then import in Hfss.
 
 comp_param = hfss.get_components3d_vars(component3d)
 hfss.modeler.insert_3d_component(component3d, comp_param)
 
 ###############################################################################
-# Add a new Stackup
-# ~~~~~~~~~~~~~~~~~
+# ## Define the Stackup
+#
 # Pyaedt has a Stackup class which allows to parametrize stacked structures.
 
 stackup = hfss.add_stackup_3d()
@@ -69,8 +66,6 @@ d1 = stackup.add_dielectric_layer("D1", thickness=diel_height)
 g1 = stackup.add_ground_layer("G1", thickness=sig_height)
 
 ###############################################################################
-# Define stackup extensions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define stackup elevation and size. Defines also the stackup origin.
 
 stackup.start_position = "-131mil"
@@ -80,8 +75,8 @@ stackup.dielectric_y_position = "-dielectric_width/2"
 stackup.dielectric_x_position = "-dielectric_length/4"
 
 ###############################################################################
-# Padstack Definition
-# ~~~~~~~~~~~~~~~~~~~
+# ## Padstack Definition
+#
 # Padstacks are needed to create a clearance around 3d component since
 # intersections are not allowed. There will be 1 padstack for Gnd and 1 for pin.
 
@@ -105,8 +100,8 @@ p2.padstacks_by_layer["L1"].pad_radius = 0.3048
 p2.add_via(0, 0)
 
 ###############################################################################
-# Trace Definition
-# ~~~~~~~~~~~~~~~~
+# ## Trace Definition
+#
 # The trace will connect the pin to the port on layer L1.
 
 t1 = s1.add_trace(trace_width, trace_length)
@@ -116,18 +111,18 @@ rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZ,
 p1 = hfss.wave_port(signal=rect1, reference="G1", name="P1")
 
 ###############################################################################
-# Set Simulation Boundaries
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Set Simulation Boundaries
+#
 # Define regione and simulation boundaries.
 
 hfss.change_material_override(True)
-region = hfss.modeler.create_region([0, 0, 0, 0, 0, 100])
+region = hfss.modeler.create_region([100, 100, 100, 100, 100, 100])
 sheets = [i for i in region.faces]
 hfss.assign_radiation_boundary_to_faces(sheets)
 
 ###############################################################################
-# Create Setup
-# ~~~~~~~~~~~~
+# ## Create Setup
+#
 # Iterations will be reduced to reduce simulation time.
 
 setup1 = hfss.create_setup()
@@ -136,16 +131,16 @@ setup1.props["Frequency"] = freq
 setup1.props["MaximumPasses"] = max_steps
 
 ###############################################################################
-# Solve Setup
-# ~~~~~~~~~~~
+# ## Solve Setup
+#
 # Save the project first and then solve the setup.
 
 hfss.save_project()
 hfss.analyze()
 
 ###############################################################################
-# Plot results
-# ~~~~~~~~~~~~
+# ## Plot results
+#
 # Plot the results when analysis is completed.
 
 traces = hfss.get_traces_for_plot(category="S")
@@ -216,17 +211,19 @@ setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyDa
 
 ###############################################################################
 # Solve Setup
-# ~~~~~~~~~~~
 
 h3d.analyze()
 
 ###############################################################################
 # Plot results
-# ~~~~~~~~~~~~
 
 traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)
 solutions.plot(traces, math_formula="db20")
 
+""
 h3d.save_project()
 h3d.release_desktop()
+
+""
+temp_dir.cleanup()
