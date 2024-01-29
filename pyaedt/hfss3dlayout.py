@@ -9,13 +9,13 @@ import os
 import re
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
@@ -106,7 +106,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> import pyaedt
     >>> edb_path = "/path/to/edbfile.aedb"
     >>> edb = pyaedt.Edb(edb_path, edbversion=231)
-    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
     >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
@@ -147,9 +147,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @pyaedt_function_handler()
     def create_edge_port(

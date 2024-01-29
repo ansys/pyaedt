@@ -8,7 +8,7 @@ and save it to a GIF file. This example works only on CPython.
 ###############################################################################
 # Perform required imports.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform requried imports.
+# Perform required imports.
 
 import os
 from pyaedt import Hfss, downloads

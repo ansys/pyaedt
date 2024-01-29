@@ -9,7 +9,6 @@ from __future__ import absolute_import  # noreorder
 
 import datetime
 import gc
-import logging
 import os
 import pkgutil
 import re
@@ -38,7 +37,6 @@ else:
 
 from pyaedt import __version__
 from pyaedt import pyaedt_function_handler
-from pyaedt import settings
 from pyaedt.generic.desktop_sessions import _desktop_sessions
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
@@ -47,6 +45,7 @@ from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.settings import settings
 from pyaedt.misc import current_student_version
 from pyaedt.misc import current_version
 from pyaedt.misc import installed_versions
@@ -295,7 +294,7 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
                     _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, scopeID)
                     scopeID += 1
             except:
-                logging.warning(
+                pyaedt_logger.warning(
                     "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
                 )
                 pass
@@ -485,7 +484,7 @@ class Desktop(object):
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
 
-        self._connected_designs = 0
+        self._connected_app_instances = 0
 
         """Initialize desktop."""
         self.launched_by_pyaedt = False
@@ -524,7 +523,7 @@ class Desktop(object):
             self._logger.enable_log_on_file()
         else:
             self._logger.disable_log_on_file()
-        if settings.enable_desktop_logs and not non_graphical:
+        if settings.enable_desktop_logs:
             self._logger.enable_desktop_log()
         else:
             self._logger.disable_desktop_log()
@@ -570,7 +569,11 @@ class Desktop(object):
                 )
         elif float(version_key[0:6]) < 2022.2:
             starting_mode = "com"
+            if non_graphical:
+                self._logger.disable_desktop_log()
         elif float(version_key[0:6]) == 2022.2:
+            if non_graphical:
+                self._logger.disable_desktop_log()
             if self.machine and self.port:
                 starting_mode = "grpc"  # if the machine and port is specified, user wants to use gRPC
             elif settings.use_grpc_api is None:
@@ -1434,6 +1437,11 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
+        self.logger.oproject = None
+        self.logger.odesign = None
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            close_projects = True
+            close_on_exit = True
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:
@@ -1442,6 +1450,8 @@ class Desktop(object):
                 except:  # pragma: no cover
                     self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
+        if result:
+            self.logger.info("Desktop has been released")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:

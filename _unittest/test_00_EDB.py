@@ -1,5 +1,4 @@
 import builtins
-import json
 import os
 
 # Setup paths for module imports
@@ -263,6 +262,7 @@ class TestClass:
         self.edbapp.padstacks.definitions["myVia"].hole_range = "through"
         assert self.edbapp.padstacks.definitions["myVia"].hole_range == "through"
         self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        assert isinstance(self.edbapp.padstacks.definitions["myVia"].instances, list)
         assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
@@ -1913,6 +1913,22 @@ class TestClass:
         assert os.path.exists(export_stackup_path)
         edbapp.close()
 
+    def test_125c_stackup_json(self):
+        edbapp = Edb(edbversion=desktop_version)
+        temp_json = os.path.join(self.local_scratch.path, "stackup.json")
+        edbapp.stackup.create_symmetric_stackup(6)
+        edbapp.stackup.export(temp_json)
+
+        edbapp.stackup.remove_layer("SMT")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.remove_layer("SMB")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.remove_layer("TOP")
+        edbapp.stackup.load(temp_json)
+        edbapp.stackup.add_layer("air", layer_type="dielectric")
+        edbapp.stackup.load(temp_json)
+        edbapp.close()
+
     def test_125c_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
@@ -1942,15 +1958,11 @@ class TestClass:
         edbapp.close()
 
     def test_125d_stackup(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         fpath = os.path.join(local_path, "example_models", test_subfolder, "stackup.json")
-        stackup_json = json.load(open(fpath, "r"))
 
-        edbapp = Edb(edbversion=desktop_version)
+        edbapp = Edb(source_path, edbversion=desktop_version)
         edbapp.stackup.load(fpath)
-        edbapp.close()
-
-        edbapp = Edb(edbversion=desktop_version)
-        edbapp.stackup.load(stackup_json)
         edbapp.close()
 
     def test_126_comp_def(self):
@@ -2046,6 +2058,19 @@ class TestClass:
         assert edbapp.padstacks.definitions["Padstack_Circle"].convert_to_3d_microvias(False)
         assert edbapp.padstacks.definitions["Padstack_Rectangle"].convert_to_3d_microvias(False, hole_wall_angle=10)
         assert edbapp.padstacks.definitions["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
+        assert edbapp.padstacks.definitions["MyVia"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+        assert edbapp.padstacks.definitions["MyVia_square"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+        assert edbapp.padstacks.definitions["MyVia_rectangle"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+        assert not edbapp.padstacks.definitions["MyVia_poly"].convert_to_3d_microvias(
+            convert_only_signal_vias=False, delete_padstack_def=False
+        )
+
         edbapp.close()
 
     def test_129_split_microvias(self):
@@ -3098,3 +3123,122 @@ class TestClass:
         )
         assert len(list(edbapp.variables.values())) == 2308
         edbapp.close_edb()
+
+    def test_156_check_path_length(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_path_length.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_path_length", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        net1 = [path for path in edbapp.modeler.paths if path.net_name == "loop1"]
+        net1_length = 0
+        for path in net1:
+            net1_length += path.length
+        assert net1_length == 0.01814480090225562
+        net2 = [path for path in edbapp.modeler.paths if path.net_name == "line1"]
+        net2_length = 0
+        for path in net2:
+            net2_length += path.length
+        assert net2_length == 0.007
+        net3 = [path for path in edbapp.modeler.paths if path.net_name == "lin2"]
+        net3_length = 0
+        for path in net3:
+            net3_length += path.length
+        assert net3_length == 0.04860555127546401
+        net4 = [path for path in edbapp.modeler.paths if path.net_name == "lin3"]
+        net4_length = 0
+        for path in net4:
+            net4_length += path.length
+        assert net4_length == 7.6e-3
+        net5 = [path for path in edbapp.modeler.paths if path.net_name == "lin4"]
+        net5_length = 0
+        for path in net5:
+            net5_length += path.length
+        assert net5_length == 0.026285623899038543
+        edbapp.close_edb()
+
+    def test_157_cutout_return_clipping_extent(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_return_clipping_extent", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        extent = edbapp.cutout(
+            signal_list=["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N"],
+            reference_list=["GND"],
+        )
+        assert extent
+        assert len(extent) == 55
+        assert extent[0] == [0.011025799702099603, 0.04451508810211455]
+        assert extent[10] == [0.022142311790681247, 0.02851039231475559]
+        assert extent[20] == [0.06722930398844625, 0.026054683772800503]
+        assert extent[30] == [0.06793706863503707, 0.02961898962849831]
+        assert extent[40] == [0.06550327418370948, 0.031478931749766806]
+        assert extent[54] == [0.01102500189, 0.044555027391504444]
+        edbapp.close_edb()
+
+    def test_158_is_top_component_property(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_is_top_property", "test.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, desktop_version)
+        assert edbapp.components.instances["U1"].is_top_mounted
+        assert not edbapp.components.instances["C347"].is_top_mounted
+        assert not edbapp.components.instances["R67"].is_top_mounted
+        edbapp.close_edb()
+
+    def test_160_define_component(self):
+        example_folder = os.path.join(local_path, "example_models", test_subfolder)
+        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
+        target_path_edb = os.path.join(self.local_scratch.path, "test_component", "test.aedb")
+        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
+        edbapp = Edb(target_path_edb, desktop_version)
+        comp_pins = edbapp.components.instances["U1"].pins
+        pins = [comp_pins["AM38"], comp_pins["AL37"]]
+        edbapp.components.create(
+            component_part_name="Test_part", component_name="Test", is_rlc=True, r_value=12.2, pins=pins
+        )
+        assert edbapp.components.instances["Test"]
+        assert edbapp.components.instances["Test"].res_value == str(12.2)
+        assert edbapp.components.instances["Test"].ind_value == "0"
+        assert edbapp.components.instances["Test"].cap_value == "0"
+        assert edbapp.components.instances["Test"].center == [0.06800000116, 0.01649999875]
+        edbapp.close_edb()
+
+    def test_161_create_polygon_check(self):
+        example_folder = os.path.join(local_path, "example_models", test_subfolder)
+        source_path_edb = os.path.join(example_folder, "ANSYS-HSD_V1.aedb")
+        target_path_edb = os.path.join(self.local_scratch.path, "test_create_polygon", "test.aedb")
+        self.local_scratch.copyfolder(source_path_edb, target_path_edb)
+        edbapp = Edb(target_path_edb, desktop_version)
+        edbapp.modeler.create_polygon(
+            main_shape=[[0.0, 0.0], [0.0, 10e-3], [10e-3, 10e-3], [10e-3, 0]], layer_name="1_Top", net_name="test"
+        )
+        poly_test = [poly for poly in edbapp.modeler.polygons if poly.net_name == "test"]
+        assert len(poly_test) == 1
+        assert poly_test[0].center == [0.005, 0.005]
+        assert poly_test[0].bbox == [0.0, 0.0, 0.01, 0.01]
+        edbapp.close_edb()
+
+    def test_161_move_and_edit_polygons(self):
+        target_path = os.path.join(self.local_scratch.path, "test_move_edit_polygons", "test.aedb")
+        edbapp = Edb(target_path, edbversion=desktop_version)
+
+        edbapp.stackup.add_layer("GND")
+        edbapp.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
+        edbapp.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
+        points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
+        polygon = edbapp.modeler.create_polygon(points, "TOP")
+        assert polygon.center == [0.05, -0.0055]
+        assert polygon.move(["1mm", 1e-3])
+        assert round(polygon.center[0], 6) == 0.051
+        assert round(polygon.center[1], 6) == -0.0045
+        assert polygon.rotate(angle=45)
+        assert polygon.bbox == [0.012462680425333156, -0.043037319574666846, 0.08953731957466685, 0.034037319574666845]
+        assert polygon.rotate(angle=34, center=[0, 0])
+        assert polygon.bbox == [0.03083951217158376, -0.025151830651067256, 0.05875505636026722, 0.07472816865208806]
+        assert polygon.scale(factor=1.5)
+        assert polygon.bbox == [0.0238606261244129, -0.05012183047685609, 0.06573394240743807, 0.09969816847787688]
+        assert polygon.scale(factor=-0.5, center=[0, 0])
+        assert polygon.bbox == [-0.032866971203719036, -0.04984908423893844, -0.01193031306220645, 0.025060915238428044]
+        assert polygon.move_layer("GND")
+        assert len(edbapp.modeler.polygons) == 1
+        assert edbapp.modeler.polygons[0].layer_name == "GND"

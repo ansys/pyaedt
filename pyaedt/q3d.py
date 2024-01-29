@@ -7,13 +7,13 @@ import re
 import warnings
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
@@ -81,9 +81,6 @@ class QExtractor(FieldAnalysis3D, object):
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
-
-    def __enter__(self):
-        return self
 
     @property
     def excitations(self):
@@ -1423,7 +1420,7 @@ class Q3d(QExtractor, object):
                 net_id = i.props.get("ID", None)  # pragma: no cover
                 break  # pragma: no cover
         for i in self.boundaries:
-            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
                 sinks.append(i.name)
         return sinks
 
