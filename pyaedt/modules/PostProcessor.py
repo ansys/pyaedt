@@ -4,6 +4,7 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 import ast
