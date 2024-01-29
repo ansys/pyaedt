@@ -3331,7 +3331,7 @@ class Icepak(FieldAnalysis3D):
         htc : str or float or dict or BoundaryDictionary, optional
             Heat transfer coefficient to assign to the wall. This parameter
             is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
-            float value is specified, the unit is w_per_m2kel.
+            float value is specified, the unit is ``w_per_m2kel``.
             Assign a transient condition using the result of a function with
             the pattern ``create_*_transient_assignment``.
             Assign a temperature-dependent condition using the result of a
@@ -3918,9 +3918,9 @@ class Icepak(FieldAnalysis3D):
             Value and units of the input power, surface heat, or temperature (depending on
             ``thermal_condition``).
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             Assign a temperature-dependent condition using the result of a
-            function with the pattern ``create_temp_dep_assignment``.
+            function with the ``create_temp_dep_assignment`` pattern.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the boundary name
             is generated automatically.
@@ -3932,7 +3932,7 @@ class Icepak(FieldAnalysis3D):
         voltage_current_value : str or dict or BoundaryDictionary, optional
             Value and units of current or voltage assignment.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``None``.
 
         Returns
@@ -4138,11 +4138,12 @@ class Icepak(FieldAnalysis3D):
             Object name or a list of object names.
         power_assignment : str or dict or BoundaryDictionary
             String with the value and units of the power assignment or with
-            ``"Joule Heating"``.
+            ``" If you don't want to assign a specific power but set a joule heating
+            dissipation, use ``power_assignment="Joule Heating"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             Assign a temperature-dependent condition using the result of a
-            function with the pattern ``create_temp_dep_assignment``.
+            function with the ``create_temp_dep_assignment`` pattern.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary name is automatically generated.
@@ -4150,7 +4151,7 @@ class Icepak(FieldAnalysis3D):
             String with the value and units of the heat transfer coefficient for the
             external conditions. If a float is provided, the unit is ``"w_per_m2kel"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern .
             Assign a temperature-dependent condition using the result of a
             function with the pattern ``create_temp_dep_assignment``.
             The default is ``None``, in which case no external condition is applied.
@@ -5127,10 +5128,10 @@ class Icepak(FieldAnalysis3D):
             where the default unit ``"W"`` is used.
             Assign a transient condition using the result of a function with
             the pattern ``create_*_transient_assignment``.
-            Default is ``"0W"``.
+            The default is ``"0W"``.
         fluid : str, optional
-            Material of the volume to which the resistance is being
-            assigned. Default is ``"air"``.
+            Material of the volume to assign the resistance to. The
+            default is ``"air"``.
         laminar : bool, optional
             Whether the flow inside the volume must be treated as laminar or
             not. Default is ``False``.
@@ -5174,10 +5175,10 @@ class Icepak(FieldAnalysis3D):
             assigned. It can be a single object (a string) or multiple
             objects specified as a list.
         boundary_name : str, optional
-            The name of the boundary object that will be created. If not
+            Name of the boundary object to create. If  a name is not
             provided, a unique name will be generated. Default is ``None``.
         total_power : str, float, or dict or BoundaryDictionary, optional
-            The total power transferred to the fluid through the resistance
+            Total power transferred to the fluid through the resistance
             volume. It is specified as a string with value and unit or a float
             where the default unit ``"W"`` is used.
             Assign a transient condition using the result of a function with

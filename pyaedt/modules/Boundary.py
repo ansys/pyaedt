@@ -4595,7 +4595,7 @@ class LinearDictionary(BoundaryDictionary):
 
 class PowerLawDictionary(BoundaryDictionary):
     """
-    Manages power law conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
 
      This class applies a condition ``y`` dependent on the time ``t``:
          ``y=a+b*t^c``
@@ -4626,7 +4626,7 @@ class PowerLawDictionary(BoundaryDictionary):
 
 class ExponentialDictionary(BoundaryDictionary):
     """
-    Manages exponential conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
@@ -4657,7 +4657,7 @@ class ExponentialDictionary(BoundaryDictionary):
 
 class SinusoidalDictionary(BoundaryDictionary):
     """
-    Manages sinusoidal conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
@@ -4723,7 +4723,7 @@ class SquareWaveDictionary(BoundaryDictionary):
 
 class PieceWiseLinearDictionary(BoundaryDictionary):
     """
-    Manages dataset conditions assignments, which are children of the ``BoundaryDictionary`` class.
+    Manages dataset condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
