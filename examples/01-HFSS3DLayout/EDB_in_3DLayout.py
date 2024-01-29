@@ -44,7 +44,7 @@ d = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 h3d = pyaedt.Hfss3dLayout(targetfile)
-h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
+h3d.save_project(os.path.join(project_folder, "edb_demo.aedt"))
 
 ###############################################################################
 # ## Print boundaries
