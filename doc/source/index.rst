@@ -1,8 +1,13 @@
 PyAEDT documentation  |version|
 ===============================
 
-PyAEDT is a Python library that interacts directly with the API for
-Ansys Electronics Desktop (AEDT) to make scripting simpler.
+**Useful links**:
+`Installation <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_ |
+`Source Repository <https://github.com/ansys/pyaedt>`_ |
+`Issues <https://github.com/ansys/pyaedt/issues>`_
+
+PyAEDT is a Python library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
+enabling straightforward and efficient automation in your workflow.
 
 .. grid:: 2
 
@@ -12,8 +17,7 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
             Getting started
             ^^^^^^^^^^^^^^^
 
-            Learn how to run install PyAEDT, to launch Electronics Desktop and
-            install link button in AEDT.
+            New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
 
             +++
 
@@ -31,8 +35,7 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
             User guide
             ^^^^^^^^^^
 
-            Understand key concepts and approaches for primitives,
-            modeler, mesh, setup and post-processing.
+            This section provides in-depth information on PyAEDT key concepts.
 
             +++
             .. button-link:: User_guide/index.html
@@ -53,8 +56,8 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
             AEDT API reference
             ^^^^^^^^^^^^^^^^^^
 
-            Understand PyAEDT API endpoints, their capabilities,
-            and how to interact with them programmatically.
+            The PyAEDT API reference contains descriptions of the functions and modules included in PyAEDT.
+            It describes how the methods work and the parameter that can be used.
 
             +++
             .. button-link:: API/index.html
@@ -71,8 +74,8 @@ Ansys Electronics Desktop (AEDT) to make scripting simpler.
             EDB API reference
             ^^^^^^^^^^^^^^^^^
 
-            Understand PyAEDT EDB API endpoints, their capabilities,
-            and how to interact with them programmatically.
+            The PyAEDT EDB API reference contains descriptions of the functions and modules included in PyAEDT.
+            It describes how the methods work and the parameter that can be used.
 
             +++
             .. button-link:: EDBAPI/index.html

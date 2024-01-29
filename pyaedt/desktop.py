@@ -484,7 +484,7 @@ class Desktop(object):
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
 
-        self._connected_designs = 0
+        self._connected_app_instances = 0
 
         """Initialize desktop."""
         self.launched_by_pyaedt = False
@@ -1437,6 +1437,11 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
+        self.logger.oproject = None
+        self.logger.odesign = None
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            close_projects = True
+            close_on_exit = True
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:
@@ -1445,6 +1450,8 @@ class Desktop(object):
                 except:  # pragma: no cover
                     self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
+        if result:
+            self.logger.info("Desktop has been released")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:

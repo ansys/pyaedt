@@ -4524,24 +4524,24 @@ def _create_boundary(bound):
 
 class BoundaryDictionary:
     """
-    Class that handles Icepak transient and temperature dependent boundary conditions assignments.
+    Handles Icepak transient and temperature-dependent boundary condition assignments.
 
     Parameters
     ----------
     assignment_type : str
-        The type of assignment represented by the class. It can be ``"Temp Dep"``
-        or ``"Transient"``.
+        Type of assignment represented by the class. Options are `"Temp Dep"``
+        and ``"Transient"``.
     function_type : str
-        The variation function to be assigned. If ``assignment_type=="Temp Dep"``,
-        it can only be ``"Piecewise Linear"``, else it can be ``"Piecewise Linear"``,
-        ``"Linear"``, ``"Sinusoidal"``, ``"Power Law"``, ``"Exponential"``,
-        and ``"Square Wave"``.
+        Variation function to assign. If ``assignment_type=="Temp Dep"``,
+        the function can only be ``"Piecewise Linear"``. Otherwise, the function can be
+        ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+        ``"Sinusoidal"``, and ``"Square Wave"``.
     """
 
     def __init__(self, assignment_type, function_type):
-        if assignment_type not in ["Temp Dep", "Transient"]:
+        if assignment_type not in ["Temp Dep", "Transient"]:  # pragma : no cover
             raise AttributeError("The argument {} for ``assignment_type`` is not valid.".format(assignment_type))
-        if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":
+        if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
             raise AttributeError(
                 "Temperature dependent assignments only support"
                 ' ``"Piecewise Linear"`` as ``function_type`` argument.'.format(assignment_type)
@@ -4559,7 +4559,7 @@ class BoundaryDictionary:
 
     @abstractmethod
     def _parse_value(self):
-        pass
+        pass  # pragma : no cover
 
     @pyaedt_function_handler
     def __getitem__(self, k):
@@ -4568,19 +4568,19 @@ class BoundaryDictionary:
 
 class LinearDictionary(BoundaryDictionary):
     """
-    Class for managing linear conditions assignments, children of BoundaryDictionary.
+    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*t``
 
     Parameters
     ----------
     intercept : str
-        Value of the assignment condition at initial time.
-        Corresponds to the coefficient ``a`` in the formula.
+        Value of the assignment condition at the initial time, which
+        corresponds to the coefficient ``a`` in the formula.
     slope : str
-        Slope of the assignment condition.
-        Corresponds to the coefficient ``b`` in the formula.
+        Slope of the assignment condition, which
+        corresponds to the coefficient ``b`` in the formula.
     """
 
     def __init__(self, intercept, slope):
@@ -4595,22 +4595,22 @@ class LinearDictionary(BoundaryDictionary):
 
 class PowerLawDictionary(BoundaryDictionary):
     """
-    Class for managing power law conditions assignments, children of BoundaryDictionary.
+    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
-        ``y=a+b*t^c``
+     This class applies a condition ``y`` dependent on the time ``t``:
+         ``y=a+b*t^c``
 
-    Parameters
-    ----------
-    intercept : str
-        Value of the assignment condition at initial time.
-        Corresponds to the coefficient ``a`` in the formula.
-    coefficient : str
-        Coefficient that multiplies the power term.
-        Corresponds to the coefficient ``b`` in the formula.
-    scaling_exponent : str
-        Exponent of the power term.
-        Corresponds to the coefficient ``c`` in the formula.
+     Parameters
+     ----------
+     intercept : str
+         Value of the assignment condition at the initial time, which
+         corresponds to the coefficient ``a`` in the formula.
+     coefficient : str
+         Coefficient that multiplies the power term, which
+         corresponds to the coefficient ``b`` in the formula.
+     scaling_exponent : str
+         Exponent of the power term, which
+         corresponds to the coefficient ``c`` in the formula.
     """
 
     def __init__(self, intercept, coefficient, scaling_exponent):
@@ -4626,22 +4626,22 @@ class PowerLawDictionary(BoundaryDictionary):
 
 class ExponentialDictionary(BoundaryDictionary):
     """
-    Class for managing exponential conditions assignments, children of BoundaryDictionary.
+    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*exp(c*t)``
 
     Parameters
     ----------
     vertical_offset : str
-        Vertical offset summed to the exponential law.
-        Corresponds to the coefficient ``a`` in the formula.
+        Vertical offset summed to the exponential law, which
+        corresponds to the coefficient ``a`` in the formula.
     coefficient : str
-        Coefficient that multiplies the exponential term.
-        Corresponds to the coefficient ``b`` in the formula.
+        Coefficient that multiplies the exponential term, which
+        corresponds to the coefficient ``b`` in the formula.
     exponent_coefficient : str
-        Coefficient in the exponential term.
-        Corresponds to the coefficient ``c`` in the formula.
+        Coefficient in the exponential term, which
+        corresponds to the coefficient ``c`` in the formula.
     """
 
     def __init__(self, vertical_offset, coefficient, exponent_coefficient):
@@ -4657,25 +4657,25 @@ class ExponentialDictionary(BoundaryDictionary):
 
 class SinusoidalDictionary(BoundaryDictionary):
     """
-    Class for managing sinusoidal conditions assignments, children of BoundaryDictionary.
+    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
 
-    It applies a condition ``y`` dependent on the time ``t``:
+    This class applies a condition ``y`` dependent on the time ``t``:
         ``y=a+b*sin(2*pi(t-t0)/T)``
 
     Parameters
     ----------
     vertical_offset : str
-        Vertical offset summed to the sinusoidal law.
-        Corresponds to the coefficient ``a`` in the formula.
+        Vertical offset summed to the sinusoidal law, which
+        corresponds to the coefficient ``a`` in the formula.
     vertical_scaling : str
-        Coefficient that multiplies the sinusoidal term.
-        Corresponds to the coefficient ``b`` in the formula.
+        Coefficient that multiplies the sinusoidal term, which
+        corresponds to the coefficient ``b`` in the formula.
     period : str
-        Period of the sinusoid.
-        Corresponds to the coefficient ``T`` in the formula.
+        Period of the sinusoid, which
+        corresponds to the coefficient ``T`` in the formula.
     period_offset : str
-        Offset of the sinusoid.
-        Corresponds to the coefficient ``t0`` in the formula.
+        Offset of the sinusoid, which
+        corresponds to the coefficient ``t0`` in the formula.
     """
 
     def __init__(self, vertical_offset, vertical_scaling, period, period_offset):
@@ -4692,14 +4692,14 @@ class SinusoidalDictionary(BoundaryDictionary):
 
 class SquareWaveDictionary(BoundaryDictionary):
     """
-    Class for managing square wave conditions assignments, children of BoundaryDictionary.
+    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
     on_value : str
         Maximum value of the square wave.
     initial_time_off : str
-        Time after which the square wave assignment starts
+        Time after which the square wave assignment starts.
     on_time : str
         Time for which the square wave keeps the maximum value during one period.
     off_time : str
@@ -4723,15 +4723,15 @@ class SquareWaveDictionary(BoundaryDictionary):
 
 class PieceWiseLinearDictionary(BoundaryDictionary):
     """
-    Class for managing dataset conditions assignments, children of BoundaryDictionary.
+    Manages dataset condition assignments, which are children of the ``BoundaryDictionary`` class.
 
     Parameters
     ----------
     assignment_type : str
-        The type of assignment represented by the class.
-        It can be ``"Temp Dep"`` or ``"Transient"``.
+        Type of assignment represented by the class.
+        Options are ``"Temp Dep"`` and ``"Transient"``.
     ds : str
-        Dataset name to be assigned.
+        Dataset name to assign.
     scale : str
         Scaling factor for the y values of the dataset.
     """

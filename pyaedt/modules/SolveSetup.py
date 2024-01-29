@@ -888,9 +888,130 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
+    @pyaedt_function_handler()
+    def start_continue_from_previous_setup(
+        self,
+        design_name,
+        solution_name,
+        map_variables_by_name=True,
+        parameters_dict=None,
+        project_name="This Project*",
+        force_source_to_solve=True,
+        preserve_partner_solution=True,
+    ):
+        """Start or continue from a previously solved setup.
+
+        Parameters
+        ----------
+        design_name : str
+            Name of the design.
+        solution_name : str, optional
+            Name of the solution in the format ``"setupname : solutionname"``.
+            For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
+        map_variables_by_name : bool, optional
+            Whether variables are mapped by name from the source design. The default is
+            ``True``.
+        parameters_dict : dict, optional
+            Dictionary of the parameters. This parameter is not considered if
+            ``map_variables_by_name = True``. If ``None``, the default value is
+            ``appname.available_variations.nominal_w_values_dict``.
+        project_name : str, optional
+            Name of the project with the design. The default is ``"This Project*"``.
+            However, you can supply the full path and name to another project.
+        force_source_to_solve : bool, optional
+            The default is ``True``.
+        preserve_partner_solution : bool, optional
+            The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> m2d = pyaedt.Maxwell2d()
+        >>> setup = m2d.get_setup("Setup1")
+        >>> setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
+
+        """
+
+        auto_update = self.auto_update
+        try:
+            self.auto_update = False
+
+            # parameters
+            params = OrderedDict({})
+            if map_variables_by_name:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = k
+            elif parameters_dict is None:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = v
+            else:
+                for k, v in parameters_dict.items():
+                    if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                        params[k] = v
+                    else:
+                        params[k] = parameters_dict[v]
+
+            prev_solution = OrderedDict({})
+
+            # project name
+            if project_name != "This Project*":
+                if os.path.exists(project_name):
+                    prev_solution["Project"] = project_name
+                    self.props["PathRelativeTo"] = "SourceProduct"
+                else:
+                    raise ValueError("Project file path provided does not exist.")
+            else:
+                prev_solution["Project"] = project_name
+                self.props["PathRelativeTo"] = "TargetProject"
+
+            # design name
+            if not design_name or design_name is None:
+                raise ValueError("Provide design name to add mesh link to.")
+            elif design_name not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                prev_solution["Design"] = design_name
+
+            # solution name
+            if solution_name:
+                prev_solution["Soln"] = solution_name
+            else:
+                raise ValueError("Provide a valid solution name.")
+
+            self.props["PrevSoln"] = prev_solution
+
+            self.props["PrevSoln"]["Params"] = params
+            self.props["ForceSourceToSolve"] = force_source_to_solve
+            self.props["PreservePartnerSoln"] = preserve_partner_solution
+
+            self.props["IsGeneralTransient"] = True
+            if self.props["IsHalfPeriodicTransient"]:
+                raise UserWarning(
+                    "Half periodic TDM disabled because it is not "
+                    "supported with start/continue from a previously solved setup."
+                )
+
+            self.update()
+            self.auto_update = auto_update
+            return True
+        except:
+            self.auto_update = auto_update
+            return False
+
 
 class SetupCircuit(CommonSetup):
-    """Initializes, creates, and updates a circuit setup.
+    """Manages a circuit setup.
 
     Parameters
     ----------
@@ -1807,6 +1928,7 @@ class Setup3DLayout(CommonSetup):
     def _get_net_names(self, app, file_fullname):
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         via_per_nets = self._get_via_position_per_net()
+        pass
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
@@ -2539,6 +2661,66 @@ class SetupHFSS(Setup, object):
         else:
             if self.sweeps:
                 return self.sweeps[0]
+        return False
+
+    @pyaedt_function_handler()
+    def get_sweep_names(self):
+        """Get the names of all sweeps in a given analysis setup.
+
+        Returns
+        -------
+        list of str
+            List of names of all sweeps for the setup.
+
+        References
+        ----------
+
+        >>> oModules.GetSweeps
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweeps = setup.get_sweep_names()
+        """
+        return self.omodule.GetSweeps(self.name)
+
+    @pyaedt_function_handler()
+    def delete_sweep(self, sweepname):
+        """Delete a sweep.
+
+        Parameters
+        ----------
+        sweepname : str
+            Name of the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteSweep
+
+        Examples
+        --------
+        Create a frequency sweep and then delete it.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1.create_frequency_sweep(
+            "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
+        )
+        >>> setup1.delete_sweep("Sweep1")
+        """
+        if sweepname in self.get_sweep_names():
+            self.sweeps = [sweep for sweep in self.sweeps if sweep.name != sweepname]
+            self.omodule.DeleteSweep(self.name, sweepname)
+            return True
         return False
 
     @pyaedt_function_handler()

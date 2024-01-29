@@ -201,9 +201,6 @@ class Hfss(FieldAnalysis3D, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
-
     @property
     def field_setups(self):
         """List of AEDT radiation fields.
