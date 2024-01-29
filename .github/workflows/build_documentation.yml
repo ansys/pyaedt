@@ -75,6 +75,7 @@ jobs:
       - name: Install doc build requirements
         run: |
           sudo apt install graphviz
+          sudo apt install -y pandoc
 
       # run doc build, without creating the examples directory
       # note that we have to add the examples file here since it won't
