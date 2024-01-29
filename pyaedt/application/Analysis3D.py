@@ -1312,8 +1312,11 @@ class FieldAnalysis3D(Analysis, object):
             self.logger.error("GDSII layer number list is empty, no layer imported ")
             return False
 
-        if (elevation_list is None or thickness_list is None or (len(gds_number_list) != len(elevation_list)
-                                                                 or len(gds_number_list) != len(thickness_list))):
+        if (
+            elevation_list is None
+            or thickness_list is None
+            or (len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list))
+        ):
             self.logger.warning(
                 "One of parameter list: elevation and/or thickness is either:"
                 "not specified or has different number of element than GDS number."
