@@ -1278,9 +1278,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(
-        self, gds_file_path, gds_number_list, elevation_list, thickness_list, import_method=1
-    ):
+    def import_gds_3d(self, gds_file_path, gds_number_list, elevation_list, thickness_list, import_method=1):
         """Import a GDSII file.
 
         Parameters
@@ -1314,10 +1312,7 @@ class FieldAnalysis3D(Analysis, object):
             self.logger.error("GDSII layer number list is empty, no layer imported ")
             return False
 
-        if (
-            len(gds_number_list) != len(elevation_list)
-            or len(gds_number_list) != len(thickness_list)
-        ):
+        if len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list):
             self.logger.warning(
                 "One of the list: elevation and/or thickness has different number of element than "
                 "GDS number. Elevation and thickness will be ignored "
