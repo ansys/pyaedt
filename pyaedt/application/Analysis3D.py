@@ -1326,7 +1326,6 @@ class FieldAnalysis3D(Analysis, object):
                     ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
                 )
 
-            # ImportMethod: 0 for script, 1for Parasolid
             self.oeditor.ImportGDSII(
                 [
                     "NAME:options",
@@ -1370,7 +1369,6 @@ class FieldAnalysis3D(Analysis, object):
                 ordermap = ordermap + ordermap1
                 j = j + 1
 
-            # ImportMethod: 0 for script, 1for Parasolid
             self.oeditor.ImportGDSII(
                 [
                     "NAME:options",
