@@ -3320,7 +3320,7 @@ class Icepak(FieldAnalysis3D):
             Temperature to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified, the
             unit is degrees Celsius. Assign a transient condition using the
-            result of a function with the pattern ``create_*_transient_assignment``.
+            result of a function with the ``create_*_transient_assignment`` pattern.
             The default is ``"0cel"``.
         heat_flux : str or float or dict or BoundaryDictionary, optional
             Heat flux to assign to the wall. This parameter is relevant if
@@ -3328,7 +3328,7 @@ class Icepak(FieldAnalysis3D):
             the unit is irrad_W_per_m2. Assign a transient condition using the
             result of a function with the ``create_*_transient_assignment`` pattern.
             the unit is ``irrad_W_per_m2``. Assign a transient condition using the
-            result of a function with the pattern ``create_*_transient_assignment``.
+            result of a function with the ``create_*_transient_assignment`` pattern.
             The default is ``"0irrad_W_per_m2"``.
         htc : str or float or dict or BoundaryDictionary, optional
             Heat transfer coefficient to assign to the wall. This parameter
@@ -3336,7 +3336,7 @@ class Icepak(FieldAnalysis3D):
             float value is specified, the unit is ``w_per_m2kel``.
             Assign a transient condition using the result of a function with
             the ``create_*_transient_assignment`` pattern.
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             Assign a temperature-dependent condition using the result of a
             function with the pattern ``create_temp_dep_assignment``.
             The default is ``"0w_per_m2kel"``.
@@ -3539,7 +3539,7 @@ class Icepak(FieldAnalysis3D):
             Heat flux to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified,
             the unit is ``irrad_W_per_m2``. Assign a transient condition using the
-            result of a function with the pattern ``create_*_transient_assignment``.
+            result of a function with the ``create_*_transient_assignment`` pattern.
             The default is ``"0irrad_W_per_m2"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is the
@@ -4162,7 +4162,7 @@ class Icepak(FieldAnalysis3D):
             String with the value and units of temperature for the external conditions.
             If a float is provided, the ``"cel"`` unit is used.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
             set to ``None``.
 
@@ -4262,7 +4262,7 @@ class Icepak(FieldAnalysis3D):
             String with a value and units of the assignment. If ``"Total Power"`` is
             the assignment type, ``"Joule Heating"`` can be used.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             Assign a temperature-dependent condition using the result of a
             function with the pattern ``create_temp_dep_assignment``.
         boundary_name : str, optional
@@ -4273,7 +4273,7 @@ class Icepak(FieldAnalysis3D):
             coefficient. If a float value is specified, the ``"cel"`` unit is automatically
             added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientTemp"``.
 
         Returns
@@ -4641,7 +4641,7 @@ class Icepak(FieldAnalysis3D):
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
             automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
@@ -4652,7 +4652,7 @@ class Icepak(FieldAnalysis3D):
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'pascal'`` is automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
@@ -4709,7 +4709,7 @@ class Icepak(FieldAnalysis3D):
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
             automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
@@ -4720,14 +4720,14 @@ class Icepak(FieldAnalysis3D):
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'pascal'`` is automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientPressure"``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
             is automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment`` as an element of the list.
+            the ``create_*_transient_assignment`` pattern as an element of the list.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
 
 
@@ -4784,7 +4784,7 @@ class Icepak(FieldAnalysis3D):
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
             automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
@@ -4795,14 +4795,14 @@ class Icepak(FieldAnalysis3D):
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'pascal'`` is automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientPressure"``.
         mass_flow_rate : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'kg_per_s'`` is automatically added.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"0kg_per_s"``.
         inflow : bool, optional
             Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
@@ -4979,7 +4979,7 @@ class Icepak(FieldAnalysis3D):
             volume. It is specified as a string with a value and unit, a float
             where the default unit "W" is used.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5130,7 +5130,7 @@ class Icepak(FieldAnalysis3D):
             volume. It is specified as a string with a value and unit or a float
             where the default unit ``"W"`` is used.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"0W"``.
         fluid : str, optional
             Material of the volume to assign the resistance to. The
@@ -5185,7 +5185,7 @@ class Icepak(FieldAnalysis3D):
             volume. It is specified as a string with a value and unit or a float
             where the default unit ``"W"`` is used.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5258,7 +5258,7 @@ class Icepak(FieldAnalysis3D):
             volume. It is specified as a string with a value and unit or a float
             where the default unit ``"W"`` is used.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"0W"``.
         fluid : str, optional
             Material of the volume to which the resistance is being
@@ -5325,7 +5325,7 @@ class Icepak(FieldAnalysis3D):
         assignment_value : str or dict or BoundaryDictionary, optional
             String with a value and units of the thermal assignment.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default value is ``"0cel"``.
         conductance_external_temperature : str, optional
             External temperature value, which is needed if
@@ -5338,7 +5338,7 @@ class Icepak(FieldAnalysis3D):
         flow_assignment : str or dict or BoundaryDictionary, optional
             String with the value and units of the flow assignment.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
             The default value is ``"0kg_per_s_m2"``.
         flow_direction : list, optional
             Flow direction enforced at the recirculation zone. The default value
@@ -5630,7 +5630,7 @@ class Icepak(FieldAnalysis3D):
             Power dissipated by the plate. The default is ``"0W"``. If a float,
             the default unit is ``"W"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         thermal_specification : str, optional
             Type of condition to apply. The default is ``"Thickness"``.
             Options are ``"Conductance"``, ``"Thermal Impedance"``,
@@ -5738,7 +5738,7 @@ class Icepak(FieldAnalysis3D):
             Power dissipated by the plate. The default is ``"0W"``. If a float,
             the default unit is ``"W"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         thickness : str or float, optional
             If ``thermal_specification="Thickness"``, this parameter represents the
             thickness to model with the plate. The default is ``"1mm"``. If a float,
@@ -5790,7 +5790,7 @@ class Icepak(FieldAnalysis3D):
             Power dissipated by the plate. The default is ``"0W"``. If a float,
             the default unit is ``"W"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         thermal_resistance : str or float, optional
             If ``thermal_specification="Thermal Resistance"``, this parameter represents the
             thermal resistance of the plate. The default is ``"0Kel_per_W"``. If a float, the
@@ -5838,7 +5838,7 @@ class Icepak(FieldAnalysis3D):
             Power dissipated by the plate. The default is ``"0W"``. If a float,
             the default unit is ``"W"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         thermal_impedance : str or float, optional
             If ``thermal_specification="Thermal Impedance"``, this parameter represents the
             thermal impedance of the plate. The default is ``"0Cel_m2_per_W"``. If a float, the
@@ -5886,7 +5886,7 @@ class Icepak(FieldAnalysis3D):
             Power dissipated by the plate. The default is ``"0W"``. If a float,
             the default unit is ``"W"``.
             Assign a transient condition using the result of a function with
-            the pattern ``create_*_transient_assignment``.
+            the ``create_*_transient_assignment`` pattern.
         conductance : str or float, optional
              If ``thermal_specification="Conductance"``, this parameter represents the
              conductance of the plate. The default is ``"0W_per_Cel"``. If a float, the default
