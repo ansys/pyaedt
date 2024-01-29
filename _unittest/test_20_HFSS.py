@@ -1628,7 +1628,7 @@ class TestClass:
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_68_import_gds_3d(self):
         self.aedtapp.insert_design("gds_import_H3D")
-        gds_file = os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.gds")
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
         # list of gds number
         gds_number = [7, 9]
         # list of elevation
@@ -1638,16 +1638,12 @@ class TestClass:
         # import method 0 script, 1 Parasolid
         importmethod = 0
         assert self.aedtapp.import_gds_3d(gds_file, gds_number, elevation, thickness, importmethod)
-        aedtapp.close_project(save_project=False)
         assert self.aedtapp.import_gds_3d(gds_file, gds_number)
-        aedtapp.close_project(save_project=False)
         gds_number = [7]
         importmethod = 1
         assert self.aedtapp.import_gds_3d(gds_file, gds_number, elevation, thickness, importmethod)
-        aedtapp.close_project(save_project=False)
-        gds_file = os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1not.gds")
-        assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
-        aedtapp.close_project(save_project=False)
         gds_number = []
         assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
-        aedtapp.close_project(save_project=False)
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
+        assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
+        self.aedtapp.close_project(save_project=False)

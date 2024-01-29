@@ -1318,7 +1318,7 @@ class FieldAnalysis3D(Analysis, object):
             or (len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list))
         ):
             self.logger.warning(
-                "One of parameter list: elevation and/or thickness is either:"
+                "One of parameter list: elevation and/or thickness is either: "
                 "not specified or has different number of element than GDS number."
                 "Elevation and thickness will not be applied "
             )
