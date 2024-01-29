@@ -1624,3 +1624,17 @@ class TestClass:
         aedtapp.solution_type = "Transient Composite"
         assert aedtapp.solution_type == "Transient Composite"
         aedtapp.close_project(save_project=False)
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_68_import_gds_3d(self):
+        self.aedtapp.insert_design("gds_import_H3D")
+        gds_file = os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.gds")
+        # list of gds number
+        gds_number = [7, 9]
+        # list of elevation
+        elevation = [100e-6, 110e-6]
+        # list of thickness
+        thickness = [10e-6, 5e-6]
+        # import method 0 script, 1 Parasolid
+        importmethod = 0
+        assert self.aedtapp.import_gds_3d(gds_file, gds_number, elevation, thickness, importmethod)
