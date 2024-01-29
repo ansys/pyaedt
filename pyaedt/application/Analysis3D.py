@@ -1279,7 +1279,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler
     def import_gds_3d(
-        self, gds_file_path, gds_number_list, elevation_list, thickness_list, color_list, import_method=1
+        self, gds_file_path, gds_number_list, elevation_list, thickness_list, import_method=1
     ):
         """Import a GDSII file.
 
@@ -1295,10 +1295,6 @@ class FieldAnalysis3D(Analysis, object):
             If not elevation, thickness and color will not be applied.
         thickness_list : list
             List of thickness for each layer number imported.
-            Number of element must be the same as gds_number list.
-            If not elevation, thickness and color will not be applied.
-        color_list : list
-            List of color for each layer number imported.
             Number of element must be the same as gds_number list.
             If not elevation, thickness and color will not be applied.
         import_method : integer, optional
@@ -1321,11 +1317,10 @@ class FieldAnalysis3D(Analysis, object):
         if (
             len(gds_number_list) != len(elevation_list)
             or len(gds_number_list) != len(thickness_list)
-            or len(gds_number_list) != len(color_list)
         ):
             self.logger.warning(
-                "One of the list: elevation, thickness or color has different number of element than "
-                "GDS number. Elevation, thickness and color will be ignored "
+                "One of the list: elevation and/or thickness has different number of element than "
+                "GDS number. Elevation and thickness will be ignored "
             )
             layermap = ["NAME:LayerMap"]
             for i in gds_number_list:
@@ -1348,7 +1343,7 @@ class FieldAnalysis3D(Analysis, object):
                 ]
             )
         else:
-            self.logger.warning("GDS layer imported with elevation, thickness and color")
+            self.logger.warning("GDS layer imported with elevation and thickness")
 
             layermap = ["NAME:LayerMap"]
             ordermap = []
@@ -1372,7 +1367,7 @@ class FieldAnalysis3D(Analysis, object):
                         "Elevation:=",
                         elevation_list[j],
                         "Color:=",
-                        color_list[j],
+                        "color",
                     ],
                 ]
                 ordermap = ordermap + ordermap1
