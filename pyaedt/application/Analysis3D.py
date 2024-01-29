@@ -1278,7 +1278,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(self, gds_file_path, gds_number_list, elevation_list, thickness_list, import_method=1):
+    def import_gds_3d(self, gds_file_path, gds_number_list, elevation_list=None, thickness_list=None, import_method=1):
         """Import a GDSII file.
 
         Parameters
@@ -1287,14 +1287,14 @@ class FieldAnalysis3D(Analysis, object):
             Path to the GDS file.
         gds_number_list : list
             List of layer number to import.
-        elevation_list : list
-            List of elevation for each layer number imported.
+        elevation_list : list, optional
+            List of elevation for each GDS layer number imported.
             Number of element must be the same as gds_number list.
-            If not elevation, thickness and color will not be applied.
-        thickness_list : list
-            List of thickness for each layer number imported.
+            If not or None elevation and thickness will not be applied.
+        thickness_list : list, optional
+            List of thickness for each GDS layer number imported.
             Number of element must be the same as gds_number list.
-            If not elevation, thickness and color will not be applied.
+            If not or None elevation and thickness will not be applied.
         import_method : integer, optional
             GDSII import method. The default is 1
             0 = script, 1 = Parasolid
@@ -1312,10 +1312,12 @@ class FieldAnalysis3D(Analysis, object):
             self.logger.error("GDSII layer number list is empty, no layer imported ")
             return False
 
-        if len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list):
+        if (elevation_list is None or thickness_list is None or (len(gds_number_list) != len(elevation_list)
+                                                                 or len(gds_number_list) != len(thickness_list))):
             self.logger.warning(
-                "One of the list: elevation and/or thickness has different number of element than "
-                "GDS number. Elevation and thickness will be ignored "
+                "One of parameter list: elevation and/or thickness is either:"
+                "not specified or has different number of element than GDS number."
+                "Elevation and thickness will not be applied "
             )
             layermap = ["NAME:LayerMap"]
             for i in gds_number_list:
