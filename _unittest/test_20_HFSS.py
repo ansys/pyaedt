@@ -1638,3 +1638,11 @@ class TestClass:
         # import method 0 script, 1 Parasolid
         importmethod = 0
         assert self.aedtapp.import_gds_3d(gds_file, gds_number, elevation, thickness, importmethod)
+        assert self.aedtapp.import_gds_3d(gds_file, gds_number)
+        gds_number = [7]
+        importmethod = 1
+        assert self.aedtapp.import_gds_3d(gds_file, gds_number, elevation, thickness, importmethod)
+        gds_file = os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1not.gds")
+        assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
+        gds_number = []
+        assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
