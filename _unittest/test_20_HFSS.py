@@ -1646,4 +1646,3 @@ class TestClass:
         assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, gds_number)
-        self.aedtapp.close_project(save_project=False)
