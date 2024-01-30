@@ -1300,7 +1300,7 @@ class FieldAnalysis3D(Analysis, object):
             The default is ``None``
         import_method : integer, optional
             GDSII import method.
-            Otions are:
+            Options are:
             - 0 = script
             - 1 = Parasolid
 
