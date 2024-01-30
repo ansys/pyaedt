@@ -25,7 +25,22 @@
 			"Height": 50.0,
 			"Radius": 10.0,
 			"Internal Radius": 5
+		},
+		{
+			"Primitive Type": "Box",
+			"Name": "SmallBox",
+			"X Length": 10.0,
+			"Y Length": 10.0,
+			"Z Length": 10.0
+		},
+		{
+			"Primitive Type": "Box",
+			"Name": "BigBox",
+			"X Length": 100.0,
+			"Y Length": 100.0,
+			"Z Length": 100.0
 		}
+
 	],
 	"Instances":
 	[
@@ -53,6 +68,26 @@
 			"Name":"Big_hole",
 			"CS": "CS1",
 			"Origin": [0,0,50]
+		},
+				{
+			"Name":"SmallBox",
+			"Coordinate System": "CS1",
+			"Origin": ["0mm","1.052dm","2"]
+		},
+		{
+			"Name":"SmallBox",
+			"Coordinate System": "Global",
+			"Origin": ["20um",10,"2.2"]
+		},
+		{
+			"Name":"BigBox",
+			"Coordinate System": "CS2",
+			"Origin": ["2.0mm",0,50.5]
+		},
+		{
+			"Name":"BigBox",
+			"Coordinate System": "Global",
+			"Origin": [10,10,10]
 		}
 	],
 	"Coordinate Systems":

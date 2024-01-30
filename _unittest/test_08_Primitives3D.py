@@ -1903,7 +1903,7 @@ class TestClass:
         del primitives_builder.coordinate_systems[0]["X Axis"]
         del primitives_builder.coordinate_systems[1]["Psi"]
         primitive_names = primitives_builder.create()
-        assert len(primitive_names) == 5
+        assert len(primitive_names) == 9
 
         ipk.modeler.coordinate_systems[0].delete()
         ipk.modeler.coordinate_systems[0].delete()
@@ -1912,13 +1912,13 @@ class TestClass:
         primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
         del primitives_builder.instances[0]["Name"]
         assert not primitives_builder.create()
-        assert len(primitive_names) == 5
+        assert len(primitive_names) == 9
 
         primitive_dict = json_to_dict(primitive_file)
         primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
         del primitives_builder.instances[0]["Coordinate System"]
         primitive_names = primitives_builder.create()
-        assert len(primitive_names) == 5
+        assert len(primitive_names) == 9
         ipk.modeler.coordinate_systems[0].delete()
         ipk.modeler.coordinate_systems[0].delete()
 
@@ -1931,7 +1931,7 @@ class TestClass:
         primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
         del primitives_builder.instances[0]["Origin"]
         primitive_names = primitives_builder.create()
-        assert len(primitive_names) == 5
+        assert len(primitive_names) == 9
 
         q2d = add_app(application=Q2d)
         primitive_dict = json_to_dict(primitive_file)
