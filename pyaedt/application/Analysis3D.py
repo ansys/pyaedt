@@ -1288,27 +1288,33 @@ class FieldAnalysis3D(Analysis, object):
         gds_number : list
             List of layer numbers to import.
         elevation : list, optional.
-            List of GDS layer elevation.
-            Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
-            If elevation is "None", elevation and thickness will not be applied.
-            The default is ``None``
+            List of GDS layer elevations.
+            Number of elements must be the same as gds_number list, if not elevation and thickness will not be applied.
+            If elevation is ``None``, elevation and thickness will not be applied.
+            The default is ``None``.
         thickness : list, optional
-            List of GDS layer thickness.
-            Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
-            If thickness is "None", elevation and thickness will not be applied.
-            The default is ``None``
+            List of GDS layer thicknesses.
+            Number of elements must be the same as gds_number list, if not elevation and thickness will not be applied.
+            If thickness is ``None``, elevation and thickness will not be applied.
+            The default is ``None``.
         import_method : integer, optional
             GDSII import method.
             Options are:
-            - 0 = script
-            - 1 = Parasolid
+            - ``0`` for script
+            - ``1`` for Parasolid
 
-            The default is 1
+            The default is ``1``
 
-                Returns
+        Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.oeditor.ImportGDSII
+
         """
 
         if self.desktop_class.non_graphical:
