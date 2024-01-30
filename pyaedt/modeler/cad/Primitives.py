@@ -92,6 +92,7 @@ class GeometryModeler(Modeler):
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
             return partId
+        self.logger.error("Object '{}' not found.".format(partId))
         return None
 
     def __init__(self, app, is3d=True):
