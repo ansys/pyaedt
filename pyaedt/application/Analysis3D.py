@@ -1303,7 +1303,7 @@ class FieldAnalysis3D(Analysis, object):
             Otions are:
             - 0 = script
             - 1 = Parasolid
-            
+
             The default is 1
 
                 Returns
@@ -1337,8 +1337,15 @@ class FieldAnalysis3D(Analysis, object):
             for i in range(len(gds_number)):
                 layername = "signal" + str(gds_number[i])
                 layermap.append(
-                    ["NAME:LayerMapInfo", "LayerNum:=", gds_number[i], "DestLayer:=", layername, "layer_type:=",
-                     "signal"]
+                    [
+                        "NAME:LayerMapInfo",
+                        "LayerNum:=",
+                        gds_number[i],
+                        "DestLayer:=",
+                        layername,
+                        "layer_type:=",
+                        "signal",
+                    ]
                 )
 
             self.oeditor.ImportGDSII(
@@ -1361,8 +1368,15 @@ class FieldAnalysis3D(Analysis, object):
             for i in range(len(gds_number)):
                 layername = "signal" + str(gds_number[i])
                 layermap.append(
-                    ["NAME:LayerMapInfo", "LayerNum:=", gds_number[i], "DestLayer:=", layername, "layer_type:=",
-                     "signal"]
+                    [
+                        "NAME:LayerMapInfo",
+                        "LayerNum:=",
+                        gds_number[i],
+                        "DestLayer:=",
+                        layername,
+                        "layer_type:=",
+                        "signal",
+                    ]
                 )
                 ordermap1 = [
                     "entry:=",
