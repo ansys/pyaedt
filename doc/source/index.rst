@@ -12,24 +12,6 @@ enabling straightforward and efficient automation in your workflow.
 .. grid:: 2
 
    .. grid-item-card::
-            :img-top: _static/assets/index_getting_started.png
-
-            Getting started
-            ^^^^^^^^^^^^^^^
-
-            New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
-
-            +++
-
-            .. button-link:: Getting_started/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  Getting started
-
-   .. grid-item-card::
             :img-top: _static/assets/index_user_guide.png
 
             User guide
@@ -45,46 +27,6 @@ enabling straightforward and efficient automation in your workflow.
                :click-parent:
 
                   User guide
-
-
-
-.. grid:: 2
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
-
-            AEDT API reference
-            ^^^^^^^^^^^^^^^^^^
-
-            The PyAEDT API reference contains descriptions of the functions and modules included in PyAEDT.
-            It describes how the methods work and the parameter that can be used.
-
-            +++
-            .. button-link:: API/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  AEDT API reference
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
-
-            EDB API reference
-            ^^^^^^^^^^^^^^^^^
-
-            The PyAEDT EDB API reference contains descriptions of the functions and modules included in PyAEDT.
-            It describes how the methods work and the parameter that can be used.
-
-            +++
-            .. button-link:: EDBAPI/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  EDB API reference
 
 .. jinja:: main_toctree
 
@@ -139,10 +81,7 @@ Indices and tables
     .. toctree::
        :hidden:
 
-       Getting_started/index
        User_guide/index
-       API/index
-       EDBAPI/index
        {% if run_examples %}
        examples/index
        {% endif %}
