@@ -1369,7 +1369,7 @@ class FieldAnalysis3D(Analysis, object):
                         "color",
                     ],
                 ]
-                ordermap = ordermap + ordermap1
+                ordermap.extend(ordermap1)
                 j = j + 1
 
             self.oeditor.ImportGDSII(
