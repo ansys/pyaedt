@@ -1852,7 +1852,7 @@ class TestClass:
         self.aedtapp.insert_design("PrimitiveFromFile")
         primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
         primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
-        assert len(primitive_names) == 5
+        assert len(primitive_names) == 9
 
     def test_89_import_primitives_csv(self):
         self.aedtapp.insert_design("PrimitiveFromFile")
