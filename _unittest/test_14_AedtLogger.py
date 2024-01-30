@@ -219,6 +219,21 @@ class TestClass:
         assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 
+class TestLogMessages:
+    """Class used to test log messages."""
+
+    def test_log_when_accessing_non_existing_object(self, caplog):
+        """Check that accessing non existing object log an error message."""
+        from pyaedt import Hfss
+
+        app = Hfss(
+            projectname="log_project", designname="log_design", specified_version="2023.2", new_desktop_session=True
+        )
+        with pytest.raises(AttributeError):
+            app.get_object_material_properties("MS1", "conductivity")
+        assert ("Global", logging.ERROR, "Object 'MS1' not found.") in caplog.record_tuples
+
+
 class CaptureStdOut:
     """Capture standard output with a context manager."""
 
