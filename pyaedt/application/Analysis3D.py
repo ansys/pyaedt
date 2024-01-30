@@ -1289,16 +1289,22 @@ class FieldAnalysis3D(Analysis, object):
         gds_number : list
             List of layer numbers to import.
         elevation : list, optional.
-            List of GDS layer elevation. The default is ``None``
+            List of GDS layer elevation.
             Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
-            If elevation is None, elevation and thickness will not be applied.
+            If elevation is "None", elevation and thickness will not be applied.
+            The default is ``None``
         thickness : list, optional
-            List of GDS layer thickness. The default is ``None``
+            List of GDS layer thickness.
             Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
-            If thickness is None, elevation and thickness will not be applied.
+            If thickness is "None", elevation and thickness will not be applied.
+            The default is ``None``
         import_method : integer, optional
-            GDSII import method. The default is 1
-            0 = script, 1 = Parasolid
+            GDSII import method.
+            Otions are:
+            - 0 = script
+            - 1 = Parasolid
+            
+            The default is 1
 
                 Returns
         -------
@@ -1328,10 +1334,11 @@ class FieldAnalysis3D(Analysis, object):
                 "Elevation and thickness will not be applied "
             )
             layermap = ["NAME:LayerMap"]
-            for i in gds_number:
-                layername = "signal" + str(i)
+            for i in range(len(gds_number)):
+                layername = "signal" + str(gds_number[i])
                 layermap.append(
-                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
+                    ["NAME:LayerMapInfo", "LayerNum:=", gds_number[i], "DestLayer:=", layername, "layer_type:=",
+                     "signal"]
                 )
 
             self.oeditor.ImportGDSII(
@@ -1347,35 +1354,34 @@ class FieldAnalysis3D(Analysis, object):
                 ]
             )
         else:
-            self.logger.warning("GDS layer imported with elevation and thickness")
+            self.logger.info("GDS layer imported with elevation and thickness")
 
             layermap = ["NAME:LayerMap"]
             ordermap = []
-            j = 0
-            for i in gds_number:
-                layername = "signal" + str(i)
+            for i in range(len(gds_number)):
+                layername = "signal" + str(gds_number[i])
                 layermap.append(
-                    ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
+                    ["NAME:LayerMapInfo", "LayerNum:=", gds_number[i], "DestLayer:=", layername, "layer_type:=",
+                     "signal"]
                 )
                 ordermap1 = [
                     "entry:=",
                     [
                         "order:=",
-                        j,
+                        i,
                         "layer:=",
                         layername,
                         "LayerNumber:=",
-                        i,
+                        gds_number[i],
                         "Thickness:=",
-                        thickness[j],
+                        thickness[i],
                         "Elevation:=",
-                        elevation[j],
+                        elevation[i],
                         "Color:=",
                         "color",
                     ],
                 ]
                 ordermap.extend(ordermap1)
-                j = j + 1
 
             self.oeditor.ImportGDSII(
                 [
