@@ -1279,6 +1279,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler
     def import_gds_3d(self, gds_file, gds_number, elevation=None, thickness=None, import_method=1):
+        # pragma: no cover
         """Import a GDSII file.
 
         Parameters
@@ -1304,6 +1305,10 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+
+        if self.desktop_class.non_graphical:
+            self.logger.error("Method is supported only in graphical mode.")
+            return False
 
         if not os.path.exists(gds_file):
             self.logger.error("GDSII file does not exist, no layer imported ")
