@@ -1313,7 +1313,7 @@ class FieldAnalysis3D(Analysis, object):
         References
         ----------
 
-        >>> oEditor.oeditor.ImportGDSII
+        >>> oEditor.ImportGDSII
 
         """
 
