@@ -10,19 +10,19 @@ env:
   MEILISEARCH_HOST_URL: https://backend.search.pyansys.com
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 # Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    tags:
-     - v*
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-      tags:
-        description: 'Test scenario tags'
+on: [pull_request, workflow_dispatch]
+  # # Triggers the workflow on push or pull request events but only for the main branch
+  # push:
+  #   tags:
+  #    - v*
+  # workflow_dispatch:
+  #   inputs:
+  #     logLevel:
+  #       description: 'Log level'
+  #       required: true
+  #       default: 'warning'
+  #     tags:
+  #       description: 'Test scenario tags'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
