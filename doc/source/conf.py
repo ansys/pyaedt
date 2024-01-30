@@ -117,7 +117,7 @@ def remove_examples(app, exception):
     DESTINATION_DIRECTORY = pathlib.Path(app.srcdir) / "examples"
     size = directory_size(DESTINATION_DIRECTORY)
     logger.info(f"Removing directory {DESTINATION_DIRECTORY} ({size} MB).")
-    shutil.rmtree(DESTINATION_DIRECTORY)
+    shutil.rmtree(DESTINATION_DIRECTORY, ignore_errors=True)
     logger.info(f"Directory removed.")
 
 def add_ipython_time(app, docname, source):
