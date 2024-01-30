@@ -1286,15 +1286,15 @@ class FieldAnalysis3D(Analysis, object):
         gds_file_path : str
             Path to the GDS file.
         gds_number_list : list
-            List of layer number to import.
+            List of layer numbers to import.
         elevation_list : list, optional
-            List of elevation for each GDS layer number imported.
-            Number of element must be the same as gds_number list.
-            If not or None elevation and thickness will not be applied.
+            List of GDS layer elevation.
+            Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
+            If elevation is none, elevation and thickness will not be applied.
         thickness_list : list, optional
-            List of thickness for each GDS layer number imported.
-            Number of element must be the same as gds_number list.
-            If not or None elevation and thickness will not be applied.
+            List of GDS layer thickness.
+            Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
+            If thickness is none, elevation and thickness will not be applied.
         import_method : integer, optional
             GDSII import method. The default is 1
             0 = script, 1 = Parasolid
@@ -1319,7 +1319,7 @@ class FieldAnalysis3D(Analysis, object):
         ):
             self.logger.warning(
                 "One of parameter list: elevation and/or thickness is either: "
-                "not specified or has different number of element than GDS number."
+                "not specified or has different number of elements than GDS number."
                 "Elevation and thickness will not be applied "
             )
             layermap = ["NAME:LayerMap"]
