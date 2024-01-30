@@ -1278,20 +1278,20 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(self, gds_file_path, gds_number_list, elevation_list=None, thickness_list=None, import_method=1):
+    def import_gds_3d(self, gds_file, gds_number, elevation=None, thickness=None, import_method=1):
         """Import a GDSII file.
 
         Parameters
         ----------
-        gds_file_path : str
+        gds_file : str
             Path to the GDS file.
-        gds_number_list : list
+        gds_number : list
             List of layer numbers to import.
-        elevation_list : list, optional.
+        elevation : list, optional.
             List of GDS layer elevation. The default is ``None``
             Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
             If elevation is None, elevation and thickness will not be applied.
-        thickness_list : list, optional
+        thickness : list, optional
             List of GDS layer thickness. The default is ``None``
             Number of element must be the same as gds_number list, if not elevation and thickness will not be applied.
             If thickness is None, elevation and thickness will not be applied.
@@ -1305,17 +1305,17 @@ class FieldAnalysis3D(Analysis, object):
             ``True`` when successful, ``False`` when failed.
         """
 
-        if not os.path.exists(gds_file_path):
+        if not os.path.exists(gds_file):
             self.logger.error("GDSII file does not exist, no layer imported ")
             return False
-        if len(gds_number_list) == 0:
+        if len(gds_number) == 0:
             self.logger.error("GDSII layer number list is empty, no layer imported ")
             return False
 
         if (
-            elevation_list is None
-            or thickness_list is None
-            or (len(gds_number_list) != len(elevation_list) or len(gds_number_list) != len(thickness_list))
+            elevation is None
+            or thickness is None
+            or (len(gds_number) != len(elevation) or len(gds_number) != len(thickness))
         ):
             self.logger.warning(
                 "One of parameter list: elevation and/or thickness is either: "
@@ -1323,7 +1323,7 @@ class FieldAnalysis3D(Analysis, object):
                 "Elevation and thickness will not be applied "
             )
             layermap = ["NAME:LayerMap"]
-            for i in gds_number_list:
+            for i in gds_number:
                 layername = "signal" + str(i)
                 layermap.append(
                     ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
@@ -1333,7 +1333,7 @@ class FieldAnalysis3D(Analysis, object):
                 [
                     "NAME:options",
                     "FileName:=",
-                    gds_file_path,
+                    gds_file,
                     "FlattenHierarchy:=",
                     True,
                     "ImportMethod:=",
@@ -1347,7 +1347,7 @@ class FieldAnalysis3D(Analysis, object):
             layermap = ["NAME:LayerMap"]
             ordermap = []
             j = 0
-            for i in gds_number_list:
+            for i in gds_number:
                 layername = "signal" + str(i)
                 layermap.append(
                     ["NAME:LayerMapInfo", "LayerNum:=", i, "DestLayer:=", layername, "layer_type:=", "signal"]
@@ -1362,9 +1362,9 @@ class FieldAnalysis3D(Analysis, object):
                         "LayerNumber:=",
                         i,
                         "Thickness:=",
-                        thickness_list[j],
+                        thickness[j],
                         "Elevation:=",
-                        elevation_list[j],
+                        elevation[j],
                         "Color:=",
                         "color",
                     ],
@@ -1376,7 +1376,7 @@ class FieldAnalysis3D(Analysis, object):
                 [
                     "NAME:options",
                     "FileName:=",
-                    gds_file_path,
+                    gds_file,
                     "FlattenHierarchy:=",
                     True,
                     "ImportMethod:=",
