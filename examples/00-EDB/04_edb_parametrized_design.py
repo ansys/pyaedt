@@ -1,18 +1,19 @@
-"""
-# EDB: fully parametrized design
+# # EDB: fully parametrized design
+#
+# This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a
+# parameterized layout. The layout shows a differential via transition on a printed circuit board with
+# back-to-back microstrip to stripline transitions. The model is fully parameterized to enable investigation of
+# the transition performance on the many degrees of freedom.
+#
+# The resulting model is shown below
+#
+# <img src="_static\pcb_transition_parameterized.png" width="500">
 
-This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a parameterized layout. The layout shows a differential via transition on a printed circuit board with back-to-back microstrip to stripline transitions. The model is fully parameterized to enable investigation of the transition performance on the many degrees of freedom.
-
-The resulting model is shown below
-
-<img src="_static\pcb_transition_parameterized.png" width="500">
-"""
 
 import pyaedt
 import os
 import tempfile
 
-##########################################################
 # ## Set non-graphical mode
 #
 # Set non-graphical mode. The default is ``False`` in order to open
@@ -20,14 +21,12 @@ import tempfile
 
 non_graphical = False
 
-##########################################################
 # Launch EDB.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "pcb.aedb")
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
-######################################################################
 # Define the parameters.
 
 params = {"$ms_width": "0.4mm",
@@ -47,7 +46,6 @@ params = {"$ms_width": "0.4mm",
 for par_name in params:
     edb.add_project_variable(par_name, params[par_name])
 
-######################################################################
 # Define the stackup layers from bottom to top.
 
 layers = [{"name": "bottom", "layer_type": "signal", "thickness": "35um", "material": "copper"},
@@ -70,7 +68,6 @@ for layer in layers:
                           material=layer["material"])
     prev = layer["name"]
 
-###############################################################################
 # Create a parametrized padstack for the signal via.
 
 signal_via_padstack = "automated_via"
@@ -87,13 +84,11 @@ edb.padstacks.create(
             stop_layer=layers[-3]["name"]
         )
 
-###############################################################################
 # Assign net names. There are only two signal nets.
 
 net_p = "p"
 net_n = "n"
 
-###############################################################################
 # Place the signal vias.
 
 edb.padstacks.place(
@@ -129,7 +124,6 @@ edb.padstacks.place(
 )
 
 
-###############################################################################
 # ## Draw parametrized traces
 #
 # Trace width and the routing (Microstrip-Stripline-Microstrip).
@@ -181,7 +175,7 @@ points_n = [
            ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
           ],
          ]
-###############################################################################
+
 # Add traces to the EDB.
 
 trace_p = []
@@ -190,7 +184,6 @@ for n in range(len(points_p)):
     trace_p.append(edb.modeler.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"))
     trace_n.append(edb.modeler.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"))
 
-###############################################################################
 # Create the wave ports
 
 edb.hfss.create_differential_wave_port(trace_p[0].id, ["0.0", "($ms_width+$ms_spacing)/2"],
@@ -200,7 +193,6 @@ edb.hfss.create_differential_wave_port(trace_p[2].id, ["$pcb_len", "($ms_width+$
                                             trace_n[2].id, ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
                                             "wave_port_2")
 
-###############################################################################
 # Draw a conducting rectangle on the the ground layers.
 
 gnd_poly = [[0.0, "-$pcb_w/2"],
@@ -230,7 +222,7 @@ void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam
 
 void_shape = edb.modeler.Shape("polygon", points=void_poly)
 
-# Add ground layers
+# Add ground conductors.
 
 for layer in layers[:-1:2]:
 
@@ -243,26 +235,22 @@ for layer in layers[:-1:2]:
                                        net_name="gnd")
 
 
-###############################################################################
 # Plot the layout.
 
 edb.nets.plot(None)
 
-###############################################################################
 # Save the EDB.
 
 edb.save_edb()
 edb.close_edb()
 
-###############################################################################
 # Open the project in AEDT 3D Layout.
 
 h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.2",
                           non_graphical=non_graphical, new_desktop_session=True)
 
-###############################################################################
-# Add HFSS simulation setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# # Add HFSS simulation setup
+#
 # Add HFSS simulation setup.
 
 setup = h3d.create_setup()
@@ -282,28 +270,27 @@ h3d.create_linear_count_sweep(
     use_q3d_for_dc=False,
 )
 
-###############################################################################
+
 # Define the differential pairs to be used to calculte differential and common mode
 # s-parameters.
+
 h3d.set_differential_pair(diff_name="In", positive_terminal="wave_port_1:T1", negative_terminal="wave_port_1:T2")
 h3d.set_differential_pair(diff_name="Out", positive_terminal="wave_port_2:T1", negative_terminal="wave_port_2:T2")
 
-###############################################################################
 # Solve the project.
 
 h3d.analyze()
 
-###############################################################################
 # Plot the results and shut down the Electronics Desktop.
 
 solutions = h3d.post.get_solution_data(["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs")
 solutions.plot()
 h3d.release_desktop()
 
-###############################################################################
 # Note that the ground nets are only connected to each other due
 # to the wave ports. The problem with poor grounding can be seen in the
-# S-parameters. This example can be downloaded as a Jupyter Notebook, so you can modify it. Try changing parameters or adding ground vias to improve performance.
+# S-parameters. This example can be downloaded as a Jupyter Notebook, so
+# you can modify it. Try changing parameters or adding ground vias to improve performance.
 #
 # The final cell cleans up the temporary directory, removing all files.
 

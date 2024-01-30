@@ -1,19 +1,16 @@
-"""
-# EDB: geometry creation
+# # EDB: geometry creation
+#
+# This example shows how to
+# 1. Create a parameterized PCB with an SMA connector footprint for a single-ended
+#   SMA connector launch footprint..
+# 2. Place 3D component on PCB.
+# 3. Create HFSS setup and frequency sweep with a mesh operation.
+# 4. Create return loss plot
 
-This example shows how to
-1. Create a parameterized PCB with an SMA connector footprint for a single-ended
-   SMA connector launch footprint..
-22 Place 3D component on PCB.
-3. Create HFSS setup and frequency sweep with a mesh operation.
-4. Create return loss plot
-"""
-######################################################################
 # ## The Finished Project
 #
 # <img src="_static\edb_example_12_sma_connector_on_board.png" width="450">
 
-######################################################################
 # ## Create parameterized PCB
 #
 # Import dependencies.
@@ -23,7 +20,6 @@ import numpy as np
 import pyaedt
 import tempfile
 
-###############################################################################
 # Create the EDB.
 
 ansys_version = "2023.2"
@@ -34,12 +30,10 @@ aedb_path = os.path.join(working_folder, "pcb.aedb")
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion=ansys_version)
 print("EDB is located at {}".format(aedb_path))
 
-#####################
 # Defne the FR4 dielectric for the PCB.
 
 edb.materials.add_dielectric_material("ANSYS_FR4", 3.5, 0.005)
 
-###############################################################################
 # ## Create Stackup
 #
 # The stackup is defined explicitly here, but also can be imported
@@ -59,7 +53,6 @@ edb.stackup.add_layer("L2", "Diel", thickness="0.05mm")
 edb.stackup.add_layer("D1", "GND", layer_type="dielectric", thickness="$DIEL_T", material="ANSYS_FR4")
 edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
-######################
 # Create ground conductors.
 
 edb.add_design_variable("PCB_W", "20mm")
@@ -69,7 +62,6 @@ gnd_dict = {}
 for layer_name in edb.stackup.signal_layers.keys():
     gnd_dict[layer_name] = edb.modeler.create_rectangle(layer_name, "GND", [0, "PCB_W/-2"], ["PCB_L", "PCB_W/2"])
 
-###############################################################################
 # ## Create signal net
 #
 # Create signal net on layer 3, and add clearance to the ground plane.
@@ -85,7 +77,6 @@ signal_path = (["5mm", 0], ["PCB_L", 0])
 clr = edb.modeler.create_trace(signal_path, "L3", "SIG_C*2+SIG_W", "SIG", "Flat", "Flat")
 gnd_dict["L3"].add_void(clr)
 
-####################
 # ## Signal Vias
 #
 # Create via padstack definition. Place the signal vias.
@@ -95,7 +86,6 @@ edb.add_design_variable("$VIA_AP_D", "1.2mm")
 edb.padstacks.create("ANSYS_VIA", "0.3mm", "0.5mm", "$VIA_AP_D")
 edb.padstacks.place(["5mm", 0], "ANSYS_VIA", "SIG")
 
-######################################
 # Create ground vias around the SMA
 # connector launch footprint. The vas
 # are placed around the circumference
@@ -107,19 +97,16 @@ for i in np.arange(30, 326, 35):
     py = np.sin(i / 180 * np.pi)
     edb.padstacks.place(["{}*{}+5mm".format("SG_VIA_D", px), "{}*{}".format("SG_VIA_D", py)], "ANSYS_VIA", "GND")
 
-#######################################
 # Create ground vias along signal trace.
 
 for i in np.arange(2e-3, edb.variables["SIG_L"].value - 2e-3, 2e-3):
     edb.padstacks.place(["{}+5mm".format(i), "1mm"], "ANSYS_VIA", "GND")
     edb.padstacks.place(["{}+5mm".format(i), "-1mm"], "ANSYS_VIA", "GND")
 
-###################################################
 # Create a wave port at the end of the signal trace.
 
 signal_trace.create_edge_port("port_1", "End", "Wave", horizontal_extent_factor=10)
 
-###############################################################################
 # ## HFSS Simulation Setup
 #
 # The named argument ``max_num_passes`` sets an upper limit on the
@@ -140,12 +127,10 @@ setup = edb.create_hfss_setup("Setup1")
 setup.set_solution_single_frequency("5GHz", max_num_passes=8, max_delta_s="0.02")
 setup.hfss_solver_settings.order_basis = "first"
 
-#############################
 # Add a mesh operation to the setup.
 
 edb.setups["Setup1"].add_length_mesh_operation({"SIG": ["L3"]}, "m1", max_length="0.1mm")
 
-##############################
 # Add frequency sweep to setup.
 #
 # When the simulation results will
@@ -165,18 +150,15 @@ setup.add_frequency_sweep(
     ],
 )
 
-####################
 # Save and close EDB.
 
 edb.save_edb()
 edb.close_edb()
 
-#####################
 # Launch Hfss3dLayout.
 
 h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=ansys_version, new_desktop_session=True)
 
-####################
 # Place a 3D component.
 
 full_comp_name = pyaedt.downloads.download_file("component_3d",
@@ -187,22 +169,19 @@ comp = h3d.modeler.place_3d_component(
     placement_layer="TOP", component_name="my_connector", 
     pos_x="5mm", pos_y=0.000)
 
-###############################################################################
 # ## Run Simulation
 
 h3d.analyze(num_cores=4)
 
-#########################
 # Visualize the return loss.
 h3d.post.create_report("dB(S(port_1, port_1))")
 
-############################
 # Save and close the project.
+
 h3d.save_project()
 print("Project is saved to {}".format(h3d.project_path))
 h3d.release_desktop(True, True)
 
-###############################################################################
 # Clean up the temporary folder.
 
 temp_dir.cleanup()

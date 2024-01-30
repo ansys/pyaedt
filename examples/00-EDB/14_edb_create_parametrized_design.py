@@ -1,24 +1,24 @@
-"""
-EDB: parameterized design
-------------------------
-This example shows how to
-1, Set up an HFSS project using SimulationConfiguration class.
-2, Create automatically parametrized design.
-"""
-######################################################################
+# # EDB: parameterized design
+#
+# This example shows how to
+# 1. Set up an HFSS project using SimulationConfiguration class.
+# 2. Create automatically parametrized design.
+#
 # The following layout will be created in this example
 #
 # <img src="_static\parameterized_design.png" width="600">
 #
 #
 
-######################################################################
-# Create HFSS simulation project from an existing layout.
+# Import dependencies.
 
 import os
 import pyaedt
 import tempfile
 
+# Create an instance of a pyaedt.Edb object. 
+
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_dir.name)
 print("Project will be located in ", target_aedb)
@@ -26,8 +26,8 @@ print("Project will be located in ", target_aedb)
 aedt_version = "2023.2"
 edb = pyaedt.Edb(edbpath=target_aedb, edbversion=aedt_version)
 print("EDB is located at {}".format(target_aedb))
+# -
 
-########################################################################
 # ### Prepare the Layout for Simulation
 #
 # The ``new_simulation_configuration()`` method creates an instance of 
@@ -46,12 +46,10 @@ simulation_configuration.start_freq = "OGHz"
 simulation_configuration.stop_freq = "20GHz"
 simulation_configuration.step_freq = "10MHz"
 
-##########################
 # Now apply the simulation setup to the EDB.
 
 edb.build_simulation_project(simulation_configuration)
 
-#############################
 # ### Parameterization
 #
 # The layout can automatically be set up to enable parametric studies. For example, the
@@ -61,7 +59,6 @@ edb.auto_parametrize_design(layers=True, materials=True, via_holes=True, pads=Tr
 edb.save_edb()
 edb.close_edb()
 
-######################
 # ## Open project in AEDT
 #
 # All manipulations thus far have been executed using the EDB API which provides fast, streamlined processing of
@@ -75,12 +72,12 @@ hfss = pyaedt.Hfss3dLayout(projectname=target_aedb,
                            non_graphical=False,
                            new_desktop_session=True)
 
-###############################################################################
 # The following cell can be used to ensure that the design is valid for simulation.
 
 validation_info = hfss.validate_full_design()
 is_ready_to_simulate = True
 
+# +
 for s in validation_info[0]:
     if "error" in s:
         print(s)
@@ -90,8 +87,8 @@ if is_ready_to_simulate:
     print("The model is ready for simulation.")
 else:
     print("There are errors in the model that need to be fixed.")
+# -
 
-###############################################################################
 # ### Release the application from the Python kernel
 #
 # It is important to release the application from the Python kernel after 

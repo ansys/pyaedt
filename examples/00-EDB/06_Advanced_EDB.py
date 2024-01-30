@@ -1,23 +1,22 @@
-"""
-# EDB: parametric via creation
+# # EDB: parametric via creation
+#
+# This example shows how you can use EDB to create a layout.
+#
+# First import the required Python packages.
 
-This example shows how you can use EDB to create a layout.
 
-First import the required Python packages.
-"""
 import os
 import numpy as np
 import pyaedt
 import tempfile
 
-###############################################################################
 # Creat the EDB project.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "parametric_via.aedb")
 
 
-###############################################################################
+
 # ## Create stackup
 #
 # The ``StackupSimple`` class creates a stackup based on few inputs. This stackup
@@ -30,14 +29,12 @@ def create_ground_planes(edb, layers):
     for i in layers:
         edb.modeler.create_polygon(plane, i, net_name="GND")
 
-##################################################################################
 # ## Create the EDB
 #
 # Create the Electronics Databas (EDB) instance. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
-##################################################################################
 # Insert the stackup layers.
 
 layout_count = 12
@@ -56,7 +53,6 @@ edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thick
                                      dielectric_material=diel_material_name)
 
 
-##################################################################################
 # ## Define Parameters
 #
 # Define parameters to allow changes in the model dimesons. Parameters preceeded by 
@@ -72,7 +68,6 @@ edb.add_design_variable("via_pitch", "1mm", is_parameter=True)
 edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
-##################################################################################
 # ## Define padstacks
 #
 # Create two padstck definitions, one for the ground via and one for the signal via.
@@ -86,12 +81,10 @@ edb.padstacks.create(padstackname="SVIA",
 )
 edb.padstacks.create(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
-##################################################################################
 # Place the signal via.
 
 edb.padstacks.place([0, 0], "SVIA", net_name="RF")
 
-##################################################################################
 # Place the ground vias.
 
 gvia_num_side = gvia_num / 2
@@ -121,7 +114,6 @@ else:
         edb.padstacks.place([xloc + "*-1", yloc], "GVIA", net_name="GND")
         edb.padstacks.place([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
 
-##################################################################################
 # Draw the traces
 
 edb.modeler.create_trace(
@@ -137,7 +129,6 @@ edb.modeler.create_trace(
     end_cap_style="Flat",
 )
 
-##################################################################################
 # Draw ground conductors
 
 ground_layers = [i for i in edb.stackup.signal_layers.keys()]
@@ -145,20 +136,17 @@ ground_layers.remove(trace_in_layer)
 ground_layers.remove(trace_out_layer)
 create_ground_planes(edb=edb, layers=ground_layers)
 
-##################################################################################
 # Display the layout
 
 #edb.nets.plot(layers=["TOP", "L10"])
 edb.stackup.plot(plot_definitions=["GVIA", "SVIA"])
 
-##################################################################################
 # Save EDB and close the EDB.
 
 edb.save_edb()
 edb.close_edb()
 print("aedb Saved in {}".format(aedb_path))
 
-###############################################################################
 # Clean up the temporary directory.
 
 temp_dir.cleanup()
