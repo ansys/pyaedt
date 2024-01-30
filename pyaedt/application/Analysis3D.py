@@ -1278,8 +1278,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(self, gds_file, gds_number, elevation=None, thickness=None, import_method=1):
-        # pragma: no cover
+    def import_gds_3d(self, gds_file, gds_number, elevation=None, thickness=None, import_method=1):  # pragma: no cover
         """Import a GDSII file.
 
         Parameters
