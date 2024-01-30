@@ -94,7 +94,7 @@ def remove_doctree(app, exception):
     """
     size = directory_size(app.doctreedir)
     logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
-    shutil.rmtree(app.doctreedir)
+    shutil.rmtree(app.doctreedir, ignore_errors=True)
     logger.info(f"Doctree removed.")
 
 def copy_examples(app):
