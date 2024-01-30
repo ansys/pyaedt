@@ -1632,7 +1632,6 @@ class TestClass:
         assert self.aedtapp.import_gds_3d(gds_file, [7, 9], [100e-6, 110e-6], [10e-6, 5e-6], 0)
         assert self.aedtapp.import_gds_3d(gds_file, [7, 9])
         assert self.aedtapp.import_gds_3d(gds_file, [7], [100e-6, 110e-6], [10e-6, 5e-6], 1)
-        gds_number = []
         assert not self.aedtapp.import_gds_3d(gds_file, [])
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, [7, 9])
