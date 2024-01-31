@@ -33,7 +33,7 @@ File structure examples:
 
 :download:`HFSS 3D Layout Example <../../Resources/hfss3dlayout_project_example.json>`
 
-.. code-block:: json
+.. code-block::
 
     {
         "general": {
