@@ -5,10 +5,8 @@ import time
 
 import pytest
 
-
 from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
-
 
 from pyaedt import is_linux
 from pyaedt import Icepak
@@ -43,6 +41,7 @@ def array(add_app):
     yield app
     app.close_project(save_project=False)
 
+
 @pytest.fixture()
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
@@ -68,11 +67,13 @@ def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
+
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
@@ -208,17 +209,21 @@ class TestClass:
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
 
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A") # check usage of deprecated arguments
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B")
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C")
-        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]), ("C_Temperature.csv", ["box"])]:
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface",
+                                              variationlist=[], filename="A")  # check usage of deprecated arguments
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface",
+                                              variation_list=[], filename="B")
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume",
+                                              type="Boundary", filename="C")
+        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]),
+                                    ("C_Temperature.csv", ["box"])]:
             with open(os.path.join(self.icepak_app.working_directory, file_name), 'r', newline='') as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for _ in range(4):
                     _ = next(csv_reader)
                 header = next(csv_reader)
                 entity_index = header.index("Entity")
-                csv_entities=[row[entity_index] for row in csv_reader]
+                csv_entities = [row[entity_index] for row in csv_reader]
                 assert all(e in csv_entities for e in entities)
 
         box = [i.id for i in self.icepak_app.modeler["box"].faces]
@@ -247,11 +252,27 @@ class TestClass:
         )
 
     def test_03e_icepak_ExportFLDFil(self):
-        object_list = "box"
         fld_file = os.path.join(self.icepak_app.working_directory, "test_fld.fld")
-        self.icepak_app.post.export_field_file(
-            "Temp", self.icepak_app.nominal_sweep, [], filename=fld_file, obj_list=object_list
-        )
+        self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                               solution=self.icepak_app.nominal_sweep,
+                                               variation_dict={},
+                                               filename=fld_file,
+                                               obj_list='box')
+        assert os.path.exists(fld_file)
+        sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
+        self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                               solution=self.icepak_app.nominal_sweep,
+                                               variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+                                               filename=fld_file,
+                                               obj_list='box',
+                                               sample_points_file=sample_points_file)
+        assert os.path.exists(fld_file)
+        self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                               solution=self.icepak_app.nominal_sweep,
+                                               variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+                                               filename=fld_file,
+                                               obj_list='box',
+                                               sample_points_lists=[[0,0,0],[3,6,8],[4,7,9]])
         assert os.path.exists(fld_file)
 
     def test_04a_3dl_generate_mesh(self):
@@ -339,7 +360,7 @@ class TestClass:
         assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
-    def test_05d_circuit_push_excitation_time(self,circuit_app):
+    def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
         setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
