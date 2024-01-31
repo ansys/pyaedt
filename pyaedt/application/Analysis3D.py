@@ -1323,7 +1323,7 @@ class FieldAnalysis3D(Analysis, object):
             return False
 
         if not os.path.exists(gds_file):
-            self.logger.error("GDSII file does not exist, no layer imported ")
+            self.logger.error("GDSII file does not exist. No layer is imported.")
             return False
         if len(gds_number) == 0:
             self.logger.error("GDSII layer number list is empty, no layer imported ")
