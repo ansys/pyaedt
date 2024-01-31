@@ -1367,7 +1367,7 @@ class FieldAnalysis3D(Analysis, object):
                 ]
             )
         else:
-            self.logger.info("GDS layer imported with elevation and thickness")
+            self.logger.info("GDS layer imported with elevations and thickness.")
 
             layermap = ["NAME:LayerMap"]
             ordermap = []
