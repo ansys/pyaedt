@@ -1335,9 +1335,9 @@ class FieldAnalysis3D(Analysis, object):
             or (len(gds_number) != len(elevation) or len(gds_number) != len(thickness))
         ):
             self.logger.warning(
-                "One of parameter list: elevation and/or thickness is either: "
-                "not specified or has different number of elements than GDS number."
-                "Elevation and thickness will not be applied "
+                "A list of elevations and/or thicknesses is either "
+                "not specified or has a different number of elements than the GDS number."
+                "Elevation and thickness are not applied."
             )
             layermap = ["NAME:LayerMap"]
             for i in range(len(gds_number)):
