@@ -22,6 +22,7 @@ import tempfile
 
 # Create the EDB.
 
+# +
 ansys_version = "2023.2"
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 working_folder = temp_dir.name
@@ -29,6 +30,7 @@ working_folder = temp_dir.name
 aedb_path = os.path.join(working_folder, "pcb.aedb")
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion=ansys_version)
 print("EDB is located at {}".format(aedb_path))
+# -
 
 # Defne the FR4 dielectric for the PCB.
 
@@ -55,17 +57,20 @@ edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
 # Create ground conductors.
 
+# +
 edb.add_design_variable("PCB_W", "20mm")
 edb.add_design_variable("PCB_L", "20mm")
 
 gnd_dict = {}
 for layer_name in edb.stackup.signal_layers.keys():
     gnd_dict[layer_name] = edb.modeler.create_rectangle(layer_name, "GND", [0, "PCB_W/-2"], ["PCB_L", "PCB_W/2"])
+# -
 
 # ## Create signal net
 #
 # Create signal net on layer 3, and add clearance to the ground plane.
 
+# +
 edb.add_design_variable("SIG_L", "10mm")
 edb.add_design_variable("SIG_W", "0.1mm")
 edb.add_design_variable("SIG_C", "0.3mm")
@@ -76,6 +81,7 @@ signal_trace = edb.modeler.create_trace(signal_path, "L3", "SIG_W", "SIG", "Flat
 signal_path = (["5mm", 0], ["PCB_L", 0])
 clr = edb.modeler.create_trace(signal_path, "L3", "SIG_C*2+SIG_W", "SIG", "Flat", "Flat")
 gnd_dict["L3"].add_void(clr)
+# -
 
 # ## Signal Vias
 #
@@ -117,6 +123,7 @@ signal_trace.create_edge_port("port_1", "End", "Wave", horizontal_extent_factor=
 # located roughly $$ d=\lambda/8 $$ from the internal structures
 # in the model.
 
+# +
 extend_domain = 3E11/5E9/8.0  # Quarter wavelength at 4 GHz.
 edb.design_options.antipads_always_on = True
 edb.hfss.hfss_extent_info.air_box_horizontal_extent = extend_domain
@@ -126,6 +133,7 @@ edb.hfss.hfss_extent_info.air_box_negative_vertical_extent = extend_domain
 setup = edb.create_hfss_setup("Setup1")
 setup.set_solution_single_frequency("5GHz", max_num_passes=8, max_delta_s="0.02")
 setup.hfss_solver_settings.order_basis = "first"
+# -
 
 # Add a mesh operation to the setup.
 

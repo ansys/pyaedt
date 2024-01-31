@@ -9,6 +9,7 @@ coplanar_plane_net_name = "1V0"  # Specify coplanar plane net name for adding cl
 layers = ["16_Bottom"]  # Specify layers to be parameterized
 
 # Perform required imports.
+
 import os
 import tempfile
 import pyaedt
@@ -16,6 +17,7 @@ import pyaedt
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download and open example layout file in edb format.
+
 edb_path = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',
                                            destination=temp_dir.name)
 edb = pyaedt.Edb(edb_path, edbversion="2023.2")
@@ -25,10 +27,12 @@ edb = pyaedt.Edb(edb_path, edbversion="2023.2")
 # The ``Edb.cutout()`` method takes a list of
 # signal nets as the first argument and a list of
 # reference nets as the 2nd argument.
+
 edb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"],
               remove_single_pin_components=True)
 
 # Retrive the path segments from the signal net.
+
 net = edb.nets[signal_net_name]
 trace_segments = []
 for p in net.primitives:

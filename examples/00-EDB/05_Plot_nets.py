@@ -7,7 +7,7 @@
 
 # ## Perform required imports
 
-Perform required imports, which includes importing a section.
+# Perform required imports, which includes importing a section.
 
 import os
 import pyaedt

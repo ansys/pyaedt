@@ -4,6 +4,7 @@
 # layout and run DC-IR analysis in SIwave.
 # Perform required imports
 
+# +
 import os
 import time
 import pyaedt
@@ -16,6 +17,7 @@ targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',
 siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
+# -
 
 # ## Electronics Database (EDB)
 #
@@ -105,6 +107,7 @@ ncol = [component_list_columns.index(c) for c in print_columns]
 # This prints the header. Replace "pin_name" with "pin" to 
 # make the header align with the values.
 
+# +
 print("\t".join(print_columns).replace("pin_name", "pin"))
 
 for el in powertree_df:
@@ -116,6 +119,7 @@ for el in powertree_df:
         count += 1
     s.rstrip()
     print(s)
+# -
 
 # ## Remove Unused Components
 #
@@ -134,8 +138,7 @@ edb.components.delete("C380")
 
 edb.nets.delete("PDEN")
 
-# Print the top and bottom
-# elevation of the stackup obtained using 
+# Print the top and bottom elevation of the stackup obtained using 
 # the method ``Edb.stackup.limits()``.
 
 s = "Top layer name: \"{top}\", Elevation: {top_el:.2f} "
