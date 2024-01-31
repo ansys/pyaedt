@@ -1301,10 +1301,10 @@ class FieldAnalysis3D(Analysis, object):
             are not applied.
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
-            
+
             - ``0`` for script
             - ``1`` for Parasolid
-                      
+
 
         Returns
         -------
