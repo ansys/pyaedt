@@ -1,4 +1,5 @@
 """Miscellaneous Methods for PyAEDT."""
+
 import os
 import warnings
 
