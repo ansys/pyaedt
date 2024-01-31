@@ -1287,23 +1287,24 @@ class FieldAnalysis3D(Analysis, object):
             Path to the GDS file.
         gds_number : list
             List of layer numbers to import.
-        elevation : list, optional.
-            List of GDS layer elevations.
-            Number of elements must be the same as gds_number list, if not elevation and thickness will not be applied.
-            If elevation is ``None``, elevation and thickness will not be applied.
-            The default is ``None``.
+        elevation : list, optional
+            List of GDS layer elevations. The number of elements in the list must be
+            the same as the number of elements in the list for the ``gds_number``
+            parameter.  If the number is not the same, elevation and thickness are
+            not applied. If ``elevation=None``, which is the default, elevation and
+            thickness are not applied.
         thickness : list, optional
-            List of GDS layer thicknesses.
-            Number of elements must be the same as gds_number list, if not elevation and thickness will not be applied.
-            If thickness is ``None``, elevation and thickness will not be applied.
-            The default is ``None``.
+            List of GDS layer thicknesses. The number of elements in the list must
+            be the same as the number of elements in the list for the ``gds_number``
+            parameter. If the number is not the same, elevation and thickness are not
+            applied. If ``thickness=None``, which is the default, elevation and thickness
+            are not applied.
         import_method : integer, optional
-            GDSII import method.
-            Options are:
+            GDSII import method. The default is ``1``. Options are:
+            
             - ``0`` for script
             - ``1`` for Parasolid
-
-            The default is ``1``
+                      
 
         Returns
         -------
