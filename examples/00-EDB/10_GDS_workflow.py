@@ -21,6 +21,7 @@ from pyaedt.edb_core.edb_data.control_file import ControlFile
 # - _dummy_layermap.map_
 #   maps properties to stackup layers.
 
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 control_fn = "sky130_fictitious_dtc_example_control_no_map.xml"
 gds_fn = "sky130_fictitious_dtc_example.gds"
@@ -30,27 +31,36 @@ local_path = pyaedt.downloads.download_file('gds', destination=temp_dir.name)
 c_file_in = os.path.join(local_path, control_fn)
 c_map = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
-gds_out = os.path.join(temppath, "gds_out.gds")
+gds_out = os.path.join(temp_dir, "gds_out.gds")
 shutil.copy2(gds_in,gds_out )
-""
+# -
+
+# ## Control file
+# 
+# A Control file is an xml file which purpose if to provide additional
+# information during import phase. It can include, materials, stackup, setup, boundaries and settings.
+# In this example we will import an existing xml, integrate it with a layer mapping file of gds
+# and then adding setup and boundaries.
+
 c = ControlFile(c_file_in, layer_map=c_map)
 
 # ## Simulation setup
 #
 # Here we setup simulation with HFSS and add a frequency sweep.
+
 setup = c.setups.add_setup("Setup1", "1GHz")
 setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
 
 # ## Additional stackup settings
 #
 # After import user can change stackup settings and add/remove layers or materials.
+
 c.stackup.units = "um"
 c.stackup.dielectrics_base_elevation = -100
 c.stackup.metal_layer_snapping_tolerance = "10nm"
 for via in c.stackup.vias:
     via.create_via_group = True
     via.snap_via_group = True
-
 
 # ## Boundaries settings
 #
@@ -78,14 +88,17 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 #
 # Import the gds and open the edb.
 
+# +
 from pyaedt import Edb
 
 edb = Edb(gds_out, edbversion="2023.2", 
           technology_file=os.path.join(temp_dir.name, "output.xml"))
+# -
 
 # ## Plot Stackup
 #
 # Stackup plot.
+
 edb.stackup.plot(first_layer="met1")
 
 # ## Close Edb

@@ -15,8 +15,6 @@ import tempfile
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "parametric_via.aedb")
 
-
-
 # ## Create stackup
 #
 # The ``StackupSimple`` class creates a stackup based on few inputs. This stackup
@@ -52,13 +50,13 @@ edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thick
                                      soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
                                      dielectric_material=diel_material_name)
 
-
 # ## Define Parameters
 #
 # Define parameters to allow changes in the model dimesons. Parameters preceeded by 
 # the ``$`` character have project-wide scope.
 # Without the ``$`` prefix the parameter scope is limited to the design.
 
+# +
 giva_angle_rad = gvia_angle / 180 * np.pi
 
 edb["$via_hole_size"] = "0.3mm"
@@ -67,6 +65,7 @@ edb["$paddiam"] = "0.5mm"
 edb.add_design_variable("via_pitch", "1mm", is_parameter=True)
 edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
+# -
 
 # ## Define padstacks
 #
@@ -87,6 +86,7 @@ edb.padstacks.place([0, 0], "SVIA", net_name="RF")
 
 # Place the ground vias.
 
+# +
 gvia_num_side = gvia_num / 2
 
 if gvia_num_side % 2:
@@ -113,9 +113,11 @@ else:
 
         edb.padstacks.place([xloc + "*-1", yloc], "GVIA", net_name="GND")
         edb.padstacks.place([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
+# -
 
 # Draw the traces
 
+# +
 edb.modeler.create_trace(
     [[0, 0], [0, "-3mm"]], layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
 )
@@ -128,6 +130,7 @@ edb.modeler.create_trace(
     start_cap_style="Flat",
     end_cap_style="Flat",
 )
+# -
 
 # Draw ground conductors
 
@@ -138,7 +141,6 @@ create_ground_planes(edb=edb, layers=ground_layers)
 
 # Display the layout
 
-#edb.nets.plot(layers=["TOP", "L10"])
 edb.stackup.plot(plot_definitions=["GVIA", "SVIA"])
 
 # Save EDB and close the EDB.

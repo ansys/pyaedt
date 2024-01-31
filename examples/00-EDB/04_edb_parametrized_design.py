@@ -9,7 +9,6 @@
 #
 # <img src="_static\pcb_transition_parameterized.png" width="500">
 
-
 import pyaedt
 import os
 import tempfile
@@ -29,6 +28,7 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
 # Define the parameters.
 
+# +
 params = {"$ms_width": "0.4mm",
           "$sl_width": "0.2mm",
           "$ms_spacing": "0.2mm",
@@ -45,6 +45,7 @@ params = {"$ms_width": "0.4mm",
 
 for par_name in params:
     edb.add_project_variable(par_name, params[par_name])
+# -
 
 # Define the stackup layers from bottom to top.
 
@@ -55,7 +56,6 @@ layers = [{"name": "bottom", "layer_type": "signal", "thickness": "35um", "mater
           {"name": "sig_1", "layer_type": "signal", "thickness": "35um", "material": "copper"},
           {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
           {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"}]
-
 
 # Create EDB stackup.
 # Bottom layer
@@ -203,6 +203,7 @@ gnd_shape = edb.modeler.Shape("polygon", points=gnd_poly)
 
 # Void in ground for traces on the signal routing layer
 
+# +
 void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
              ["$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
              ["$pcb_len/3 + 2*$via_spacing",
@@ -221,9 +222,11 @@ void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam
              ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"]]
 
 void_shape = edb.modeler.Shape("polygon", points=void_poly)
+# -
 
 # Add ground conductors.
 
+# +
 for layer in layers[:-1:2]:
 
     # add void if the layer is the signal routing layer.
@@ -233,7 +236,7 @@ for layer in layers[:-1:2]:
                                        layer_name=layer["name"],
                                        voids=void,
                                        net_name="gnd")
-
+# -
 
 # Plot the layout.
 
@@ -253,6 +256,7 @@ h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.2",
 #
 # Add HFSS simulation setup.
 
+# +
 setup = h3d.create_setup()
 setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
 
@@ -269,7 +273,7 @@ h3d.create_linear_count_sweep(
     save_fields=False,
     use_q3d_for_dc=False,
 )
-
+# -
 
 # Define the differential pairs to be used to calculte differential and common mode
 # s-parameters.

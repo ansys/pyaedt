@@ -21,6 +21,7 @@ non_graphical = False
 # Data classes are useful to do calculations and store variables.
 # We create 3 Data classes for Patch, Line and Array
 
+# +
 class Patch:
     def __init__(self, width=0.0, height=0.0, position=0.0):
         self.width = width
@@ -67,7 +68,7 @@ class LinearArray:
             ["{}+1e-3".format(self.length), "{}/2+1e-3".format(self.width)],
             [-1e-3, "{}/2+1e-3".format(self.width)],
         ]
-
+# -
 
 # ## Launch EDB
 #
@@ -89,6 +90,7 @@ edb.stackup.add_layer("TOP", "Substrat")
 #
 # Define parameters:
 
+# +
 edb["w1"] = 1.4e-3
 edb["h1"] = 1.2e-3
 edb["initial_position"] = 0.0
@@ -97,13 +99,16 @@ edb["trace_w"] = 0.3e-3
 
 first_patch = Patch(width="w1", height="h1", position="initial_position")
 edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
+# -
 
 # First line
+
 first_line = Line(length="l1", width="trace_w", position=first_patch.width)
 edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
 
 # Now use the ``LinearArray`` class to create the array.
 
+# +
 edb["w2"] = 2.29e-3
 edb["h2"] = 3.3e-3
 edb["l2"] = 1.9e-3
@@ -127,6 +132,7 @@ while current_patch <= linear_array.nbpatch:
     current_patch += 1
 
 linear_array.length = current_position
+# -
 
 # Add the ground conductor.
 
@@ -211,6 +217,7 @@ h3d = pyaedt.Hfss(projectname="Demo_3DComp",
                   solution_type="Terminal")
 
 # Set units to mm.
+
 h3d.modeler.model_units = "mm"
 
 # ## Import the EDB as a 3D Component
@@ -224,10 +231,12 @@ component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=Tru
 #
 # If a layout component is parametric, parameters can be exposed and changed in HFSS
 
+# +
 component.parameters
 
 w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
 h3d[w1_name]= 0.0015
+# -
 
 # ### Radiation Boundary Assignment
 #
@@ -238,10 +247,12 @@ h3d[w1_name]= 0.0015
 #
 # $$ \lambda/4 = \frac{c_0}{4 f} \approx 2.8mm $$
 
+# +
 h3d.modeler.fit_all()
 
 h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False) 
 h3d.assign_radiation_boundary_to_objects("Region")
+# -
 
 # ### Analysis Setup
 #
@@ -253,6 +264,7 @@ setup.props['Frequency']="20GHz"
 setup.props['MaximumPasses'] = 10
 
 # Specify properties of the frequency sweep:
+
 sweep1 = setup.add_sweep(sweepname="20GHz_to_50GHz")
 sweep1.props["RangeStart"]="20GHz"
 sweep1.props["RangeEnd"]="50GHz"
@@ -270,23 +282,22 @@ trace = h3d.get_traces_for_plot()
 solution = h3d.post.get_solution_data(trace[0])
 solution.plot()
 
-
 # ## Plot Far Fields in AEDT
 #
 # Plot Radiation patterns in AEDT.
 
-
+# +
 variations = {}
 variations["Freq"] = ["20GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
 h3d.insert_infinite_sphere( name="3D")
 
-
 new_report = h3d.post.reports_by_category.far_field("db(RealizedGainTotal)", h3d.nominal_adaptive, "3D")
 new_report.variations = variations
 new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
+# - 
 
 # ## Plot Far Fields in AEDT
 #
@@ -295,7 +306,6 @@ new_report.create("Realized2D")
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
-
 
 # ## Plot Far Fields outside AEDT
 #
@@ -321,7 +331,7 @@ h3d.post.create_fieldplot_layers_nets(
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-h3d.save_project(os.path.join(tmpfold, "test_layout.aedt"))
+h3d.save_project(os.path.join(temp_dir, "test_layout.aedt"))
 h3d.release_desktop()
 
 # ### Temp Directory Cleanup

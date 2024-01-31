@@ -19,11 +19,13 @@ import tempfile
 #
 # Download the AEDB file and copy it in the temporary folder.
 
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 edb_full_path = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_dir.name)
 time.sleep(5)
 
 print(edb_full_path)
+# -
 
 # ### Configure EDB
 #
@@ -60,6 +62,7 @@ print(comp_p, rlc_p, comp_n, rlc_n, sep="\n")
 
 # Prepare input data for port creation.
 
+# +
 ports = []
 for net_name, net_obj in diff_p.extended_net.nets.items():
     for comp_name, comp_obj in net_obj.components.items():
@@ -76,6 +79,7 @@ for net_name, net_obj in diff_n.extended_net.nets.items():
                           "net_name":net_name})
 
 print(*ports, sep="\n")
+# -
 
 # ### Create ports
 #
