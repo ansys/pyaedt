@@ -68,6 +68,7 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>> if __name__ == '__main__':
 >>>     launch(__file__, specified_version="2021.2", new_desktop_session=False, autosave=False)
 """
+
 from datetime import datetime
 import json
 import os

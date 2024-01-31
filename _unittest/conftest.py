@@ -17,6 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
+
 import json
 import os
 import random
