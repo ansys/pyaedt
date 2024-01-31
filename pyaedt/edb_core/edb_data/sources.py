@@ -141,7 +141,7 @@ class Source(object):
 
     @amplitude.setter
     def amplitude(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(float(value), float):
             self._amplitude = value
 
     @property
@@ -151,7 +151,7 @@ class Source(object):
 
     @phase.setter
     def phase(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(float(value), float):
             self._phase = value
 
     @property
@@ -315,6 +315,15 @@ class PinGroup(object):
 
         term = term.create(name, self.net_name, self.name)
         return term
+
+    @pyaedt_function_handler
+    def _json_format(self):
+        dict_out = {}
+        dict_out["component"] = self.component
+        dict_out["name"] = self.name
+        dict_out["net"] = self.net
+        dict_out["node_type"] = self.node_type
+        return dict_out
 
     @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):
