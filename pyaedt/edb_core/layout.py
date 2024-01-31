@@ -1,6 +1,7 @@
 """
 This module contains these classes: `EdbLayout` and `Shape`.
 """
+
 import math
 import warnings
 

@@ -1828,9 +1828,11 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
             "Y:=",
             self._primitives.number_with_units(position[1]),
             "Z:=",
-            self._primitives.number_with_units(self.location[2])
-            if len(position) < 3
-            else self._primitives.number_with_units(position[2]),
+            (
+                self._primitives.number_with_units(self.location[2])
+                if len(position) < 3
+                else self._primitives.number_with_units(position[2])
+            ),
         ]
         self.change_property(props)
 

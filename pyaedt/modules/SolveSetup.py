@@ -5,6 +5,7 @@ This module provides all functionalities for creating and editing setups in AEDT
 It is based on templates to allow for easy creation and modification of setup properties.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -2155,7 +2156,8 @@ class Setup3DLayout(CommonSetup):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``.
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``.
             The default is ``"Interpolating"``.
 
         Returns
