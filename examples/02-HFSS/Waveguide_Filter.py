@@ -3,10 +3,10 @@
 # This example shows how to build and analyze a 4-pole
 # X-Band waveguide filter using inductive irises.
 
-# sphinx_gallery_thumbnail_path = 'Resources/wgf.png'
+# <img src="_static/wgf.png" width="500">
 
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports.
 #
 

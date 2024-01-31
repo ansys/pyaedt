@@ -1,12 +1,10 @@
-"""
-SBR+: HFSS to SBR+ coupling
----------------------------
-This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
-HFSS antenna and run a simulation.
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # SBR+: HFSS to SBR+ coupling
+#
+# This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
+# HFSS antenna and run a simulation.
+
+# ## Perform required imports
+#
 # Perform required imports and set up the local path to the path for the PyAEDT
 # directory.
 
@@ -15,17 +13,15 @@ import pyaedt
 
 project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Define designs
-# ~~~~~~~~~~~~~~
+# ## Define designs
+#
 # Define two designs, one source and one target, with each design connected to
 # a different object.
 
@@ -43,32 +39,28 @@ source = pyaedt.Hfss(projectname=target.project_name,
                      specified_version="2023.2",
                      )
 
-###############################################################################
-# Define linked antenna
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ## Define linked antenna
+#
 # Define a linked antenna. This is HFSS far field applied to HFSS SBR+.
 
 target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
 
-###############################################################################
-# Assign boundaries
-# ~~~~~~~~~~~~~~~~~
+# ## Assign boundaries
+#
 # Assign boundaries.
 
 target.assign_perfecte_to_sheets(["Reflector", "Subreflector"])
 target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 
-###############################################################################
-# Plot model
-# ~~~~~~~~~~
+# ## Plot model
+#
 # Plot the model
 
 source.plot(show=False, export_path=os.path.join(target.working_directory, "Source.jpg"), plot_air_objects=True)
 target.plot(show=False, export_path=os.path.join(target.working_directory, "Target.jpg"), plot_air_objects=False)
 
-###############################################################################
-# Create setup and solve
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create setup and solve
+#
 # Create a setup and solve it.
 
 setup1 = target.create_setup()
@@ -80,9 +72,8 @@ setup1["RangeType"] = "SinglePoints"
 setup1["RangeStart"] = "10GHz"
 target.analyze()
 
-###############################################################################
-# Plot results
-# ~~~~~~~~~~~~
+# ## Plot results
+#
 # Plot results.
 
 variations = target.available_variations.nominal_w_values_dict
@@ -98,9 +89,8 @@ target.post.create_report(
     report_category="Far Fields",
 )
 
-###############################################################################
-# Plot results outside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot results outside AEDT
+#
 # Plot results using Matplotlib.
 
 solution = target.post.get_solution_data(
@@ -113,9 +103,8 @@ solution = target.post.get_solution_data(
 )
 solution.plot()
 
-###############################################################################
-# Release AEDT
-# ~~~~~~~~~~~~
+# ## Release AEDT
+#
 # Release AEDT and close the example.
 
 target.release_desktop()

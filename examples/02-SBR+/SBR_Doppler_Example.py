@@ -1,20 +1,17 @@
-"""
-SBR+: doppler setup
--------------------
-This example shows how you can use PyAEDT to create a multipart scenario in HFSS SBR+
-and set up a doppler analysis.
-"""
+# # SBR+: doppler setup
+#
+# This example shows how you can use PyAEDT to create a multipart scenario in HFSS SBR+
+# and set up a doppler analysis.
 
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports.
 
 import os
 import pyaedt
 
-# Launch AEDT
-# ~~~~~~~~~~~
+# ## Launch AEDT
+#
 # Launch AEDT.
 
 aedt_version = "2023.2"
@@ -22,17 +19,15 @@ projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = pyaedt.downloads.download_multiparts()
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Download and open project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Download and open project
+#
 # Download and open the project.
 
 project_name = pyaedt.generate_unique_project_name(project_name="doppler")
@@ -49,17 +44,15 @@ app = pyaedt.Hfss(
 
 app.autosave_disable()
 
-###############################################################################
-# Save project and rename design
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and rename design
+#
 # Save the project to the temporary folder and rename the design.
 
 app.save_project()
 app.rename_design(designname)
 
-###############################################################################
-# Set up library paths
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Set up library paths
+#
 # Set up library paths to 3D components.
 
 actor_lib = os.path.join(library_path, "actor_library")
@@ -71,17 +64,15 @@ car_folder = os.path.join(actor_lib, "vehicle1")
 bike_folder = os.path.join(actor_lib, "bike1")
 bird_folder = os.path.join(actor_lib, "bird1")
 
-###############################################################################
-# Define environment
-# ~~~~~~~~~~~~~~~~~~
+# ## Define environment
+#
 # Define the background environment.
 
 road1 = app.modeler.add_environment(env_folder=env_folder, environment_name="Bari")
 prim = app.modeler
 
-###############################################################################
-# Place actors
-# ~~~~~~~~~~~~
+# ## Place actors
+#
 # Place actors in the environment. This code places persons, birds, bikes, and cars
 # in the environment.
 
@@ -108,9 +99,8 @@ bird2 = app.modeler.add_bird(
     actor_folder=bird_folder, speed=1.0, global_offset=[6, 2, 3], yaw=-60, pitch=10, actor_name="Eagle"
 )
 
-###############################################################################
-# Place radar
-# ~~~~~~~~~~~
+# ## Place radar
+#
 # Place radar on the car. The radar is created relative to the car's coordinate
 # system.
 
@@ -122,9 +112,8 @@ radar1 = app.create_sbr_radar_from_json(
     relative_cs_name=car1.cs_name,
 )
 
-###############################################################################
-# Create setup
-# ~~~~~~~~~~~~
+# ## Create setup
+#
 # Create setup and validate it. The ``create_sbr_pulse_doppler_setup`` method
 # creates a setup and a parametric sweep on the time variable with a
 # duration of two seconds. The step is computed automatically from CPI.
@@ -133,16 +122,14 @@ setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2)
 app.set_sbr_current_sources_options()
 app.validate_simple()
 
-###############################################################################
-# Plot model
-# ~~~~~~~~~~
+# ## Plot model
+#
 # Plot the model.
 
 app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
 
-###############################################################################
-# Solve and release AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Solve and release AEDT
+#
 # Solve and release AEDT. To solve, uncomment the ``app.analyze_setup`` command
 # to activate the simulation. 
 
