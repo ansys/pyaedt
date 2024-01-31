@@ -380,6 +380,8 @@ class SweepHFSS3DLayout(object):
                 sweeptype = "kInterpolating"
             elif SequenceMatcher(None, sweeptype.lower(), "kdiscrete").ratio() > 0.8:
                 sweeptype = "kDiscrete"
+            elif SequenceMatcher(None, sweeptype.lower(), "kfast").ratio() > 0.8:
+                sweeptype = "kBroadbandFast"
             else:
                 warnings.warn("Sweep type is invalid. `kInterpolating` is set as the default.")
                 sweeptype = "kInterpolating"
