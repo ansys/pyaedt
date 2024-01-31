@@ -259,21 +259,23 @@ class TestClass:
                                                filename=fld_file,
                                                obj_list='box')
         assert os.path.exists(fld_file)
+        fld_file_1 = os.path.join(self.icepak_app.working_directory, "test_fld_1.fld")
         sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
         self.icepak_app.post.export_field_file(quantity_name='Temp',
                                                solution=self.icepak_app.nominal_sweep,
                                                variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               filename=fld_file,
+                                               filename=fld_file_1,
                                                obj_list='box',
                                                sample_points_file=sample_points_file)
-        assert os.path.exists(fld_file)
+        assert os.path.exists(fld_file_1)
+        fld_file_2 = os.path.join(self.icepak_app.working_directory, "test_fld_2.fld")
         self.icepak_app.post.export_field_file(quantity_name='Temp',
                                                solution=self.icepak_app.nominal_sweep,
                                                variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               filename=fld_file,
+                                               filename=fld_file_2,
                                                obj_list='box',
                                                sample_points_lists=[[0,0,0],[3,6,8],[4,7,9]])
-        assert os.path.exists(fld_file)
+        assert os.path.exists(fld_file_2)
 
     def test_04a_3dl_generate_mesh(self):
         assert self.hfss3dl_solve.mesh.generate_mesh("Setup1")
