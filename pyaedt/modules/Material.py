@@ -12,6 +12,7 @@ This module contains these data classes for creating a material library:
 * `SufaceMaterial`
 
 """
+
 from collections import OrderedDict
 import copy
 import warnings
