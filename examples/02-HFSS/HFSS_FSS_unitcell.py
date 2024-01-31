@@ -1,12 +1,9 @@
-"""
-HFSS: FSS Unitcell Simulation
---------------------
-This example shows how you can use PyAEDT to create a FSS unitcell simulations in HFSS and postprocess results.
-"""
+# # HFSS: FSS Unitcell Simulation
+#
+# This example shows how you can use PyAEDT to create a FSS unitcell simulations in HFSS and postprocess results.
 
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports.
 
 import os
@@ -14,38 +11,33 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="FSS")
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. `
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
+# ## Launch AEDT
+#
 # Launch AEDT 2023 R2 in graphical mode.
 
 d = pyaedt.launch_desktop("2023.2", non_graphical=non_graphical, new_desktop_session=True)
 
-###############################################################################
-# Launch HFSS
-# ~~~~~~~~~~~
+# ## Launch HFSS
+#
 # Launch HFSS 2023 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 
-###############################################################################
-# Define variable
-# ~~~~~~~~~~~~~~~
+# ## Define variable
+#
 # Define a variable for the 3D-component.
 
 hfss["patch_dim"] = "10mm"
 
-###############################################################################
-# Insert 3D component from system library
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Insert 3D component from system library
+#
 # Download the 3D component from the example data and insert the 3D Component.
 
 unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
@@ -53,17 +45,15 @@ unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dc
 
 comp = hfss.modeler.insert_3d_component(unitcell_path)
 
-###############################################################################
-# Assign design parameter to 3D Component parameter
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Assign design parameter to 3D Component parameter
+#
 # Assign parameter.
 
 component_name = hfss.modeler.user_defined_component_names
 comp.parameters["a"] = "patch_dim"
 
-###############################################################################
-# Create air region
-# ~~~~~~~~~~~~~~~~~
+# ## Create air region
+#
 # Create an open region along +Z direction for unitcell analysis.
 
 bounding_dimensions = hfss.modeler.get_bounding_dimension()
@@ -78,16 +68,14 @@ region = hfss.modeler.create_air_region(
 
 [x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box
 
-###############################################################################
-# Assign Lattice pair boundary
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Assign Lattice pair boundary
+#
 # Assigning lattice pair boundary automatically detected.
 
 hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
 
-###############################################################################
-# Assign Floquet port excitation along +Z direction
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Assign Floquet port excitation along +Z direction
+#
 # Assign Floquet port.
 
 id_z_pos = region.top_face_z
@@ -95,9 +83,8 @@ hfss.create_floquet_port(id_z_pos, [0, 0, z_max], [0, y_max, z_max], [x_max, 0, 
                                      portname='port_z_max', deembed_dist=10 * bounding_dimensions[2])
 
 
-###############################################################################
-# Create setup
-# ~~~~~~~~~~~~
+# ## Create setup
+#
 # Create a setup with a sweep to run the simulation.
 
 setup = hfss.create_setup("MySetup")
@@ -115,9 +102,8 @@ hfss.create_linear_count_sweep(
     save_fields=False,
 )
 
-###############################################################################
-# Create S-parameter report using report objects
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create S-parameter report using report objects
+#
 # Create S-parameter reports using create report.
 
 all_quantities = hfss.post.available_report_quantities()
@@ -141,16 +127,14 @@ hfss.post.create_report(
     plotname="phase_plot",
 )
 
-###############################################################################
-# Save and run simulation
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save and run simulation
+#
 # Save and run the simulation. Uncomment the line following line to run the analysis.
 
 # hfss.analyze()
 
-###############################################################################
-# Close AEDT
-# ~~~~~~~~~~
+# ## Close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.

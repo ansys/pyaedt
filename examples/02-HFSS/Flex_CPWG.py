@@ -1,29 +1,24 @@
-"""
-HFSS: flex cable CPWG
----------------------
-This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar waveguide with ground).
-"""
+# # HFSS: flex cable CPWG
+#
+# This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar waveguide with ground).
 
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports.
 
 import os
 from math import radians, sin, cos, sqrt
 import pyaedt
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
+# ## Launch AEDT
+#
 # Launch AEDT 2023 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(specified_version="2023.2",
@@ -36,9 +31,8 @@ hfss.create_open_region("100GHz")
 hfss.modeler.model_units = "mil"
 hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
 
-###############################################################################
-# Create variables
-# ~~~~~~~~~~~~~~~~
+# ## Create variables
+#
 # Create input variables for creating the flex cable CPWG.
 
 total_length = 300
@@ -53,9 +47,8 @@ gnd_thickness = 2
 xt = (total_length - r * radians(theta)) / 2
 
 
-###############################################################################
-# Create bend
-# ~~~~~~~~~~~
+# ## Create bend
+#
 # Create the bend. The ``create_bending`` method creates a list of points for
 # the bend based on the curvature radius and extension.
 
@@ -75,9 +68,8 @@ def create_bending(radius, extension=0):
     return position_list
 
 
-###############################################################################
-# Draw signal line
-# ~~~~~~~~~~~~~~~~
+# ## Draw signal line
+#
 # Draw a signal line to create a bent signal wire.
 
 position_list = create_bending(r, 1)
@@ -89,9 +81,8 @@ line = hfss.modeler.create_polyline(
     matname="copper",
 )
 
-###############################################################################
-# Draw ground line
-# ~~~~~~~~~~~~~~~~
+# ## Draw ground line
+#
 # Draw a ground line to create two bent ground wires.
 
 gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in position_list]
@@ -105,9 +96,8 @@ for gnd in [gnd_r, gnd_l]:
     x.color = (255, 0, 0)
     gnd_objs.append(x)
 
-###############################################################################
-# Draw dielectric
-# ~~~~~~~~~~~~~~~
+# ## Draw dielectric
+#
 # Draw a dielectric to create a dielectric cable.
 
 position_list = create_bending(r + (height + gnd_thickness) / 2)
@@ -120,9 +110,8 @@ fr4 = hfss.modeler.create_polyline(
     matname="FR4_epoxy",
 )
 
-###############################################################################
-# Create bottom metals
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Create bottom metals
+#
 # Create the bottom metals.
 
 position_list = create_bending(r + height + gnd_thickness, 1)
@@ -135,9 +124,8 @@ bot = hfss.modeler.create_polyline(
     matname="copper",
 )
 
-###############################################################################
-# Create port interfaces
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Create port interfaces
+#
 # Create port interfaces (PEC enclosures).
 
 port_faces = []
@@ -163,9 +151,8 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
 
     print(port_faces)
 
-###############################################################################
-# Create boundary condition
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create boundary condition
+#
 # Creates a Perfect E boundary condition.
 
 boundary = []
@@ -174,9 +161,8 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
     boundary.append(s)
     hfss.assign_perfecte_to_sheets(s)
 
-###############################################################################
-# Create ports
-# ~~~~~~~~~~~~
+# ## Create ports
+#
 # Creates ports.
 
 for s, port_name in zip(port_faces, ["1", "2"]):
@@ -184,9 +170,8 @@ for s, port_name in zip(port_faces, ["1", "2"]):
 
     hfss.wave_port(s.id, name=port_name, reference=reference)
 
-###############################################################################
-# Create setup and sweep
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Create setup and sweep
+#
 # Create the setup and sweep.
 
 setup = hfss.create_setup("setup1")
@@ -204,9 +189,8 @@ hfss.create_linear_count_sweep(
     sweep_type="Interpolating",
 )
 
-###############################################################################
-# Plot model
-# ~~~~~~~~~~
+# ## Plot model
+#
 # Plot the model.
 
 my_plot = hfss.plot(show=False, plot_air_objects=False)
@@ -216,9 +200,8 @@ my_plot.plot(
     os.path.join(hfss.working_directory, "Image.jpg"),
 )
 
-###############################################################################
-# Analyze and release
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Analyze and release
+#
 # Uncomment the ``hfss.analyze`` command if you want to analyze the
 # model and release AEDT.
 

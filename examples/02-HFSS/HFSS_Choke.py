@@ -1,11 +1,9 @@
-"""
-HFSS: choke
------------
-This example shows how you can use PyAEDT to create a choke setup in HFSS.
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # HFSS: choke
+#
+# This example shows how you can use PyAEDT to create a choke setup in HFSS.
+
+# ## Perform required imports
+#
 # Perform required imports.
 
 import json
@@ -14,17 +12,15 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="choke")
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Launch HFSS
-# ~~~~~~~~~~~
+# ## Launch HFSS
+#
 # Launches HFSS 2023 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name,
@@ -33,9 +29,8 @@ hfss = pyaedt.Hfss(projectname=project_name,
                    new_desktop_session=True,
                    solution_type="Terminal")
 
-###############################################################################
-# Rules and information of use
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Rules and information of use
+#
 # The dictionary values contain the different parameter values of the core and
 # the windings that compose the choke. You must not change the main structure of
 # the dictionary. The dictionary has many primary keys, including
@@ -43,7 +38,7 @@ hfss = pyaedt.Hfss(projectname=project_name,
 # dictionaries as values. The keys of these dictionaries are secondary keys
 # of the dictionary values, such as ``"1"``, ``"2"``, ``"3"``, ``"4"``, and
 # ``"Simple"``.
-# 
+#
 # You must not modify the primary or secondary keys. You can modify only their values.
 # You must not change the data types for these keys. For the dictionaries from
 # ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
@@ -98,20 +93,17 @@ values = {
     "Inner Winding": {"Turns": 4, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
 }
 
-###############################################################################
-# Convert dictionary to JSON file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Convert dictionary to JSON file
+#
 # Convert a dictionary to a JSON file. You must supply the path of the
 # JSON file as an argument. 
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")
-
 with open(json_path, "w") as outfile:
     json.dump(values, outfile)
 
-###############################################################################
-# Verify parameters of JSON file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Verify parameters of JSON file
+#
 # Verify parameters of the JSON file. The ``check_choke_values`` method takes
 # the JSON file path as an argument and does the following:
 #
@@ -121,10 +113,9 @@ with open(json_path, "w") as outfile:
 dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
 print(dictionary_values)
 
-###############################################################################
-# Create choke
-# ~~~~~~~~~~~~
-# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# ## Create choke
+#
+# Create the choke. The ``Hfss.modeler.create_choke()`` method takes the JSON file path as an 
 # argument.
 
 list_object = hfss.modeler.create_choke(json_path)
@@ -133,9 +124,8 @@ core = list_object[1]
 first_winding_list = list_object[2]
 second_winding_list = list_object[3]
 
-###############################################################################
-# Create ground
-# ~~~~~~~~~~~~~
+# ## Create ground
+#
 # Create a ground.
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
@@ -143,9 +133,8 @@ ground_position = [0, 0, first_winding_list[1][0][2] - 2]
 ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", matname="copper")
 coat = hfss.assign_coating(ground, isinfgnd=True)
 
-###############################################################################
-# Create lumped ports
-# ~~~~~~~~~~~~~~~~~~~
+# ## Create lumped ports
+#
 # Create lumped ports.
 
 port_position_list = [
@@ -163,9 +152,8 @@ for position in port_position_list:
                      reference=[ground]
     )
 
-###############################################################################
-# Create mesh
-# ~~~~~~~~~~~
+# ## Create mesh
+#
 # Create the mesh.
 
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
@@ -176,17 +164,15 @@ mesh_operation_cylinder = hfss.modeler.create_cylinder(
 hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
 
 
-###############################################################################
-# Create boundaries
-# ~~~~~~~~~~~~~~~~~
+# ## Create boundaries
+#
 # Create the boundaries. A region with openings is needed to run the analysis.
 
 region = hfss.modeler.create_region(pad_percent=1000)
 
 
-###############################################################################
-# Create setup
-# ~~~~~~~~~~~~
+# ## Create setup
+#
 # Create a setup with a sweep to run the simulation. Depending on your machine's
 # computing power, the simulation can take some time to run.
 
@@ -204,20 +190,18 @@ hfss.create_linear_count_sweep(
     save_fields=False,
 )
 
-###############################################################################
-# Save project
-# ~~~~~~~~~~~~
+# ## Save project
+#
 # Save the project.
 
 hfss.modeler.fit_all()
 hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
-###############################################################################
-# Close AEDT
-# ~~~~~~~~~~
+# ## Close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# `pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 hfss.release_desktop()
