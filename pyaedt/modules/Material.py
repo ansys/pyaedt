@@ -1289,7 +1289,7 @@ class Material(CommonMaterial, object):
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
         else:
             vals = list(CSS4_COLORS.values())
-            if (materiallib._color_id) > len(vals):
+            if (materiallib._color_id) >= len(vals):
                 materiallib._color_id = 0
             h = vals[materiallib._color_id].lstrip("#")
             self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
