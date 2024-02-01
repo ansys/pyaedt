@@ -52,9 +52,8 @@ board = ipk.modeler.create_box([-30.48, -27.305, 0], [146.685, 71.755, 0.4064], 
 #
 # The following image does not show the entire rows and data and only serves as a sample.
 #
-# .. image:: ../../_static/CSV_Import.png
-#    :width: 400
-#    :alt: CSV Screenshot.
+# <img src="_static\CSV_Import.png" width="400">
+#
 #
 #
 # In this step the code will loop over the csv file lines and creates the blocks.

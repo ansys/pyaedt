@@ -14,11 +14,7 @@ import os
 # PyAEDT Packages
 
 import pyaedt
-from pyaedt import Icepak
-from pyaedt import Desktop
 from pyaedt import Hfss3dLayout
-from pyaedt.modules.Boundary import BoundaryObject
-
 
 # ## Set non-graphical mode
 #
@@ -48,16 +44,9 @@ ipk.autosave_disable()
 #
 # Sample *.bdf and *.ldf files are presented here.
 #
+# <img src="_static\bdf.png" width="400">
 #
-# .. image:: ../../_static/bdf.png
-#    :width: 400
-#    :alt: BDF image.
-#
-#
-# .. image:: ../../_static/ldf.png
-#    :width: 400
-#    :alt: LDF image.
-#
+# <img src="_static\ldf.png" width="400">
 #
 # Imports the idf files with several filtering options including caps, resistors, inductors, power, size, ...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes). 
