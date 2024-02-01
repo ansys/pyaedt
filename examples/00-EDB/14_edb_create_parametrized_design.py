@@ -4,7 +4,7 @@
 # 1. Set up an HFSS project using SimulationConfiguration class.
 # 2. Create automatically parametrized design.
 #
-# The following layout will be created in this example
+# This image shows the layout created in this example:
 #
 # <img src="_static\parameterized_design.png" width="600">
 #
@@ -21,20 +21,19 @@ import tempfile
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_dir.name)
-print("Project will be located in ", target_aedb)
+print("Project is located in ", target_aedb)
 
 aedt_version = "2023.2"
 edb = pyaedt.Edb(edbpath=target_aedb, edbversion=aedt_version)
-print("EDB is located at {}".format(target_aedb))
+print("AEDB file is located in {}".format(target_aedb))
 # -
 
-# ### Prepare the Layout for Simulation
+# ### Prepare the layout for the simulation
 #
 # The ``new_simulation_configuration()`` method creates an instance of 
-# the ``SimulationConfiguration`` class. This class helps define all pre-processing steps
+# the ``SimulationConfiguration`` class. This class helps define all preprocessing steps
 # required to set up the PCB for simulation. After the simulation configuration has been defined, 
-# they are applied to the EDB using the method
-# ``Edb.build_simulation()``.
+# they are applied to the EDB using the ``Edb.build_simulation()`` method.
 
 simulation_configuration = edb.new_simulation_configuration()
 simulation_configuration.signal_nets = ["PCIe_Gen4_RX0_P", "PCIe_Gen4_RX0_N",
@@ -50,7 +49,7 @@ simulation_configuration.step_freq = "10MHz"
 
 edb.build_simulation_project(simulation_configuration)
 
-# ### Parameterization
+# ### Parameterize
 #
 # The layout can automatically be set up to enable parametric studies. For example, the
 # impact of antipad diameter or trace width on signal integrity performance may be invested parametrically.
@@ -61,9 +60,9 @@ edb.close_edb()
 
 # ## Open project in AEDT
 #
-# All manipulations thus far have been executed using the EDB API which provides fast, streamlined processing of
+# All manipulations thus far have been executed using the EDB API, which provides fast, streamlined processing of
 # layout data in non-graphical mode. The layout and simulation setup can be visualized by opening it using the
-# 3D Layout editor in Electronics Desktop.
+# 3D Layout editor in AEDT.
 #
 # Note that there may be some delay while AEDT is being launched.
 
@@ -86,7 +85,7 @@ for s in validation_info[0]:
 if is_ready_to_simulate:
     print("The model is ready for simulation.")
 else:
-    print("There are errors in the model that need to be fixed.")
+    print("There are errors in the model that must be fixed.")
 # -
 
 # ### Release the application from the Python kernel
@@ -95,7 +94,7 @@ else:
 # execution of the script. The default behavior of the ``release_desktop()`` method closes all open
 # projects and closes the application.
 #
-# If you want to conintue working on the project in graphical mode
+# If you want to continue working on the project in graphical mode
 # after script execution, call the following method with both arguments set to ``False``.
 
 hfss.release_desktop(close_projects=True, close_desktop=True)

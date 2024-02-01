@@ -16,9 +16,9 @@
 #   >simulation.
 # 7. Create the HFSS simulation setup and assign ports where the connectors are located.
 
-# ## PCB Trace Model
+# ## View PCB trace model
 #
-# Here is an image of the model that will be created in this example.
+# Here is an image of the model that is created in this example.
 #
 # <img src="_static/connector_example.png" width="600">
 #
@@ -66,7 +66,7 @@ plane_shape = edb.modeler.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["1
 for i in ground_layers:
     edb.modeler.create_polygon(plane_shape, i, net_name="VSS")
 
-# ### Design Parameters
+# ### Add design parameters
 #
 # Parameters that are preceeded by a _"$"_ character have project-wide scope. 
 # Therefore, the padstack **definition** and hence all instances of that padstack rely on the parameters.
@@ -80,7 +80,7 @@ edb.add_design_variable("$paddiam", "0.5mm")
 edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
-# ### Create the Connector Component
+# ### Create the connector component
 #
 # The component definition is used to place the connector on the PCB. First define the padstacks.
 
@@ -104,7 +104,7 @@ component1_pins = [edb.padstacks.place_padstack(conectors_position[0], "Via", ne
                                                  conectors_position[0][1] + connector_size / 2],
                                                 "Via", net_name="VSS")]
 
-# Create the 2nd connector
+# Create the second connector
 
 component2_pins = [
     edb.padstacks.place_padstack(conectors_position[-1], "Via", net_name="VDD", fromlayer=trace_in_layer,
@@ -122,20 +122,20 @@ component2_pins = [
                                   conectors_position[1][1] + connector_size / 2],
                                  "Via", net_name="VSS")]
 
-# ### Define "Pins"
+# ### Define pins
 #
 # Pins are fist defined to allow a component to subsequently connect to the remainder 
-# of the model. In this case, ports will be assigned at the connector instances using the "pins".
+# of the model. In this case, ports are assigned at the connector instances using the pins.
 
 for padstack_instance in list(edb.padstacks.instances.values()):
     padstack_instance.is_pin = True
 
-# Create components from he pins
+# Create components from the pins
 
 edb.components.create(component1_pins, 'connector_1')
 edb.components.create(component2_pins, 'connector_2')
 
-# Creating ports on the pins and insert a simulation setup using the ``SimulationConfiguration`` class.
+# Create ports on the pins and insert a simulation setup using the ``SimulationConfiguration`` class.
 
 sim_setup = edb.new_simulation_configuration()
 sim_setup.solver_type = sim_setup.SOLVER_TYPE.Hfss3dLayout
@@ -149,8 +149,8 @@ sim_setup.ac_settings.stop_freq = "5GHz"
 sim_setup.ac_settings.step_freq = "1GHz"
 edb.build_simulation_project(sim_setup)
 
-# Save the EDB and open it in the 3D Layout editor. If ``non_graphical==False``
-# there may be a delay while AEDT started.
+# Save the EDB and open it in the 3D Layout editor. If ``non_graphical==False``,
+# there may be a delay while AEDT starts.
 
 edb.save_edb()
 edb.close_edb()
@@ -170,7 +170,7 @@ h3d = pyaedt.Hfss3dLayout(specified_version="2023.2",
 
 h3d.release_desktop(close_projects=True, close_desktop=True)
 
-# ### Clean up the Temporary Directory
+# ### Clean up the temporary directory
 #
 # The following command cleans up the temporary directory, thereby removing all 
 # project files. If you'd like to save this project, save it to a folder of your choice 

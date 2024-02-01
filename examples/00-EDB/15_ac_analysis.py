@@ -29,13 +29,13 @@ print(edb_full_path)
 
 # ### Configure EDB
 #
-# Creat an instance of the `pyaedt.Edb` class.
+# Create an instance of the ``pyaedt.Edb`` class.
 
 edbapp = pyaedt.Edb(edbpath=edb_full_path, edbversion="2023.2")
 
 # ### Generate extended nets
 #
-# An extended net is a connection between two nets that are connected
+# An extended net consists of two nets that are connected
 # through a passive component such as a resistor or capacitor.
 
 all_nets = edbapp.extended_nets.auto_identify_signal(resistor_below=10, 
