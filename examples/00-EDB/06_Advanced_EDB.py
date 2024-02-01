@@ -10,7 +10,7 @@ import numpy as np
 import pyaedt
 import tempfile
 
-# Creat the EDB project.
+# Create the EDB project.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "parametric_via.aedb")
@@ -29,7 +29,7 @@ def create_ground_planes(edb, layers):
 
 # ## Create the EDB
 #
-# Create the Electronics Databas (EDB) instance. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
+# Create the EDB instance. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
@@ -50,11 +50,11 @@ edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thick
                                      soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
                                      dielectric_material=diel_material_name)
 
-# ## Define Parameters
+# ## Define parameters
 #
 # Define parameters to allow changes in the model dimesons. Parameters preceeded by 
 # the ``$`` character have project-wide scope.
-# Without the ``$`` prefix the parameter scope is limited to the design.
+# Without the ``$`` prefix, the parameter scope is limited to the design.
 
 # +
 giva_angle_rad = gvia_angle / 180 * np.pi
