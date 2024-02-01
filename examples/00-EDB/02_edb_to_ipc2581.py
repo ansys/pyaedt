@@ -18,8 +18,8 @@ print(targetfile)
 
 # ## Launch EDB
 #
-# Launch the `pyaedt.Edb` class, using Verson 2023. 
-# > Note that length dimensions passed to Edb are in SI units.
+# Launch the `pyaedt.Edb` class, using EDB 2023. 
+# > Note that length dimensions passed to EDB are in SI units.
 
 edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
 
@@ -46,7 +46,7 @@ edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="Conv
            )
 edb.nets.plot(None, None, color_by_net=True)
 
-# Export the EDB to IPC2581 file.
+# Export the EDB to an IPC2581 file.
 
 edb.export_to_ipc2581(ipc2581_file_name, "inch")
 print("IPC2581 File has been saved to {}".format(ipc2581_file_name))

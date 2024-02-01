@@ -19,7 +19,7 @@ print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 # -
 
-# ## Electronics Database (EDB)
+# ## Launch Ansys Electronics Database (EDB)
 #
 # Instantiate an instance of the `pyaedt.Edb` class 
 # using EDB 2023 R2 and SI units.
@@ -31,7 +31,7 @@ edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
 
 # ## Identify nets and components
 #
-# The ``Edb.nets.netlist`` and ``Edb.components.components`` propreties contain information
+# The ``Edb.nets.netlist`` and ``Edb.components.components`` properties contain information
 # about all of the nets and components. The following cell uses this information to print the number of nets and
 # components.
 
@@ -40,9 +40,9 @@ start = time.time()
 print("Components {}".format(len(edb.components.components.keys())))
 print("elapsed time = ", time.time() - start)
 
-# ## Identify Pin Positions
+# ## Identify pin positions
 #
-# The next section shows how to obtain all pins for a specific component and
+# This code shows how to obtain all pins for a specific component and
 # print the ``[x, y]`` position of each pin.
 
 pins = edb.components["U2"].pins
@@ -57,10 +57,10 @@ for pin in edb.components["U2"].pins.values():
     count += 1
 
 # Get all nets connected to a specific component. Print
-# the pin and the name of the net to which it is connected.
+# the pin and the name of the net that it is connected to.
 
 connections = edb.components.get_component_net_connection_info("U2")
-n_print = 0 # Counter to limite the number of printed lines.
+n_print = 0 # Counter to limit the number of printed lines.
 print_max = 15
 for m in range(len(connections["pin_name"])):
     ref_des = connections["refdes"][m]
@@ -77,13 +77,13 @@ for m in range(len(connections["pin_name"])):
 
 rats = edb.components.get_rats()
 
-# ## Idenify Connected Nets
+# ## Identify connected nets
 #
-# The method ``get_dcconnected_net_list()`` retrieves a list of 
+# The ``get_dcconnected_net_list()`` method retrieves a list of 
 # all DC-connected power nets. Each group of connected nets is returned
-# as a [set](https://docs.python.org/3/tutorial/datastructures.html#sets)
-# The first argument to the method is the list of ground nets which will
-# not be considered in the search for connected nets.
+# as a [set](https://docs.python.org/3/tutorial/datastructures.html#sets).
+# The first argument to the method is the list of ground nets, which are
+# not considered in the search for connected nets.
 
 GROUND_NETS = ["GND", "GND_DP"]
 dc_connected_net_list = edb.nets.get_dcconnected_net_list(GROUND_NETS)
@@ -121,16 +121,16 @@ for el in powertree_df:
     print(s)
 # -
 
-# ## Remove Unused Components
+# ## Remove unused components
 #
 # Delete all RLC components that are connected with only one pin. 
-# The method ``Edb.components.delete_single_pin_rlc()``
+# The ``Edb.components.delete_single_pin_rlc()`` method
 # provides a useful way to
 # remove components that are not needed for the simulation.
 
 edb.components.delete_single_pin_rlc()
 
-# Unused components can also be removed explicitly by name.
+# You can also remove unused components explicitly by name.
 
 edb.components.delete("C380")
 
@@ -139,14 +139,14 @@ edb.components.delete("C380")
 edb.nets.delete("PDEN")
 
 # Print the top and bottom elevation of the stackup obtained using 
-# the method ``Edb.stackup.limits()``.
+# the ``Edb.stackup.limits()`` method.
 
 s = "Top layer name: \"{top}\", Elevation: {top_el:.2f} "
 s += "mm\nBottom layer name: \"{bot}\", Elevation: {bot_el:2f} mm"
 top, top_el, bot, bot_el = edb.stackup.limits()
 print(s.format(top = top, top_el = top_el*1E3, bot = bot, bot_el = bot_el*1E3))
 
-# ## Setup for SIwave DCIR analysis
+# ## Set up for SIwave DCIR analysis
 #
 # Create a voltage source and then set up a DCIR analysis.
 
@@ -166,14 +166,14 @@ edb.nets.plot(None, "1_Top",plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 
-# ## Export Results
+# ## Export results
 #
 # Export all quantities calculated from the DC-IR analysis. The following method runs SIwave in batch mode from
 # the command line. Results are written to the edb folder.
 
 outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
 
-# Close the EDB. After EDB is closed, it can be opened by AEDT.
+# Close EDB. After EDB is closed, it can be opened by AEDT.
 
 edb.close_edb()
 
