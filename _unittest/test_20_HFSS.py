@@ -1629,9 +1629,10 @@ class TestClass:
     def test_68_import_gds_3d(self):
         self.aedtapp.insert_design("gds_import_H3D")
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
-        assert self.aedtapp.import_gds_3d(gds_file, [7, 9], [100e-6, 110e-6], [10e-6, 5e-6], 0)
-        assert self.aedtapp.import_gds_3d(gds_file, [7, 9])
-        assert self.aedtapp.import_gds_3d(gds_file, [7], [100e-6, 110e-6], [10e-6, 5e-6], 1)
-        assert not self.aedtapp.import_gds_3d(gds_file, [])
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (0, 0), 9: (0, 0)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
+        assert not self.aedtapp.import_gds_3d(gds_file, {})
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
-        assert not self.aedtapp.import_gds_3d(gds_file, [7, 9])
+        assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+

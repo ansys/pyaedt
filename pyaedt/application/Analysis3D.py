@@ -10,6 +10,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
+from pyaedt.generic.constants import unit_converter
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -1278,27 +1279,21 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(self, gds_file, gds_number, elevation=None, thickness=None, import_method=1):  # pragma: no cover
+    def import_gds_3d(self, gds_file, gds_number, unit="um", import_method=1):  # pragma: no cover
         """Import a GDSII file.
 
         Parameters
         ----------
         gds_file : str
             Path to the GDS file.
-        gds_number : list
-            List of layer numbers to import.
-        elevation : list, optional
-            List of GDS layer elevations. The number of elements in the list must be
-            the same as the number of elements in the list for the ``gds_number``
-            parameter.  If the number is not the same, elevation and thickness are
-            not applied. If ``elevation=None``, which is the default, elevation and
-            thickness are not applied.
-        thickness : list, optional
-            List of GDS layer thicknesses. The number of elements in the list must
-            be the same as the number of elements in the list for the ``gds_number``
-            parameter. If the number is not the same, elevation and thickness are not
-            applied. If ``thickness=None``, which is the default, elevation and thickness
-            are not applied.
+        gds_number : dict
+            Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
+        unit : string, optional
+            Unit of elevation and thickness values. The default is ``"um"``. Options are:
+
+            - ``"um"`` for micrometer
+            - ``"mm"`` for millimeter
+
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
 
@@ -1316,107 +1311,85 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.ImportGDSII
 
+        Examples
+        --------
+        The method :func:`import_gds_3d` is used to import a GDS file in an HFSS project.
+
+        gds file full path
+
+        >>>gds_path = r"C:\temp\gds1.gds"
+
+        Open a design and import gds file
+
+        >>>from pyaedt import Hfss
+        >>>hfss = Hfss()
+        >>>gds_number = {
+        >>>    7: (100, 10),
+        >>>    9: (110, 5)
+        >>>}
+        >>>hfss.import_gds_3d(gds_path, gds_number, unit="um", import_method=1)
+
         """
 
         if self.desktop_class.non_graphical:
             self.logger.error("Method is supported only in graphical mode.")
             return False
-
         if not os.path.exists(gds_file):
             self.logger.error("GDSII file does not exist. No layer is imported.")
             return False
         if len(gds_number) == 0:
-            self.logger.error("List for GDSII layer numbers is empty. No layer is imported.")
+            self.logger.error("Dictionary for GDSII layer numbers is empty. No layer is imported.")
             return False
 
-        if (
-            elevation is None
-            or thickness is None
-            or (len(gds_number) != len(elevation) or len(gds_number) != len(thickness))
-        ):
-            self.logger.warning(
-                "A list of elevations and/or thicknesses is either "
-                "not specified or has a different number of elements than the GDS number."
-                "Elevation and thickness are not applied."
-            )
-            layermap = ["NAME:LayerMap"]
-            for i in range(len(gds_number)):
-                layername = "signal" + str(gds_number[i])
-                layermap.append(
-                    [
-                        "NAME:LayerMapInfo",
-                        "LayerNum:=",
-                        gds_number[i],
-                        "DestLayer:=",
-                        layername,
-                        "layer_type:=",
-                        "signal",
-                    ]
-                )
-
-            self.oeditor.ImportGDSII(
+        layermap = ["NAME:LayerMap"]
+        ordermap = []
+        for i, k in enumerate(gds_number):
+            layername = "signal" + str(k)
+            layermap.append(
                 [
-                    "NAME:options",
-                    "FileName:=",
-                    gds_file,
-                    "FlattenHierarchy:=",
-                    True,
-                    "ImportMethod:=",
-                    import_method,
-                    layermap,
+                    "NAME:LayerMapInfo",
+                    "LayerNum:=",
+                    k,
+                    "DestLayer:=",
+                    layername,
+                    "layer_type:=",
+                    "signal",
                 ]
             )
-        else:
-            self.logger.info("GDS layer imported with elevations and thickness.")
-
-            layermap = ["NAME:LayerMap"]
-            ordermap = []
-            for i in range(len(gds_number)):
-                layername = "signal" + str(gds_number[i])
-                layermap.append(
-                    [
-                        "NAME:LayerMapInfo",
-                        "LayerNum:=",
-                        gds_number[i],
-                        "DestLayer:=",
-                        layername,
-                        "layer_type:=",
-                        "signal",
-                    ]
-                )
-                ordermap1 = [
-                    "entry:=",
-                    [
-                        "order:=",
-                        i,
-                        "layer:=",
-                        layername,
-                        "LayerNumber:=",
-                        gds_number[i],
-                        "Thickness:=",
-                        thickness[i],
-                        "Elevation:=",
-                        elevation[i],
-                        "Color:=",
-                        "color",
-                    ],
-                ]
-                ordermap.extend(ordermap1)
-
-            self.oeditor.ImportGDSII(
+            ordermap1 = [
+                "entry:=",
                 [
-                    "NAME:options",
-                    "FileName:=",
-                    gds_file,
-                    "FlattenHierarchy:=",
-                    True,
-                    "ImportMethod:=",
-                    import_method,
-                    layermap,
-                    "OrderMap:=",
-                    ordermap,
-                ]
-            )
+                    "order:=",
+                    i,
+                    "layer:=",
+                    layername,
+                    "LayerNumber:=",
+                    k,
+                    "Thickness:=",
+                    unit_converter(gds_number[k][1], unit_system="Length", input_units=unit, output_units="meter"),
+                    "Elevation:=",
+                    unit_converter(gds_number[k][0], unit_system="Length", input_units=unit, output_units="meter"),
+                    "Color:=",
+                    "color",
+                ],
+            ]
+            ordermap.extend(ordermap1)
+
+        self.oeditor.ImportGDSII(
+            [
+                "NAME:options",
+                "FileName:=",
+                gds_file,
+                "FlattenHierarchy:=",
+                True,
+                "ImportMethod:=",
+                import_method,
+                layermap,
+                "OrderMap:=",
+                ordermap,
+            ]
+        )
+        self.logger.info("GDS layer imported with elevations and thickness.")
         return True
 
     @pyaedt_function_handler()
