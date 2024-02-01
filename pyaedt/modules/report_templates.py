@@ -1515,17 +1515,20 @@ class CommonReport(object):
         return self._change_property("legend", "legend", props)
 
     def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_height=1):
-        """Hide current Legend
+        """Hide current Legend.
 
         Parameters
         ----------
-        solution_name
-        trace_name
-        variation_key
+        solution_name : bool, optional
+            Whether to show or hide the solution name. Default is ``True``.
+        trace_name : bool, optional
+            Whether to show or hide the trace name. Default is ``True``.
+        variation_key : bool, optional
+            Whether to show or hide the variations. Default is ``True``.
 
         Returns
         -------
-
+        bool
         """
         try:
             legend = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject("Legend")
