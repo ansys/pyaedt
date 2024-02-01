@@ -1279,7 +1279,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler
-    def import_gds_3d(self, gds_file, gds_number, unit="um", import_method=1):  # pragma: no cover
+    def import_gds_3d(self, gds_file, gds_number, unit="um", import_method=1):
         """Import a GDSII file.
 
         Parameters
@@ -1289,17 +1289,12 @@ class FieldAnalysis3D(Analysis, object):
         gds_number : dict
             Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
         unit : string, optional
-            Unit of elevation and thickness values. The default is ``"um"``. Options are:
-
-            - ``"um"`` for micrometer
-            - ``"mm"`` for millimeter
-
+            Length unit values. The default is ``"um"``.
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
 
-            - ``0`` for script
-            - ``1`` for Parasolid
-
+            - ``0`` for script.
+            - ``1`` for Parasolid.
 
         Returns
         -------
@@ -1308,27 +1303,18 @@ class FieldAnalysis3D(Analysis, object):
 
         References
         ----------
-
         >>> oEditor.ImportGDSII
 
         Examples
         --------
-        The method :func:`import_gds_3d` is used to import a GDS file in an HFSS project.
+        Import a GDS file in an HFSS 3D project.
 
-        gds file full path
-
-        >>>gds_path = r"C:\temp\gds1.gds"
-
-        Open a design and import gds file
-
-        >>>from pyaedt import Hfss
-        >>>hfss = Hfss()
-        >>>gds_number = {
-        >>>    7: (100, 10),
-        >>>    9: (110, 5)
-        >>>}
-        >>>hfss.import_gds_3d(gds_path, gds_number, unit="um", import_method=1)
-
+        >>> gds_path = r"C:\temp\gds1.gds"
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> gds_number = {7: (100, 10), 9: (110, 5)}
+        >>> hfss.import_gds_3d(gds_path, gds_number, unit="um", import_method=1)
+        
         """
 
         if self.desktop_class.non_graphical:
