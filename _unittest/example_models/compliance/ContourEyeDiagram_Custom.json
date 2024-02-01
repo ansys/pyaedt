@@ -1,0 +1,125 @@
+{
+    "Help": "This Report Template is applicable to Eye Diagram Plots from Transient and Eye Simulations. It include Mask section.",
+    "report_category": "Standard",
+    "report_type": "Rectangular Contour Plot",
+	"plot_name": "Eye1",
+	"quantity_type": "3",
+    "context": {
+        "Domain": "Time",
+        "primary_sweep": "Time",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "__UnitInterval": [
+                "All"
+            ],
+			"__Amplitude": [
+                "All"
+            ]
+        }
+    },
+    "expressions": {"b_input_67":{}
+    },
+	"eye_mask": {
+            "xunits": "",
+            "yunits": "V",
+			"points": [
+                [0.45,
+                0],
+				[0.5,
+				0.045],
+				[0.55,
+				0.0],
+				[0.5,
+				-0.03],
+				[0.45,
+				0]
+            ],
+			"enable_limits": true,
+			"upper_limit": 0.75,
+			"lower_limit":-0.75,
+			"color":[255,0,0],
+			"transparency": 0.4
+
+	},
+	"general": {
+		"show_rectangular_plot":true,
+		"contours_number": 255,
+		"contours_scale": "Log",
+		"enable_contours_auto_limit":true,
+		"contours_min_limit":1e-15,
+		"contours_max_limit":1e-6,
+        "axisx": {
+            "font": "Arial",
+            "font_size": 10,
+			"bold": true,
+			"italic": false,
+            "color": [
+                255,
+                255,
+                255
+            ]
+        },
+        "axisy1": {
+            "font": "Arial",
+            "font_size": 8,
+			"bold": true,
+			"italic": false,
+            "color": [
+                255,
+                255,
+                255
+            ]
+        },
+        "appearance": {
+            "background_color": [
+                20,
+                20,
+                40
+            ],
+            "plot_color": [
+                20,
+                20,
+                40
+            ],
+            "enable_y_stripes": true,
+            "Auto Scale Fonts": true,
+            "field_width": "4",
+            "precision": "4",
+            "use_scientific_notation": false
+        },
+		"grid": {
+            "major_color": [
+                120,
+                120,
+                120
+            ],
+            "minor_color": [
+                120,
+                120,
+                120
+            ],
+            "major_x": true,
+            "major_y": true,
+            "minor_x": false,
+            "minor_y": false,
+			"style_major": "Dot",
+			"style_minor": "Dot"		
+        },
+        "header": {
+            "font": "Arial",
+            "title_size": 12,
+            "color": [
+                255,
+                255,
+                255
+            ],
+			"bold": true,
+			"italic": false,
+            "subtitle_size": 12,
+            "company_name": "Pyaedt CISPR25 Demo",
+            "show_design_name": false
+        }
+    }
+}
