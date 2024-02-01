@@ -1,4 +1,5 @@
 """This module contains the ``TwinBuilder`` class."""
+
 from __future__ import absolute_import  # noreorder
 
 import math
@@ -461,17 +462,24 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             for net in app.nets:
                 sources = app.net_sources(net)
                 sinks = app.net_sinks(net)
-                for source in sources:
+                if sources:
+                    for source in sources:
+                        port_info_list_A.append("OnePortInfo:=")
+                        port_info_list_A.append([net + "_" + source, -1, net + ":" + source])
+                else:
                     port_info_list_A.append("OnePortInfo:=")
-                    list_A = [net + "_" + source, -1, net + ":" + source]
-                for sink in sinks:
+                    port_info_list_A.append([net + "_", -1, net + ":"])
+                if sinks:
+                    for sink in sinks:
+                        port_info_list_B.append("OnePortInfo:=")
+                        port_info_list_B.append([net + "_" + sink, -1, net + ":" + sink])
+                else:
                     port_info_list_B.append("OnePortInfo:=")
-                    list_B = [net + "_" + sink, -1, net + ":" + sink]
-                port_info_list_A.append(list_A)
-                port_info_list_B.append(list_B)
-        port_info_list = ["NAME:PortInfo"]
-        port_info_list.extend(port_info_list_A)
-        port_info_list.extend(port_info_list_B)
+                    port_info_list_B.append([net + "_", -1, net + ":"])
+        if port_info_list_A and port_info_list_B:
+            port_info_list = ["NAME:PortInfo"]
+            port_info_list.extend(port_info_list_A)
+            port_info_list.extend(port_info_list_B)
         if not state_space_dynamic_link_type or state_space_dynamic_link_type == "RLGC":
             state_space_dynamic_link_type = "{}RLGCTBLink".format(design_type)
             q3d_model_type = 1

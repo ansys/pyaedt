@@ -1,6 +1,7 @@
 """This module contains the `Components` class.
 
 """
+
 import codecs
 import json
 import math

@@ -1,6 +1,7 @@
 """
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
+
 from collections import OrderedDict
 import copy
 import re
