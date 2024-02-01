@@ -15,7 +15,8 @@ For additional practical demonstrations, see
    .. grid-item-card:: Basic tutorial
             :link: intro
             :link-type: doc
-
+            :margin: 2 2 0 0
+            
             This tutorial shows how to launch Electronics Desktop and create a project.
 
    .. grid-item-card:: Modeler
