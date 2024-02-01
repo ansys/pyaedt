@@ -15,8 +15,8 @@ import tempfile
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. The default is ``False`` in order to open
-# the AEDT user interface.
+# Set non-graphical mode. The default is ``False``, which opens
+# the AEDT UI.
 
 non_graphical = False
 
@@ -57,8 +57,8 @@ layers = [{"name": "bottom", "layer_type": "signal", "thickness": "35um", "mater
           {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
           {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"}]
 
-# Create EDB stackup.
-# Bottom layer
+# Create the EDB stackup.
+# Define the bottom layer
 
 prev = None
 for layer in layers:
@@ -247,7 +247,7 @@ edb.nets.plot(None)
 edb.save_edb()
 edb.close_edb()
 
-# Open the project in AEDT 3D Layout.
+# Open the project in HFSS 3D Layout.
 
 h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.2",
                           non_graphical=non_graphical, new_desktop_session=True)
@@ -275,7 +275,7 @@ h3d.create_linear_count_sweep(
 )
 # -
 
-# Define the differential pairs to be used to calculte differential and common mode
+# Define the differential pairs to used to calculate differential and common mode
 # s-parameters.
 
 h3d.set_differential_pair(diff_name="In", positive_terminal="wave_port_1:T1", negative_terminal="wave_port_1:T2")
@@ -285,7 +285,7 @@ h3d.set_differential_pair(diff_name="Out", positive_terminal="wave_port_2:T1", n
 
 h3d.analyze()
 
-# Plot the results and shut down the Electronics Desktop.
+# Plot the results and shut down AEDT.
 
 solutions = h3d.post.get_solution_data(["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs")
 solutions.plot()

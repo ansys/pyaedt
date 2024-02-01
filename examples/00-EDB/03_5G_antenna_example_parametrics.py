@@ -16,10 +16,10 @@ import os
 
 non_graphical = False
 
-# ## Creating data classes
+# ## Create data classes
 #
 # Data classes are useful to do calculations and store variables.
-# We create 3 Data classes for Patch, Line and Array
+# There are three data classes: ``Patch``, ``Line``, and ``Array``.
 
 # +
 class Patch:
@@ -138,7 +138,7 @@ linear_array.length = current_position
 
 edb.modeler.create_polygon(linear_array.points, "GND", net_name="GND")
 
-# Add connector pin that will be used to assign the port.
+# Add the connector pin to use to assign the port.
 
 edb.padstacks.create(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
 con_pin = edb.padstacks.place(
@@ -199,7 +199,7 @@ edb.save_edb()
 edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
-# ## 3D Component in HFSS
+# ## 3D component in HFSS
 #
 # First create an instance of the ``pyaedt.Hfss`` class. If you set
 # > ``non_graphical = False
@@ -216,20 +216,20 @@ h3d = pyaedt.Hfss(projectname="Demo_3DComp",
                   close_on_exit=True, 
                   solution_type="Terminal")
 
-# Set units to mm.
+# Set units to ``mm``.
 
 h3d.modeler.model_units = "mm"
 
-# ## Import the EDB as a 3D Component
+# ## Import the EDB as a 3D component
 #
 # One or more layout components can be imported into HFSS. The combination of layout data and 3D CAD data helps streamline
 # model creation and setup.
 
 component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)
 
-# ## Expose the Component Paramers
+# ## Expose the component parameters
 #
-# If a layout component is parametric, parameters can be exposed and changed in HFSS
+# If a layout component is parametric, you can expose and change parameters in HFSS
 
 # +
 component.parameters
@@ -254,9 +254,9 @@ h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False)
 h3d.assign_radiation_boundary_to_objects("Region")
 # -
 
-# ### Analysis Setup
+# ### Set up analysis
 #
-# The finite element mesh is adapted iteratively. The maximum number of adaptive passes is set using the ``MaximumPasses`` property.  This model will converge such that the $S_{11}$ will be independent of the mesh. The default accuracy setting is:
+# The finite element mesh is adapted iteratively. The maximum number of adaptive passes is set using the ``MaximumPasses`` property.  This model converges such that the $S_{11}$ is independent of the mesh. The default accuracy setting is:
 # $$ \max(|\Delta S|) < 0.02 $$
 
 setup = h3d.create_setup()
@@ -282,9 +282,9 @@ trace = h3d.get_traces_for_plot()
 solution = h3d.post.get_solution_data(trace[0])
 solution.plot()
 
-# ## Plot Far Fields in AEDT
+# ## Plot far fields in AEDT
 #
-# Plot Radiation patterns in AEDT.
+# Plot radiation patterns in AEDT.
 
 # +
 variations = {}
@@ -299,24 +299,24 @@ new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
 # - 
 
-# ## Plot Far Fields in AEDT
+# ## Plot far fields in AEDT
 #
-# Plot Radiation patterns in AEDT.
+# Plot radiation patterns in AEDT
 
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
 
-# ## Plot Far Fields outside AEDT
+# ## Plot far fields outside AEDT
 #
-# Plot Radiation patterns outside AEDT.
+# Plot radiation patterns outside AEDT
 
 solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
 # ## Plot E Field on nets and layers
 #
-# Plot E Field on nets and layers in AEDT.
+# Plot E Field on nets and layers in AEDT
 
 h3d.post.create_fieldplot_layers_nets(
             [["TOP","Array_antenna"]],
@@ -334,7 +334,7 @@ h3d.post.create_fieldplot_layers_nets(
 h3d.save_project(os.path.join(temp_dir, "test_layout.aedt"))
 h3d.release_desktop()
 
-# ### Temp Directory Cleanup
+# ### Clean up the temporary directory
 #
 # The following command removes the project and the temporary directory. If you'd like to save this project, save it to a folder of your choice prior to running the following cell.
 
