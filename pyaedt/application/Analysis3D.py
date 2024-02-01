@@ -1314,7 +1314,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: (110, 5)}
         >>> hfss.import_gds_3d(gds_path, gds_number, unit="um", import_method=1)
-        
+
         """
 
         if self.desktop_class.non_graphical:
