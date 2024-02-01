@@ -5,12 +5,12 @@ import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
-from pyaedt.generic.constants import unit_converter
 
 
 class FieldAnalysis3D(Analysis, object):
