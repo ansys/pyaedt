@@ -4,6 +4,7 @@ import json
 import os
 
 from fpdf import FPDF
+from fpdf import FontFace
 
 from pyaedt import __version__
 from pyaedt.generic.constants import unit_converter
@@ -135,6 +136,7 @@ class AnsysReport(FPDF):
 
         # Logo
         self.set_y(15)
+        self.set_x(self.l_margin)
         line_x = self.x
         line_y = self.y
         delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
@@ -180,6 +182,7 @@ class AnsysReport(FPDF):
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
+        self.set_x(self.l_margin)
         # Arial italic 8
         self.set_font("helvetica", "I", 8)
         self.set_text_color(*self.report_specs.font_header_color)
@@ -412,6 +415,7 @@ class AnsysReport(FPDF):
         self,
         title,
         content,
+        formatting=None,
     ):
         """Add a new table from a list of data.
         Data shall be a list of list where every line is either a row or a column.
@@ -422,6 +426,10 @@ class AnsysReport(FPDF):
             Table title.
         content : list of list
             Table content.
+        formatting : list, optional
+            List of formatting elements for the table rows. Length of formatting has to be equal to length of content.
+            Every element is a list of 2 elements (color, background_color).
+            Color is a RGB list.
         """
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.add_caption(f"Table {title}")
@@ -435,10 +443,22 @@ class AnsysReport(FPDF):
             text_align="CENTER",
             width=160,
         ) as table:
-            for data_row in content:
+            for i in range(len(content)):
+                data_row = content[i]
+                fill_color = None
+                font_color = self.report_specs.font_color
+
+                if formatting:
+                    try:
+                        font_color = formatting[i][0] if formatting[i][0] else self.report_specs.font_color
+                        fill_color = formatting[i][1] if formatting[i][1] else None
+                    except IndexError:
+                        pass
+                style = FontFace(color=font_color, fill_color=fill_color)
+
                 row = table.row()
                 for datum in data_row:
-                    row.cell(datum)
+                    row.cell(datum, style=style)
 
     def add_text(self, content, bold=False, italic=False):
         """Add a new text.

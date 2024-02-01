@@ -4,14 +4,23 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 import pytest
 
+from pyaedt.generic.compliance import VirtualCompliance
 from pyaedt.generic.pdf import AnsysReport
 
 tol = 1e-12
+test_project_name = "ANSYS-HSD_V1_0_test"
+test_subfolder = "compliance"
 
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     return
+
+
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(test_project_name, subfolder=test_subfolder)
+    return app
 
 
 class TestClass(object):
@@ -41,3 +50,29 @@ class TestClass(object):
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
         report.add_toc()
         assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
+
+    def test_virtual_compliance(self, local_scratch, aedtapp):
+        template = os.path.join(local_path, "example_models", test_subfolder, "general_compliance_template.json")
+        template = local_scratch.copyfile(template)
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "ContourEyeDiagram_Custom.json")
+        )
+        local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, "Sparameter_Custom.json"))
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "Sparameter_Insertion_Custom.json")
+        )
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "StatisticalEyeDiagram_Custom.json")
+        )
+        local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, "EyeDiagram_Custom.json"))
+
+        import json
+
+        with open(template, "r+") as f:
+            data = json.load(f)
+            data["general"]["project"] = os.path.join(aedtapp.project_path, aedtapp.project_name + ".aedt")
+            f.seek(0)
+            json.dump(data, f, indent=4)
+            f.truncate()
+        v = VirtualCompliance(aedtapp.desktop_class, template)
+        assert v.create_compliance_report()
