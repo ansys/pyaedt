@@ -2577,6 +2577,9 @@ class PostProcessor(PostProcessorCommon, object):
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
+            if not self._app.existing_analysis_sweeps:
+                self.logger.error("There are no existing sweeps.")
+                return False
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
