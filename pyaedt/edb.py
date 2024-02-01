@@ -5,6 +5,7 @@ This module is implicitily loaded in HFSS 3D Layout when launched.
 """
 from itertools import combinations
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -4046,4 +4047,6 @@ class Edb(Database):
             variable_name = variable_name.replace("-", "_")
         if "+" in variable_name:
             variable_name = variable_name.replace("+", "p")
+
+        variable_name = re.sub(r"[()]", "_", variable_name)
         return variable_name
