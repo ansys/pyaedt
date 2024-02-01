@@ -1,12 +1,10 @@
-"""
-Maxwell 3D: Transformer
------------------------
-This example shows how you can use PyAEDT to set core loss given a set
-of Power-Volume [kw/m^3] curves at different frequencies.
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # Maxwell 3D: Transformer
+
+# This example shows how you can use PyAEDT to set core loss given a set
+# of Power-Volume [kw/m^3] curves at different frequencies.
+
+# ## Perform required imports
+#
 # Perform required imports.
 
 from pyaedt import downloads
@@ -15,11 +13,11 @@ from pyaedt import Maxwell3d
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
 
-#################################################################################
-# Download .aedt file example
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Download .aedt file example
+#
 # Set local temporary folder to export the .aedt file to.
 
+# +
 temp_folder = generate_unique_folder_name()
 aedt_file = downloads.download_file("core_loss_transformer", "Ex2-PlanarTransformer_2023R2.aedtz", temp_folder)
 freq_curve_csv_25kHz = downloads.download_file("core_loss_transformer", "mf3_25kHz.csv", temp_folder)
@@ -47,10 +45,10 @@ curves_csv_700kHz = list(zip(data[data.columns[0]],
 data = read_csv_pandas(filename=freq_curve_csv_1MHz)
 curves_csv_1MHz = list(zip(data[data.columns[0]],
                            data[data.columns[1]]))
+# -
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
+# ## Launch AEDT
+#
 # Launch AEDT 2023 R2 in graphical mode.
 
 m3d = Maxwell3d(projectname=aedt_file,
@@ -59,9 +57,8 @@ m3d = Maxwell3d(projectname=aedt_file,
                 new_desktop_session=True,
                 non_graphical=False)
 
-###############################################################################
-# Set core loss at frequencies
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Set core loss at frequencies
+#
 # Create a new material, create a dictionary of Power-Volume [kw/m^3] points for a set of frequencies
 # retrieved from datasheet provided by supplier and finally set Power-Ferrite core loss model.
 
@@ -82,9 +79,8 @@ m3d.materials[mat.name].set_coreloss_at_frequency(points_list_at_freq=pv,
 coefficients = m3d.materials[mat.name].get_core_loss_coefficients(points_list_at_freq=pv,
                                                                   coefficient_setup="kw_per_cubic_meter")
 
-###################################################################################
-# Save project and close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and close AEDT
+#
 # Save the project and close AEDT.
 
 m3d.save_project()

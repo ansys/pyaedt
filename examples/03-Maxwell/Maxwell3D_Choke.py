@@ -1,29 +1,25 @@
-"""
-Maxwell 3D: choke setup
------------------------
-This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # Maxwell 3D: choke setup
+#
+# This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
+
+# ## Perform required imports
+#
 # Perform required imports.
 
 import json
 import os
 import pyaedt
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 version = "2023.2"
 
-###############################################################################
-# Launch Maxwell3D
-# ~~~~~~~~~~~~~~~~
+# ## Launch Maxwell3D
+#
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
 m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
@@ -33,9 +29,8 @@ m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
                        new_desktop_session=True
                        )
 
-###############################################################################
-# Rules and information of use
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Rules and information of use
+#
 # The dictionary values containing the different parameters of the core and
 # the windings that compose the choke. You must not change the main structure of
 # the dictionary. The dictionary has many primary keys, including
@@ -98,20 +93,20 @@ values = {
     "Inner Winding": {"Turns": 10, "Coil Pit(deg)": 4, "Occupation(%)": 0},
 }
 
-###############################################################################
-# Convert dictionary to JSON file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Convert dictionary to JSON file
+#
 # Covert a dictionary to a JSON file. PyAEDT methods ask for the path of the
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
+# +
 json_path = os.path.join(m3d.working_directory, "choke_example.json")
 
 with open(json_path, "w") as outfile:
     json.dump(values, outfile)
+# -
 
-###############################################################################
-# Verify parameters of JSON file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Verify parameters of JSON file
+#
 # Verify parameters of the JSON file. The ``check_choke_values`` method takes
 # the JSON file path as an argument and does the following:
 #
@@ -121,9 +116,8 @@ with open(json_path, "w") as outfile:
 dictionary_values = m3d.modeler.check_choke_values(json_path, create_another_file=False)
 print(dictionary_values)
 
-###############################################################################
-# Create choke
-# ~~~~~~~~~~~~
+# ## Create choke
+#
 # Create the choke. The ``create_choke`` method takes the JSON file path as an 
 # argument.
 
@@ -134,9 +128,8 @@ first_winding_list = list_object[2]
 second_winding_list = list_object[3]
 third_winding_list = list_object[4]
 
-###############################################################################
-# Assign excitations
-# ~~~~~~~~~~~~~~~~~~
+# ## Assign excitations
+#
 # Assign excitations.
 
 first_winding_faces = m3d.modeler.get_object_faces(first_winding_list[0].name)
@@ -149,16 +142,14 @@ m3d.assign_current([second_winding_faces[-2]], amplitude=1000, phase="120deg", s
 m3d.assign_current([third_winding_faces[-1]], amplitude=1000, phase="240deg", swap_direction=False, name="phase_3_in")
 m3d.assign_current([third_winding_faces[-2]], amplitude=1000, phase="240deg", swap_direction=True, name="phase_3_out")
 
-###############################################################################
-# Assign matrix
-# ~~~~~~~~~~~~~
+# ## Assign matrix
+#
 # Assign the matrix.
 
 m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="current_matrix")
 
-###############################################################################
-# Create mesh operation
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Create mesh operation
+#
 # Create the mesh operation.
 
 mesh = m3d.mesh
@@ -175,16 +166,14 @@ mesh.assign_surface_mesh_manual(
     meshop_name="surface_approx",
 )
 
-###############################################################################
-# Create boundaries
-# ~~~~~~~~~~~~~~~~~
+# ## Create boundaries
+#
 # Create the boundaries. A region with openings is needed to run the analysis.
 
 region = m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0)
 
-###############################################################################
-# Create setup
-# ~~~~~~~~~~~~
+# ## Create setup
+#
 # Create a setup with a sweep to run the simulation. Depending on your machine's
 # computing power, the simulation can take some time to run.
 
@@ -196,18 +185,16 @@ setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, count=12, units="kHz", clear=True)
 
-###############################################################################
-# Save project
-# ~~~~~~~~~~~~
+# ## Save project
+#
 # Save the project.
 
 m3d.save_project()
 m3d.modeler.fit_all()
 m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
 
-###############################################################################
-# Close AEDT
-# ~~~~~~~~~~
+# ## Close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
