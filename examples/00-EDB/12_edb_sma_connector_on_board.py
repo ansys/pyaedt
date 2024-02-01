@@ -7,11 +7,11 @@
 # 3. Create HFSS setup and frequency sweep with a mesh operation.
 # 4. Create return loss plot
 
-# ## The Finished Project
+# ## See the finished project
 #
 # <img src="_static\edb_example_12_sma_connector_on_board.png" width="450">
 
-# ## Create parameterized PCB
+# ## Create a parameterized PCB
 #
 # Import dependencies.
 
@@ -29,18 +29,18 @@ working_folder = temp_dir.name
 
 aedb_path = os.path.join(working_folder, "pcb.aedb")
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion=ansys_version)
-print("EDB is located at {}".format(aedb_path))
+print("AEDB file is located in {}".format(aedb_path))
 # -
 
-# Defne the FR4 dielectric for the PCB.
+# Add the FR4 dielectric for the PCB.
 
 edb.materials.add_dielectric_material("ANSYS_FR4", 3.5, 0.005)
 
 # ## Create Stackup
 #
-# The stackup is defined explicitly here, but also can be imported
-# from a from a csv or xml file using the method
-# ``Edb.stackup.import_stackup()``.
+# While this code explicitly defines the stackup, you can import it
+# from a from a CSV or XML file using the
+# ``Edb.stackup.import_stackup()`` method.
 
 edb.add_design_variable("$DIEL_T", "0.15mm")
 edb.stackup.add_layer("BOT")
@@ -83,9 +83,9 @@ clr = edb.modeler.create_trace(signal_path, "L3", "SIG_C*2+SIG_W", "SIG", "Flat"
 gnd_dict["L3"].add_void(clr)
 # -
 
-# ## Signal Vias
+# ## Place signal vias
 #
-# Create via padstack definition. Place the signal vias.
+# Create the via padstack definition and place the signal vias.
 
 edb.add_design_variable("SG_VIA_D", "1mm")
 edb.add_design_variable("$VIA_AP_D", "1.2mm")
@@ -93,7 +93,7 @@ edb.padstacks.create("ANSYS_VIA", "0.3mm", "0.5mm", "$VIA_AP_D")
 edb.padstacks.place(["5mm", 0], "ANSYS_VIA", "SIG")
 
 # Create ground vias around the SMA
-# connector launch footprint. The vas
+# connector launch footprint. The vias
 # are placed around the circumference
 # of the launch from 35 degrees to 325
 # degrees.
@@ -103,7 +103,7 @@ for i in np.arange(30, 326, 35):
     py = np.sin(i / 180 * np.pi)
     edb.padstacks.place(["{}*{}+5mm".format("SG_VIA_D", px), "{}*{}".format("SG_VIA_D", py)], "ANSYS_VIA", "GND")
 
-# Create ground vias along signal trace.
+# Create ground vias along the signal trace.
 
 for i in np.arange(2e-3, edb.variables["SIG_L"].value - 2e-3, 2e-3):
     edb.padstacks.place(["{}+5mm".format(i), "1mm"], "ANSYS_VIA", "GND")
@@ -113,9 +113,9 @@ for i in np.arange(2e-3, edb.variables["SIG_L"].value - 2e-3, 2e-3):
 
 signal_trace.create_edge_port("port_1", "End", "Wave", horizontal_extent_factor=10)
 
-# ## HFSS Simulation Setup
+# ## Set up HFSS simulation
 #
-# The named argument ``max_num_passes`` sets an upper limit on the
+# The ``max_num_passes`` argument sets an upper limit on the
 # number of adaptive passes for mesh refinement.
 #
 # For broadband applications when the simulation results may be used
@@ -139,11 +139,11 @@ setup.hfss_solver_settings.order_basis = "first"
 
 edb.setups["Setup1"].add_length_mesh_operation({"SIG": ["L3"]}, "m1", max_length="0.1mm")
 
-# Add frequency sweep to setup.
+# Add a frequency sweep to setup.
 #
-# When the simulation results will
-# be used for transient SPICE analysis, it is advisible
-# to use the following strategy.
+# When the simulation results are to
+# be used for transient SPICE analysis, you should
+# use the following strategy:
 #
 # - DC point
 # - Logarithmic sweep from 1 kHz to 100 MHz
@@ -163,7 +163,7 @@ setup.add_frequency_sweep(
 edb.save_edb()
 edb.close_edb()
 
-# Launch Hfss3dLayout.
+# Launch HFSS 3D Layout.
 
 h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=ansys_version, new_desktop_session=True)
 
@@ -177,7 +177,7 @@ comp = h3d.modeler.place_3d_component(
     placement_layer="TOP", component_name="my_connector", 
     pos_x="5mm", pos_y=0.000)
 
-# ## Run Simulation
+# ## Run simulation
 
 h3d.analyze(num_cores=4)
 

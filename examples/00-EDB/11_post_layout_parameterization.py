@@ -5,8 +5,8 @@
 # Define input parameters.
 
 signal_net_name = "DDR4_ALERT3"
-coplanar_plane_net_name = "1V0"  # Specify coplanar plane net name for adding clearance
-layers = ["16_Bottom"]  # Specify layers to be parameterized
+coplanar_plane_net_name = "1V0"  # Specify name of coplanar plane net for adding clearance
+layers = ["16_Bottom"]  # Specify layers to parameterize
 
 # Perform required imports.
 
@@ -22,16 +22,16 @@ edb_path = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',
                                            destination=temp_dir.name)
 edb = pyaedt.Edb(edb_path, edbversion="2023.2")
 
-# ## Cutout
+# ## Create cutout
 #
 # The ``Edb.cutout()`` method takes a list of
 # signal nets as the first argument and a list of
-# reference nets as the 2nd argument.
+# reference nets as the second argument.
 
 edb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"],
               remove_single_pin_components=True)
 
-# Retrive the path segments from the signal net.
+# Retrieve the path segments from the signal net.
 
 net = edb.nets[signal_net_name]
 trace_segments = []
@@ -76,7 +76,7 @@ for p in trace_segments:
 
 edb.nets.plot(layers=layers[0], size=2000)
 
-# Save and close the EDB.
+# Save the AEDB file and close EDB.
 
 save_edb_path = os.path.join(temp_dir.name, "post_layout_parameterization.aedb")
 edb.save_edb_as(save_edb_path)

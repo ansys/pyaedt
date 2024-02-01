@@ -44,16 +44,16 @@ shutil.copy2(gds_in,gds_out )
 
 c = ControlFile(c_file_in, layer_map=c_map)
 
-# ## Simulation setup
+# ## Set up simulation
 #
-# Here we setup simulation with HFSS and add a frequency sweep.
+# This code sets up a simulation with HFSS and adds a frequency sweep.
 
 setup = c.setups.add_setup("Setup1", "1GHz")
 setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
 
-# ## Additional stackup settings
+# ## Provide additional stackup settings
 #
-# After import user can change stackup settings and add/remove layers or materials.
+# After import, you can change the stackup settings and add or remove layers or materials.
 
 c.stackup.units = "um"
 c.stackup.dielectrics_base_elevation = -100
@@ -62,7 +62,7 @@ for via in c.stackup.vias:
     via.create_via_group = True
     via.snap_via_group = True
 
-# ## Boundaries settings
+# ## Define boundary settings
 #
 # Boundaries can include ports, components and boundary extent.
 
@@ -78,13 +78,13 @@ comp.add_pin("3", "211.28", "214.6", "met2")
 comp.add_pin("4", "81.28", "214.6", "met2")
 c.import_options.import_dummy_nets = True
 
-# ## Write xml
+# ## Write XML file
 #
-# After all settings are ready we can write xml.
+# After all settings are ready, you can write an XML file.
 
 c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 
-# ## Open Edb
+# ## Open EDB
 #
 # Import the gds and open the edb.
 
@@ -95,13 +95,13 @@ edb = Edb(gds_out, edbversion="2023.2",
           technology_file=os.path.join(temp_dir.name, "output.xml"))
 # -
 
-# ## Plot Stackup
+# ## Plot stackup
 #
-# Stackup plot.
+# Plot the stackup.
 
 edb.stackup.plot(first_layer="met1")
 
-# ## Close Edb
+# ## Close EDB
 #
 # Close the project.
 
