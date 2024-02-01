@@ -1,12 +1,10 @@
-"""
-Icepak: Creating blocks and assigning materials and power
--------------------------------------
-This example shows how to create different types of blocks and assign power and material to them using
-a *.csv input file
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # Icepak: Creating blocks and assigning materials and power
+
+# This example shows how to create different types of blocks and assign power and material to them using
+# a *.csv input file
+
+# ## Perform required imports
+#
 # Perform required imports including the operating system, regular expression, csv, Ansys PyAEDT
 # and its boundary objects.
 
@@ -17,19 +15,18 @@ from collections import OrderedDict
 import pyaedt
 from pyaedt.modules.Boundary import BoundaryObject
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Download and open project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Download and open project
+#
 # Download the project, open it, and save it to the temporary folder.
 
+# +
 temp_folder = pyaedt.generate_unique_folder_name()
 
 ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
@@ -39,13 +36,14 @@ ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_CSV_Import.aed
                     )
 
 ipk.autosave_disable()
+# -
 
 # Create the PCB as a simple block.
+
 board = ipk.modeler.create_box([-30.48, -27.305, 0], [146.685, 71.755, 0.4064], "board_outline", matname="FR-4_Ref")
 
-###############################################################################
-# Blocks creation with a CSV file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Blocks creation with a CSV file
+#
 # The CSV file lists the name of blocks, their type and material properties.
 # Block types (solid, network, hollow), block name, block starting and end points, solid material, and power are listed.
 # Hollow and network blocks do not need the material name.
@@ -63,6 +61,7 @@ board = ipk.modeler.create_box([-30.48, -27.305, 0], [146.685, 71.755, 0.4064], 
 # It will create solid blocks and assign BCs.
 # Every row of the csv has information of a particular block.
 
+# +
 filename = pyaedt.downloads.download_file('icepak', 'blocks-list.csv', destination=temp_folder)
 
 with open(filename, 'r') as csv_file:
@@ -94,10 +93,10 @@ with open(filename, 'r') as csv_file:
         if row["Monitor_point"] == '1':
             ipk.monitor.assign_point_monitor_in_object(row["name"], monitor_quantity="Temperature", monitor_name=row[
                 "name"])  # creates the monitor point at the center of the object
-
-###############################################################################
-# Save the project and close
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# -
+            
+# ## Save the project and close
+#
 # This will scale to fit all objects in AEDT and save the project.
 
 ipk.modeler.fit_all()

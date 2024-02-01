@@ -1,20 +1,18 @@
-"""
-Icepak: Importing a PCB and its components via IDF and EDB
--------------------------------------
-This example shows how to import a PCB and its components using IDF files (*.ldb/*.bdf). 
-The *.emn/*.emp combination can also be used in a similar way.
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports including the operating system, Ansys PyAEDT packages.
+# # Icepak: Importing a PCB and its components via IDF and EDB
 
+# This example shows how to import a PCB and its components using IDF files (*.ldb/*.bdf). 
+# The *.emn/*.emp combination can also be used in a similar way.
+
+# ## Perform required imports
+#
+# Perform required imports including the operating system, Ansys PyAEDT packages.
 
 # Generic Python packages 
 
 import os 
 
 # PyAEDT Packages
+
 import pyaedt
 from pyaedt import Icepak
 from pyaedt import Desktop
@@ -22,20 +20,19 @@ from pyaedt import Hfss3dLayout
 from pyaedt.modules.Boundary import BoundaryObject
 
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
 
-###############################################################################
-# Download and open project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Download and open project
+#
 # Download the project, open it, and save it to the temporary folder.
 
+# +
 temp_folder = pyaedt.generate_unique_folder_name()
 
 ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
@@ -44,11 +41,11 @@ ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.ae
                     non_graphical=non_graphical
                     )
 
-ipk.autosave_disable()                                                    # Saves the project
+ipk.autosave_disable()
+# -
 
-###############################################################################
-# Import the IDF files
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Import the IDF files
+#
 # Sample *.bdf and *.ldf files are presented here.
 #
 #
@@ -67,7 +64,7 @@ ipk.autosave_disable()                                                    # Save
 # In this examples, the default values are used for the PCB.
 # The imported PCB here will be deleted later and replaced by a PCB that has the trace information for higher accuracy.
 
-
+# +
 def_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/A1_uprev.aedb','edb.def',temp_folder)
 board_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.bdf',temp_folder)
 library_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.ldf',temp_folder)
@@ -83,58 +80,57 @@ ipk.import_idf(board_path, library_path=None, control_path=None,
                   substrate_material='FR-4', create_board=True, 
                   model_board_as_rect=False, model_device_as_rect=True, 
                   cutoff_height='5mm', component_lib='')
+# -
 
-###############################################################################
-# Fit to scale, save the project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Fit to scale, save the project
+#
 
 ipk.modeler.fit_all()    # scales to fit all objects in AEDT
 ipk.save_project()       # saves the project
 
-###############################################################################
-# Add an HFSS 3D Layout design with the layout information of the PCB
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Add an HFSS 3D Layout design with the layout information of the PCB
+#
 
-Layout_name = 'A1_uprev'          # 3D layout name available for import, the extension of .aedb should not be listed here
-
-hfss3dLO = Hfss3dLayout('Icepak_ECAD_Import', 'PCB_temp')      # adding a dummy HFSS 3D layout to the current project
-
-#edb_full_path = os.path.join(os.getcwd(), Layout_name+'.aedb\edb.def')   # path to the EDB file
-hfss3dLO.import_edb(def_path)                                       # importing the EDB file           
-hfss3dLO.save_project()                                                  # save the new project so files are stored in the path     
-
-ipk.delete_design(name='PCB_temp', fallback_design=None)                 # deleting the dummy layout from the original project
+# 3D layout name available for import, the extension of .aedb should not be listed here
+Layout_name = 'A1_uprev'
+# Adding a dummy HFSS 3D layout to the current project
+hfss3dLO = Hfss3dLayout('Icepak_ECAD_Import', 'PCB_temp')
+# Importing the EDB file
+hfss3dLO.import_edb(def_path)         
+# Save the new project so files are stored in the path     
+hfss3dLO.save_project()                                                  
+# Deleting the dummy layout from the original project
+ipk.delete_design(name='PCB_temp', fallback_design=None)                 
 
 # This part creates a 3D component PCB in Icepak from the imported EDB file
 # 1 watt is assigned to the PCB as power input
 
+# +
 component_name = "PCB_ECAD"
 
 odb_path = os.path.join(temp_folder, 'icepak/Icepak_ECAD_Import/'+Layout_name+'.aedt')
 ipk.create_pcb_from_3dlayout(
     component_name, odb_path, Layout_name, resolution=2, extenttype="Polygon", outlinepolygon='poly_0', 
     custom_x_resolution=None, custom_y_resolution=None,power_in=1)
+# -
 
-###############################################################################
-# Delete PCB objects
-# ~~~~~~~~~~~~~~~~~~
+# ## Delete PCB objects
+#
 # Delete the PCB object from IDF import.
 
 ipk.modeler.delete_objects_containing("IDF_BoardOutline", False)
 
-###############################################################################
-# Compute power budget
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Compute power budget
+#
 
-# creates a setup to be able to calculate the power
+# Creates a setup to be able to calculate the power
 ipk.create_setup("setup1")
 
 power_budget, total = ipk.post.power_budget("W")
 print(total)
 
-###############################################################################
-# Closing and releasing AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Closing and releasing AEDT
+#
 
 ipk.close_project()      # close the project
 ipk.release_desktop()    # release the AEDT session.  If this step is missing, AEDT cannot be closed.
