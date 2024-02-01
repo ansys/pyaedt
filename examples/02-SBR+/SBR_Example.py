@@ -25,6 +25,7 @@ non_graphical = False
 # Define two designs, one source and one target, with each design connected to
 # a different object.
 
+# +
 target = pyaedt.Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
@@ -38,6 +39,7 @@ source = pyaedt.Hfss(projectname=target.project_name,
                      designname="feeder",
                      specified_version="2023.2",
                      )
+# -
 
 # ## Define linked antenna
 #

@@ -6,11 +6,13 @@
 #
 # Perform required imports.
 
+# +
 import json
 import os
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="choke")
+# -
 
 # ## Set non-graphical mode
 #

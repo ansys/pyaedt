@@ -6,12 +6,10 @@
 #
 # Perform required imports
 
-import os
-
 import pyaedt
 
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 

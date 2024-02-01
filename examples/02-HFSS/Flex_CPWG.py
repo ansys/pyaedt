@@ -35,6 +35,7 @@ hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
 #
 # Create input variables for creating the flex cable CPWG.
 
+# +
 total_length = 300
 theta = 120
 r = 100
@@ -45,13 +46,14 @@ gnd_width = 10
 gnd_thickness = 2
 
 xt = (total_length - r * radians(theta)) / 2
-
+# -
 
 # ## Create bend
 #
 # Create the bend. The ``create_bending`` method creates a list of points for
 # the bend based on the curvature radius and extension.
 
+# +
 def create_bending(radius, extension=0):
     position_list = [(-xt, 0, -radius), (0, 0, -radius)]
 
@@ -66,7 +68,7 @@ def create_bending(radius, extension=0):
 
     position_list[-1] = (x, y, z)
     return position_list
-
+# -
 
 # ## Draw signal line
 #
@@ -85,6 +87,7 @@ line = hfss.modeler.create_polyline(
 #
 # Draw a ground line to create two bent ground wires.
 
+# +
 gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in position_list]
 gnd_l = [(x, -y, z) for x, y, z in gnd_r]
 
@@ -95,11 +98,13 @@ for gnd in [gnd_r, gnd_l]:
     )
     x.color = (255, 0, 0)
     gnd_objs.append(x)
+# -
 
 # ## Draw dielectric
 #
 # Draw a dielectric to create a dielectric cable.
 
+# +
 position_list = create_bending(r + (height + gnd_thickness) / 2)
 
 fr4 = hfss.modeler.create_polyline(
@@ -109,11 +114,13 @@ fr4 = hfss.modeler.create_polyline(
     xsection_height=width + 2 * spacing + 2 * gnd_width,
     matname="FR4_epoxy",
 )
+# -
 
 # ## Create bottom metals
 #
 # Create the bottom metals.
 
+# +
 position_list = create_bending(r + height + gnd_thickness, 1)
 
 bot = hfss.modeler.create_polyline(
@@ -123,11 +130,13 @@ bot = hfss.modeler.create_polyline(
     xsection_height=width + 2 * spacing + 2 * gnd_width,
     matname="copper",
 )
+# -
 
 # ## Create port interfaces
 #
 # Create port interfaces (PEC enclosures).
 
+# +
 port_faces = []
 for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     xc, yc, zc = face.center
@@ -150,6 +159,7 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
         i.subtract([port_block], True)
 
     print(port_faces)
+# -
 
 # ## Create boundary condition
 #
@@ -165,10 +175,12 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 #
 # Creates ports.
 
+# +
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
     hfss.wave_port(s.id, name=port_name, reference=reference)
+# -
 
 # ## Create setup and sweep
 #

@@ -21,11 +21,13 @@ non_graphical = False
 #
 # Launch AEDT and load the project.
 
+# +
 project_file = downloads.download_sbr_time()
 
 hfss = Hfss(projectname=project_file, specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze()
+# -
 
 # ## Get solution data
 #
@@ -55,6 +57,7 @@ frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0],
 #
 # Plot the scene to create the time plot animation
 
+# +
 hfss.post.plot_scene(frames_list=frames_list_file,
                      output_gif_path=os.path.join(hfss.working_directory, "animation.gif"),
                      norm_index=15,
@@ -62,3 +65,4 @@ hfss.post.plot_scene(frames_list=frames_list_file,
                      show=False, view="xy", zoom=1)
 
 hfss.release_desktop()
+# -

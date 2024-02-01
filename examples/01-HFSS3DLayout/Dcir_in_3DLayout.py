@@ -1,13 +1,11 @@
 # # HFSS 3D Layout: SIwave DCIR analysis in HFSS 3D Layout
 #
 # This example shows how to configure a model using the 3D Layout
-# interface for SIwave DC-IR
-# analysis.
+# interface for SIwave DC-IR analysis.
 
 import os
 import tempfile
 import pyaedt
-
 
 # Copy example into temporary folder
 

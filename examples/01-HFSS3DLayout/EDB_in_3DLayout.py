@@ -3,7 +3,6 @@
 # This example shows how you can use HFSS 3D Layout combined with EDB to
 # interact with a 3D layout.
 
-
 import os
 import tempfile
 import pyaedt
@@ -13,8 +12,8 @@ project_folder = os.path.join(temp_dir.name, "Example")
 if not os.path.exists(project_folder):
     os.makedirs(project_folder)
 print(project_folder)
-# Copy an example into the temporary project folder.
 
+# Copy an example into the temporary project folder.
 
 targetfile = pyaedt.downloads.download_aedb()
 print(targetfile)

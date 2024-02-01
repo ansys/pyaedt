@@ -9,7 +9,6 @@
 # ## Perform  imports
 
 import os
-
 import pyaedt
 import tempfile
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
@@ -46,9 +45,8 @@ project_folder = tmpdir.name
 proj_name = os.path.join(project_folder, "antenna")
 
 # ## Launch HFSS
-#
-#
 
+# +
 hfss = pyaedt.Hfss(projectname=proj_name,
                    solution_type="Terminal",
                    designname="patch",
@@ -56,12 +54,14 @@ hfss = pyaedt.Hfss(projectname=proj_name,
                    specified_version=desktop_version)
 
 hfss.modeler.model_units = length_units
+# -
 
 # ## Create patch
 #
 # Create the patch.
-#
 
+
+# +
 stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
 dielectric = stackup.add_dielectric_layer("dielectric", thickness="0.5" + length_units, material="Duroid (tm)")
@@ -87,6 +87,7 @@ setup.create_frequency_sweep(unit="GHz",
 
 hfss.save_project()
 hfss.analyze()
+# -
 
 # ## Plot S11
 #

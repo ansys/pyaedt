@@ -17,7 +17,6 @@ from pyaedt import general_methods
 
 # ## Launch Ansys Electronics Desktop (AEDT)
 
-
 # ### Define parameters and values for waveguide iris filter
 #
 # l: Length of the cavity from the mid-point of one iris
@@ -27,6 +26,7 @@ from pyaedt import general_methods
 # b: Short dimension of the waveguide cross-section.
 # t: Metal thickness of the iris insert.
 
+# +
 wgparams = {'l': [0.7428, 0.82188],
             'w': [0.50013, 0.3642, 0.3458],
             'a': 0.4,
@@ -36,6 +36,7 @@ wgparams = {'l': [0.7428, 0.82188],
 
 non_graphical = False
 new_thread = True
+# -
 
 # ### Save the project and results in the TEMP folder
 
@@ -45,6 +46,7 @@ if not os.path.exists(project_folder):
 project_name = os.path.join(project_folder, general_methods.generate_unique_name("wgf", n=2))
 
 # Instantiate the HFSS application
+
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    specified_version="2023.2",
                    designname="filter",
@@ -58,6 +60,7 @@ var_mapping = dict()  # Used by parse_expr to parse expressions.
 
 # ### Initialize design parameters in HFSS.
 
+# +
 hfss.modeler.model_units = "in"  # Set to inches
 for key in wgparams:
     if type(wgparams[key]) in [int, float]:
@@ -77,7 +80,7 @@ if len(wgparams['l']) % 2 == 0:
 else:
     zstart = "l1/2 - t/2"  # Odd number of cavities, even number of irises.
     is_even = False
-
+# -
 
 # ### Draw parametric waveguide filter
 #
@@ -96,11 +99,11 @@ def place_iris(zpos, dz, n):
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
 
-
 # ### Place irises
 #
 # Place the irises from inner (highest integer) to outer.
 
+# +
 for count in reversed(range(1, len(wgparams['w']) + 1)):
     if count < len(wgparams['w']):  # Update zpos
         zpos = zpos + "".join([" + l" + str(count) + " + "])[:-3]
@@ -112,6 +115,7 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
         iris = place_iris(zpos, "t", count)
         if not is_even:
             iris = place_iris("-(" + zpos + ")", "-t", count)
+# -
 
 # ### Draw full waveguide with ports
 #
@@ -144,6 +148,7 @@ wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_val
 # and define the calibration lines to ensure self-consistent
 # polarization between wave ports.
 
+# +
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
@@ -152,6 +157,7 @@ for n, z in enumerate(wg_z):
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
     ports.append(hfss.wave_port(face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False))
+# -
 
 # ### Insert the mesh adaptation setup using refinement at two frequencies.
 #
@@ -160,6 +166,7 @@ for n, z in enumerate(wg_z):
 # filter.  Adaptation at multiple frequencies helps to ensure that energy propagates
 # through the resonant structure while the mesh is refined.
 
+# +
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
                           MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
                           MaximumPasses=5)
@@ -171,6 +178,7 @@ setup.create_frequency_sweep(
     freqstop=10.5,
     sweep_type="Interpolating",
 )
+# -
 
 #  Solve the project with two tasks.
 #  Each frequency point is solved simultaneously.
@@ -185,11 +193,13 @@ setup.analyze(num_tasks=2)
 #  Caution: The syntax for expressions must be identical to that used
 #  in HFSS.
 
+# +
 traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
 report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
 solution = report.get_solution_data()
 
 plt = solution.plot(solution.expressions)  # Matplotlib axes object.
+# -
 
 # ### Generate E field plot
 #

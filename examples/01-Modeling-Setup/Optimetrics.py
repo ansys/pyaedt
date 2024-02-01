@@ -32,6 +32,7 @@ hfss["w2"] = "100mm"
 # Create one of the standard waveguide structures and parametrize it.
 # You can also create rectangles of waveguide openings and assign ports later.
 
+# +
 wg1, p1, p2 = hfss.modeler.create_waveguide(
     [0, 0, 0],
     hfss.AXIS.Y,
@@ -45,6 +46,7 @@ model = hfss.plot(show=False)
 
 model.show_grid = False
 model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
+# -
 
 # Create two wave ports on the sheets.
 
@@ -102,8 +104,6 @@ sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
 
 # ## Create DOE based on a goal and calculation
-#
-# Create a DOE based on a goal and a calculation.
 
 region = hfss.modeler.create_region()
 hfss.assign_radiation_boundary_to_objects(region)

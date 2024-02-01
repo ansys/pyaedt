@@ -6,10 +6,12 @@
 #
 # Perform required imports.
 
+# +
 import os
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
+# -
 
 # ## Set non-graphical mode
 #
@@ -103,6 +105,7 @@ hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 #
 # Create the silicon substrate and the ground plane.
 
+# +
 p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
              [-2 * x1 + 40, -2 * x1 + 40, "Tsub"],
              matname="silicon")
@@ -110,11 +113,13 @@ p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.mo
 p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
              [-2 * x1 + 40, -2 * x1 + 40, -0.1],
              matname="PEC")
+# -
 
 # ## Assign airbox and radiation
 #
 # Assign the airbox and the radiation.
 
+# +
 box = p.create_box(
     [x1 - 20, x1 - 20, "-Tsub-{}{}/2 - 0.1{}".format(thickness, hfss.modeler.model_units, hfss.modeler.model_units)],
     [-2 * x1 + 40, -2 * x1 + 40, 100],
@@ -123,6 +128,7 @@ box = p.create_box(
 )
 
 hfss.assign_radiation_boundary_to_objects("airbox")
+# -
 
 # ## Assign material override
 #

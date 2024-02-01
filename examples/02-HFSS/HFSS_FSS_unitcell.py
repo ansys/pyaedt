@@ -6,10 +6,12 @@
 #
 # Perform required imports.
 
+# +
 import os
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="FSS")
+# -
 
 # ## Set non-graphical mode
 #
@@ -40,10 +42,12 @@ hfss["patch_dim"] = "10mm"
 #
 # Download the 3D component from the example data and insert the 3D Component.
 
+# +
 unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 
 comp = hfss.modeler.insert_3d_component(unitcell_path)
+# -
 
 # ## Assign design parameter to 3D Component parameter
 #
@@ -56,6 +60,7 @@ comp.parameters["a"] = "patch_dim"
 #
 # Create an open region along +Z direction for unitcell analysis.
 
+# +
 bounding_dimensions = hfss.modeler.get_bounding_dimension()
 
 periodicity_x = bounding_dimensions[0]
@@ -67,6 +72,7 @@ region = hfss.modeler.create_air_region(
     )
 
 [x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box
+# -
 
 # ## Assign Lattice pair boundary
 #
@@ -106,6 +112,7 @@ hfss.create_linear_count_sweep(
 #
 # Create S-parameter reports using create report.
 
+# +
 all_quantities = hfss.post.available_report_quantities()
 str_mag = []
 str_ang = []
@@ -126,6 +133,7 @@ hfss.post.create_report(
     variations=variation,
     plotname="phase_plot",
 )
+# -
 
 # ## Save and run simulation
 #

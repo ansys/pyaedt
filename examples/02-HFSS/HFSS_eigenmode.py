@@ -25,7 +25,6 @@
 #
 # Run through each cell. This cell imports the required packages.
 
-import sys
 import os
 import pyaedt
 
@@ -68,6 +67,7 @@ hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
 # of interest. ``fmax`` is the highest frequency of interest.
 # ``limit`` is the parameter limit that determines which modes are ignored.
 
+# +
 num_modes = 6
 fmin = 1
 fmax = 2
@@ -76,7 +76,7 @@ setup_nr = 1
 
 limit = 10
 resonance = {}
-
+# -
 
 # ## Find the modes
 #
@@ -84,6 +84,7 @@ resonance = {}
 # After the solve, each mode, along with its corresponding real frequency and quality factor,
 # are saved for further processing.
 
+# +
 def find_resonance():
     # setup creation
     next_min_freq = str(next_fmin) + " GHz"
@@ -114,7 +115,7 @@ def find_resonance():
 
     print(data)
     return data
-
+# -
 
 # ## Automate eigenmode solution
 #
@@ -122,6 +123,7 @@ def find_resonance():
 # limit. The ``find_resonance`` function is called until the complete frequency range is covered.
 # When the automation ends, the physical modes in the whole frequency range are reported.
 
+# +
 while next_fmin < fmax:
     output = find_resonance()
     next_fmin = output[len(output) - 1][1] / 1e9
@@ -134,6 +136,7 @@ while next_fmin < fmax:
 
 resonance_frequencies = [f"{resonance[i][1] / 1e9:.5} GHz" for i in resonance]
 print(str(resonance_frequencies))
+# -
 
 # ## Save project
 #
