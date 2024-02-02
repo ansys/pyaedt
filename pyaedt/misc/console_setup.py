@@ -8,6 +8,7 @@ cpython_console.py should be run instead of this script.
 This file can also serve as a template to modify PyAEDT scripts to take advantage of the command line arguments
 provided by the launcher
 """
+
 import atexit
 import os
 import sys

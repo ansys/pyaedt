@@ -409,7 +409,7 @@ class Design(AedtObjects):
             Dictionary of excitations.
         """
         _dict_out = {}
-        for bound in self._excitations:
+        for bound in self.design_excitations:
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:

@@ -424,6 +424,7 @@ class TestClass:
             use_q3d_for_dc=True,
         )
         assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
+        assert sweep3.props["FreqSweepType"] == "kInterpolating"
         sweep4 = self.aedtapp.create_linear_step_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -435,6 +436,19 @@ class TestClass:
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+        assert sweep4.props["FreqSweepType"] == "kDiscrete"
+        sweep5 = self.aedtapp.create_linear_step_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            step_size=0.12,
+            sweepname="RFBoardSweep4",
+            sweep_type="Fast",
+            save_fields=True,
+        )
+        assert sweep5.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+        assert sweep5.props["FreqSweepType"] == "kBroadbandFast"
 
         # Create a linear step sweep with the incorrect sweep type.
         with pytest.raises(AttributeError) as execinfo:

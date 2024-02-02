@@ -1,4 +1,5 @@
 """This module contains the ``Mechanical`` class."""
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict

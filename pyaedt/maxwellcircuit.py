@@ -1,4 +1,5 @@
 """This module contains the ``MaxwellCircuit`` class."""
+
 from __future__ import absolute_import  # noreorder
 
 import math
