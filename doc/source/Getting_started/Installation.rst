@@ -128,13 +128,6 @@ Activate virtual environment
 
     conda activate pyaedt_py310
 
-Install PyAEDT
-
-.. code:: bash
-
-    pip install pyaedt
-
-
 You can also install PyAEDT from Conda-Forge with this command:
 
 .. code:: bash
