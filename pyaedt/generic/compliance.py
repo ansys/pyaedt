@@ -173,6 +173,7 @@ class VirtualCompliance:
                     pdf_report.add_sub_chapter(f"{name} for trace {trace}")
                     sleep_time = 10
                     while sleep_time > 0:
+                        # noinspection PyBroadException
                         try:
                             pdf_report.add_image(
                                 os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
@@ -180,7 +181,7 @@ class VirtualCompliance:
                                 width=pdf_report.epw - 10,
                             )
                             sleep_time = 0
-                        except:
+                        except Exception:
                             time.sleep(1)
                             sleep_time -= 1
                     if pass_fail:
@@ -244,7 +245,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return
         mag_data = {i: k for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0}
-        mystr = f"Eye Mask Violation:"
+        mystr = "Eye Mask Violation:"
         result_value = "PASS"
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
@@ -266,7 +267,7 @@ class VirtualCompliance:
         pass_fail_table.append([mystr, result_value])
 
         if local_config["eye_mask"]["enable_limits"]:
-            mystr = f"Upper/Lower Mask Violation:"
+            mystr = "Upper/Lower Mask Violation:"
             for point in mag_data:
                 if (
                     point[1] > local_config["eye_mask"]["upper_limit"]
@@ -287,9 +288,9 @@ class VirtualCompliance:
             viol = None
         font_table = [["", None]]
         pass_fail_table = [["Pass Fail Criteria", "Result"]]
-        mystr1 = f"Eye Mask Violation:"
+        mystr1 = "Eye Mask Violation:"
         result_value_mask = "PASS"
-        mystr2 = f"Upper/Lower Mask Violation:"
+        mystr2 = "Upper/Lower Mask Violation:"
         result_value_upper = "PASS"
         if os.path.exists(viol):
             try:  # pragma: no cover
@@ -420,9 +421,10 @@ class VirtualCompliance:
             )
             for file in file_list:
                 if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:
+                    # noinspection PyBroadException
                     try:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
-                    except:  # pragma: no cover
+                    except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
                     report.add_image(file, caption=caption)
 
