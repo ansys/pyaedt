@@ -712,7 +712,10 @@ class Desktop(object):
     def install_path(self):
         """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
-        return installed_versions()[version_key]
+        try:
+            return installed_versions()[version_key]
+        except:  # pragma: no cover
+            return installed_versions()[version_key + "CL"]
 
     @property
     def current_version(self):
@@ -767,7 +770,9 @@ class Desktop(object):
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
                 Update your AEDT installation to 2022 R2 or later."""
             )
-        if not (specified_version in self.installed_versions):
+        if not (specified_version in self.installed_versions) and not (
+            specified_version + "CL" in self.installed_versions
+        ):
             raise ValueError(
                 "Specified version {}{} is not installed on your system".format(
                     specified_version[0:6], " Student Version" if student_version else ""
@@ -775,7 +780,9 @@ class Desktop(object):
             )
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
-        self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
+        self._main.sDesktopinstallDirectory = None
+        if specified_version in self.installed_versions:
+            self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
         if settings.remote_rpc_session:
             try:
                 version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]

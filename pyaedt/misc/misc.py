@@ -8,6 +8,8 @@ def list_installed_ansysem():
     """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``."""
     aedt_env_var_prefix = "ANSYSEM_ROOT"
     version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
+    aedt_env_var_prefix = "ANSYSEM_PY_CLIENT_ROOT"
+    version_list += sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
     aedt_env_var_sv_prefix = "ANSYSEMSV_ROOT"
     version_list += sorted([x for x in os.environ if x.startswith(aedt_env_var_sv_prefix)], reverse=True)
 
@@ -27,13 +29,18 @@ def installed_versions():
 
     return_dict = {}
     version_list = list_installed_ansysem()
+    client = False
     for version_env_var in version_list:
         if "ANSYSEMSV_ROOT" in version_env_var:
             current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
             student = True
-        else:
+        elif "ANSYSEM_ROOT" in version_env_var:
             current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
             student = False
+        else:
+            current_version_id = version_env_var.replace("ANSYSEM_PY_CLIENT_ROOT", "")
+            student = False
+            client = True
         try:
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
@@ -44,6 +51,8 @@ def installed_versions():
                     release -= 2
             if student:
                 v_key = "20{0}.{1}SV".format(version, release)
+            elif client:
+                v_key = "20{0}.{1}CL".format(version, release)
             else:
                 v_key = "20{0}.{1}".format(version, release)
             return_dict[v_key] = os.environ[version_env_var]

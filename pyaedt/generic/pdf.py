@@ -210,9 +210,70 @@ class AnsysReport(FPDF):
             self.add_page()
         return True
 
+    def add_project_info(self, design):
+        """
+
+        Parameters
+        ----------
+        design : object
+            Starting application object. For example, ``hfss1= HFSS3DLayout``.
+
+        Returns
+        -------
+        bool
+        """
+        self.add_page()
+        self.add_chapter(f"Design {design.design_name} Info")
+        msg = f"This section will contain information about project {design.project_name}"
+        msg += f" for design {design.design_name}."
+        self.add_text(msg)
+        msg = f"The design is a {design.design_type} model."
+        self.add_text(msg)
+        if design.design_type in [
+            "Q3D Extractor",
+            "Maxwell 3D",
+            "HFSS",
+            "Icepak",
+            "Mechanical",
+            "Maxwell 2D",
+            "2D Extractor",
+        ]:
+            msg = f"Simulation bounding box is {design.modeler.get_model_bounding_box()}."
+            self.add_text(msg)
+            image_path = os.path.join(design.working_directory, "model.jpg")
+            design.plot(
+                show=False,
+                export_path=image_path,
+                dark_mode=False,
+                show_grid=False,
+                show_bounding=False,
+            )
+            self.add_image(image_path, "Model Image")
+        elif design.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            stats = design.modeler.edb.get_statistics()
+            msg = f"The layout has {stats.num_capacitors} capacitors, {stats.num_resistors} resistors,"
+            msg += f"{stats.num_inductors} inductors. The design size is {stats.layout_size}."
+            self.add_text(msg)
+            msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
+            msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
+            image_path = os.path.join(design.working_directory, "model.jpg")
+            design.modeler.edb.nets.plot(
+                save_plot=image_path,
+            )
+            self.add_image(image_path, "Model Image")
+        elif design.design_type in ["Circuit Design"]:
+            msg = f"The schematic has {design.modeler.components} components."
+            self.add_text(msg)
+
+        if design.setups:
+            msg = f"The design has {len(design.setups)} simulation setups."
+            self.add_text(msg)
+
+        return True
+
     @property
     def template_name(self):
-        """Get/set the template to use.
+        """Name of the template to use.
         It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
 
