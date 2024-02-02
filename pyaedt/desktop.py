@@ -792,7 +792,7 @@ class Desktop(object):
             self.logger.info("Found AEDT Python Client. Setting up a connection to port {}".format(self.port))
             self._main.sDesktopinstallDirectory = self.installed_versions[specified_version + "CL"]
         else:
-            raise ValueError("Python Client has been found but not port has been provided.")
+            raise ValueError("Python client has been found, but no port has been provided.")
         return student_version, specified_version, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
