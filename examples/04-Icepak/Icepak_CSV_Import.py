@@ -75,6 +75,8 @@ with open(filename, 'r') as csv_file:
         # Define material name
         if row["matname"]:
             material_name = row["matname"]
+        else:
+            material_name = "copper"
 
         # creates the block with the given name, coordinates, material, and type
         block = ipk.modeler.create_box(origin, dimensions, name=block_name, matname=material_name)
@@ -83,8 +85,11 @@ with open(filename, 'r') as csv_file:
         if row["block_type"] == "solid":
             ipk.assign_solid_block(block_name, row["power"] + "W", block_name)
         elif row["block_type"] == "network":
-            ipk.create_two_resistor_network_block(block_name, board.name, row["power"] + "W", row["Rjb"], row[
-                "Rjc"])  # board and case sides are automatically computed based on the position relative to the board
+            ipk.create_two_resistor_network_block(block_name,
+                                                  board.name,
+                                                  row["power"] + "W",
+                                                  row["Rjb"],
+                                                  row["Rjc"])
         else:
             ipk.modeler[block.name].solve_inside = False
             ipk.assign_hollow_block(block_name, assignment_type="Total Power", assignment_value=row["power"] + "W",
@@ -92,14 +97,14 @@ with open(filename, 'r') as csv_file:
 
         # Create temperature monitor points if assigned value is 1 in the last column of the csv file
         if row["Monitor_point"] == '1':
-            ipk.monitor.assign_point_monitor_in_object(row["name"], monitor_quantity="Temperature", monitor_name=row[
-                "name"])  # creates the monitor point at the center of the object
+            ipk.monitor.assign_point_monitor_in_object(
+                row["name"],
+                monitor_quantity="Temperature",
+                monitor_name=row["name"])
 
 ###############################################################################
-# Save the project and close
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This will scale to fit all objects in AEDT and save the project.
+# Release AEDT
+# ~~~~~~~~~~~~
+# Release AEDT.
 
-ipk.modeler.fit_all()
-ipk.close_project(save_project=True)
-ipk.close_desktop()
+ipk.release_desktop(True, True)
