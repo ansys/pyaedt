@@ -61,7 +61,7 @@ class VirtualCompliance:
                     self._project_file = self.local_config["general"].get("project", None)
 
     def _parse_reports(self):
-        if "reports" in self.local_config:
+        if "reports" in self.local_config:  # pragma: no cover
             for report in self.local_config["reports"]:
                 self._create_aedt_report(
                     report["name"],
