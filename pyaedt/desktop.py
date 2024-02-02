@@ -739,12 +739,6 @@ class Desktop(object):
 
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times
-        if settings.remote_rpc_session:
-            try:
-                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
-                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
-            except:
-                return False, "", ""
         self_current_version = self.current_version
         self_current_student_version = self.current_student_version
 
@@ -782,6 +776,13 @@ class Desktop(object):
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
         self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
+        if settings.remote_rpc_session:
+            try:
+                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
+                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
+            except:
+                return False, "", ""
+
         return student_version, specified_version, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):

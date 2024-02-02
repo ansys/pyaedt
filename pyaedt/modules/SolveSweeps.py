@@ -376,10 +376,12 @@ class SweepHFSS3DLayout(object):
                 self.props = copy.deepcopy(Sweep3DLayout)
             # for t in props:
             #    _tuple2dict(t, self.props)
-            if SequenceMatcher(None, sweeptype.lower(), "kinterpolating").ratio() > 0.8:
+            if SequenceMatcher(None, sweeptype.lower(), "interpolating").ratio() > 0.8:
                 sweeptype = "kInterpolating"
-            elif SequenceMatcher(None, sweeptype.lower(), "kdiscrete").ratio() > 0.8:
+            elif SequenceMatcher(None, sweeptype.lower(), "discrete").ratio() > 0.8:
                 sweeptype = "kDiscrete"
+            elif SequenceMatcher(None, sweeptype.lower(), "fast").ratio() > 0.8:
+                sweeptype = "kBroadbandFast"
             else:
                 warnings.warn("Sweep type is invalid. `kInterpolating` is set as the default.")
                 sweeptype = "kInterpolating"

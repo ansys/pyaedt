@@ -1,4 +1,5 @@
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict

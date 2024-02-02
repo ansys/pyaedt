@@ -111,7 +111,7 @@ providing syntax rules and commands for using the PyAEDT API and PyEDB API:
 
 - [View](https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png) or
   [download](https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf) the
-  PyAEDT API cheat sheet.
+  PyEDB API cheat sheet.
 
 
 On the [PyAEDT Issues](https://github.com/ansys/PyAEDT/issues) page, you can

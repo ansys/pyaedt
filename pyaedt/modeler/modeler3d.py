@@ -15,7 +15,6 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Modeler3D(Primitives3D):
-
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
