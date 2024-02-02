@@ -1399,7 +1399,10 @@ class Desktop(object):
         >>> oDesktop.OpenProject
 
         """
-        proj = self.odesktop.OpenProject(project_file)
+        if os.path.splitext(os.path.split(project_file)[-1])[0] in self.project_list():
+            proj = self.odesktop.SetActiveProject(os.path.splitext(os.path.split(project_file)[-1])[0])
+        else:
+            proj = self.odesktop.OpenProject(project_file)
         if proj:
             active_design = proj.GetActiveDesign()
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover

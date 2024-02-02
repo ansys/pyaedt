@@ -401,7 +401,7 @@ class AnsysReport(FPDF):
         num_lines : int, optional
             Number of lines to add.
         """
-        self.ln(num_lines)
+        self.ln(num_lines * self.font_size)
 
     def add_page_break(self):
         """Add a new page break line.
@@ -416,6 +416,7 @@ class AnsysReport(FPDF):
         title,
         content,
         formatting=None,
+        col_widths=None,
     ):
         """Add a new table from a list of data.
         Data shall be a list of list where every line is either a row or a column.
@@ -430,10 +431,11 @@ class AnsysReport(FPDF):
             List of formatting elements for the table rows. Length of formatting has to be equal to length of content.
             Every element is a list of 2 elements (color, background_color).
             Color is a RGB list.
+        col_widths : list, optional
+            List of column widths.
         """
-        self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
-        self.add_caption(f"Table {title}")
 
+        self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
         with self.table(
             borders_layout="MINIMAL",
@@ -442,6 +444,7 @@ class AnsysReport(FPDF):
             line_height=self.font_size * 2.5,
             text_align="CENTER",
             width=160,
+            col_widths=col_widths,
         ) as table:
             for i in range(len(content)):
                 data_row = content[i]
@@ -459,6 +462,7 @@ class AnsysReport(FPDF):
                 row = table.row()
                 for datum in data_row:
                     row.cell(datum, style=style)
+        self.add_caption(f"Table {title}")
 
     def add_text(self, content, bold=False, italic=False):
         """Add a new text.
