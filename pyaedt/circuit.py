@@ -60,7 +60,7 @@ class Circuit(FieldAnalysisCircuit, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``. This parameter is ignored when
+        machine.  The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -153,9 +153,6 @@ class Circuit(FieldAnalysisCircuit, object):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     def _get_number_from_string(self, stringval):
         value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")

@@ -10,6 +10,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.pdf import AnsysReport
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
@@ -423,6 +424,7 @@ class TestClass:
             use_q3d_for_dc=True,
         )
         assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
+        assert sweep3.props["FreqSweepType"] == "kInterpolating"
         sweep4 = self.aedtapp.create_linear_step_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -434,6 +436,19 @@ class TestClass:
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+        assert sweep4.props["FreqSweepType"] == "kDiscrete"
+        sweep5 = self.aedtapp.create_linear_step_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            step_size=0.12,
+            sweepname="RFBoardSweep4",
+            sweep_type="Fast",
+            save_fields=True,
+        )
+        assert sweep5.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+        assert sweep5.props["FreqSweepType"] == "kBroadbandFast"
 
         # Create a linear step sweep with the incorrect sweep type.
         with pytest.raises(AttributeError) as execinfo:
@@ -756,6 +771,12 @@ class TestClass:
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
+
+    def test_96_2_report_design(self):
+        report = AnsysReport()
+        report.create()
+        self.aedtapp.save_project()
+        assert report.add_project_info(self.aedtapp)
 
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)

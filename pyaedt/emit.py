@@ -46,7 +46,7 @@ class Emit(Design, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -188,10 +188,6 @@ class Emit(Design, object):
             Couplings within the EMIT Design
         """
         return self._couplings
-
-    @pyaedt_function_handler()
-    def __enter__(self):
-        return self
 
     @pyaedt_function_handler()
     def version(self, detailed=False):

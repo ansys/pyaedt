@@ -484,7 +484,7 @@ class Desktop(object):
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
 
-        self._connected_designs = 0
+        self._connected_app_instances = 0
 
         """Initialize desktop."""
         self.launched_by_pyaedt = False
@@ -712,7 +712,10 @@ class Desktop(object):
     def install_path(self):
         """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
-        return installed_versions()[version_key]
+        try:
+            return installed_versions()[version_key]
+        except:  # pragma: no cover
+            return installed_versions()[version_key + "CL"]
 
     @property
     def current_version(self):
@@ -739,12 +742,6 @@ class Desktop(object):
 
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times
-        if settings.remote_rpc_session:
-            try:
-                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
-                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
-            except:
-                return False, "", ""
         self_current_version = self.current_version
         self_current_student_version = self.current_student_version
 
@@ -773,7 +770,9 @@ class Desktop(object):
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
                 Update your AEDT installation to 2022 R2 or later."""
             )
-        if not (specified_version in self.installed_versions):
+        if not (specified_version in self.installed_versions) and not (
+            specified_version + "CL" in self.installed_versions
+        ):
             raise ValueError(
                 "Specified version {}{} is not installed on your system".format(
                     specified_version[0:6], " Student Version" if student_version else ""
@@ -781,7 +780,16 @@ class Desktop(object):
             )
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
-        self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
+        self._main.sDesktopinstallDirectory = None
+        if specified_version in self.installed_versions:
+            self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
+        if settings.remote_rpc_session:
+            try:
+                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
+                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
+            except:
+                return False, "", ""
+
         return student_version, specified_version, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
@@ -1399,7 +1407,10 @@ class Desktop(object):
         >>> oDesktop.OpenProject
 
         """
-        proj = self.odesktop.OpenProject(project_file)
+        if os.path.splitext(os.path.split(project_file)[-1])[0] in self.project_list():
+            proj = self.odesktop.SetActiveProject(os.path.splitext(os.path.split(project_file)[-1])[0])
+        else:
+            proj = self.odesktop.OpenProject(project_file)
         if proj:
             active_design = proj.GetActiveDesign()
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover

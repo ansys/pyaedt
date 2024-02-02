@@ -1,9 +1,7 @@
 files: |
     (?x)(
         ^pyaedt/|
-        _unittest/|
-        requirements/requirements_docs.txt|
-        requirements/requirements_test.txt
+        _unittest/
     )
 exclude: |
     (?x)(
@@ -17,7 +15,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 23.12.1  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  rev: 24.1.1  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
@@ -47,13 +45,12 @@ repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0
   hooks:
-  - id: requirements-txt-fixer
   - id: debug-statements
   - id: trailing-whitespace
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.27.3
+  rev: 0.27.4
   hooks:
     - id: check-github-workflows
 
@@ -61,7 +58,7 @@ repos:
   rev: 1.16.0
   hooks:
   -   id: blacken-docs
-      additional_dependencies: [black==23.12.1]
+      additional_dependencies: [black==24.1.1]
 
 
 # - repo: https://github.com/numpy/numpydoc

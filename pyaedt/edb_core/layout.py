@@ -1,6 +1,7 @@
 """
 This module contains these classes: `EdbLayout` and `Shape`.
 """
+
 import math
 import warnings
 
@@ -557,7 +558,7 @@ class EdbLayout(object):
             polygonData = self.shape_to_polygon_data(main_shape)
         else:
             polygonData = main_shape
-        if polygonData is False or polygonData is None or polygonData.IsNull():
+        if not polygonData or polygonData.IsNull():
             self._logger.error("Failed to create main shape polygon data")
             return False
         for void in voids:
