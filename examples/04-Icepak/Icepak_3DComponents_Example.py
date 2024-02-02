@@ -194,8 +194,6 @@ ipk.modeler.create_3dcomponent(
     reference_cs="PCB_Assembly"
 )
 
-ipk.release_desktop(False, False)
-
 ###############################################################################
 # Release AEDT
 # ~~~~~~~~~~~~
