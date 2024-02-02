@@ -55,15 +55,13 @@ class VirtualCompliance:
                     self._add_project_info = self.local_config["general"].get("add_project_info", True)
                     self._add_specs_info = self.local_config["general"].get("add_specs_info", False)
                     self._specs_folder = self.local_config["general"].get("specs_folder", "")
-                    if self._specs_folder and os.path.exists(
-                        os.path.join(self._template_folder, self._specs_folder)
-                    ):  # pragma: no cover
+                    if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
                         self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
                     self._template_name = self.local_config["general"].get("name", "Compliance")
                     self._project_file = self.local_config["general"].get("project", None)
 
     def _parse_reports(self):
-        if "reports" in self.local_config:  # pragma: no cover
+        if "reports" in self.local_config:
             for report in self.local_config["reports"]:
                 self._create_aedt_report(
                     report["name"],
@@ -83,13 +81,11 @@ class VirtualCompliance:
             if hatch_above:
                 if db_value >= test_value:
                     return db_value
-            elif db_value <= test_value:  # pragma: no cover
+            elif db_value <= test_value:
                 return db_value
         return None
 
-    def add_aedt_report(
-        self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True
-    ):  # pragma: no cover
+    def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
         """Add a new custom aedt report to the compliance.
 
         Parameters
@@ -127,11 +123,11 @@ class VirtualCompliance:
 
     def _get_sweep_name(self, design, solution_name):
         sweep_name = None
-        if solution_name:  # pragma: no cover
+        if solution_name:
             solution_names = [
                 i for i in design.existing_analysis_sweeps if solution_name == i or i.startswith(solution_name + " ")
             ]
-            if solution_names:  # pragma: no cover
+            if solution_names:
                 sweep_name = solution_names[0]
         return sweep_name
 
@@ -365,7 +361,7 @@ class VirtualCompliance:
         folder : str
             Folder relative path to compliance report or absolute path.
         """
-        if folder:  # pragma: no cover
+        if folder:
             self._specs_folder = folder
             self._add_specs_info = True
 
@@ -425,9 +421,9 @@ class VirtualCompliance:
                 self._specs_folder,
             )
             for file in file_list:
-                if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:  # pragma: no cover
+                if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:
                     # noinspection PyBroadException
-                    try:  # pragma: no cover
+                    try:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
                     except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
