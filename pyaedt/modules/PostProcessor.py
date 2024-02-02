@@ -564,7 +564,7 @@ class Reports(object):
              name to use in the export or ``LastAdaptive``.
         quantity_type : int, optional
             For AMI analysis only, the quantity type. The default is ``3``. Options are:
-            
+
             - ``0`` for Initial Wave
             - ``1`` for Wave after Source
             - ``2`` for Wave after Channel
