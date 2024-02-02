@@ -285,7 +285,7 @@ class VirtualCompliance:
         try:
             out_eye = os.path.join(self._output_folder, "violations.tab")
             viol = report.export_mask_violation(out_eye)
-        except:
+        except Exception:  # pragma: no cover
             viol = None
         font_table = [["", None]]
         pass_fail_table = [["Pass Fail Criteria", "Result"]]

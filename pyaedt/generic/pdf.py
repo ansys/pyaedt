@@ -446,8 +446,7 @@ class AnsysReport(FPDF):
             width=160,
             col_widths=col_widths,
         ) as table:
-            for i in range(len(content)):
-                data_row = content[i]
+            for i, data_row in enumerate(content):
                 fill_color = None
                 font_color = self.report_specs.font_color
 
