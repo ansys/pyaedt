@@ -550,7 +550,7 @@ class Reports(object):
 
     @pyaedt_function_handler()
     def statistical_eye_contour(self, expressions=None, setup_name=None, quantity_type=3):
-        """Create a Standard Statistical AMI Contour plot.
+        """Create a standard statistical AMI contour plot.
 
         Parameters
         ----------
@@ -558,12 +558,17 @@ class Reports(object):
             Expression to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
+             name to use in the export or ``LastAdaptive``.
         quantity_type : int, optional
-            For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
-            1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
+            For AMI analysis only, the quantity type. The default is ``3``. Options are:
+            
+            - ``0`` for Initial Wave
+            - ``1`` for Wave after Source
+            - ``2`` for Wave after Channel
+            - ``3`` for Wave after Probe.
 
         Returns
         -------
@@ -616,8 +621,8 @@ class Reports(object):
             For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
             1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
         statistical_analysis : bool, optional
-            For AMI Analysis only, specify whether if plot the Statistical Eye Plot or  Transient Eye plot.
-            Default is ``True``.
+            For AMI Analysis only, whether to plot the statistical eye plot or transient eye plot.
+            The default is ``True``.
         unit_interval : str, optional
             Eye diagram unit interval.
 

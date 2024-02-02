@@ -428,9 +428,9 @@ class AnsysReport(FPDF):
         content : list of list
             Table content.
         formatting : list, optional
-            List of formatting elements for the table rows. Length of formatting has to be equal to length of content.
-            Every element is a list of 2 elements (color, background_color).
-            Color is a RGB list.
+            List of formatting elements for the table rows. The length of the formatting has
+            to be equal to the length of content. Every element is a list of two elements
+            (color, background_color).  Color is a RGB list.
         col_widths : list, optional
             List of column widths.
         """
