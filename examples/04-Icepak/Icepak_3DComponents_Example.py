@@ -197,57 +197,6 @@ ipk.modeler.create_3dcomponent(
 ipk.release_desktop(False, False)
 
 ###############################################################################
-# Create main assembly
-# ~~~~~~~~~~~~~~~~~~~~
-# Open a new empty project.
-ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"),
-             specified_version=aedt_version,
-             non_graphical=non_graphical)
-
-# Create a support for multiple PCB assemblies
-support_obj = ipk.modeler.create_box(position=[-60, -160, 0], dimensions_list=[270, 580, -10], name="PCB_support")
-support_obj.material_name = "plexiglass"
-
-# Create two coordinate systems to place two electronic package assemblies
-cs1 = ipk.modeler.create_coordinate_system(
-    origin=[-40, -120, 0],
-    name="PCB1",
-    reference_cs="Global",
-    x_pointing=[1, 0, 0],
-    y_pointing=[0, 1, 0],
-)
-cs2 = ipk.modeler.create_coordinate_system(
-    origin=[0, 380, 0],
-    name="PCB2",
-    reference_cs="PCB1",
-    x_pointing=[1, 0, 0],
-    y_pointing=[0, 1, 0],
-)
-
-# Import the electronic packages on the support
-PCB1_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
-    targetCS=cs1.name, auxiliary_dict=True)
-
-PCB2_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
-    targetCS=cs2.name, auxiliary_dict=True)
-
-# To demonstrate once again the flexibility of this method: flatten the nested components structure again and export
-# the whole assembly as a 3d component
-ipk.flatten_3d_components()
-ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(temp_folder, "componentLibrary", "MainAssembly.a3dcomp"),
-    component_name="MainAssembly",
-    auxiliary_dict=True,
-    native_components=True,
-    included_cs=["PCBAssembly1_PCB_Assembly", "PCBAssembly2_PCB_Assembly",
-                 "PCBAssembly1_PCB_Assembly_ref", "PCBAssembly2_PCB_Assembly_ref"]
-)
-
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "main_assembly.jpg"))
-
-###############################################################################
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT.
