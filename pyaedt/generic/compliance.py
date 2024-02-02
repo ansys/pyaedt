@@ -55,7 +55,9 @@ class VirtualCompliance:
                     self._add_project_info = self.local_config["general"].get("add_project_info", True)
                     self._add_specs_info = self.local_config["general"].get("add_specs_info", False)
                     self._specs_folder = self.local_config["general"].get("specs_folder", "")
-                    if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):  # pragma: no cover
+                    if self._specs_folder and os.path.exists(
+                        os.path.join(self._template_folder, self._specs_folder)
+                    ):  # pragma: no cover
                         self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
                     self._template_name = self.local_config["general"].get("name", "Compliance")
                     self._project_file = self.local_config["general"].get("project", None)
@@ -85,7 +87,9 @@ class VirtualCompliance:
                 return db_value
         return None
 
-    def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):  # pragma: no cover
+    def add_aedt_report(
+        self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True
+    ):  # pragma: no cover
         """Add a new custom aedt report to the compliance.
 
         Parameters
