@@ -71,7 +71,7 @@ TEMPLATES_BY_DESIGN = {
         "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum"],
     "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
@@ -92,6 +92,8 @@ TEMPLATES_BY_NAME = {
     "Far Fields": rt.FarField,
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
+    "Statistical Eye": rt.AMIEyeDiagram,
+    "AMI Contour": rt.AMIConturEyeDiagram,
     "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
 }
@@ -548,18 +550,82 @@ class Reports(object):
         return
 
     @pyaedt_function_handler()
-    def eye_diagram(self, expressions=None, setup_name=None):
+    def statistical_eye_contour(self, expressions=None, setup_name=None, quantity_type=3):
+        """Create a standard statistical AMI contour plot.
+
+        Parameters
+        ----------
+        expressions : str
+            Expression to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
+             name to use in the export or ``LastAdaptive``.
+        quantity_type : int, optional
+            For AMI analysis only, the quantity type. The default is ``3``. Options are:
+
+            - ``0`` for Initial Wave
+            - ``1`` for Wave after Source
+            - ``2`` for Wave after Channel
+            - ``3`` for Wave after Probe.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.AMIConturEyeDiagram`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            for setup in self._post_app._app.setups:
+                if "AMIAnalysis" in setup.props:
+                    setup_name = setup.name
+            if not setup_name:
+                self._post_app._app.logger.error("AMI analysis is needed to create this report.")
+                return False
+
+            if isinstance(expressions, list):
+                expressions = expressions[0]
+            report_cat = "Standard"
+            rep = rt.AMIConturEyeDiagram(self._post_app, report_cat, setup_name)
+            rep.quantity_type = quantity_type
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def eye_diagram(
+        self, expressions=None, setup_name=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
+    ):
         """Create a Standard or Default Report object.
 
         Parameters
         ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
+        expressions : str
+            Expression to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+        quantity_type : int, optional
+            For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
+            1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
+        statistical_analysis : bool, optional
+            For AMI Analysis only, whether to plot the statistical eye plot or transient eye plot.
+            The default is ``True``.
+        unit_interval : str, optional
+            Unit interval for the eye diagram.
 
         Returns
         -------
@@ -579,7 +645,18 @@ class Reports(object):
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
-            rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            if "AMIAnalysis" in self._post_app._app.get_setup(setup_name).props:
+                if isinstance(expressions, list):
+                    expressions = expressions[0]
+                report_cat = "Eye Diagram"
+                if statistical_analysis:
+                    report_cat = "Statistical Eye"
+                rep = rt.AMIEyeDiagram(self._post_app, report_cat, setup_name)
+                rep.quantity_type = quantity_type
+
+            else:
+                rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            rep.unit_interval = unit_interval
             rep.expressions = expressions
             return rep
         return
@@ -912,7 +989,7 @@ class PostProcessorCommon(object):
                 else:
                     report = rt.Standard
                 plots.append(report(self, report_type, None))
-                plots[-1].plot_name = name
+                plots[-1].props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
@@ -1928,7 +2005,15 @@ class PostProcessorCommon(object):
         if not solution_name:
             solution_name = self._app.nominal_sweep
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
-            report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+            if (
+                "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+                and props["report_category"] == "Standard"
+            ):
+                report_temp = TEMPLATES_BY_NAME["AMI Contour"]
+            elif "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props:
+                report_temp = TEMPLATES_BY_NAME["Statistical Eye"]
+            else:
+                report_temp = TEMPLATES_BY_NAME[props["report_category"]]
             report = report_temp(self, props["report_category"], solution_name)
             for k, v in props.items():
                 report.props[k] = v
