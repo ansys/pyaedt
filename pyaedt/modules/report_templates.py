@@ -2364,7 +2364,7 @@ class AMIConturEyeDiagram(CommonReport):
 
     @property
     def quantity_type(self):
-        """Quantity type used in AMI analysis plot..
+        """Quantity type used in the AMI analysis plot.
 
         Returns
         -------
@@ -2629,7 +2629,7 @@ class AMIConturEyeDiagram(CommonReport):
         Parameters
         ----------
         value : bool
-            Whether to enable the rectangular plot. The default is ``True``. When
+            Whether to enable the rectangular plot. The default is ``True``. If
             ``False``, the rectangular plot is disabled.
 
         Returns
@@ -2778,7 +2778,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def quantity_type(self):
-        """Quantity type used in AMI analysis plot..
+        """Quantity type used in the AMI analysis plot.
 
         Returns
         -------
@@ -2844,7 +2844,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def auto_delay(self):
-        """Autodelay flag.
+        """Auto-delay flag.
 
         Returns
         -------
@@ -2858,7 +2858,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def manual_delay(self):
-        """Manual delay value when ``auto_delay`` is set to ``False``.
+        """Manual delay value when ``auto_delay=False``.
 
         Returns
         -------
@@ -2872,7 +2872,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def auto_cross_amplitude(self):
-        """Auto cross ampltiude flag.
+        """Auto-cross amplitude flag.
 
         Returns
         -------
@@ -2886,7 +2886,7 @@ class AMIEyeDiagram(CommonReport):
 
     @property
     def cross_amplitude(self):
-        """Cross amplitude value when ``auto_cross_amplitude`` is set to ``False``.
+        """Cross-amplitude value when ``auto_cross_amplitude=False``.
 
         Returns
         -------
