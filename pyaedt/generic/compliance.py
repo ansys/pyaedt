@@ -361,7 +361,7 @@ class VirtualCompliance:
         folder : str
             Folder relative path to compliance report or absolute path.
         """
-        if folder:
+        if folder:  # pragma: no cover
             self._specs_folder = folder
             self._add_specs_info = True
 
