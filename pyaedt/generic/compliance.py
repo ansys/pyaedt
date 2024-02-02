@@ -162,7 +162,8 @@ class VirtualCompliance:
                 aedt_report = _design.post.create_report_from_configuration(
                     input_dict=local_config, solution_name=sw_name
                 )
-                aedt_report.hide_legend()
+                if report_type != "contour eye diagram":
+                    aedt_report.hide_legend()
                 out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
                 time.sleep(1)
                 if out:
