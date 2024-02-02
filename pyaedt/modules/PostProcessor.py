@@ -645,7 +645,7 @@ class Reports(object):
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
-            if "AMIAnalysis" in self._post_app._app.get_setup(setup_name).props:
+            if "AMIAnalysis" in self._post_app._app.get_setup(setup_name).props:  # pragma: no cover
                 if isinstance(expressions, list):
                     expressions = expressions[0]
                 report_cat = "Eye Diagram"
