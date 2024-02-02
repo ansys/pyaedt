@@ -10,6 +10,7 @@ from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.pdf import AnsysReport
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
 from pyaedt.generic.settings import settings
@@ -137,6 +138,9 @@ class TestClass:
             context="3D",
             report_category="Far Fields",
         )
+        report = AnsysReport()
+        report.create()
+        assert report.add_project_info(field_test)
 
     def test_09_manipulate_report_B(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -246,6 +250,9 @@ class TestClass:
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
         assert len(files) > 0
+        report = AnsysReport()
+        report.create()
+        assert report.add_project_info(circuit_test)
 
     def test_09b_export_report_B(self, q2dtest):
         q2dtest.analyze()
