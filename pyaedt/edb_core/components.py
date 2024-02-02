@@ -935,10 +935,13 @@ class Components(object):
                     bbox = pad_params[1]
                     sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
                 else:
-                    if not solder_balls_mid_size:
-                        sball_mid_diam = solder_balls_size
+                    sball_diam = solder_balls_size
                 if not solder_balls_height:
                     solder_balls_height = 2 * sball_diam / 3
+                if solder_balls_mid_size:
+                    sball_mid_diam = solder_balls_mid_size
+                else:
+                    sball_mid_diam = sball_diam
             sball_shape = "Cylinder"
             if not sball_diam == sball_mid_diam:
                 sball_shape = "Spheroid"
