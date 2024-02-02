@@ -6,8 +6,9 @@ Getting started
    .. grid-item-card:: About PyAnsys and AEDT
             :link: About
             :link-type: doc
-
-            Learn more about PyAnsys and Ansys Electronics Desktop.
+            :margin: 2 2 0 0
+            
+            Learn more about PyAnsys and AEDT.
 
    .. grid-item-card:: Installation
             :link: Installation

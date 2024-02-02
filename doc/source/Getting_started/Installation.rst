@@ -128,13 +128,12 @@ Activate virtual environment
 
     conda activate pyaedt_py310
 
-Install required packages.
-
-Download `requirements.txt <https://github.com/ansys/pyaedt/blob/main/requirements/requirements.txt>`_
+You can also install PyAEDT from Conda-Forge with this command:
 
 .. code:: bash
 
-    pip install -r requirements.txt
+    conda install -c conda-forge pyaedt
+
 
 Upgrade PyAEDT to the latest version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
