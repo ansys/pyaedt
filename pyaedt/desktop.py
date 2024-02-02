@@ -714,7 +714,7 @@ class Desktop(object):
         version_key = self._main.AEDTVersion
         try:
             return installed_versions()[version_key]
-        except:
+        except:  # pragma: no cover
             return installed_versions()[version_key + "CL"]
 
     @property
