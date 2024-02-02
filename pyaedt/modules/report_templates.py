@@ -1515,7 +1515,7 @@ class CommonReport(object):
         return self._change_property("legend", "legend", props)
 
     def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_height=1):
-        """Hide current Legend.
+        """Hide the Legend.
 
         Parameters
         ----------
@@ -2635,6 +2635,7 @@ class AMIConturEyeDiagram(CommonReport):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:AllTabs",
