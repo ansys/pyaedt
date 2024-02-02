@@ -12,26 +12,47 @@ features added by PyAEDT.
 
 from pyaedt import Icepak, generate_unique_folder_name, downloads, settings
 import os
+
 # Download needed files
+
 temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
+
+###############################################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2023.2"
+
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+
+non_graphical = False
 
 ###############################################################################
 # Create heatsink
 # ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
-ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"), specified_version="2023.2", non_graphical=True,
-             close_on_exit=True, new_desktop_session=True)
+ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"),
+             specified_version=aedt_version,
+             non_graphical=True,
+             close_on_exit=True,
+             new_desktop_session=True)
 
-# Remove air region created by default because it is not needed as the heatsink will be exported as a 3dcomponent
+# Remove air region created by default because it is not needed as the heatsink will be exported as a 3Dcomponent.
+
 ipk.modeler.get_object_from_name("Region").delete()
 
 # Definition of heatsink with boxes
 hs_base = ipk.modeler.create_box(position=[0, 0, 0], dimensions_list=[37.5, 37.5, 2], name="HS_Base")
-hs_base.material_name="Al-Extruded"
+hs_base.material_name = "Al-Extruded"
 hs_fin = ipk.modeler.create_box(position=[0, 0, 2], dimensions_list=[37.5, 1, 18], name="HS_Fin1")
-hs_fin.material_name="Al-Extruded"
+hs_fin.material_name = "Al-Extruded"
 hs_fin.duplicate_along_line([0, 3.65, 0], nclones=11)
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "Heatsink.jpg"))
@@ -49,7 +70,7 @@ mesh_region.MaxLevels = "2"
 mesh_region.BufferLayers = "1"
 mesh_region.update()
 
-# Assignment of monitor objects
+# Assignment of monitor objects.
 hs_fin5_object = ipk.modeler.get_object_from_name("HS_Fin1_5")
 point_monitor_position = [0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)] + [
     hs_fin5_object.bounding_box[-1]]  # average x,y, top z
@@ -120,13 +141,15 @@ ipk.modeler.create_3dcomponent(
     auxiliary_dict=True,
     datasets=["PowerDissipationDataset"]
 )
-ipk.close_project(save_project=False)
+ipk.release_desktop(False, False)
 
 ###############################################################################
 # Create electronic package
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open a project containing the electronic package.
-ipk = Icepak(projectname=package_temp_name)
+ipk = Icepak(projectname=package_temp_name,
+             specified_version=aedt_version,
+             non_graphical=non_graphical)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
 
 # The heatsink and the QFP are missing. They can be inserted as 3d components. The auxiliary files are needed since
@@ -171,17 +194,19 @@ ipk.modeler.create_3dcomponent(
     reference_cs="PCB_Assembly"
 )
 
-ipk.close_project(save_project=False)
+ipk.release_desktop(False, False)
 
 ###############################################################################
 # Create main assembly
 # ~~~~~~~~~~~~~~~~~~~~
 # Open a new empty project.
-ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"))
+ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"),
+             specified_version=aedt_version,
+             non_graphical=non_graphical)
 
 # Create a support for multiple PCB assemblies
 support_obj = ipk.modeler.create_box(position=[-60, -160, 0], dimensions_list=[270, 580, -10], name="PCB_support")
-support_obj.material_name="plexiglass"
+support_obj.material_name = "plexiglass"
 
 # Create two coordinate systems to place two electronic package assemblies
 cs1 = ipk.modeler.create_coordinate_system(
@@ -208,7 +233,8 @@ PCB2_obj = ipk.modeler.insert_3d_component(
     comp_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
     targetCS=cs2.name, auxiliary_dict=True)
 
-# To demonstrate once again the flexibility of this method: flatten the nested components structure again and export the whole assembly as a 3d component
+# To demonstrate once again the flexibility of this method: flatten the nested components structure again and export
+# the whole assembly as a 3d component
 ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder, "componentLibrary", "MainAssembly.a3dcomp"),
@@ -220,5 +246,10 @@ ipk.modeler.create_3dcomponent(
 )
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "main_assembly.jpg"))
-ipk.close_project(save_project=True)
-ipk.release_desktop()
+
+###############################################################################
+# Release AEDT
+# ~~~~~~~~~~~~
+# Release AEDT.
+
+ipk.release_desktop(True, True)
