@@ -274,8 +274,30 @@ class TestClass:
                                                variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
                                                filename=fld_file_2,
                                                obj_list='box',
-                                               sample_points_lists=[[0,0,0],[3,6,8],[4,7,9]])
+                                               sample_points_lists=[[0, 0, 0], [3, 6, 8], [4, 7, 9]])
         assert os.path.exists(fld_file_2)
+        fld_file_3 = os.path.join(self.icepak_app.working_directory, "test_fld_3.fld")
+        self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                               solution=self.icepak_app.nominal_sweep,
+                                               variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+                                               filename=fld_file_3,
+                                               obj_list='box',
+                                               phase="1deg")
+        assert os.path.exists(fld_file_3)
+        fld_file_4 = os.path.join(self.icepak_app.working_directory, "test_fld_3.fld")
+        self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                               solution=self.icepak_app.nominal_sweep,
+                                               variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+                                               filename=fld_file_4,
+                                               obj_list='box',
+                                               obj_type="Surf")
+        assert os.path.exists(fld_file_4)
+        assert not self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                                          solution=self.icepak_app.nominal_sweep,
+                                                          variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+                                                          filename=fld_file_4,
+                                                          obj_list='box',
+                                                          obj_type="invalid")
 
     def test_04a_3dl_generate_mesh(self):
         assert self.hfss3dl_solve.mesh.generate_mesh("Setup1")
