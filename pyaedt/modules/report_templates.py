@@ -2352,6 +2352,16 @@ class AMIConturEyeDiagram(CommonReport):
             return new_exprs
         return []
 
+    @expressions.setter
+    def expressions(self, value):
+        self.props["expressions"] = {}
+        if value is None:
+            value = []
+        elif not isinstance(value, list):
+            value = [value]
+        for el in value:
+            self.props["expressions"][el] = {}
+
     @property
     def quantity_type(self):
         """Quantity type used in AMI analysis plot..
@@ -2755,6 +2765,16 @@ class AMIEyeDiagram(CommonReport):
                         new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
             return new_exprs
         return []
+
+    @expressions.setter
+    def expressions(self, value):
+        self.props["expressions"] = {}
+        if value is None:
+            value = []
+        elif not isinstance(value, list):
+            value = [value]
+        for el in value:
+            self.props["expressions"][el] = {}
 
     @property
     def quantity_type(self):
@@ -3257,6 +3277,16 @@ class EyeDiagram(AMIEyeDiagram):
         if self.props.get("expressions", {}):
             return list(self.props.get("expressions", {}).keys())
         return []
+
+    @expressions.setter
+    def expressions(self, value):
+        self.props["expressions"] = {}
+        if value is None:
+            value = []
+        elif not isinstance(value, list):
+            value = [value]
+        for el in value:
+            self.props["expressions"][el] = {}
 
     @property
     def time_start(self):
