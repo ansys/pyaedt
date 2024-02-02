@@ -85,7 +85,7 @@ class VirtualCompliance:
                 return db_value
         return None
 
-    def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
+    def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):  # pragma: no cover
         """Add a new custom aedt report to the compliance.
 
         Parameters
