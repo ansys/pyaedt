@@ -1,4 +1,5 @@
 """This module contains the ``Mechanical`` class."""
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -129,9 +130,6 @@ class Mechanical(FieldAnalysis3D, object):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @pyaedt_function_handler()
     def assign_em_losses(

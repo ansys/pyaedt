@@ -484,7 +484,7 @@ class Desktop(object):
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
 
-        self._connected_designs = 0
+        self._connected_app_instances = 0
 
         """Initialize desktop."""
         self.launched_by_pyaedt = False
@@ -742,12 +742,6 @@ class Desktop(object):
 
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times
-        if settings.remote_rpc_session:
-            try:
-                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
-                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
-            except:
-                return False, "", ""
         self_current_version = self.current_version
         self_current_student_version = self.current_student_version
 
@@ -786,13 +780,16 @@ class Desktop(object):
             )
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
+        self._main.sDesktopinstallDirectory = None
         if specified_version in self.installed_versions:
             self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
-        elif self.port:
-            self.logger.info("Found AEDT Python Client. Setting up a connection to port {}".format(self.port))
-            self._main.sDesktopinstallDirectory = self.installed_versions[specified_version + "CL"]
-        else:
-            raise ValueError("Python client has been found, but no port has been provided.")
+        if settings.remote_rpc_session:
+            try:
+                version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
+                return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
+            except:
+                return False, "", ""
+
         return student_version, specified_version, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
@@ -1461,6 +1458,8 @@ class Desktop(object):
                 except:  # pragma: no cover
                     self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
+        if result:
+            self.logger.info("Desktop has been released")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:

@@ -1,4 +1,5 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
+
 from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
@@ -238,9 +239,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @property
     def design_type(self):

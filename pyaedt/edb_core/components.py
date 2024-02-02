@@ -1,6 +1,7 @@
 """This module contains the `Components` class.
 
 """
+
 import codecs
 import json
 import math
@@ -797,7 +798,7 @@ class Components(object):
                 "Disabling PEC boundary creation, this feature is supported on single pin "
                 "ports only, {} pins found".format(len(pins))
             )
-            group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+            group_name = "group_{}".format(port_name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
             term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
 
@@ -810,7 +811,7 @@ class Components(object):
                 "Disabling PEC boundary creation. This feature is supported on single pin"
                 "ports only {} reference pins found.".format(len(reference_pins))
             )
-            ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
+            ref_group_name = "group_{}_ref".format(port_name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
             ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, term_name=port_name + "_ref")
         else:
@@ -1429,9 +1430,9 @@ class Components(object):
         placement_layer=None,
         component_part_name=None,
         is_rlc=False,
-        r_value=1.0,
-        c_value=1e-9,
-        l_value=1e-9,
+        r_value=0,
+        c_value=0,
+        l_value=0,
         is_parallel=False,
     ):
         """Create a component from pins.
@@ -1483,6 +1484,7 @@ class Components(object):
 
         if isinstance(pins[0], EDBPadstackInstance):
             pins = [i._edb_padstackinstance for i in pins]
+        hosting_component_location = pins[0].GetComponent().GetTransform()
         for pin in pins:
             pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin)
@@ -1493,9 +1495,8 @@ class Components(object):
             new_cmp_layer_name = placement_layer
         new_cmp_placement_layer = self._edb.cell.layer.FindByName(self._layout.layer_collection, new_cmp_layer_name)
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-        hosting_component_location = pins[0].GetComponent().GetTransform()
 
-        if is_rlc:
+        if is_rlc and len(pins) == 2:
             rlc = self._edb.utility.utility.Rlc()
             rlc.IsParallel = is_parallel
             if r_value:

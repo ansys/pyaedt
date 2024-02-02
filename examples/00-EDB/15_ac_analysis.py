@@ -29,16 +29,22 @@ print(targetfile)
 ###############################################################################
 # Configure EDB
 # ~~~~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2024 R1.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2.
 
 edbapp = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
 
-# Generate extended nets. An extended net is a connection between two nets that are usually connected
+###############################################################################
+# Generate extended nets
+# ~~~~~~~~~~~~~~~~~~~~~~
+# An extended net is a connection between two nets that are usually connected
 # through a passive component like a resistor or capacitor.
 
 edbapp.extended_nets.auto_identify_signal(resistor_below=10, inductor_below=1, capacitor_above=1e-9)
 
+###############################################################################
 # Review extended net properties
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Review extended net properties.
 
 diff_p = edbapp.nets["PCIe_Gen4_TX3_CAP_P"]
 diff_n = edbapp.nets["PCIe_Gen4_TX3_CAP_N"]
@@ -54,6 +60,9 @@ rlc_n = list(diff_n.extended_net.rlc.keys())
 
 print(comp_p, rlc_p, comp_n, rlc_n, sep="\n")
 
+###############################################################################
+# Prepare input data for port creation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Prepare input data for port creation.
 
 ports = []
@@ -73,7 +82,10 @@ for net_name, net_obj in diff_n.extended_net.nets.items():
 
 print(*ports, sep="\n")
 
-# Create ports. Solder balls are generated automatically. The default port type is coax port.
+###############################################################################
+# Create ports
+# ~~~~~~~~~~~~
+# Solder balls are generated automatically. The default port type is coax port.
 
 for d in ports:
     port_name = d["port_name"]
@@ -84,7 +96,10 @@ for d in ports:
                                                port_name=port_name
                                                )
 
-# Do a cutout, and delete all irrelevant nets.
+###############################################################################
+# Cutout
+# ~~~~~~
+# Delete all irrelevant nets.
 
 nets = []
 nets.extend(nets_p)
@@ -92,7 +107,11 @@ nets.extend(nets_n)
 
 edbapp.cutout(signal_list=nets, reference_list=["GND"], extent_type="Bounding")
 
-# Create SYZ analysis setup. In this example, SIwave SYZ setup is created.
+
+###############################################################################
+# Create SYZ analysis setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create SIwave SYZ setup.
 
 setup = edbapp.create_siwave_syz_setup("setup1")
 setup.add_frequency_sweep(frequency_sweep=[
@@ -101,7 +120,10 @@ setup.add_frequency_sweep(frequency_sweep=[
                                ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
                                ])
 
-# Save and close EDB.
+###############################################################################
+# Save and close AEDT
+# ~~~~~~~~~~~~~~~~~~~
+# Close AEDT.
 
 edbapp.save()
 edbapp.close_edb()
@@ -109,22 +131,36 @@ edbapp.close_edb()
 ###############################################################################
 # Launch Hfss3dLayout
 # ~~~~~~~~~~~~~~~~~~~
-# To do SYZ analysis, we need to launch HFSS 3D Layout and import EDB into it.
+# To do SYZ analysis, you must launch HFSS 3D Layout and import EDB into it.
 
-h3d = pyaedt.Hfss3dLayout(targetfile, specified_version="2024.1", new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(targetfile, specified_version="2023.2", new_desktop_session=True)
 
-# Define differential pair.
+###############################################################################
+# Set differential pair
+# ~~~~~~~~~~~~~~~~~~~~~
+# Set differential pair.
 
 h3d.set_differential_pair(positive_terminal="U1_PCIe_Gen4_TX3_CAP_P", negative_terminal="U1_PCIe_Gen4_TX3_CAP_N", diff_name="PAIR_U1")
 h3d.set_differential_pair(positive_terminal="X1_PCIe_Gen4_TX3_P", negative_terminal="X1_PCIe_Gen4_TX3_N", diff_name="PAIR_X1")
 
-# Analysis
+###############################################################################
+# Solve and plot results
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Solve and plot the results.
 
 h3d.analyze(num_cores=4)
 
+###############################################################################
+# Create report outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a report.
+
 h3d.post.create_report("dB(S(PAIR_U1,PAIR_U1))", context="Differential Pairs")
 
-# Save and close the project
+###############################################################################
+# Close AEDT
+# ~~~~~~~~~~
+# Close AEDT.
 
 h3d.save_project()
 print("Project is saved to {}".format(h3d.project_path))

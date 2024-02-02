@@ -1,4 +1,5 @@
 """This module contains the ``MaxwellCircuit`` class."""
+
 from __future__ import absolute_import  # noreorder
 
 import math
@@ -204,6 +205,3 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             return file_to_export
         except:
             return False
-
-    def __enter__(self):
-        return self

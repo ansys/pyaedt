@@ -1,4 +1,5 @@
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -81,9 +82,6 @@ class QExtractor(FieldAnalysis3D, object):
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
-
-    def __enter__(self):
-        return self
 
     @property
     def excitations(self):
@@ -1423,7 +1421,7 @@ class Q3d(QExtractor, object):
                 net_id = i.props.get("ID", None)  # pragma: no cover
                 break  # pragma: no cover
         for i in self.boundaries:
-            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
                 sinks.append(i.name)
         return sinks
 

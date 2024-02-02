@@ -4,6 +4,7 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 import ast
@@ -2350,10 +2351,17 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
 
-        self.ofieldsreporter.ClcEval(solution, variation_dict)
-        value = self.ofieldsreporter.GetTopEntryValue(solution, variation_dict)
+        file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
+        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
+        value = None
+        if os.path.exists(file_name) or settings.remote_rpc_session:
+            with open_file(file_name, "r") as f:
+                lines = f.readlines()
+                lines = [line.strip() for line in lines]
+                value = lines[-1]
+            os.remove(file_name)
         self.ofieldsreporter.CalcStack("clear")
-        return float(value[0])
+        return float(value)
 
     @pyaedt_function_handler()
     def export_field_file_on_grid(
@@ -2569,6 +2577,9 @@ class PostProcessor(PostProcessorCommon, object):
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
+            if not self._app.existing_analysis_sweeps:
+                self.logger.error("There are no existing sweeps.")
+                return False
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
@@ -2581,55 +2592,56 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.EnterQty(quantity_name)
         except:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+
         if not variation_dict:
-            if not sample_points_file and not sample_points_lists:
-                if obj_type == "Vol":
-                    self.ofieldsreporter.EnterVol(obj_list)
-                elif obj_type == "Surf":
-                    self.ofieldsreporter.EnterSurf(obj_list)
-                else:
-                    self.logger.error("No correct choice.")
-                    return False
-                self.ofieldsreporter.CalcOp("Value")
-                variation_dict = self._app.available_variations.nominal_w_values
-            else:
-                variations = self._app.available_variations.nominal_w_values_dict
-                variation_dict = []
-                for el, value in variations.items():
-                    variation_dict.append(el + ":=")
-                    variation_dict.append(value)
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
-                variation_dict.append("Time:=")
-                variation_dict.append(intrinsics)
+                variation.append("Time:=")
+                variation.append(intrinsics)
             else:
-                variation_dict.append("Freq:=")
-                variation_dict.append(intrinsics)
-                variation_dict.append("Phase:=")
+                variation.append("Freq:=")
+                variation.append(intrinsics)
+                variation.append("Phase:=")
                 if phase:
-                    variation_dict.append(phase)
+                    variation.append(phase)
                 else:
-                    variation_dict.append("0deg")
+                    variation.append("0deg")
         if not sample_points_file and not sample_points_lists:
-            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation_dict)
+            if obj_type == "Vol":
+                self.ofieldsreporter.EnterVol(obj_list)
+            elif obj_type == "Surf":
+                self.ofieldsreporter.EnterSurf(obj_list)
+            else:
+                self.logger.error("No correct choice.")
+                return False
+            self.ofieldsreporter.CalcOp("Value")
+            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation)
         elif sample_points_file:
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
-                variation_dict,
+                variation,
                 export_with_sample_points,
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open_file(sample_points_file, "w") as f:
+                f.write("Unit={}\n".format(self.model_units))
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
-                variation_dict,
+                variation,
                 export_with_sample_points,
             )
 

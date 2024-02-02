@@ -106,7 +106,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> import pyaedt
     >>> edb_path = "/path/to/edbfile.aedb"
     >>> edb = pyaedt.Edb(edb_path, edbversion=231)
-    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
     >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
@@ -147,9 +147,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @pyaedt_function_handler()
     def create_edge_port(
@@ -1049,8 +1046,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ``save_fields=True``. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
-            ``"Interpolating"``, and ``"Discrete"``.  The default is
-            ``"Interpolating"``.
+            ``"Interpolating"``, and ``"Discrete"``.
+            The default is ``"Interpolating"``.
         interpolation_tol_percent : float, optional
             Error tolerance threshold for the interpolation
             process. The default is ``0.5``.
@@ -1096,7 +1093,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep = setupdata.add_sweep(sweepname=sweepname, sweeptype=sweep_type)
                 if not sweep:
                     return False
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
