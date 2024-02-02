@@ -17,7 +17,7 @@ For additional practical demonstrations, see
             :link-type: doc
             :margin: 2 2 0 0
             
-            How to launch Electronics Desktop and create a project.
+            How to launch AEDT and create a project.
 
    .. grid-item-card:: Modeler
             :link: modeler
