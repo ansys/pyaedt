@@ -2592,13 +2592,15 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.EnterQty(quantity_name)
         except:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+
         if not variation_dict:
-            variation = self._app.available_variations.nominal_w_values
-        else:
-            variation = []
-            for el, value in variation_dict.items():
-                variation.append(el + ":=")
-                variation.append(value)
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
                 variation.append("Time:=")
