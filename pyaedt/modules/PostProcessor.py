@@ -624,7 +624,7 @@ class Reports(object):
             For AMI Analysis only, whether to plot the statistical eye plot or transient eye plot.
             The default is ``True``.
         unit_interval : str, optional
-            Eye diagram unit interval.
+            Unit interval for the eye diagram.
 
         Returns
         -------
