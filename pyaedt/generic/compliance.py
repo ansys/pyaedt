@@ -296,7 +296,7 @@ class VirtualCompliance:
         if os.path.exists(viol):
             try:  # pragma: no cover
                 import pandas as pd
-            except ImportError:
+            except ImportError:  # pragma: no cover
                 return
             file_in = pd.read_table(viol, header=0)
 
