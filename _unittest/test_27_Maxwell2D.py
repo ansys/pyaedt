@@ -541,3 +541,27 @@ class TestClass:
         setup = m2d.create_setup(setuptype=m2d.solution_type)
         assert setup
         setup.delete()
+
+    def test_36_design_excitations_by_type(self):
+        coils = self.aedtapp.excitations_by_type["Coil"]
+        assert coils
+        assert len(coils) == len([bound for bound in self.aedtapp.design_excitations if bound.type == "Coil"])
+        currents = self.aedtapp.excitations_by_type["Current"]
+        assert currents
+        assert len(currents) == len([bound for bound in self.aedtapp.design_excitations if bound.type == "Current"])
+        wdg_group = self.aedtapp.excitations_by_type["Winding Group"]
+        assert wdg_group
+        assert len(wdg_group) == len(
+            [bound for bound in self.aedtapp.design_excitations if bound.type == "Winding Group"]
+        )
+
+    def test_37_boundaries_by_type(self):
+        coils = self.aedtapp.boundaries_by_type["Coil"]
+        assert coils
+        assert len(coils) == len([bound for bound in self.aedtapp.boundaries if bound.type == "Coil"])
+        currents = self.aedtapp.boundaries_by_type["Current"]
+        assert currents
+        assert len(currents) == len([bound for bound in self.aedtapp.boundaries if bound.type == "Current"])
+        wdg_group = self.aedtapp.boundaries_by_type["Winding Group"]
+        assert wdg_group
+        assert len(wdg_group) == len([bound for bound in self.aedtapp.boundaries if bound.type == "Winding Group"])
