@@ -586,7 +586,7 @@ class Reports(object):
         >>> new_eye.create()
 
         """
-        if not setup_name:
+        if not setup_name:  # pragma: no cover
             for setup in self._post_app._app.setups:
                 if "AMIAnalysis" in setup.props:
                     setup_name = setup.name
