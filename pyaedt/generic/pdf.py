@@ -249,7 +249,7 @@ class AnsysReport(FPDF):
         elif design.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             stats = design.modeler.edb.get_statistics()
             msg = f"The layout has {stats.num_capacitors} capacitors, {stats.num_resistors} resistors,"
-            msg += f"{stats.num_inductors} inductors. The Design size is {stats.layout_size}."
+            msg += f"{stats.num_inductors} inductors. The design size is {stats.layout_size}."
             self.add_text(msg)
             msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
             msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
