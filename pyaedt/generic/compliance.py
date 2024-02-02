@@ -182,7 +182,7 @@ class VirtualCompliance:
                                 width=pdf_report.epw - 10,
                             )
                             sleep_time = 0
-                        except Exception:
+                        except Exception:  # pragma: no cover
                             time.sleep(1)
                             sleep_time -= 1
                     if pass_fail:
