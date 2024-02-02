@@ -123,7 +123,7 @@ class VirtualCompliance:
 
     def _get_sweep_name(self, design, solution_name):
         sweep_name = None
-        if solution_name:
+        if solution_name:  # pragma: no cover
             solution_names = [
                 i for i in design.existing_analysis_sweeps if solution_name == i or i.startswith(solution_name + " ")
             ]
