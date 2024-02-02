@@ -235,7 +235,7 @@ class AnsysReport(FPDF):
             "Maxwell 2D",
             "2D Extractor",
         ]:
-            msg = f"Simulation Bounding box is {design.modeler.get_model_bounding_box()}."
+            msg = f"Simulation bounding box is {design.modeler.get_model_bounding_box()}."
             self.add_text(msg)
             image_path = os.path.join(design.working_directory, "model.jpg")
             design.plot(
