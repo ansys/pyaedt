@@ -55,7 +55,7 @@ class VirtualCompliance:
                     self._add_project_info = self.local_config["general"].get("add_project_info", True)
                     self._add_specs_info = self.local_config["general"].get("add_specs_info", False)
                     self._specs_folder = self.local_config["general"].get("specs_folder", "")
-                    if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
+                    if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):  # pragma: no cover
                         self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
                     self._template_name = self.local_config["general"].get("name", "Compliance")
                     self._project_file = self.local_config["general"].get("project", None)
