@@ -81,7 +81,7 @@ class VirtualCompliance:
             if hatch_above:
                 if db_value >= test_value:
                     return db_value
-            elif db_value <= test_value:
+            elif db_value <= test_value:  # pragma: no cover
                 return db_value
         return None
 
