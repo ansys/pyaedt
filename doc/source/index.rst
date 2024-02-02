@@ -30,7 +30,7 @@ enabling straightforward and efficient automation in your workflow.
         :link: API/index
         :link-type: doc
 
-        Contains descriptions of the functions and modules included in PyAEDT.
+        This section contains descriptions of the functions and modules included in PyAEDT.
         It describes how the methods work and the parameter that can be used.
 
     .. grid-item-card::  EDB API reference :fa:`book-bookmark`
