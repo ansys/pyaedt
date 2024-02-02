@@ -279,11 +279,18 @@ class TestClass:
         fld_file_3 = os.path.join(self.icepak_app.working_directory, "test_fld_3.fld")
         self.icepak_app.post.export_field_file(quantity_name='Temp',
                                                solution=self.icepak_app.nominal_sweep,
+                                               variation_dict={},
+                                               filename=fld_file_3,
+                                               obj_list='box',
+                                               intrinsics="1GHz",
+                                               phase="1deg")
+        assert os.path.exists(fld_file_3)
+        self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                               solution=self.icepak_app.nominal_sweep,
                                                variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
                                                filename=fld_file_3,
                                                obj_list='box',
-                                               phase="1deg")
-        assert os.path.exists(fld_file_3)
+                                               intrinsics="1")
         fld_file_4 = os.path.join(self.icepak_app.working_directory, "test_fld_3.fld")
         self.icepak_app.post.export_field_file(quantity_name='Temp',
                                                solution=self.icepak_app.nominal_sweep,
@@ -298,6 +305,16 @@ class TestClass:
                                                           filename=fld_file_4,
                                                           obj_list='box',
                                                           obj_type="invalid")
+        setup = self.icepak_app.setups[0]
+        self.icepak_app.setups[0].delete()
+        assert not self.icepak_app.post.export_field_file(quantity_name='Temp',
+                                                          variation_dict={},
+                                                          filename=fld_file,
+                                                          obj_list='box')
+        new_setup = self.icepak_app.create_setup(setupname=setup.name,
+                                                 setuptype=setup.setuptype)
+        new_setup.props = setup.props
+        new_setup.update()
 
     def test_04a_3dl_generate_mesh(self):
         assert self.hfss3dl_solve.mesh.generate_mesh("Setup1")
