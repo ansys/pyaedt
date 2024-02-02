@@ -4,6 +4,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 import pytest
 
+from pyaedt import Circuit
 from pyaedt.generic.compliance import VirtualCompliance
 from pyaedt.generic.pdf import AnsysReport
 
@@ -19,7 +20,7 @@ def desktop():
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(test_project_name, subfolder=test_subfolder)
+    app = add_app(test_project_name, application=Circuit, subfolder=test_subfolder)
     return app
 
 
