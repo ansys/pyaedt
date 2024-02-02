@@ -270,7 +270,7 @@ class AnsysReport(FPDF):
 
     @property
     def template_name(self):
-        """Get/set the template to use.
+        """Name of the template to use.
         It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
 
