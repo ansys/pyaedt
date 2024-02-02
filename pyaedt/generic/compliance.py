@@ -421,7 +421,7 @@ class VirtualCompliance:
                 self._specs_folder,
             )
             for file in file_list:
-                if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:
+                if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:  # pragma: no cover
                     # noinspection PyBroadException
                     try:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
