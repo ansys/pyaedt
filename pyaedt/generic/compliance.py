@@ -423,7 +423,7 @@ class VirtualCompliance:
             for file in file_list:
                 if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:  # pragma: no cover
                     # noinspection PyBroadException
-                    try:
+                    try:  # pragma: no cover
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
                     except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
