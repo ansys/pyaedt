@@ -420,7 +420,11 @@ class VirtualCompliance:
             )
             for file in file_list:
                 if os.path.splitext(file)[1] in [".jpg", ".png", ".gif"]:
-                    report.add_image(file)
+                    try:
+                        caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
+                    except:  # pragma: no cover
+                        caption = os.path.split(file)[-1]
+                    report.add_image(file, caption=caption)
 
         self._create_aedt_reports(report)
         if self._add_project_info:
