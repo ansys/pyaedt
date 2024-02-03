@@ -1,49 +1,44 @@
-"""
-Multiphysics: HFSS-Mechanical MRI analysis
----------------------------------------------------
-The goal of this workshop is to use a coil tuned to 63.8 MHz to determine the temperature
-rise in a gel phantom near an implant given a background SAR of 1 W/kg.
+# # Multiphysics: HFSS-Mechanical MRI analysis
+#
+# The goal of this workshop is to use a coil tuned to 63.8 MHz to determine the temperature
+# rise in a gel phantom near an implant given a background SAR of 1 W/kg.
+# 
+# Steps to follow
+# Step 1: Simulate coil loaded by empty phantom:
+# Scale input to coil ports to produce desired background SAR of 1 W/kg at location that will later contain the implant.
+# Step 2: Simulate coil loaded by phantom containing implant in proper location:
+# View SAR in tissue surrounding implant.
+# Step 3: Thermal simulation:
+# Link HFSS to transient thermal solver to find temperature rise in tissue near implant vs. time.
 
-Steps to follow
-Step 1: Simulate coil loaded by empty phantom:
-Scale input to coil ports to produce desired background SAR of 1 W/kg at location that will later contain the implant.
-Step 2: Simulate coil loaded by phantom containing implant in proper location:
-View SAR in tissue surrounding implant.
-Step 3: Thermal simulation:
-Link HFSS to transient thermal solver to find temperature rise in tissue near implant vs. time.
-"""
-
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
 # Perform required imports.
-import os.path
 
+import os.path
 from pyaedt import Hfss, Mechanical, Icepak, downloads
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+# 
 # Set non-graphical mode. `
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Project load
-# ~~~~~~~~~~~~
+# ## Project load
+# 
 # Open the ANSYS Electronics Desktop 2018.2
 # Open project background_SAR.aedt
 # Project contains phantom and airbox
 # Phantom consists of two objects: phantom and implant_box
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain #electrical and thermal properties.
+
 project_path = downloads.download_file(directory="mri")
 hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version="2023.2", non_graphical=non_graphical,
             new_desktop_session=True)
-###############################################################################
-# Insert 3D component
-# ~~~~~~~~~~~~~~~~~~~
+
+# ## Insert 3D component
+# 
 # The MRI Coil is saved as a separate 3D Component
 # ‒ 3D Components store geometry (including parameters),
 # material properties, boundary conditions, mesh assignments,
@@ -52,14 +47,14 @@ hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version
 
 hfss.modeler.insert_3d_component(os.path.join(project_path, "coil.a3dcomp"))
 
-###############################################################################
-# Expression Cache
-# ~~~~~~~~~~~~~~~~~
+# ## Expression Cache
+# 
 #  On the expression cache tab, define additional convergence criteria for self impedance of the four coil
 # ports
 # ‒ Set each of these convergence criteria to 2.5 ohm
 # For this demo number of passes is limited to 2 to reduce simulation time.
 
+# +
 im_traces = hfss.get_traces_for_plot(get_mutual_terms=False, category="im(Z", first_element_filter="Coil1_p*")
 
 hfss.setups[0].enable_expression_cache(
@@ -71,6 +66,7 @@ hfss.setups[0].enable_expression_cache(
     use_cache_for_freq=False)
 hfss.setups[0].props["MaximumPasses"] = 2
 im_traces
+# -
 
 ###############################################################################
 # Edit Sources
