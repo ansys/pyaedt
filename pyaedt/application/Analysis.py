@@ -77,7 +77,7 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    new_desktop_session : bool
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
@@ -1195,7 +1195,7 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setuptype, name)
         elif setuptype == 4:
             setup = SetupSBR(self, setuptype, name)
-        elif setuptype in [5, 6, 7, 8, 9, 10, 56]:
+        elif setuptype in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
             setup = SetupMaxwell(self, setuptype, name)
         elif setuptype in [14]:
             setup = SetupQ3D(self, setuptype, name)
