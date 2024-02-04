@@ -1,12 +1,10 @@
-"""
-EMIT: Compute receiver protection levels
-----------------------------------------
-This example shows how you can use PyAEDT to open an AEDT project with
-an EMIT design and analyze the results to determine if the received 
-power at the input to each receiver exceeds the specified protection
-levels. 
-"""
-###############################################################################
+# # EMIT: Compute receiver protection levels
+# ----------------------------------------
+# This example shows how you can use PyAEDT to open an AEDT project with
+# an EMIT design and analyze the results to determine if the received
+# power at the input to each receiver exceeds the specified protection
+# levels.
+
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -36,9 +34,8 @@ for package in required_packages:
 # Import required modules
 import plotly.graph_objects as go
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
@@ -49,9 +46,8 @@ non_graphical = False
 new_thread = True
 desktop_version = "2023.2"
 
-###############################################################################
-# Launch AEDT with EMIT
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Launch AEDT with EMIT
+#
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
@@ -62,9 +58,8 @@ if desktop_version <= "2023.1":
 d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
 emitapp = Emit(pyaedt.generate_unique_project_name())
 
-###############################################################################
-# Specify the protection levels
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Specify the protection levels
+#
 # The protection levels are specified in dBm.
 # If the damage threshold is exceeded, permanent damage to the receiver front
 # end may occur.
@@ -82,18 +77,16 @@ desense_threshold = -104
 
 protection_levels = [damage_threshold, overload_threshold, intermod_threshold, desense_threshold]
 
-###############################################################################
-# Create and connect EMIT components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create and connect EMIT components
+#
 # Set up the scenario with radios connected to antennas.
 
 bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 gps, gps_ant = emitapp.modeler.components.create_radio_antenna("GPS Receiver", "GPS")
 wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012", "WiFi")
 
-###############################################################################
-# Configure the radios
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Configure the radios
+#
 # Enable the HR-DSSS bands for the Wi-Fi radio and set the power level
 # for all transmit bands to -20 dBm.
 
@@ -132,16 +125,14 @@ for band in bands:
         else:
             band.enabled=False
 
-###############################################################################
-# Load the results set
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Load the results set
+#
 # Create a results revision and load it for analysis.
 
 rev = emitapp.results.analyze()
 
-###############################################################################
-# Generate a legend
-# ~~~~~~~~~~~~~~~~~
+# ## Generate a legend
+#
 # Define the thresholds and colors used to display the results of 
 # the protection level analysis.
 
@@ -177,9 +168,8 @@ def create_legend_table():
         )
     fig.show()
 
-###############################################################################
-# Create a scenario matrix view
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create a scenario matrix view
+#
 # Create a scenario matrix view with the transmitters defined across the top
 # and receivers down the left-most column. The power at the input to each
 # receiver is shown in each cell of the matrix and color-coded based on the
@@ -221,9 +211,8 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
         )
     fig.show()
 
-###############################################################################
-# Get all the radios in the project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Get all the radios in the project
+#
 # Get lists of all transmitters and receivers in the project.
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = emitapp.results.current_revision
@@ -231,9 +220,8 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)
     domain = emitapp.results.interaction_domain()
 
-###############################################################################
-# Classify the results
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Classify the results
+#
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
@@ -249,9 +237,8 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     # Create a legend for the protection levels
     create_legend_table()
 
-###############################################################################
-# Save project and close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.

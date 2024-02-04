@@ -1,13 +1,11 @@
-"""
-EMIT: HFSS to EMIT coupling
----------------------------
-This example shows how you can use PyAEDT to open an AEDT project with
-an HFSS design, create an EMIT design in the project, and link the HFSS design
-as a coupling link in the EMIT design.
-"""
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # EMIT: HFSS to EMIT coupling
+#
+# This example shows how you can use PyAEDT to open an AEDT project with
+# an HFSS design, create an EMIT design in the project, and link the HFSS design
+# as a coupling link in the EMIT design.
+
+# ## Perform required imports
+#
 # Perform required imports.
 #
 # sphinx_gallery_thumbnail_path = "Resources/emit_hfss.png"
@@ -19,9 +17,8 @@ import pyaedt
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
-###############################################################################
-## Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
@@ -34,9 +31,8 @@ NewThread = True
 desktop_version = "2023.2"
 scratch_path = pyaedt.generate_unique_folder_name()
 
-###############################################################################
-# Launch AEDT with EMIT
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Launch AEDT with EMIT
+#
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
@@ -57,7 +53,6 @@ example_project = os.path.join(example_dir, example_aedt)
 example_results_folder = os.path.join(example_dir, example_results)
 example_pdf = os.path.join(example_dir, example_pdf_file)
 
-########################################################################################################
 # If the ``Cell Phone RFT Defense`` example is not
 # in the installation directory, exit from this example.
 
@@ -89,17 +84,15 @@ with Scratch(scratch_path) as local_scratch:
 
 aedtapp = pyaedt.Emit(my_project)
 
-###############################################################################
-# Create and connect EMIT components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create and connect EMIT components
+#
 # Create two radios with antennas connected to each one.
 
 rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
 rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
 
-###############################################################################
-# Define coupling among RF systems
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Define coupling among RF systems
+#
 # Define coupling among the RF systems.
 
 for link in aedtapp.couplings.linkable_design_names:
@@ -108,9 +101,8 @@ for link in aedtapp.couplings.linkable_design_names:
 for link in aedtapp.couplings.coupling_names:
     aedtapp.couplings.update_link(link)
 
-###############################################################################
-# Run EMIT simulation
-# ~~~~~~~~~~~~~~~~~~~
+# ## Run EMIT simulation
+#
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
@@ -128,11 +120,10 @@ if desktop_version > "2023.1":
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-###############################################################################
-# Save project and close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# `pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 aedtapp.save_project()
