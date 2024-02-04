@@ -1,22 +1,18 @@
-"""
-Twin Builder: wiring a rectifier with a capacitor filter
----------------------------------------------------------
-This example shows how you can use PyAEDT to create a Twin Builder design
-and run a Twin Builder time-domain simulation.
-"""
+# # Twin Builder: wiring a rectifier with a capacitor filter
+#
+# This example shows how you can use PyAEDT to create a Twin Builder design
+# and run a Twin Builder time-domain simulation.
 
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports.
 
 import math
 import matplotlib.pyplot as plt
 import pyaedt
 
-###############################################################################
-# Select version and set launch options
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Select version and set launch options
+#
 # Select the Twin Builder version and set the launch options. The following code
 # launches Twin Builder 2023 R2 in graphical mode.
 #
@@ -29,9 +25,8 @@ desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
 
-###############################################################################
-# Launch Twin Builder
-# ~~~~~~~~~~~~~~~~~~~
+# ## Launch Twin Builder
+#
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
@@ -41,9 +36,8 @@ tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
                         new_desktop_session=new_thread
                         )
 
-###############################################################################
-# Create components for bridge rectifier
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create components for bridge rectifier
+#
 # Create components for a bridge rectifier with a capacitor filter.
  
 # Define the grid distance for ease in calculations.
@@ -73,9 +67,8 @@ resistor = tb.modeler.schematic.create_resistor(compname="RL", value=100000, loc
 
 gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
 
-###############################################################################
-# Connect components
-# ~~~~~~~~~~~~~~~~~~
+# ## Connect components
+#
 # Connect components with wires.
 
 # Wire the diode bridge.
@@ -104,24 +97,21 @@ tb.modeler.schematic.create_wire(points_array=[gnd.pins[0].location, [5 * G, 0],
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()
 
-###############################################################################
-# Parametrize transient setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Parametrize transient setup
+#
 # Parametrize the default transient setup by setting the end time.
 
 tb.set_end_time("100ms")
 
-###############################################################################
-# Solve transient setup
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Solve transient setup
+#
 # Solve the transient setup.
 
 tb.analyze_setup("TR")
 
 
-###############################################################################
-# Get report data and plot using Matplotlib
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Get report data and plot using Matplotlib
+#
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the voltage on the pulse voltage source and the values for the
 # voltage on the capacitor in the RC circuit.
@@ -139,9 +129,8 @@ plt.xlabel("Time")
 plt.ylabel("AC to DC Conversion using Rectifier")
 plt.show()
 
-###############################################################################
-# Close Twin Builder
-# ~~~~~~~~~~~~~~~~~~
+# ## Close Twin Builder
+#
 # After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
