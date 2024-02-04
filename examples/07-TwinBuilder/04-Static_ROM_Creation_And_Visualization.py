@@ -1,11 +1,10 @@
-# # Twin Builder: static ROM creation and simulation (2023 R2 beta)
+# # Twin Builder: Static ROM
 #
 # This example shows how you can use PyAEDT to create a static ROM in Twin Builder
 # and run a Twin Builder time-domain simulation.
 #
-# > _Note:_ This example uses functionality only
+# > **Note:** This example uses functionality only
 # > available in Twin Builder 2023 R2 and later.
-# > For 2023 R2, the build date must be 8/7/2022 or later.
 
 # ## Perform required imports
 #
@@ -37,20 +36,23 @@ new_thread = True
 
 # ## Set up input data
 #
-# Define needed file name
+# The following files will be downloaded along with the 
+# other project data used to run this example.
 
 source_snapshot_data_zipfilename = "Ex1_Fluent_StaticRom.zip"
 source_build_conf_file = "SROMbuild.conf"
 source_props_conf_file = "SROM_props.conf"
 
-# Download data from example_data repository
+# ## Download Example Data
+#
+# The following cell downloads the required files needed to run this example and extracts them in a local folder ``"Ex04"``
+
+# +
 source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True)
 source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True)
 source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
 
-# Uncomment the following line for local testing 
-# source_data_folder = "D:\\Scratch\\TempStatic"
-
+# Target folder to extract project files.
 data_folder = os.path.join(source_data_folder, "Ex04")
 
 # Unzip training data and config file
@@ -59,25 +61,33 @@ shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
                 os.path.join(data_folder, source_build_conf_file))
 shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
                 os.path.join(data_folder, source_props_conf_file))
+# -
 
 # ## Launch Twin Builder and build ROM component
 #
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
-# +
 tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version,
                  non_graphical=non_graphical, new_desktop_session=new_thread)
 
-# Switch the current desktop configuration and the schematic environment to "Twin Builder".
-# The Static ROM feature is only available with a twin builder license.
-# This and the restoring section at the end are not needed if the desktop is already configured as "Twin Builder".
+# ## Desktop Configuration
+#
+# > **Note:** Only run following cell if AEDT is not configured to run _"Twin Builder"_.
+# > 
+# > The following cell configures Electronics Desktop (AEDT) and the schematic editor 
+# > to use the _"Twin Builder"_ confguration.
+# > The Static ROM feature is only available with a Twin Builder license.
+# > A cell at the end of this example restores the AEDT configuration. If your
+# > environment is set up
+# > to use the _"Twin Builder"_ configuration, you do not need to run these sections._
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
 tb._odesktop.SetDesktopConfiguration("Twin Builder")
 tb._odesktop.SetSchematicEnvironment(1)
 
+# +
 # Get the static ROM builder object
 rom_manager = tb._odesign.GetROMManager()
 static_rom_builder = rom_manager.GetStaticROMBuilder()
@@ -101,6 +111,7 @@ rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'), 'staticrom')
 #
 # Place components to create a schematic.
 
+# +
 # Define the grid distance for ease in calculations
 G = 0.00254
 
@@ -110,6 +121,7 @@ rom1 = tb.modeler.schematic.create_component("ROM1", "", "staticrom", [40 * G, 2
 # Place two excitation sources
 source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G])
 source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 50, 0.02, 0, 450, 0, [20 * G, 25 * G])
+# -
 
 # Connect components with wires
 
@@ -145,6 +157,8 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
+
+
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     e_value = "ROM1.outfield_mode_1"
     x = tb.post.get_solution_data(e_value, "TR", "Time")

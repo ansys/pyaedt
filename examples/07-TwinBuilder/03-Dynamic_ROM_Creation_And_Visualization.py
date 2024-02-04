@@ -1,11 +1,10 @@
-# # Twin Builder: dynamic ROM creation and simulation (2023 R2 beta)
+# # Twin Builder: Dynamic ROM
 #
 # This example shows how you can use PyAEDT to create a dynamic ROM in Twin Builder
 # and run a Twin Builder time-domain simulation.
 #
-# > _Note:_ This example uses functionality only available in Twin
+# > **Note:** This example uses functionality only available in Twin
 # > Builder 2023 R2 and later.
-# > For 2023 R2, the build date must be 8/7/2022 or later.
 
 
 # ## Perform required imports
@@ -64,9 +63,18 @@ shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.pat
 
 tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
-# Switch the current desktop configuration and the schematic environment to "Twin Builder".
-# The Dynamic ROM feature is only available with a twin builder license.
-# This and the restoring section at the end are not needed if the desktop is already configured as "Twin Builder".
+# ## Desktop Configuration
+#
+# > **Note:** Only run following cell if AEDT is not configured to run _"Twin Builder"_.
+# > 
+# > The following cell configures Electronics Desktop (AEDT) and the schematic editor 
+# > to use the _"Twin Builder"_ confguration.
+# > The dynamic ROM feature is only available with a Twin Builder license.
+# > A cell at the end of this example restores the AEDT configuration. If your
+# > environment is set up
+# > to use the _"Twin Builder"_ configuration, you do not need to run these sections.
+# > 
+
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
 tb._odesktop.SetDesktopConfiguration("Twin Builder")
@@ -94,7 +102,7 @@ rom_manager.CreateROMComponent(dynamic_rom_path.replace('\\', '/'),'dynarom')
 # ## Create schematic
 #
 # Place components to create a schematic.
- 
+
 # Define the grid distance for ease in calculations
 
 G = 0.00254
