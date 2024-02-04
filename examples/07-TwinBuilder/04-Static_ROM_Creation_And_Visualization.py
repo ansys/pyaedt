@@ -1,17 +1,14 @@
-"""
-Twin Builder: static ROM creation and simulation (2023 R2 beta)
----------------------------------------------------------------
-This example shows how you can use PyAEDT to create a static ROM in Twin Builder
-and run a Twin Builder time-domain simulation.
+# # Twin Builder: static ROM creation and simulation (2023 R2 beta)
+#
+# This example shows how you can use PyAEDT to create a static ROM in Twin Builder
+# and run a Twin Builder time-domain simulation.
+#
+# > _Note:_ This example uses functionality only
+# > available in Twin Builder 2023 R2 and later.
+# > For 2023 R2, the build date must be 8/7/2022 or later.
 
-.. note::
-    This example uses functionality only available in Twin Builder 2023 R2 and later.
-    For 2023 R2, the build date must be 8/7/2022 or later. 
-"""
-
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports.
 
 import os
@@ -24,9 +21,8 @@ from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
 from pyaedt import settings
 
-###############################################################################
-# Select version and set launch options
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Select version and set launch options
+#
 # Select the Twin Builder version and set launch options. The following code
 # launches Twin Builder 2023 R2 in graphical mode.
 #
@@ -38,9 +34,9 @@ from pyaedt import settings
 desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
-###############################################################################
-# Set up input data
-# ~~~~~~~~~~~~~~~~~
+
+# ## Set up input data
+#
 # Define needed file name
 
 source_snapshot_data_zipfilename = "Ex1_Fluent_StaticRom.zip"
@@ -64,18 +60,19 @@ shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
 shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
                 os.path.join(data_folder, source_props_conf_file))
 
-###############################################################################
-# Launch Twin Builder and build ROM component
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Launch Twin Builder and build ROM component
+#
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
+# +
 tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version,
                  non_graphical=non_graphical, new_desktop_session=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Static ROM feature is only available with a twin builder license.
 # This and the restoring section at the end are not needed if the desktop is already configured as "Twin Builder".
+
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
 tb._odesktop.SetDesktopConfiguration("Twin Builder")
@@ -98,10 +95,10 @@ else:
 
 # Create the ROM component definition in Twin Builder
 rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'), 'staticrom')
+# -
 
-###############################################################################
-# Create schematic
-# ~~~~~~~~~~~~~~~~
+# ## Create schematic
+#
 # Place components to create a schematic.
 
 # Define the grid distance for ease in calculations
@@ -128,26 +125,23 @@ rom1.set_property("view2_storage_period", "10s")
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()
 
-###############################################################################
-# Parametrize transient setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Parametrize transient setup
+#
 # Parametrize the default transient setup by setting the end time.
 
 tb.set_end_time("300s")
 tb.set_hmin("1s")
 tb.set_hmax("1s")
 
-###############################################################################
-# Solve transient setup
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Solve transient setup
+#
 # Solve the transient setup. Skipping in case of documentation build.
 
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     tb.analyze_setup("TR")
 
-###############################################################################
-# Get report data and plot using Matplotlib
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Get report data and plot using Matplotlib
+#
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
@@ -166,9 +160,8 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     x.plot()
 
 
-###############################################################################
-# Close Twin Builder
-# ~~~~~~~~~~~~~~~~~~
+# ## Close Twin Builder
+#
 # After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
