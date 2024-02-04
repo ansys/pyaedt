@@ -1,29 +1,25 @@
-"""
-Circuit: schematic subcircuit management
-----------------------------------------
-This example shows how you can use PyAEDT to add a subcircuit to a circuit design.
-It pushes down the child subcircuit and pops up to the parent design.
-"""
-##########################################################
-# Perform required import
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# # Circuit: schematic subcircuit management
+#
+# This example shows how you can use PyAEDT to add a subcircuit to a circuit design.
+# It pushes down the child subcircuit and pops up to the parent design.
+
+# ## Perform required import
+#
 # Perform the required import.
 
 import os
 import pyaedt
 
 
-##########################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
-###############################################################################
-# Launch AEDT with Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Launch AEDT with Circuit
+#
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
 circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
@@ -33,9 +29,8 @@ circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
                          )
 circuit.modeler.schematic_units = "mil"
 
-###############################################################################
-# Add subcircuit
-# ~~~~~~~~~~~~~~
+# ## Add subcircuit
+#
 # Add a new subcircuit to the previously created circuit design, creating a
 # child circuit. Push this child circuit down into the child subcircuit.
 
@@ -43,9 +38,8 @@ subcircuit = circuit.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
 subcircuit_name = subcircuit.composed_name
 circuit.push_down(subcircuit)
 
-###############################################################################
-# Parametrize subcircuit
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Parametrize subcircuit
+#
 # Parametrize the subcircuit and add a resistor, inductor, and a capacitor with
 # the parameter values in the following code example. Connect them in series
 # and then use the ``pop_up`` # method to get back to the parent design.
@@ -62,9 +56,8 @@ circuit.modeler.schematic.connect_components_in_series(components_to_connect=[p1
 circuit.pop_up()
 
 
-###############################################################################
-# Release AEDT
-# ~~~~~~~~~~~~
+# ## Release AEDT
+#
 # Release AEDT.
 
 circuit.release_desktop(True, True)

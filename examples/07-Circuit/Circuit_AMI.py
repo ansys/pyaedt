@@ -1,12 +1,9 @@
-"""
-Circuit: AMI PostProcessing
-----------------------------------
-This example shows how you can use PyAEDT to perform advanced postprocessing of AMI simulations.
-"""
+# # Circuit: AMI PostProcessing
+#
+# This example shows how you can use PyAEDT to perform advanced postprocessing of AMI simulations.
 
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# # Perform required imports
+#
 # Perform required imports and set the local path to the path for PyAEDT.
 
 # sphinx_gallery_thumbnail_path = 'Resources/spectrum_plot.png'
@@ -21,16 +18,14 @@ import pyaedt
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folder)
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
+# ## Launch AEDT
+#
 # Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
 
 desktopVersion = "2023.2"
 
-##########################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
@@ -39,9 +34,8 @@ desktopVersion = "2023.2"
 non_graphical = False
 NewThread = True
 
-###############################################################################
-# Launch AEDT with Circuit and enable Pandas as the output format
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Launch AEDT with Circuit and enable Pandas as the output format
+#
 # All outputs obtained with the `get_solution_data` method will have the Pandas format.
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
@@ -50,16 +44,14 @@ pyaedt.settings.enable_pandas_output = True
 cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
                      specified_version=desktopVersion, new_desktop_session=NewThread)
 
-###############################################################################
-# Solve AMI setup
-# ~~~~~~~~~~~~~~~
+# ## Solve AMI setup
+#
 # Solve the transient setup.
 
 cir.analyze()
 
-###############################################################################
-# Get AMI report
-# ~~~~~~~~~~~~~~
+# ## Get AMI report
+#
 # Get AMI report data
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
@@ -71,16 +63,14 @@ original_data_value = original_data.full_matrix_real_imag[0]
 original_data_sweep = original_data.primary_sweep_values
 print(original_data_value)
 
-###############################################################################
-# Plot data
-# ~~~~~~~~~
+# ## Plot data
+#
 # Create a plot based on solution data.
 
 fig = original_data.plot()
 
-###############################################################################
-# Sample WaveAfterProbe waveform using receiver clock
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Sample WaveAfterProbe waveform using receiver clock
+#
 # Extract waveform at specific clock time plus half unit interval
 
 probe_name = "b_input_43"
@@ -94,9 +84,8 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
                                                unit_interval=unit_interval, ignore_bits=ignore_bits,
                                                plot_type=plot_type)
 
-###############################################################################
-# Plot waveform and samples
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot waveform and samples
+#
 # Create the plot from a start time to stop time in seconds
 
 tstop = 55e-9
@@ -140,9 +129,8 @@ ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
 plt.show()
 
-###############################################################################
-# Plot Slicer Scatter
-# ~~~~~~~~~~~~~~~~~~~
+# ## Plot Slicer Scatter
+#
 # Create the plot from a start time to stop time in seconds
 
 fig, ax2 = plt.subplots()
@@ -152,9 +140,8 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-###############################################################################
-# Plot scatter histogram
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot scatter histogram
+#
 # Create the plot from a start time to stop time in seconds.
 
 fig, ax4 = plt.subplots()
@@ -164,9 +151,8 @@ ax4.set_ylabel("V")
 ax4.grid()
 plt.show()
 
-###############################################################################
-# Get Transient report
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Get Transient report
+#
 # Get Transient report data
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
@@ -175,9 +161,8 @@ original_data = cir.post.get_solution_data(expressions=plot_name,
                                            setup_sweep_name="NexximTransient", domain="Time",
                                            variations=cir.available_variations.nominal)
 
-###############################################################################
-# Sample waveform using a user-defined clock
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Sample waveform using a user-defined clock
+#
 # Extract waveform at specific clock time plus half unit interval.
 
 original_data.enable_pandas_output = False
@@ -197,9 +182,8 @@ sample_waveform = cir.post.sample_waveform(
     pandas_enabled=False,
 )
 
-###############################################################################
-# Plot waveform and samples
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Plot waveform and samples
+#
 # Create the plot from a start time to stop time in seconds.
 
 tstop = 40.0e-9
@@ -248,9 +232,8 @@ ax.set_xlabel(waveform_sweep_unit)
 ax.set_ylabel(waveform_unit)
 plt.show()
 
-###############################################################################
-# Plot slicer scatter
-# ~~~~~~~~~~~~~~~~~~~
+# ## Plot slicer scatter
+#
 # Create the plot from a start time to stop time in seconds.
 
 sample_waveform_array = np.array(sample_waveform)
@@ -261,9 +244,8 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-###############################################################################
-# Save project and close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and close AEDT
+#
 # Save the project and close AEDT.
 
 cir.save_project()
