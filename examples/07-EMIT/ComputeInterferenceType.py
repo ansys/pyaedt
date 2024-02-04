@@ -1,13 +1,11 @@
-"""
-EMIT: Classify interference type
---------------------------------
-This example shows how you can use PyAEDT to load an existing AEDT 
-project with an EMIT design and analyze the results to classify the
-worst-case interference. 
-"""
-###############################################################################
+# # EMIT: Classify interference type
+# #
+# This example shows how you can use PyAEDT to load an existing AEDT
+# project with an EMIT design and analyze the results to classify the
+# worst-case interference.
+
 # Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+#
 # Perform required imports.
 import sys
 from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
@@ -44,9 +42,8 @@ if desktop_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-###############################################################################
-# Launch AEDT with EMIT
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Launch AEDT with EMIT
+#
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
@@ -58,8 +55,8 @@ desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, ne
 path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
 
-# Get all the radios in the project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Get all the radios in the project
+#
 # Get lists of all transmitters and receivers in the project.
 rev = emitapp.results.analyze()
 tx_interferer = InterfererType().TRANSMITTERS
@@ -72,9 +69,8 @@ if tx_radios is None or rx_radios is None:
     sys.exit()
 
 
-###############################################################################
-# Classify the interference
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Classify the interference
+#
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, type of interference occurred.
@@ -83,9 +79,8 @@ power_matrix=[]
 all_colors=[]
 all_colors, power_matrix = rev.interference_type_classification(domain, use_filter = False, filter_list = [])
 
-###############################################################################
-# Save project and close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
@@ -93,9 +88,8 @@ all_colors, power_matrix = rev.interference_type_classification(domain, use_filt
 emitapp.save_project()
 emitapp.release_desktop()
 
-###############################################################################
-# Create a scenario matrix view
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create a scenario matrix view
+#
 # Create a scenario matrix view with the transmitters defined across the top
 # and receivers down the left-most column. The power at the input to each
 # receiver is shown in each cell of the matrix and color-coded based on the
@@ -145,9 +139,8 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
         )
     fig.show()
 
-###############################################################################
-# Generate a legend
-# ~~~~~~~~~~~~~~~~~
+# ## Generate a legend
+#
 # Define the interference types and colors used to display the results of 
 # the analysis.
 
@@ -183,6 +176,7 @@ def create_legend_table():
         width = 600
         )
     fig.show()
+
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     # Create a scenario view for all the interference types
     create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)

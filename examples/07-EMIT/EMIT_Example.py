@@ -1,12 +1,10 @@
-"""
-EMIT: antenna
----------------------
-This example shows how you can use PyAEDT to create a project in EMIT for
-the simulation of an antenna.
-"""
-###############################################################################
-# Perform required inputs
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# # EMIT: antenna
+#
+# This example shows how you can use PyAEDT to create a project in EMIT for
+# the simulation of an antenna.
+
+# ## Perform required inputs
+#
 # Perform required imports.
 #
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
@@ -16,9 +14,8 @@ import pyaedt
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 
-###############################################################################
-# Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ## Set non-graphical mode
+#
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The ``NewThread`` Boolean variable defines whether to create a new instance
@@ -29,9 +26,8 @@ NewThread = True
 desktop_version = "2023.2"
 
 
-###############################################################################
-# Launch AEDT with EMIT
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Launch AEDT with EMIT
+#
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
@@ -39,9 +35,8 @@ d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
 aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
 
 
-###############################################################################
-# Create and connect EMIT components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Create and connect EMIT components
+#
 # Create three radios and connect an antenna to each one.
 
 rad1 = aedtapp.modeler.components.create_component("New Radio")
@@ -53,16 +48,14 @@ if rad1 and ant1:
 rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")
 rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 
-###############################################################################
-# Define coupling among RF systems
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Define coupling among RF systems
+#
 # Define the coupling among the RF systems. This portion of the EMIT API is not
 # yet implemented.
 
 
-###############################################################################
-# Run EMIT simulation
-# ~~~~~~~~~~~~~~~~~~~
+# ## Run EMIT simulation
+#
 # Run the EMIT simulation. 
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
@@ -80,9 +73,8 @@ if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") !=
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-###############################################################################
-# Save project and close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Save project and close AEDT
+#
 # After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.

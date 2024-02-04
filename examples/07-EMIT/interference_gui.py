@@ -1,11 +1,9 @@
-"""
-EMIT: Classify interference type GUI
-----------------------------------------
-This example uses a GUI to open an AEDT project with
-an EMIT design and analyze the results to classify the
-worst-case interference. 
-"""
-###############################################################################
+# # EMIT: Classify interference type GUI
+# ----------------------------------------
+# This example uses a GUI to open an AEDT project with
+# an EMIT design and analyze the results to classify the
+# worst-case interference.
+
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -44,13 +42,16 @@ from PySide6 import QtWidgets, QtUiTools, QtGui, QtCore
 from openpyxl.styles import PatternFill
 import openpyxl
 
+
 # Uncomment if there are Qt plugin errors
 # import PySide6
 # dirname = os.path.dirname(PySide6.__file__)
 # plugin_path = os.path.join(dirname, 'plugins', 'platforms')
 # os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
-
+#
 # Launch EMIT
+
+# +
 non_graphical = False
 new_thread = True
 desktop = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thread)
@@ -64,6 +65,11 @@ api = EmitApiPython.EmitApi()
 # Define .ui file for GUI
 ui_file = pyaedt.downloads.download_file("emit", "interference_gui.ui")
 Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
+# -
+
+# ### Create a simpl QT UI
+#
+# Build a simple UI using QT.
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, decimals, values, max_power, min_power):
@@ -104,9 +110,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setup_widgets()
 
-    ###############################################################################
-    # Setup widgets
-    # ~~~~~~~~~~~~~
+    # ## Setup widgets
+    #
     # Define all widgets from the UI file, connect the widgets to functions, define 
     # table colors, and format table settings. 
     
@@ -230,9 +235,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_legend_table.setItemDelegateForColumn(0, self.delegate)
         self.open_file_dialog()
 
-    ###############################################################################
-    # Open file dialog and select project
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Open file dialog and select project
+    #
     # Open the file dialog for project selection and populate the design dropdown 
     # with all EMIT designs in the project. 
 
@@ -311,9 +315,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.protection_results_btn.setEnabled(True)
             self.interference_results_btn.setEnabled(True)
 
-    ###############################################################################
-    # Change design selection
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Change design selection
+    #
     # Refresh the warning messages when the selected design changes
 
     def design_dropdown_changed(self):
@@ -332,9 +335,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # clear the table if the design is changed
         self.clear_table()
 
-    ###############################################################################
-    # Enable radio specific protection levels
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Enable radio specific protection levels
+    #
     # Activate radio selection dropdown and initialize dictionary to store protection levels
     # when the radio-specific level dropdown is checked.
 
@@ -355,9 +357,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.protection_levels['Global'] = values
         self.global_protection_level = not self.radio_specific_levels.isChecked()
     
-    ###############################################################################
-    # Update legend table
-    # ~~~~~~~~~~~~~~~~~~~
+    # ### Update legend table
+    #
     # Update shown legend table values when the radio dropdown value changes. 
 
     def radio_dropdown_changed(self):
@@ -372,9 +373,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                       range(self.protection_legend_table.rowCount())]
             self.delegate.update_values(values)
 
-    ###############################################################################
-    # Save legend table values
-    # ~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Save legend table values
+    #
     # Save inputted radio protection level threshold values every time one is changed 
     # in the legend table.
 
@@ -389,9 +389,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.protection_levels[index] = values
             self.delegate.update_values(values)
 
-    ###############################################################################
-    # Save scenario matrix to as PNG file 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Save scenario matrix to as PNG file
+    #
     # Save the scenario matrix table as a PNG file.
 
     def save_image(self):
@@ -406,9 +405,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             table.render(image)
             image.save(fname)
 
-    ###############################################################################
-    # Save scenario matrix to Excel file 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Save scenario matrix to Excel file
+    #
     # Write the scenario matrix results to an Excel file with color coding.
 
     def save_results_excel(self):
@@ -439,9 +437,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                             fill_type = "solid")
             workbook.save(fname)
 
-    ###############################################################################
-    # Run interference type simulation 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Run interference type simulation
+    #
     # Run interference type simulation and classify results.
 
     def interference_results(self):
@@ -479,8 +476,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.tx_radios is None or self.rx_radios is None:
                     return
 
-            # Classify the interference
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ### Classify the interference
+            #
             # Iterate over all the transmitters and receivers and compute the power
             # at the input to each receiver due to each of the transmitters. Compute
             # which, if any, type of interference occurred.
@@ -491,9 +488,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.emitapp.save_project()
             self.populate_table()
 
-    ###############################################################################
-    # Run protection level simulation 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Run protection level simulation
+    #
     # Run protection level simulation and classify results accroding to inputted 
     # threshold levels.
 
@@ -539,9 +535,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.populate_table()
     
-    ###############################################################################
-    # Populate the scenario matrix
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ### Populate the scenario matrix
+    #
     # Create a scenario matrix view with the transmitters defined across the top
     # and receivers down the left-most column.
 
@@ -591,9 +586,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         table.setColumnCount(0)
         table.setRowCount(0)
 
-    ###############################################################################
-    # GUI closing event
-    # ~~~~~~~~~~~~~~~~~
+    # ### GUI closing event
+    #
     # Close AEDT if the GUI is closed.
     def closeEvent(self, event):
         msg = QtWidgets.QMessageBox()
@@ -606,9 +600,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             desktop.release_desktop(True, True)
 
-###############################################################################
-# Run GUI
-# ~~~~~~~
+# ### Run GUI
+#
 # Launch the GUI. If you want to run the GUI, uncomment the ``window.show()`` and
 # ``app.exec_()`` method calls. 
 
