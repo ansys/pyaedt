@@ -145,7 +145,8 @@ class CircuitPins(object):
         use_wire : bool, optional
             Whether to use wires or a page port to connect the pins.
             The default is ``False``, in which case a page port is used. Note
-            that if wires are used but not well placed, shorts can result.
+            that if wires are used but not well-placed, unintentional
+            short-circuits may result.
         wire_name : str, optional
             Wire name used only when user_wire is ``True``. Default value is ``""``.
         clearance_units : int, optional
