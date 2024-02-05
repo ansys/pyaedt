@@ -23,6 +23,7 @@ m2d = pyaedt.Maxwell2d(
     new_desktop_session=True,
     close_on_exit=True,
     solution_type="DCConduction",
+    projectname="M2D_DC_Conduction",
     designname="Ansys_resistor"
 )
 
