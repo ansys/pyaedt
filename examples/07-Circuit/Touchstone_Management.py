@@ -9,46 +9,41 @@ must be installed on your machine.
 This example runs only on Windows using CPython.
 """
 ###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Perform required imports
+#
 # Perform required imports and set the local path to the path for PyAEDT.
 
 from pyaedt import downloads
-
 example_path = downloads.download_touchstone()
 
 ###############################################################################
-# Import libraries and Touchstone file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Import libraries and Touchstone file
+#
 # Import Matplotlib, NumPy, and the Touchstone file.
 
 from pyaedt.generic.touchstone_parser import read_touchstone
 
 ###############################################################################
-# Read Touchstone file
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Read Touchstone file
+#
 # Read the Touchstone file.
 
 data = read_touchstone(example_path)
 
 ###############################################################################
-# Get curve plot
-# ~~~~~~~~~~~~~~
+# ## Get curve plot
+#
 # Get the curve plot by category. The following code shows how to plot lists of the return losses,
 # insertion losses, fext, and next based on a few inputs and port names.
 
 data.plot_return_losses()
-
 data.plot_insertion_losses()
-
 data.plot_next_xtalk_losses("U1")
-
 data.plot_fext_xtalk_losses(tx_prefix="U1", rx_prefix="U7")
 
-
 ###############################################################################
-# Get curve worst cases
-# ~~~~~~~~~~~~~~~~~~~~~
+# ## Get curve worst cases
+#
 # Get curve worst cases.
 
 worst_rl, global_mean = data.get_worst_curve(

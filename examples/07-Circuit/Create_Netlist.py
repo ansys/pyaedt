@@ -8,18 +8,15 @@
 # Perform required imports and set paths.
 
 import os
-
 import pyaedt
+import tempfile
 
-netlist = pyaedt.downloads.download_netlist()
-
-project_name = pyaedt.generate_unique_project_name()
-print(project_name)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 
 # ## Launch AEDT
 #
 # Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
-desktopVersion = "2023.2"
 
 # ## Set non-graphical mode
 #
@@ -28,20 +25,21 @@ desktopVersion = "2023.2"
 # The Boolean parameter ``NewThread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
+desktopVersion = "2023.2"
 non_graphical = False
 NewThread = True
 
 # ## Launch AEDT with Circuit
 #
-# Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
+# Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
 desktop = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
-aedtapp = pyaedt.Circuit(projectname=project_name)
+aedtapp = pyaedt.Circuit(projectname=os.path.join(temp_dir.name, "NetlistExample"))
 
-# ## Define variable
+# ## Define a Parameter
 #
-# Define a design variable by using a ``$`` prefix.
+# Specify the voltage as a parameter.
 
 aedtapp["Voltage"] = "5"
 
@@ -59,3 +57,5 @@ aedtapp.create_schematic_from_netlist(netlist)
 # AEDT.
 
 desktop.release_desktop()
+
+temp_dir.cleanup()  # Clean up temporary directory and project data.

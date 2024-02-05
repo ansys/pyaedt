@@ -1,21 +1,21 @@
 # # Circuit: schematic creation and analysis
 #
-# This example shows how you can use PyAEDT to create a circuit design
-# and run a Nexxim time-domain simulation.
+# This example shows how to build a circuit schematic
+# and run a transient circuit simulation.
 
+# <img src="_static/circuit.png" width="600">
+#
 # ## Perform required imports
 #
 # Perform required imports.
 
-# sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
-
 import pyaedt
+import tempfile
+import os
 
 # ## Launch AEDT
 #
 # Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
-
-desktop_version = "2023.2"
 
 # ## Set non-graphical mode
 #
@@ -24,28 +24,34 @@ desktop_version = "2023.2"
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-non_graphical = False
-new_thread = True
-
 # ## Launch AEDT and Circuit
 #
 # Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
 # starts the specified version in the specified mode.
 
+# +
+desktop_version = "2023.2"
+non_graphical = False
+new_thread = True
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
 desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
-aedt_app = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name())
+aedt_app = pyaedt.Circuit(projectname=os.path.join(temp_dir.name, "CircuitExample"),
+                                                  designname="Simple")
 aedt_app.modeler.schematic.schematic_units = "mil"
+# -
 
 # ## Create circuit setup
 #
-# Create and customize an LNA (linear network analysis) setup.
+# Create and customize an linear network analysis (LNA) setup.
 
 setup1 = aedt_app.create_setup("MyLNA")
 setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 
-# ## Create components
+# ## Place Components
 #
-# Create components, such as an inductor, resistor, and capacitor.
+# Place components such as an inductor, resistor, and capacitor. The ``location`` argument
+# provides the ``[x, y]`` coordinates to place the component.
 
 inductor = aedt_app.modeler.schematic.create_inductor(compname="L1", value=1e-9, location=[0, 0])
 resistor = aedt_app.modeler.schematic.create_resistor(compname="R1", value=50, location=[500, 0])
@@ -53,20 +59,25 @@ capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-
 
 #  ## Get all pins
 #
-# Get all pins of a specified component.
+# The component pins are instances of the class 
+# ``pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`` class and 
+# provide access to the
+# pin location, net connectivity and the method ``connect_to_component()`` which 
+# can be used to connect components in the schematic
+# as will be demonstrated in
+# this example.
 
-pins_resistor = resistor.pins
-
-# ## Create port and ground
+# ## Place a Port and Ground
 #
-# Create a port and a ground, which are needed for the circuit analysis.
+# Place a port and a ground in the schematic.
 
-port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-200, 0] )
+port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-300, 50] )
 gnd = aedt_app.modeler.components.create_gnd(location=[1200, -100])
 
 # ## Connect components
 #
-# Connect components with wires.
+# Connect components with wires in the schematic. The ``connect_to_component()`` 
+# method is used to create connections between pins.
 
 port.pins[0].connect_to_component(component_pin=inductor.pins[0], use_wire=True)
 inductor.pins[1].connect_to_component(component_pin=resistor.pins[1], use_wire=True)
@@ -90,7 +101,7 @@ aedt_app.export_fullwave_spice()
 
 # ## Create report
 #
-# Create a report that plots solution data.
+# Display the scattering parameters.
 
 solutions = aedt_app.post.get_solution_data(
     expressions=aedt_app.get_traces_for_plot(category="S"),
@@ -112,3 +123,5 @@ fig = solutions.plot()
 # All methods provide for saving the project before closing.
 
 desktop.release_desktop()
+
+temp_dir.cleanup()  # Remove project data and temporary working directory.

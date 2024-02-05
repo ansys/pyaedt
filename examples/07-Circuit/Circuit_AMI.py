@@ -2,21 +2,32 @@
 #
 # This example shows how you can use PyAEDT to perform advanced postprocessing of AMI simulations.
 
-# # Perform required imports
+# <img src='_static/spectrum_plot.png' width="500">
+
+# ## Perform required imports
 #
 # Perform required imports and set the local path to the path for PyAEDT.
-
-# sphinx_gallery_thumbnail_path = 'Resources/spectrum_plot.png'
 
 import os
 from matplotlib import pyplot as plt
 import numpy as np
-
 import pyaedt
+import tempfile
 
-# Set local path to path for PyAEDT
-temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folder)
+# ## Download Example Data
+#
+# The ``download_file()`` method retrieves example
+# data from the PyAnsys _example-data_ repository. 
+#
+# - The fist argument is the folder name where 
+#   the example files are located in the GitHub repository.
+# - The 2nd argument is the file to retrieve.
+# - The 3rd argument is the desination folder.
+#
+# Files are placed in the destination folder.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_dir.name)
 
 # ## Launch AEDT
 #
@@ -37,7 +48,7 @@ NewThread = True
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
 # All outputs obtained with the `get_solution_data` method will have the Pandas format.
-# Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
+# Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
 pyaedt.settings.enable_pandas_output = True
@@ -69,9 +80,12 @@ print(original_data_value)
 
 fig = original_data.plot()
 
-# ## Sample WaveAfterProbe waveform using receiver clock
+# ## Extract Wave Form
 #
-# Extract waveform at specific clock time plus half unit interval
+# Use the _WaveAfterProbe_ plot type to extract the 
+# waveform using an AMI receiver clock probe.
+# The signal is extracted at a specific clock 
+# flank with addiional half unit interval.
 
 probe_name = "b_input_43"
 source_name = "b_output4_42"
@@ -79,7 +93,8 @@ plot_type = "WaveAfterProbe"
 setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
-sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=probe_name, source_name=source_name,
+sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=probe_name, 
+                                               source_name=source_name,
                                                variation_list_w_value=cir.available_variations.nominal,
                                                unit_interval=unit_interval, ignore_bits=ignore_bits,
                                                plot_type=plot_type)
@@ -88,6 +103,7 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
 #
 # Create the plot from a start time to stop time in seconds
 
+# +
 tstop = 55e-9
 tstart = 50e-9
 scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
@@ -128,6 +144,7 @@ ax.set_title('WaveAfterProbe')
 ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
 plt.show()
+# -
 
 # ## Plot Slicer Scatter
 #
@@ -165,6 +182,7 @@ original_data = cir.post.get_solution_data(expressions=plot_name,
 #
 # Extract waveform at specific clock time plus half unit interval.
 
+# +
 original_data.enable_pandas_output = False
 original_data_value = original_data.data_real()
 original_data_sweep = original_data.primary_sweep_values
@@ -181,11 +199,13 @@ sample_waveform = cir.post.sample_waveform(
     clock_tics=tics,
     pandas_enabled=False,
 )
+# -
 
 # ## Plot waveform and samples
 #
 # Create the plot from a start time to stop time in seconds.
 
+# +
 tstop = 40.0e-9
 tstart = 25.0e-9
 scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
@@ -231,6 +251,7 @@ ax.set_title(plot_name)
 ax.set_xlabel(waveform_sweep_unit)
 ax.set_ylabel(waveform_unit)
 plt.show()
+# -
 
 # ## Plot slicer scatter
 #
@@ -251,3 +272,5 @@ plt.show()
 cir.save_project()
 print("Project Saved in {}".format(cir.project_path))
 cir.release_desktop()
+
+temp_dir.cleanup()  # Remove project folder and temporary files.

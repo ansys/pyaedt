@@ -9,6 +9,7 @@
 
 import os
 import pyaedt
+import tempfile
 
 
 # ## Set non-graphical mode
@@ -16,17 +17,18 @@ import pyaedt
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = False
-
 # ## Launch AEDT with Circuit
 #
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                         specified_version="2023.2",
-                         non_graphical=non_graphical,
-                         new_desktop_session=True
-                         )
+non_graphical = False
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+circuit = pyaedt.Circuit(projectname=os.path.join(temp_dir.name, "SubcircuitExample"),
+                                                  designname="SimpleExample",
+                                                  specified_version="2023.2",
+                                                  non_graphical=non_graphical,
+                                                  new_desktop_session=True
+                                                  )
 circuit.modeler.schematic_units = "mil"
 
 # ## Add subcircuit
@@ -61,3 +63,5 @@ circuit.pop_up()
 # Release AEDT.
 
 circuit.release_desktop(True, True)
+
+temp_dir.cleanup()  # Clean up temporary folder and remove project data.

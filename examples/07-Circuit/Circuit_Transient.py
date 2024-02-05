@@ -1,5 +1,5 @@
 # # Circuit: transient analysis and eye plot
-# ----------------------------------------
+#
 # This example shows how you can use PyAEDT to create a circuit design,
 # run a Nexxim time-domain simulation, and create an eye diagram.
 
@@ -12,6 +12,7 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
+import tempfile
 
 # ## Set non-graphical mode
 #
@@ -19,13 +20,14 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = False
-
 # ## Launch AEDT with Circuit
 #
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
+non_graphical = False
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+cir = pyaedt.Circuit(projectname=os.path.join(temp_dir.name, "CktTransient"),
+                     designname="Circuit Examples",
                      specified_version="2023.2",
                      new_desktop_session=True,
                      non_graphical=non_graphical
@@ -79,11 +81,11 @@ trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransi
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 
-# ## Create report outside AEDT
+# ## View Results
 #
-# Create a report outside AEDT using the ``get_solution_data`` method. This
-# method allows you to get solution data and plot it outside AEDT without needing
-# a UI.
+# Create a report using the ``get_solution_data()`` method. This
+# method allows you to view and post-process results using Python packages.
+# The ``solutions.plot()`` method uses Matplotlib.
 
 report = cir.post.create_report("V(Vout)", domain="Time")
 if not non_graphical:
@@ -91,7 +93,7 @@ if not non_graphical:
 solutions = cir.post.get_solution_data(domain="Time")
 solutions.plot("V(Vout)")
 
-# ## Create report inside AEDT
+# ## Create a Report in AEDT
 #
 # Create a report inside AEDT using the ``new_report`` object. This object is
 # fully customizable and usable with most of the reports available in AEDT.
@@ -115,7 +117,7 @@ new_report.create()
 sol = new_report.get_solution_data()
 sol.plot()
 
-# ## Create eye diagram inside AEDT
+# ## Create Eye Diagram in AEDT
 #
 # Create an eye diagram inside AEDT using the ``new_eye`` object. 
 
@@ -127,8 +129,9 @@ new_eye.create()
 # ## Create eye diagram outside AEDT
 #
 # Create the same eye diagram outside AEDT using Matplotlib and the
-# ``get_solution_data`` method.
+# ``get_solution_data()`` method.
 
+# +
 unit_interval = 1
 offset = 0.25
 tstop = 200
@@ -154,9 +157,13 @@ for a, b in zip(t, ys):
     cellsv = np.append(cellsv, bn)
 plt.plot(cellst.T,  cellsv.T, zorder=0)
 plt.show()
+# -
 
 # ## Release AEDT
 #
 # Release AEDT.
+
 cir.save_project()
 cir.release_desktop()
+
+temp_dir.cleanup()  # Clean up temporary working folder and project files.

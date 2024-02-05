@@ -9,17 +9,16 @@
 from pyaedt import Edb, Circuit
 import os.path
 import pyaedt
+import tempfile
 
 # ## Download file
 #
 # Download the AEDB file and copy it in the temporary folder.
 
-temp_folder = pyaedt.generate_unique_folder_name()
-edb_file = pyaedt.downloads.download_file(destination=temp_folder, directory="edb/siwave_multi_zones.aedb")
-working_directory = os.path.join(temp_folder, "workdir")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+edb_file = pyaedt.downloads.download_file(destination=temp_dir.name, directory="edb/siwave_multi_zones.aedb")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
-circuit_project_file = os.path.join(working_directory, os.path.splitext(os.path.basename(edb_file))[0] +
-                               "multizone_clipped_circuit.aedt")
+circuit_project_file = os.path.join(temp_dir.name, "multizone_clipped_circuit.aedt")
 print(edb_file)
 
 
@@ -53,6 +52,7 @@ edb_zones = edb.copy_zones(working_directory=working_directory)
 #
 # Clip sub-designs along with corresponding zone definition
 # and create port of clipped signal traces.
+
 defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
 
 # ## Circuit
@@ -63,33 +63,39 @@ circuit = Circuit(specified_version=edb_version, projectname=circuit_project_fil
 circuit.connect_circuit_models_from_multi_zone_cutout(project_connections=project_connexions,
                                                       edb_zones_dict=edb_zones, ports=defined_ports,
                                                       model_inc=70)
+
 # ## Setup
 #
-#  Add Nexxim LNA simulation setup.
+# Add Nexxim LNA simulation setup.
+
 circuit_setup= circuit.create_setup("Pyedt_LNA")
 
 # ## Frequency sweep
 #
 # Add frequency sweep from 0GHt to 20GHz with 10NHz frequency step.
+
 circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format("0GHz", "20GHz", "10MHz")
 
 # ## Start simulation
 #
 # Analyze all siwave projects and solves the circuit.
+
 circuit.analyze()
 
-# ## Define differential pairs
-#
+# Define differential pairs
+
 circuit.set_differential_pair(diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP",
                               negative_terminal="U0.via_39.B2B_SIGN")
 circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP",
                               negative_terminal="U1.via_33.B2B_SIGN")
 
-# ## Plot results
-#
+# Plot results
+
 circuit.post.create_report(expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs")
 
 # ## Release AEDT desktop
 #
 
 circuit.release_desktop()
+
+temp_dir.cleanup()  # Remove the temporary working folder and all project files
