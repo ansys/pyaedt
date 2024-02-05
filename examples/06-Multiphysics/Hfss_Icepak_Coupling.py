@@ -15,51 +15,48 @@
 import os
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
+import tempfile
 
-# ## Set non-graphical mode
+# ## Setup
 #
 # Set non-graphical mode. 
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Set ``non_graphical`` to ``False`` if the AEDT user interface should 
+# be started when HFSS and Icepak are accessed.
 
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 non_graphical = False
 desktopVersion = "2023.2"
-
-# ## Open project
-#
-# Open the project.
-
-NewThread = True
-project_file = pyaedt.generate_unique_project_name()
 
 # ## Launch AEDT and initialize HFSS
 #
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = pyaedt.Hfss(projectname=project_file,
+aedtapp = pyaedt.Hfss(projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
+                      designname="RF",
                       specified_version=desktopVersion,
                       non_graphical=non_graphical,
-                      new_desktop_session=NewThread
+                      new_desktop_session=True
                       )
 
-# ## Initialize variable settings
+# ## Parameters
 #
-# Initialize variable settings. You can initialize a variable simply by creating
-# it as a list object. If you enter the prefix ``$``, the variable is created for
-# the project. Otherwise, the variable is created for the design.
+# Parameters can be instantiated by defining them as a key used for the application
+# instance as demonstrated below. The prefix ``$`` is used to define
+# project-wide scope for the parameter. Otherwise the parameter scope is limited the current design.
 
-aedtapp["$coax_dimension"] = "100mm"
+aedtapp["$coax_dimension"] = "100mm"  # Project-wide scope.
 udp = aedtapp.modeler.Position(0, 0, 0)
-aedtapp["inner"] = "3mm"
+aedtapp["inner"] = "3mm"  #  Local "Design" scope.
 
 # ## Create coaxial and cylinders
 #
 # Create a coaxial and three cylinders. You can apply parameters
-# directly using the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
+# directly using the `pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
 # method. You can assign a material directly to the object creation action.
-# Optionally, you can assign a material using the :func:`assign_material` method.
+# Optionally, you can assign a material using the `assign_material` method.
 
-# TODO: How does this work when two truesurfaces are defined?
+# TODO: How does this work when two true surfaces are defined?
 o1 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius="inner", height="$coax_dimension",
                                      numSides=0, name="inner")
 o2 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=8, height="$coax_dimension",
@@ -93,22 +90,25 @@ o3.material_name = "Copper"
 aedtapp.modeler.subtract(o3, o2, True)
 aedtapp.modeler.subtract(o2, o1, True)
 
-# ## Perform mesh operations
+# ## Assign Mesh Operations
 #
-# Perform mesh operations. Most mesh operations are available.
-# After a mesh is created, you can access a mesh operation to
-# edit or review parameter values.
+# Most mesh operations are accessible using the ``mesh`` property
+# which is an instance of the ``pyaedt.modules.MeshIcepak.IcepakMesh`` class.
+#
+# This example demonstrates the use of several common mesh
+# operatons.
 
 aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
 aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
 aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
 
-# ## Create excitations
+# ## Create HFSS Sources
 #
-# Create excitations. The ``create_wave_port_between_objects`` method automatically
-# identifies the closest faces on a predefined direction and creates a sheet to cover
-# the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
-# creates a PEC cap.
+# The RF power dissipated in the HFSS model will act as the thermal
+# source for in Icepak. The ``create_wave_port_between_objects`` method
+# s used to assign the RF ports that inject RF power into the HFSS
+# model. If the parameter ``add_pec_cap=True``, then the method
+# creates a perfectly conducting (lossless) cap covering the port.
 
 # +
 aedtapp.wave_port(signal="inner",
@@ -129,7 +129,7 @@ port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
 # -
 
-# ## Create setup
+# ## HFSS Simulation Setup
 #
 # Create a setup. A setup is created with default values. After its creation,
 # you can change values and update the setup. The ``update`` method returns a Boolean
@@ -141,48 +141,68 @@ setup.props["Frequency"] = "1GHz"
 setup.props["BasisOrder"] = 2
 setup.props["MaximumPasses"] = 1
 
-# ## Create sweep
+# ## HFSS Frequency Sweep
 #
-# Create a sweep. A sweep is created with default values.
+# The frequency sweep defines the RF frequency range over which the RF power is
+# injected into the structure.
 
 sweepname = aedtapp.create_linear_count_sweep(setupname="MySetup", unit="GHz", freqstart=0.8, freqstop=1.2,
                                               num_of_freq_points=401, sweep_type="Interpolating")
 
 # ## Create Icepak model
 #
-# Create an Icepak model. After an HFSS setup is ready, link this model to an Icepak
-# project and run a coupled physics analysis. The :func:`FieldAnalysis3D.copy_solid_bodies_from`
-# method imports a model from HFSS with all material settings.
+# After an HFSS setup has been defined, the model can be lnked to an Icepak
+# design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
+# method imports a model from HFSS into Icepak including all material definitions.
 
-ipkapp = pyaedt.Icepak()
+ipkapp = pyaedt.Icepak(designname="CalcTemp")
 ipkapp.copy_solid_bodies_from(aedtapp)
 
-# ## Link sources to EM losses
+# ## Link RF Thermal Source
 #
-# Link sources to the EM losses.
+# The RF loss in HFSS will be used as the thermal source in Icepak.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", sweepname="LastAdaptive",
-                        map_frequency="1GHz", surface_objects=surfaceobj, paramlist=["$coax_dimension", "inner"])
+ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", 
+                        sweepname="LastAdaptive",
+                        map_frequency="1GHz", 
+                        surface_objects=surfaceobj, 
+                        paramlist=["$coax_dimension", "inner"])
 
-# ## Edit gravity setting
+# ## Assign the Direction of Gravity
 #
-# Edit the gravity setting if necessary because it is important for a fluid analysis.
+# Set the direction of gravity for convection in Icepak. Gravity drives a temperature gradient
+# due to the dependence of gas density on temperature.
 
 ipkapp.edit_design_settings(aedtapp.GRAVITY.ZNeg)
 
-# ## Set up Icepak project
+# ## Set up the Icepak Project
 #
-# Set up the Icepak project. When you create a setup, default settings are applied.
-# When you need to change a property of the setup, you can use the ``props``
-# command to pass the correct value to the property. The ``update`` function
+# The initial solution setup applies default values that can subsequently
+# be modified as shown here.
+# The ``props`` property enables access to all solution settings.
+#
+# The ``update`` function
 # applies the settings to the setup. The setup creation process is identical
 # for all tools.
 
 setup_ipk = ipkapp.create_setup("SetupIPK")
 setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 
-# ## Edit or review mesh parameters
+# ### Icepak Solution Properteis
+#
+# The setup properties are accessible through the ``props`` property as
+# an ordered dict. The ``keys()`` method can be used to retrieve all settings for
+# the setup.
+#
+# Find propertes that contain the string ``"Convergence"`` and print the default values.
+
+conv_props = [k for k in setup_ipk.props.keys() if "Convergence" in k]
+print("Here are some default setup properties:")
+for p in conv_props:
+    print("\"" + p + "\" -> " + str(setup_ipk.props[p]))
+
+# ### Edit or Review Mesh Parameters
 #
 # Edit or review the mesh parameters. After a mesh is created, you can access
 # a mesh operation to edit or review parameter values.
@@ -199,34 +219,37 @@ ipkapp.assign_openings(airfaces)
 # can be helpful when performing operations on multiple projects.
 
 aedtapp.save_project()
+project_filename = aedtapp.project_file  # Save the project file name.
 aedtapp.close_project(aedtapp.project_name)
-aedtapp = pyaedt.Hfss(project_file)
+aedtapp = pyaedt.Hfss(project_filename)
 ipkapp = pyaedt.Icepak()
 ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
-# ## Solve Icepak project
+# ## Solve the Project
 #
-# Solve the Icepak project and the HFSS sweep.
+# Solve the Icepak and HFSS models.
 
-setup1 = ipkapp.analyze_setup("SetupIPK")
+ipkapp.setups[0].analyze()  # Run the Icepak analysis.
 aedtapp.save_project()
 aedtapp.modeler.fit_all()
-aedtapp.analyze_setup("MySetup")
+aedtapp.setups[0].analyze()  # Run the HFSS analysis.
 
-# ## Generate field plots and export
+# ### Plot and Export Results
 #
 # Generate field plots on the HFSS project and export them as images.
 
 # +
 cutlist = [pyaedt.constants.GLOBALCS.XY, pyaedt.constants.GLOBALCS.ZX, pyaedt.constants.GLOBALCS.YZ]
 vollist = [o2.name]
-setup_name = "MySetup : LastAdaptive"
-quantity_name = "ComplexMag_E"
+quantity_name1 = "ComplexMag_E"
 quantity_name2 = "ComplexMag_H"
-intrinsic = {"Freq": "1GHz", "Phase": "0deg"}
+intrinsic = {"Freq": aedtapp.setups[0].props["Frequency"], 
+             "Phase": "0deg"}
 surflist = aedtapp.modeler.get_object_faces("outer")
-plot1 = aedtapp.post.create_fieldplot_surface(surflist, quantity_name2, setup_name, intrinsic)
+plot1 = aedtapp.post.create_fieldplot_surface(surflist, quantity_name2, 
+                                              setup_name=aedtapp.nominal_adaptive, 
+                                              intrinsicDict=intrinsic)
 
 results_folder = os.path.join(aedtapp.working_directory, "Coaxial_Results_NG")
 if not os.path.exists(results_folder):
@@ -253,17 +276,17 @@ import time
 
 start = time.time()
 cutlist = ["Global:XY"]
-phases = [str(i * 5) + "deg" for i in range(18)]
+phase_values = [str(i * 5) + "deg" for i in range(18)]
 
 animated = aedtapp.post.plot_animated_field(
     quantity="Mag_E",
     object_list=cutlist,
     plot_type="CutPlane",
     setup_name=aedtapp.nominal_adaptive,
-    intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+    intrinsics=intrinsic,
     export_path=results_folder,
     variation_variable="Phase",
-    variation_list=phases,
+    variation_list=phase_values,
     show=False,
     export_gif=False,
     log_scale=True,
@@ -336,3 +359,5 @@ report.save_pdf(results_folder, "AEDT_Results.pdf")
 # Close the project and release AEDT.
 
 aedtapp.release_desktop()
+
+temp_dir.cleanup()  # Clean up temporary directory and delete project files.
