@@ -137,7 +137,7 @@ class CircuitPins(object):
 
         Parameters
         ----------
-        component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
+        component_pin : :class:`pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
