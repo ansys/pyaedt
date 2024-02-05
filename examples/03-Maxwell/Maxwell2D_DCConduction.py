@@ -210,11 +210,10 @@ pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_n
 pdf_report.report_specs.font = "times"
 pdf_report.report_specs.text_font_size = 10
 pdf_report.create()
-pdf_report.add_section()
 pdf_report.add_project_info(m2d)
 pdf_report.add_chapter("Model Picture")
 pdf_report.add_text("This section contains the model picture")
-pdf_report.add_image(model_picture, "Model Picture", width=120, height=80)
+pdf_report.add_image(model_picture, "Model Picture", width=80, height=60)
 pdf_report.add_chapter("Field overlay")
 pdf_report.add_sub_chapter("Plots")
 pdf_report.add_text("This section contains the fields overlay.")
