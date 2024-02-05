@@ -209,6 +209,7 @@ model_picture = m2d.post.export_model_picture()
 pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2")
 pdf_report.report_specs.font = "times"
 pdf_report.report_specs.text_font_size = 10
+pdf_report.project_name = m2d.project_name
 pdf_report.create()
 pdf_report.add_project_info(m2d)
 pdf_report.add_chapter("Model Picture")
