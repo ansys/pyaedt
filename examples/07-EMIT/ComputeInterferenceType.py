@@ -1,12 +1,12 @@
-# # EMIT: Classify interference type
-# #
-# This example shows how you can use PyAEDT to load an existing AEDT
-# project with an EMIT design and analyze the results to classify the
+# # EMIT: Classify Interference Type
+#
+# This example shows how to load an existing AEDT EMIT
+# design and analyze the results to classify the
 # worst-case interference.
 
+# +
 # Perform required imports
-#
-# Perform required imports.
+
 import sys
 from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
 from pyaedt import Emit
@@ -14,8 +14,16 @@ import pyaedt
 import os
 import pyaedt.generic.constants as consts
 import subprocess
+# -
 
-# Check to see which Python libraries have been installed
+# ## Python Dependencies
+#
+# The followig cell can be run to make sure the ``plotly`` package is installed
+# in the current Python environment. If ``plotly`` is installed there is no need
+# to run this cell.
+
+# +
+# Check to see which Python packages have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 
@@ -23,7 +31,8 @@ installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 def install(package):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
 
-# Install plotly library (if needed) to display legend and scenario matrix results (internet connection needed)
+# Install plotly (if needed) to display legend and 
+# scenario matrix results (internet connection needed)
 required_packages = ['plotly']
 for package in required_packages:
     if package not in installed_packages:
@@ -31,12 +40,10 @@ for package in required_packages:
 
 # Import plotly library 
 import plotly.graph_objects as go
+# -
 
-# Define colors for tables
-table_colors = {"green":'#7d73ca', "yellow":'#d359a2', "orange": '#ff6361', "red": '#ffa600', "white": '#ffffff'}
-header_color = 'grey'
+# Check that EMIT version 2023.2 or greater is installed.
 
-# Check for if emit version is compatible
 desktop_version = "2023.2"
 if desktop_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
@@ -49,15 +56,17 @@ if desktop_version <= "2023.1":
 
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, 
+                                new_desktop_session=new_thread)
 
 
 path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
 
-# ## Get all the radios in the project
+# ## Get a List of Transmitters
 #
 # Get lists of all transmitters and receivers in the project.
+
 rev = emitapp.results.analyze()
 tx_interferer = InterfererType().TRANSMITTERS
 rx_radios = rev.get_receiver_names()
@@ -94,6 +103,12 @@ emitapp.release_desktop()
 # and receivers down the left-most column. The power at the input to each
 # receiver is shown in each cell of the matrix and color-coded based on the
 # interference type.
+
+# Set up colors to visualize results in a table.
+
+table_colors = {"green":'#7d73ca', "yellow":'#d359a2', "orange": '#ff6361', "red": '#ffa600', "white": '#ffffff'}
+header_color = 'grey'
+
 
 def create_scenario_view(emis, colors, tx_radios, rx_radios):
     """Create a scenario matrix-like table with the higher received

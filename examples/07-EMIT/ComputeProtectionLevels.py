@@ -1,15 +1,12 @@
 # # EMIT: Compute receiver protection levels
-# ----------------------------------------
-# This example shows how you can use PyAEDT to open an AEDT project with
+#
+# This example shows how to open an AEDT project with
 # an EMIT design and analyze the results to determine if the received
 # power at the input to each receiver exceeds the specified protection
 # levels.
-
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports.
 #
-# sphinx_gallery_thumbnail_path = "Resources/emit_protection_levels.png"
+# Perform required imports
+
 import os
 import sys
 import subprocess
@@ -17,7 +14,14 @@ import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
 
-# Check to see which Python libraries have been installed
+# ## Python Dependencies
+#
+# The followig cell can be run to make sure the ``plotly`` package is installed
+# in the current Python environment. If ``plotly`` is installed there is no need
+# to run this cell.
+
+# +
+# Check to see which Python packages have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 
@@ -33,6 +37,7 @@ for package in required_packages:
 
 # Import required modules
 import plotly.graph_objects as go
+# -
 
 # ## Set non-graphical mode
 #
@@ -50,11 +55,12 @@ desktop_version = "2023.2"
 #
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
+#
+# Check that the correct version of EMIT is installed.
 
 if desktop_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
-
 d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
 emitapp = Emit(pyaedt.generate_unique_project_name())
 
@@ -69,6 +75,7 @@ emitapp = Emit(pyaedt.generate_unique_project_name())
 # Exceeding the desense threshold reduces the signal-to-noise ratio and can 
 # reduce the maximum range, maximum bandwidth, and/or the overall link quality.
 
+# +
 header_color = 'grey'
 damage_threshold = 30
 overload_threshold = -4
@@ -76,6 +83,7 @@ intermod_threshold = -30
 desense_threshold = -104
 
 protection_levels = [damage_threshold, overload_threshold, intermod_threshold, desense_threshold]
+# -
 
 # ## Create and connect EMIT components
 #
@@ -90,24 +98,30 @@ wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-
 # Enable the HR-DSSS bands for the Wi-Fi radio and set the power level
 # for all transmit bands to -20 dBm.
 
+# +
 bands = wifi.bands()
 for band in bands:
     if "HR-DSSS" in band.node_name:
         if "Ch 1-13" in band.node_name:
             band.enabled=True
             band.set_band_power_level(-20)
-
+            
 # Reduce the bluetooth transmit power
 bands = bluetooth.bands()
 for band in bands:
     band.set_band_power_level(-20)
 
+
+# -
+
 def get_radio_node(radio_name):
     """Get the radio node that matches the
-    given radio name.
-    Arguments:
-        radio_name: String name of the radio.
-    Returns: Instance of the radio.
+       given radio name.
+       
+       Arguments:
+          radio_name: String name of the radio.
+    
+       Returns: Instance of the radio.
     """
     if gps.name == radio_name:
         radio = gps
@@ -214,6 +228,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # ## Get all the radios in the project
 #
 # Get lists of all transmitters and receivers in the project.
+
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = emitapp.results.current_revision
     rx_radios = rev.get_receiver_names()
@@ -225,6 +240,7 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
+
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     power_matrix=[]
     all_colors=[]
@@ -240,7 +256,7 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # ## Save project and close AEDT
 #
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# `pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 emitapp.save_project()

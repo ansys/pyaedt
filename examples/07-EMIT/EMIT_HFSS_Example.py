@@ -1,21 +1,22 @@
 # # EMIT: HFSS to EMIT coupling
 #
-# This example shows how you can use PyAEDT to open an AEDT project with
-# an HFSS design, create an EMIT design in the project, and link the HFSS design
-# as a coupling link in the EMIT design.
+# <img src="_static/emit_hfss.png" width="60"> This example 
+# demonstrates how link an HFSS design
+# to EMIT and model RF interference among various components.
+#
+# > **Note:** This example uses the ``Cell Phone RFI Desense``
+# > project that is available with the AEDT installation in the 
+# > folder ``\Examples\EMIT\``
 
 # ## Perform required imports
 #
 # Perform required imports.
-#
-# sphinx_gallery_thumbnail_path = "Resources/emit_hfss.png"
 
 import os
-
-# Import required modules
 import pyaedt
-from pyaedt.generic.filesystem import Scratch
+import tempfile
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
+import shutil
 
 # ## Set non-graphical mode
 #
@@ -23,66 +24,59 @@ from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
-# 
-# The following code uses AEDT 2023 R2.
 
 non_graphical = False
 NewThread = True
 desktop_version = "2023.2"
-scratch_path = pyaedt.generate_unique_folder_name()
 
 # ## Launch AEDT with EMIT
 #
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
+# A temporary working directory is created using ``tempfile``.
 
 d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
+# ## Copy Example Files
+#
+# Copy the ``Cell Phone RFT Defense`` example data from the
+# installed examples folder to the temporary working
+# directory.
+#
+# > **Note:** The HFSS design from the installed example
+# > used to model the RF environment
+# > has been pre-solved. Hence, the results folder is copied and
+# > the RF interference between transcievers is calculated in EMIT using
+# > results from the linked HFSS design.
+#
+# The following lambda functions help create file and folder
+# names when copying data from the Examples folder. 
 
-example_name = "Cell Phone RFI Desense"
-example_aedt = example_name + ".aedt"
-example_results = example_name + ".aedtresults"
-example_lock = example_aedt + ".lock"
-example_pdf_file = example_name + " Example.pdf"
+file_name = lambda s: s + ".aedt"
+results_name = lambda s: s + ".aedtresults"
+pdf_name = lambda s: s + " Example.pdf"
 
+# Build the names of the source files for this example.
+
+example = "Cell Phone RFI Desense"
 example_dir = os.path.join(d.install_path, "Examples\\EMIT")
-example_project = os.path.join(example_dir, example_aedt)
-example_results_folder = os.path.join(example_dir, example_results)
-example_pdf = os.path.join(example_dir, example_pdf_file)
+example_project = os.path.join(example_dir, file_name(example))
+example_results_folder = os.path.join(example_dir, results_name(example))
+example_pdf = os.path.join(example_dir, pdf_name(example))
 
-# If the ``Cell Phone RFT Defense`` example is not
-# in the installation directory, exit from this example.
+# Copy the files to the temporary working directory.
 
-if not os.path.exists(example_project):
-    msg = """
-        Cell phone RFT Desense example file is not in the
-         Examples/EMIT directory under the EDT installation. You cannot run this example.
-        """
-    print(msg)
-    d.release_desktop(True, True)
-    exit()
+project_name = shutil.copyfile(example_project, 
+                               os.path.join(temp_dir.name, file_name(example)))
+results_folder = shutil.copytree(example_results_folder,
+                                 os.path.join(temp_dir.name, results_name(example)))
+project_pdf = shutil.copyfile(example_pdf, 
+                              os.path.join(temp_dir.name, pdf_name(example)))
 
-my_project = os.path.join(temp_folder, example_aedt)
-my_results_folder = os.path.join(temp_folder, example_results)
-my_project_lock = os.path.join(temp_folder, example_lock)
-my_project_pdf = os.path.join(temp_folder, example_pdf_file)
+# Open the project in the working directory.
 
-if os.path.exists(my_project):
-    os.remove(my_project)
-
-if os.path.exists(my_project_lock):
-    os.remove(my_project_lock)
-
-with Scratch(scratch_path) as local_scratch:
-    local_scratch.copyfile(example_project, my_project)
-    local_scratch.copyfolder(example_results_folder, my_results_folder)
-    if os.path.exists(example_pdf):
-        local_scratch.copyfile(example_pdf, my_project_pdf)
-
-aedtapp = pyaedt.Emit(my_project)
+aedtapp = pyaedt.Emit(project_name)
 
 # ## Create and connect EMIT components
 #
@@ -97,11 +91,13 @@ rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 
 for link in aedtapp.couplings.linkable_design_names:
     aedtapp.couplings.add_link(link)
+    print("linked \"" + link + "\".")
 
 for link in aedtapp.couplings.coupling_names:
     aedtapp.couplings.update_link(link)
+    print("linked \"" + link + "\".")
 
-# ## Run EMIT simulation
+# ## Calculate RF Interference
 #
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
 #
@@ -120,7 +116,7 @@ if desktop_version > "2023.1":
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-# ## Save project and close AEDT
+# ## Save and Close the Project
 #
 # After the simulation completes, you can close AEDT or release it using the
 # `pyaedt.Desktop.force_close_desktop` method.
@@ -128,3 +124,5 @@ if desktop_version > "2023.1":
 
 aedtapp.save_project()
 aedtapp.release_desktop(close_projects=True, close_desktop=True)
+
+temp_dir.cleanup()  # Remove temporary project files.

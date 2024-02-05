@@ -1,16 +1,17 @@
-# # EMIT: antenna
+# # EMIT: Antenna
 #
-# This example shows how you can use PyAEDT to create a project in EMIT for
-# the simulation of an antenna.
+# This example shows how to create a project in EMIT for
+# the simulation of an antenna using HFSS.
+#
+# <img src="_static/emit_simple_cosite.png" width="400">
 
 # ## Perform required inputs
 #
 # Perform required imports.
-#
-# sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import os
 import pyaedt
+import tempfile
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 
@@ -28,11 +29,13 @@ desktop_version = "2023.2"
 
 # ## Launch AEDT with EMIT
 #
-# Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
-# on the specified version and in the specified graphical mode.
+# Launch AEDT with EMIT. The ``launch_desktop()`` method initializes AEDT
+# using the specified version. The 2nd argument can be set to ``True`` to
+# run AEDT in non-graphical mode.
 
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
-aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
+aedtapp = pyaedt.Emit(os.path.join(temp_dir.name, "antenna_cosite"))
 
 
 # ## Create and connect EMIT components
@@ -44,14 +47,21 @@ ant1 = aedtapp.modeler.components.create_component("Antenna")
 if rad1 and ant1:
     ant1.move_and_connect_to(rad1)
 
-# Convenience method to create a radio and antenna connected together
+# ## Place Antenna Radio Pairs
+#
+# The method ``create_radio_antenna()`` places radio/antenna pair. The first 
+# argument is the type of radio. The 2nd argumnt is the name that
+# will be assigned to the radio.
+
 rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")
 rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 
-# ## Define coupling among RF systems
+# ## Define the RF Environment
 #
-# Define the coupling among the RF systems. This portion of the EMIT API is not
-# yet implemented.
+# The next step in this workflow is to specify the RF coupling among antennas. 
+# This functionality yet to be implemented in the API, but can be entered from the UI.
+#
+# <img src="_static/coupling.png" width="500">
 
 
 # ## Run EMIT simulation
@@ -76,8 +86,13 @@ if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") !=
 # ## Save project and close AEDT
 #
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# `pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 aedtapp.save_project()
 aedtapp.release_desktop(close_projects=True, close_desktop=True)
+
+# Clean up the temporary directory and remove the project files located
+# in ``temp_dir.name``.
+
+temp_dir.cleanup()
