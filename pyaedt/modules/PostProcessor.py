@@ -3227,14 +3227,13 @@ class PostProcessor(PostProcessorCommon, object):
         if not isinstance(objlist, (list, tuple)):
             objlist = [objlist]
         new_obj_list = []
-        for objs in objlist:
-            for obj in objlist:
-                if isinstance(obj, FacePrimitive):
-                    new_obj_list.append(obj)
-                elif isinstance(obj, int):
-                    new_obj_list.append(obj)
-                elif self._app.modeler[obj]:
-                    new_obj_list.append([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
+        for obj in objlist:
+            if isinstance(obj, FacePrimitive):
+                new_obj_list.append(obj)
+            elif isinstance(obj, int):
+                new_obj_list.append(obj)
+            elif self._app.modeler[obj]:
+                new_obj_list.append([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
         return self._create_fieldplot(
             new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
         )
