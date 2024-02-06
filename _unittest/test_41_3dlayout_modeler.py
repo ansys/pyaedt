@@ -10,6 +10,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.pdf import AnsysReport
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
@@ -770,6 +771,12 @@ class TestClass:
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
+
+    def test_96_2_report_design(self):
+        report = AnsysReport()
+        report.create()
+        self.aedtapp.save_project()
+        assert report.add_project_info(self.aedtapp)
 
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
