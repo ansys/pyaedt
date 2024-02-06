@@ -203,9 +203,9 @@ animated.animate()
 model_picture = m2d.post.export_model_picture()
 
 ################################################################################
-# Generate pdf report
+# Generate PDF report
 # ~~~~~~~~~~~~~~~~~~~
-# Generate a pdf report with output of simulation.
+# Generate a PDF report with output of simulation.
 
 pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2")
 pdf_report.report_specs.font = "times"
