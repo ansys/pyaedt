@@ -30,6 +30,7 @@ is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
 _pythonver = sys.version_info[0]
+_python_current_release = sys.version_info[1]
 inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
 if not is_ironpython:
@@ -376,8 +377,79 @@ def open_file(file_path, file_options="r"):
             return open(local_file, file_options)
     elif os.path.exists(dir_name):
         return open(file_path, file_options)
+    elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(dir_name):
+        return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
         settings.logger.error("The file or folder %s does not exist", dir_name)
+
+
+@pyaedt_function_handler()
+def read_configuration_file(file_path):
+    """Parse a file and return information in form of list or dict.
+
+    Parameters
+    ----------
+    file_path : str
+        Full path to the file. Supported formats are ``toml``, ``json``,``tab``,``csv``,``xlsx``.
+
+    Returns
+    -------
+
+    """
+    ext = os.path.splitext(file_path)[1]
+    if ext == ".toml":
+        return read_toml(file_path)
+    elif ext == ".tab":
+        return read_tab(file_path)
+    elif ext == ".csv":
+        return read_csv(file_path)
+    elif ext == ".xlsx":
+        return read_xlsx(file_path)
+    else:
+        return read_json(file_path)
+
+
+@pyaedt_function_handler()
+def read_json(fn):
+    """Load Json File to a dictionary.
+
+    Parameters
+    ----------
+    fn : str
+        json file full path.
+
+    Returns
+    -------
+    dict
+    """
+    json_data = {}
+    with open(fn) as json_file:
+        try:
+            json_data = json.load(json_file)
+        except json.JSONDecodeError as e:  # pragma: no cover
+            error = "Error reading json: {} at line {}".format(e.msg, e.lineno)
+            settings.logger.error(error)
+    return json_data
+
+
+@pyaedt_function_handler()
+def read_toml(file_path):
+    """Read a toml file and return the dictionary.
+
+    Parameters
+    ----------
+    file_path : str
+        Full path to the toml file.
+
+    Returns
+    -------
+    dict
+        Parsed toml file as dictionary
+    """
+    import pytomlpp as tomllib
+
+    with open_file(file_path, "rb") as fb:
+        return tomllib.load(fb)
 
 
 def _log_method(func, new_args, new_kwargs):
@@ -858,7 +930,7 @@ def read_tab(filename):
     list
 
     """
-    with open(filename) as my_file:
+    with open_file(filename) as my_file:
         lines = my_file.readlines()
     return lines
 
@@ -1010,6 +1082,33 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
+def _create_toml_file(input_dict, full_toml_path):
+    import pytomlpp as tomllib
+
+    if not os.path.exists(os.path.dirname(full_toml_path)):
+        os.makedirs(os.path.dirname(full_toml_path))
+
+    def _dict_toml(d):
+        new_dict = {}
+        for k, v in d.items():
+            new_k = k
+            if not isinstance(k, str):
+                new_k = str(k)
+            new_v = v
+            if isinstance(v, dict):
+                new_v = _dict_toml(v)
+            elif isinstance(v, tuple):
+                new_v = list(v)
+            new_dict[new_k] = new_v
+        return new_dict
+
+    new_dict = _dict_toml(input_dict)
+    with open_file(full_toml_path, "w") as fp:
+        tomllib.dump(new_dict, fp)
+    return True
+
+
+@pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
     if not os.path.exists(os.path.dirname(full_json_path)):
         os.makedirs(os.path.dirname(full_json_path))
@@ -1028,6 +1127,29 @@ def _create_json_file(json_dict, full_json_path):
             file.write(filedata)
         os.remove(temp_path)
     return True
+
+
+@pyaedt_function_handler()
+def create_configuration_file(dict_in, full_path):
+    """Create a configuration file in json or toml format from a dictionary.
+
+    Parameters
+    ----------
+    dict_in : dict
+        Dictionary to dump to file.
+    full_path : str
+        Full path to the file with extension.
+
+    Returns
+    -------
+    bool
+        Conversion result.
+    """
+    ext = os.path.splitext(full_path)[1]
+    if ext == ".json":
+        return _create_json_file(dict_in, full_path)
+    elif ext == ".toml":
+        return _create_toml_file(OrderedDict(dict_in), full_path)
 
 
 # @pyaedt_function_handler()

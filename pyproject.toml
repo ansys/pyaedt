@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 
 dependencies = [
@@ -33,7 +34,8 @@ dependencies = [
     "psutil",
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     "fpdf2",
-    "jsonschema"
+    "jsonschema",
+    "pytomlpp"
 ]
 
 [project.optional-dependencies]

@@ -340,6 +340,8 @@ class TestClass:
             primary_sweep_variable="l1",
             context="Differential Pairs",
         )
+        new_report1 = diff_test.post.reports_by_category.standard()
+        assert new_report1.expressions
         new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
         new_report.differential_pairs = True
         assert new_report.create()
@@ -546,7 +548,7 @@ class TestClass:
     def test_68_eye_from_json(self, eye_test):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report.json"),
+            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report.toml"),
             solution_name="QuickEyeAnalysis",
         )
 

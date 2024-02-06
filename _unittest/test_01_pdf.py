@@ -20,7 +20,7 @@ def desktop():
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(test_project_name, application=Circuit, subfolder=test_subfolder)
+    app = add_app(test_project_name, design_name="Circuit1", application=Circuit, subfolder=test_subfolder)
     return app
 
 

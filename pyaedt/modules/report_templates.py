@@ -411,19 +411,26 @@ class CommonReport(object):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            return list(self.props.get("expressions", {}).keys())
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        return [k.get("name", None) for k in self.props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append(value)
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def report_category(self):
@@ -2334,33 +2341,40 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            expr_head = "Eye"
-            expressions = [i for i in self.props["expressions"].keys()]
-            new_exprs = []
-            for expr in expressions:
-                if not ".int_ami" in expr:
-                    qtype = int(self.quantity_type)
-                    if qtype == 0:
-                        new_exprs.append("Initial{}(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
-                    elif qtype == 1:
-                        new_exprs.append("{}AfterSource(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
-                    elif qtype == 2:
-                        new_exprs.append("{}AfterChannel(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
-                    elif qtype == 3:
-                        new_exprs.append("{}AfterProbe(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
-            return new_exprs
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        expr_head = "Eye"
+        new_exprs = []
+        for expr_dict in self.props["expressions"]:
+            expr = expr_dict["name"]
+            if not ".int_ami" in expr:
+                qtype = int(self.quantity_type)
+                if qtype == 0:
+                    new_exprs.append("Initial{}(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
+                elif qtype == 1:
+                    new_exprs.append("{}AfterSource(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
+                elif qtype == 2:
+                    new_exprs.append("{}AfterChannel(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+                elif qtype == 3:
+                    new_exprs.append("{}AfterProbe(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+        return new_exprs
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append = value
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def quantity_type(self):
@@ -2747,35 +2761,42 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            expr_head = "Wave"
-            if self.report_category == "Statistical Eye":
-                expr_head = "Eye"
-            expressions = [i for i in self.props["expressions"].keys()]
-            new_exprs = []
-            for expr in expressions:
-                if not ".int_ami" in expr:
-                    qtype = int(self.quantity_type)
-                    if qtype == 0:
-                        new_exprs.append("Initial{}<".format(expr_head) + expr + ".int_ami_tx>")
-                    elif qtype == 1:
-                        new_exprs.append("{}AfterSource<".format(expr_head) + expr + ".int_ami_tx>")
-                    elif qtype == 2:
-                        new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
-                    elif qtype == 3:
-                        new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
-            return new_exprs
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        expr_head = "Wave"
+        if self.report_category == "Statistical Eye":
+            expr_head = "Eye"
+        new_exprs = []
+        for expr_dict in self.props["expressions"]:
+            expr = expr_dict["name"]
+            if not ".int_ami" in expr:
+                qtype = int(self.quantity_type)
+                if qtype == 0:
+                    new_exprs.append("Initial{}<".format(expr_head) + expr + ".int_ami_tx>")
+                elif qtype == 1:
+                    new_exprs.append("{}AfterSource<".format(expr_head) + expr + ".int_ami_tx>")
+                elif qtype == 2:
+                    new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
+                elif qtype == 3:
+                    new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
+        return new_exprs
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append = value
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def quantity_type(self):
@@ -3275,19 +3296,26 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            return list(self.props.get("expressions", {}).keys())
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        return [k.get("name", None) for k in self.props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append = value
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def time_start(self):

@@ -1,10 +1,10 @@
-import json
 import os.path
 import time
 
 from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -28,6 +28,16 @@ default_keys = [
 
 
 class VirtualCompliance:
+    """Virtual compliance class.
+
+    Parameters
+    ----------
+    desktop : :class:``pyaedt.desktop.Desktop``
+        Desktop object
+    template : str
+        Full path to the template. Supported formats are json and toml.
+    """
+
     def __init__(self, desktop, template):
         self._add_project_info = True
         self._add_specs_info = False
@@ -49,16 +59,15 @@ class VirtualCompliance:
 
     def _parse_template(self):
         if self._template:
-            with open(self._template) as f:
-                self.local_config = json.load(f)
-                if "general" in self.local_config:
-                    self._add_project_info = self.local_config["general"].get("add_project_info", True)
-                    self._add_specs_info = self.local_config["general"].get("add_specs_info", False)
-                    self._specs_folder = self.local_config["general"].get("specs_folder", "")
-                    if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
-                        self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
-                    self._template_name = self.local_config["general"].get("name", "Compliance")
-                    self._project_file = self.local_config["general"].get("project", None)
+            self.local_config = read_configuration_file(self._template)
+            if "general" in self.local_config:
+                self._add_project_info = self.local_config["general"].get("add_project_info", True)
+                self._add_specs_info = self.local_config["general"].get("add_specs_info", False)
+                self._specs_folder = self.local_config["general"].get("specs_folder", "")
+                if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
+                    self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
+                self._template_name = self.local_config["general"].get("name", "Compliance")
+                self._project_file = self.local_config["general"].get("project", None)
 
     def _parse_reports(self):
         if "reports" in self.local_config:
@@ -149,8 +158,7 @@ class VirtualCompliance:
                 config_file = os.path.join(self._template_folder, config_file)
             if not os.path.exists(config_file):
                 continue
-            with open(config_file) as f:
-                local_config = json.load(f)
+            local_config = read_configuration_file(config_file)
             if start:
                 pdf_report.add_section(portrait=False)
                 pdf_report.add_chapter("Compliance Results")
