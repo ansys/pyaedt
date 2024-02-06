@@ -1079,9 +1079,11 @@ class Stackup(object):
         """
         layers = list(self.stackup_layers.values())
         layers.sort(key=lambda lay: lay.lower_elevation)
-        top_layer = layers[-1]
-        bottom_layer = layers[0]
-        thickness = abs(top_layer.upper_elevation - bottom_layer.lower_elevation)
+        thickness = 0
+        if layers:
+            top_layer = layers[-1]
+            bottom_layer = layers[0]
+            thickness = abs(top_layer.upper_elevation - bottom_layer.lower_elevation)
         return round(thickness, 7)
 
     @pyaedt_function_handler()
@@ -1644,10 +1646,10 @@ class Stackup(object):
         for material in mats.values():
             self._pedb.materials._load_materials(material)
 
-        temp = {i: j for i, j in json_dict["layers"].items() if j["type"] in ["signal", "dielectric"]}
+        json_layers = {i: j for i, j in json_dict["layers"].items() if j["type"] in ["signal", "dielectric"]}
         for name in list(self.stackup_layers.keys()):
-            if name in temp:
-                layer = temp[name]
+            if name in json_layers:
+                layer = json_layers[name]
                 default_layer = {
                     "name": "default",
                     "type": "signal",
@@ -1669,7 +1671,7 @@ class Stackup(object):
 
                 if "color" in layer:
                     default_layer["color"] = layer["color"]
-                elif not layer["type"] == "signal":
+                elif not layer["type"] == "signal":  # pragma: no cover
                     default_layer["color"] = [27, 110, 76]
 
                 for k, v in layer.items():
@@ -1679,7 +1681,7 @@ class Stackup(object):
             else:  # Remove layers not in config file.
                 self.remove_layer(name)
 
-        for layer_name, layer in temp.items():
+        for layer_name, layer in json_layers.items():
             if layer_name in self.stackup_layers:
                 continue  # if layer exist, skip
 
@@ -1704,13 +1706,13 @@ class Stackup(object):
 
             if "color" in layer:
                 default_layer["color"] = layer["color"]
-            elif not layer["type"] == "signal":
+            elif not layer["type"] == "signal":  # pragma: no cover
                 default_layer["color"] = [27, 110, 76]
 
             for k, v in layer.items():
                 default_layer[k] = v
 
-            temp_2 = list(temp.keys())
+            temp_2 = list(json_layers.keys())
             if temp_2.index(layer_name) == 0:
                 new_layer = self.add_layer(
                     layer_name,
@@ -1721,7 +1723,7 @@ class Stackup(object):
                     thickness=default_layer["thickness"],
                 )
 
-            elif temp_2.index(layer_name) == len(temp_2):
+            elif temp_2.index(layer_name) == len(temp_2) - 1:
                 new_layer = self.add_layer(
                     layer_name,
                     base_layer=layer_name,

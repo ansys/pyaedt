@@ -1,4 +1,5 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
+
 from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
@@ -153,7 +154,7 @@ class Rmxprt(FieldAnalysisRMxprt):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -238,9 +239,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @property
     def design_type(self):

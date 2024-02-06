@@ -1,0 +1,171 @@
+{
+    "Help": "This Report Template is applicable to Eye Diagram Plots from Transient and Eye Simulations. It include Mask section.",
+    "report_category": "Eye Diagram",
+    "report_type": "Rectangular Plot",
+	"plot_name": "Eye1",
+	"quantity_type": "3",
+    "context": {
+        "Domain": "Time",
+        "primary_sweep": "Time",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "Time": [
+                "All"
+            ]
+        },
+		"unit_interval": "31.25e-12",
+		"offset":"0ms",
+		"auto_delay":true,
+		"manual_delay":"0ps",
+		"auto_cross_amplitude":true,
+		"cross_amplitude":"0mV",
+		"auto_compute_eye_meas": true,
+		"eye_measurement_point":"5e-10s"
+    },
+    "expressions": {"b_input_67":{}
+    },
+	"eye_mask": {
+            "xunits": "ns",
+            "yunits": "V",
+            "points": [
+                [0.025,
+                0],
+				[0.03,
+				0.12],
+				[0.035,
+				0.0],
+				[0.03,
+				-0.1],
+				[0.025,
+				0]
+            ],
+			"enable_limits": true,
+			"upper_limit": 0.75,
+			"lower_limit":-0.75,
+			"color":[255,0,0],
+			"transparency": 0.4
+
+	},
+    "notes": {
+        "Note1": {
+            "text": "Eye Diagram Test from Pyaedt",
+			"position":	[
+			4500,
+			3560
+			],
+            "font": "Courier",
+            "font_size": 14,
+			"italic":true,
+			"bold": false,
+            "color": [
+                0,
+                0,
+                0
+            ],
+            "background_color": [
+                0,
+                255,
+                255
+            ],
+            "background_visibility": true,
+            "border_visibility": false,
+            "border_width": "1",
+			"border_color":[
+                128,
+                0,
+                0
+            ]		
+        }
+    },
+	"general": {
+		"show_rectangular_plot":true,
+        "axisx": {
+            "font": "Arial",
+            "font_size": 10,
+			"bold": true,
+			"italic": false,
+            "color": [
+                255,
+                255,
+                255
+            ]
+        },
+        "axisy1": {
+            "font": "Arial",
+            "font_size": 8,
+			"bold": true,
+			"italic": false,
+            "color": [
+                255,
+                255,
+                255
+            ]
+        },
+        "appearance": {
+            "background_color": [
+                20,
+                20,
+                40
+            ],
+            "plot_color": [
+                20,
+                20,
+                40
+            ],
+            "enable_y_stripes": true,
+            "Auto Scale Fonts": true,
+            "field_width": "4",
+            "precision": "4",
+            "use_scientific_notation": false
+        },
+		"grid": {
+            "major_color": [
+                120,
+                120,
+                120
+            ],
+            "minor_color": [
+                120,
+                120,
+                120
+            ],
+            "major_x": true,
+            "major_y": true,
+            "minor_x": false,
+            "minor_y": false,
+			"style_major": "Dot",
+			"style_minor": "Dot"		
+        },
+		"legend": {
+            "back_color": [
+                70,
+                70,
+                70
+            ],
+			"font_color": [
+                255,
+                255,
+                255
+            ],
+            "show_solution_name": false,
+            "show_variation_key": true,
+            "show_trace_name": true		
+        },
+        "header": {
+            "font": "Arial",
+            "title_size": 12,
+            "color": [
+                255,
+                255,
+                255
+            ],
+			"bold": true,
+			"italic": false,
+            "subtitle_size": 12,
+            "company_name": "Pyaedt CISPR25 Demo",
+            "show_design_name": false
+        }
+    }
+}

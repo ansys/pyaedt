@@ -1,4 +1,5 @@
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -81,9 +82,6 @@ class QExtractor(FieldAnalysis3D, object):
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
-
-    def __enter__(self):
-        return self
 
     @property
     def excitations(self):
@@ -1231,7 +1229,7 @@ class Q3d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
+        machine. The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -2035,7 +2033,7 @@ class Q2d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored
+        machine. The default is ``False``. This parameter is ignored
         when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
