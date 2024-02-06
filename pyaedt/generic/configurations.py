@@ -14,10 +14,10 @@ from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.general_methods import create_configuration_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.cad.Modeler import CoordinateSystem
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -1475,7 +1475,7 @@ class Configurations(object):
                 self._app.logger.error(str(e))
 
         # write the updated dict to file
-        if create_configuration_file(dict_out, config_file):
+        if write_configuration_file(dict_out, config_file):
             self._app.logger.info("Json file {} created correctly.".format(config_file))
             return config_file
         self._app.logger.error("Error creating json file {}.".format(config_file))

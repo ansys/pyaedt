@@ -10,10 +10,10 @@ import re
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
-from pyaedt.generic.general_methods import create_configuration_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
@@ -2938,7 +2938,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        create_configuration_file(self.design_data, design_file)
+        write_configuration_file(self.design_data, design_file)
         return True
 
     @pyaedt_function_handler()

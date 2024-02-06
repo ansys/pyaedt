@@ -152,15 +152,7 @@ class Reports(object):
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
-
-        if not expressions:
-            is_siwave_dc = False
-            if "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR":
-                is_siwave_dc = True
-            elif "AMIAnalysis" in get_setup.props:
-                context = []
-
-            self._post_app.available_report_quantities(is_siwave_dc=is_siwave_dc)
+        rep = None
         if "Standard" in self._templates:
             rep = rt.Standard(self._post_app, "Standard", setup_name)
 
@@ -694,6 +686,7 @@ class Reports(object):
                 rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
             rep.unit_interval = unit_interval
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+            return rep
 
         return
 
@@ -729,7 +722,7 @@ class Reports(object):
         if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
-
+            return rep
         return
 
 

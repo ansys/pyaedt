@@ -1130,7 +1130,7 @@ def _create_json_file(json_dict, full_json_path):
 
 
 @pyaedt_function_handler()
-def create_configuration_file(dict_in, full_path):
+def write_configuration_file(dict_in, full_path):
     """Create a configuration file in json or toml format from a dictionary.
 
     Parameters

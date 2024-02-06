@@ -14,10 +14,10 @@ import sys
 
 from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.general_methods import create_configuration_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import Material
@@ -746,7 +746,7 @@ class Materials(object):
         json_dict["materials"] = output_dict
         if datasets:
             json_dict["datasets"] = datasets
-        return create_configuration_file(json_dict, full_json_path)
+        return write_configuration_file(json_dict, full_json_path)
 
     @pyaedt_function_handler()
     def import_materials_from_file(self, full_json_path):

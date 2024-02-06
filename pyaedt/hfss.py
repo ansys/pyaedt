@@ -5597,7 +5597,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def add_3d_component_array_from_json(self, json_file, array_name=None):
-        """Add or edit a new 3D component array from a JSON file.
+        """Add or edit a new 3D component array from a JSON file or TOML file.
         The 3D component is placed in the layout if it is not present.
 
         Parameters

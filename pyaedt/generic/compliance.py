@@ -187,7 +187,7 @@ class VirtualCompliance:
                             pdf_report.add_image(
                                 os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
                                 f"Plot {report_type} for trace {trace}",
-                                width=pdf_report.epw - 10,
+                                width=pdf_report.epw - 30,
                             )
                             sleep_time = 0
                         except Exception:  # pragma: no cover
@@ -435,7 +435,7 @@ class VirtualCompliance:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
                     except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
-                    report.add_image(file, caption=caption)
+                    report.add_image(file, caption=caption, width=report.epw - 30)
 
         self._create_aedt_reports(report)
         if self._add_project_info:
