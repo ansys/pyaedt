@@ -1,6 +1,7 @@
 """
 This module contains the ``EdbHfss`` class.
 """
+
 import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo

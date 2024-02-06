@@ -50,7 +50,7 @@ ipk.autosave_disable()
 #
 # Imports the idf files with several filtering options including caps, resistors, inductors, power, size, ...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes). 
-# In this examples, the default values are used for the PCB.
+# In this example, the default values are used for the PCB.
 # The imported PCB here will be deleted later and replaced by a PCB that has the trace information for higher accuracy.
 
 # +
@@ -58,18 +58,17 @@ def_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/A1_uprev.ae
 board_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.bdf',temp_folder)
 library_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.ldf',temp_folder)
 
-ipk.import_idf(board_path, library_path=None, control_path=None, 
-                  filter_cap=False, filter_ind=False, filter_res=False, 
-                  filter_height_under=None, filter_height_exclude_2d=False, 
-                  power_under=None, create_filtered_as_non_model=False, 
-                  high_surface_thick='0.07mm', low_surface_thick='0.07mm', 
-                  internal_thick='0.07mm', internal_layer_number=2, 
-                  high_surface_coverage=30, low_surface_coverage=30, 
-                  internal_layer_coverage=30, trace_material='Cu-Pure', 
-                  substrate_material='FR-4', create_board=True, 
-                  model_board_as_rect=False, model_device_as_rect=True, 
-                  cutoff_height='5mm', component_lib='')
-# -
+ipk.import_idf(board_path, library_path=None, control_path=None,
+               filter_cap=False, filter_ind=False, filter_res=False,
+               filter_height_under=None, filter_height_exclude_2d=False,
+               power_under=None, create_filtered_as_non_model=False,
+               high_surface_thick='0.07mm', low_surface_thick='0.07mm',
+               internal_thick='0.07mm', internal_layer_number=2,
+               high_surface_coverage=30, low_surface_coverage=30,
+               internal_layer_coverage=30, trace_material='Cu-Pure',
+               substrate_material='FR-4', create_board=True,
+               model_board_as_rect=False, model_device_as_rect=True,
+               cutoff_height='5mm', component_lib='')
 
 # ## Fit to scale, save the project
 #
@@ -100,7 +99,7 @@ component_name = "PCB_ECAD"
 odb_path = os.path.join(temp_folder, 'icepak/Icepak_ECAD_Import/'+Layout_name+'.aedt')
 ipk.create_pcb_from_3dlayout(
     component_name, odb_path, Layout_name, resolution=2, extenttype="Polygon", outlinepolygon='poly_0', 
-    custom_x_resolution=None, custom_y_resolution=None,power_in=1)
+    custom_x_resolution=None, custom_y_resolution=None, power_in=1)
 # -
 
 # ## Delete PCB objects
@@ -118,8 +117,8 @@ ipk.create_setup("setup1")
 power_budget, total = ipk.post.power_budget("W")
 print(total)
 
-# ## Closing and releasing AEDT
+# ## Release AEDT
 #
+# Release AEDT.
 
-ipk.close_project()      # close the project
-ipk.release_desktop()    # release the AEDT session.  If this step is missing, AEDT cannot be closed.
+ipk.release_desktop(True, True)

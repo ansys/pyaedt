@@ -9,72 +9,33 @@ PyAEDT documentation  |version|
 PyAEDT is a Python library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
 enabling straightforward and efficient automation in your workflow.
 
+
 .. grid:: 2
 
-   .. grid-item-card::
-            :img-top: _static/assets/index_user_guide.png
+    .. grid-item-card:: Getting started :fa:`person-running`
+        :link: Getting_started/index
+        :link-type: doc
 
-            User guide
-            ^^^^^^^^^^
-
-            This section provides in-depth information on PyAEDT key concepts.
-
-            +++
-            .. button-link:: User_guide/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  User guide
+        New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
 
 .. jinja:: main_toctree
 
-    .. grid:: 2
+   .. grid:: 2
 
-           {% if run_examples %}
-           .. grid-item-card::
-                    :img-top: _static/assets/index_examples.png
+      {% if run_examples %}
+      .. grid-item-card:: Examples :fa:`scroll`
+         :link: examples/index
+         :link-type: doc
 
-                    Examples
-                    ^^^^^^^^
+         Explore examples that show how to use PyAEDT to perform different types of simulations.
+      
+      {% endif %}
 
-                    Explore examples that show how to use PyAEDT to
-                    perform different types of simulations.
+      .. grid-item-card:: Contribute :fa:`people-group`
+         :link: Getting_started/Contributing
+         :link-type: doc
 
-                    +++
-                    .. button-link:: examples/index.html
-                       :color: secondary
-                       :expand:
-                       :outline:
-                       :click-parent:
-
-                          Examples
-           {% endif %}
-
-        .. grid-item-card::
-                :img-top: _static/assets/index_contribute.png
-
-                Contribute
-                ^^^^^^^^^^
-                Learn how to contribute to the PyAEDT codebase
-                or documentation.
-
-                +++
-                .. button-link:: Getting_started/Contributing.html
-                   :color: secondary
-                   :expand:
-                   :outline:
-                   :click-parent:
-
-                      Contribute
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+         Learn how to contribute to the PyAEDT codebase or documentation.
 
 .. jinja:: main_toctree
 

@@ -4,6 +4,7 @@ import json
 import os
 
 from fpdf import FPDF
+from fpdf import FontFace
 
 from pyaedt import __version__
 from pyaedt.generic.constants import unit_converter
@@ -135,6 +136,7 @@ class AnsysReport(FPDF):
 
         # Logo
         self.set_y(15)
+        self.set_x(self.l_margin)
         line_x = self.x
         line_y = self.y
         delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
@@ -180,6 +182,7 @@ class AnsysReport(FPDF):
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
+        self.set_x(self.l_margin)
         # Arial italic 8
         self.set_font("helvetica", "I", 8)
         self.set_text_color(*self.report_specs.font_header_color)
@@ -207,9 +210,70 @@ class AnsysReport(FPDF):
             self.add_page()
         return True
 
+    def add_project_info(self, design):
+        """
+
+        Parameters
+        ----------
+        design : object
+            Starting application object. For example, ``hfss1= HFSS3DLayout``.
+
+        Returns
+        -------
+        bool
+        """
+        self.add_page()
+        self.add_chapter(f"Design {design.design_name} Info")
+        msg = f"This section will contain information about project {design.project_name}"
+        msg += f" for design {design.design_name}."
+        self.add_text(msg)
+        msg = f"The design is a {design.design_type} model."
+        self.add_text(msg)
+        if design.design_type in [
+            "Q3D Extractor",
+            "Maxwell 3D",
+            "HFSS",
+            "Icepak",
+            "Mechanical",
+            "Maxwell 2D",
+            "2D Extractor",
+        ]:
+            msg = f"Simulation bounding box is {design.modeler.get_model_bounding_box()}."
+            self.add_text(msg)
+            image_path = os.path.join(design.working_directory, "model.jpg")
+            design.plot(
+                show=False,
+                export_path=image_path,
+                dark_mode=False,
+                show_grid=False,
+                show_bounding=False,
+            )
+            self.add_image(image_path, "Model Image")
+        elif design.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            stats = design.modeler.edb.get_statistics()
+            msg = f"The layout has {stats.num_capacitors} capacitors, {stats.num_resistors} resistors,"
+            msg += f"{stats.num_inductors} inductors. The design size is {stats.layout_size}."
+            self.add_text(msg)
+            msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
+            msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
+            image_path = os.path.join(design.working_directory, "model.jpg")
+            design.modeler.edb.nets.plot(
+                save_plot=image_path,
+            )
+            self.add_image(image_path, "Model Image")
+        elif design.design_type in ["Circuit Design"]:
+            msg = f"The schematic has {design.modeler.components} components."
+            self.add_text(msg)
+
+        if design.setups:
+            msg = f"The design has {len(design.setups)} simulation setups."
+            self.add_text(msg)
+
+        return True
+
     @property
     def template_name(self):
-        """Get/set the template to use.
+        """Name of the template to use.
         It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
 
@@ -398,7 +462,7 @@ class AnsysReport(FPDF):
         num_lines : int, optional
             Number of lines to add.
         """
-        self.ln(num_lines)
+        self.ln(num_lines * self.font_size)
 
     def add_page_break(self):
         """Add a new page break line.
@@ -412,6 +476,8 @@ class AnsysReport(FPDF):
         self,
         title,
         content,
+        formatting=None,
+        col_widths=None,
     ):
         """Add a new table from a list of data.
         Data shall be a list of list where every line is either a row or a column.
@@ -422,10 +488,15 @@ class AnsysReport(FPDF):
             Table title.
         content : list of list
             Table content.
+        formatting : list, optional
+            List of formatting elements for the table rows. The length of the formatting has
+            to be equal to the length of content. Every element is a list of two elements
+            (color, background_color).  Color is a RGB list.
+        col_widths : list, optional
+            List of column widths.
         """
-        self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
-        self.add_caption(f"Table {title}")
 
+        self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
         with self.table(
             borders_layout="MINIMAL",
@@ -434,11 +505,24 @@ class AnsysReport(FPDF):
             line_height=self.font_size * 2.5,
             text_align="CENTER",
             width=160,
+            col_widths=col_widths,
         ) as table:
-            for data_row in content:
+            for i, data_row in enumerate(content):
+                fill_color = None
+                font_color = self.report_specs.font_color
+
+                if formatting:
+                    try:
+                        font_color = formatting[i][0] if formatting[i][0] else self.report_specs.font_color
+                        fill_color = formatting[i][1] if formatting[i][1] else None
+                    except IndexError:
+                        pass
+                style = FontFace(color=font_color, fill_color=fill_color)
+
                 row = table.row()
                 for datum in data_row:
-                    row.cell(datum)
+                    row.cell(datum, style=style)
+        self.add_caption(f"Table {title}")
 
     def add_text(self, content, bold=False, italic=False):
         """Add a new text.
