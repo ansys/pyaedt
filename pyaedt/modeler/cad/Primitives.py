@@ -8473,9 +8473,7 @@ class PrimitivesBuilder(object):
         return cyl1
 
     def _create_box_instance(self, name, cs, origin, data):
-        """Create cylinder instance.
-
-        Create a box instance.
+        """Create a box instance.
 
         Parameters
         ----------
@@ -8486,7 +8484,7 @@ class PrimitivesBuilder(object):
         origin : list
             Instance origin position.
         data : dict
-            Cylinder information.
+            Box information.
 
         Returns
         -------
@@ -8511,7 +8509,7 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _read_csv_cylinder_props(self, csv_data):
-        """Convert csv data to PrimitivesBuilder properties.
+        """Convert CSV data to ``PrimitivesBuilder`` properties.
 
         Create a cylinder instance.
 
