@@ -146,6 +146,9 @@ all = [
     "scikit-rf==0.31.0",
     "openpyxl==3.1.2",
 ]
+ci = [
+    "pypandoc-binary",
+]
 
 [tool.flit.module]
 name = "pyaedt"

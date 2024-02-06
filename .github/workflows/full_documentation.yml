@@ -59,6 +59,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           pip install .[doc]
+          pip install .[ci]
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
       - name: Retrieve PyAEDT version
