@@ -69,7 +69,7 @@
 			"CS": "CS1",
 			"Origin": [0,0,50]
 		},
-				{
+		{
 			"Name":"SmallBox",
 			"Coordinate System": "CS1",
 			"Origin": ["0mm","1.052dm","2"]
