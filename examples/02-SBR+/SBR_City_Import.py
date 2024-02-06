@@ -30,7 +30,7 @@ non_graphical = False
 app = Hfss(
     designname="Ansys",
     solution_type="SBR+",
-    specified_version="2023.2",
+    specified_version="2024.1",
     new_desktop_session=True,
     non_graphical=non_graphical
 )
