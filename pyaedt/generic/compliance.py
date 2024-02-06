@@ -270,9 +270,9 @@ class VirtualCompliance:
                 result_value = "FAIL"
                 num_failed += 1
                 # break
-        if result_value == "FAIL":
-            result_value = f"Failed on {num_failed} points."
         font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
+        if result_value == "FAIL":
+            result_value = f"FAIL on {num_failed} points."
         pass_fail_table.append([mystr, result_value])
 
         if local_config["eye_mask"]["enable_limits"]:
