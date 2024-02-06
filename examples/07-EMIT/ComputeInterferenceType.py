@@ -39,7 +39,7 @@ table_colors = {"green":'#7d73ca', "yellow":'#d359a2', "orange": '#ff6361', "red
 header_color = 'grey'
 
 # Check for if emit version is compatible
-desktop_version = "2023.2"
+desktop_version = "2024.1"
 if desktop_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()

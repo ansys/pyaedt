@@ -34,7 +34,7 @@ example_path = pyaedt.downloads.download_3dcomponent()
 # Launch HFSS and save the project.
 project_name = pyaedt.generate_unique_project_name(project_name="array")
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.2",
+                   specified_version="2024.1",
                    designname="Array_Simple",
                    non_graphical=non_graphical,
                    new_desktop_session=True)

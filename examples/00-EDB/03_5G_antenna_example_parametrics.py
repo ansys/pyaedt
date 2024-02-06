@@ -86,7 +86,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
 
 ###############################################################################
 # Add stackup layers
@@ -248,7 +248,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # ~~~~~~~~~~~~~~
 # Launch HFSS 3D.
 
-h3d = pyaedt.Hfss(specified_version="2023.2", new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
+h3d = pyaedt.Hfss(specified_version="2024.1", new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
 
 ###############################################################################
 # Add the layout component

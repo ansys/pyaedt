@@ -26,7 +26,7 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(specified_version="2023.2",
+hfss = pyaedt.Hfss(specified_version="2024.1",
                    solution_type="DrivenTerminal",
                    new_desktop_session=True,
                    non_graphical=non_graphical)

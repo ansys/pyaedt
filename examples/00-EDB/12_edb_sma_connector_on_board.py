@@ -27,7 +27,7 @@ import os
 import numpy as np
 import pyaedt
 
-ansys_version = "2023.2"
+ansys_version = "2024.1"
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion=ansys_version)

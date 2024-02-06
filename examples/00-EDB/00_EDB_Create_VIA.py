@@ -26,7 +26,7 @@ start = time.time()
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
 
 ####################
 # Add stackup layers

@@ -38,7 +38,7 @@ def _create_ground_planes(edb, layers):
 # ~~~~~~~~~~
 # Create EDB. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
 
 ##################################################################################
 # Create stackup layers

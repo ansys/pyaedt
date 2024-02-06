@@ -29,7 +29,7 @@ project_path = pyaedt.generate_unique_project_name()
 
 q = pyaedt.Q2d(projectname=project_path,
                designname="differential_stripline",
-               specified_version="2023.2",
+               specified_version="2024.1",
                non_graphical=non_graphical,
                new_desktop_session=True
                )

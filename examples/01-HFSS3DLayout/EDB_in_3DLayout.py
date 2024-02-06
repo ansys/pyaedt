@@ -39,7 +39,7 @@ NewThread = True
 # ~~~~~~~~~~~
 # Launch AEDT 2022R2 in graphical mode using SI units.
 
-desktopVersion = "2023.2"
+desktopVersion = "2024.1"
 
 ###############################################################################
 # Initialize AEDT and launch HFSS 3D Layout

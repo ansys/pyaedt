@@ -24,7 +24,7 @@ aedt_file = targetfile[:-4] + "aedt"
 # Launch EDB
 # ~~~~~~~~~~
 # Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
-edb_version = "2023.2"
+edb_version = "2024.1"
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
@@ -162,7 +162,7 @@ edb.close_edb()
 # Open Siwave and generate a report. This works on Window only.
 
 # from pyaedt import Siwave
-# siwave = Siwave("2023.2")
+# siwave = Siwave("2024.1")
 # siwave.open_project(siwave_file)
 # report_file = os.path.join(temp_folder,'Ansys.htm')
 #

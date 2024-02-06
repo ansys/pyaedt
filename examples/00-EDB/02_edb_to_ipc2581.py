@@ -32,7 +32,7 @@ print(targetfile)
 # ~~~~~~~~~~
 # Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion="2024.1")
 
 
 ###############################################################################

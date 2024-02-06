@@ -30,7 +30,7 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 # Use the 2023R2 release of HFSS.
 
 non_graphical = True  # Set to False to launch the AEDT UI.
-desktop_version = "2023.2"
+desktop_version = "2024.1"
 length_units = "mm"
 freq_units = "GHz"
 

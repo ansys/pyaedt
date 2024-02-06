@@ -25,7 +25,7 @@ from pyaedt.generic.pdf import AnsysReport
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktopVersion = "2023.2"
+desktopVersion = "2024.1"
 
 ###############################################################################
 # Open project

@@ -47,7 +47,7 @@ import plotly.graph_objects as go
 
 non_graphical = False
 new_thread = True
-desktop_version = "2023.2"
+desktop_version = "2024.1"
 
 ###############################################################################
 # Launch AEDT with EMIT

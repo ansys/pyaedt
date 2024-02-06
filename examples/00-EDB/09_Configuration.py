@@ -35,9 +35,9 @@ print("Project folder will be", target_aedb)
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2024R1 and SI units.
 
-edbapp = pyaedt.Edb(target_aedb, edbversion="2023.2")
+edbapp = pyaedt.Edb(target_aedb, edbversion="2024.1")
 ###############################################################################
 # Import Definitions
 # ~~~~~~~~~~~~~~~~~~
@@ -174,7 +174,7 @@ edbapp.close_edb()
 # Open Aedt
 # ~~~~~~~~~
 # Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", projectname=target_aedb, non_graphical=non_graphical, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(specified_version="2024.1", projectname=target_aedb, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Analyze
