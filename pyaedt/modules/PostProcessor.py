@@ -3228,9 +3228,7 @@ class PostProcessor(PostProcessorCommon, object):
             objlist = [objlist]
         new_obj_list = []
         for obj in objlist:
-            if isinstance(obj, FacePrimitive):
-                new_obj_list.append(obj)
-            elif isinstance(obj, int):
+            if isinstance(obj, (int, FacePrimitive)):
                 new_obj_list.append(obj)
             elif self._app.modeler[obj]:
                 new_obj_list.append([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
