@@ -222,6 +222,7 @@ def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('builder-inited', copy_examples)
+    app.connect("builder-inited", ensure_pandoc_installed)
     app.connect('source-read', add_ipython_time)
     app.connect('source-read', adjust_image_path)
     app.connect('html-page-context', remove_ipython_time_from_html)
@@ -229,6 +230,19 @@ def setup(app):
     app.connect('build-finished', remove_examples)
     app.connect('build-finished', remove_doctree)
     app.connect('build-finished', check_build_finished_without_error)
+
+def check_pandoc_installed():
+    """Ensure that pandoc is installed
+    """
+    import pypandoc
+
+    try:
+        pandoc_path = pypandoc.get_pandoc_path()
+        pandoc_dir = os.path.dirname(pandoc_path)
+        if pandoc_dir not in os.environ["PATH"].split(os.pathsep):
+            os.environ["PATH"] += os.pathsep + pandoc_dir
+    except OSError:
+        logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
@@ -392,7 +406,7 @@ pygments_style = "sphinx"
 nbsphinx_execute = "always"
 
 # Allow errors to help debug.
-nbsphinx_allow_errors = True
+nbsphinx_allow_errors = False
 
 # Sphinx gallery customization
 
