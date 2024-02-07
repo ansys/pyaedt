@@ -3233,7 +3233,7 @@ class PostProcessor(PostProcessorCommon, object):
             elif isinstance(obj, int):
                 new_obj_list.append(obj)
             elif self._app.modeler[obj]:
-                new_obj_list.append([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
+                new_obj_list.extend([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
         return self._create_fieldplot(
             new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
         )
