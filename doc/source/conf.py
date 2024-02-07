@@ -218,19 +218,6 @@ def check_build_finished_without_error(app, exception):
     if app.builder.config.html_context.get('build_error', False):
         raise Exception('Build failed due to error in html-page-context')
 
-def setup(app):
-    app.add_directive('pprint', PrettyPrintDirective)
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect('builder-inited', copy_examples)
-    app.connect("builder-inited", ensure_pandoc_installed)
-    app.connect('source-read', add_ipython_time)
-    app.connect('source-read', adjust_image_path)
-    app.connect('html-page-context', remove_ipython_time_from_html)
-    app.connect('html-page-context', check_example_error)
-    app.connect('build-finished', remove_examples)
-    app.connect('build-finished', remove_doctree)
-    app.connect('build-finished', check_build_finished_without_error)
-
 def check_pandoc_installed():
     """Ensure that pandoc is installed
     """
@@ -243,6 +230,19 @@ def check_pandoc_installed():
             os.environ["PATH"] += os.pathsep + pandoc_dir
     except OSError:
         logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
+
+def setup(app):
+    app.add_directive('pprint', PrettyPrintDirective)
+    app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('builder-inited', copy_examples)
+    app.connect("builder-inited", check_pandoc_installed)
+    app.connect('source-read', add_ipython_time)
+    app.connect('source-read', adjust_image_path)
+    app.connect('html-page-context', remove_ipython_time_from_html)
+    app.connect('html-page-context', check_example_error)
+    app.connect('build-finished', remove_examples)
+    app.connect('build-finished', remove_doctree)
+    app.connect('build-finished', check_build_finished_without_error)
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
