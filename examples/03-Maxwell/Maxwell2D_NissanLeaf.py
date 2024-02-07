@@ -663,23 +663,30 @@ for k, v in post_params.items():
 #                            polyline_points=1001, plotname=v)
 # -
 
-# ## Create flux lines plot on region
-#
-# Create a flux lines plot on a region. The ``object_list`` is
-# formerly created when the section is applied.
-
-faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
-# Maxwell Transient needs time specified in a dictionary
-# "IntrinsicVar:="	, "Time=\'0\'",
-M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', intrinsincDict={"Time": "0.000"},
-                                  plot_name="Flux_Lines")
-
 # ## Analyze and save project
 #
 # Analyze and save the project.
 
 M2D.save_project()
 M2D.analyze_setup(sName, use_auto_settings=False)
+
+# ## Create flux lines plot on region
+#
+# Create a flux lines plot on a region. The ``object_list`` is
+# formerly created when the section is applied.
+
+faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
+plot1 = M2D.post.create_fieldplot_surface(objlist=faces_reg,
+                                          quantityName='Flux_Lines',
+                                          intrinsincDict={
+                                              "Time": M2D.variable_manager.variables["StopTime"].evaluated_value},
+                                          plot_name="Flux_Lines")
+
+# ## Export a field plot to an image file
+# 
+# Export the flux lines plot to an image file using Python PyVista.
+
+M2D.post.plot_field_from_fieldplot(plot1.name, show=False)
 
 # ## Get solution data
 #
@@ -688,14 +695,14 @@ M2D.analyze_setup(sName, use_auto_settings=False)
 
 solutions = M2D.post.get_solution_data(expressions="Moving1.Torque",
                                        primary_sweep_variable="Time")
-solutions.plot()
+#solutions.plot()
 
 # ## Retrieve the data magnitude of an expression
 #
 # List of shaft torque points and compute average.
 
 mag = solutions.data_magnitude()
-avg = sum(mag)/len(mag)
+avg = sum(mag) / len(mag)
 
 # ## Export a report to a file
 #
