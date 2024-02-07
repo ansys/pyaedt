@@ -34,7 +34,7 @@ jobs:
     # The type of runner that the job will run on
     name: full_documentation
     runs-on: [windows-latest, pyaedt]
-    timeout-minutes: 720
+    timeout-minutes: 900
     strategy:
       matrix:
         python-version: ['3.10']
