@@ -218,7 +218,7 @@ def check_build_finished_without_error(app, exception):
     if app.builder.config.html_context.get('build_error', False):
         raise Exception('Build failed due to error in html-page-context')
 
-def check_pandoc_installed():
+def check_pandoc_installed(app):
     """Ensure that pandoc is installed
     """
     import pypandoc
