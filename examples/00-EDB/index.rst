@@ -19,7 +19,7 @@ electronics desktop user interface.
     06_Advanced_EDB.py
     09_Configuration.py
     10_GDS_workflow.py
-    11_post_layout_parametrization.py
+    11_post_layout_parameterization.py
     12_edb_sma_connector_on_board.py
     13_edb_create_component.py
     14_edb_create_parametrized_design.py

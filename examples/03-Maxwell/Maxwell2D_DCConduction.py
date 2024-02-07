@@ -115,6 +115,7 @@ param_sweep.analyze()
 #
 # Create R. vs. material report.
 
+# +
 variations = {"MaterialIndex": ["All"], "MaterialThickness": ["Nominal"]}
 report = m2d.post.create_report(
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
@@ -135,6 +136,7 @@ colors = [[(255, 255, 255), (0, 255, 0)]]
 for i in range(len(d.primary_sweep_values)):
     material_index_vs_resistance.append([str(d.primary_sweep_values[i]), str(resistence[i])])
     colors.append([None, None])
+# -
 
 # ## Field overlay
 #
@@ -179,16 +181,14 @@ animated.elevation_angle = 0
 animated.azimuth_angle = 0
 animated.animate()
 
-################################################################################
-# Export model picture
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Export model picture
+#
 # Export model picture.
 
 model_picture = m2d.post.export_model_picture()
 
-################################################################################
-# Generate PDF report
-# ~~~~~~~~~~~~~~~~~~~
+# ## Generate PDF report
+#
 # Generate a PDF report with output of simulation.
 
 pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2")
