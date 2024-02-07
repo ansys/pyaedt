@@ -78,7 +78,6 @@ class TestClass:
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
-
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
         )
@@ -86,6 +85,7 @@ class TestClass:
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic
         )
+        assert not self.aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
         assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2

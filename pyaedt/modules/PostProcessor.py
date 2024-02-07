@@ -23,6 +23,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.settings import settings
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
@@ -3257,11 +3258,11 @@ class PostProcessor(PostProcessorCommon, object):
         if not isinstance(objlist, (list, tuple)):
             objlist = [objlist]
         new_obj_list = []
-        for objs in objlist:
-            if self._app.modeler[objs]:
-                new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
-            else:
-                new_obj_list.append(objs)
+        for obj in objlist:
+            if isinstance(obj, (int, FacePrimitive)):
+                new_obj_list.append(obj)
+            elif self._app.modeler[obj]:
+                new_obj_list.extend([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
         return self._create_fieldplot(
             new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
         )
