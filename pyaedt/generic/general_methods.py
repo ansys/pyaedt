@@ -416,7 +416,7 @@ def read_json(fn):
     Parameters
     ----------
     fn : str
-        json file full path.
+        Full path to the JSON file.
 
     Returns
     -------
