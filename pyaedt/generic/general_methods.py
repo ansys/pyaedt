@@ -411,7 +411,7 @@ def read_configuration_file(file_path):
 
 @pyaedt_function_handler()
 def read_json(fn):
-    """Load Json File to a dictionary.
+    """Load a JSON file to a dictionary.
 
     Parameters
     ----------
