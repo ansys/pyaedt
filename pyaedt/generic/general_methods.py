@@ -385,7 +385,7 @@ def open_file(file_path, file_options="r"):
 
 @pyaedt_function_handler()
 def read_configuration_file(file_path):
-    """Parse a file and return information in form of list or dict.
+    """Parse a file and return the information in a list or dictionary.
 
     Parameters
     ----------
