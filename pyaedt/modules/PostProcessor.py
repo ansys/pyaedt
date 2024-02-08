@@ -124,7 +124,7 @@ class Reports(object):
 
     @pyaedt_function_handler()
     def standard(self, expressions=None, setup_name=None):
-        """Create a Standard or Default Report object.
+        """Create a standard or default report object.
 
         Parameters
         ----------
