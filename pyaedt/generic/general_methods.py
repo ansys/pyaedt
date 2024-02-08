@@ -390,7 +390,7 @@ def read_configuration_file(file_path):
     Parameters
     ----------
     file_path : str
-        Full path to the file. Supported formats are ``toml``, ``json``,``tab``,``csv``,``xlsx``.
+        Full path to the file. Supported formats are ``"csv"``, ``"json"``, ``"tab"``, ``"toml"``, and ``"xlsx"``.
 
     Returns
     -------
