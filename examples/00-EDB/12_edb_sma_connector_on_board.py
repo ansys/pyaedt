@@ -181,15 +181,16 @@ comp = h3d.modeler.place_3d_component(
 
 h3d.analyze(num_cores=4)
 
-# Visualize the return loss.
+# ## Visualize the return loss.
+
 h3d.post.create_report("dB(S(port_1, port_1))")
 
-# Save and close the project.
+# ## Save and close the project.
 
 h3d.save_project()
 print("Project is saved to {}".format(h3d.project_path))
 h3d.release_desktop(True, True)
 
-# Clean up the temporary folder.
+# ## Clean up the temporary folder.
 
 temp_dir.cleanup()
