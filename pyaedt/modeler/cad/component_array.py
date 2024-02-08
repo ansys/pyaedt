@@ -52,7 +52,7 @@ class ComponentArray(object):
         # Data that cannot be obtained from CSV
         try:
             self.__cs_id = app.design_properties["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
-        except AttributeError:  # pragma: no cover
+        except (AttributeError, TypeError):  # pragma: no cover
             self.__cs_id = 1
 
         self.__omodel = self.__app.get_oo_object(self.__app.odesign, "Model")
