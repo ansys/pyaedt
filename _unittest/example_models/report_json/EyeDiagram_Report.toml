@@ -1,4 +1,4 @@
-Help = "This Report Template is applicable to Eye Diagram Plots from Transient and Eye Simulations. It include Mask section."
+Help = "This report template is applicable to eye diagram plots from transient and eye simulations. It includes a mask section."
 report_category = "Eye Diagram"
 report_type = "Rectangular Plot"
 plot_name = "Eye1"

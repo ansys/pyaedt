@@ -2002,12 +2002,12 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
-        """Create a new report based on json file, toml file or dictionary of properties.
+        """Create a report based on a JSON file, TOML file, or dictionary of properties.
 
         Parameters
         ----------
         input_file : str, optional
-            Path to a json or toml file containing report settings.
+            Path to the JSON or TOML file containing report settings.
         input_dict : dict, optional
             Dictionary containing report settings.
         solution_name : setup name to use.
@@ -2026,7 +2026,7 @@ class PostProcessorCommon(object):
         ...                                               solution_name="Setup1 : LastAdpative")
         """
         if not input_dict and not input_file:  # pragma: no cover
-            self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
+            self.logger.error("Either a JSON file or a dictionary must be passed as input.")
             return False
         if input_file:
             props = read_configuration_file(input_file)
