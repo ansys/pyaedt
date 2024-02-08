@@ -439,7 +439,7 @@ def read_toml(file_path):
     Parameters
     ----------
     file_path : str
-        Full path to the toml file.
+        Full path to the TOML file.
 
     Returns
     -------
