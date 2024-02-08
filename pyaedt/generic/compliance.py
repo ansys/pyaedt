@@ -28,7 +28,7 @@ default_keys = [
 
 
 class VirtualCompliance:
-    """Virtual compliance class.
+    """Provides automatic report generation with pass/fail criteria on virtual compliance.
 
     Parameters
     ----------
