@@ -1138,7 +1138,7 @@ def write_configuration_file(dict_in, full_path):
     dict_in : dict
         Dictionary to dump to file.
     full_path : str
-        Full path to the file with extension.
+        Full path to the file, including its extension.
 
     Returns
     -------

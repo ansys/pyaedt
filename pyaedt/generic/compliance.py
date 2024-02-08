@@ -33,9 +33,9 @@ class VirtualCompliance:
     Parameters
     ----------
     desktop : :class:``pyaedt.desktop.Desktop``
-        Desktop object
+        Desktop object.
     template : str
-        Full path to the template. Supported formats are json and toml.
+        Full path to the template. Supported formats are JSON and TOML.
     """
 
     def __init__(self, desktop, template):
