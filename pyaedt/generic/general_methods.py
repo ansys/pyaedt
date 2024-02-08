@@ -444,7 +444,7 @@ def read_toml(file_path):
     Returns
     -------
     dict
-        Parsed toml file as dictionary
+        Parsed TOML file as a dictionary.
     """
     import pytomlpp as tomllib
 
