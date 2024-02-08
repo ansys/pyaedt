@@ -434,7 +434,7 @@ def read_json(fn):
 
 @pyaedt_function_handler()
 def read_toml(file_path):
-    """Read a toml file and return the dictionary.
+    """Read a TOML file and return as a dictionary.
 
     Parameters
     ----------
