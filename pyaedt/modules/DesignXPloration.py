@@ -1296,6 +1296,7 @@ class OptimizationSetups(object):
                         "OptiDXDOE",
                         "OptiDesignExplorer",
                         "OptiSLang",
+                        "optiSLang",
                         "OptiSensitivity",
                         "OptiStatistical",
                     ]:
@@ -1406,6 +1407,13 @@ class OptimizationSetups(object):
         """
         if not solution and not self._app.nominal_sweep:
             self._app.logger.error("At least one setup is needed.")
+            return False
+        if (
+            self._app.aedt_version_id >= "2023.2"
+            and self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0
+            and optim_type != "optiSLang"
+        ):  # pragma: no cover
+            self._app.logger.error("Enable legacy optimetrics tools.")
             return False
         if not solution:
             solution = self._app.nominal_sweep

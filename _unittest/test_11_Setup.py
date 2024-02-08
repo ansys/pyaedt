@@ -22,7 +22,19 @@ class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
+        if (
+            desktop_version >= "2023.2"
+            and self.aedtapp.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools")
+            == 0
+        ):
+            self.skip_optimetrics = True
+        else:
+            self.skip_optimetrics = False
         self.local_scratch = local_scratch
+
+    @pytest.fixture
+    def skip_optimetrics_fixture(self):
+        return self.skip_optimetrics
 
     def test_01_create_hfss_setup(self):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
@@ -174,6 +186,7 @@ class TestClass:
         assert setup1.sync_variables(["a1", "a2"], sync_n=0)
         setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
 
+    @pytest.mark.skipif(skip_optimetrics_fixture, reason="Legacy optimetrics disabled.")
     def test_26_create_optimization(self):
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyOptimSetup")
@@ -216,6 +229,7 @@ class TestClass:
         assert "rd" in el[2]
         assert self.aedtapp.optimizations.delete(setup2.name)
 
+    @pytest.mark.skipif(skip_optimetrics_fixture, reason="Legacy optimetrics disabled.")
     def test_27_create_doe(self):
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyDOESetup")
@@ -269,6 +283,7 @@ class TestClass:
             calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
         )
 
+    @pytest.mark.skipif(skip_optimetrics_fixture, reason="Legacy optimetrics disabled.")
     def test_28B_create_dx(self):
         new_setup = self.aedtapp.create_setup("MyDXSetup")
         new_setup.props["Frequency"] = "2.5GHz"
@@ -294,6 +309,7 @@ class TestClass:
             calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
         )
 
+    @pytest.mark.skipif(skip_optimetrics_fixture, reason="Legacy optimetrics disabled.")
     def test_29_create_sensitivity(self):
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MySensiSetup")
@@ -311,6 +327,7 @@ class TestClass:
             calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
         )
 
+    @pytest.mark.skipif(skip_optimetrics_fixture, reason="Legacy optimetrics disabled.")
     def test_29_create_statistical(self):
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyStatisticsetup")
