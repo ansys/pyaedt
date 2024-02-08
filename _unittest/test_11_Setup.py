@@ -18,18 +18,22 @@ def aedtapp(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def skip_optimetrics(aedtapp):
+    if (
+        desktop_version >= "2023.2"
+        and aedtapp.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0
+    ):
+        skip_optimetrics = True
+    else:
+        skip_optimetrics = False
+    return skip_optimetrics
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
-        if (
-            desktop_version >= "2023.2"
-            and self.aedtapp.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools")
-            == 0
-        ):
-            self.skip_optimetrics = True
-        else:
-            self.skip_optimetrics = False
         self.local_scratch = local_scratch
 
     def test_01_create_hfss_setup(self):
@@ -182,78 +186,78 @@ class TestClass:
         assert setup1.sync_variables(["a1", "a2"], sync_n=0)
         setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
 
+    @pytest.mark.skipif(skip_optimetrics, reason="Legacy optimetrics disabled.")
     def test_26_create_optimization(self):
-        if not self.skip_optimetrics:
-            calculation = "db(S(1,1))"
-            new_setup = self.aedtapp.create_setup("MyOptimSetup")
-            new_setup.props["Frequency"] = "2.5GHz"
-            sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-            setup2 = self.aedtapp.optimizations.add(
-                calculation, ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
-            )
-            assert setup2
-            assert setup2.name in self.aedtapp.get_oo_name(
-                self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
-            )
-            oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
-            oo_calculation = oo.GetCalculationInfo()[0]
-            assert calculation in oo_calculation
-            assert "{} : {}".format(new_setup.name, sweep.name) in oo_calculation
-            for el in oo_calculation:
-                if "NAME:Ranges" in el:
-                    break
-            assert len(el) == 3
-            assert setup2.add_variation("w1", 0.1, 10, 5)
-            assert setup2.add_goal(
-                calculation=calculation,
-                ranges={"Freq": "2.6GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            oo_calculation = oo.GetCalculationInfo()[0]
-            for el in reversed(oo_calculation):
-                if "NAME:Ranges" in el:
-                    break
-            assert "2.6GHz" in el[2]
-            assert setup2.add_goal(
-                calculation=calculation,
-                ranges={"Freq": ("2.6GHz", "5GHZ")},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
-            oo_calculation = oo.GetCalculationInfo()[0]
-            for el in reversed(oo_calculation):
-                if "NAME:Ranges" in el:
-                    break
-            assert "rd" in el[2]
-            assert self.aedtapp.optimizations.delete(setup2.name)
+        calculation = "db(S(1,1))"
+        new_setup = self.aedtapp.create_setup("MyOptimSetup")
+        new_setup.props["Frequency"] = "2.5GHz"
+        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        setup2 = self.aedtapp.optimizations.add(
+            calculation, ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
+        )
+        assert setup2
+        assert setup2.name in self.aedtapp.get_oo_name(
+            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
+        )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        assert calculation in oo_calculation
+        assert "{} : {}".format(new_setup.name, sweep.name) in oo_calculation
+        for el in oo_calculation:
+            if "NAME:Ranges" in el:
+                break
+        assert len(el) == 3
+        assert setup2.add_variation("w1", 0.1, 10, 5)
+        assert setup2.add_goal(
+            calculation=calculation,
+            ranges={"Freq": "2.6GHz"},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in reversed(oo_calculation):
+            if "NAME:Ranges" in el:
+                break
+        assert "2.6GHz" in el[2]
+        assert setup2.add_goal(
+            calculation=calculation,
+            ranges={"Freq": ("2.6GHz", "5GHZ")},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in reversed(oo_calculation):
+            if "NAME:Ranges" in el:
+                break
+        assert "rd" in el[2]
+        assert self.aedtapp.optimizations.delete(setup2.name)
 
+    @pytest.mark.skipif(skip_optimetrics, reason="Legacy optimetrics disabled.")
     def test_27_create_doe(self):
-        if not self.skip_optimetrics:
-            calculation = "db(S(1,1))"
-            new_setup = self.aedtapp.create_setup("MyDOESetup")
-            new_setup.props["Frequency"] = "2.5GHz"
-            sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-            setup2 = self.aedtapp.optimizations.add(
-                calculation,
+        calculation = "db(S(1,1))"
+        new_setup = self.aedtapp.create_setup("MyDOESetup")
+        new_setup.props["Frequency"] = "2.5GHz"
+        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        setup2 = self.aedtapp.optimizations.add(
+            calculation,
+            ranges={"Freq": "2.5GHz"},
+            optim_type="DXDOE",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_variation("w1", 0.1, 10)
+        assert setup2.add_variation("w2", 0.1, 10)
+        assert setup2
+        if desktop_version < "2024.1":
+            assert setup2.add_goal(
+                calculation="dB(S(1,1))",
                 ranges={"Freq": "2.5GHz"},
-                optim_type="DXDOE",
                 solution="{} : {}".format(new_setup.name, sweep.name),
             )
-            assert setup2.add_variation("w1", 0.1, 10)
-            assert setup2.add_variation("w2", 0.1, 10)
-            assert setup2
-            if desktop_version < "2024.1":
-                assert setup2.add_goal(
-                    calculation="dB(S(1,1))",
-                    ranges={"Freq": "2.5GHz"},
-                    solution="{} : {}".format(new_setup.name, sweep.name),
-                )
-                assert setup2.add_calculation(
-                    calculation="dB(S(1,1))",
-                    ranges={"Freq": "2.5GHz"},
-                    solution="{} : {}".format(new_setup.name, sweep.name),
-                )
-            assert setup2.delete()
+            assert setup2.add_calculation(
+                calculation="dB(S(1,1))",
+                ranges={"Freq": "2.5GHz"},
+                solution="{} : {}".format(new_setup.name, sweep.name),
+            )
+        assert setup2.delete()
 
     def test_28A_create_optislang(self):
         new_setup = self.aedtapp.create_setup("MyOptisSetup")
@@ -281,70 +285,70 @@ class TestClass:
             calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="{} : {}".format(new_setup.name, sweep.name)
         )
 
+    @pytest.mark.skipif(skip_optimetrics, reason="Legacy optimetrics disabled.")
     def test_28B_create_dx(self):
-        if not self.skip_optimetrics:
-            new_setup = self.aedtapp.create_setup("MyDXSetup")
-            new_setup.props["Frequency"] = "2.5GHz"
-            sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-            setup1 = self.aedtapp.optimizations.add(
-                None,
-                ranges=None,
-                variables=None,
-                optim_type="DesignExplorer",
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            assert setup1.add_variation("w1", 5, 10, 51)
-            setup2 = self.aedtapp.optimizations.add(
-                None,
-                ranges=None,
-                variables={"w1": "1mm", "w2": "2mm"},
-                optim_type="DesignExplorer",
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            assert setup2.add_variation("a1", 1, 10, 51)
-            assert setup2
-            assert setup2.add_goal(
-                calculation="dB(S(1,1))",
-                ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
+        new_setup = self.aedtapp.create_setup("MyDXSetup")
+        new_setup.props["Frequency"] = "2.5GHz"
+        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        setup1 = self.aedtapp.optimizations.add(
+            None,
+            ranges=None,
+            variables=None,
+            optim_type="DesignExplorer",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup1.add_variation("w1", 5, 10, 51)
+        setup2 = self.aedtapp.optimizations.add(
+            None,
+            ranges=None,
+            variables={"w1": "1mm", "w2": "2mm"},
+            optim_type="DesignExplorer",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_variation("a1", 1, 10, 51)
+        assert setup2
+        assert setup2.add_goal(
+            calculation="dB(S(1,1))",
+            ranges={"Freq": "2.5GHz"},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
 
+    @pytest.mark.skipif(skip_optimetrics, reason="Legacy optimetrics disabled.")
     def test_29_create_sensitivity(self):
-        if not self.skip_optimetrics:
-            calculation = "db(S(1,1))"
-            new_setup = self.aedtapp.create_setup("MySensiSetup")
-            new_setup.props["Frequency"] = "2.5GHz"
-            sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-            setup2 = self.aedtapp.optimizations.add(
-                calculation,
-                ranges={"Freq": "2.5GHz"},
-                optim_type="Sensitivity",
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            assert setup2.add_variation("w1", 0.1, 10, 3.2)
-            assert setup2
-            assert setup2.add_calculation(
-                calculation="dB(S(1,1))",
-                ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
+        calculation = "db(S(1,1))"
+        new_setup = self.aedtapp.create_setup("MySensiSetup")
+        new_setup.props["Frequency"] = "2.5GHz"
+        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        setup2 = self.aedtapp.optimizations.add(
+            calculation,
+            ranges={"Freq": "2.5GHz"},
+            optim_type="Sensitivity",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_variation("w1", 0.1, 10, 3.2)
+        assert setup2
+        assert setup2.add_calculation(
+            calculation="dB(S(1,1))",
+            ranges={"Freq": "2.5GHz"},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
 
+    @pytest.mark.skipif(skip_optimetrics, reason="Legacy optimetrics disabled.")
     def test_29_create_statistical(self):
-        if not self.skip_optimetrics:
-            calculation = "db(S(1,1))"
-            new_setup = self.aedtapp.create_setup("MyStatisticsetup")
-            new_setup.props["Frequency"] = "2.5GHz"
-            sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
-            setup2 = self.aedtapp.optimizations.add(
-                calculation,
-                ranges={"Freq": "2.5GHz"},
-                optim_type="Statistical",
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            assert setup2.add_variation("w1", 0.1, 10, 0.3)
-            assert setup2
-            assert setup2.add_calculation(
-                calculation="dB(S(1,1))",
-                ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
+        calculation = "db(S(1,1))"
+        new_setup = self.aedtapp.create_setup("MyStatisticsetup")
+        new_setup.props["Frequency"] = "2.5GHz"
+        sweep = new_setup.create_linear_step_sweep(freqstart=2, freqstop=10, step_size=0.1)
+        setup2 = self.aedtapp.optimizations.add(
+            calculation,
+            ranges={"Freq": "2.5GHz"},
+            optim_type="Statistical",
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_variation("w1", 0.1, 10, 0.3)
+        assert setup2
+        assert setup2.add_calculation(
+            calculation="dB(S(1,1))",
+            ranges={"Freq": "2.5GHz"},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )

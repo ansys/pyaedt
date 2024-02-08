@@ -3,6 +3,7 @@ import os
 import shutil
 
 from _unittest.conftest import config
+from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
@@ -36,6 +37,18 @@ def aedtapp(add_app):
 def fall_back_name(aedtapp):
     name = aedtapp.design_name
     return name
+
+
+@pytest.fixture(scope="class")
+def skip_optimetrics(aedtapp):
+    if (
+        desktop_version >= "2023.2"
+        and aedtapp.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0
+    ):
+        skip_optimetrics = True
+    else:
+        skip_optimetrics = False
+    return skip_optimetrics
 
 
 class TestClass:
@@ -1021,7 +1034,7 @@ class TestClass:
         assert sec.update()
         self.aedtapp.delete_design("lattice", self.fall_back_name)
 
-    def test_44_create_infinite_sphere(self):
+    def test_44_create_infinite_sphere(self, skip_optimetrics):
         self.aedtapp.insert_design("InfSphere")
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)
@@ -1061,13 +1074,14 @@ class TestClass:
         )
         assert bound.azimuth_start == "2deg"
         self.aedtapp.create_setup()
-        sweep6 = self.aedtapp.optimizations.add(
-            calculation="RealizedGainTotal",
-            solution=self.aedtapp.nominal_adaptive,
-            ranges={"Freq": "5GHz", "Theta": "0deg", "Phi": "0deg"},
-            context=bound.name,
-        )
-        assert sweep6
+        if not skip_optimetrics:
+            sweep6 = self.aedtapp.optimizations.add(
+                calculation="RealizedGainTotal",
+                solution=self.aedtapp.nominal_adaptive,
+                ranges={"Freq": "5GHz", "Theta": "0deg", "Phi": "0deg"},
+                context=bound.name,
+            )
+            assert sweep6
 
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")
