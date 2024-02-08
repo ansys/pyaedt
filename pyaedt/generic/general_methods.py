@@ -1136,7 +1136,7 @@ def write_configuration_file(dict_in, full_path):
     Parameters
     ----------
     dict_in : dict
-        Dictionary to dump to file.
+        Dictionary to write the file to.
     full_path : str
         Full path to the file, including its extension.
 
