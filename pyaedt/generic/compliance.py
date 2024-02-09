@@ -413,7 +413,6 @@ class VirtualCompliance:
 
     def _create_project_info(self, report):
         report.add_section()
-        report.add_chapter("Project Info")
         designs = []
         _design = None
         for template_report in self.local_config["reports"]:
@@ -423,10 +422,10 @@ class VirtualCompliance:
             designs.append(design_name)
             if _design and _design.design_name != design_name or _design is None:
                 _design = get_pyaedt_app(self._project_name, design_name)
+            report.add_project_info(_design)
+
             report.add_empty_line(3)
-            report.add_sub_chapter(f"Design Information: {_design.design_name}")
-            msg = f"This design contains {len(_design.setups)} setups."
-            report.add_text(msg)
+
             if _design.design_type == "Circuit Design":
                 components = [["Reference Designator", "Parameters"]]
                 for element in _design.modeler.components.components.values():
@@ -443,6 +442,7 @@ class VirtualCompliance:
                         if pars:
                             components.append([element.refdes, ", ".join(pars)])
                 if len(components) > 1:
+                    report.add_sub_chapter(f"Design Information: {_design.design_name}")
                     report.add_table("Components", components, col_widths=[75, 275])
 
     def create_compliance_report(self, file_name="compliance_test.pdf"):
