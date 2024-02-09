@@ -1644,6 +1644,8 @@ class Primitives3D(GeometryModeler):
         name=None,
         parameter_mapping=False,
         layout_coordinate_systems=[],
+        reference_coordinate_system="Global"
+
     ):
         """Insert a new layout component.
 
@@ -1831,7 +1833,7 @@ class Primitives3D(GeometryModeler):
             aedt_component_name,
             varg8,
             "ReferenceCS:=",
-            "Global",
+            reference_coordinate_system,
             "CSToImport:=",
         ]
 
