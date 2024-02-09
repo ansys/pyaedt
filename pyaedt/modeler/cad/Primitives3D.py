@@ -1661,7 +1661,7 @@ class Primitives3D(GeometryModeler):
             Map the layout parameters in the target HFSS design. The default is ``False``.
         layout_coordinate_systems : list, optional
             Coordinate system to import. The default is all available coordinate systems.
-        reference_coordinate_system= : str
+        reference_coordinate_system :  str, optional
             Coordinate system to use as reference. The default is ``Global``.
         Returns
         -------
