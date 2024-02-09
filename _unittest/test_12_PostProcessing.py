@@ -346,6 +346,14 @@ class TestClass:
         new_report.differential_pairs = True
         assert new_report.create()
         assert new_report.get_solution_data()
+        new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
+        new_report2.differential_pairs = True
+        new_report2.pulse_rise_time = 3e-12
+        new_report2.time_windowing = 3
+        new_report2.domain = "Time"
+
+        assert new_report2.create()
+
         data1 = diff_test.post.get_solution_data(
             ["S(Diff1, Diff1)"],
             "LinearFrequency",
