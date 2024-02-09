@@ -3131,10 +3131,10 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-            AedtObjects.__init__(self, is_inherithed=True)
-
         else:
             self.odesktop.SetActiveProject(legacy_name)
+        AedtObjects.__init__(self, is_inherithed=True)
+
         i = 0
         timeout = 10
         while True:

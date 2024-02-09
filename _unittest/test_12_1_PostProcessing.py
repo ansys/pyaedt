@@ -5,8 +5,8 @@ import uuid
 from _unittest.conftest import config
 import pytest
 
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import read_json
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
 from pyaedt.generic.settings import settings
@@ -613,7 +613,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
+        dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(

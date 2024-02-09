@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.filesystem import get_json_files
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.modeler.advanced_cad.parts import Antenna
 from pyaedt.modeler.advanced_cad.parts import Part
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -126,7 +126,7 @@ class MultiPartComponent(object):
             f = json_files[0]
             self._name = os.path.split(f)[1].split(".")[0]  # Define name from the json file name.
 
-        compdef = json_to_dict(f)  # dict defining the 3d component
+        compdef = read_configuration_file(f)  # dict defining the 3d component
 
         if "class" in compdef.keys():
             self._component_class = compdef["class"]
