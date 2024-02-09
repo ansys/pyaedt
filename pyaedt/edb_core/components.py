@@ -1768,7 +1768,8 @@ class Components(object):
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 if deactivate_only:
                     val.is_enabled = False
-                    val.model_type = "RLC"
+                    if val.model_type in ["SParameterModel", "SPICEModel"]:
+                        val.assign_rlc_model(res=1e6)
                 else:
                     val.edbcomponent.Delete()
                     deleted_comps.append(comp)
