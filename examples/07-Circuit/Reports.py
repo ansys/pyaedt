@@ -79,7 +79,7 @@ Image(out)
 # before generating the report. You can create custom reports in non-graphical
 # mode in AEDT 2023 R2 and later.
 
-props = pyaedt.data_handler.json_to_dict(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
+props = pyaedt.general_methods.read_json(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
 
 report2 = cir.post.create_report_from_configuration(input_dict=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)

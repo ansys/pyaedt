@@ -86,9 +86,9 @@ ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_fo
 # ## Export configuration files
 #
 # Export the configuration files. You can optionally disable the export and
-# import sections.
+# import sections. Supported formats are json and toml files
 
-conf_file = ipk.configurations.export_config()
+conf_file = ipk.configurations.export_config(os.path.join(ipk.working_directory, "config.toml"))
 ipk.close_project()
 
 # ## Create project
