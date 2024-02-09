@@ -529,7 +529,7 @@ class VirtualCompliance:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
                     except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
-                    report.add_image(file, caption=caption, width=report.epw - 30)
+                    report.add_image(file, caption=caption, width=report.epw - 50)
 
         self._create_aedt_reports(report)
         if self._add_project_info:
