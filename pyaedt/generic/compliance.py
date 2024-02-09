@@ -159,6 +159,7 @@ class VirtualCompliance:
                 local_config["expressions"] = {trace: {}}
                 image_name = name + f"_{trace}"
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
+                _design.logger.info(f"Creating report {name} for trace {trace}")
                 aedt_report = _design.post.create_report_from_configuration(
                     input_dict=local_config, solution_name=sw_name
                 )
@@ -186,20 +187,27 @@ class VirtualCompliance:
                             time.sleep(1)
                             sleep_time -= 1
                     if pass_fail:
-                        if report_type == "frequency" and local_config["limitLines"]:
+                        if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                            _design.logger.info(f"Checking lines violations")
                             self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                         elif report_type == "statistical eye" and local_config["eye_mask"]:
+                            _design.logger.info(f"Checking eye violations")
                             self._add_statistical_violations(aedt_report, pdf_report, image_name, local_config)
                         elif report_type == "eye diagram" and local_config["eye_mask"]:
+                            _design.logger.info(f"Checking eye violations")
                             self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
                         elif report_type == "contour eye diagram":
+                            _design.logger.info(f"Checking eye violations")
                             self._add_contour_eye_diagram_violations(aedt_report, pdf_report, image_name, local_config)
 
                     if report_type in ["eye diagram", "statistical eye"]:
+                        _design.logger.info(f"Adding eye measurements")
                         self._add_eye_measurement(aedt_report, pdf_report, image_name)
 
                     if self.local_config.get("delete_after_export", True):
                         aedt_report.delete()
+                    _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
+
                 else:  # pragma: no cover
                     msg = f"Failed to create the report. Check {config_file} configuration file."
                     self._desktop_class.logger.error(msg)
@@ -212,7 +220,13 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return
         trace_values = [(k[0], v) for k, v in trace_data.full_matrix_real_imag[0][trace_data.expressions[0]].items()]
-        pass_fail_table = [["Pass Fail Criteria", "Result"]]
+        pass_fail_table = [
+            [
+                "Pass Fail Criteria",
+                "Pass/Fail limit Value",
+                "Test Result",
+            ]
+        ]
         for limit_v in local_config["limitLines"].values():
             yy = 0
             while yy < len(limit_v["xpoints"]) - 1:
@@ -225,21 +239,22 @@ class VirtualCompliance:
                         hatch_above = True
                     test_value = limit_v["ypoints"][yy]
                     sim_value = self._check_test_value(result_range, test_value, hatch_above)
+                    units = limit_v.get("y_units", "")
                     if sim_value:
-                        mystr = f"Failed Zone {yy}: Crossing limitline {test_value} dB."
+                        mystr = f"Failed Zone {yy}: Crossing limitline {test_value} {units}."
                         result_value = "FAIL"
                     else:
-                        mystr = f"Passed Zone  {yy}: Limitline {test_value} dB."
+                        mystr = f"Passed Zone  {yy}: Limitline {test_value} {units}."
                         result_value = "PASS"
                     font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
-                    pass_fail_table.append([mystr, result_value])
+                    pass_fail_table.append([mystr, test_value, result_value])
                 yy += 1
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
 
     def _add_statistical_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
-        pass_fail_table = [["Pass Fail Criteria", "Result"]]
+        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
         if not sols:  # pragma: no cover
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
@@ -288,7 +303,7 @@ class VirtualCompliance:
         except Exception:  # pragma: no cover
             viol = None
         font_table = [["", None]]
-        pass_fail_table = [["Pass Fail Criteria", "Result"]]
+        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         mystr1 = "Eye Mask Violation:"
         result_value_mask = "PASS"
         mystr2 = "Upper/Lower Mask Violation:"
@@ -313,7 +328,7 @@ class VirtualCompliance:
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
 
     def _add_contour_eye_diagram_violations(self, report, pdf_report, image_name, local_config):
-        pass_fail_table = [["Pass Fail Criteria", "Result"]]
+        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
         if not sols:  # pragma: no cover
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
@@ -381,22 +396,23 @@ class VirtualCompliance:
             report.add_sub_chapter(f"Design Information: {_design.design_name}")
             msg = f"This design contains {len(_design.setups)} setups."
             report.add_text(msg)
-            components = [["Reference Designator", "Parameters"]]
-            for element in _design.modeler.components.components.values():
-                if "refdes" in dir(element):
-                    pars = []
-                    for el, val in element.parameters.items():
-                        if el in self.local_config.get("project_info_keys", default_keys) and el not in [
-                            "DefaultNetlist",
-                            "CoSimulator",
-                            "NexximNetList",
-                            "CosimDefinition",
-                        ]:
-                            pars.append(f"{el}={val}")
-                    if pars:
-                        components.append([element.refdes, ", ".join(pars)])
-            if len(components) > 1:
-                report.add_table("Components", components, col_widths=[75, 275])
+            if _design.design_type == "Circuit Design":
+                components = [["Reference Designator", "Parameters"]]
+                for element in _design.modeler.components.components.values():
+                    if "refdes" in dir(element):
+                        pars = []
+                        for el, val in element.parameters.items():
+                            if el in self.local_config.get("project_info_keys", default_keys) and el not in [
+                                "DefaultNetlist",
+                                "CoSimulator",
+                                "NexximNetList",
+                                "CosimDefinition",
+                            ]:
+                                pars.append(f"{el}={val}")
+                        if pars:
+                            components.append([element.refdes, ", ".join(pars)])
+                if len(components) > 1:
+                    report.add_table("Components", components, col_widths=[75, 275])
 
     def create_compliance_report(self, file_name="compliance_test.pdf"):
         """Create the Virtual Compliance report.
