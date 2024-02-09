@@ -1,5 +1,5 @@
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.general_methods import read_json
 from pyaedt.modeler.advanced_cad.multiparts import Actor
 from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent
 
@@ -20,7 +20,7 @@ def read_actors(fn, actor_lib):
         List of actor objects.
     """
     a = {}
-    actor_dict = json_to_dict(fn)
+    actor_dict = read_json(fn)
     for name in actor_dict:
         a[name] = Actor(actor_dict[name], actor_lib, name)
     return a
