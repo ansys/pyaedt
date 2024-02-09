@@ -229,8 +229,10 @@ class VirtualCompliance:
         ]
         for limit_v in local_config["limitLines"].values():
             yy = 0
+            zones = 0
             while yy < len(limit_v["xpoints"]) - 1:
                 if limit_v["xpoints"][yy] != limit_v["xpoints"][yy + 1]:
+                    zones += 1
                     result_range = self._get_frequency_range(
                         trace_values, limit_v["xpoints"][yy], limit_v["xpoints"][yy + 1]
                     )
@@ -241,13 +243,13 @@ class VirtualCompliance:
                     sim_value = self._check_test_value(result_range, test_value, hatch_above)
                     units = limit_v.get("y_units", "")
                     if sim_value:
-                        mystr = f"Failed Zone {yy}: Crossing limitline {test_value} {units}."
+                        mystr = f"Failed Zone {zones}: Crossing limitline {test_value} {units}."
                         result_value = "FAIL"
                     else:
-                        mystr = f"Passed Zone  {yy}: Limitline {test_value} {units}."
+                        mystr = f"Passed Zone  {zones}: Limitline {test_value} {units}."
                         result_value = "PASS"
                     font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
-                    pass_fail_table.append([mystr, test_value, result_value])
+                    pass_fail_table.append([mystr, str(test_value), result_value])
                 yy += 1
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
