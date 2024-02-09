@@ -1645,7 +1645,6 @@ class Primitives3D(GeometryModeler):
         parameter_mapping=False,
         layout_coordinate_systems=[],
         reference_coordinate_system="Global"
-
     ):
         """Insert a new layout component.
 
