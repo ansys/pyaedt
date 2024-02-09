@@ -85,10 +85,10 @@ class VirtualCompliance:
             value_to_check = min(ranges)
         freq_to_check = filtered_range[ranges.index(value_to_check)][0]
         if hatch_above and value_to_check >= test_value:
-            return value_to_check, freq_to_check, "FAIL"
+            return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
         elif not hatch_above and value_to_check <= test_value:
-            return value_to_check, freq_to_check, "FAIL"
-        return value_to_check, freq_to_check, "PASS"
+            return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
+        return round(value_to_check, 5), round(freq_to_check, 5), "PASS"
 
     def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
         """Add a new custom aedt report to the compliance.
@@ -185,7 +185,7 @@ class VirtualCompliance:
                             pdf_report.add_image(
                                 os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
                                 f"Plot {report_type} for trace {trace}",
-                                width=pdf_report.epw - 10,
+                                width=pdf_report.epw - 40,
                             )
                             sleep_time = 0
                         except Exception:  # pragma: no cover
