@@ -2059,15 +2059,15 @@ class Standard(CommonReport):
     @property
     def time_windowing(self):
         """Returns the TDR time windowing. Options are:
-        - Rectangular 0
-        - Bartlett 1
-        - Blackman 2
-        - Hamming 3
-        - Hanning 4
-        - Kaiser 5
-        - Welch 6
-        - Weber 7
-        - Lanzcos 8
+             * ``0`` : Rectangular
+            * ``1`` : Bartlett
+            * ``2`` : Blackman
+            * ``3`` : Hamming
+            * ``4`` : Hanning
+            * ``5`` : Kaiser
+            * ``6`` : Welch
+            * ``7`` : Weber
+            * ``8`` : Lanzcos.
 
         Returns
         -------
