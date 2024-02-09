@@ -30,3 +30,8 @@ edb:
     - "examples/05-Q3D/Q3D_DC_IR.py"
     - "pyaedt/edb_core/**/*"
     - "pyaedt/edb.py"
+
+examples:
+- changed-files:
+  - any-glob-to-any-file:
+    - "examples/**/*"
