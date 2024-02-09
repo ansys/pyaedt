@@ -242,8 +242,8 @@ class VirtualCompliance:
                 "Check Zone",
                 "Criteria",
                 "Pass/Fail limit value",
-                "Peak value",
-                "X at peak value",
+                "Worst simulated value",
+                "X at worst value",
                 "Test Result",
             ]
         ]
