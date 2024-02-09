@@ -6,6 +6,7 @@ from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import read_csv
+from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
@@ -77,13 +78,17 @@ class VirtualCompliance:
         return filtered_range
 
     def _check_test_value(self, filtered_range, test_value, hatch_above):
-        for _, db_value in filtered_range:
-            if hatch_above:
-                if db_value >= test_value:
-                    return db_value
-            elif db_value <= test_value:
-                return db_value
-        return None
+        ranges = [k[1] for k in filtered_range]
+        if hatch_above:
+            value_to_check = max(ranges)
+        else:
+            value_to_check = min(ranges)
+        freq_to_check = filtered_range[ranges.index(value_to_check)][0]
+        if hatch_above and value_to_check >= test_value:
+            return value_to_check, freq_to_check, "FAIL"
+        elif not hatch_above and value_to_check <= test_value:
+            return value_to_check, freq_to_check, "FAIL"
+        return value_to_check, freq_to_check, "PASS"
 
     def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
         """Add a new custom aedt report to the compliance.
@@ -189,21 +194,24 @@ class VirtualCompliance:
                     if pass_fail:
                         if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
                             _design.logger.info(f"Checking lines violations")
-                            self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                            table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                         elif report_type == "statistical eye" and local_config["eye_mask"]:
                             _design.logger.info(f"Checking eye violations")
-                            self._add_statistical_violations(aedt_report, pdf_report, image_name, local_config)
+                            table = self._add_statistical_violations(aedt_report, pdf_report, image_name, local_config)
                         elif report_type == "eye diagram" and local_config["eye_mask"]:
                             _design.logger.info(f"Checking eye violations")
-                            self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
+                            table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
                         elif report_type == "contour eye diagram":
                             _design.logger.info(f"Checking eye violations")
-                            self._add_contour_eye_diagram_violations(aedt_report, pdf_report, image_name, local_config)
+                            table = self._add_contour_eye_diagram_violations(
+                                aedt_report, pdf_report, image_name, local_config
+                            )
+                        write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
 
                     if report_type in ["eye diagram", "statistical eye"]:
                         _design.logger.info(f"Adding eye measurements")
-                        self._add_eye_measurement(aedt_report, pdf_report, image_name)
-
+                        table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
+                        write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
                     if self.local_config.get("delete_after_export", True):
                         aedt_report.delete()
                     _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
@@ -222,8 +230,11 @@ class VirtualCompliance:
         trace_values = [(k[0], v) for k, v in trace_data.full_matrix_real_imag[0][trace_data.expressions[0]].items()]
         pass_fail_table = [
             [
-                "Pass Fail Criteria",
-                "Pass/Fail limit Value",
+                "Check Zone",
+                "Criteria",
+                "Pass/Fail limit value",
+                "Peak value",
+                "X at peak value",
                 "Test Result",
             ]
         ]
@@ -240,19 +251,25 @@ class VirtualCompliance:
                     if limit_v.get("hatch_above", True):
                         hatch_above = True
                     test_value = limit_v["ypoints"][yy]
-                    sim_value = self._check_test_value(result_range, test_value, hatch_above)
+                    range_value, x_value, result_value = self._check_test_value(result_range, test_value, hatch_above)
                     units = limit_v.get("y_units", "")
-                    if sim_value:
-                        mystr = f"Failed Zone {zones}: Crossing limitline {test_value} {units}."
-                        result_value = "FAIL"
-                    else:
-                        mystr = f"Passed Zone  {zones}: Limitline {test_value} {units}."
-                        result_value = "PASS"
+                    xunits = limit_v.get("x_units", "")
+                    mystr = f"Zone  {zones}"
                     font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
-                    pass_fail_table.append([mystr, str(test_value), result_value])
+                    pass_fail_table.append(
+                        [
+                            mystr,
+                            "Upper Limit" if hatch_above else "Lower Limit",
+                            f"{test_value}{units}",
+                            f"{range_value}{units}",
+                            f"{x_value}{xunits}",
+                            result_value,
+                        ]
+                    )
                 yy += 1
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        return pass_fail_table
 
     def _add_statistical_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
@@ -297,6 +314,7 @@ class VirtualCompliance:
             pass_fail_table.append([mystr, result_value])
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        return pass_fail_table
 
     def _add_eye_diagram_violations(self, report, pdf_report, image_name):
         try:
@@ -328,6 +346,7 @@ class VirtualCompliance:
         font_table.append([None, [255, 0, 0]] if result_value_upper == "FAIL" else ["", None])
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        return pass_fail_table
 
     def _add_contour_eye_diagram_violations(self, report, pdf_report, image_name, local_config):
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
@@ -356,6 +375,7 @@ class VirtualCompliance:
             pass_fail_table.append([mystr, result_value])
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        return pass_fail_table
 
     def _add_eye_measurement(self, report, pdf_report, image_name):
         report.add_all_eye_measurements()
@@ -368,6 +388,7 @@ class VirtualCompliance:
             new_table.append(line)
         pdf_report.add_section(portrait=True)
         pdf_report.add_table(f"Eye Measurements on {image_name}", new_table)
+        return new_table
 
     def add_specs_to_report(self, folder):
         """Add specs to the report from a given folder.
