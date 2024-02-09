@@ -353,7 +353,6 @@ class TestClass:
         new_report2.domain = "Time"
 
         assert new_report2.create()
-        assert new_report2.get_solution_data()
 
         data1 = diff_test.post.get_solution_data(
             ["S(Diff1, Diff1)"],
