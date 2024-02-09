@@ -56,6 +56,7 @@ class AnsysReport(FPDF):
         self.report_specs.ansys_version = version
         self.report_specs.design_name = design_name
         self.report_specs.project_name = project_name
+        self.use_portrait = True
         self.__chapter_idx = 0
         self.__sub_chapter_idx = 0
         self.__figure_idx = 1
@@ -81,7 +82,7 @@ class AnsysReport(FPDF):
             self.report_specs = ReportSpec(**tdata)
 
     def __add_cover_page(self):
-        self.add_page()
+        self.add_page("P" if self.use_portrait else "L")
         self.set_font(self.report_specs.font.lower(), "b", self.report_specs.cover_subtitle_font_size)
         self.y += 40
         self.cell(
@@ -207,7 +208,7 @@ class AnsysReport(FPDF):
         if add_cover_page:
             self.__add_cover_page()
         if add_new_section_after:
-            self.add_page()
+            self.add_page("P" if self.use_portrait else "L")
         return True
 
     def add_project_info(self, design):
@@ -222,7 +223,7 @@ class AnsysReport(FPDF):
         -------
         bool
         """
-        self.add_page()
+        self.add_page("P" if self.use_portrait else "L")
         self.add_chapter(f"Design {design.design_name} Info")
         msg = f"This section will contain information about project {design.project_name}"
         msg += f" for design {design.design_name}."
@@ -262,7 +263,7 @@ class AnsysReport(FPDF):
             )
             self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:
-            msg = f"The schematic has {design.modeler.components} components."
+            msg = f"The schematic has {len(design.modeler.components.components)} components."
             self.add_text(msg)
 
         if design.setups:
@@ -329,7 +330,7 @@ class AnsysReport(FPDF):
     def aedt_version(self, value):
         self.report_specs.ansys_version = value
 
-    def add_section(self, portrait=True, page_format="a4"):
+    def add_section(self, portrait=None, page_format="a4"):
         """Add a new section to Pdf.
 
         Parameters
@@ -345,8 +346,10 @@ class AnsysReport(FPDF):
             Section id.
         """
         orientation = "portrait"
-        if not portrait:
+        if portrait is False:
             orientation = "landscape"
+        elif portrait is None:
+            orientation = "P" if self.use_portrait else "L"
         self.add_page(orientation=orientation, format=page_format)
 
     def add_chapter(self, chapter_name):
@@ -470,7 +473,7 @@ class AnsysReport(FPDF):
         Parameters
         ----------
         """
-        self.add_page()
+        self.add_page("P" if self.use_portrait else "L")
 
     def add_table(
         self,
@@ -558,7 +561,7 @@ class AnsysReport(FPDF):
             "Inserts a paragraph"
             self.cell(w=self.epw, h=self.font_size, text=section, new_x="LMARGIN", new_y="NEXT", **kwargs)
 
-        self.add_page()
+        self.add_page("P" if self.use_portrait else "L")
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.title_font_size)
         self.set_text_color(*self.report_specs.font_color)
         self.underline = True

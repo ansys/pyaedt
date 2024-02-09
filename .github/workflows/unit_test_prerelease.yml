@@ -73,7 +73,7 @@ jobs:
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
           pytest --tx 6*popen --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.python-version == '3.8'
