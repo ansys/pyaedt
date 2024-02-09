@@ -1769,7 +1769,7 @@ class Components(object):
                 if deactivate_only:
                     val.is_enabled = False
                     if val.model_type in ["SParameterModel", "SPICEModel"]:
-                        val.assign_rlc_model()
+                        val.assign_rlc_model(res=1e6)
                 else:
                     val.edbcomponent.Delete()
                     deleted_comps.append(comp)
