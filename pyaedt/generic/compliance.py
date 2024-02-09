@@ -156,6 +156,7 @@ class VirtualCompliance:
             pass_fail = template_report["pass_fail"]
             design_name = template_report["design_name"]
             report_type = template_report["type"]
+            group = template_report.get("group_plots", False)
             if _design and _design.design_name != design_name or _design is None:
                 _design = get_pyaedt_app(self._project_name, design_name)
 
@@ -168,66 +169,103 @@ class VirtualCompliance:
                 pdf_report.add_section(portrait=False)
                 pdf_report.add_chapter("Compliance Results")
                 start = False
-            for trace in traces:
-                local_config["expressions"] = {trace: {}}
-                image_name = name + f"_{trace}"
+            if group and report_type in ["frequency", "time"]:
+                local_config["expressions"] = {trace: {} for trace in traces}
+                image_name = name
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
-                _design.logger.info(f"Creating report {name} for trace {trace}")
+                _design.logger.info(f"Creating report {name}")
                 aedt_report = _design.post.create_report_from_configuration(
                     input_dict=local_config, solution_name=sw_name
                 )
-                if report_type != "contour eye diagram":
-                    aedt_report.hide_legend()
+                aedt_report.hide_legend()
                 time.sleep(1)
                 out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
                 time.sleep(1)
                 if out:
-                    if not first_trace:
-                        pdf_report.add_section(portrait=False)
-                    else:
-                        first_trace = False
-                    pdf_report.add_sub_chapter(f"{name} for trace {trace}")
+                    pdf_report.add_sub_chapter(f"{name}")
                     sleep_time = 10
                     while sleep_time > 0:
                         # noinspection PyBroadException
                         try:
                             pdf_report.add_image(
                                 os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                f"Plot {report_type} for trace {trace}",
+                                f"Plot {report_type} for {name}",
                                 width=pdf_report.epw - 40,
                             )
                             sleep_time = 0
                         except Exception:  # pragma: no cover
                             time.sleep(1)
                             sleep_time -= 1
-                    if pass_fail:
-                        if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
-                            _design.logger.info(f"Checking lines violations")
-                            table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
-                        elif report_type == "statistical eye" and local_config["eye_mask"]:
-                            _design.logger.info(f"Checking eye violations")
-                            table = self._add_statistical_violations(aedt_report, pdf_report, image_name, local_config)
-                        elif report_type == "eye diagram" and local_config["eye_mask"]:
-                            _design.logger.info(f"Checking eye violations")
-                            table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
-                        elif report_type == "contour eye diagram":
-                            _design.logger.info(f"Checking eye violations")
-                            table = self._add_contour_eye_diagram_violations(
-                                aedt_report, pdf_report, image_name, local_config
-                            )
-                        write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
-
-                    if report_type in ["eye diagram", "statistical eye"]:
-                        _design.logger.info(f"Adding eye measurements")
-                        table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
-                        write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
+                    if pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                        _design.logger.info(f"Checking lines violations")
+                        table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                        write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
                     if self.local_config.get("delete_after_export", True):
                         aedt_report.delete()
-                    _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
+                    _design.logger.info(f"Successfully parsed report {name}")
+            else:
+                for trace in traces:
+                    local_config["expressions"] = {trace: {}}
+                    image_name = name + f"_{trace}"
+                    sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
+                    _design.logger.info(f"Creating report {name} for trace {trace}")
+                    aedt_report = _design.post.create_report_from_configuration(
+                        input_dict=local_config, solution_name=sw_name
+                    )
+                    if report_type != "contour eye diagram":
+                        aedt_report.hide_legend()
+                    time.sleep(1)
+                    out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                    time.sleep(1)
+                    if out:
+                        if not first_trace:
+                            pdf_report.add_section(portrait=False)
+                        else:
+                            first_trace = False
+                        pdf_report.add_sub_chapter(f"{name} for trace {trace}")
+                        sleep_time = 10
+                        while sleep_time > 0:
+                            # noinspection PyBroadException
+                            try:
+                                pdf_report.add_image(
+                                    os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                    f"Plot {report_type} for trace {trace}",
+                                    width=pdf_report.epw - 40,
+                                )
+                                sleep_time = 0
+                            except Exception:  # pragma: no cover
+                                time.sleep(1)
+                                sleep_time -= 1
+                        if pass_fail:
+                            if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                                _design.logger.info(f"Checking lines violations")
+                                table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                            elif report_type == "statistical eye" and local_config["eye_mask"]:
+                                _design.logger.info(f"Checking eye violations")
+                                table = self._add_statistical_violations(
+                                    aedt_report, pdf_report, image_name, local_config
+                                )
+                            elif report_type == "eye diagram" and local_config["eye_mask"]:
+                                _design.logger.info(f"Checking eye violations")
+                                table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
+                            elif report_type == "contour eye diagram":
+                                _design.logger.info(f"Checking eye violations")
+                                table = self._add_contour_eye_diagram_violations(
+                                    aedt_report, pdf_report, image_name, local_config
+                                )
+                            write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
 
-                else:  # pragma: no cover
-                    msg = f"Failed to create the report. Check {config_file} configuration file."
-                    self._desktop_class.logger.error(msg)
+                        if report_type in ["eye diagram", "statistical eye"]:
+                            _design.logger.info(f"Adding eye measurements")
+                            table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
+                            write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
+                        if self.local_config.get("delete_after_export", True):
+                            aedt_report.delete()
+                        _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
+
+                    else:  # pragma: no cover
+                        msg = f"Failed to create the report. Check {config_file} configuration file."
+                        self._desktop_class.logger.error(msg)
 
     def _add_lna_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
@@ -236,10 +274,10 @@ class VirtualCompliance:
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
             self._desktop_class.logger.error(msg)
             return
-        trace_values = [(k[0], v) for k, v in trace_data.full_matrix_real_imag[0][trace_data.expressions[0]].items()]
         pass_fail_table = [
             [
                 "Check Zone",
+                "Trace Name",
                 "Criteria",
                 "Pass/Fail limit value",
                 "Worst simulated value",
@@ -247,37 +285,44 @@ class VirtualCompliance:
                 "Test Result",
             ]
         ]
-        for limit_v in local_config["limitLines"].values():
-            yy = 0
-            zones = 0
-            while yy < len(limit_v["xpoints"]) - 1:
-                if limit_v["xpoints"][yy] != limit_v["xpoints"][yy + 1]:
-                    zones += 1
-                    result_range = self._get_frequency_range(
-                        trace_values, limit_v["xpoints"][yy], limit_v["xpoints"][yy + 1]
-                    )
-                    hatch_above = False
-                    if limit_v.get("hatch_above", True):
-                        hatch_above = True
-                    test_value = limit_v["ypoints"][yy]
-                    range_value, x_value, result_value = self._check_test_value(result_range, test_value, hatch_above)
-                    units = limit_v.get("y_units", "")
-                    xunits = limit_v.get("x_units", "")
-                    mystr = f"Zone  {zones}"
-                    font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
-                    pass_fail_table.append(
-                        [
-                            mystr,
-                            "Upper Limit" if hatch_above else "Lower Limit",
-                            f"{test_value}{units}",
-                            f"{range_value}{units}",
-                            f"{x_value}{xunits}",
-                            result_value,
-                        ]
-                    )
-                yy += 1
+        for trace_name in trace_data.expressions:
+            trace_values = [(k[0], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
+            for limit_v in local_config["limitLines"].values():
+                yy = 0
+                zones = 0
+                while yy < len(limit_v["xpoints"]) - 1:
+                    if limit_v["xpoints"][yy] != limit_v["xpoints"][yy + 1]:
+                        zones += 1
+                        result_range = self._get_frequency_range(
+                            trace_values, limit_v["xpoints"][yy], limit_v["xpoints"][yy + 1]
+                        )
+                        hatch_above = False
+                        if limit_v.get("hatch_above", True):
+                            hatch_above = True
+                        test_value = limit_v["ypoints"][yy]
+                        range_value, x_value, result_value = self._check_test_value(
+                            result_range, test_value, hatch_above
+                        )
+                        units = limit_v.get("y_units", "")
+                        xunits = limit_v.get("x_units", "")
+                        mystr = f"Zone  {zones}"
+                        font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
+                        pass_fail_table.append(
+                            [
+                                mystr,
+                                trace_name,
+                                "Upper Limit" if hatch_above else "Lower Limit",
+                                f"{test_value}{units}",
+                                f"{range_value}{units}",
+                                f"{x_value}{xunits}",
+                                result_value,
+                            ]
+                        )
+                    yy += 1
         pdf_report.add_section(portrait=True)
-        pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        pdf_report.add_table(
+            f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table, col_widths=[20, 45, 25, 25, 25, 25, 25]
+        )
         return pass_fail_table
 
     def _add_statistical_violations(self, report, pdf_report, image_name, local_config):
@@ -462,6 +507,7 @@ class VirtualCompliance:
         report = AnsysReport()
         report.aedt_version = self._desktop_class.aedt_version_id
         report.design_name = self._template_name
+        report.report_specs.table_font_size = 7
         report.create()
         if self._specs_folder and self._add_specs_info:
             report.add_chapter("Specifications Info")
