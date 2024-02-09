@@ -178,6 +178,7 @@ class VirtualCompliance:
                 )
                 if report_type != "contour eye diagram":
                     aedt_report.hide_legend()
+                time.sleep(1)
                 out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
                 time.sleep(1)
                 if out:
