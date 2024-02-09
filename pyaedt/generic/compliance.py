@@ -43,6 +43,7 @@ class VirtualCompliance:
         self._add_project_info = True
         self._add_specs_info = False
         self._specs_folder = None
+        self._use_portrait = True
         self._template = template
         self._template_name = "Compliance"
         self._template_folder = os.path.dirname(template)
@@ -69,6 +70,7 @@ class VirtualCompliance:
                     self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
                 self._template_name = self.local_config["general"].get("name", "Compliance")
                 self._project_file = self.local_config["general"].get("project", None)
+                self._use_portrait = self.local_config["general"].get("use_portrait", True)
 
     def _parse_reports(self):
         if "reports" in self.local_config:
@@ -166,7 +168,7 @@ class VirtualCompliance:
                 continue
             local_config = read_configuration_file(config_file)
             if start:
-                pdf_report.add_section(portrait=False)
+                pdf_report.add_section()
                 pdf_report.add_chapter("Compliance Results")
                 start = False
             if group and report_type in ["frequency", "time"]:
@@ -219,7 +221,7 @@ class VirtualCompliance:
                     time.sleep(1)
                     if out:
                         if not first_trace:
-                            pdf_report.add_section(portrait=False)
+                            pdf_report.add_section()
                         else:
                             first_trace = False
                         pdf_report.add_sub_chapter(f"{name} for trace {trace}")
@@ -319,7 +321,8 @@ class VirtualCompliance:
                             ]
                         )
                     yy += 1
-        pdf_report.add_section(portrait=True)
+        if not self._use_portrait:
+            pdf_report.add_section()
         pdf_report.add_table(
             f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table, col_widths=[20, 45, 25, 25, 25, 25, 25]
         )
@@ -366,7 +369,8 @@ class VirtualCompliance:
                     break
             font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
             pass_fail_table.append([mystr, result_value])
-        pdf_report.add_section(portrait=True)
+        if not self._use_portrait:
+            pdf_report.add_section()
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
         return pass_fail_table
 
@@ -398,7 +402,8 @@ class VirtualCompliance:
         font_table.append([None, [255, 0, 0]] if result_value_mask == "FAIL" else ["", None])
         pass_fail_table.append([mystr2, result_value_upper])
         font_table.append([None, [255, 0, 0]] if result_value_upper == "FAIL" else ["", None])
-        pdf_report.add_section(portrait=True)
+        if not self._use_portrait:
+            pdf_report.add_section()
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
         return pass_fail_table
 
@@ -427,7 +432,8 @@ class VirtualCompliance:
                     break
             font_table.append([None, [255, 0, 0]] if "FAIL" in result_value else ["", None])
             pass_fail_table.append([mystr, result_value])
-        pdf_report.add_section(portrait=True)
+        if not self._use_portrait:
+            pdf_report.add_section()
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
         return pass_fail_table
 
@@ -440,7 +446,8 @@ class VirtualCompliance:
         new_table = []
         for line in table:
             new_table.append(line)
-        pdf_report.add_section(portrait=True)
+        if not self._use_portrait:
+            pdf_report.add_section()
         pdf_report.add_table(f"Eye Measurements on {image_name}", new_table)
         return new_table
 
@@ -508,6 +515,7 @@ class VirtualCompliance:
         report.aedt_version = self._desktop_class.aedt_version_id
         report.design_name = self._template_name
         report.report_specs.table_font_size = 7
+        report.use_portrait = self._use_portrait
         report.create()
         if self._specs_folder and self._add_specs_info:
             report.add_chapter("Specifications Info")
