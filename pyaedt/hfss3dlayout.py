@@ -56,7 +56,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -1046,8 +1046,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ``save_fields=True``. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
-            ``"Interpolating"``, and ``"Discrete"``.  The default is
-            ``"Interpolating"``.
+            ``"Interpolating"``, and ``"Discrete"``.
+            The default is ``"Interpolating"``.
         interpolation_tol_percent : float, optional
             Error tolerance threshold for the interpolation
             process. The default is ``0.5``.
@@ -1093,7 +1093,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep = setupdata.add_sweep(sweepname=sweepname, sweeptype=sweep_type)
                 if not sweep:
                     return False
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)

@@ -91,7 +91,7 @@ class Design(AedtObjects):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -409,7 +409,7 @@ class Design(AedtObjects):
             Dictionary of excitations.
         """
         _dict_out = {}
-        for bound in self._excitations:
+        for bound in self.design_excitations:
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:
@@ -3131,10 +3131,10 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-            AedtObjects.__init__(self, is_inherithed=True)
-
         else:
             self.odesktop.SetActiveProject(legacy_name)
+        AedtObjects.__init__(self, is_inherithed=True)
+
         i = 0
         timeout = 10
         while True:

@@ -17,6 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
+
 import json
 import os
 import random
@@ -177,6 +178,7 @@ def add_app(local_scratch):
             designname=design_name,
             solution_type=solution_type,
             specified_version=desktop_version,
+            non_graphical=NONGRAPHICAL,
         )
 
     return _method

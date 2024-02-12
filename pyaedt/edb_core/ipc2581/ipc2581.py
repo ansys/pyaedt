@@ -65,9 +65,9 @@ class Ipc2581(object):
                             self.from_meter_to_units(pad.parameters_values[0], self.units)
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict:
-                            self.content.standard_geometries_dict.standard_circ_dict[
-                                primitive_ref
-                            ] = self.from_meter_to_units(pad.parameters_values[0], self.units)
+                            self.content.standard_geometries_dict.standard_circ_dict[primitive_ref] = (
+                                self.from_meter_to_units(pad.parameters_values[0], self.units)
+                            )
                     elif pad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
@@ -110,10 +110,12 @@ class Ipc2581(object):
                         primitive_ref = "CIRCLE_{}".format(
                             self.from_meter_to_units(antipad.parameters_values[0], self.units)
                         )
-                        if not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict:
-                            self.content.standard_geometries_dict.standard_circ_dict[
-                                primitive_ref
-                            ] = self.from_meter_to_units(antipad.parameters_values[0], self.units)
+                        if (
+                            not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict
+                        ):  # pragma: no cover
+                            self.content.standard_geometries_dict.standard_circ_dict[primitive_ref] = (
+                                self.from_meter_to_units(antipad.parameters_values[0], self.units)
+                            )
                     elif antipad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(antipad.parameters_values[0], self.units),

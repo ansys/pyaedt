@@ -4,6 +4,7 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 import ast
@@ -14,13 +15,15 @@ import string
 
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.DataHandlers import _dict_items_to_list_items
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.settings import settings
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
@@ -70,7 +73,7 @@ TEMPLATES_BY_DESIGN = {
         "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum"],
     "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
@@ -91,6 +94,8 @@ TEMPLATES_BY_NAME = {
     "Far Fields": rt.FarField,
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
+    "Statistical Eye": rt.AMIEyeDiagram,
+    "AMI Contour": rt.AMIConturEyeDiagram,
     "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
 }
@@ -105,8 +110,21 @@ class Reports(object):
         self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
 
     @pyaedt_function_handler()
+    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
+        if expressions:
+            return expressions
+        setup_only_name = setup_sweep_name.split(":")[0].strip()
+        get_setup = self._post_app._app.get_setup(setup_only_name)
+        is_siwave_dc = False
+        if "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR":
+            is_siwave_dc = True
+        return self._post_app.available_report_quantities(
+            solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
+        )
+
+    @pyaedt_function_handler()
     def standard(self, expressions=None, setup_name=None):
-        """Create a Standard or Default Report object.
+        """Create a standard or default report object.
 
         Parameters
         ----------
@@ -135,15 +153,14 @@ class Reports(object):
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
+        rep = None
         if "Standard" in self._templates:
             rep = rt.Standard(self._post_app, "Standard", setup_name)
-            rep.expressions = expressions
-            return rep
+
         elif self._post_app._app.design_solutions.report_type:
             rep = rt.Standard(self._post_app, self._post_app._app.design_solutions.report_type, setup_name)
-            rep.expressions = expressions
-            return rep
-        return
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+        return rep
 
     @pyaedt_function_handler()
     def monitor(self, expressions=None, setup_name=None):
@@ -175,7 +192,8 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Monitor" in self._templates:
             rep = rt.Standard(self._post_app, "Monitor", setup_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -210,8 +228,9 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Fields" in self._templates:
             rep = rt.Fields(self._post_app, "Fields", setup_name)
-            rep.expressions = expressions
             rep.polyline = polyline
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -246,8 +265,9 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "CG Fields" in self._templates:
             rep = rt.Fields(self._post_app, "CG Fields", setup_name)
-            rep.expressions = expressions
             rep.polyline = polyline
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -282,8 +302,9 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "DC R/L Fields" in self._templates:
             rep = rt.Fields(self._post_app, "DC R/L Fields", setup_name)
-            rep.expressions = expressions
             rep.polyline = polyline
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -321,8 +342,9 @@ class Reports(object):
                 rep = rt.Fields(self._post_app, "AC R/L Fields", setup_name)
             else:
                 rep = rt.Fields(self._post_app, "RL Fields", setup_name)
-            rep.expressions = expressions
             rep.polyline = polyline
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -362,9 +384,10 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Far Fields" in self._templates:
             rep = rt.FarField(self._post_app, "Far Fields", setup_name)
-            rep.expressions = expressions
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -401,7 +424,8 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Antenna Parameters" in self._templates:
             rep = rt.AntennaParameters(self._post_app, "Antenna Parameters", setup_name, sphere_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -437,7 +461,8 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Near Fields" in self._templates:
             rep = rt.NearField(self._post_app, "Near Fields", setup_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -472,7 +497,8 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Modal Solution Data" in self._templates:
             rep = rt.Standard(self._post_app, "Modal Solution Data", setup_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -507,7 +533,8 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Terminal Solution Data" in self._templates:
             rep = rt.Standard(self._post_app, "Terminal Solution Data", setup_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
@@ -542,23 +569,89 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Eigenmode Parameters" in self._templates:
             rep = rt.Standard(self._post_app, "Eigenmode Parameters", setup_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
             return rep
         return
 
     @pyaedt_function_handler()
-    def eye_diagram(self, expressions=None, setup_name=None):
+    def statistical_eye_contour(self, expressions=None, setup_name=None, quantity_type=3):
+        """Create a standard statistical AMI contour plot.
+
+        Parameters
+        ----------
+        expressions : str
+            Expression to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
+             name to use in the export or ``LastAdaptive``.
+        quantity_type : int, optional
+            For AMI analysis only, the quantity type. The default is ``3``. Options are:
+
+            - ``0`` for Initial Wave
+            - ``1`` for Wave after Source
+            - ``2`` for Wave after Channel
+            - ``3`` for Wave after Probe.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.AMIConturEyeDiagram`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            for setup in self._post_app._app.setups:
+                if "AMIAnalysis" in setup.props:
+                    setup_name = setup.name
+            if not setup_name:
+                self._post_app._app.logger.error("AMI analysis is needed to create this report.")
+                return False
+
+            if isinstance(expressions, list):
+                expressions = expressions[0]
+            report_cat = "Standard"
+            rep = rt.AMIConturEyeDiagram(self._post_app, report_cat, setup_name)
+            rep.quantity_type = quantity_type
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def eye_diagram(
+        self, expressions=None, setup_name=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
+    ):
         """Create a Standard or Default Report object.
 
         Parameters
         ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
+        expressions : str
+            Expression to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+        quantity_type : int, optional
+            For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
+            1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
+        statistical_analysis : bool, optional
+            For AMI Analysis only, whether to plot the statistical eye plot or transient eye plot.
+            The default is ``True``.
+        unit_interval : str, optional
+            Unit interval for the eye diagram.
 
         Returns
         -------
@@ -578,9 +671,24 @@ class Reports(object):
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
-            rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
-            rep.expressions = expressions
+            if "AMIAnalysis" in self._post_app._app.get_setup(setup_name).props:
+
+                report_cat = "Eye Diagram"
+                if statistical_analysis:
+                    report_cat = "Statistical Eye"
+                rep = rt.AMIEyeDiagram(self._post_app, report_cat, setup_name)
+                rep.quantity_type = quantity_type
+                expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+                if isinstance(expressions, list):
+                    rep.expressions = expressions[0]
+                return rep
+
+            else:
+                rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            rep.unit_interval = unit_interval
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
             return rep
+
         return
 
     @pyaedt_function_handler()
@@ -614,7 +722,7 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
-            rep.expressions = expressions
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
             return rep
         return
 
@@ -870,7 +978,7 @@ class PostProcessorCommon(object):
                     report_category, display_type, solution, context, quantities_category
                 )
             )
-        return None
+        return []
 
     @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
@@ -911,7 +1019,7 @@ class PostProcessorCommon(object):
                 else:
                     report = rt.Standard
                 plots.append(report(self, report_type, None))
-                plots[-1].plot_name = name
+                plots[-1].props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
@@ -1894,12 +2002,12 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
-        """Create a new report based on json file or dictionary of properties.
+        """Create a report based on a JSON file, TOML file, or dictionary of properties.
 
         Parameters
         ----------
         input_file : str, optional
-            Path to a json file containing report settings.
+            Path to the JSON or TOML file containing report settings.
         input_dict : dict, optional
             Dictionary containing report settings.
         solution_name : setup name to use.
@@ -1918,16 +2026,25 @@ class PostProcessorCommon(object):
         ...                                               solution_name="Setup1 : LastAdpative")
         """
         if not input_dict and not input_file:  # pragma: no cover
-            self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
+            self.logger.error("Either a JSON file or a dictionary must be passed as input.")
             return False
         if input_file:
-            props = json_to_dict(input_file)
+            props = read_configuration_file(input_file)
         else:
             props = input_dict
+        _dict_items_to_list_items(props, "expressions")
         if not solution_name:
             solution_name = self._app.nominal_sweep
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
-            report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+            if (
+                "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
+                and props["report_category"] == "Standard"
+            ):
+                report_temp = TEMPLATES_BY_NAME["AMI Contour"]
+            elif "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props:
+                report_temp = TEMPLATES_BY_NAME["Statistical Eye"]
+            else:
+                report_temp = TEMPLATES_BY_NAME[props["report_category"]]
             report = report_temp(self, props["report_category"], solution_name)
             for k, v in props.items():
                 report.props[k] = v
@@ -1938,6 +2055,7 @@ class PostProcessorCommon(object):
                     and el not in report.props["context"]["variations"]
                 ):
                     report.props["context"]["variations"][el] = k
+            report.expressions
             report.create()
             report._update_traces()
             return report
@@ -2576,6 +2694,9 @@ class PostProcessor(PostProcessorCommon, object):
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
+            if not self._app.existing_analysis_sweeps:
+                self.logger.error("There are no existing sweeps.")
+                return False
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
             appendix = ""
@@ -2588,55 +2709,56 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.EnterQty(quantity_name)
         except:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+
         if not variation_dict:
-            if not sample_points_file and not sample_points_lists:
-                if obj_type == "Vol":
-                    self.ofieldsreporter.EnterVol(obj_list)
-                elif obj_type == "Surf":
-                    self.ofieldsreporter.EnterSurf(obj_list)
-                else:
-                    self.logger.error("No correct choice.")
-                    return False
-                self.ofieldsreporter.CalcOp("Value")
-                variation_dict = self._app.available_variations.nominal_w_values
-            else:
-                variations = self._app.available_variations.nominal_w_values_dict
-                variation_dict = []
-                for el, value in variations.items():
-                    variation_dict.append(el + ":=")
-                    variation_dict.append(value)
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
-                variation_dict.append("Time:=")
-                variation_dict.append(intrinsics)
+                variation.append("Time:=")
+                variation.append(intrinsics)
             else:
-                variation_dict.append("Freq:=")
-                variation_dict.append(intrinsics)
-                variation_dict.append("Phase:=")
+                variation.append("Freq:=")
+                variation.append(intrinsics)
+                variation.append("Phase:=")
                 if phase:
-                    variation_dict.append(phase)
+                    variation.append(phase)
                 else:
-                    variation_dict.append("0deg")
+                    variation.append("0deg")
         if not sample_points_file and not sample_points_lists:
-            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation_dict)
+            if obj_type == "Vol":
+                self.ofieldsreporter.EnterVol(obj_list)
+            elif obj_type == "Surf":
+                self.ofieldsreporter.EnterSurf(obj_list)
+            else:
+                self.logger.error("No correct choice.")
+                return False
+            self.ofieldsreporter.CalcOp("Value")
+            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation)
         elif sample_points_file:
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
-                variation_dict,
+                variation,
                 export_with_sample_points,
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open_file(sample_points_file, "w") as f:
+                f.write("Unit={}\n".format(self.model_units))
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
-                variation_dict,
+                variation,
                 export_with_sample_points,
             )
 
@@ -3136,11 +3258,11 @@ class PostProcessor(PostProcessorCommon, object):
         if not isinstance(objlist, (list, tuple)):
             objlist = [objlist]
         new_obj_list = []
-        for objs in objlist:
-            if self._app.modeler[objs]:
-                new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
-            else:
-                new_obj_list.append(objs)
+        for obj in objlist:
+            if isinstance(obj, (int, FacePrimitive)):
+                new_obj_list.append(obj)
+            elif self._app.modeler[obj]:
+                new_obj_list.extend([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
         return self._create_fieldplot(
             new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
         )
