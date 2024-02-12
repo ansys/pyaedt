@@ -1811,8 +1811,7 @@ class Circuit(FieldAnalysisCircuit, object):
         # try up to three times to be sure
         out_processing = os.path.join(self.working_directory, "spsim_erl_out.txt")
         my_env = os.environ.copy()
-        for env, val in settings.aedt_environment_variables.items():
-            my_env[env] = val
+        my_env.update(settings.aedt_environment_variables)
         if is_linux:  # pragma: no cover
             command.append("&")
             with open(out_processing, "w") as outfile:
