@@ -1762,12 +1762,12 @@ class Circuit(FieldAnalysisCircuit, object):
         cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
         with open(cfg_file, "w") as fp:
             fp.write("# INPARRY: INPARRY\n")
-            fp.write(f"INPARRY = {snp_file}\n")
+            fp.write("INPARRY = {}\n".format(snp_file))
             fp.write("# MIXMODE: MIXMODE\n")
             if port_order and snp_file.lower().endswith(".s4p"):
-                fp.write(f"MIXMODE = {port_order}\n")
+                fp.write("MIXMODE = {}\n".format(port_order))
             else:
-                fp.write(f"MIXMODE = \n")
+                fp.write("MIXMODE = \n")
             fp.write("# THRUS4P: THRUS4P\n")
             if not snp_file.lower().endswith(".s4p"):
                 if isinstance(specify_through_ports[0], int):
@@ -1779,33 +1779,33 @@ class Circuit(FieldAnalysisCircuit, object):
                     except IndexError:
                         self.logger.error("Port not found.")
                         return False
-                fp.write(f"THRUS4P = {thrus4p}\n")
+                fp.write("THRUS4P = {}\n".format(thrus4p))
             else:
-                fp.write(f"THRUS4P = \n")
+                fp.write("THRUS4P = \n")
             fp.write("# BANDWID: BANDWID\n")
-            fp.write(f"BANDWID = {bandwidth}\n")
+            fp.write("BANDWID = {}\n".format(bandwidth))
             fp.write("# TDR_DUR: TDR_DUR\n")
-            fp.write(f"TDR_DUR = {tdr_duration}\n")
+            fp.write("TDR_DUR = {}\n".format(tdr_duration))
             fp.write("# REFIMPD: REFIMPD\n")
-            fp.write(f"REFIMPD = {z_terminations}\n")
+            fp.write("REFIMPD = {}\n".format(z_terminations))
             fp.write("# BINSIZE: BINSIZE\n")
-            fp.write(f"BINSIZE = {pdf_bin_size}\n")
+            fp.write("BINSIZE = {}\n".format(pdf_bin_size))
             fp.write("# SPECBER: SPECBER\n")
-            fp.write(f"SPECBER = {ber}\n")
+            fp.write("SPECBER = {}\n".format(ber))
             fp.write("# MODTYPE: MODTYPE\n")
-            fp.write(f"MODTYPE = {modulation_type}\n")
+            fp.write("MODTYPE = {}\n".format(modulation_type))
             fp.write("# FIXDELY: FIXDELY\n")
-            fp.write(f"FIXDELY = {fixture_delay}\n")
+            fp.write("FIXDELY = {}\n".format(fixture_delay))
             fp.write("# INPVOLT: INPVOLT\n")
-            fp.write(f"INPVOLT = {input_amplitude}\n")
+            fp.write("INPVOLT = {}\n".format(input_amplitude))
             fp.write("# TRSTIME: TRSTIME\n")
-            fp.write(f"TRSTIME = {transition_time}\n")
+            fp.write("TRSTIME = {}\n".format(transition_time))
             fp.write("# SIGBETA: SIGBETA\n")
-            fp.write(f"SIGBETA = {signal_loss_factor}\n")
+            fp.write("SIGBETA = {}\n".format(signal_loss_factor))
             fp.write("# REFLRHO: REFLRHO\n")
-            fp.write(f"REFLRHO = {permitted_reflection}\n")
+            fp.write("REFLRHO = {}\n".format(permitted_reflection))
             fp.write("# NCYCLES: NCYCLES\n")
-            fp.write(f"NCYCLES = {reflections_lenght}\n")
+            fp.write("NCYCLES = {}\n".format(reflections_lenght))
 
         cfgCmmd = '-i %s -v CFGFILE="%s"' % (snp_file, cfg_file)
         command = [spisimExe, "CalcERL", cfgCmmd]
