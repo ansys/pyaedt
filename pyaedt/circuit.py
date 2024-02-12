@@ -1707,7 +1707,7 @@ class Circuit(FieldAnalysisCircuit, object):
         reflections_lenght=1000,
         modulation_type="NRZ",
     ):
-        """Computes effective return loss (erl) using Ansys SPISIM.
+        """Compute effective return loss (erl) using Ansys SPISIM.
 
         Parameters
         ----------
