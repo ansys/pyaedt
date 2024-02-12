@@ -2782,34 +2782,29 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the file. The default is ``""``.
 
         file_format : str, optional
-            Name of the file extension. The default is ``"aedtplt"``. Option is ``"case"``.
+            Name of the file extension. The default is ``"aedtplt"``. Options are ``"case"`` and ``"fldplt"``.
 
         Returns
         -------
         str
-            File Path when succeeded.
+            File path when successful.
 
         References
         ----------
-
         >>> oModule.ExportFieldPlot
         """
         if not filename:
             filename = plotname
-        file_path = os.path.join(filepath, filename + "." + file_format)
-        if ".case" in file_path:
-            try:
-                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-            except:  # pragma: no cover
-                self.logger.warning("case file is not supported for this plot. Switching to aedtplt")
-                file_path = os.path.join(filepath, filename + ".aedtplt")
-                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        else:  # pragma: no cover
-            self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
-            file_path = check_and_download_file(local_path, file_path)
-        return file_path
+        filepath = os.path.join(filepath, filename + "." + file_format)
+        try:
+            self.ofieldsreporter.ExportFieldPlot(plotname, False, filepath)
+            if settings.remote_rpc_session_temp_folder:
+                local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
+                filepath = check_and_download_file(local_path, filepath)
+            return filepath
+        except:  # pragma: no cover
+            self.logger.error("{} file format is not supported for this plot.".format(file_format))
+            return False
 
     @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
