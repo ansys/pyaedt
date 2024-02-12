@@ -8,13 +8,16 @@ import math
 import os
 import re
 import shutil
+import subprocess
 
 from pyaedt import Hfss3dLayout
+from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import CurrentSinSource
@@ -828,8 +831,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            File name when successful, ``False`` when failed.
 
         References
         ----------
@@ -1684,3 +1687,150 @@ class Circuit(FieldAnalysisCircuit, object):
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save_project=False)
         return hfss_3d_layout_model
+
+    @pyaedt_function_handler()
+    def compute_erl(
+        self,
+        setup_name=None,
+        port_order="EvenOdd",
+        specify_through_ports=None,
+        bandwidth=30e9,
+        tdr_duration=5,
+        z_terminations=50,
+        transition_time="10p",
+        fixture_delay=500e-12,
+        input_amplitude=1.0,
+        ber=1e-4,
+        pdf_bin_size=1e-5,
+        signal_loss_factor=1.7e9,
+        permitted_reflection=0.18,
+        reflections_lenght=1000,
+        modulation_type="NRZ",
+    ):
+        """Computes effective return loss (erl) using Ansys SPISIM.
+
+        Parameters
+        ----------
+        setup_name : str, optional
+            Name of the setup to use as the nominal. The default is
+            ``None``, in which case the active setup is used or
+            nothing is used.
+        port_order : str, optional
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for ``s4p`` files.
+            Ignored if the ports are greater than 4.
+        specify_through_ports : list, optional
+            Input and Output ports on which compute the erl. Those are ordered like ``[inp, inneg, outp, outneg]``.
+        bandwidth : float, str, optional
+            Application bandwidth: inverse of one UI (unit interval). Can be a float or str with unit ("m", "g").
+            Default is ``30e9``.
+        tdr_duration : float, optional
+            TDR duration (in second): How long the TDR tailed data should be applied. Default is ``5``.
+        z_terminations : float, optional
+            Z-Terminations: termination (Z11 and Z22) when TDR is calculated. Default is ``50``.
+        transition_time : float, str, optional
+            Transition time: how fast (slew rate) input pulse transit from 0 to Vcc volt. Default is "``10p``".
+        fixture_delay : float, optional
+            Fixture delay: delay when input starts transition from 0 to Vcc. Default is ``500e-12``.
+        input_amplitude : float, optional
+            Input amplitude: Vcc volt of step input. Default is ``1.0``.
+        ber : float, optional
+            Specified BER: At what threshold ERL is calculated. Default is ``1e-4``.
+        pdf_bin_size : float, optional
+            PDF bin size: how to quantize the superimposed value. Default is ``1e-5``.
+        signal_loss_factor : float, optional
+            Signal loss factor (Beta). See SPISIM Help for info. Default is ``1.7e9``.
+        permitted_reflection : float, optional
+            Permitted reflection (Rho). See SPISIM Help for info. Default is ``0.18``.
+        reflections_lenght : float, optional
+            Length of the reflections: how many UI will be used to calculate ERL. Default is ``1000``.
+        modulation_type : str, optional
+           Modulations type: signal modulation type "``NRZ``" or "``PAM4``". Default is "``NRZ``".
+
+        Returns
+        -------
+
+        """
+        if is_linux:
+            spisimExe = os.path.join(self.desktop_install_dir, "spisim/SPISim/modules/ext/SPISimJNI_LX64.exe")
+        else:
+            spisimExe = os.path.join(self.desktop_install_dir, r"spisim\SPISim\modules\ext\SPISimJNI_WIN64.exe")
+        if not setup_name:
+            setup_name = self.nominal_sweep
+        snp_file = self.export_touchstone(
+            setup_name,
+        )
+        cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
+        with open(cfg_file, "w") as fp:
+            fp.write("# INPARRY: INPARRY\n")
+            fp.write(f"INPARRY = {snp_file}\n")
+            fp.write("# MIXMODE: MIXMODE\n")
+            if port_order and snp_file.lower().endswith(".s4p"):
+                fp.write(f"MIXMODE = {port_order}\n")
+            else:
+                fp.write(f"MIXMODE = \n")
+            fp.write("# THRUS4P: THRUS4P\n")
+            if not snp_file.lower().endswith(".s4p"):
+                if isinstance(specify_through_ports[0], int):
+                    thrus4p = ",".join([str(i) for i in specify_through_ports])
+                else:
+                    try:
+                        ports = self.excitations.keys()
+                        thrus4p = ",".join([ports.index(i) for i in specify_through_ports])
+                    except IndexError:
+                        self.logger.error("Port not found.")
+                        return False
+                fp.write(f"THRUS4P = {thrus4p}\n")
+            else:
+                fp.write(f"THRUS4P = \n")
+            fp.write("# BANDWID: BANDWID\n")
+            fp.write(f"BANDWID = {bandwidth}\n")
+            fp.write("# TDR_DUR: TDR_DUR\n")
+            fp.write(f"TDR_DUR = {tdr_duration}\n")
+            fp.write("# REFIMPD: REFIMPD\n")
+            fp.write(f"REFIMPD = {z_terminations}\n")
+            fp.write("# BINSIZE: BINSIZE\n")
+            fp.write(f"BINSIZE = {pdf_bin_size}\n")
+            fp.write("# SPECBER: SPECBER\n")
+            fp.write(f"SPECBER = {ber}\n")
+            fp.write("# MODTYPE: MODTYPE\n")
+            fp.write(f"MODTYPE = {modulation_type}\n")
+            fp.write("# FIXDELY: FIXDELY\n")
+            fp.write(f"FIXDELY = {fixture_delay}\n")
+            fp.write("# INPVOLT: INPVOLT\n")
+            fp.write(f"INPVOLT = {input_amplitude}\n")
+            fp.write("# TRSTIME: TRSTIME\n")
+            fp.write(f"TRSTIME = {transition_time}\n")
+            fp.write("# SIGBETA: SIGBETA\n")
+            fp.write(f"SIGBETA = {signal_loss_factor}\n")
+            fp.write("# REFLRHO: REFLRHO\n")
+            fp.write(f"REFLRHO = {permitted_reflection}\n")
+            fp.write("# NCYCLES: NCYCLES\n")
+            fp.write(f"NCYCLES = {reflections_lenght}\n")
+
+        cfgCmmd = '-i %s -v CFGFILE="%s"' % (snp_file, cfg_file)
+        command = [spisimExe, "CalcERL", cfgCmmd]
+        # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
+        # try up to three times to be sure
+        out_processing = os.path.join(self.working_directory, "spsim_erl_out.txt")
+        my_env = os.environ.copy()
+        for env, val in settings.aedt_environment_variables.items():
+            my_env[env] = val
+        if is_linux:  # pragma: no cover
+            command.append("&")
+            with open(out_processing, "w") as outfile:
+                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()
+        else:
+            with open(out_processing, "w") as outfile:
+                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()
+        out_data = {}
+        try:
+            with open(out_processing, "r") as infile:
+                lines = infile.read()
+                parmDat = lines.split("[ParmDat]:", 1)[1]
+                for keyValu in parmDat.split(","):
+                    dataAry = keyValu.split("=")
+                    out_data[dataAry[0].strip()] = float(dataAry[1].strip().split()[0])
+            return out_data
+        except IndexError:
+            self.logger.error("Failed to compute ERL. Check input parameters and retry")
+            return False
