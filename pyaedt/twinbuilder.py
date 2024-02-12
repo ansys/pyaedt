@@ -399,7 +399,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.release_desktop()
         """
         dkp = self.desktop_class
-        dkp.current_version
         is_loaded = False
         app = None
         if os.path.isfile(source_project):
