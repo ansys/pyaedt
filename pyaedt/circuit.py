@@ -1750,10 +1750,8 @@ class Circuit(FieldAnalysisCircuit, object):
         -------
 
         """
-        if is_linux:
-            spisimExe = os.path.join(self.desktop_install_dir, "spisim/SPISim/modules/ext/SPISimJNI_LX64.exe")
-        else:
-            spisimExe = os.path.join(self.desktop_install_dir, r"spisim\SPISim\modules\ext\SPISimJNI_WIN64.exe")
+        exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
+        spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
         if not setup_name:
             setup_name = self.nominal_sweep
         snp_file = self.export_touchstone(
