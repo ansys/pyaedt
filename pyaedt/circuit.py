@@ -1748,7 +1748,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-
+        bool or dict
+            A dictionary with the result from the spisimExe command, ``False`` when failed.
         """
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
