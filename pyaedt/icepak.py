@@ -1258,9 +1258,9 @@ class Icepak(FieldAnalysis3D):
 
         """
         warnings.warn(
-            "This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.",
+            "This method is deprecated in 0.7.12. Use the create_parametric_heatsink_on_face() method.",
             DeprecationWarning,
-        )  # TODO: update deprecation number
+        )
         all_objs = self.modeler.object_names
         self["FinPitch"] = self.modeler._arg_with_dim(pitch)
         self["FinThickness"] = self.modeler._arg_with_dim(thick)
