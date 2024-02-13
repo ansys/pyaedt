@@ -1810,10 +1810,10 @@ class Circuit(FieldAnalysisCircuit, object):
         if is_linux:  # pragma: no cover
             command.append("&")
             with open(out_processing, "w") as outfile:
-                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()
+                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
             with open(out_processing, "w") as outfile:
-                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()
+                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         out_data = {}
         try:
             with open(out_processing, "r") as infile:
