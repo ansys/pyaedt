@@ -8,7 +8,7 @@ import math
 import os
 import re
 import shutil
-import subprocess
+import subprocess  # nosec B404
 
 from pyaedt import Hfss3dLayout
 from pyaedt import settings
@@ -1897,7 +1897,7 @@ class Circuit(FieldAnalysisCircuit, object):
             setup_name,
         )
 
-        self.compute_erl_from_touchstone(
+        return self.compute_erl_from_touchstone(
         tc_file,
         port_order,
         specify_through_ports,

@@ -433,6 +433,7 @@ class TestClass:
                                               setuptype=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
+
     def test_08_compute_erl(self, circuit_erl):
         erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd",bandwidth="40p")
         assert erl_data2
