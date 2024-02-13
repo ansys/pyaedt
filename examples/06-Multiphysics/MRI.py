@@ -53,7 +53,7 @@ hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version
 hfss.modeler.insert_3d_component(os.path.join(project_path, "coil.a3dcomp"))
 
 ###############################################################################
-# Expression Chache
+# Expression Cache
 # ~~~~~~~~~~~~~~~~~
 #  On the expression cache tab, define additional convergence criteria for self impedance of the four coil
 # ports
@@ -179,7 +179,7 @@ mech.assign_uniform_convection(mech.modeler["Region"].faces, convection_value=1)
 # Create Setup
 # ~~~~~~~~~~~~
 # Create a new setup and edit properties.
-# Simuation will be for 60 seconds.
+# Simulation will be for 60 seconds.
 
 setup = mech.create_setup()
 # setup.add_mesh_link("backgroundSAR")
@@ -258,7 +258,7 @@ exc = ipk.assign_em_losses(
 # Create Setup
 # ~~~~~~~~~~~~
 # Create a new setup and edit properties.
-# Simuation will be for 60 seconds.
+# Simulation will be for 60 seconds.
 
 setup = ipk.create_setup()
 

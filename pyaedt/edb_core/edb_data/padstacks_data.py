@@ -399,6 +399,12 @@ class EDBPadstack(object):
         pass
 
     @property
+    def instances(self):
+        """Definitions Instances."""
+        name = self.name
+        return [i for i in self._ppadstack.instances.values() if i.padstack_definition == name]
+
+    @property
     def name(self):
         """Padstack Definition Name."""
         return self.edb_padstack.GetName()
@@ -727,7 +733,7 @@ class EDBPadstack(object):
             self.edb_padstack.SetData(cloned_padstackdef_data)
 
     @pyaedt_function_handler()
-    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15):
+    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15, delete_padstack_def=True):
         """Convert actual padstack instance to microvias 3D Objects with a given aspect ratio.
 
         Parameters
@@ -735,15 +741,24 @@ class EDBPadstack(object):
         convert_only_signal_vias : bool, optional
             Either to convert only vias belonging to signal nets or all vias. Defaults is ``True``.
         hole_wall_angle : float, optional
-            Angle of laser penetration in deg. It will define the bottom hole diameter with the following formula:
+            Angle of laser penetration in degrees. The angle defines the bottom hole diameter with this formula:
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
-            The default value is ``15``.
-            The bottom hole will be ``0.75*HoleDepth/HoleDiam``.
+            The default is ``15``.
+            The bottom hole is ``0.75*HoleDepth/HoleDiam``.
+        delete_padstack_def : bool, optional
+            Whether to delete the padstack definition. The default is ``True``.
+            If ``False``, the padstack definition is not deleted and the hole size is set to zero.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
+
+        if len(self.hole_properties) == 0:
+            self._ppadstack._pedb.logger.error("Microvias cannot be applied on vias using hole shape polygon")
+            return False
+
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
         layout = self._ppadstack._pedb.active_layout
@@ -752,8 +767,16 @@ class EDBPadstack(object):
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
-        start_elevation = layers[self.via_start_layer].lower_elevation
-        diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
+        try:
+            start_elevation = layers[self.via_start_layer].lower_elevation
+        except KeyError:  # pragma: no cover
+            start_elevation = layers[self.instances[0].start_layer].lower_elevation
+        try:
+            stop_elevation = layers[self.via_start_layer].upper_elevation
+        except KeyError:  # pragma: no cover
+            stop_elevation = layers[self.instances[0].stop_layer].upper_elevation
+
+        diel_thick = abs(start_elevation - stop_elevation)
         rad1 = self.hole_properties[0] / 2
         rad2 = self.hole_properties[0] / 2 - math.tan(hole_wall_angle * diel_thick * math.pi / 180)
 
@@ -828,7 +851,13 @@ class EDBPadstack(object):
                         i += 1
                     if stop == via.stop_layer:
                         break
-                via.delete()
+                if delete_padstack_def:  # pragma no cover
+                    via.delete()
+                else:  # pragma no cover
+                    padstack_def = self._ppadstack.definitions[via.padstack_definition]
+                    padstack_def.hole_properties = 0
+                    self._ppadstack._pedb.logger.info("Padstack definition kept, hole size set to 0.")
+
         self._ppadstack._pedb.logger.info("{} Converted successfully to 3D Objects.".format(i))
         return True
 
@@ -971,6 +1000,107 @@ class EDBPadstack(object):
             via.delete()
         self._ppadstack._pedb.logger.info("Created {} new microvias.".format(i))
         return new_instances
+
+    @pyaedt_function_handler()
+    def _update_layer_names(self, old_name, updated_name):
+        """Update padstack definition layer name when layer name is edited with the layer name setter.
+
+        Parameters
+        ----------
+        old_name
+            old name : str
+        updated_name
+            new name : str
+
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` when failed.
+
+        """
+        cloned_padstack_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
+        new_padstack_data = self._edb.definition.PadstackDefData.Create()
+        layers_name = cloned_padstack_data.GetLayerNames()
+        layers_to_add = []
+        for layer in layers_name:
+            if layer == old_name:
+                layers_to_add.append(updated_name)
+            else:
+                layers_to_add.append(layer)
+        new_padstack_data.AddLayers(convert_py_list_to_net_list(layers_to_add))
+        for layer in layers_name:
+            updated_pad = self.pad_by_layer[layer]
+            if not updated_pad.geometry_type == 0:  # pragma no cover
+                pad_type = self._edb.definition.PadType.RegularPad
+                geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
+                parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
+                offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
+                offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
+                rot = self.pad_by_layer[layer]._pad_parameter_value[5]
+                if layer == old_name:  # pragma no cover
+                    new_padstack_data.SetPadParameters(
+                        updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rot
+                    )
+                else:
+                    new_padstack_data.SetPadParameters(layer, pad_type, geom_type, parameters, offset_x, offset_y, rot)
+
+            updated_anti_pad = self.antipad_by_layer[layer]
+            if not updated_anti_pad.geometry_type == 0:  # pragma no cover
+                pad_type = self._edb.definition.PadType.AntiPad
+                geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
+                parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
+                offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
+                offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
+                rotation = self.pad_by_layer[layer]._pad_parameter_value[5]
+                if layer == old_name:  # pragma no cover
+                    new_padstack_data.SetPadParameters(
+                        updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+                else:
+                    new_padstack_data.SetPadParameters(
+                        layer, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+
+            updated_thermal_pad = self.thermalpad_by_layer[layer]
+            if not updated_thermal_pad.geometry_type == 0:  # pragma no cover
+                pad_type = self._edb.definition.PadType.ThermalPad
+                geom_type = self.pad_by_layer[layer]._pad_parameter_value[1]
+                parameters = self.pad_by_layer[layer]._pad_parameter_value[2]
+                offset_x = self.pad_by_layer[layer]._pad_parameter_value[3]
+                offset_y = self.pad_by_layer[layer]._pad_parameter_value[4]
+                rotation = self.pad_by_layer[layer]._pad_parameter_value[5]
+                if layer == old_name:  # pragma no cover
+                    new_padstack_data.SetPadParameters(
+                        updated_name, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+                else:
+                    new_padstack_data.SetPadParameters(
+                        layer, pad_type, geom_type, parameters, offset_x, offset_y, rotation
+                    )
+
+        hole_param = cloned_padstack_data.GetHoleParameters()
+        if hole_param[0]:
+            hole_geom = hole_param[1]
+            hole_params = convert_py_list_to_net_list([self._get_edb_value(i) for i in hole_param[2]])
+            hole_off_x = self._get_edb_value(hole_param[3])
+            hole_off_y = self._get_edb_value(hole_param[4])
+            hole_rot = self._get_edb_value(hole_param[5])
+            new_padstack_data.SetHoleParameters(hole_geom, hole_params, hole_off_x, hole_off_y, hole_rot)
+
+        new_padstack_data.SetHolePlatingPercentage(self._get_edb_value(cloned_padstack_data.GetHolePlatingPercentage()))
+
+        new_padstack_data.SetHoleRange(cloned_padstack_data.GetHoleRange())
+        new_padstack_data.SetMaterial(cloned_padstack_data.GetMaterial())
+        new_padstack_data.SetSolderBallMaterial(cloned_padstack_data.GetSolderBallMaterial())
+        solder_ball_param = cloned_padstack_data.GetSolderBallParameter()
+        if solder_ball_param[0]:
+            new_padstack_data.SetSolderBallParameter(
+                self._get_edb_value(solder_ball_param[1]), self._get_edb_value(solder_ball_param[2])
+            )
+        new_padstack_data.SetSolderBallPlacement(cloned_padstack_data.GetSolderBallPlacement())
+        new_padstack_data.SetSolderBallShape(cloned_padstack_data.GetSolderBallShape())
+        self.edb_padstack.SetData(new_padstack_data)
+        return True
 
 
 class EDBPadstackInstance(EDBPrimitivesMain):

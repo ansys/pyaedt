@@ -1,6 +1,7 @@
 """This module contains the `Components` class.
 
 """
+
 import codecs
 import json
 import math
@@ -713,7 +714,7 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
-    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0, port_name=None):
+    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0, port_name=None, pec_boundary=False):
         """Create circuit port between pins and reference ones.
 
         Parameters
@@ -732,8 +733,13 @@ class Components(object):
             str, [str], EDBPadstackInstance, [EDBPadstackInstance]
         impedance : Port impedance
             str, float
-        port_name : Port Name (Optional) when provided will overwrite the default naming convention
-            str
+        port_name : str, optional
+            Port name. The default is ``None``, in which case a name is automatically assigned.
+        pec_boundary : bool, optional
+        Whether to define the PEC boundary, The default is ``False``. If set to ``True``,
+        a perfect short is created between the pin and impedance is ignored. This
+        parameter is only supported on a port created between two pins, such as
+        when there is no pin group.
 
         Returns
         -------
@@ -760,7 +766,9 @@ class Components(object):
         if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
             cmp_pins = []
             for pin_name in pins:
-                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name in pin.name]
+                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name == pin.name]
+                if not cmp_pin:
+                    cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name == pin.name.split("-")[1]]
                 if cmp_pin:
                     cmp_pins.append(cmp_pin[0])
             if not cmp_pins:
@@ -774,7 +782,9 @@ class Components(object):
         if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
             ref_cmp_pins = []
             for ref_pin_name in reference_pins:
-                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name in pin.name]
+                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name == pin.name]
+                if not cmp_ref_pin:
+                    cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name == pin.name.split("-")[1]]
                 if cmp_ref_pin:
                     ref_cmp_pins.append(cmp_ref_pin[0])
             if not ref_cmp_pins:
@@ -783,29 +793,56 @@ class Components(object):
         if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
             return
         if len(pins) > 1:
-            group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+            pec_boundary = False
+            self._logger.info(
+                "Disabling PEC boundary creation, this feature is supported on single pin "
+                "ports only, {} pins found".format(len(pins))
+            )
+            group_name = "group_{}".format(port_name)
             pin_group = self.create_pingroup_from_pins(pins, group_name)
             term = self._create_pin_group_terminal(pingroup=pin_group, term_name=port_name)
 
         else:
-            term = self._create_terminal(pins[0], term_name=port_name)
+            term = self._create_terminal(pins[0].primitive_object, term_name=port_name)
         term.SetIsCircuitPort(True)
         if len(reference_pins) > 1:
-            ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
+            pec_boundary = False
+            self._logger.info(
+                "Disabling PEC boundary creation. This feature is supported on single pin"
+                "ports only {} reference pins found.".format(len(reference_pins))
+            )
+            ref_group_name = "group_{}_ref".format(port_name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
             ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, term_name=port_name + "_ref")
         else:
-            ref_term = self._create_terminal(reference_pins[0], term_name=port_name + "_ref")
+            ref_term = self._create_terminal(reference_pins[0].primitive_object, term_name=port_name + "_ref")
         ref_term.SetIsCircuitPort(True)
         term.SetImpedance(self._edb.utility.value(impedance))
         term.SetReferenceTerminal(ref_term)
+        if pec_boundary:
+            term.SetIsCircuitPort(False)
+            ref_term.SetIsCircuitPort(False)
+            term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.PecBoundary)
+            ref_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.PecBoundary)
+            self._logger.info(
+                "PEC boundary created between pin {} and reference pin {}".format(pins[0].name, reference_pins[0].name)
+            )
         if term:
             return term
         return False
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd", port_name=None
+        self,
+        component,
+        net_list,
+        port_type=SourceType.CoaxPort,
+        do_pingroup=True,
+        reference_net="gnd",
+        port_name=None,
+        solder_balls_height=None,
+        solder_balls_size=None,
+        solder_balls_mid_size=None,
     ):
         """Create ports on a component.
 
@@ -830,7 +867,14 @@ class Components(object):
             If a port with the specified name already exists, the
             default naming convention is used so that port creation does
             not fail.
-
+        solder_balls_height : float, optional
+            Solder balls height used for the component. When provided default value is overwritten and must be
+            provided in meter.
+        solder_balls_size : float, optional
+            Solder balls diameter. When provided auto evaluation based on padstack size will be disabled.
+        solder_balls_mid_size : float, optional
+            Solder balls mid diameter. When provided if value is different than solder balls size, spheroid shape will
+            be switched.
         Returns
         -------
         double, bool
@@ -875,13 +919,36 @@ class Components(object):
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             if not pad_params[0] == 7:
-                sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-                solder_ball_height = 2 * sball_diam / 3
-            else:
-                bbox = pad_params[1]
-                sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
-                solder_ball_height = 2 * sball_diam / 3
-            self.set_solder_ball(component, solder_ball_height, sball_diam)
+                if not solder_balls_size:  # pragma no cover
+                    sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                    sball_mid_diam = sball_diam
+                else:  # pragma no cover
+                    sball_diam = solder_balls_size
+                    if solder_balls_mid_size:
+                        sball_mid_diam = solder_balls_mid_size
+                    else:
+                        sball_mid_diam = solder_balls_size
+                if not solder_balls_height:  # pragma no cover
+                    solder_balls_height = 2 * sball_diam / 3
+            else:  # pragma no cover
+                if not solder_balls_size:
+                    bbox = pad_params[1]
+                    sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                else:
+                    if not solder_balls_mid_size:
+                        sball_mid_diam = solder_balls_size
+                if not solder_balls_height:
+                    solder_balls_height = 2 * sball_diam / 3
+            sball_shape = "Cylinder"
+            if not sball_diam == sball_mid_diam:
+                sball_shape = "Spheroid"
+            self.set_solder_ball(
+                component=component,
+                sball_height=solder_balls_height,
+                sball_diam=sball_diam,
+                sball_mid_diam=sball_mid_diam,
+                shape=sball_shape,
+            )
             for pin in cmp_pins:
                 self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 
@@ -949,11 +1016,9 @@ class Components(object):
 
         Returns
         -------
-        Edb terminal.
+        EDB terminal.
         """
 
-        pin_position = self.get_pin_position(pin)  # pragma no cover
-        pin_pos = self._pedb.point_data(*pin_position)
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
@@ -963,8 +1028,8 @@ class Components(object):
         for term in list(self._pedb.active_layout.Terminals):
             if term.GetName() == term_name:
                 return term
-        term = self._edb.cell.terminal.PointTerminal.Create(
-            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
+        term = self._edb.cell.terminal.PadstackInstanceTerminal.Create(
+            pin.GetLayout(), pin.GetNet(), term_name, pin, from_layer
         )
         return term
 
@@ -1043,8 +1108,8 @@ class Components(object):
         return self.add_rlc_boundary(component.refdes, False)
 
     @pyaedt_function_handler()
-    def deactivate_rlc_component(self, component=None, create_circuit_port=False):
-        """Deactivate RLC component with a possibility to convert to a circuit port.
+    def deactivate_rlc_component(self, component=None, create_circuit_port=False, pec_boundary=False):
+        """Deactivate RLC component with a possibility to convert it to a circuit port.
 
         Parameters
         ----------
@@ -1054,6 +1119,11 @@ class Components(object):
         create_circuit_port : bool, optional
             Whether to replace the deactivated RLC component with a circuit port. The default
             is ``False``.
+        pec_boundary : bool, optional
+        Whether to define the PEC boundary, The default is ``False``. If set to ``True``,
+        a perfect short is created between the pin and impedance is ignored. This
+        parameter is only supported on a port created between two pins, such as
+        when there is no pin group.
 
         Returns
         -------
@@ -1086,12 +1156,14 @@ class Components(object):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
         component.is_enabled = False
-        return self.add_port_on_rlc_component(component=component.refdes, circuit_ports=create_circuit_port)
+        return self.add_port_on_rlc_component(
+            component=component.refdes, circuit_ports=create_circuit_port, pec_boundary=pec_boundary
+        )
 
     @pyaedt_function_handler()
-    def add_port_on_rlc_component(self, component=None, circuit_ports=True):
+    def add_port_on_rlc_component(self, component=None, circuit_ports=True, pec_boundary=False):
         """Deactivate RLC component and replace it with a circuit port.
-        The circuit port supports only 2-pin components.
+        The circuit port supports only two-pin components.
 
         Parameters
         ----------
@@ -1101,6 +1173,13 @@ class Components(object):
         circuit_ports : bool
             ``True`` will replace RLC component by circuit ports, ``False`` gap ports compatible with HFSS 3D modeler
             export.
+
+        pec_boundary : bool, optional
+        pec_boundary : bool, optional
+            Whether to define the PEC boundary, The default is ``False``. If set to ``True``,
+            a perfect short is created between the pin and impedance is ignored. This
+           parameter is only supported on a port created between two pins, such as
+           when there is no pin group.
 
         Returns
         -------
@@ -1114,9 +1193,6 @@ class Components(object):
         self.set_component_rlc(component.refdes)
         pins = self.get_pin_from_component(component.refdes)
         if len(pins) == 2:  # pragma: no cover
-            pos_pin_loc = self.get_pin_position(pins[0])
-            pt = self._pedb.point_data(*pos_pin_loc)
-
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
@@ -1128,9 +1204,6 @@ class Components(object):
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
-            neg_pin_loc = self.get_pin_position(pins[1])
-            pt = self._pedb.point_data(*neg_pin_loc)
-
             neg_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
                 self._active_layout,
                 pins[1].GetNet(),
@@ -1141,17 +1214,23 @@ class Components(object):
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
-            pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
+            if pec_boundary:
+                pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary)
+                neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PecBoundary)
+            else:
+                pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
+                neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
             pos_pin_term.SetName(component.refdes)
-            neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
             pos_pin_term.SetReferenceTerminal(neg_pin_term)
-            if circuit_ports:
+            if circuit_ports and not pec_boundary:
                 pos_pin_term.SetIsCircuitPort(True)
                 neg_pin_term.SetIsCircuitPort(True)
+            elif pec_boundary:
+                pos_pin_term.SetIsCircuitPort(False)
+                neg_pin_term.SetIsCircuitPort(False)
             else:
                 pos_pin_term.SetIsCircuitPort(False)
                 neg_pin_term.SetIsCircuitPort(False)
-
             self._logger.info("Component {} has been replaced by port".format(component.refdes))
             return True
         return False
@@ -1351,9 +1430,9 @@ class Components(object):
         placement_layer=None,
         component_part_name=None,
         is_rlc=False,
-        r_value=1.0,
-        c_value=1e-9,
-        l_value=1e-9,
+        r_value=0,
+        c_value=0,
+        l_value=0,
         is_parallel=False,
     ):
         """Create a component from pins.
@@ -1405,6 +1484,7 @@ class Components(object):
 
         if isinstance(pins[0], EDBPadstackInstance):
             pins = [i._edb_padstackinstance for i in pins]
+        hosting_component_location = pins[0].GetComponent().GetTransform()
         for pin in pins:
             pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin)
@@ -1415,9 +1495,8 @@ class Components(object):
             new_cmp_layer_name = placement_layer
         new_cmp_placement_layer = self._edb.cell.layer.FindByName(self._layout.layer_collection, new_cmp_layer_name)
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-        hosting_component_location = pins[0].GetComponent().GetTransform()
 
-        if is_rlc:
+        if is_rlc and len(pins) == 2:
             rlc = self._edb.utility.utility.Rlc()
             rlc.IsParallel = is_parallel
             if r_value:
@@ -1689,7 +1768,8 @@ class Components(object):
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 if deactivate_only:
                     val.is_enabled = False
-                    val.model_type = "RLC"
+                    if val.model_type in ["SParameterModel", "SPICEModel"]:
+                        val.assign_rlc_model(res=1e6)
                 else:
                     val.edbcomponent.Delete()
                     deleted_comps.append(comp)

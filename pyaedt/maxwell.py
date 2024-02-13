@@ -4,7 +4,6 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import io
-import json
 import os
 import re
 
@@ -12,8 +11,9 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
@@ -21,9 +21,6 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Maxwell(object):
-    def __enter__(self):
-        return self
-
     def __init__(self):
         pass
 
@@ -1946,21 +1943,18 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
 
-        .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.
+        Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
+        The list of keywords here is not exhaustive.
 
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of the setup. Based on the solution type, options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``,
-            ``"HFSSEigen"``, ``"HFSSTransient"`` and ``"HFSSSBR"``.
-            The default is ``"HFSSDrivenAuto"``.
+            Type of the setup. Depending on the solution type, options are
+            ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
+            ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
+            and ``Transient"``.
         setupname : str, optional
             Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
@@ -1974,15 +1968,13 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
         --------
-
         >>> from pyaedt import Maxwell3d
         >>> app = Maxwell3d()
-        >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
+        >>> app.create_setup(setupname="My_Setup", setuptype="EddyCurrent", MaximumPasses=10, PercentError=2 )
 
         """
         if setuptype is None:
@@ -2039,7 +2031,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored
+        machine. The default is ``False``. This parameter is ignored
         when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -2777,7 +2769,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
+        machine. The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -2946,8 +2938,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open_file(design_file, "w") as fps:
-            json.dump(convert(self.design_data), fps, indent=4)
+        write_configuration_file(self.design_data, design_file)
         return True
 
     @pyaedt_function_handler()
@@ -2961,9 +2952,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open_file(design_file, "r") as fps:
-            design_data = json.load(fps)
-        return design_data
+        return read_configuration_file(design_file)
 
     @pyaedt_function_handler()
     def assign_balloon(self, edge_list, bound_name=None):

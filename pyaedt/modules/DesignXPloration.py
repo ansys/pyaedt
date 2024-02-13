@@ -103,9 +103,7 @@ class CommonOptimetrics(PropsManager, object):
                         value = (
                             True
                             if parts[1].lower() == "true"
-                            else False
-                            if parts[1].lower() == "false"
-                            else parts[1].strip("'")
+                            else False if parts[1].lower() == "false" else parts[1].strip("'")
                         )
                         output_list.extend([parts[0] + ":=", value])
                     self.props["Variables"][var] = output_list
@@ -894,7 +892,8 @@ class SetupParam(CommonOptimetrics, object):
         unit : str, optional
             Variation units. Default is `None`.
         variation_type : float or int
-            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
+            Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
+            `"DecadeCount"`, `"OctaveCount"`, `"ExponentialCount"`.
 
         Returns
         -------
@@ -918,10 +917,14 @@ class SetupParam(CommonOptimetrics, object):
             sweep_range = "LINC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "LinearStep":
             sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.value_with_units(step, unit))
-        elif variation_type == "LogScale":
-            sweep_range = "DEC {} {} {}".format(start_point, end_point, self._app.value_with_units(step, unit))
+        elif variation_type == "DecadeCount":
+            sweep_range = "DEC {} {} {}".format(start_point, end_point, step)
+        elif variation_type == "OctaveCount":
+            sweep_range = "OCT {} {} {}".format(start_point, end_point, step)
+        elif variation_type == "ExponentialCount":
+            sweep_range = "ESTP {} {} {}".format(start_point, end_point, step)
         elif variation_type == "SingleValue":
-            sweep_range = "{}".format(self._app.value_with_units(start_point, unit))
+            sweep_range = "{}".format(start_point)
         if not sweep_range:
             return False
         self._activate_variable(sweep_var)

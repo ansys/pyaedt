@@ -51,7 +51,7 @@ def examples(local_scratch):
     scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
     scdoc_file = local_scratch.copyfile(scdoc_file)
     step_file = os.path.join(local_path, "example_models", test_subfolder, step)
-    component3d_file = os.path.join(local_scratch.path, component3d)
+    component3d_file = os.path.join(local_scratch.path, "comp_3d", component3d)
     encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cyl)
     test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
     test_98_project = local_scratch.copyfile(test_98_project)
@@ -701,12 +701,12 @@ class TestClass:
         assert prim3D.create_polyline(
             position_list=test_points, segment_type=PolylineSegment("Spline", num_points=3), name="PL03_spline_3pt"
         )
-        try:
+        with pytest.raises(ValueError) as execinfo:
             prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
-        except ValueError as e:
-            assert str(e) == "The position_list argument must contain at least 4 points for segment of type Spline."
-        else:
-            assert False
+            assert (
+                str(execinfo)
+                == "The 'position_list' argument must contain at least four points for segment of type 'Spline'."
+            )
         assert prim3D.create_polyline(
             position_list=[[100, 100, 0]],
             segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
@@ -1023,12 +1023,9 @@ class TestClass:
         # test unclassified
         p11 = polyline_points[11]
         position_lst = [[-142, 130, 0], [-126, 63, 0], p11]
-        try:
+        with pytest.raises(ValueError) as execinfo:
             ind.insert_segment(position_lst, "Arc")
-        except ValueError as e:
-            assert str(e) == "Adding the segment result in an unclassified object. Undoing operation."
-        else:
-            assert False
+            assert str(execinfo) == "Adding the segment result in an unclassified object. Undoing operation."
         assert len(ind.points) == 64
         assert len(ind.segment_types) == 55
 
@@ -1158,6 +1155,11 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         for i in list(self.aedtapp.modeler.objects.keys()):
             self.aedtapp.modeler.objects[i].material_name = "copper"
+
+        # Folder doesn't exist. Cannot create component.
+        assert not self.aedtapp.modeler.create_3dcomponent(self.component3d_file, create_folder=False)
+
+        # By default, the new folder is created.
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
         assert os.path.exists(self.component3d_file)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])

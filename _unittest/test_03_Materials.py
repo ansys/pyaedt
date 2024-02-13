@@ -1,5 +1,6 @@
 import os
 
+from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
@@ -82,7 +83,7 @@ class TestClass:
 
         assert mat1.set_electrical_steel_coreloss(1, 2, 3, 4, 0.002)
         assert mat1.get_curve_coreloss_type() == "Electrical Steel"
-        assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == "0.002meter"
+        assert mat1.get_curve_coreloss_values()["core_loss_equiv_cut_depth"] == 0.002
         assert mat1.set_hysteresis_coreloss(1, 2, 3, 4, 0.002)
         assert mat1.get_curve_coreloss_type() == "Hysteresis Model"
         assert mat1.set_bp_curve_coreloss([[0, 0], [10, 10], [20, 20]])
@@ -95,21 +96,12 @@ class TestClass:
         assert mat1.material_appearance == [11, 22, 0]
         mat1.material_appearance = ["11", "22", "10"]
         assert mat1.material_appearance == [11, 22, 10]
-        try:
+        with pytest.raises(ValueError):
             mat1.material_appearance = [11, 22, 300]
-            assert False
-        except ValueError:
-            assert True
-        try:
+        with pytest.raises(ValueError):
             mat1.material_appearance = [11, -22, 0]
-            assert False
-        except ValueError:
-            assert True
-        try:
+        with pytest.raises(ValueError):
             mat1.material_appearance = [11, 22]
-            assert False
-        except ValueError:
-            assert True
 
     def test_03_create_modifiers(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
@@ -210,7 +202,7 @@ class TestClass:
         assert len(mats) == 2
 
     def test_09_non_linear_materials(self, add_app):
-        app = add_app(application=Maxwell3d)
+        app = add_app(application=Maxwell3d, solution_type="Transient")
         mat1 = app.materials.add_material("myMat")
         mat1.permeability = [[0, 0], [1, 12], [10, 30]]
         mat1.permittivity = [[0, 0], [2, 12], [10, 30]]
@@ -269,8 +261,108 @@ class TestClass:
         self.aedtapp["$df"] = 0.01
         assert mat.set_djordjevic_sarkar_model(dk="$dk", df="$df")
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_13_get_materials_in_project(self):
         used_materials = self.aedtapp.materials.get_used_project_material_names()
         assert isinstance(used_materials, list)
         for m in [mat for mat in self.aedtapp.materials if mat.is_used]:
             assert m.name in used_materials
+
+    def test_14_get_coreloss_coefficients(self):
+        mat = self.aedtapp.materials.add_material("mat_test")
+        # Test points_list_at_freq
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+        with pytest.raises(TypeError):
+            self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+            )
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={
+                60: [[0, 0], [1, 3.5], [2, 7.4]],
+                100: [[0, 0], [1, 8], [2, 9]],
+                150: [[0, 0], [1, 10], [2, 19]],
+            }
+        )
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+        # Test thickness
+        coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
+        )
+        assert isinstance(coeff, list)
+        assert len(coeff) == 3
+        assert all(isinstance(c, float) for c in coeff)
+        with pytest.raises(TypeError):
+            self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
+            )
+        with pytest.raises(TypeError):
+            self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
+            )
+
+    def test_14_set_core_loss(self):
+        mat = self.aedtapp.materials["mat_test"]
+        # Test points_list_at_freq
+        assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+            points_list_at_freq={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+            points_list_at_freq={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
+        )
+        with pytest.raises(TypeError):
+            self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+            )
+        assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+            points_list_at_freq={
+                60: [[0, 0], [1, 3.5], [2, 7.4]],
+                100: [[0, 0], [1, 8], [2, 9]],
+                150: [[0, 0], [1, 10], [2, 19]],
+            }
+        )
+        assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+            points_list_at_freq={
+                60: [[0, 0], [1, 3.5], [2, 7.4]],
+                100: [[0, 0], [1, 8], [2, 9]],
+                150: [[0, 0], [1, 10], [2, 19]],
+            },
+            core_loss_model_type="Power Ferrite",
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+                points_list_at_freq={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
+            )
+        # Test thickness
+        assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
+        )
+        with pytest.raises(TypeError):
+            self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
+            )
+        with pytest.raises(TypeError):
+            self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
+                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
+            )

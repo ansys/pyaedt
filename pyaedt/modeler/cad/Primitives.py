@@ -1,6 +1,7 @@
 """
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -92,6 +93,7 @@ class GeometryModeler(Modeler):
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
             return partId
+        self.logger.error("Object '{}' not found.".format(partId))
         return None
 
     def __init__(self, app, is3d=True):
@@ -7895,7 +7897,7 @@ class GeometryModeler(Modeler):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0, use_cached=False):
+    def _create_object(self, name, pid=0, use_cached=False, **kwargs):
         if use_cached:
             line_names = self._lines
         else:
@@ -7926,6 +7928,23 @@ class GeometryModeler(Modeler):
                 new_id = o.id
             self.objects[new_id] = o
             self._object_names_to_ids[o.name] = new_id
+
+        #  Set properties from kwargs.
+        if len(kwargs) > 0:
+            props = [
+                attr
+                for attr in dir(o)
+                if isinstance(getattr(type(o), attr, None), property)  # Get a list of settable properties.
+                and getattr(type(o), attr).fset is not None
+            ]
+            for k, val in kwargs.items():
+                if k in props:  # Only try to set valid properties.
+                    try:
+                        setattr(o, k, val)
+                    except:
+                        self.logger.warning("Unable to assign " + str(k) + " to object " + o.name + ".")
+                else:
+                    self.logger.error("'" + str(k) + "' is not a valid property of the primitive ")
         return o
 
     @pyaedt_function_handler()

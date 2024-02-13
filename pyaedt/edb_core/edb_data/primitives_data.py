@@ -725,12 +725,17 @@ class EdbPath(EDBPrimitives, PathDotNet):
         float
             Path length in meters.
         """
-        center_line = self.get_center_line()
-        length = 0
-        for pt_ind in range(len(center_line)):
-            if pt_ind < len(center_line) - 1:
-                length += GeometryOperators.points_distance(center_line[pt_ind], center_line[pt_ind + 1])
-        return length
+
+        center_line_arcs = list(self.center_line.GetArcData())
+        path_length = 0.0
+        for arc in center_line_arcs:
+            path_length += arc.GetLength()
+        if self.end_cap_style[0]:
+            if not self.end_cap_style[1].value__ == 1:
+                path_length += self.width / 2
+            if not self.end_cap_style[2].value__ == 1:
+                path_length += self.width / 2
+        return path_length
 
     @pyaedt_function_handler
     def add_point(self, x, y, incremental=False):
@@ -853,7 +858,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
 
     pyaedt_function_handler()
 
-    def create_via_fence(self, distance, gap, padstack_name):
+    def create_via_fence(self, distance, gap, padstack_name, net_name="GND"):
         """Create via fences on both sides of the trace.
 
         Parameters
@@ -864,6 +869,8 @@ class EdbPath(EDBPrimitives, PathDotNet):
             Gap between vias.
         padstack_name: str
             Name of the via padstack.
+        net_name: str,optional
+            Name of the net.
 
         Returns
         -------
@@ -956,7 +963,7 @@ class EdbPath(EDBPrimitives, PathDotNet):
         center_line = self.get_center_line()
         leftline, rightline = getParalletLines(center_line, distance)
         for x, y in getLocations(rightline, gap) + getLocations(leftline, gap):
-            self._pedb.padstacks.place([x, y], padstack_name)
+            self._pedb.padstacks.place([x, y], padstack_name, net_name=net_name)
 
 
 class EdbRectangle(EDBPrimitives, RectangleDotNet):
@@ -996,6 +1003,138 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
                 # cloned_void
                 cloned_poly.prim_obj.AddVoid(cloned_void.prim_obj)
             return cloned_poly
+        return False
+
+    @pyaedt_function_handler
+    def move(self, vector):
+        """Move polygon along a vector.
+
+        Parameters
+        ----------
+        vector : List of float or str [x,y].
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_layer_polygon = [poly for poly in edbapp.modeler.polygons if poly.layer_name == "Top Layer"]
+        >>> for polygon in top_layer_polygon:
+        >>>     polygon.move(vector=["2mm", "100um"])
+        """
+        if vector and isinstance(vector, list) and len(vector) == 2:
+            _vector = self._edb.Geometry.PointData(
+                self._edb.Utility.Value(vector[0]), self._edb.Utility.Value(vector[1])
+            )
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            polygon_data.Move(_vector)
+            return self.api_object.SetPolygonData(polygon_data)
+        return False
+
+    @pyaedt_function_handler
+    def rotate(self, angle, center=None):
+        """Rotate polygon around a center point by an angle
+
+        Parameters
+        ----------
+
+        angle : float
+            Value of the rotation angle in degree.
+
+        center : List of float or str [x,y], optional
+            If None rotation is done from polygon center.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_layer_polygon = [poly for poly in edbapp.modeler.polygons if poly.layer_name == "Top Layer"]
+        >>> for polygon in top_layer_polygon:
+        >>>     polygon.rotate(angle=45)
+        """
+        if angle:
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            if not center:
+                center = polygon_data.GetBoundingCircleCenter()
+                if center:
+                    polygon_data.Rotate(angle * math.pi / 180, center)
+                    return self.api_object.SetPolygonData(polygon_data)
+            elif isinstance(center, list) and len(center) == 2:
+                center = self._edb.Geometry.PointData(
+                    self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
+                )
+                polygon_data.Rotate(angle * math.pi / 180, center)
+                return self.api_object.SetPolygonData(polygon_data)
+        return False
+
+    @pyaedt_function_handler
+    def scale(self, factor, center=None):
+        """Scales the polygon relative to a center point by a factor.
+
+        Parameters
+        ----------
+        factor : float
+            Scaling factor.
+        center : List of float or str [x,y], optional
+            If None scaling is done from polygon center.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_layer_polygon = [poly for poly in edbapp.modeler.polygons if poly.layer_name == "Top Layer"]
+        >>> for polygon in top_layer_polygon:
+        >>>     polygon.scale(factor=2)
+        """
+        if not isinstance(factor, str):
+            factor = float(factor)
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            if not center:
+                center = polygon_data.GetBoundingCircleCenter()
+                if center:
+                    polygon_data.Scale(factor, center)
+                    return self.api_object.SetPolygonData(polygon_data)
+            elif isinstance(center, list) and len(center) == 2:
+                center = self._edb.Geometry.PointData(
+                    self._edb.Utility.Value(center[0]), self._edb.Utility.Value(center[1])
+                )
+                polygon_data.Scale(factor, center)
+                return self.api_object.SetPolygonData(polygon_data)
+        return False
+
+    @pyaedt_function_handler
+    def move_layer(self, layer):
+        """Move polygon to given layer.
+
+        Parameters
+        ----------
+        layer : str
+            layer name.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+        """
+        if layer and isinstance(layer, str) and layer in self._pedb.stackup.signal_layers:
+            polygon_data = self._edb.Geometry.PolygonData.CreateFromArcs(self.polygon_data.edb_api.GetArcData(), True)
+            moved_polygon = self._pedb.modeler.create_polygon(
+                main_shape=polygon_data, net_name=self.net_name, layer_name=layer
+            )
+            if moved_polygon:
+                self.delete()
+                return True
         return False
 
     @pyaedt_function_handler()

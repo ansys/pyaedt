@@ -732,3 +732,22 @@ class Revision:
             raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
         engine = self.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
+
+    def get_license_session(self):
+        """Get a license session.
+
+        A license session can be started with checkout(), and ended with checkin().
+        The `with` keyword can also be used, where checkout() is called on enter, and checkin() is called on exit.
+
+        Avoids having to wait for license checkin and checkout when doing many runs.
+
+        Examples
+        --------
+        with revision.get_license_session():
+            domain = aedtapp.interaction_domain()
+            revision.run(domain)
+        """
+        if self.emit_project._aedt_version < "2024.2":  # pragma: no cover
+            raise RuntimeError("This function is only supported in AEDT version 2024 R2 and later.")
+        engine = self.emit_project._emit_api.get_engine()
+        return engine.license_session()

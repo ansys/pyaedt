@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: 'x86'
@@ -57,7 +57,7 @@ jobs:
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           max_attempts: 3
           retry_on: error
@@ -71,7 +71,7 @@ jobs:
 
       - name: 'Unit testing Solvers'
         continue-on-error: true
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           max_attempts: 3
           retry_on: error
@@ -84,7 +84,7 @@ jobs:
             pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: junit/test-results.xml

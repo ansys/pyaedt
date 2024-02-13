@@ -19,7 +19,7 @@ class Step(object):
         self.units = units
         self._cad_data = caddata
         self._padstack_defs = {}
-        self._profile = Profile()
+        self._profile = Profile(ipc)
         self._packages = {}
         self._components = []
         self._logical_nets = []
@@ -45,6 +45,10 @@ class Step(object):
         if isinstance(value, list):
             if len([pkg for pkg in value if isinstance(pkg, Package)]) == len(value):
                 self._packages = value
+
+    @property
+    def profile(self):
+        return self._profile
 
     @property
     def components(self):
@@ -205,6 +209,15 @@ class Step(object):
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
     @pyaedt_function_handler()
+    def add_profile(self, poly):  # pragma no cover
+        profile = LayerFeature(self._ipc)
+        profile.layer_name = "profile"
+        if poly:
+            if not poly.is_void:
+                profile.add_feature(poly)
+        self.profile.add_polygon(profile)
+
+    @pyaedt_function_handler()
     def add_padstack_instances(self, padstack_instances, padstack_defs):  # pragma no cover
         top_bottom_layers = self._ipc.top_bottom_layers
         layers = {j.layer_name: j for j in self._ipc.ecad.cad_data.cad_data_step.layer_features}
@@ -221,16 +234,16 @@ class Step(object):
                 pdef_name = (
                     padstack_instance._pdef if padstack_instance._pdef else padstack_instance.padstack_definition
                 )
-                padstack_def = padstack_defs[pdef_name]
-
-                comp_name = padstack_instance.GetComponent().GetName()
-                if padstack_instance.is_pin and comp_name:
-                    component_inst = self._pedb.components.components[comp_name]
-                    layers[layer_name].add_component_padstack_instance_feature(
-                        component_inst, padstack_instance, top_bottom_layers, padstack_def
-                    )
-                else:
-                    layers[layer_name].add_via_instance_feature(padstack_instance, padstack_def, layer_name)
+                if pdef_name in padstack_defs:  # pragma no cover
+                    padstack_def = padstack_defs[pdef_name]
+                    comp_name = padstack_instance.GetComponent().GetName()
+                    if padstack_instance.is_pin and comp_name:
+                        component_inst = self._pedb.components.components[comp_name]
+                        layers[layer_name].add_component_padstack_instance_feature(
+                            component_inst, padstack_instance, top_bottom_layers, padstack_def
+                        )
+                    else:
+                        layers[layer_name].add_via_instance_feature(padstack_instance, padstack_def, layer_name)
 
     @pyaedt_function_handler()
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):  # pragma no cover
@@ -252,6 +265,7 @@ class Step(object):
         step.set("name", self._ipc.design_name)
         for padsatck_def in list(self.padstack_defs.values()):
             padsatck_def.write_xml(step)
+        self.profile.xml_writer(step)
         for package in list(self.packages.values()):
             package.write_xml(step)
         for component in self.components:

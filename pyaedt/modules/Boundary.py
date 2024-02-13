@@ -1,6 +1,7 @@
 """
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
+
 from collections import OrderedDict
 import copy
 import re
@@ -93,9 +94,9 @@ class BoundaryCommon(PropsManager):
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-        for el in self._app.boundaries:
+        for el in self._app.boundaries[:]:
             if el.name == self.name:
-                self._app.boundaries.remove(el)
+                del self._app._boundaries[el.name]
         return True
 
     def _get_boundary_data(self, ds):
@@ -510,6 +511,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignAperture(self._get_args())
         elif bound_type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
+        elif bound_type == "FE-BI":
+            self._app.oboundary.AssignFEBI(self._get_args())
         elif bound_type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif bound_type == "Lumped RLC":

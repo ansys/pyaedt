@@ -3,9 +3,9 @@ import json
 import os
 
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import read_configuration_file
 
 
 class Cable:
@@ -696,7 +696,7 @@ class Cable:
         if isinstance(json_file_name, dict):
             json_dict = json_file_name
         else:
-            json_dict = json_to_dict(json_file_name)
+            json_dict = read_configuration_file(json_file_name)
 
         # Cable implementation
         if json_dict["Add_Cable"].lower() == "true" or json_dict["Update_Cable"].lower() == "true":

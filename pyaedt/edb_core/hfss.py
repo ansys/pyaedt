@@ -1,6 +1,7 @@
 """
 This module contains the ``EdbHfss`` class.
 """
+
 import math
 
 from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
@@ -1427,9 +1428,20 @@ class EdbHfss(object):
             )
             return False
         net_names = [net.name for net in self._layout.nets if not net.IsPowerGround()]
-        cmp_names = (
-            simulation_setup.components if simulation_setup.components else [gg.GetName() for gg in self._layout.groups]
-        )
+        if simulation_setup.components and isinstance(simulation_setup.components[0], str):
+            cmp_names = (
+                simulation_setup.components
+                if simulation_setup.components
+                else [gg.GetName() for gg in self._layout.groups]
+            )
+        elif (
+            simulation_setup.components
+            and isinstance(simulation_setup.components[0], dict)
+            and "refdes" in simulation_setup.components[0]
+        ):
+            cmp_names = [cmp["refdes"] for cmp in simulation_setup.components]
+        else:
+            cmp_names = []
         ii = 0
         for cc in cmp_names:
             cmp = self._pedb.edb_api.cell.hierarchy.component.FindByName(self._active_layout, cc)

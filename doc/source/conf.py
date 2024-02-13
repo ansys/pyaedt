@@ -94,6 +94,7 @@ except ImportError:
     sys.path.append(os.path.join(root_path))
     from pyaedt import __version__
 
+from pyaedt import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -254,7 +255,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
+if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
@@ -276,7 +277,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             "examples_dirs": ["../../examples/"],
             # path where to save gallery generated examples
             "gallery_dirs": ["examples"],
-            # Patter to search for examples files
+            # Pattern to search for examples files
             "filename_pattern": r"\.py",
             # Remove the "Download all examples" button from the top level gallery
             "download_all_examples": False,

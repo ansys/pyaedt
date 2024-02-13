@@ -191,7 +191,7 @@ class EdbExtendedNets(EdbCommon, object):
         >>> app.extended_nets.auto_identify_signal()
         """
         return self._pedb.nets.generate_extended_nets(
-            resistor_below, inductor_below, capacitor_above, exception_list, True, False
+            resistor_below, inductor_below, capacitor_above, exception_list, True, True
         )
 
     @pyaedt_function_handler
@@ -226,7 +226,7 @@ class EdbExtendedNets(EdbCommon, object):
         >>> app.extended_nets.auto_identify_power()
         """
         return self._pedb.nets.generate_extended_nets(
-            resistor_below, inductor_below, capacitor_above, exception_list, False, True
+            resistor_below, inductor_below, capacitor_above, exception_list, True, True
         )
 
 

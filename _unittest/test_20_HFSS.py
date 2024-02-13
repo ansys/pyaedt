@@ -253,8 +253,8 @@ class TestClass:
         assert sweep.props["Type"] == "Discrete"
 
         # Create a linear count sweep with the incorrect sweep type.
-        try:
-            sweep = self.aedtapp.create_linear_count_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_count_sweep(
                 setupname="MySetup",
                 sweepname="IncorrectStep",
                 unit="MHz",
@@ -263,12 +263,10 @@ class TestClass:
                 num_of_freq_points=1234,
                 sweep_type="Incorrect",
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0]
+                == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        assert exception_raised
         self.aedtapp["der_var"] = "1mm"
         self.aedtapp["der_var2"] = "2mm"
         setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
@@ -327,8 +325,8 @@ class TestClass:
         assert sweep.props["Type"] == "Fast"
 
         # Create a linear step sweep with the incorrect sweep type.
-        try:
-            sweep = self.aedtapp.create_linear_step_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_step_sweep(
                 setupname="MySetup",
                 sweepname="StepFast",
                 unit=units,
@@ -337,12 +335,10 @@ class TestClass:
                 step_size=step_size,
                 sweep_type="Incorrect",
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0]
+                == "Invalid value for 'sweep_type'. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        assert exception_raised
 
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
@@ -1157,37 +1153,28 @@ class TestClass:
         assert n_boundaries == 12
 
         # Use two boxes with different dimensions.
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box3)
-        except AttributeError as e:
-            assert e.args[0] == "The closest faces of the two objects must be identical in shape."
-        else:
-            assert False
+            assert execinfo.args[0] == "The closest faces of the two objects must be identical in shape."
 
         # Rotate box3 so that, box3 and box4 are not collinear anymore.
         # Spiral lumped port can only be created based on 2 collinear objects.
         box3.rotate(cs_axis="X", angle=90)
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
-        except AttributeError as e:
-            assert e.args[0] == "The two objects must have parallel adjacent faces."
-        else:
-            assert False
+            assert execinfo.args[0] == "The two objects must have parallel adjacent faces."
 
         # Rotate back box3
         # rotate them slightly so that they are still parallel, but not aligned anymore with main planes.
         box3.rotate(cs_axis="X", angle=-90)
         box3.rotate(cs_axis="Y", angle=5)
         box4.rotate(cs_axis="Y", angle=5)
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
-        except AttributeError as e:
             assert (
-                e.args[0]
+                execinfo.args[0]
                 == "The closest faces of the two objects must be aligned with the main planes of the reference system."
             )
-        else:
-            assert False
         self.aedtapp.delete_design("Design_Terminal_2", self.fall_back_name)
 
     def test_46_mesh_settings(self):
@@ -1208,12 +1195,9 @@ class TestClass:
 
         self.aedtapp.solution_type = "Modal"
         # Spiral lumped port can only be created in a 'Terminal' solution.
-        try:
+        with pytest.raises(Exception) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box2)
-        except Exception as e:
-            exception_raised = True
-            assert e.args[0] == "This method can be used only in Terminal solutions."
-        assert exception_raised
+            assert execinfo.args[0] == "This method can be used only in 'Terminal' solutions."
         self.aedtapp.solution_type = "Terminal"
 
         # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+
@@ -1262,10 +1246,10 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
-            dict_in = json_to_dict(
+            dict_in = read_json(
                 os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple_232.json")
             )
             dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
@@ -1273,7 +1257,7 @@ class TestClass:
             )
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
         else:
-            dict_in = json_to_dict(
+            dict_in = read_json(
                 os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
             )
             dict_in["Circ_Patch_5GHz1"] = os.path.join(
@@ -1421,9 +1405,11 @@ class TestClass:
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        assert self.aedtapp.modeler.import_nastran(example_project2)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -1589,6 +1575,12 @@ class TestClass:
 
         assert array.b_size == 8
 
+        assert array.a_length == 0.64
+
+        assert array.b_length == 0.64
+
+        assert len(array.lattice_vector()) == 6
+
         assert array.padding_cells == 0
         array.padding_cells = 2
         assert oarray.GetPropValue("Padding") == "2"
@@ -1603,6 +1595,10 @@ class TestClass:
         assert len(array_info) == 4
         assert array_info["component"][1] == "02_Patch1"
 
+        assert len(array.get_component_objects()) == 4
+
+        assert len(array.get_cell_position()) == array.a_size
+
         # Delete 3D Component
         hfss_array.modeler.user_defined_components["03_Radome_Side1"].delete()
         array.update_properties()
@@ -1611,3 +1607,31 @@ class TestClass:
 
         array.delete()
         assert not hfss_array.component_array
+
+    def test_66_assign_febi(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_febi(["inner"])
+        assert len(aedtapp.boundaries) == 1
+        aedtapp.close_project(save_project=False)
+
+    def test_67_transient_composite(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        aedtapp.solution_type = "Transient Composite"
+        assert aedtapp.solution_type == "Transient Composite"
+        aedtapp.close_project(save_project=False)
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_68_import_gds_3d(self):
+        self.aedtapp.insert_design("gds_import_H3D")
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (0, 0), 9: (0, 0)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
+        assert not self.aedtapp.import_gds_3d(gds_file, {})
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
+        assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})

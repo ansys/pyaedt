@@ -5,10 +5,10 @@ This module provides all functionalities for creating and editing setups in AEDT
 It is based on templates to allow for easy creation and modification of setup properties.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
-import logging
 import os.path
 from random import randrange
 import re
@@ -21,6 +21,7 @@ from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -219,6 +220,241 @@ class CommonSetup(PropsManager, object):
     def name(self, name):
         self._setupname = name
         self.props["Name"] = name
+
+    @pyaedt_function_handler()
+    def get_solution_data(
+        self,
+        expressions=None,
+        domain=None,
+        variations=None,
+        primary_sweep_variable=None,
+        report_category=None,
+        context=None,
+        polyline_points=1001,
+        math_formula=None,
+        sweep_name=None,
+    ):
+        """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+        Data to be retrieved from Electronics Desktop are any simulation results available in that
+        specific simulation context.
+        Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
+            Default is `None` which will return all traces.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
+        variations : dict, optional
+            Dictionary of all families including the primary sweep.
+            The default is ``None`` which will use the nominal variations of the setup.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"None"`` which, depending on the context,
+            will internally assign the primary sweep to:
+            1. ``Freq`` for frequency domain results,
+            2. ``Time`` for transient results,
+            3. ``Theta`` for radiation patterns,
+            4. ``distance`` for field plot over a polyline.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            To get the list of available categories user can use method ``available_report_types``.
+        context : str, dict, optional
+            This is the context of the report.
+            The default is ``None``. It can be:
+            1. `None`
+            2. Infinite Sphere name for Far Fields Plot.
+            3. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+        polyline_points : int, optional
+            Number of points on which to create the report for plots on polylines.
+            This parameter is valid for ``Fields`` plot only.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+        sweep_name : str, optional
+            Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.solutions.SolutionData`
+            Solution Data object.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> data1 = aedtapp.post.get_solution_data(
+        ...    "GainTotal",
+        ...    aedtapp.nominal_adaptive,
+        ...    variations=variations,
+        ...    primary_sweep_variable="Phi",
+        ...    secondary_sweep_variable="Theta",
+        ...    context="3D",
+        ...    report_category="Far Fields",
+        ...)
+
+        >>> data2 =aedtapp.post.get_solution_data(
+        ...    "S(1,1)",
+        ...    aedtapp.nominal_sweep,
+        ...    variations=variations,
+        ...)
+        >>> data2.plot()
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> data3 = maxwell_2d.post.get_solution_data(
+        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+        ... )
+        >>> data3.plot("InputCurrent(PHA)")
+
+        >>> from pyaedt import Circuit
+        >>> circuit = Circuit()
+        >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", primary_sweep_variable="Spectrum", domain="Spectral",
+        ...     context=context
+        ...)
+        """
+        if sweep_name:
+            setup_sweep_name = [
+                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep_name in i
+            ]
+        else:
+            setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+        if setup_sweep_name:
+            return self._app.post.get_solution_data(
+                expressions=expressions,
+                domain=domain,
+                variations=variations,
+                primary_sweep_variable=primary_sweep_variable,
+                report_category=report_category,
+                context=context,
+                polyline_points=polyline_points,
+                math_formula=math_formula,
+                setup_sweep_name=setup_sweep_name[0],
+            )
+        return None
+
+    @pyaedt_function_handler()
+    def create_report(
+        self,
+        expressions=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        secondary_sweep_variable=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        plotname=None,
+        sweep_name=None,
+    ):
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep", "Time", "DCIR".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        secondary_sweep_variable : str, optional
+            Name of the secondary sweep variable in 3D Plots.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``.
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
+            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+        polyline_points : int, optional,
+            Number of points on which create the report for plots on polylines.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+        sweep_name : str, optional
+            Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            ``True`` when successful, ``False`` when failed.
+
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> aedtapp.post.setups[0].create_report(
+        ...    "dB(S(1,1))",
+        ...    variations=variations,
+        ...    primary_sweep_variable="Freq",
+        ...)
+
+        >>> aedtapp.post.create_report(
+        ...    "S(1,1)",
+        ...    variations=variations,
+        ...    plot_type="Smith Chart",
+        ...)
+        """
+        if sweep_name:
+            setup_sweep_name = [
+                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep_name in i
+            ]
+        else:
+            setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
+        if setup_sweep_name:
+            return self._app.post.create_report(
+                expressions=expressions,
+                domain=domain,
+                variations=variations,
+                primary_sweep_variable=primary_sweep_variable,
+                secondary_sweep_variable=secondary_sweep_variable,
+                report_category=report_category,
+                plot_type=plot_type,
+                context=context,
+                polyline_points=polyline_points,
+                plotname=plotname,
+                setup_sweep_name=setup_sweep_name[0],
+            )
+        return None
 
 
 class Setup(CommonSetup):
@@ -653,9 +889,130 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
+    @pyaedt_function_handler()
+    def start_continue_from_previous_setup(
+        self,
+        design_name,
+        solution_name,
+        map_variables_by_name=True,
+        parameters_dict=None,
+        project_name="This Project*",
+        force_source_to_solve=True,
+        preserve_partner_solution=True,
+    ):
+        """Start or continue from a previously solved setup.
+
+        Parameters
+        ----------
+        design_name : str
+            Name of the design.
+        solution_name : str, optional
+            Name of the solution in the format ``"setupname : solutionname"``.
+            For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
+        map_variables_by_name : bool, optional
+            Whether variables are mapped by name from the source design. The default is
+            ``True``.
+        parameters_dict : dict, optional
+            Dictionary of the parameters. This parameter is not considered if
+            ``map_variables_by_name = True``. If ``None``, the default value is
+            ``appname.available_variations.nominal_w_values_dict``.
+        project_name : str, optional
+            Name of the project with the design. The default is ``"This Project*"``.
+            However, you can supply the full path and name to another project.
+        force_source_to_solve : bool, optional
+            The default is ``True``.
+        preserve_partner_solution : bool, optional
+            The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> m2d = pyaedt.Maxwell2d()
+        >>> setup = m2d.get_setup("Setup1")
+        >>> setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
+
+        """
+
+        auto_update = self.auto_update
+        try:
+            self.auto_update = False
+
+            # parameters
+            params = OrderedDict({})
+            if map_variables_by_name:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = k
+            elif parameters_dict is None:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = v
+            else:
+                for k, v in parameters_dict.items():
+                    if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                        params[k] = v
+                    else:
+                        params[k] = parameters_dict[v]
+
+            prev_solution = OrderedDict({})
+
+            # project name
+            if project_name != "This Project*":
+                if os.path.exists(project_name):
+                    prev_solution["Project"] = project_name
+                    self.props["PathRelativeTo"] = "SourceProduct"
+                else:
+                    raise ValueError("Project file path provided does not exist.")
+            else:
+                prev_solution["Project"] = project_name
+                self.props["PathRelativeTo"] = "TargetProject"
+
+            # design name
+            if not design_name or design_name is None:
+                raise ValueError("Provide design name to add mesh link to.")
+            elif design_name not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                prev_solution["Design"] = design_name
+
+            # solution name
+            if solution_name:
+                prev_solution["Soln"] = solution_name
+            else:
+                raise ValueError("Provide a valid solution name.")
+
+            self.props["PrevSoln"] = prev_solution
+
+            self.props["PrevSoln"]["Params"] = params
+            self.props["ForceSourceToSolve"] = force_source_to_solve
+            self.props["PreservePartnerSoln"] = preserve_partner_solution
+
+            self.props["IsGeneralTransient"] = True
+            if self.props["IsHalfPeriodicTransient"]:
+                raise UserWarning(
+                    "Half periodic TDM disabled because it is not "
+                    "supported with start/continue from a previously solved setup."
+                )
+
+            self.update()
+            self.auto_update = auto_update
+            return True
+        except:
+            self.auto_update = auto_update
+            return False
+
 
 class SetupCircuit(CommonSetup):
-    """Initializes, creates, and updates a circuit setup.
+    """Manages a circuit setup.
 
     Parameters
     ----------
@@ -1181,6 +1538,168 @@ class SetupCircuit(CommonSetup):
         self._odesign.EnableSolutionSetup(setup_name, False)
         return True
 
+    @pyaedt_function_handler()
+    def get_solution_data(
+        self,
+        expressions=None,
+        domain=None,
+        variations=None,
+        primary_sweep_variable=None,
+        report_category=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        math_formula=None,
+    ):
+        """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+        Data to be retrieved from Electronics Desktop are any simulation results available in that
+        specific simulation context.
+        Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
+            Default is `None` which will return all traces.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
+        variations : dict, optional
+            Dictionary of all families including the primary sweep.
+            The default is ``None`` which will use the nominal variations of the setup.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"None"`` which, depending on the context,
+            will internally assign the primary sweep to:
+            1. ``Freq`` for frequency domain results,
+            2. ``Time`` for transient results,
+            3. ``Theta`` for radiation patterns,
+            4. ``distance`` for field plot over a polyline.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            To get the list of available categories user can use method ``available_report_types``.
+        context : str, dict, optional
+            This is the context of the report.
+            The default is ``None``. It can be:
+            1. `None`
+            2. ``"Differential Pairs"``
+            3. Reduce Matrix Name for Q2d/Q3d solution
+            4. Infinite Sphere name for Far Fields Plot.
+            5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+        subdesign_id : int, optional
+            Subdesign ID for exporting a Touchstone file of this subdesign.
+            This parameter is valid for ``Circuit`` only.
+            The default value is ``None``.
+        polyline_points : int, optional
+            Number of points on which to create the report for plots on polylines.
+            This parameter is valid for ``Fields`` plot only.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.solutions.SolutionData`
+            Solution Data object.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        return self._app.post.get_solution_data(
+            expressions=expressions,
+            domain=domain,
+            variations=variations,
+            primary_sweep_variable=primary_sweep_variable,
+            report_category=report_category,
+            context=context,
+            subdesign_id=subdesign_id,
+            polyline_points=polyline_points,
+            math_formula=math_formula,
+            setup_sweep_name=self.name,
+        )
+
+    @pyaedt_function_handler()
+    def create_report(
+        self,
+        expressions=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        secondary_sweep_variable=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        plotname=None,
+    ):
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep", "Time", "DCIR".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        secondary_sweep_variable : str, optional
+            Name of the secondary sweep variable in 3D Plots.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``.
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
+            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+        polyline_points : int, optional,
+            Number of points on which create the report for plots on polylines.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            ``True`` when successful, ``False`` when failed.
+
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+        """
+        return self._app.post.create_report(
+            expressions=expressions,
+            domain=domain,
+            variations=variations,
+            primary_sweep_variable=primary_sweep_variable,
+            secondary_sweep_variable=secondary_sweep_variable,
+            report_category=report_category,
+            plot_type=plot_type,
+            context=context,
+            polyline_points=polyline_points,
+            plotname=plotname,
+            subdesign_id=subdesign_id,
+            setup_sweep_name=self.name,
+        )
+
 
 class Setup3DLayout(CommonSetup):
     """Initializes, creates, and updates a 3D Layout setup.
@@ -1221,6 +1740,7 @@ class Setup3DLayout(CommonSetup):
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
                 self.props = SetupProps(self, OrderedDict())
+                settings.logger.error("Unable to set props.")
 
     @property
     def is_solved(self):
@@ -1240,6 +1760,12 @@ class Setup3DLayout(CommonSetup):
             expressions = [i for i in self.p_app.post.available_report_quantities(solution=combined_name)]
             sol = self._app.post.reports_by_category.standard(
                 setup_name=combined_name,
+                expressions=expressions[0],
+            )
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwaveDCIR":
+            expressions = self.p_app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
+            sol = self._app.post.reports_by_category.standard(
+                setup_name=self.name,
                 expressions=expressions[0],
             )
         else:
@@ -1403,6 +1929,7 @@ class Setup3DLayout(CommonSetup):
     def _get_net_names(self, app, file_fullname):
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         via_per_nets = self._get_via_position_per_net()
+        pass
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
@@ -1629,7 +2156,8 @@ class Setup3DLayout(CommonSetup):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``.
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``.
             The default is ``"Interpolating"``.
 
         Returns
@@ -1701,6 +2229,7 @@ class Setup3DLayout(CommonSetup):
             SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
         return True
 
+    @pyaedt_function_handler()
     def export_to_json(self, file_path, overwrite=False):
         """Export all setup properties into a json file.
 
@@ -1711,10 +2240,11 @@ class Setup3DLayout(CommonSetup):
         overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
-        if os.path.isdir(file_path):  # pragma no cover
+        if os.path.isfile(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                logging.error("File {} already exists. Configure file is not exported".format(file_path))
-        return self.props._export_properties_to_json(file_path)
+                settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
+                return False
+        return self.props._export_properties_to_json(file_path, overwrite=overwrite)
 
 
 class SetupHFSS(Setup, object):
@@ -1850,12 +2380,12 @@ class SetupHFSS(Setup, object):
 
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
-        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
-            num_of_freq_points = 401
-        elif num_of_freq_points is None and sweep_type == "Discrete":
-            num_of_freq_points = 5
-        else:
-            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+        if sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = num_of_freq_points or 401
+        elif sweep_type == "Discrete":
+            num_of_freq_points = num_of_freq_points or 5
+        else:  # pragma: no cover
+            raise ValueError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -2136,6 +2666,66 @@ class SetupHFSS(Setup, object):
         return False
 
     @pyaedt_function_handler()
+    def get_sweep_names(self):
+        """Get the names of all sweeps in a given analysis setup.
+
+        Returns
+        -------
+        list of str
+            List of names of all sweeps for the setup.
+
+        References
+        ----------
+
+        >>> oModules.GetSweeps
+
+        Examples
+        --------
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweeps = setup.get_sweep_names()
+        """
+        return self.omodule.GetSweeps(self.name)
+
+    @pyaedt_function_handler()
+    def delete_sweep(self, sweepname):
+        """Delete a sweep.
+
+        Parameters
+        ----------
+        sweepname : str
+            Name of the sweep.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.DeleteSweep
+
+        Examples
+        --------
+        Create a frequency sweep and then delete it.
+
+        >>> import pyaedt
+        >>> hfss = pyaedt.Hfss()
+        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1.create_frequency_sweep(
+            "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
+        )
+        >>> setup1.delete_sweep("Sweep1")
+        """
+        if sweepname in self.get_sweep_names():
+            self.sweeps = [sweep for sweep in self.sweeps if sweep.name != sweepname]
+            self.omodule.DeleteSweep(self.name, sweepname)
+            return True
+        return False
+
+    @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
         """Enable HFSS single frequency setup.
 
@@ -2232,6 +2822,10 @@ class SetupHFSS(Setup, object):
             return False
         self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
+        # props["MultipleAdaptiveFreqsSetup"] could potentially be nonexistent.
+        # A known case is the setup automatically created by setting auto-open region.
+        if "MultipleAdaptiveFreqsSetup" not in self.props:  # pragma no cover
+            self.props["MultipleAdaptiveFreqsSetup"] = {}
         for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         i = 0

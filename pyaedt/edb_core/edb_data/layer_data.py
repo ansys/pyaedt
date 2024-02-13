@@ -48,7 +48,7 @@ class LayerEdbClass(object):
 
     @property
     def color(self):
-        """Retrieve color of the layer.
+        """Color of the layer.
 
         Returns
         -------
@@ -95,9 +95,12 @@ class LayerEdbClass(object):
     @name.setter
     def name(self, name):
         layer_clone = self._edb_layer
+        old_name = layer_clone.GetName()
         layer_clone.SetName(name)
         self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
         self._name = name
+        for padstack_def in list(self._pclass._pedb.padstacks.definitions.values()):
+            padstack_def._update_layer_names(old_name=old_name, updated_name=name)
 
     @property
     def type(self):
@@ -108,7 +111,6 @@ class LayerEdbClass(object):
     def type(self, new_type):
         if new_type == self.type:
             return
-
         layer_clone = self._edb_layer
         if new_type == "signal":
             layer_clone.SetLayerType(self._edb.cell.layer_type.SignalLayer)

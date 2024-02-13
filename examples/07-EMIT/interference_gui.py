@@ -465,7 +465,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText("An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
                     x = msg.exec()
                     return
 
@@ -483,7 +483,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Iterate over all the transmitters and receivers and compute the power
             # at the input to each receiver due to each of the transmitters. Compute
-            # which, if any, type of interference occured.
+            # which, if any, type of interference occurred.
             domain = self.emitapp.results.interaction_domain()
             self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, use_filter = True, filter_list = filter)
 
@@ -516,7 +516,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText("An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
                     x = msg.exec()
                     return
                 

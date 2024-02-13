@@ -9,16 +9,16 @@ import os
 import tempfile
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.DataHandlers import str_to_bool
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.settings import settings
 from pyaedt.modeler import cad
 from pyaedt.modeler.cad.component_array import ComponentArray
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
@@ -201,9 +201,6 @@ class Hfss(FieldAnalysis3D, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
-
     @property
     def field_setups(self):
         """List of AEDT radiation fields.
@@ -229,7 +226,9 @@ class Hfss(FieldAnalysis3D, object):
     class BoundaryType(object):
         """Creates and manages boundaries."""
 
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid) = range(0, 9)
+        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid, FEBI) = range(
+            0, 10
+        )
 
     @property
     def hybrid(self):
@@ -1200,6 +1199,8 @@ class Hfss(FieldAnalysis3D, object):
     def _create_native_component(
         self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
     ):
+        from pyaedt.modeler.cad.Modeler import CoordinateSystem
+
         if antenna_name is None:
             antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))
         if not model_units:
@@ -1208,6 +1209,8 @@ class Hfss(FieldAnalysis3D, object):
         native_props = OrderedDict(
             {"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type, "Unit": model_units})}
         )
+        if isinstance(target_cs, CoordinateSystem):
+            target_cs = target_cs.name
         native_props["TargetCS"] = target_cs
         if isinstance(parameters_dict, dict):
             for el in parameters_dict:
@@ -3064,6 +3067,8 @@ class Hfss(FieldAnalysis3D, object):
             props["IsLinkedRegion"] = False
             props["Type"] = "SBR+"
             boundary_type = "Hybrid"
+        elif boundary_type == self.BoundaryType.FEBI:
+            boundary_type = "FE-BI"
         else:
             return None
         return self._create_boundary(boundary_name, props, boundary_type)
@@ -4562,6 +4567,49 @@ class Hfss(FieldAnalysis3D, object):
         return bound
 
     @pyaedt_function_handler()
+    def assign_febi(self, obj_names, boundary_name=""):
+        """Assign an FE-BI region to one or more objects.
+
+        Parameters
+        ----------
+        obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            One or more object names or IDs.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignFEBI
+
+        Examples
+        --------
+
+        Create a box and assign an FE-BI boundary to it.
+
+        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
+        ...                                         name="Radiation_box")
+        >>> febi_box = hfss.assign_febi("Radiation_box")
+        >>> type(febi_box)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
+        if boundary_name:
+            region_name = boundary_name
+        else:
+            region_name = generate_unique_name("FEBI_")
+        bound = self.create_boundary(self.BoundaryType.FEBI, object_list, region_name)
+
+        return bound
+
+    @pyaedt_function_handler()
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
         """Assign a radiation boundary to one or more faces.
 
@@ -5549,7 +5597,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def add_3d_component_array_from_json(self, json_file, array_name=None):
-        """Add or edit a new 3D component array from a JSON file.
+        """Add or edit a new 3D component array from a JSON file or TOML file.
         The 3D component is placed in the layout if it is not present.
 
         Parameters
@@ -5596,16 +5644,16 @@ class Hfss(FieldAnalysis3D, object):
         >>> }
 
         >>> from pyaedt import Hfss
-        >>> from pyaedt.generic.DataHandlers import json_to_dict
+        >>> from pyaedt.generic.general_methods import read_configuration_file
         >>> hfss_app = Hfss()
-        >>> dict_in = json_to_dict(path\to\json_file)
+        >>> dict_in = read_configuration_file(path\to\json_file)
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
         self.hybrid = True
         if isinstance(json_file, dict):
             json_dict = json_file
         else:
-            json_dict = json_to_dict(json_file)
+            json_dict = read_configuration_file(json_file)
         if not array_name and self.omodelsetup.IsArrayDefined():
             array_name = self.omodelsetup.GetArrayNames()[0]
         elif not array_name:
@@ -5728,10 +5776,10 @@ class Hfss(FieldAnalysis3D, object):
         sphere_name=None,
         variations=None,
         overwrite=True,
-        taper="flat",
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object. For
-        phased array cases, only one phased array will be calculated.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionDataExporter`` object.
+
+        For phased array cases, only one phased array is calculated.
 
         Parameters
         ----------
@@ -5742,20 +5790,17 @@ class Hfss(FieldAnalysis3D, object):
         sphere_name : str, optional
             Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
             one is created.
-        variations : ditc, optional
+        variations : dict, optional
             Variation dictionary.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
-        taper : str, optional
-            Type of taper to apply. The default is ``"flat"``. Options are
-            ``"cosine"``, ``"triangular"``, ``"hamming"``, and ``"flat"``.
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.FfdSolutionData`
+        :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
             SolutionData object.
         """
-        from pyaedt.modules.solutions import FfdSolutionData
+        from pyaedt.modules.solutions import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
@@ -5781,21 +5826,13 @@ class Hfss(FieldAnalysis3D, object):
             )
             self.logger.info("Far field sphere %s is created.", setup_name)
 
-        component_name = None
-        if self.solution_type == "SBR+" and self.modeler.user_defined_component_names:
-            antenna = self.modeler.user_defined_components[self.modeler.user_defined_component_names[0]]
-            if antenna.native_properties["Type"] == "Linked Antenna":
-                component_name = antenna.name
-
-        return FfdSolutionData(
+        return FfdSolutionDataExporter(
             self,
             sphere_name=sphere_name,
             setup_name=setup_name,
             frequencies=frequencies,
             variations=variations,
             overwrite=overwrite,
-            taper=taper,
-            sbr_3d_comp_name=component_name,
         )
 
     @pyaedt_function_handler()
@@ -5947,7 +5984,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.desktop_class.is_grpc_api:  # pragma: no cover
-            self.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually")
+            self.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually.")
             return False
 
         port_names = []

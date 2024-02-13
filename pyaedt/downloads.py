@@ -1,4 +1,5 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
+
 import os
 import shutil
 import tempfile
@@ -31,8 +32,12 @@ def _get_file_url(directory, filename=None):
         return EXAMPLE_REPO + "/".join([directory, filename])
 
 
-def _retrieve_file(url, filename, directory, destination=None, local_paths=[]):
-    """Download a file from a url"""
+def _retrieve_file(url, filename, directory, destination=None, local_paths=None):
+    """Download a file from a URL."""
+
+    if local_paths is None:
+        local_paths = []
+
     # First check if file has already been downloaded
     if not destination:
         destination = EXAMPLES_PATH
@@ -85,8 +90,12 @@ def _retrieve_file(url, filename, directory, destination=None, local_paths=[]):
     local_paths.append(local_path)
 
 
-def _retrieve_folder(url, directory, destination=None, local_paths=[]):
+def _retrieve_folder(url, directory, destination=None, local_paths=None):
     """Download a folder from a url"""
+
+    if local_paths is None:
+        local_paths = []
+
     # First check if folder exists
     import json
     import re
@@ -125,7 +134,9 @@ def _retrieve_folder(url, directory, destination=None, local_paths=[]):
         return False
 
 
-def _download_file(directory, filename=None, destination=None, local_paths=[]):
+def _download_file(directory, filename=None, destination=None, local_paths=None):
+    if local_paths is None:
+        local_paths = []
     if not filename:
         if not directory.startswith("pyaedt/"):
             directory = "pyaedt/" + directory

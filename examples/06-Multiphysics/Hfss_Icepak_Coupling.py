@@ -259,7 +259,7 @@ aedtapp.post.plot_field_from_fieldplot(
     view="isometric",
     show=False,
     plot_cad_objs=False,
-    log_scale = False,
+    log_scale=False,
 )
 
 ################################################################################
@@ -329,15 +329,13 @@ my_data.plot(trace_names, "db20",
 # Generate pdf report
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a pdf report with output of simultion.
-report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name,version=desktopVersion)
+report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=desktopVersion)
 report.create()
-
-
 report.add_section()
 report.add_chapter("Hfss Results")
 report.add_sub_chapter("Field Plot")
 report.add_text("This section contains Field plots of Hfss Coaxial.")
-report.add_image(os.path.join(results_folder, plot1.name+".jpg"), "Coaxial Cable")
+report.add_image(os.path.join(results_folder, plot1.name + ".jpg"), "Coaxial Cable")
 report.add_page_break()
 report.add_sub_chapter("S Parameters")
 report.add_chart(my_data.intrinsics["Freq"], my_data.data_db20(), "Freq", trace_names[0], "S-Parameters")
@@ -346,12 +344,9 @@ report.add_section()
 report.add_chapter("Icepak Results")
 report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
-
-#report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
 report.add_toc()
+# report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
 report.save_pdf(results_folder, "AEDT_Results.pdf")
-
-
 
 ################################################################################
 # Close project and release AEDT
