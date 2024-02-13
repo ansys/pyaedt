@@ -1689,6 +1689,145 @@ class Circuit(FieldAnalysisCircuit, object):
         return hfss_3d_layout_model
 
     @pyaedt_function_handler()
+    def compute_erl_from_touchstone(
+        self,
+        touchstone_file,
+        port_order="EvenOdd",
+        specify_through_ports=None,
+        bandwidth=30e9,
+        tdr_duration=5,
+        z_terminations=50,
+        transition_time="10p",
+        fixture_delay=500e-12,
+        input_amplitude=1.0,
+        ber=1e-4,
+        pdf_bin_size=1e-5,
+        signal_loss_factor=1.7e9,
+        permitted_reflection=0.18,
+        reflections_lenght=1000,
+        modulation_type="NRZ",
+    ):
+        """Compute effective return loss (erl) using Ansys SPISIM from a S-parameter file.
+
+        Parameters
+        ----------
+        touchstone_file : str
+            Path to the touchstone file.
+        port_order : str, optional
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for ``s4p`` files.
+            Ignored if the ports are greater than 4.
+        specify_through_ports : list, optional
+            Input and Output ports on which compute the erl. Those are ordered like ``[inp, inneg, outp, outneg]``.
+        bandwidth : float, str, optional
+            Application bandwidth: inverse of one UI (unit interval). Can be a float or str with unit ("m", "g").
+            Default is ``30e9``.
+        tdr_duration : float, optional
+            TDR duration (in second): How long the TDR tailed data should be applied. Default is ``5``.
+        z_terminations : float, optional
+            Z-Terminations: termination (Z11 and Z22) when TDR is calculated. Default is ``50``.
+        transition_time : float, str, optional
+            Transition time: how fast (slew rate) input pulse transit from 0 to Vcc volt. Default is "``10p``".
+        fixture_delay : float, optional
+            Fixture delay: delay when input starts transition from 0 to Vcc. Default is ``500e-12``.
+        input_amplitude : float, optional
+            Input amplitude: Vcc volt of step input. Default is ``1.0``.
+        ber : float, optional
+            Specified BER: At what threshold ERL is calculated. Default is ``1e-4``.
+        pdf_bin_size : float, optional
+            PDF bin size: how to quantize the superimposed value. Default is ``1e-5``.
+        signal_loss_factor : float, optional
+            Signal loss factor (Beta). See SPISIM Help for info. Default is ``1.7e9``.
+        permitted_reflection : float, optional
+            Permitted reflection (Rho). See SPISIM Help for info. Default is ``0.18``.
+        reflections_lenght : float, optional
+            Length of the reflections: how many UI will be used to calculate ERL. Default is ``1000``.
+        modulation_type : str, optional
+           Modulations type: signal modulation type "``NRZ``" or "``PAM4``". Default is "``NRZ``".
+
+        Returns
+        -------
+        bool or dict
+            A dictionary with the result from the spisimExe command, ``False`` when failed.
+        """
+        exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
+        spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+
+        cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
+        with open(cfg_file, "w") as fp:
+            fp.write("# INPARRY: INPARRY\n")
+            fp.write("INPARRY = {}\n".format(touchstone_file))
+            fp.write("# MIXMODE: MIXMODE\n")
+            if port_order and touchstone_file.lower().endswith(".s4p"):
+                fp.write("MIXMODE = {}\n".format(port_order))
+            else:
+                fp.write("MIXMODE = \n")
+            fp.write("# THRUS4P: THRUS4P\n")
+            if not touchstone_file.lower().endswith(".s4p"):
+                if isinstance(specify_through_ports[0], int):
+                    thrus4p = ",".join([str(i) for i in specify_through_ports])
+                else:
+                    try:
+                        ports = self.excitations.keys()
+                        thrus4p = ",".join([ports.index(i) for i in specify_through_ports])
+                    except IndexError:
+                        self.logger.error("Port not found.")
+                        return False
+                fp.write("THRUS4P = {}\n".format(thrus4p))
+            else:
+                fp.write("THRUS4P = \n")
+            fp.write("# BANDWID: BANDWID\n")
+            fp.write("BANDWID = {}\n".format(bandwidth))
+            fp.write("# TDR_DUR: TDR_DUR\n")
+            fp.write("TDR_DUR = {}\n".format(tdr_duration))
+            fp.write("# REFIMPD: REFIMPD\n")
+            fp.write("REFIMPD = {}\n".format(z_terminations))
+            fp.write("# BINSIZE: BINSIZE\n")
+            fp.write("BINSIZE = {}\n".format(pdf_bin_size))
+            fp.write("# SPECBER: SPECBER\n")
+            fp.write("SPECBER = {}\n".format(ber))
+            fp.write("# MODTYPE: MODTYPE\n")
+            fp.write("MODTYPE = {}\n".format(modulation_type))
+            fp.write("# FIXDELY: FIXDELY\n")
+            fp.write("FIXDELY = {}\n".format(fixture_delay))
+            fp.write("# INPVOLT: INPVOLT\n")
+            fp.write("INPVOLT = {}\n".format(input_amplitude))
+            fp.write("# TRSTIME: TRSTIME\n")
+            fp.write("TRSTIME = {}\n".format(transition_time))
+            fp.write("# SIGBETA: SIGBETA\n")
+            fp.write("SIGBETA = {}\n".format(signal_loss_factor))
+            fp.write("# REFLRHO: REFLRHO\n")
+            fp.write("REFLRHO = {}\n".format(permitted_reflection))
+            fp.write("# NCYCLES: NCYCLES\n")
+            fp.write("NCYCLES = {}\n".format(reflections_lenght))
+
+        cfgCmmd = '-i %s -v CFGFILE="%s"' % (touchstone_file, cfg_file)
+        command = [spisimExe, "CalcERL", cfgCmmd]
+        # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
+        # try up to three times to be sure
+        out_processing = os.path.join(self.working_directory, "spsim_erl_out.txt")
+        my_env = os.environ.copy()
+        my_env.update(settings.aedt_environment_variables)
+        if is_linux:  # pragma: no cover
+            command.append("&")
+            with open(out_processing, "w") as outfile:
+                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()
+        else:
+            with open(out_processing, "w") as outfile:
+                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()
+        out_data = {}
+        try:
+            with open(out_processing, "r") as infile:
+                lines = infile.read()
+                parmDat = lines.split("[ParmDat]:", 1)[1]
+                for keyValu in parmDat.split(","):
+                    dataAry = keyValu.split("=")
+                    out_data[dataAry[0].strip()] = float(dataAry[1].strip().split()[0])
+            return out_data
+        except IndexError:
+            self.logger.error("Failed to compute ERL. Check input parameters and retry")
+            return False
+
+    @pyaedt_function_handler()
     def compute_erl(
         self,
         setup_name=None,
@@ -1751,84 +1890,27 @@ class Circuit(FieldAnalysisCircuit, object):
         bool or dict
             A dictionary with the result from the spisimExe command, ``False`` when failed.
         """
-        exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
-        spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+
         if not setup_name:
             setup_name = self.nominal_sweep
-        snp_file = self.export_touchstone(
+        tc_file = self.export_touchstone(
             setup_name,
         )
-        cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
-        with open(cfg_file, "w") as fp:
-            fp.write("# INPARRY: INPARRY\n")
-            fp.write("INPARRY = {}\n".format(snp_file))
-            fp.write("# MIXMODE: MIXMODE\n")
-            if port_order and snp_file.lower().endswith(".s4p"):
-                fp.write("MIXMODE = {}\n".format(port_order))
-            else:
-                fp.write("MIXMODE = \n")
-            fp.write("# THRUS4P: THRUS4P\n")
-            if not snp_file.lower().endswith(".s4p"):
-                if isinstance(specify_through_ports[0], int):
-                    thrus4p = ",".join([str(i) for i in specify_through_ports])
-                else:
-                    try:
-                        ports = self.excitations.keys()
-                        thrus4p = ",".join([ports.index(i) for i in specify_through_ports])
-                    except IndexError:
-                        self.logger.error("Port not found.")
-                        return False
-                fp.write("THRUS4P = {}\n".format(thrus4p))
-            else:
-                fp.write("THRUS4P = \n")
-            fp.write("# BANDWID: BANDWID\n")
-            fp.write("BANDWID = {}\n".format(bandwidth))
-            fp.write("# TDR_DUR: TDR_DUR\n")
-            fp.write("TDR_DUR = {}\n".format(tdr_duration))
-            fp.write("# REFIMPD: REFIMPD\n")
-            fp.write("REFIMPD = {}\n".format(z_terminations))
-            fp.write("# BINSIZE: BINSIZE\n")
-            fp.write("BINSIZE = {}\n".format(pdf_bin_size))
-            fp.write("# SPECBER: SPECBER\n")
-            fp.write("SPECBER = {}\n".format(ber))
-            fp.write("# MODTYPE: MODTYPE\n")
-            fp.write("MODTYPE = {}\n".format(modulation_type))
-            fp.write("# FIXDELY: FIXDELY\n")
-            fp.write("FIXDELY = {}\n".format(fixture_delay))
-            fp.write("# INPVOLT: INPVOLT\n")
-            fp.write("INPVOLT = {}\n".format(input_amplitude))
-            fp.write("# TRSTIME: TRSTIME\n")
-            fp.write("TRSTIME = {}\n".format(transition_time))
-            fp.write("# SIGBETA: SIGBETA\n")
-            fp.write("SIGBETA = {}\n".format(signal_loss_factor))
-            fp.write("# REFLRHO: REFLRHO\n")
-            fp.write("REFLRHO = {}\n".format(permitted_reflection))
-            fp.write("# NCYCLES: NCYCLES\n")
-            fp.write("NCYCLES = {}\n".format(reflections_lenght))
 
-        cfgCmmd = '-i %s -v CFGFILE="%s"' % (snp_file, cfg_file)
-        command = [spisimExe, "CalcERL", cfgCmmd]
-        # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
-        # try up to three times to be sure
-        out_processing = os.path.join(self.working_directory, "spsim_erl_out.txt")
-        my_env = os.environ.copy()
-        my_env.update(settings.aedt_environment_variables)
-        if is_linux:  # pragma: no cover
-            command.append("&")
-            with open(out_processing, "w") as outfile:
-                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()
-        else:
-            with open(out_processing, "w") as outfile:
-                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()
-        out_data = {}
-        try:
-            with open(out_processing, "r") as infile:
-                lines = infile.read()
-                parmDat = lines.split("[ParmDat]:", 1)[1]
-                for keyValu in parmDat.split(","):
-                    dataAry = keyValu.split("=")
-                    out_data[dataAry[0].strip()] = float(dataAry[1].strip().split()[0])
-            return out_data
-        except IndexError:
-            self.logger.error("Failed to compute ERL. Check input parameters and retry")
-            return False
+        self.compute_erl_from_touchstone(
+        tc_file,
+        port_order,
+        specify_through_ports,
+        bandwidth,
+        tdr_duration,
+        z_terminations,
+        transition_time,
+        fixture_delay,
+        input_amplitude,
+        ber,
+        pdf_bin_size,
+        signal_loss_factor,
+        permitted_reflection,
+        reflections_lenght,
+        modulation_type,
+        )
