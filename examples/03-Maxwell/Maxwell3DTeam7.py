@@ -9,11 +9,19 @@ conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import Maxwell3d
-from pyaedt import generate_unique_project_name
 import numpy as np
-import csv
 import os
+import tempfile
+
+from pyaedt import Maxwell3d
+from pyaedt.generic.general_methods import write_csv
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###########################################################################################
 # Set non-graphical mode
@@ -27,24 +35,23 @@ non_graphical = False
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
-# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
+# the version. It also creates an instance of the ``Maxwell3d`` class named ``m3d``. 
 
-Project_Name = "COMPUMAG"
-Design_Name = "TEAM 7 Asymmetric Conductor"
-Solver = "EddyCurrent"
-DesktopVersion = "2023.2"
+project_name = "COMPUMAG"
+design_name = "TEAM 7 Asymmetric Conductor"
+solver = "EddyCurrent"
+desktop_version = "2023.2"
 
-M3D = Maxwell3d(
-    projectname=generate_unique_project_name(),
-    designname=Design_Name,
-    solution_type=Solver,
-    specified_version=DesktopVersion,
+m3d = Maxwell3d(
+    projectname=project_name,
+    designname=design_name,
+    solution_type=solver,
+    specified_version=desktop_version,
     non_graphical=non_graphical,
     new_desktop_session=True
 )
-M3D.modeler.model_units = "mm"
-modeler = M3D.modeler
-Plot = M3D.odesign.GetModule("ReportSetup")
+m3d.modeler.model_units = "mm"
+modeler = m3d.modeler
 
 ###########################################################################################
 # Add Maxwell 3D setup
@@ -57,12 +64,13 @@ Plot = M3D.odesign.GetModule("ReportSetup")
 dc_freq = 0.1
 stop_freq = 50
 
-Setup = M3D.create_setup(setupname="Setup1")
-Setup.props["Frequency"] = "200Hz"
-Setup.props["HasSweepSetup"] = True
-Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
-Setup.props["UseHighOrderShapeFunc"] = True
-Setup.props["PercentError"] = 0.4
+setup = m3d.create_setup(setupname="Setup1")
+setup.props["Frequency"] = "200Hz"
+setup.props["HasSweepSetup"] = True
+setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
+setup.props["UseHighOrderShapeFunc"] = True
+setup.props["PercentError"] = 0.4
+setup.update()
 
 ###########################################################################################
 # Define coil dimensions
@@ -95,14 +103,14 @@ P4 = [dim2, dim1, 0]
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a coordinate system for positioning the coil.
 
-M3D.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY", name="Coil_CS")
+m3d.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY", name="Coil_CS")
 
 ###########################################################################################
 # Create polyline
 # ~~~~~~~~~~~~~~~
 # Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.
 
-test = M3D.modeler.create_polyline(position_list=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
+test = m3d.modeler.create_polyline(position_list=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
 test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
 
 ###########################################################################################
@@ -110,12 +118,12 @@ test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_h
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Duplicate and unit the polyline to create a full coil.
 
-M3D.modeler.duplicate_around_axis(
+m3d.modeler.duplicate_around_axis(
     "Coil", cs_axis="Global", angle=90, nclones=4, create_new_objects=True, is_3d_comp=False
 )
-M3D.modeler.unite("Coil,Coil_1,Coil_2")
-M3D.modeler.unite("Coil,Coil_3")
-M3D.modeler.fit_all()
+m3d.modeler.unite("Coil, Coil_1, Coil_2")
+m3d.modeler.unite("Coil, Coil_3")
+m3d.modeler.fit_all()
 
 ###########################################################################################
 # Assign material and if solution is allowed inside coil
@@ -123,33 +131,33 @@ M3D.modeler.fit_all()
 # Assign the material ``Cooper`` from the Maxwell internal library to the coil and
 # allow a solution inside the coil.
 
-M3D.assign_material("Coil", "Copper")
-M3D.solve_inside("Coil")
+m3d.assign_material("Coil", "Copper")
+m3d.solve_inside("Coil")
 
 ###########################################################################################
 # Create terminal
 # ~~~~~~~~~~~~~~~
-# Create a terminal for the coil from a cross section that is split and one half deleted.
+# Create a terminal for the coil from a cross-section that is split and one half deleted.
 
-M3D.modeler.section("Coil", "YZ")
-M3D.modeler.separate_bodies("Coil_Section1")
-M3D.modeler.delete("Coil_Section1_Separate1")
+m3d.modeler.section("Coil", "YZ")
+m3d.modeler.separate_bodies("Coil_Section1")
+m3d.modeler.delete("Coil_Section1_Separate1")
 
 # Add variable for coil excitation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a design variable for coil excitation. The NB units here are AmpereTurns.
 
 Coil_Excitation = 2742
-M3D["Coil_Excitation"] = str(Coil_Excitation) + "A"
-M3D.assign_current("Coil_Section1", amplitude="Coil_Excitation", solid=False)
-M3D.modeler.set_working_coordinate_system("Global")
+m3d["Coil_Excitation"] = str(Coil_Excitation) + "A"
+m3d.assign_current(object_list="Coil_Section1", amplitude="Coil_Excitation", solid=False)
+m3d.modeler.set_working_coordinate_system("Global")
 
 ###########################################################################################
 # Add a material
 # ~~~~~~~~~~~~~~
 # Add a material named ``team3_aluminium``.
 
-mat = M3D.materials.add_material("team7_aluminium")
+mat = m3d.materials.add_material("team7_aluminium")
 mat.conductivity = 3.526e7
 
 ###########################################################################################
@@ -157,18 +165,18 @@ mat.conductivity = 3.526e7
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
 
-plate = M3D.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
+plate = m3d.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
                                matname="team7_aluminium")
-M3D.modeler.fit_all()
-hole = M3D.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
-M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
+m3d.modeler.fit_all()
+m3d.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
+m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=False)
 
 ###########################################################################################
 # Draw a background region
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw a background region that uses the default properties for an air region.
 
-M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
+m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
 
 ################################################################################
 # Adjust eddy effects for plate and coil
@@ -177,8 +185,8 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # for all parts. The setting for eddy effect is ignored for the stranded conductor type
 # used in the coil.
 
-M3D.eddy_effects_on(object_list="Plate")
-M3D.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
+m3d.eddy_effects_on(object_list="Plate")
+m3d.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
                     activate_eddy_effects=False,
                     activate_displacement_current=False)
 
@@ -187,7 +195,7 @@ M3D.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create an expression for the Z component of B in Gauss using the fields calculator.
 
-Fields = M3D.odesign.GetModule("FieldsReporter")
+Fields = m3d.odesign.GetModule("FieldsReporter")
 Fields.EnterQty("B")
 Fields.CalcOp("ScalarZ")
 Fields.EnterScalarFunc("Phase")
@@ -208,27 +216,26 @@ mesh_diameter = "2mm"
 
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
 polyline = modeler.create_polyline(position_list=line_points_1, name=lines[0])
-L1Mesh = modeler.create_polyline(position_list=line_points_1, name=lines[0] + "mesh")
-L1Mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
+l1_mesh = modeler.create_polyline(position_list=line_points_1, name=lines[0] + "mesh")
+l1_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
 polyline2 = modeler.create_polyline(position_list=line_points_2, name=lines[1])
-polyline2_mesh = modeler.create_polyline(position_list=line_points_2, name=lines[1] + "mesh")
-polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
+l2_mesh = modeler.create_polyline(position_list=line_points_2, name=lines[1] + "mesh")
+l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
-M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
+m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "model.jpg"), plot_air_objects=False)
 
 ################################################################################
 # Published measurement results are included with this script via the list below.
 # Test results are used to create text files for import into a rectangular plot
 # and to overlay simulation results.
 
-project_dir = M3D.working_directory
 dataset = [
     "Bz A1_B1 000 0",
     "Bz A1_B1 050 0",
@@ -345,74 +352,62 @@ data = [
     [-1.35, -0.71, -0.81, -0.67, 0.15, 1.39, 2.67, 3.00, 4.01, 3.80, 4.00, 3.02, 2.20, 2.78, 1.58, 1.37, 0.93],
 ]
 
+################################################################################
+# Write dataset values in a .csv file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Dataset details are used to encode test parameters in the text files.
 # For example, ``Bz A1_B1 050 0`` is the Z component of flux density ``B``
-# along line ``A1_B1`` at 50 Hz and 0 deg. These text files are created
-# and saved in the default project directory.
+# along line ``A1_B1`` at 50 Hz and 0 deg.
 
-print("project_dir", project_dir)
-dataset_range = range(int(0), len(dataset), int(1))
-line_length_range = range(int(0), len(line_length), int(1))
-dataset_list = []
+line_length.insert(0, header[0])
+for i in range(len(dataset)):
+    data[i].insert(0, header[1])
+    ziplist = zip(line_length, data[i])
+    file_path = os.path.join(temp_dir.name, str(dataset[i]) + ".csv")
+    write_csv(output=file_path, list_data=ziplist)
 
-for item in dataset_range:
-    dataset_list.clear()
-    for jtem in line_length_range:
-        dataset_list.insert(jtem, data[item][jtem])
-        ziplist = zip(line_length, dataset_list)
-    with open(project_dir + "\\" + str(dataset[item]) + ".csv", "w", newline="") as f:
-        writer = csv.writer(f, delimiter=",")
-        writer.writerow(header)
-        writer.writerows(ziplist)
+################################################################################
+# Create rectangular plots and import test data into report
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create rectangular plots, using text file encoding to control their formatting
+# and import test data into correct plot and overlay with simulation results.
+# Variations for DC plot need different frequency and phase than the other plots.
 
-# Create rectangular plots
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Create rectangular plots, using text file encoding to control their formatting. Create
-# the DC plot separately because it needs a different frequency and phase than the other plots.
-
-for item in dataset_range:
+for item in range(len(dataset)):
     if item % 2 == 0:
-        plotname = dataset[item][0:3] + "Along the Line" + dataset[item][2:9] + ", " + dataset[item][9:12] + "Hz"
-        if dataset[item][9:12] == "000":
+        t = dataset[item]
+        plot_name = t[0:3] + "Along the Line" + t[2:9] + ", " + t[9:12] + "Hz"
+        if t[9:12] == "000":
             variations = {
                 "Distance": ["All"],
                 "Freq": [str(dc_freq) + "Hz"],
                 "Phase": ["0deg"],
                 "Coil_Excitation": ["All"],
             }
-            M3D.post.create_report(
-                plotname=plotname,
-                report_category="Fields",
-                context="Line_" + dataset[item][3:8],
-                primary_sweep_variable="Distance",
-                variations=variations,
-                expressions=dataset[item][0:2],
-            )
         else:
             variations = {
                 "Distance": ["All"],
-                "Freq": [dataset[item][9:12] + "Hz"],
+                "Freq": [t[9:12] + "Hz"],
                 "Phase": ["0deg", "90deg"],
                 "Coil_Excitation": ["All"],
             }
-            M3D.post.create_report(
-                plotname=plotname,
-                report_category="Fields",
-                context="Line_" + dataset[item][3:8],
-                primary_sweep_variable="Distance",
-                variations=variations,
-                expressions=dataset[item][0:2],
-            )
+        report = m3d.post.create_report(
+            plotname=plot_name,
+            report_category="Fields",
+            context="Line_" + t[3:8],
+            primary_sweep_variable="Distance",
+            variations=variations,
+            expressions=t[0:2],
+        )
+        file_path = os.path.join(temp_dir.name, str(dataset[i]) + ".csv")
+        report.import_traces(file_path, plot_name)
 
-# Import test data into correct plot and overlay with simulation results
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Import test data into the correct plot and overlay it with the simulation results.
+###################################################################################################
+# Analyze project
+# ~~~~~~~~~~~~~~~
+# Analyze the project.
 
-if item == 0:
-    Plot.ImportIntoReport(plotname, os.path.join(project_dir, str(dataset[item]) + ".csv"))
-else:
-    Plot.ImportIntoReport(plotname, project_dir + "\\" + str(dataset[item - 1]) + ".csv")
-    Plot.ImportIntoReport(plotname, project_dir + "\\" + str(dataset[item]) + ".csv")
+m3d.analyze()
 
 ###################################################################################################
 # Create plots of induced current and flux density on surface of plate
@@ -420,23 +415,16 @@ else:
 # Create two plots of the induced current (``Mag_J``) and the flux density (``Mag_B``) on the
 # surface of the plate.
 
-surflist = modeler.get_object_faces("Plate")
+surf_list = modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
-M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
-M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
-
-###################################################################################################
-# Save project and solve
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Save the project and solve it.
-
-M3D.save_project()
-M3D.analyze()
+m3d.post.create_fieldplot_surface(surf_list, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
+m3d.post.create_fieldplot_surface(surf_list, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
+m3d.post.create_fieldplot_surface(surf_list, "Mesh", intrinsincDict=intrinsic_dict, plot_name="Mesh")
 
 ####################################################################################################
-# Release AEDT from PyAEDT scripting
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Release AEDT from PyAEDT scripting. If you wanted to leave AEDT and the project open
-# after running the above script, in the following command, you would set ``(False, False)``.
+# Release AEDT and clean up temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Release AEDT and remove both project and temporary directory.
 
-M3D.release_desktop(True, True)
+m3d.release_desktop(True, True)
+temp_dir.cleanup()

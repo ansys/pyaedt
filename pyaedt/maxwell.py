@@ -507,8 +507,8 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list : list
-            List of objects.
+        object_list : list, str
+            List of objects to assign eddy effects to.
         activate_eddy_effects : bool, optional
             Whether to activate eddy effects. The default is ``True``.
         activate_displacement_current : bool, optional
@@ -652,7 +652,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list : list
+        object_list : list, str
             List of objects to assign the current source to.
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.

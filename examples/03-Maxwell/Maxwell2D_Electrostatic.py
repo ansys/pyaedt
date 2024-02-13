@@ -152,7 +152,7 @@ M2D.analyze_setup(sName)
 # Evaluate the E Field tangential component along the given polylines.
 # Add these operations to the Named Expression list in Field Calculator.
 
-fields = M2D.odesign.GetModule('FieldsReporter')
+fields = M2D.ofieldsreporter
 fields.CalcStack("clear")
 fields.EnterQty("E")
 fields.EnterEdge("Poly1")

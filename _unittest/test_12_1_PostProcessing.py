@@ -89,6 +89,8 @@ class TestClass:
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
         assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
+        mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
+        assert os.path.exists(mesh_file_path)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
