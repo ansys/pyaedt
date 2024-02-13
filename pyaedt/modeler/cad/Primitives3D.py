@@ -1644,6 +1644,7 @@ class Primitives3D(GeometryModeler):
         name=None,
         parameter_mapping=False,
         layout_coordinate_systems=[],
+        reference_coordinate_system="Global"
     ):
         """Insert a new layout component.
 
@@ -1656,9 +1657,11 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             3D component name. The default is ``None``.
         parameter_mapping : bool, optional
-            Map the layout parameters in the target HFSS design. The default is ``False``.
+            Whether to map the layout parameters in the target HFSS design. The default is ``False``.
         layout_coordinate_systems : list, optional
             Coordinate system to import. The default is all available coordinate systems.
+        reference_coordinate_system : str, optional
+            Coordinate system to use as reference. The default is ``"Global"``.
 
         Returns
         -------
@@ -1831,7 +1834,7 @@ class Primitives3D(GeometryModeler):
             aedt_component_name,
             varg8,
             "ReferenceCS:=",
-            "Global",
+            reference_coordinate_system,
             "CSToImport:=",
         ]
 
