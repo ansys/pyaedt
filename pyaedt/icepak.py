@@ -1450,6 +1450,9 @@ class Icepak(FieldAnalysis3D):
         -------
         :class:`pyaedt.modeler.cad.object3d.Object3d`
             Heatsink created or ``False`` when failed.
+        dict
+            Variable mapping. Keys are the different parameters names and values
+            are the corresponding variables names in Icepak.
 
         Examples
         --------
