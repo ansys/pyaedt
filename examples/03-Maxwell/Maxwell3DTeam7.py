@@ -414,7 +414,7 @@ m3d.analyze()
 # Create two plots of the induced current (``Mag_J``) and the flux density (``Mag_B``) on the
 # surface of the plate.
 
-surf_list = modeler.get_object_faces("Plate")
+surf_list = m3d.modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
 m3d.post.create_fieldplot_surface(surf_list, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 m3d.post.create_fieldplot_surface(surf_list, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
