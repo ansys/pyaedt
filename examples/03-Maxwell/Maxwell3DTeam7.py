@@ -51,7 +51,6 @@ m3d = Maxwell3d(
     new_desktop_session=True
 )
 m3d.modeler.model_units = "mm"
-modeler = m3d.modeler
 
 ###########################################################################################
 # Add Maxwell 3D setup
@@ -215,13 +214,13 @@ lines = ["Line_A1_B1", "Line_A2_B2"]
 mesh_diameter = "2mm"
 
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
-polyline = modeler.create_polyline(position_list=line_points_1, name=lines[0])
-l1_mesh = modeler.create_polyline(position_list=line_points_1, name=lines[0] + "mesh")
+polyline = m3d.modeler.create_polyline(position_list=line_points_1, name=lines[0])
+l1_mesh = m3d.modeler.create_polyline(position_list=line_points_1, name=lines[0] + "mesh")
 l1_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
-polyline2 = modeler.create_polyline(position_list=line_points_2, name=lines[1])
-l2_mesh = modeler.create_polyline(position_list=line_points_2, name=lines[1] + "mesh")
+polyline2 = m3d.modeler.create_polyline(position_list=line_points_2, name=lines[1])
+l2_mesh = m3d.modeler.create_polyline(position_list=line_points_2, name=lines[1] + "mesh")
 l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
