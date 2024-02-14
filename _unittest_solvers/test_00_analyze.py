@@ -26,6 +26,7 @@ else:
     component = "Circ_Patch_5GHz.a3dcomp"
 
 test_subfolder = "T00"
+erl_project_name = "erl_unit_test"
 
 
 @pytest.fixture()
@@ -73,6 +74,12 @@ def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
+
+@pytest.fixture(scope="class")
+def circuit_erl(add_app):
+    app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
+    return app
+
 
 
 @pytest.fixture(scope="class")
@@ -150,10 +157,10 @@ class TestClass:
     )
     def test_02_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
-        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
-            dict_in = json_to_dict(
+            dict_in = read_json(
                 os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json")
             )
             dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
@@ -162,7 +169,7 @@ class TestClass:
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         else:
-            dict_in = json_to_dict(
+            dict_in = read_json(
                 os.path.join(local_path, "example_models", test_subfolder, "array_simple.json")
             )
             dict_in["Circ_Patch_5GHz1"] = os.path.join(
@@ -426,3 +433,10 @@ class TestClass:
                                               setuptype=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
+
+    def test_08_compute_erl(self, circuit_erl):
+        erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd",bandwidth="40p")
+        assert erl_data2
+        circuit_erl.set_active_design("4_ports")
+        erl_data_3 = circuit_erl.compute_erl(specify_through_ports=[1, 2, 3, 4])
+        assert erl_data_3
