@@ -468,6 +468,7 @@ class TestClass:
         hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
         assert hs
         hs.delete()
+        box.rotate(0, 52)
         hs, _ = self.aedtapp.create_parametric_heatsink_on_face(
             top_face,
             relative=False,
