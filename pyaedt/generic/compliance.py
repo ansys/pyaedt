@@ -47,6 +47,7 @@ class VirtualCompliance:
         self._template = template
         self._template_name = "Compliance"
         self._template_folder = os.path.dirname(template)
+        self._project_file = None
         self._reports = {}
         self._parse_template()
         self._desktop_class = desktop
@@ -109,7 +110,7 @@ class VirtualCompliance:
         name : str
             Name of the report.
         report_type : str
-            Report type. It can be "frequency", "eye diagram", "statistical eye", "contour eye diagram", "transient".
+            Report type. It can be "frequency", "eye diagram", "statistical eye", "contour eye diagram", "time".
         config_file : str
             Path to the config file.
         design_name : str
@@ -268,6 +269,39 @@ class VirtualCompliance:
                     else:  # pragma: no cover
                         msg = f"Failed to create the report. Check {config_file} configuration file."
                         self._desktop_class.logger.error(msg)
+
+    def _create_parameters(self, pdf_report):
+        start = True
+        _design = None
+
+        for template_report in self.local_config.get("parameters", []):
+            config_file = template_report["config"]
+            if not os.path.exists(config_file):
+                config_file = os.path.join(self._template_folder, config_file)
+            name = template_report["name"]
+            pass_fail = template_report["pass_fail"]
+            pass_fail_criteria = template_report.get("pass_fail_criteria", "")
+            design_name = template_report["design_name"]
+            if _design and _design.design_name != design_name or _design is None:
+                _design = get_pyaedt_app(self._project_name, design_name)
+
+            if start:
+                pdf_report.add_section()
+                pdf_report.add_chapter("Parameters Results")
+                start = False
+            if name == "erl":
+                pdf_report.add_sub_chapter("Effective Return Loss")
+                table_out = [["ERL", "Value", "Pass/Fail"]]
+                traces = template_report["traces"]
+                trace_pins = template_report["trace_pins"]
+                for trace_name, trace_pin in zip(traces, trace_pins):
+                    erl_value = _design.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
+                    if erl_value:
+                        table_out.append([trace_name, erl_value["ERL"], pass_fail_criteria])
+                pdf_report.add_table(
+                    f"Effective Return Losses",
+                    table_out,
+                )
 
     def _add_lna_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
@@ -531,6 +565,7 @@ class VirtualCompliance:
                         caption = os.path.split(file)[-1]
                     report.add_image(file, caption=caption, width=report.epw - 50)
 
+        self._create_parameters(report)
         self._create_aedt_reports(report)
         if self._add_project_info:
             self._create_project_info(report)

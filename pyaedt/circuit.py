@@ -1692,20 +1692,21 @@ class Circuit(FieldAnalysisCircuit, object):
     def compute_erl_from_touchstone(
         self,
         touchstone_file,
-        port_order="EvenOdd",
+        config_file=None,
+        port_order=None,
         specify_through_ports=None,
-        bandwidth=30e9,
-        tdr_duration=5,
-        z_terminations=50,
-        transition_time="10p",
-        fixture_delay=500e-12,
-        input_amplitude=1.0,
-        ber=1e-4,
-        pdf_bin_size=1e-5,
-        signal_loss_factor=1.7e9,
-        permitted_reflection=0.18,
-        reflections_lenght=1000,
-        modulation_type="NRZ",
+        bandwidth=None,
+        tdr_duration=None,
+        z_terminations=None,
+        transition_time=None,
+        fixture_delay=None,
+        input_amplitude=None,
+        ber=None,
+        pdf_bin_size=None,
+        signal_loss_factor=None,
+        permitted_reflection=None,
+        reflections_lenght=None,
+        modulation_type=None,
     ):
         """Compute effective return loss (erl) using Ansys SPISIM from a S-parameter file.
 
@@ -1713,11 +1714,14 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         touchstone_file : str
             Path to the touchstone file.
+        config_file : str, optional
+            Config file to be used as reference. This is optional and it can be skipped.
         port_order : str, optional
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for ``s4p`` files.
             Ignored if the ports are greater than 4.
         specify_through_ports : list, optional
             Input and Output ports on which compute the erl. Those are ordered like ``[inp, inneg, outp, outneg]``.
+            Ignored if number of ports are 4.
         bandwidth : float, str, optional
             Application bandwidth: inverse of one UI (unit interval). Can be a float or str with unit ("m", "g").
             Default is ``30e9``.
@@ -1751,56 +1755,82 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
+        cfg_dict = {
+            "INPARRY": "",
+            "MIXMODE": "",
+            "THRUS4P": "",
+            "BANDWID": 30e9,
+            "TDR_DUR": 5,
+            "BINSIZE": 1e-5,
+            "REFIMPD": 50,
+            "SPECBER": 1e-4,
+            "MODTYPE": "NRZ",
+            "FIXDELY": 500e-12,
+            "INPVOLT": 1.0,
+            "TRSTIME": "10p",
+            "SIGBETA": 1.7e9,
+            "REFLRHO": 0.18,
+            "NCYCLES": 1000,
+        }
+        if config_file:
+            with open(config_file, "r") as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if not line.startswith("#") and "=" in line:
+                        split_line = [i.strip() for i in line.split("=")]
+                        cfg_dict[split_line[0]] = split_line[1]
+        cfg_dict["INPARRY"] = touchstone_file
+        cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
+        if port_order is not None and touchstone_file.lower().endswith(".s4p"):
+            cfg_dict["MIXMODE"] = port_order
+        elif not touchstone_file.lower().endswith(".s4p"):
+            cfg_dict["MIXMODE"] = ""
+        cfg_dict["THRUS4P"] = "" if "THRUS4P" not in cfg_dict else cfg_dict["THRUS4P"]
 
-        cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
-        with open(cfg_file, "w") as fp:
-            fp.write("# INPARRY: INPARRY\n")
-            fp.write("INPARRY = {}\n".format(touchstone_file))
-            fp.write("# MIXMODE: MIXMODE\n")
-            if port_order and touchstone_file.lower().endswith(".s4p"):
-                fp.write("MIXMODE = {}\n".format(port_order))
+        if specify_through_ports:
+            if isinstance(specify_through_ports[0], int):
+                thrus4p = ",".join([str(i) for i in specify_through_ports])
             else:
-                fp.write("MIXMODE = \n")
-            fp.write("# THRUS4P: THRUS4P\n")
-            if not touchstone_file.lower().endswith(".s4p"):
-                if isinstance(specify_through_ports[0], int):
-                    thrus4p = ",".join([str(i) for i in specify_through_ports])
-                else:
-                    try:
-                        ports = self.excitations.keys()
-                        thrus4p = ",".join([ports.index(i) for i in specify_through_ports])
-                    except IndexError:
-                        self.logger.error("Port not found.")
-                        return False
-                fp.write("THRUS4P = {}\n".format(thrus4p))
-            else:
-                fp.write("THRUS4P = \n")
-            fp.write("# BANDWID: BANDWID\n")
-            fp.write("BANDWID = {}\n".format(bandwidth))
-            fp.write("# TDR_DUR: TDR_DUR\n")
-            fp.write("TDR_DUR = {}\n".format(tdr_duration))
-            fp.write("# REFIMPD: REFIMPD\n")
-            fp.write("REFIMPD = {}\n".format(z_terminations))
-            fp.write("# BINSIZE: BINSIZE\n")
-            fp.write("BINSIZE = {}\n".format(pdf_bin_size))
-            fp.write("# SPECBER: SPECBER\n")
-            fp.write("SPECBER = {}\n".format(ber))
-            fp.write("# MODTYPE: MODTYPE\n")
-            fp.write("MODTYPE = {}\n".format(modulation_type))
-            fp.write("# FIXDELY: FIXDELY\n")
-            fp.write("FIXDELY = {}\n".format(fixture_delay))
-            fp.write("# INPVOLT: INPVOLT\n")
-            fp.write("INPVOLT = {}\n".format(input_amplitude))
-            fp.write("# TRSTIME: TRSTIME\n")
-            fp.write("TRSTIME = {}\n".format(transition_time))
-            fp.write("# SIGBETA: SIGBETA\n")
-            fp.write("SIGBETA = {}\n".format(signal_loss_factor))
-            fp.write("# REFLRHO: REFLRHO\n")
-            fp.write("REFLRHO = {}\n".format(permitted_reflection))
-            fp.write("# NCYCLES: NCYCLES\n")
-            fp.write("NCYCLES = {}\n".format(reflections_lenght))
+                try:
+                    ports = list(self.excitations.keys())
+                    thrus4p = ",".join([str(ports.index(i)) for i in specify_through_ports])
+                except IndexError:
+                    self.logger.error("Port not found.")
+                    return False
+            cfg_dict["THRUS4P"] = thrus4p
 
-        cfgCmmd = '-i %s -v CFGFILE="%s"' % (touchstone_file, cfg_file)
+        cfg_dict["BANDWID"] = bandwidth if bandwidth is not None else cfg_dict["BANDWID"]
+        cfg_dict["TDR_DUR"] = tdr_duration if tdr_duration is not None else cfg_dict["TDR_DUR"]
+        cfg_dict["BINSIZE"] = pdf_bin_size if pdf_bin_size is not None else cfg_dict["BINSIZE"]
+        cfg_dict["REFIMPD"] = z_terminations if z_terminations is not None else cfg_dict["REFIMPD"]
+        cfg_dict["SPECBER"] = ber if ber is not None else cfg_dict["SPECBER"]
+        cfg_dict["MODTYPE"] = modulation_type if modulation_type is not None else cfg_dict["MODTYPE"]
+        cfg_dict["FIXDELY"] = fixture_delay if fixture_delay is not None else cfg_dict["FIXDELY"]
+        cfg_dict["INPVOLT"] = input_amplitude if input_amplitude is not None else cfg_dict["INPVOLT"]
+        cfg_dict["TRSTIME"] = transition_time if transition_time is not None else cfg_dict["TRSTIME"]
+        cfg_dict["SIGBETA"] = signal_loss_factor if signal_loss_factor is not None else cfg_dict["SIGBETA"]
+        cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
+        cfg_dict["NCYCLES"] = reflections_lenght if reflections_lenght is not None else cfg_dict["NCYCLES"]
+
+        new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
+        with open(new_cfg_file, "w") as fp:
+            fp.write("INPARRY = {}\n".format(cfg_dict["INPARRY"]))
+            fp.write("MIXMODE = {}\n".format(cfg_dict["MIXMODE"]))
+            fp.write("THRUS4P = {}\n".format(cfg_dict["THRUS4P"]))
+            fp.write("BANDWID = {}\n".format(cfg_dict["BANDWID"]))
+            fp.write("TDR_DUR = {}\n".format(cfg_dict["TDR_DUR"]))
+            fp.write("REFIMPD = {}\n".format(cfg_dict["REFIMPD"]))
+            fp.write("BINSIZE = {}\n".format(cfg_dict["BINSIZE"]))
+            fp.write("SPECBER = {}\n".format(cfg_dict["SPECBER"]))
+            fp.write("MODTYPE = {}\n".format(cfg_dict["MODTYPE"]))
+            fp.write("FIXDELY = {}\n".format(cfg_dict["FIXDELY"]))
+            fp.write("INPVOLT = {}\n".format(cfg_dict["INPVOLT"]))
+            fp.write("TRSTIME = {}\n".format(cfg_dict["TRSTIME"]))
+            fp.write("SIGBETA = {}\n".format(cfg_dict["SIGBETA"]))
+            fp.write("REFLRHO = {}\n".format(cfg_dict["REFLRHO"]))
+            fp.write("NCYCLES = {}\n".format(cfg_dict["NCYCLES"]))
+
+        cfgCmmd = '-i %s -v CFGFILE="%s"' % (touchstone_file, new_cfg_file)
         command = [spisimExe, "CalcERL", cfgCmmd]
         # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
         # try up to three times to be sure
@@ -1831,20 +1861,21 @@ class Circuit(FieldAnalysisCircuit, object):
     def compute_erl(
         self,
         setup_name=None,
-        port_order="EvenOdd",
+        config_file=None,
+        port_order=None,
         specify_through_ports=None,
-        bandwidth=30e9,
-        tdr_duration=5,
-        z_terminations=50,
-        transition_time="10p",
-        fixture_delay=500e-12,
-        input_amplitude=1.0,
-        ber=1e-4,
-        pdf_bin_size=1e-5,
-        signal_loss_factor=1.7e9,
-        permitted_reflection=0.18,
-        reflections_lenght=1000,
-        modulation_type="NRZ",
+        bandwidth=None,
+        tdr_duration=None,
+        z_terminations=None,
+        transition_time=None,
+        fixture_delay=None,
+        input_amplitude=None,
+        ber=None,
+        pdf_bin_size=None,
+        signal_loss_factor=None,
+        permitted_reflection=None,
+        reflections_lenght=None,
+        modulation_type=None,
     ):
         """Compute effective return loss (erl) using Ansys SPISIM.
 
@@ -1854,6 +1885,8 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
+        config_file : str, optional
+            Config file to be used as reference. This is optional and it can be skipped.
         port_order : str, optional
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for ``s4p`` files.
             Ignored if the ports are greater than 4.
@@ -1899,6 +1932,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return self.compute_erl_from_touchstone(
             tc_file,
+            config_file,
             port_order,
             specify_through_ports,
             bandwidth,

@@ -524,7 +524,7 @@ class AnsysReport(FPDF):
 
                 row = table.row()
                 for datum in data_row:
-                    row.cell(datum, style=style)
+                    row.cell(str(datum), style=style)
         self.add_caption(f"Table {title}")
 
     def add_text(self, content, bold=False, italic=False):

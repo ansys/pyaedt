@@ -435,7 +435,14 @@ class TestClass:
         new_setup.update()
 
     def test_08_compute_erl(self, circuit_erl):
-        erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd",bandwidth="40p")
+        erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd",bandwidth="40g",
+                                            tdr_duration=4,
+                                            z_terminations=50,
+                                            transition_time="10p",
+                                            fixture_delay=400e-12,
+                                            input_amplitude=1.0,
+                                            ber=1e-4,
+                                            )
         assert erl_data2
         circuit_erl.set_active_design("4_ports")
         erl_data_3 = circuit_erl.compute_erl(specify_through_ports=[1, 2, 3, 4])

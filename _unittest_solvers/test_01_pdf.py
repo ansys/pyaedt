@@ -54,6 +54,9 @@ class TestClass(object):
         local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, "compliance", "ContourEyeDiagram_Custom.json")
         )
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "compliance", "spisim_erl.cfg")
+        )
         local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, "compliance",
                                             "Sparameter_Custom.json"))
         local_scratch.copyfile(
