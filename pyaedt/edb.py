@@ -459,6 +459,10 @@ class Edb(Database):
             for cell in list(self.top_circuit_cells):
                 if cell.GetName() == self.cellname:
                     self._active_cell = cell
+        if self._active_cell is None:
+            for cell in list(self.circuit_cells):
+                if cell.GetName() == self.cellname:
+                    self._active_cell = cell
         # if self._active_cell is still None, set it to default cell
         if self._active_cell is None:
             self._active_cell = list(self.top_circuit_cells)[0]

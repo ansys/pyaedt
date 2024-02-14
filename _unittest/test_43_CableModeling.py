@@ -4,7 +4,7 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.general_methods import read_json
 from pyaedt.modules.CableModeling import Cable
 
 if config["desktopVersion"] > "2022.2":
@@ -23,7 +23,7 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def dict_in(local_scratch):
-    dict_in_tmp = json_to_dict(
+    dict_in_tmp = read_json(
         os.path.join(
             local_path,
             "example_models",

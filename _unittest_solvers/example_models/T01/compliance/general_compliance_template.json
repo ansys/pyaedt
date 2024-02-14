@@ -30,7 +30,9 @@
 	 "type": "frequency",
      "config": "Sparameter_Insertion_Custom.json",
      "traces": ["dB(S(X1_TX0,X1_RX0))", "dB(S(X1_TX1,X1_RX1))","dB(S(X1_TX2,X1_RX2))", "dB(S(X1_TX3,X1_RX3))"],
-     "pass_fail": false
+     "pass_fail": false,
+	 "group_plots":true
+	 
      },
     {"name": "eye1",
     "design_name":"32GTps_circuit",
