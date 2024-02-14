@@ -4,7 +4,6 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import csv
-import math
 import os
 import warnings
 
@@ -1261,129 +1260,26 @@ class Icepak(FieldAnalysis3D):
             "This method is deprecated in 0.7.12. Use the create_parametric_heatsink_on_face() method.",
             DeprecationWarning,
         )
-        all_objs = self.modeler.object_names
-        self["FinPitch"] = self.modeler._arg_with_dim(pitch)
-        self["FinThickness"] = self.modeler._arg_with_dim(thick)
-        self["FinLength"] = self.modeler._arg_with_dim(length)
-        self["FinHeight"] = self.modeler._arg_with_dim(height)
-        self["DraftAngle"] = draftangle
-        self["PatternAngle"] = patternangle
-        self["FinSeparation"] = self.modeler._arg_with_dim(separation)
-        self["VerticalSeparation"] = self.modeler._arg_with_dim(vertical_separation)
-        self["HSHeight"] = self.modeler._arg_with_dim(hs_height)
-        self["HSWidth"] = self.modeler._arg_with_dim(hs_width)
-        self["HSBaseThick"] = self.modeler._arg_with_dim(hs_basethick)
-        self["NumColumnsPerSide"] = numcolumn_perside
-        if symmetric:
-            self["SymSeparation"] = self.modeler._arg_with_dim(symmetric_separation)
-        self["Tolerance"] = self.modeler._arg_with_dim(tolerance)
-
-        self.modeler.create_box(
-            ["-HSWidth/200", "-HSHeight/200", "-HSBaseThick"],
-            ["HSWidth*1.01", "HSHeight*1.01", "HSBaseThick+Tolerance"],
-            "HSBase",
-            matname,
+        rect = self.modeler.create_rectangle(plane_enum, center, [hs_width, hs_height])
+        rect.rotate(plane_enum, rotation)
+        hs, _ = self.create_parametric_heatsink_on_face(
+            rect.faces[0],
+            relative=False,
+            hs_basethick=hs_basethick,
+            fin_thick=thick,
+            fin_length=length,
+            fin_height=height,
+            draft_angle=draftangle,
+            pattern_angle=patternangle,
+            separation=separation,
+            column_separation=vertical_separation,
+            symmetric=symmetric,
+            symmetric_separation=symmetric_separation,
+            numcolumn_perside=numcolumn_perside,
+            matname=matname,
         )
-        fin_line = []
-        fin_line.append(self.Position(0, 0, 0))
-        fin_line.append(self.Position(0, "FinThickness", 0))
-        fin_line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
-        fin_line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
-        fin_line.append(self.Position(0, 0, 0))
-        self.modeler.create_polyline(fin_line, cover_surface=True, name="Fin")
-        fin_line2 = []
-        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        fin_line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        fin_line2.append(
-            self.Position(
-                "FinLength",
-                "FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness",
-                "FinHeight",
-            )
-        )
-        fin_line2.append(
-            self.Position(
-                "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
-            )
-        )
-        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        self.modeler.create_polyline(fin_line2, cover_surface=True, name="Fin_top")
-        self.modeler.connect(["Fin", "Fin_top"])
-        self.modeler["Fin"].material_name = matname
-        num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
-        self.modeler.move("Fin", self.Position(0, "-FinSeparation-FinThickness", 0))
-        self.modeler.duplicate_along_line("Fin", self.Position(0, "FinSeparation+FinThickness", 0), num, True)
-        all_names = self.modeler.object_names
-        list = [i for i in all_names if "Fin" in i]
-        if numcolumn_perside > 0:
-            self.modeler.duplicate_along_line(
-                list,
-                self.Position("FinLength+VerticalSeparation", "FinLength*sin(PatternAngle*3.14/180)", 0),
-                "NumColumnsPerSide",
-                True,
-            )
-
-        all_names = self.modeler.object_names
-        list = [i for i in all_names if "Fin" in i]
-        self.modeler.split(list, self.PLANE.ZX, "PositiveOnly")
-        all_names = self.modeler.object_names
-        list = [i for i in all_names if "Fin" in i]
-        self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
-        self.modeler.set_working_coordinate_system("TopRight")
-        self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
-
-        if symmetric:
-            self.modeler.create_coordinate_system(
-                self.Position("(HSWidth-SymSeparation)/2", 0, 0),
-                mode="view",
-                view="XY",
-                name="CenterRightSep",
-                reference_cs="TopRight",
-            )
-
-            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
-            self.modeler.create_coordinate_system(
-                self.Position("SymSeparation/2", 0, 0),
-                mode="view",
-                view="XY",
-                name="CenterRight",
-                reference_cs="CenterRightSep",
-            )
-            self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
-            center_line = []
-            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            center_line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
-            center_line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            center_line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            self.modeler.create_polyline(center_line, cover_surface=True, name="Center")
-            self.modeler.thicken_sheet("Center", "-FinHeight-2*Tolerance")
-            all_names = self.modeler.object_names
-            list = [i for i in all_names if "Fin" in i]
-            self.modeler.subtract(list, "Center", False)
-        else:
-            self.modeler.create_coordinate_system(
-                self.Position("HSWidth", 0, 0), mode="view", view="XY", name="BottomRight", reference_cs="TopRight"
-            )
-            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
-        all_objs2 = self.modeler.object_names
-        list_to_move = [i for i in all_objs2 if i not in all_objs]
-        center[0] -= hs_width / 2
-        center[1] -= hs_height / 2
-        center[2] += hs_basethick
-        self.modeler.set_working_coordinate_system("Global")
-        self.modeler.move(list_to_move, center)
-        if plane_enum == self.PLANE.XY:
-            self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
-        elif plane_enum == self.PLANE.ZX:
-            self.modeler.rotate(list_to_move, self.AXIS.X, 90)
-            self.modeler.rotate(list_to_move, self.AXIS.Y, rotation)
-        elif plane_enum == self.PLANE.YZ:
-            self.modeler.rotate(list_to_move, self.AXIS.Y, 90)
-            self.modeler.rotate(list_to_move, self.AXIS.Z, rotation)
-        self.modeler.unite(list_to_move)
-        self.modeler[list_to_move[0]].name = "HeatSink1"
-        return True
+        rect.delete()
+        return bool(hs)
 
     @pyaedt_function_handler()
     def create_parametric_heatsink_on_face(
