@@ -1465,7 +1465,11 @@ class Icepak(FieldAnalysis3D):
         """
         all_obj = self.modeler.object_names
         center = top_face.center
+        normal = top_face.normal
         ref_edge = top_face.edges[0]
+        x_vect = [ref_edge.midpoint[i] - center[i] for i in range(3)]
+        y_vect = go.v_cross(normal, x_vect)
+
         if not go.is_parallel(
             ref_edge.vertices[0].position,
             ref_edge.vertices[1].position,
@@ -1475,11 +1479,9 @@ class Icepak(FieldAnalysis3D):
             perp_edge = top_face.edges[1]
         else:
             perp_edge = top_face.edges[2]
-
         hs_height = ref_edge.length
         hs_width = perp_edge.length
-        x_vect = [ref_edge.midpoint[i] - center[i] for i in range(3)]
-        y_vect = [perp_edge.midpoint[i] - center[i] for i in range(3)]
+
         self.modeler.create_coordinate_system(origin=center, x_pointing=x_vect, y_pointing=y_vect)
 
         hs_name = generate_unique_name("Heatsink")
