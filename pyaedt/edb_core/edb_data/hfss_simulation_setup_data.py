@@ -943,6 +943,21 @@ class ViaSettings(object):
         self._parent._update_setup()
 
     @property
+    def via_mesh_plating(self):
+        """Via mesh plating.
+
+        Returns
+        -------
+        bool
+        """
+        return self._via_settings.ViaMeshPlating
+
+    @via_mesh_plating.setter
+    def via_mesh_plating(self, value):
+        self._via_settings.ViaMeshPlating = value
+        self._parent._update_setup()
+
+    @property
     def via_material(self):
         """Via material.
 
