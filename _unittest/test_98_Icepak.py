@@ -463,7 +463,7 @@ class TestClass:
             rotation=45,
             tolerance=0.005,
         )
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 0.3])
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 3])
         top_face = box.top_face_z
         hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
         assert hs
