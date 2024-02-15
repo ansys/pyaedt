@@ -9,6 +9,7 @@ from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.pdf import AnsysReport
+from pyaedt.generic.spisim import SpiSim
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 default_keys = [
@@ -303,15 +304,17 @@ class VirtualCompliance:
                 pdf_report.add_section()
                 pdf_report.add_chapter("Parameters Results")
                 start = False
+            spisim = SpiSim(None)
             if name == "erl":
                 pdf_report.add_sub_chapter("Effective Return Loss")
                 table_out = [["ERL", "Value", "Pass/Fail"]]
                 traces = template_report["traces"]
                 trace_pins = template_report["trace_pins"]
                 for trace_name, trace_pin in zip(traces, trace_pins):
-                    erl_value = _design.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
+                    spisim.touchstone_file = _design.export_touchstone()
+                    erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
-                        table_out.append([trace_name, erl_value["ERL"], pass_fail_criteria])
+                        table_out.append([trace_name, erl_value, pass_fail_criteria])
                 pdf_report.add_table(
                     f"Effective Return Losses",
                     table_out,

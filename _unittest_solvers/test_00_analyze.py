@@ -13,6 +13,7 @@ from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d
 from _unittest.conftest import config
+from pyaedt.generic.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
@@ -435,7 +436,10 @@ class TestClass:
         new_setup.update()
 
     def test_08_compute_erl(self, circuit_erl):
-        erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd",bandwidth="40g",
+        touchstone_file = circuit_erl.export_touchstone()
+        spisim = SpiSim(touchstone_file)
+
+        erl_data2 = spisim.compute_erl(port_order="EvenOdd",bandwidth="40g",
                                             tdr_duration=4,
                                             z_terminations=50,
                                             transition_time="10p",
@@ -445,5 +449,7 @@ class TestClass:
                                             )
         assert erl_data2
         circuit_erl.set_active_design("4_ports")
-        erl_data_3 = circuit_erl.compute_erl(specify_through_ports=[1, 2, 3, 4])
+        touchstone_file2 = circuit_erl.export_touchstone()
+        spisim.touchstone_file = touchstone_file2
+        erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
