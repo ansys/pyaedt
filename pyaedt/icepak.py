@@ -1304,11 +1304,11 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         top_face : modeler.cad.elements3d.FacePrimitive
-            Face on which to build the heatsink.
+            Face to build the heatsink on.
         relative : bool, optional
             Whether the dimensions used as arguments of the function are
             absolute or relative to the width and the height of the
-            top_face.
+            top face.
         hs_basethick : float, optional
             Thickness of the heat sink base. If ``relative==True``, it is the
             fraction of the ``top_face`` width. The default is ``0.1``.
@@ -1347,7 +1347,7 @@ class Icepak(FieldAnalysis3D):
         :class:`pyaedt.modeler.cad.object3d.Object3d`
             Heatsink created or ``False`` when failed.
         dict
-            Variable mapping. Keys are the different parameters names and values
+            Variable mapping. Keys are the different parameters names, and values
             are the corresponding variables names in Icepak.
 
         Examples
