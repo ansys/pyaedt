@@ -2088,8 +2088,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file name when successful, ``False`` when failed.
         """
         if variations is None:
             variations = list(self.available_variations.nominal_w_values_dict.keys())
@@ -2180,7 +2180,7 @@ class Analysis(Design, object):
                 NonStandardExtensions,
             )
         self.logger.info("Touchstone correctly exported to %s", filename)
-        return True
+        return OutFile
 
     @pyaedt_function_handler()
     def value_with_units(
