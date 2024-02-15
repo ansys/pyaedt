@@ -202,6 +202,13 @@ M2D.post.export_field_plot(plotname="LineTracesTest", filepath=M2D.toolkit_direc
 
 M2D.post.plot_field_from_fieldplot(plot.name, show=False)
 
+##########################################################
+# Export the mesh field plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Export the mesh in ``aedtplt`` format.
+
+M2D.post.export_mesh_obj(setup_name=M2D.nominal_adaptive)
+
 ###################################################################################
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1638,7 +1638,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name,
+        name=None,
         num_cores=4,
         num_tasks=1,
         num_gpu=0,
@@ -1653,7 +1653,7 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        name : str
+        name : str, optional
             Name of the setup, which can be an optimetric setup or a simple setup.
             If ``None`` all setups will be solved.
         num_cores : int, optional

@@ -194,7 +194,8 @@ m3d.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create an expression for the Z component of B in Gauss using the fields calculator.
 
-Fields = m3d.odesign.GetModule("FieldsReporter")
+Fields = m3d.ofieldsreporter
+Fields.CalcStack("clear")
 Fields.EnterQty("B")
 Fields.CalcOp("ScalarZ")
 Fields.EnterScalarFunc("Phase")

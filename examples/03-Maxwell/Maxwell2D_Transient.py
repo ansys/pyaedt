@@ -25,6 +25,14 @@ Install these libraries with:
 
 import os
 import pyaedt
+import tempfile
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -71,7 +79,7 @@ maxwell_2d.assign_balloon(region.edges)
 # ~~~~~~~~~~
 # Plot the model.
 
-maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.working_directory, "Image.jpg"), plot_air_objects=True)
+maxwell_2d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Create setup
@@ -114,9 +122,9 @@ timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
 animatedGif = maxwell_2d.post.plot_animated_field(
-    "Mag_B",
-    id_list,
-    "Surface",
+    quantity="Mag_B",
+    object_list=id_list,
+    plot_type="Surface",
     intrinsics={"Time": "0s"},
     variation_variable="Time",
     variation_list=timesteps,
@@ -147,3 +155,4 @@ solutions.plot()
 # Close AEDT.
 
 maxwell_2d.release_desktop()
+temp_dir.cleanup()
