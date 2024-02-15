@@ -2153,7 +2153,8 @@ class TestClass:
 
         via_settings = edbapp.setups["setup1"].via_settings
         assert via_settings.via_density == 1
-        assert not via_settings.via_mesh_plating
+        if edbapp.edbversion > "2023.2":
+            assert via_settings.via_mesh_plating
         assert via_settings.via_material == "pec"
         assert via_settings.via_num_sides == 8
         # assert via_settings.via_style == "kNum25DViaStyle"
