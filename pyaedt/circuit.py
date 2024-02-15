@@ -1887,7 +1887,8 @@ class Circuit(FieldAnalysisCircuit, object):
             ``None``, in which case the active setup is used or
             nothing is used.
         config_file : str, optional
-            Config file to be used as reference. This is optional and it can be skipped.
+            Configuration file to use as reference. The default is ``None``, in which
+            case this parameter is ignored.
         port_order : str, optional
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for ``s4p`` files.
             Ignored if the ports are greater than 4.
