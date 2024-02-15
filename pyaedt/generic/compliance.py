@@ -4,6 +4,7 @@ import time
 from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import write_csv
@@ -60,6 +61,7 @@ class VirtualCompliance:
         )
         os.makedirs(self._output_folder, exist_ok=True)
 
+    @pyaedt_function_handler()
     def _parse_template(self):
         if self._template:
             self.local_config = read_configuration_file(self._template)
@@ -73,6 +75,7 @@ class VirtualCompliance:
                 self._project_file = self.local_config["general"].get("project", None)
                 self._use_portrait = self.local_config["general"].get("use_portrait", True)
 
+    @pyaedt_function_handler()
     def _parse_reports(self):
         if "reports" in self.local_config:
             for report in self.local_config["reports"]:
@@ -85,10 +88,12 @@ class VirtualCompliance:
                     report["pass_fail"],
                 )
 
+    @pyaedt_function_handler()
     def _get_frequency_range(self, data_list, f1, f2):
         filtered_range = [(freq, db_value) for freq, db_value in data_list if f1 <= freq <= f2]
         return filtered_range
 
+    @pyaedt_function_handler()
     def _check_test_value(self, filtered_range, test_value, hatch_above):
         ranges = [k[1] for k in filtered_range]
         if hatch_above:
@@ -102,6 +107,7 @@ class VirtualCompliance:
             return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
         return round(value_to_check, 5), round(freq_to_check, 5), "PASS"
 
+    @pyaedt_function_handler()
     def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
         """Add a new custom aedt report to the compliance.
 
@@ -138,6 +144,7 @@ class VirtualCompliance:
             }
         )
 
+    @pyaedt_function_handler()
     def _get_sweep_name(self, design, solution_name):
         sweep_name = None
         if solution_name:
@@ -148,6 +155,7 @@ class VirtualCompliance:
                 sweep_name = solution_names[0]
         return sweep_name
 
+    @pyaedt_function_handler()
     def _create_aedt_reports(self, pdf_report):
         start = True
         _design = None
@@ -161,8 +169,11 @@ class VirtualCompliance:
             report_type = template_report["type"]
             group = template_report.get("group_plots", False)
             if _design and _design.design_name != design_name or _design is None:
-                _design = get_pyaedt_app(self._project_name, design_name)
-
+                try:
+                    _design = get_pyaedt_app(self._project_name, design_name)
+                except:  # pragma: no cover
+                    self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
+                    continue
             if os.path.exists(os.path.join(self._template_folder, config_file)):
                 config_file = os.path.join(self._template_folder, config_file)
             if not os.path.exists(config_file):
@@ -180,11 +191,13 @@ class VirtualCompliance:
                 aedt_report = _design.post.create_report_from_configuration(
                     input_dict=local_config, solution_name=sw_name
                 )
+                if not aedt_report:  # pragma: no cover
+                    _design.logger.error(f"Failed to create report {name}")
+                    continue
                 aedt_report.hide_legend()
                 time.sleep(1)
-                out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
-                time.sleep(1)
-                if out:
+                if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
+                    time.sleep(1)
                     pdf_report.add_sub_chapter(f"{name}")
                     sleep_time = 10
                     while sleep_time > 0:
@@ -199,13 +212,13 @@ class VirtualCompliance:
                         except Exception:  # pragma: no cover
                             time.sleep(1)
                             sleep_time -= 1
-                    if pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None):
-                        _design.logger.info(f"Checking lines violations")
-                        table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
-                        write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
-                    if self.local_config.get("delete_after_export", True):
-                        aedt_report.delete()
-                    _design.logger.info(f"Successfully parsed report {name}")
+                if pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                    _design.logger.info(f"Checking lines violations")
+                    table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                    write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
+                if self.local_config.get("delete_after_export", True):
+                    aedt_report.delete()
+                _design.logger.info(f"Successfully parsed report {name}")
             else:
                 for trace in traces:
                     local_config["expressions"] = {trace: {}}
@@ -270,6 +283,7 @@ class VirtualCompliance:
                         msg = f"Failed to create the report. Check {config_file} configuration file."
                         self._desktop_class.logger.error(msg)
 
+    @pyaedt_function_handler()
     def _create_parameters(self, pdf_report):
         start = True
         _design = None
@@ -303,6 +317,7 @@ class VirtualCompliance:
                     table_out,
                 )
 
+    @pyaedt_function_handler()
     def _add_lna_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
         trace_data = report.get_solution_data()
@@ -362,6 +377,7 @@ class VirtualCompliance:
         )
         return pass_fail_table
 
+    @pyaedt_function_handler()
     def _add_statistical_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
@@ -408,6 +424,7 @@ class VirtualCompliance:
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
         return pass_fail_table
 
+    @pyaedt_function_handler()
     def _add_eye_diagram_violations(self, report, pdf_report, image_name):
         try:
             out_eye = os.path.join(self._output_folder, "violations.tab")
@@ -441,6 +458,7 @@ class VirtualCompliance:
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
         return pass_fail_table
 
+    @pyaedt_function_handler()
     def _add_contour_eye_diagram_violations(self, report, pdf_report, image_name, local_config):
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
@@ -471,6 +489,7 @@ class VirtualCompliance:
         pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
         return pass_fail_table
 
+    @pyaedt_function_handler()
     def _add_eye_measurement(self, report, pdf_report, image_name):
         report.add_all_eye_measurements()
         out_eye = os.path.join(self._output_folder, "eye_measurements_{}.csv".format(image_name))
@@ -485,6 +504,7 @@ class VirtualCompliance:
         pdf_report.add_table(f"Eye Measurements on {image_name}", new_table)
         return new_table
 
+    @pyaedt_function_handler()
     def add_specs_to_report(self, folder):
         """Add specs to the report from a given folder.
         All images in such folder will be added to the report.
@@ -498,6 +518,7 @@ class VirtualCompliance:
             self._specs_folder = folder
             self._add_specs_info = True
 
+    @pyaedt_function_handler()
     def _create_project_info(self, report):
         report.add_section()
         designs = []
@@ -532,6 +553,7 @@ class VirtualCompliance:
                     report.add_sub_chapter(f"Design Information: {_design.design_name}")
                     report.add_table("Components", components, col_widths=[75, 275])
 
+    @pyaedt_function_handler()
     def create_compliance_report(self, file_name="compliance_test.pdf"):
         """Create the Virtual Compliance report.
 
