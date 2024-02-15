@@ -3,13 +3,14 @@ import ntpath
 import os
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -47,7 +48,7 @@ class FieldAnalysis3D(Analysis, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -487,7 +488,15 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler()
     def export_3d_model(
-        self, file_name="", file_path="", file_format=".step", object_list=None, removed_objects=None, **kwargs
+        self,
+        file_name="",
+        file_path="",
+        file_format=".step",
+        object_list=None,
+        removed_objects=None,
+        major_version=-1,
+        minor_version=-1,
+        **kwargs  # fmt: skip
     ):
         """Export the 3D model.
 
@@ -502,7 +511,11 @@ class FieldAnalysis3D(Analysis, object):
         object_list : list, optional
             List of objects to export. The default is ``None``.
         removed_objects : list, optional
-            The default is ``None``.
+            List of objects to remove. The default is ``None``.
+        major_version : int, optional
+            File format major version. Default is -1.
+        minor_version : int, optional
+            File format major version. Default is -1.
 
         Returns
         -------
@@ -556,12 +569,14 @@ class FieldAnalysis3D(Analysis, object):
             allObjects = object_list[:]
 
         self.logger.debug("Exporting {} objects".format(len(allObjects)))
-        major = -1
-        minor = -1
+
         # actual version supported by AEDT is 29.0
-        if file_format in [".sm3", ".sat", ".sab"]:
-            major = 29
-            minor = 0
+        if major_version == -1:
+            if file_format in [".sm3", ".sat", ".sab"]:
+                major_version = 29
+        if minor_version == -1:
+            if file_format in [".sm3", ".sat", ".sab"]:
+                minor_version = 0
         stringa = ",".join(allObjects)
         arg = [
             "NAME:ExportParameters",
@@ -574,9 +589,9 @@ class FieldAnalysis3D(Analysis, object):
             "File Name:=",
             os.path.join(file_path, file_name + file_format).replace("\\", "/"),
             "Major Version:=",
-            major,
+            major_version,
             "Minor Version:=",
-            minor,
+            minor_version,
         ]
 
         self.modeler.oeditor.Export(arg)
@@ -1261,6 +1276,106 @@ class FieldAnalysis3D(Analysis, object):
             vArg2.append(vArg3)
         vArg1.append(vArg2)
         self.oeditor.ImportDXF(vArg1)
+        return True
+
+    @pyaedt_function_handler
+    def import_gds_3d(self, gds_file, gds_number, unit="um", import_method=1):  # pragma: no cover
+        """Import a GDSII file.
+
+        Parameters
+        ----------
+        gds_file : str
+            Path to the GDS file.
+        gds_number : dict
+            Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
+        unit : string, optional
+            Length unit values. The default is ``"um"``.
+        import_method : integer, optional
+            GDSII import method. The default is ``1``. Options are:
+
+            - ``0`` for script.
+            - ``1`` for Parasolid.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ImportGDSII
+
+        Examples
+        --------
+        Import a GDS file in an HFSS 3D project.
+
+        >>> gds_path = r"C:\temp\gds1.gds"
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> gds_number = {7: (100, 10), 9: (110, 5)}
+        >>> hfss.import_gds_3d(gds_path, gds_number, unit="um", import_method=1)
+
+        """
+
+        if self.desktop_class.non_graphical:
+            self.logger.error("Method is supported only in graphical mode.")
+            return False
+        if not os.path.exists(gds_file):
+            self.logger.error("GDSII file does not exist. No layer is imported.")
+            return False
+        if len(gds_number) == 0:
+            self.logger.error("Dictionary for GDSII layer numbers is empty. No layer is imported.")
+            return False
+
+        layermap = ["NAME:LayerMap"]
+        ordermap = []
+        for i, k in enumerate(gds_number):
+            layername = "signal" + str(k)
+            layermap.append(
+                [
+                    "NAME:LayerMapInfo",
+                    "LayerNum:=",
+                    k,
+                    "DestLayer:=",
+                    layername,
+                    "layer_type:=",
+                    "signal",
+                ]
+            )
+            ordermap1 = [
+                "entry:=",
+                [
+                    "order:=",
+                    i,
+                    "layer:=",
+                    layername,
+                    "LayerNumber:=",
+                    k,
+                    "Thickness:=",
+                    unit_converter(gds_number[k][1], unit_system="Length", input_units=unit, output_units="meter"),
+                    "Elevation:=",
+                    unit_converter(gds_number[k][0], unit_system="Length", input_units=unit, output_units="meter"),
+                    "Color:=",
+                    "color",
+                ],
+            ]
+            ordermap.extend(ordermap1)
+
+        self.oeditor.ImportGDSII(
+            [
+                "NAME:options",
+                "FileName:=",
+                gds_file,
+                "FlattenHierarchy:=",
+                True,
+                "ImportMethod:=",
+                import_method,
+                layermap,
+                "OrderMap:=",
+                ordermap,
+            ]
+        )
+        self.logger.info("GDS layer imported with elevations and thickness.")
         return True
 
     @pyaedt_function_handler()

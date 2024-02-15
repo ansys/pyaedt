@@ -18,7 +18,6 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
-from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
@@ -33,6 +32,7 @@ from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
@@ -77,7 +77,7 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    new_desktop_session : bool
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
@@ -877,7 +877,7 @@ class Analysis(Design, object):
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
             if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
-                data_vals = list(data_vals)
+                data_vals = [data_vals]
             for ds in data_vals:
                 try:
                     if isinstance(ds, (OrderedDict, dict)):
@@ -1195,7 +1195,7 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setuptype, name)
         elif setuptype == 4:
             setup = SetupSBR(self, setuptype, name)
-        elif setuptype in [5, 6, 7, 8, 9, 10, 56]:
+        elif setuptype in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
             setup = SetupMaxwell(self, setuptype, name)
         elif setuptype in [14]:
             setup = SetupQ3D(self, setuptype, name)
@@ -2088,8 +2088,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file name when successful, ``False`` when failed.
         """
         if variations is None:
             variations = list(self.available_variations.nominal_w_values_dict.keys())
@@ -2180,7 +2180,7 @@ class Analysis(Design, object):
                 NonStandardExtensions,
             )
         self.logger.info("Touchstone correctly exported to %s", filename)
-        return True
+        return OutFile
 
     @pyaedt_function_handler()
     def value_with_units(

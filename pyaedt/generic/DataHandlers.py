@@ -1,17 +1,38 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from decimal import Decimal
-import json
 import math
 import random
 import re
 import string
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import read_json
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
+
+json_to_dict = read_json
+
+
+@pyaedt_function_handler()
+def _dict_items_to_list_items(d, k, idx="name"):
+    if d.get(k, []):
+        if isinstance(d[k], dict) and idx in d[k].keys():
+            d[k] = [d[k]]
+        else:
+            new_list = []
+            if isinstance(d[k], dict):
+                for keyname, keyval in d[k].items():
+                    new_dict = {idx: keyname}
+                    for valname, valp in keyval.items():
+                        new_dict[valname] = valp
+                    new_list.append(new_dict)
+            else:
+                new_list = d[k]
+            d[k] = new_list
+    else:
+        d[k] = []
 
 
 @pyaedt_function_handler()
@@ -611,26 +632,3 @@ def float_units(val_str, units=""):
 
     val = val / unit_val[units]
     return val
-
-
-@pyaedt_function_handler()
-def json_to_dict(fn):
-    """Load Json File to a dictionary.
-
-    Parameters
-    ----------
-    fn : str
-        json file full path.
-
-    Returns
-    -------
-    dict
-    """
-    json_data = {}
-    with open(fn) as json_file:
-        try:
-            json_data = json.load(json_file)
-        except json.JSONDecodeError as e:  # pragma: no cover
-            error = "Error reading json: {} at line {}".format(e.msg, e.lineno)
-            settings.logger.error(error)
-    return json_data

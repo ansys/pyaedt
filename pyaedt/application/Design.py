@@ -91,7 +91,7 @@ class Design(AedtObjects):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -137,13 +137,14 @@ class Design(AedtObjects):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
-        if self._desktop_class._connected_designs > 1:
-            self._desktop_class._connected_designs -= 1
-        elif self._desktop_class._initialized_from_design:
+        if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
+            self._desktop_class._connected_app_instances -= 1
+        if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
-    def __enter__(self):
-        pass
+    def __enter__(self):  # pragma: no cover
+        self._desktop_class._connected_app_instances += 1
+        return self
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -234,8 +235,6 @@ class Design(AedtObjects):
             port,
             aedt_process_id,
         )
-        self._desktop_class._connected_designs += 1
-
         self.student_version = self._desktop_class.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
@@ -259,6 +258,8 @@ class Design(AedtObjects):
         self._temp_solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
+        self._logger.oproject = self.oproject
+        self._logger.odesign = self.odesign
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
         if t:
@@ -408,7 +409,7 @@ class Design(AedtObjects):
             Dictionary of excitations.
         """
         _dict_out = {}
-        for bound in self._excitations:
+        for bound in self.design_excitations:
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:
@@ -611,9 +612,11 @@ class Design(AedtObjects):
         >>> hfss = Hfss()
         >>> hfss.design_name = 'new_design'
         """
+        from pyaedt.generic.general_methods import _retry_ntimes
+
         if not self.odesign:
             return None
-        name = self.odesign.GetName()
+        name = _retry_ntimes(5, self.odesign.GetName)
         if ";" in name:
             return name.split(";")[1]
         else:
@@ -1412,8 +1415,8 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.info("Global info message")
-        >>> hfss.logger.project.info("Project info message")
-        >>> hfss.logger.design.info("Design info message")
+        >>> hfss.logger.project_logger.info("Project info message")
+        >>> hfss.logger.design_logger.info("Design info message")
 
         """
         warnings.warn(
@@ -1421,9 +1424,9 @@ class Design(AedtObjects):
             DeprecationWarning,
         )
         if message_type.lower() == "project":
-            self.logger.project.info(message_text)
+            self.logger.project_logger.info(message_text)
         elif message_type.lower() == "design":
-            self.logger.design.info(message_text)
+            self.logger.design_logger.info(message_text)
         else:
             self.logger.info(message_text)
         return True
@@ -1455,8 +1458,8 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.warning("Global warning message", "Global")
-        >>> hfss.logger.project.warning("Project warning message", "Project")
-        >>> hfss.logger.design.warning("Design warning message")
+        >>> hfss.logger.project_logger.warning("Project warning message", "Project")
+        >>> hfss.logger.design_logger.warning("Design warning message")
 
         """
         warnings.warn(
@@ -1465,9 +1468,9 @@ class Design(AedtObjects):
         )
 
         if message_type.lower() == "project":
-            self.logger.project.warning(message_text)
+            self.logger.project_logger.warning(message_text)
         elif message_type.lower() == "design":
-            self.logger.design.warning(message_text)
+            self.logger.design_logger.warning(message_text)
         else:
             self.logger.warning(message_text)
         return True
@@ -1499,8 +1502,8 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.logger.error("Global error message", "Global")
-        >>> hfss.logger.project.error("Project error message", "Project")
-        >>> hfss.logger.design.error("Design error message")
+        >>> hfss.logger.project_logger.error("Project error message", "Project")
+        >>> hfss.logger.design_logger.error("Design error message")
 
         """
         warnings.warn(
@@ -1509,9 +1512,9 @@ class Design(AedtObjects):
         )
 
         if message_type.lower() == "project":
-            self.logger.project.error(message_text)
+            self.logger.project_logger.error(message_text)
         elif message_type.lower() == "design":
-            self.logger.design.error(message_text)
+            self.logger.design_logger.error(message_text)
         else:
             self.logger.error(message_text)
         return True
@@ -3128,10 +3131,10 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-            AedtObjects.__init__(self, is_inherithed=True)
-
         else:
             self.odesktop.SetActiveProject(legacy_name)
+        AedtObjects.__init__(self, is_inherithed=True)
+
         i = 0
         timeout = 10
         while True:

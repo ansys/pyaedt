@@ -12,7 +12,6 @@ from functools import update_wrapper
 import inspect
 import itertools
 import json
-import logging
 import math
 import os
 import random
@@ -23,6 +22,7 @@ import tempfile
 import time
 import traceback
 
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.settings import settings
 
@@ -30,6 +30,7 @@ is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
 _pythonver = sys.version_info[0]
+_python_current_release = sys.version_info[1]
 inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
 if not is_ironpython:
@@ -376,8 +377,79 @@ def open_file(file_path, file_options="r"):
             return open(local_file, file_options)
     elif os.path.exists(dir_name):
         return open(file_path, file_options)
+    elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(dir_name):
+        return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
         settings.logger.error("The file or folder %s does not exist", dir_name)
+
+
+@pyaedt_function_handler()
+def read_configuration_file(file_path):
+    """Parse a file and return the information in a list or dictionary.
+
+    Parameters
+    ----------
+    file_path : str
+        Full path to the file. Supported formats are ``"csv"``, ``"json"``, ``"tab"``, ``"toml"``, and ``"xlsx"``.
+
+    Returns
+    -------
+
+    """
+    ext = os.path.splitext(file_path)[1]
+    if ext == ".toml":
+        return read_toml(file_path)
+    elif ext == ".tab":
+        return read_tab(file_path)
+    elif ext == ".csv":
+        return read_csv(file_path)
+    elif ext == ".xlsx":
+        return read_xlsx(file_path)
+    else:
+        return read_json(file_path)
+
+
+@pyaedt_function_handler()
+def read_json(fn):
+    """Load a JSON file to a dictionary.
+
+    Parameters
+    ----------
+    fn : str
+        Full path to the JSON file.
+
+    Returns
+    -------
+    dict
+    """
+    json_data = {}
+    with open(fn) as json_file:
+        try:
+            json_data = json.load(json_file)
+        except json.JSONDecodeError as e:  # pragma: no cover
+            error = "Error reading json: {} at line {}".format(e.msg, e.lineno)
+            settings.logger.error(error)
+    return json_data
+
+
+@pyaedt_function_handler()
+def read_toml(file_path):
+    """Read a TOML file and return as a dictionary.
+
+    Parameters
+    ----------
+    file_path : str
+        Full path to the TOML file.
+
+    Returns
+    -------
+    dict
+        Parsed TOML file as a dictionary.
+    """
+    import pytomlpp as tomllib
+
+    with open_file(file_path, "rb") as fb:
+        return tomllib.load(fb)
 
 
 def _log_method(func, new_args, new_kwargs):
@@ -683,8 +755,11 @@ def _retry_ntimes(n, function, *args, **kwargs):
 
     """
     func_name = None
-    if function.__name__ == "InvokeAedtObjMethod":
-        func_name = args[1]
+    try:
+        if function.__name__ == "InvokeAedtObjMethod":
+            func_name = args[1]
+    except:
+        pass
     retry = 0
     ret_val = None
     inclusion_list = [
@@ -837,7 +912,7 @@ def read_csv_pandas(filename, encoding="utf-8"):
 
         return pd.read_csv(filename, encoding=encoding, header=0, na_values=".")
     except ImportError:
-        logging.error("Pandas is not available. Install it.")
+        pyaedt_logger.error("Pandas is not available. Install it.")
         return None
 
 
@@ -855,7 +930,7 @@ def read_tab(filename):
     list
 
     """
-    with open(filename) as my_file:
+    with open_file(filename) as my_file:
         lines = my_file.readlines()
     return lines
 
@@ -1007,6 +1082,33 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
+def _create_toml_file(input_dict, full_toml_path):
+    import pytomlpp as tomllib
+
+    if not os.path.exists(os.path.dirname(full_toml_path)):
+        os.makedirs(os.path.dirname(full_toml_path))
+
+    def _dict_toml(d):
+        new_dict = {}
+        for k, v in d.items():
+            new_k = k
+            if not isinstance(k, str):
+                new_k = str(k)
+            new_v = v
+            if isinstance(v, dict):
+                new_v = _dict_toml(v)
+            elif isinstance(v, tuple):
+                new_v = list(v)
+            new_dict[new_k] = new_v
+        return new_dict
+
+    new_dict = _dict_toml(input_dict)
+    with open_file(full_toml_path, "w") as fp:
+        tomllib.dump(new_dict, fp)
+    return True
+
+
+@pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
     if not os.path.exists(os.path.dirname(full_json_path)):
         os.makedirs(os.path.dirname(full_json_path))
@@ -1025,6 +1127,29 @@ def _create_json_file(json_dict, full_json_path):
             file.write(filedata)
         os.remove(temp_path)
     return True
+
+
+@pyaedt_function_handler()
+def write_configuration_file(dict_in, full_path):
+    """Create a configuration file in JSON or TOML format from a dictionary.
+
+    Parameters
+    ----------
+    dict_in : dict
+        Dictionary to write the file to.
+    full_path : str
+        Full path to the file, including its extension.
+
+    Returns
+    -------
+    bool
+        Conversion result.
+    """
+    ext = os.path.splitext(full_path)[1]
+    if ext == ".json":
+        return _create_json_file(dict_in, full_path)
+    elif ext == ".toml":
+        return _create_toml_file(OrderedDict(dict_in), full_path)
 
 
 # @pyaedt_function_handler()
@@ -1313,7 +1438,7 @@ def compute_fft(time_vals, value):  # pragma: no cover
     try:
         import numpy as np
     except ImportError:
-        logging.error("NumPy is not available. Install it.")
+        pyaedt_logger.error("NumPy is not available. Install it.")
         return False
 
     deltaT = time_vals[-1] - time_vals[0]
@@ -1325,6 +1450,73 @@ def compute_fft(time_vals, value):  # pragma: no cover
     n = np.arange(num_points)
     freq = n / deltaT
     return freq, valueFFT
+
+
+@pyaedt_function_handler()
+def conversion_function(data, function_str=None):  # pragma: no cover
+    """Convert input data based on a specified function string.
+
+    The available functions are:
+
+    - `"dB10"`: Converts the data to decibels using base 10 logarithm.
+    - `"dB20"`: Converts the data to decibels using base 20 logarithm.
+    - `"abs"`: Computes the absolute value of the data.
+    - `"real"`: Computes the real part of the data.
+    - `"imag"`: Computes the imaginary part of the data.
+    - `"norm"`: Normalizes the data to have values between 0 and 1.
+    - `"ang"`: Computes the phase angle of the data in radians.
+    - `"ang_deg"`: Computes the phase angle of the data in degrees.
+
+    If an invalid function string is specified, the method returns ``False``.
+
+    Parameters
+    ----------
+    data : list, numpy.array
+        Numerical values to convert. The format can be ``list`` or ``numpy.array``.
+    function_str : str, optional
+        Conversion function. The default is `"dB10"`.
+
+    Returns
+    -------
+    numpy.array or bool
+        Converted data, ``False`` otherwise.
+
+    Examples
+    --------
+    >>> data = [1, 2, 3, 4]
+    >>> conversion_function(data, "dB10")
+    array([-inf, 0., 4.77, 6.02])
+
+    >>> conversion_function(data, "abs")
+    array([1, 2, 3, 4])
+
+    >>> conversion_function(data, "ang_deg")
+    array([ 0., 0., 0., 0.])
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        logging.error("NumPy is not available. Install it.")
+        return False
+
+    function_str = function_str or "dB10"
+    available_functions = {
+        "dB10": lambda x: 10 * np.log10(np.abs(x)),
+        "dB20": lambda x: 20 * np.log10(np.abs(x)),
+        "abs": np.abs,
+        "real": np.real,
+        "imag": np.imag,
+        "norm": lambda x: np.abs(x) / np.max(np.abs(x)),
+        "ang": np.angle,
+        "ang_deg": lambda x: np.angle(x, deg=True),
+    }
+
+    if function_str not in available_functions:
+        logging.error("Specified conversion is not available.")
+        return False
+
+    data = available_functions[function_str](data)
+    return data
 
 
 def parse_excitation_file(
@@ -1366,7 +1558,7 @@ def parse_excitation_file(
     try:
         import numpy as np
     except ImportError:
-        logging.error("NumPy is not available. Install it.")
+        pyaedt_logger.error("NumPy is not available. Install it.")
         return False
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:

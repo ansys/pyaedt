@@ -1,6 +1,7 @@
 """
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -92,6 +93,7 @@ class GeometryModeler(Modeler):
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
             return partId
+        self.logger.error("Object '{}' not found.".format(partId))
         return None
 
     def __init__(self, app, is3d=True):

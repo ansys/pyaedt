@@ -160,7 +160,11 @@ edb.build_simulation_project(sim_setup)
 ###########################
 # Save EDB and open in AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
+
 edb.save_edb()
 edb.close_edb()
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", projectname=aedb_path, non_graphical=False)
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.2",
+                          projectname=aedb_path,
+                          non_graphical=False,
+                          new_desktop_session=True)
 h3d.release_desktop(False, False)

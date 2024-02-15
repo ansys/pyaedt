@@ -74,7 +74,7 @@ class Icepak(FieldAnalysis3D):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -170,9 +170,6 @@ class Icepak(FieldAnalysis3D):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @property
     def problem_type(self):
@@ -3160,7 +3157,6 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler()
     def create_two_resistor_network_block(self, object_name, pcb, power, rjb, rjc):
         """Function to create 2-Resistor network object.
-        This method is going to replace create_network_block method.
 
         Parameters
         ----------
@@ -3190,7 +3186,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> board = icepak.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
         >>> box = icepak.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
-        >>> network_block = icepak.create_two_resistor_network_block_new("network_box1", "board", "5W", 2.5, 5)
+        >>> network_block = icepak.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
         >>> network_block.props["Nodes"]["Internal"][0]
         '5W'
         """
@@ -4603,7 +4599,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
@@ -4742,7 +4738,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
@@ -4817,7 +4813,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
@@ -4900,7 +4896,7 @@ class Icepak(FieldAnalysis3D):
         oModule.AssignOpeningBoundary
 
         Examples
-        ----------
+        --------
         >>> import pyaedt
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
