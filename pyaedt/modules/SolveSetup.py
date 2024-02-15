@@ -3393,9 +3393,9 @@ class SetupQ3D(Setup, object):
 
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
-        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
+        if sweep_type in ["Interpolating", "Fast"]:
             num_of_freq_points = 401
-        elif num_of_freq_points is None and sweep_type == "Discrete":
+        elif sweep_type == "Discrete":
             num_of_freq_points = 5
         else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
@@ -3482,7 +3482,7 @@ class SetupQ3D(Setup, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
