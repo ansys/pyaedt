@@ -951,7 +951,7 @@ class ViaSettings(object):
         -------
         bool
         """
-        if self._parent._pedb.edbversion < "2024.1":
+        if self._parent._pedb.edbversion < "2024.1":  # pragma: no cover
             logger.warning("via_mesh_plating is only supported by 2024 R1 and later version.")
             return False
         else:  # pragma: no cover
