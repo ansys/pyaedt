@@ -110,7 +110,7 @@ class VirtualCompliance:
         name : str
             Name of the report.
         report_type : str
-            Report type. It can be "frequency", "eye diagram", "statistical eye", "contour eye diagram", "time".
+            Report type. Options are "contour eye diagram", "eye diagram", "frequency", "statistical eye", and "time".
         config_file : str
             Path to the config file.
         design_name : str
