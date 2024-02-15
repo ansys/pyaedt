@@ -22,6 +22,13 @@ import os.path
 from pyaedt import Hfss, Mechanical, Icepak, downloads
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. `
@@ -39,8 +46,8 @@ non_graphical = False
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain #electrical and thermal properties.
 project_path = downloads.download_file(directory="mri")
-hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version="2023.2", non_graphical=non_graphical,
-            new_desktop_session=True)
+hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version=aedt_version,
+            non_graphical=non_graphical, new_desktop_session=True)
 ###############################################################################
 # Insert 3D component
 # ~~~~~~~~~~~~~~~~~~~
@@ -151,7 +158,7 @@ hfss.save_project()
 # Initialize a new Mechanical Transient Thermal analysis.
 # Mechanical Transient Thermal is available in AEDT from 2023 R2 as a Beta feature.
 
-mech = Mechanical(solution_type="Transient Thermal", specified_version="2023.2")
+mech = Mechanical(solution_type="Transient Thermal", specified_version=aedt_version)
 
 ###############################################################################
 # Copy geometries
@@ -229,7 +236,7 @@ mech.post.plot_animated_field(quantity="Temperature",
 # ~~~~~~~~~~~~~~~~~~
 # Initialize a new Icepak Transient Thermal analysis.
 
-ipk = Icepak(solution_type="Transient", specified_version="2023.2")
+ipk = Icepak(solution_type="Transient", specified_version=aedt_version)
 ipk.design_solutions.problem_type = "TemperatureOnly"
 
 ###############################################################################

@@ -16,6 +16,13 @@ import time
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Download file
 # ~~~~~~~~~~~~~
 # Download the AEDB file and copy it in the temporary folder.
@@ -29,9 +36,9 @@ print(targetfile)
 ###############################################################################
 # Configure EDB
 # ~~~~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2.
+# Launch the :class:`pyaedt.Edb` class.
 
-edbapp = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
+edbapp = pyaedt.Edb(edbpath=targetfile, edbversion=aedt_version)
 
 ###############################################################################
 # Generate extended nets
@@ -77,8 +84,8 @@ for net_name, net_obj in diff_n.extended_net.nets.items():
     for comp_name, comp_obj in net_obj.components.items():
         if comp_obj.type not in ["Resistor", "Capacitor", "Inductor"]:
             ports.append({"port_name": "{}_{}".format(comp_name, net_name),
-                          "comp_name":comp_name,
-                          "net_name":net_name})
+                          "comp_name": comp_name,
+                          "net_name": net_name})
 
 print(*ports, sep="\n")
 
@@ -140,8 +147,10 @@ h3d = pyaedt.Hfss3dLayout(targetfile, specified_version="2023.2", new_desktop_se
 # ~~~~~~~~~~~~~~~~~~~~~
 # Set differential pair.
 
-h3d.set_differential_pair(positive_terminal="U1_PCIe_Gen4_TX3_CAP_P", negative_terminal="U1_PCIe_Gen4_TX3_CAP_N", diff_name="PAIR_U1")
-h3d.set_differential_pair(positive_terminal="X1_PCIe_Gen4_TX3_P", negative_terminal="X1_PCIe_Gen4_TX3_N", diff_name="PAIR_X1")
+h3d.set_differential_pair(positive_terminal="U1_PCIe_Gen4_TX3_CAP_P", negative_terminal="U1_PCIe_Gen4_TX3_CAP_N",
+                          diff_name="PAIR_U1")
+h3d.set_differential_pair(positive_terminal="X1_PCIe_Gen4_TX3_P", negative_terminal="X1_PCIe_Gen4_TX3_N",
+                          diff_name="PAIR_X1")
 
 ###############################################################################
 # Solve and plot results

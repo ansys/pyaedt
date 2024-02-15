@@ -15,6 +15,12 @@ import os
 import pyaedt
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -26,8 +32,6 @@ from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 non_graphical = False
 NewThread = True
-desktop_version = "2024.1"
-
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -35,7 +39,7 @@ desktop_version = "2024.1"
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
 aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
 
 

@@ -12,8 +12,14 @@ import os
 import numpy as np
 import pyaedt
 
-
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("via_opt") + ".aedb")
+
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Create stackup
@@ -38,7 +44,7 @@ def _create_ground_planes(edb, layers):
 # ~~~~~~~~~~
 # Create EDB. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 
 ##################################################################################
 # Create stackup layers

@@ -38,9 +38,13 @@ import plotly.graph_objects as go
 table_colors = {"green":'#7d73ca', "yellow":'#d359a2', "orange": '#ff6361', "red": '#ffa600', "white": '#ffffff'}
 header_color = 'grey'
 
-# Check for if emit version is compatible
-desktop_version = "2024.1"
-if desktop_version <= "2023.1":
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+if aedt_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
@@ -52,7 +56,7 @@ if desktop_version <= "2023.1":
 
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+desktop = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 
 path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")

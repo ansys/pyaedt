@@ -14,11 +14,11 @@ and run a Nexxim time-domain simulation.
 import pyaedt
 
 ###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
 
-desktop_version = "2023.2"
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -37,7 +37,7 @@ new_thread = True
 # Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
 # starts the specified version in the specified mode.
 
-desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
+desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
 aedt_app = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name())
 aedt_app.modeler.schematic.schematic_units = "mil"
 ###############################################################################

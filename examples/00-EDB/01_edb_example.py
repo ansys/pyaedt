@@ -19,15 +19,21 @@ siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
-edb_version = "2024.1"
+# Launch the :class:`pyaedt.Edb` class
+
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
+edb = pyaedt.Edb(edbpath=targetfile, edbversion=aedt_version)
 
 ###############################################################################
 # Compute nets and components

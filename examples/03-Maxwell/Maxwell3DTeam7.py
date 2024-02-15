@@ -15,6 +15,13 @@ import numpy as np
 import csv
 import os
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -32,13 +39,12 @@ non_graphical = False
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2024.1"
 
 M3D = Maxwell3d(
     projectname=generate_unique_project_name(),
     designname=Design_Name,
     solution_type=Solver,
-    specified_version=DesktopVersion,
+    specified_version=aedt_version,
     non_graphical=non_graphical,
     new_desktop_session=True
 )

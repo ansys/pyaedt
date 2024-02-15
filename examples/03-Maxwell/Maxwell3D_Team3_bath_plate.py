@@ -12,6 +12,13 @@ solve it using the Maxwell 3D Eddy Current solver.
 import os
 import pyaedt
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ##################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -30,13 +37,12 @@ non_graphical = False
 project_name = "COMPUMAG"
 design_name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-desktop_version = "2023.2"
 
 m3d = pyaedt.Maxwell3d(
     projectname=pyaedt.generate_unique_project_name(),
     designname=design_name,
     solution_type=Solver,
-    specified_version=desktop_version,
+    specified_version=aedt_version,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )

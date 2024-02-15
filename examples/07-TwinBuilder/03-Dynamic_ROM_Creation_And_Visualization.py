@@ -22,18 +22,24 @@ from pyaedt import generate_unique_project_name
 from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
 from pyaedt import settings
+
 ###############################################################################
-# Select version and set launch options
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
+# Select launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Select the Twin Builder version and set launch options. The following code
-# launches Twin Builder 2023 R2 in graphical mode.
+# Set the launch options. The following code launches Twin Builder.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non-graphical mode. You can also change the Boolean parameter
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
 
@@ -66,7 +72,7 @@ shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.pat
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the dynamic ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Dynamic ROM feature is only available with a twin builder license.

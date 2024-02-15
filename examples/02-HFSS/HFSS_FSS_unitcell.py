@@ -15,6 +15,13 @@ import pyaedt
 project_name = pyaedt.generate_unique_project_name(project_name="FSS")
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. `
@@ -25,9 +32,9 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+# Launch AEDT.
 
-d = pyaedt.launch_desktop("2024.1", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS

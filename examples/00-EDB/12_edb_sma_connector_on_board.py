@@ -17,20 +17,25 @@ This example shows how to
 #  :alt: Differential Vias.
 ######################################################################
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ######################################################################
 # Create parameterized PCB
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize an empty EDB layout object on version 2023 R2.
+# Initialize an empty EDB layout object.
 ######################################################################
 
 import os
 import numpy as np
 import pyaedt
 
-ansys_version = "2024.1"
-
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion=ansys_version)
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 print("EDB is located at {}".format(aedb_path))
 
 #####################
@@ -168,7 +173,7 @@ edb.close_edb()
 # Launch Hfss3dLayout
 # ~~~~~~~~~~~~~~~~~~~
 
-h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=ansys_version, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=aedt_version, new_desktop_session=True)
 
 ####################
 # Place 3D component

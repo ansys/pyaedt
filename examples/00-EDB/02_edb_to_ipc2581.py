@@ -26,13 +26,19 @@ ipc2581_file = os.path.join(temp_folder, "Ansys_Hsd.xml")
 
 print(targetfile)
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class.
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion=aedt_version)
 
 
 ###############################################################################

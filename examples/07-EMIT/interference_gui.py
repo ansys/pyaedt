@@ -5,6 +5,7 @@ This example uses a GUI to open an AEDT project with
 an EMIT design and analyze the results to classify the
 worst-case interference. 
 """
+
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,12 +19,6 @@ import pyaedt
 import os
 import subprocess
 import pyaedt.generic.constants as consts
-
-# Check that emit is a compatible version
-emitapp_desktop_version = "2023.2"
-if emitapp_desktop_version < "2023.2":
-    print("Must have v2023.2 or later")
-    sys.exit()
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -50,10 +45,16 @@ import openpyxl
 # plugin_path = os.path.join(dirname, 'plugins', 'platforms')
 # os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
 
+
+aedt_version = "2024.1"
+if aedt_version < "2023.2":
+    print("Must have v2023.2 or later")
+    sys.exit()
+
 # Launch EMIT
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thread)
+desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
 
 # Add emitapi to system path
 emit_path = os.path.join(desktop.install_path, "Delcross")

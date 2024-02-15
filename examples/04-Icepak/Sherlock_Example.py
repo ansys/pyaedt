@@ -19,6 +19,13 @@ project_folder = pyaedt.generate_unique_folder_name()
 input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -45,7 +52,7 @@ outline_polygon_name = "poly_14188"
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)

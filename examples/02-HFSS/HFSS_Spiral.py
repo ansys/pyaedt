@@ -14,6 +14,13 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +35,7 @@ non_graphical = False
 # Launch HFSS 2023 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(specified_version="2023.2", non_graphical=non_graphical, designname="A1", new_desktop_session=True)
+hfss = pyaedt.Hfss(specified_version=aedt_version, non_graphical=non_graphical, designname="A1", new_desktop_session=True)
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 

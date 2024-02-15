@@ -72,19 +72,25 @@ armour_params = {
     "n_arm_strands": str(n_arm_strands)
 }
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #################################################################################
 # Initialize Q2D
 # ~~~~~~~~~~~~~~
 # Initialize Q2D, providing the version, path to the project, and the design
 # name and type.
 
-desktop_version = "2023.2"
 project_name = 'Q2D_ArmouredCableExample'
 q2d_design_name = '2D_Extractor_Cable'
 setup_name = "MySetupAuto"
 sweep_name = "sweep1"
 tb_design_name = 'CableSystem'
-q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktop_version)
+q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=aedt_version)
 
 ##########################################################
 # Define variables from dictionaries

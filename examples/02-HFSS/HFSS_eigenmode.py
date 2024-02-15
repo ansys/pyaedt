@@ -38,11 +38,11 @@ temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
 
 ###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
 
-desktop_version = "2024.1"
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -57,7 +57,7 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS

@@ -19,10 +19,17 @@ This example shows how to
 #  :alt: Connector from Vias.
 ######################################################################
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ######################################################################
 # Create connector component from pad-stack
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize an empty EDB layout object on version 2023 R2.
+# Initialize an empty EDB layout object.
 ######################################################################
 
 import os
@@ -33,7 +40,7 @@ aedb_path = os.path.join(pyaedt.generate_unique_folder_name(),
                          pyaedt.generate_unique_name("component_example") + ".aedb")
 
 
-edb = Edb(edbpath=aedb_path, edbversion="2023.2")
+edb = Edb(edbpath=aedb_path, edbversion=aedt_version)
 print("EDB is located at {}".format(aedb_path))
 
 ######################
@@ -163,7 +170,7 @@ edb.build_simulation_project(sim_setup)
 
 edb.save_edb()
 edb.close_edb()
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2",
+h3d = pyaedt.Hfss3dLayout(specified_version=aedt_version,
                           projectname=aedb_path,
                           non_graphical=False,
                           new_desktop_session=True)

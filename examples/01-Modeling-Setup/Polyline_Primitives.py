@@ -13,18 +13,26 @@ import os
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
+
 ###############################################################################
 # Create Maxwell 3D object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a :class:`pyaedt.maxwell.Maxwell3d` object and set the unit type to ``"mm"``.
 
-M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2023.2",
+M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version=aedt_version,
                        new_desktop_session=True, non_graphical=non_graphical, )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler

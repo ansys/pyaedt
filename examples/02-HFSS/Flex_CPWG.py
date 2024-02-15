@@ -14,6 +14,13 @@ from math import radians, sin, cos, sqrt
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -26,7 +33,7 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(specified_version="2024.1",
+hfss = pyaedt.Hfss(specified_version=aedt_version,
                    solution_type="DrivenTerminal",
                    new_desktop_session=True,
                    non_graphical=non_graphical)

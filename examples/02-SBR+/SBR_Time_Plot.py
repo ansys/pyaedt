@@ -14,6 +14,13 @@ import os
 from pyaedt import Hfss, downloads
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -28,7 +35,7 @@ non_graphical = False
 
 project_file = downloads.download_sbr_time()
 
-hfss = Hfss(projectname=project_file, specified_version="2024.1", non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(projectname=project_file, specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze()
 

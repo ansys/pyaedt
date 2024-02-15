@@ -7,6 +7,13 @@ import os
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -25,7 +32,6 @@ diel_height = "121mil"
 sig_height = "5mil"
 max_steps = 3
 freq = "3GHz"
-desktop_version = "2023.2"
 new_session = True
 
 ###############################################################################
@@ -46,7 +52,7 @@ component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcom
 # ~~~~~~~~~~~
 # Launch HFSS application
 
-hfss = pyaedt.Hfss(new_desktop_session=True, specified_version="2023.2", non_graphical=non_graphical)
+hfss = pyaedt.Hfss(new_desktop_session=True, specified_version=aedt_version, non_graphical=non_graphical)
 
 hfss.solution_type = "Terminal"
 

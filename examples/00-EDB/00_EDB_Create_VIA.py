@@ -12,6 +12,13 @@ This example shows how you can use EDB to create a layout.
 #  :alt: Differential Vias.
 ######################################################################
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ######################################################################
 # Import EDB layout object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,7 +33,7 @@ start = time.time()
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 
 ####################
 # Add stackup layers
@@ -92,6 +99,7 @@ edb.stackup.plot(plot_definitions="MyVia")
 if edb:
     edb.save_edb()
     edb.close_edb()
+
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 end = time.time() - start
 print(end)

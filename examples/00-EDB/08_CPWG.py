@@ -8,12 +8,18 @@ for a CPWG (coplanar waveguide with ground).
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2023 R2.
+# Perform required imports. Importing the ``Hfss3dlayout``.
 
 import pyaedt
 import os
 import numpy as np
+
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -29,7 +35,7 @@ non_graphical = False
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edbapp = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
+edbapp = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 
 ###############################################################################
 # Define parameters
@@ -123,7 +129,7 @@ edbapp.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2024.1",
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version=aedt_version,
                           non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################

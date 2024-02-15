@@ -13,6 +13,13 @@ import os
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -24,12 +31,12 @@ project_path = pyaedt.generate_unique_project_name()
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q = pyaedt.Q2d(projectname=project_path,
                designname="differential_stripline",
-               specified_version="2024.1",
+               specified_version=aedt_version,
                non_graphical=non_graphical,
                new_desktop_session=True
                )

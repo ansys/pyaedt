@@ -9,11 +9,17 @@ run anlasyis and get results.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2023 R2.
+# Perform required imports. Importing the ``Hfss3dlayout`` object initializes it.
 
 import os
 import pyaedt
+
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -37,7 +43,7 @@ print("Project folder will be", target_aedb)
 # ~~~~~~~~~~
 # Launch the :class:`pyaedt.Edb` class, using EDB 2024R1 and SI units.
 
-edbapp = pyaedt.Edb(target_aedb, edbversion="2024.1")
+edbapp = pyaedt.Edb(target_aedb, edbversion=aedt_version)
 ###############################################################################
 # Import Definitions
 # ~~~~~~~~~~~~~~~~~~
@@ -174,7 +180,8 @@ edbapp.close_edb()
 # Open Aedt
 # ~~~~~~~~~
 # Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = pyaedt.Hfss3dLayout(specified_version="2024.1", projectname=target_aedb, non_graphical=non_graphical, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(specified_version=aedt_version, projectname=target_aedb, non_graphical=non_graphical,
+                          new_desktop_session=True)
 
 ###############################################################################
 # Analyze

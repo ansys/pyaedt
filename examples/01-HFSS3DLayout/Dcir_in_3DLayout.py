@@ -18,11 +18,17 @@ dst_dir = os.path.join(temp_dir, pyaedt.generate_unique_name("pyaedt_dcir"))
 os.mkdir(dst_dir)
 local_path = pyaedt.downloads.download_aedb(dst_dir)
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #####################################################################################
 # Load example board into EDB
 
-edbversion = "2023.2"
-appedb = pyaedt.Edb(local_path, edbversion=edbversion)
+appedb = pyaedt.Edb(local_path, edbversion=aedt_version)
 
 #####################################################################################
 # Create pin group on VRM positive pins
@@ -92,7 +98,7 @@ appedb.close_edb()
 # Analysis DCIR in AEDT
 # ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and import the configured EDB and analysis DCIR
-desktop = pyaedt.Desktop(edbversion, non_graphical=False, new_desktop_session=True)
+desktop = pyaedt.Desktop(aedt_version, non_graphical=False, new_desktop_session=True)
 hfss3dl = pyaedt.Hfss3dLayout(local_path)
 hfss3dl.analyze()
 hfss3dl.save_project()

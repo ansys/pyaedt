@@ -13,20 +13,27 @@ import os
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktop_version = "2024.1"
+
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(specified_version=desktop_version,
+q = pyaedt.Q2d(specified_version=aedt_version,
                non_graphical=non_graphical,
                new_desktop_session=True,
                projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
@@ -123,7 +130,7 @@ q.modeler.create_rectangle(
 
 sm_obj_list = []
 ids = [1,2,3]
-if desktop_version >= "2023.1":
+if aedt_version >= "2023.1":
     ids = [0,1,2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:

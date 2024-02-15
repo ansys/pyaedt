@@ -21,13 +21,19 @@ temp_folder = pyaedt.generate_unique_folder_name()
 
 targetfolder = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_folder)
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class.
 
-edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=targetfolder, edbversion=aedt_version)
 
 ###############################################################################
 # Plot custom set of nets colored by layer

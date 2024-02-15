@@ -20,18 +20,22 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 ###############################################################################
-## Set non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
-# 
-# The following code uses AEDT 2023 R2.
 
 non_graphical = False
 NewThread = True
-desktop_version = "2024.1"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
@@ -40,7 +44,7 @@ scratch_path = pyaedt.generate_unique_folder_name()
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
 
 temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
 if not os.path.exists(temp_folder):
@@ -115,7 +119,7 @@ for link in aedtapp.couplings.coupling_names:
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
 
-if desktop_version > "2023.1":
+if aedt_version > "2023.1":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX) 
     tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX) 

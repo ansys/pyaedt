@@ -14,6 +14,13 @@ from pyaedt import generate_unique_folder_name
 from pyaedt import Maxwell3d
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -34,7 +41,7 @@ aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments
 # Launch Maxwell 3D.
 
 m3d = Maxwell3d(projectname=aedt_file,
-                specified_version="2023.2",
+                specified_version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 

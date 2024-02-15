@@ -46,6 +46,13 @@ non_graphical = False
 new_thread = True
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Save the project and results in the TEMP folder
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -56,7 +63,7 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 # Instantiate the HFSS application
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version="2024.1",
+                   specified_version=aedt_version,
                    designname="filter",
                    non_graphical=non_graphical,
                    new_desktop_session=True,

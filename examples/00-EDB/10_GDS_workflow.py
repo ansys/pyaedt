@@ -27,7 +27,15 @@ c_file_in = os.path.join(
 c_map = os.path.join(local_path, "dummy_layermap.map")
 gds_in = os.path.join(local_path, "sky130_fictitious_dtc_example.gds")
 gds_out = os.path.join(temppath, "example.gds")
-shutil.copy2(gds_in,gds_out )
+shutil.copy2(gds_in, gds_out)
+
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Control file
 # ~~~~~~~~~~~~
@@ -37,7 +45,6 @@ shutil.copy2(gds_in,gds_out )
 # and then adding setup and boundaries.
 
 c = ControlFile(c_file_in, layer_map=c_map)
-
 
 ###############################################################################
 # Simulation setup
@@ -88,7 +95,7 @@ c.write_xml(os.path.join(temppath, "output.xml"))
 
 from pyaedt import Edb
 
-edb = Edb(gds_out, edbversion="2024.1", technology_file=os.path.join(temppath, "output.xml"))
+edb = Edb(gds_out, edbversion=aedt_version, technology_file=os.path.join(temppath, "output.xml"))
 
 ###############################################################################
 # Plot Stackup

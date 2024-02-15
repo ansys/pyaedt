@@ -14,6 +14,13 @@ import os
 from pyaedt import Hfss
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -30,7 +37,7 @@ non_graphical = False
 app = Hfss(
     designname="Ansys",
     solution_type="SBR+",
-    specified_version="2024.1",
+    specified_version=aedt_version,
     new_desktop_session=True,
     non_graphical=non_graphical
 )

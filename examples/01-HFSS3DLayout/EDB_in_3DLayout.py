@@ -26,6 +26,13 @@ print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -35,19 +42,12 @@ non_graphical = False
 NewThread = True
 
 ###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2022R2 in graphical mode using SI units.
-
-desktopVersion = "2024.1"
-
-###############################################################################
 # Initialize AEDT and launch HFSS 3D Layout
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize AEDT and launch HFSS 3D Layout.
 # The ``h3d`` object contains the :class:`pyaedt.Edb` class query methods.
 
-d = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
+d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 h3d = pyaedt.Hfss3dLayout(targetfile)

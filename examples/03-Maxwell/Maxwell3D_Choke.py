@@ -13,13 +13,19 @@ import os
 import pyaedt
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-version = "2023.2"
 
 ###############################################################################
 # Launch Maxwell3D
@@ -28,7 +34,7 @@ version = "2023.2"
 
 m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",
-                       specified_version=version,
+                       specified_version=aedt_version,
                        non_graphical=non_graphical,
                        new_desktop_session=True
                        )

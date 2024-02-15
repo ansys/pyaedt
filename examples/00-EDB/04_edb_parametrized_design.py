@@ -8,10 +8,17 @@ This example shows how you can use HFSS 3D Layout to create and solve a parametr
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
-# and initializing it on version 2023 R2.
+# and initializing it.
 
 import pyaedt
 import os
+
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -27,7 +34,7 @@ non_graphical = False
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 
 ######################################################################
 # Define parameters
@@ -281,7 +288,7 @@ edb.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2024.1",
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version=aedt_version,
                           non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################

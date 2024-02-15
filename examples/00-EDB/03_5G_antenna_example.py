@@ -13,6 +13,13 @@ import tempfile
 import pyaedt
 import os
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -72,7 +79,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 
 
 ###############################################################################
@@ -80,6 +87,7 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
 # ~~~~~~~~~~~~~~~~~~
 # Add the stackup layers.
 #
+
 if edb:
     edb.stackup.add_layer("Virt_GND")
     edb.stackup.add_layer("Gap", "Virt_GND", layer_type="dielectric", thickness="0.05mm", material="Air")
@@ -213,7 +221,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS 3D Layout and open EDB.
 
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2024.1", new_desktop_session=True,
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version=aedt_version, new_desktop_session=True,
                           non_graphical=non_graphical)
 
 ###############################################################################

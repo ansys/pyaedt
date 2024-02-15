@@ -8,21 +8,26 @@ This example shows how you can use EDB to create a layout component parametrics 
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
-# and initializing it on version 2023 R2.
+# and initializing it.
 
 import tempfile
 import pyaedt
 import os
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
-
-
 non_graphical = False
+
 
 ##########################################################
 # Creating data classes
@@ -77,6 +82,7 @@ class LinearArray:
             [-1e-3, "{}/2+1e-3".format(self.width)],
         ]
 
+
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
@@ -86,13 +92,12 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2024.1")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=aedt_version)
 
 ###############################################################################
 # Add stackup layers
 # ~~~~~~~~~~~~~~~~~~
 # Add the stackup layers.
-
 
 
 edb.stackup.add_layer("Virt_GND")
@@ -105,7 +110,6 @@ edb.stackup.add_layer("TOP", "Substrat")
 # Create linear array
 # ~~~~~~~~~~~~~~~~~~~
 # Create the first patch of the linear array.
-
 
 
 edb["w1"] = 1.4e-3
@@ -184,34 +188,37 @@ edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
 edb.padstacks.create("gnd_via", "100um", "0", "0")
 edb["via_spacing"] = 0.2e-3
 con_ref1 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[0][0], "via_spacing"), "{} + {}".format(first_patch.points[0][1], "via_spacing")],
+    ["{} + {}".format(first_patch.points[0][0], "via_spacing"),
+     "{} + {}".format(first_patch.points[0][1], "via_spacing")],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
 con_ref2 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[1][0], "-via_spacing"), "{} + {}".format(first_patch.points[1][1], "via_spacing")],
+    ["{} + {}".format(first_patch.points[1][0], "-via_spacing"),
+     "{} + {}".format(first_patch.points[1][1], "via_spacing")],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
 con_ref3 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[2][0], "-via_spacing"), "{} + {}".format(first_patch.points[2][1], "-via_spacing")],
+    ["{} + {}".format(first_patch.points[2][0], "-via_spacing"),
+     "{} + {}".format(first_patch.points[2][1], "-via_spacing")],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
 con_ref4 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[3][0], "via_spacing"), "{} + {}".format(first_patch.points[3][1], "-via_spacing")],
+    ["{} + {}".format(first_patch.points[3][0], "via_spacing"),
+     "{} + {}".format(first_patch.points[3][1], "-via_spacing")],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
-
 
 ################################################################################
 # Add excitation port
@@ -222,7 +229,6 @@ con_ref4 = edb.padstacks.place(
 edb.padstacks.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
 port_name = edb.padstacks.create_coax_port(con_pin)
 
-
 ###############################################################################
 # Plot geometry
 # ~~~~~~~~~~~~~
@@ -230,7 +236,6 @@ port_name = edb.padstacks.create_coax_port(con_pin)
 
 
 edb.nets.plot()
-
 
 ###############################################################################
 # Save and close Edb instance prior to opening it in Electronics Desktop.
@@ -242,13 +247,12 @@ edb.save_edb()
 edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
-
 ###############################################################################
 # Launch HFSS 3D
 # ~~~~~~~~~~~~~~
 # Launch HFSS 3D.
 
-h3d = pyaedt.Hfss(specified_version="2024.1", new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
+h3d = pyaedt.Hfss(specified_version=aedt_version, new_desktop_session=True, close_on_exit=True, solution_type="Terminal")
 
 ###############################################################################
 # Add the layout component
@@ -268,7 +272,7 @@ component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=Tru
 component.parameters
 
 w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
-h3d[w1_name]= 0.0015
+h3d[w1_name] = 0.0015
 
 ###############################################################################
 # Boundaries
@@ -279,8 +283,7 @@ h3d[w1_name]= 0.0015
 
 h3d.modeler.fit_all()
 
-
-h3d.modeler.create_air_region(130,400,1000, 130,400,300)
+h3d.modeler.create_air_region(130, 400, 1000, 130, 400, 300)
 h3d.assign_radiation_boundary_to_objects("Region")
 
 ###############################################################################
@@ -298,12 +301,12 @@ h3d.assign_radiation_boundary_to_objects("Region")
 
 setup = h3d.create_setup()
 
-setup.props['Frequency']="20GHz"
+setup.props['Frequency'] = "20GHz"
 setup.props['MaximumPasses'] = 2
 
 sweep1 = setup.add_sweep()
-sweep1.props["RangeStart"]="20GHz"
-sweep1.props["RangeEnd"]="50GHz"
+sweep1.props["RangeStart"] = "20GHz"
+sweep1.props["RangeEnd"] = "50GHz"
 sweep1.update()
 
 ###############################################################################
@@ -312,11 +315,7 @@ sweep1.update()
 # Solve the project and create a report.
 
 
-
 h3d.analyze()
-
-
-
 
 ###############################################################################
 # Plot results outside AEDT
@@ -326,7 +325,6 @@ h3d.analyze()
 trace = h3d.get_traces_for_plot()
 solution = h3d.post.get_solution_data(trace[0])
 solution.plot()
-
 
 ################################################################################
 # Plot Far Fields in AEDT
@@ -338,14 +336,12 @@ variations = {}
 variations["Freq"] = ["20GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-h3d.insert_infinite_sphere( name="3D")
-
+h3d.insert_infinite_sphere(name="3D")
 
 new_report = h3d.post.reports_by_category.far_field("db(RealizedGainTotal)", h3d.nominal_adaptive, "3D")
 new_report.variations = variations
 new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
-
 
 ################################################################################
 # Plot Far Fields in AEDT
@@ -353,17 +349,14 @@ new_report.create("Realized2D")
 # Plot Radiation patterns in AEDT.
 
 
-
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
-
 
 ################################################################################
 # Plot Far Fields outside AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot Radiation patterns outside AEDT.
-
 
 
 solutions_custom = new_report.get_solution_data()
@@ -376,12 +369,11 @@ solutions_custom.plot_3d()
 
 
 h3d.post.create_fieldplot_layers_nets(
-            [["TOP","Array_antenna"]],
-            "Mag_E",
-            intrinsics={"Freq":"20GHz", "Phase": "0deg"},
-            plot_name="E_Layers",
-        )
-
+    [["TOP", "Array_antenna"]],
+    "Mag_E",
+    intrinsics={"Freq": "20GHz", "Phase": "0deg"},
+    plot_name="E_Layers",
+)
 
 ###############################################################################
 # Close AEDT
@@ -393,6 +385,3 @@ h3d.post.create_fieldplot_layers_nets(
 
 h3d.save_project(os.path.join(tmpfold, "test_layout.aedt"))
 h3d.release_desktop()
-
-
-

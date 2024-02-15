@@ -15,17 +15,22 @@ import matplotlib.pyplot as plt
 import pyaedt
 
 ###############################################################################
-# Select version and set launch options
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
+# Select launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Select the Twin Builder version and set the launch options. The following code
-# launches Twin Builder 2023 R2 in graphical mode.
+# Set the launch options. The following code launches Twin Builder.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non-graphical mode. You can also change the Boolean parameter
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
 

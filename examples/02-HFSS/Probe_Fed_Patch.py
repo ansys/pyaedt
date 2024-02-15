@@ -19,6 +19,13 @@ import tempfile
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is set to ``False``
@@ -26,11 +33,8 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 #
 # You can set ``non_graphical``  to ``True`` to view
 # HFSS while the notebook cells are executed.
-#
-# Use the 2023R2 release of HFSS.
 
-non_graphical = True  # Set to False to launch the AEDT UI.
-desktop_version = "2024.1"
+non_graphical = True
 length_units = "mm"
 freq_units = "GHz"
 
@@ -60,7 +64,7 @@ hfss = pyaedt.Hfss(projectname=proj_name,
                    solution_type="Terminal",
                    designname="patch",
                    non_graphical=non_graphical,
-                   specified_version=desktop_version)
+                   specified_version=aedt_version)
 
 hfss.modeler.model_units = length_units
 

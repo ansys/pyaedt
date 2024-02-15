@@ -14,6 +14,13 @@ import os
 import pyaedt
 from pyaedt.modules.solutions import FfdSolutionData
 
+###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +41,7 @@ example_path = pyaedt.downloads.download_3dcomponent()
 # Launch HFSS and save the project.
 project_name = pyaedt.generate_unique_project_name(project_name="array")
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2024.1",
+                   specified_version=aedt_version,
                    designname="Array_Simple",
                    non_graphical=non_graphical,
                    new_desktop_session=True)

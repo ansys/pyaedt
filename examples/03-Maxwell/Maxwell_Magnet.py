@@ -14,6 +14,13 @@ from pyaedt import generate_unique_project_name
 import os
 
 ###############################################################################
+# AEDT version
+# ~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -24,10 +31,10 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+# Launch AEDT.
 
 m3d = Maxwell3d(projectname=generate_unique_project_name(),
-                specified_version="2023.2",
+                specified_version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 
