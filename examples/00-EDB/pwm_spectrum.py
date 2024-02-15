@@ -72,7 +72,7 @@ for m in range(n_pwm_cycles):  # Build the transient PWM signal.
 lpf = lambda _w, _f: np.convolve(_w / _w.sum(), _f, mode="valid")
 spectrum = lambda _f: np.fft.fft(_f, norm="forward")
 
-# ## Rise and Fall time
+# ## Rise and fall time
 # Define the rise and fall times for plotting.
 
 trf = np.array([50, 500, 5000]) * 1e-9  # Use 3 values of the rise/fall time to compare spectra.
