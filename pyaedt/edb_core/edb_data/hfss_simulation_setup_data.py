@@ -1,3 +1,4 @@
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.edb_core.edb_data.simulation_setup import BaseSimulationSetup
 from pyaedt.edb_core.edb_data.simulation_setup import EdbFrequencySweep
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -950,12 +951,19 @@ class ViaSettings(object):
         -------
         bool
         """
-        return self._via_settings.ViaMeshPlating
+        if self._parent._pedb.edbversion < "2024.1":
+            logger.warning("via_mesh_plating is only supported by 2024 R1 and later version.")
+            return False
+        else:  # pragma: no cover
+            return self._via_settings.ViaMeshPlating
 
     @via_mesh_plating.setter
     def via_mesh_plating(self, value):
-        self._via_settings.ViaMeshPlating = value
-        self._parent._update_setup()
+        if self._parent._pedb.edbversion < "2024.1":
+            logger.warning("via_mesh_plating is only supported by 2024 R1 and later version.")
+        else:  # pragma: no cover
+            self._via_settings.ViaMeshPlating = value
+            self._parent._update_setup()
 
     @property
     def via_material(self):
