@@ -352,10 +352,10 @@ data = [
 ]
 
 ################################################################################
-# Write dataset values in a .csv file
+# Write dataset values in a CSV file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Dataset details are used to encode test parameters in the text files.
-# For example, ``Bz A1_B1 050 0`` is the Z component of flux density ``B``
+# For example, ``Bz A1_B1 050 0`` is the Z component of flux density ``B``.
 # along line ``A1_B1`` at 50 Hz and 0 deg.
 
 line_length.insert(0, header[0])
@@ -368,9 +368,9 @@ for i in range(len(dataset)):
 ################################################################################
 # Create rectangular plots and import test data into report
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create rectangular plots, using text file encoding to control their formatting
-# and import test data into correct plot and overlay with simulation results.
-# Variations for DC plot need different frequency and phase than the other plots.
+# Create rectangular plots, using text file encoding to control their formatting.
+# Import test data into correct plot and overlay with simulation results.
+# Variations for a DC plot must have different frequency and phase than the other plots.
 
 for item in range(len(dataset)):
     if item % 2 == 0:
@@ -423,7 +423,7 @@ m3d.post.create_fieldplot_surface(surf_list, "Mesh", intrinsincDict=intrinsic_di
 ####################################################################################################
 # Release AEDT and clean up temporary directory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Release AEDT and remove both project and temporary directory.
+# Release AEDT and remove both the project and temporary directories.
 
 m3d.release_desktop(True, True)
 temp_dir.cleanup()
