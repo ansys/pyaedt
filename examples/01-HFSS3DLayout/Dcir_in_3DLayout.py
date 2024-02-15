@@ -49,6 +49,7 @@ appedb.siwave.create_pin_group_on_net(
 
 #####################################################################################
 # Create voltage source between VRM positive and negative pin groups
+
 appedb.siwave.create_voltage_source_on_pin_group(
     pos_pin_group_name="U3A1-BST_V3P3_S5",
     neg_pin_group_name="U3A1-GND",
@@ -103,14 +104,6 @@ hfss3dl = pyaedt.Hfss3dLayout(local_path)
 hfss3dl.analyze()
 hfss3dl.save_project()
 
-###############################################################################
-# Get element data
-# ~~~~~~~~~~~~~~~~~~~
-# Get loop resistance
-
-loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
-print(loop_resistance)
-
 # ~~~~~~~~~~~~~~~~~~~
 # Get current source
 
@@ -132,10 +125,9 @@ voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Sources",
     category="Voltage")
-print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
+print({expression: voltage.data_magnitude(expression) for expression in voltage.expressions})
 
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-hfss3dl.close_project()
 desktop.release_desktop()

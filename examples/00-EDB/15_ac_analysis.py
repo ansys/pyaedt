@@ -140,7 +140,7 @@ edbapp.close_edb()
 # ~~~~~~~~~~~~~~~~~~~
 # To do SYZ analysis, you must launch HFSS 3D Layout and import EDB into it.
 
-h3d = pyaedt.Hfss3dLayout(targetfile, specified_version="2023.2", new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(targetfile, specified_version=aedt_version, new_desktop_session=True)
 
 ###############################################################################
 # Set differential pair

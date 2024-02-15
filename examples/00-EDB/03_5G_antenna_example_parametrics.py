@@ -268,9 +268,6 @@ component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=Tru
 # ~~~~~~~~~~~~~~~
 # If a layout component is parametric, parameters can be exposed and changed in HFSS
 
-
-component.parameters
-
 w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
 h3d[w1_name] = 0.0015
 
@@ -292,12 +289,10 @@ h3d.assign_radiation_boundary_to_objects("Region")
 # Getters and setters facilitate the settings on the nested property dictionary.
 # 
 # - ``setup.props['Frequency']="20GHz"``
-# 
-# 
+#
 # You can now use the simpler approach that follows.
 # 
 # 
-
 
 setup = h3d.create_setup()
 
@@ -314,8 +309,7 @@ sweep1.update()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the project and create a report.
 
-
-h3d.analyze()
+h3d.analyze(num_cores=4)
 
 ###############################################################################
 # Plot results outside AEDT
@@ -330,7 +324,6 @@ solution.plot()
 # Plot Far Fields in AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Plot Radiation patterns in AEDT.
-
 
 variations = {}
 variations["Freq"] = ["20GHz"]
@@ -348,7 +341,6 @@ new_report.create("Realized2D")
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Plot Radiation patterns in AEDT.
 
-
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
@@ -358,7 +350,6 @@ new_report.create("Realized3D")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot Radiation patterns outside AEDT.
 
-
 solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
@@ -366,7 +357,6 @@ solutions_custom.plot_3d()
 # Plot E Field on nets and layers
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot E Field on nets and layers in AEDT.
-
 
 h3d.post.create_fieldplot_layers_nets(
     [["TOP", "Array_antenna"]],
@@ -382,6 +372,5 @@ h3d.post.create_fieldplot_layers_nets(
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-
-h3d.save_project(os.path.join(tmpfold, "test_layout.aedt"))
+h3d.save_project()
 h3d.release_desktop()

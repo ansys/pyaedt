@@ -10,7 +10,7 @@ This example shows how you can use PyAEDT to create a project in HFSS and create
 # Perform required imports.
 
 import pyaedt
-
+import sys
 import os
 
 ###############################################################################
@@ -37,6 +37,12 @@ non_graphical = False
 hfss = pyaedt.Hfss(specified_version=aedt_version, new_desktop_session=True, non_graphical=non_graphical)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
+
+if hfss.aedt_version_id >= "2023.2" and hfss.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions"
+                                                                     "/EnableLegacyOptimetricsTools") == 0:
+    print("Optimetrics is not enabled.")
+    hfss.release_desktop()
+    sys.exit()
 
 ###############################################################################
 # Create waveguide with sheets on it

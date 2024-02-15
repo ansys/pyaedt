@@ -120,5 +120,4 @@ h3d.modeler.fit_all()
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-h3d.close_project()
 d.release_desktop()

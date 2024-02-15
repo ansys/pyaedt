@@ -66,11 +66,11 @@ plane_lw_pt = ["0mm", "-3mm"]
 plane_up_pt = ["$ms_length", "3mm"]
 
 top_layer_obj = edbapp.modeler.create_rectangle("TOP", net_name="gnd",
-                                                        lower_left_point=plane_lw_pt,
-                                                        upper_right_point=plane_up_pt)
+                                                lower_left_point=plane_lw_pt,
+                                                upper_right_point=plane_up_pt)
 bot_layer_obj = edbapp.modeler.create_rectangle("BOTTOM", net_name="gnd",
-                                                        lower_left_point=plane_lw_pt,
-                                                        upper_right_point=plane_up_pt)
+                                                lower_left_point=plane_lw_pt,
+                                                upper_right_point=plane_up_pt)
 layer_dict = {"TOP": top_layer_obj,
               "BOTTOM": bot_layer_obj}
 
@@ -81,12 +81,12 @@ layer_dict = {"TOP": top_layer_obj,
 
 trace_path = [["0", "0"], ["$ms_length", "0"]]
 edbapp.modeler.create_trace(trace_path,
-                                    layer_name="TOP",
-                                    width="$ms_width",
-                                    net_name="sig",
-                                    start_cap_style="Flat",
-                                    end_cap_style="Flat"
-                                    )
+                            layer_name="TOP",
+                            width="$ms_width",
+                            net_name="sig",
+                            start_cap_style="Flat",
+                            end_cap_style="Flat"
+                            )
 
 ###############################################################################
 # Create trace to plane clearance
@@ -94,9 +94,9 @@ edbapp.modeler.create_trace(trace_path,
 # Create a trace to the plane clearance.
 
 poly_void = edbapp.modeler.create_trace(trace_path, layer_name="TOP", net_name="gnd",
-                                                width="{}+2*{}".format("$ms_width", "$ms_clearance"),
-                                                start_cap_style="Flat",
-                                                end_cap_style="Flat")
+                                        width="{}+2*{}".format("$ms_width", "$ms_clearance"),
+                                        start_cap_style="Flat",
+                                        end_cap_style="Flat")
 edbapp.modeler.add_void(layer_dict["TOP"], poly_void)
 
 ###############################################################################
@@ -105,9 +105,9 @@ edbapp.modeler.add_void(layer_dict["TOP"], poly_void)
 # Create a ground via padstack and place ground stitching vias.
 
 edbapp.padstacks.create(padstackname="GVIA",
-                                     holediam="0.3mm",
-                                     paddiam="0.5mm",
-                                     )
+                        holediam="0.3mm",
+                        paddiam="0.5mm",
+                        )
 
 yloc_u = "$ms_width/2+$ms_clearance+0.25mm"
 yloc_l = "-$ms_width/2-$ms_clearance-0.25mm"
@@ -137,8 +137,10 @@ h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version=aedt_version,
 # ~~~~~~~~~~~~~~~~~
 # Create wave ports.
 
-h3d.create_edge_port("line_3", 0, iswave=True, wave_vertical_extension=10, wave_horizontal_extension=10)
-h3d.create_edge_port("line_3", 2, iswave=True, wave_vertical_extension=10, wave_horizontal_extension=10)
+h3d.create_edge_port("line__3", 0, iswave=True, wave_vertical_extension=10,
+                     wave_horizontal_extension=-10)
+h3d.create_edge_port("line__3", 2, iswave=True, wave_vertical_extension=10,
+                     wave_horizontal_extension=-10)
 
 ###############################################################################
 # Edit airbox extents
@@ -154,9 +156,9 @@ h3d.edit_hfss_extents(air_vertical_positive_padding="10mm",
 # Create an HFSS simulation setup.
 
 setup = h3d.create_setup()
-setup["MaxPasses"]=2
-setup["AdaptiveFrequency"]="3GHz"
-setup["SaveAdaptiveCurrents"]=True
+setup["MaxPasses"] = 2
+setup["AdaptiveFrequency"] = "3GHz"
+setup["SaveAdaptiveCurrents"] = True
 h3d.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
@@ -196,8 +198,8 @@ solutions = h3d.get_touchstone_data()[0]
 solutions.log_x = False
 solutions.plot()
 
-h3d.post.create_fieldplot_cutplane(cp_name, "Mag_E", h3d.nominal_adaptive, intrinsincDict={"Freq":"3GHz", "Phase":"0deg"})
+h3d.post.create_fieldplot_cutplane(cp_name, "Mag_E", h3d.nominal_adaptive,
+                                   intrinsincDict={"Freq": "3GHz", "Phase": "0deg"})
 
 # Release AEDT.
 h3d.release_desktop()
-
