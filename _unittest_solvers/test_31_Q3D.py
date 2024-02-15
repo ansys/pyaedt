@@ -107,7 +107,6 @@ class TestClass:
         assert self.aedtapp.auto_identify_nets()
         assert self.aedtapp.delete_all_nets()
         assert self.aedtapp.auto_identify_nets()
-        pass
 
     def test_07_create_source_sinks(self):
         source = self.aedtapp.source("MyCylinder", axisdir=0, name="Source1")
