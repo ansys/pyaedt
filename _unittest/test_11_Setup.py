@@ -231,7 +231,6 @@ class TestClass:
         assert "rd" in el[2]
         assert self.aedtapp.optimizations.delete(setup2.name)
 
-    @pytest.mark.skipif(skip_optimetrics, reason="Legacy optimetrics disabled.")
     def test_27_create_doe(self):
         calculation = "db(S(1,1))"
         new_setup = self.aedtapp.create_setup("MyDOESetup")
@@ -246,17 +245,16 @@ class TestClass:
         assert setup2.add_variation("w1", 0.1, 10)
         assert setup2.add_variation("w2", 0.1, 10)
         assert setup2
-        if desktop_version < "2024.1":
-            assert setup2.add_goal(
-                calculation="dB(S(1,1))",
-                ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
-            assert setup2.add_calculation(
-                calculation="dB(S(1,1))",
-                ranges={"Freq": "2.5GHz"},
-                solution="{} : {}".format(new_setup.name, sweep.name),
-            )
+        assert setup2.add_goal(
+            calculation="dB(S(1,1))",
+            ranges={"Freq": "2.5GHz"},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
+        assert setup2.add_calculation(
+            calculation="dB(S(1,1))",
+            ranges={"Freq": "2.5GHz"},
+            solution="{} : {}".format(new_setup.name, sweep.name),
+        )
         assert setup2.delete()
 
     def test_28A_create_optislang(self):

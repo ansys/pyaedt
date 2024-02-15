@@ -1411,7 +1411,7 @@ class OptimizationSetups(object):
         if (
             self._app.aedt_version_id >= "2023.2"
             and self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0
-            and optim_type != "optiSLang"
+            and optim_type not in ["optiSLang", "DXDOE"]
         ):  # pragma: no cover
             self._app.logger.error("Enable legacy optimetrics tools.")
             return False
