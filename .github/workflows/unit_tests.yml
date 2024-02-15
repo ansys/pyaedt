@@ -155,7 +155,7 @@ jobs:
       #   if: ${{ always() }}
 
       - name: "Check library vulnerabilities with development mode"
-        uses: ansys/actions/check-vulnerabilities@v4.1
+        uses: ansys/actions/check-vulnerabilities@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           python-package-name: 'pyaedt'
