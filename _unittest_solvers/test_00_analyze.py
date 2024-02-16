@@ -75,11 +75,11 @@ def circuit_app(add_app):
     app.modeler.schematic_units = "mil"
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_erl(add_app):
     app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
     return app
-
 
 
 @pytest.fixture(scope="class")
@@ -408,12 +408,12 @@ class TestClass:
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(quantity_name='Mag_B',
-                                            solution=m3dtransient.nominal_sweep,
-                                            variation_dict={},
-                                            filename=fld_file_3,
-                                            obj_list='Coil_A2',
-                                            intrinsics="10ms",
-                                            obj_type="Surf")
+                                                   solution=m3dtransient.nominal_sweep,
+                                                   variation_dict={},
+                                                   filename=fld_file_3,
+                                                   obj_list='Coil_A2',
+                                                   intrinsics="10ms",
+                                                   obj_type="Surf")
         assert os.path.exists(fld_file_3)
         fld_file_4 = os.path.join(self.local_scratch.path, "test_fld_4.fld")
         assert not m3dtransient.post.export_field_file(quantity_name='Mag_B',
@@ -435,7 +435,7 @@ class TestClass:
         new_setup.update()
 
     def test_08_compute_erl(self, circuit_erl):
-        erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd",bandwidth="40p")
+        erl_data2 = circuit_erl.compute_erl(port_order="EvenOdd", bandwidth="40p")
         assert erl_data2
         circuit_erl.set_active_design("4_ports")
         erl_data_3 = circuit_erl.compute_erl(specify_through_ports=[1, 2, 3, 4])
