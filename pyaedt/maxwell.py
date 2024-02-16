@@ -2189,7 +2189,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Parameters
         ----------
         geometry_selection : str
-            Objects to apply the impedance boundary to.
+            Faces or objects to apply the impedance boundary to.
         material_name : str, optional
             If it is different from ``None``, then material properties values will be extracted from
             the named material in the list of materials available. The default value is ``None``.
@@ -2216,11 +2216,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box and assign impedance boundary to it.
+        Create a box and assign impedance boundary to the faces.
 
-        >>> impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
-        >>> impedance_assignment = self.aedtapp.assign_impedance(impedance_box.name, "InsulatingExample")
-        >>> type(impedance_assignment)
+        >>> shield = m3d.modeler.create_box([-50, -50, -50], [294, 294, 19], name="shield")
+        >>> shield_faces = m3d.modeler.select_allfaces_fromobjects(["shield"])
+        >>> impedance_assignment = m3d.assign_impedance(shield_faces, "ShieldImpedance")
+
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
@@ -2235,7 +2236,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 impedance_name = generate_unique_name(impedance_name)
 
             listobj = self.modeler.convert_to_selections(geometry_selection, True)
-            props = {"Objects": listobj}
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
 
             if material_name is not None:
                 props["UseMaterial"] = True
