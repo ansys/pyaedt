@@ -1,5 +1,5 @@
 import os
-import subprocess
+import subprocess  # nosec
 
 from pyaedt import generate_unique_name
 from pyaedt import is_linux
@@ -94,10 +94,10 @@ class SpiSim:
         pdf_bin_size=None,
         signal_loss_factor=None,
         permitted_reflection=None,
-        reflections_lenght=None,
+        reflections_length=None,
         modulation_type=None,
     ):
-        """Compute effective return loss (erl) using Ansys SPISIM from a S-parameter file.
+        """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
         Parameters
         ----------
@@ -105,36 +105,37 @@ class SpiSim:
             Configuration file to use as a reference. The default is ``None``, in
             which case this parameter is ignored.
         port_order : str, optional
-            Whether to use "``EvenOdd``" or "``Incremental``" numbering for ``s4p`` files.
-            Ignored if the ports are greater than 4.
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
+            The default is ``None``. This parameter is ignored if there are more than four ports.
         specify_through_ports : list, optional
-            Input and Output ports on which compute the erl. Those are ordered like ``[inp, inneg, outp, outneg]``.
-            Ignored if number of ports are 4.
+            Input and output ports to compute the ERL on. Those are ordered like ``[inp, inneg, outp, outneg]``.
+            The default is ``None``. This parameter is ignored if there are more than four ports.
         bandwidth : float, str, optional
-            Application bandwidth: inverse of one UI (unit interval). Can be a float or str with unit ("m", "g").
-            Default is ``30e9``.
+            Application bandwidth in hertz (Hz), which is the inverse of one UI (unit interval). The value
+            can be a float or a string with the unit ("m", "g"). The default is ``30e9``.
         tdr_duration : float, optional
-            TDR duration (in second): How long the TDR tailed data should be applied. Default is ``5``.
+            Time domain reflectometry (TDR) duration in seconds, meaning how long the TDR tailed data should be applied.
+            The default is ``5``.
         z_terminations : float, optional
-            Z-Terminations: termination (Z11 and Z22) when TDR is calculated. Default is ``50``.
+            Z-terminations (Z11 and Z22) when TDR is calculated. The default is ``50``.
         transition_time : float, str, optional
-            Transition time: how fast (slew rate) input pulse transit from 0 to Vcc volt. Default is "``10p``".
+            Transition time: how fast (slew rate) input pulse transit from 0 to Vcc volt. The default is "``10p``".
         fixture_delay : float, optional
-            Fixture delay: delay when input starts transition from 0 to Vcc. Default is ``500e-12``.
+            Fixture delay: delay when input starts transition from 0 to Vcc. The default is ``500e-12``.
         input_amplitude : float, optional
-            Input amplitude: Vcc volt of step input. Default is ``1.0``.
+            Input amplitude: Vcc volt of step input. The default is ``1.0``.
         ber : float, optional
-            Specified BER: At what threshold ERL is calculated. Default is ``1e-4``.
+            Specified BER: At what threshold ERL is calculated. The default is ``1e-4``.
         pdf_bin_size : float, optional
-            PDF bin size: how to quantize the superimposed value. Default is ``1e-5``.
+            PDF bin size: how to quantize the superimposed value. The default is ``1e-5``.
         signal_loss_factor : float, optional
-            Signal loss factor (Beta). See SPISIM Help for info. Default is ``1.7e9``.
+            Signal loss factor (Beta). For more information, see the SPISIM Help. The default is ``1.7e9``.
         permitted_reflection : float, optional
-            Permitted reflection (Rho). See SPISIM Help for info. Default is ``0.18``.
-        reflections_lenght : float, optional
-            Length of the reflections: how many UI will be used to calculate ERL. Default is ``1000``.
+            Permitted reflection (Rho). For more information, see the SPISIM Help. The default is ``0.18``.
+        reflections_length : float, optional
+            Length of the reflections: how many UI will be used to calculate ERL. The default is ``1000``.
         modulation_type : str, optional
-           Modulations type: signal modulation type "``NRZ``" or "``PAM4``". Default is "``NRZ``".
+           Modulations type: signal modulation type "``NRZ``" or "``PAM4``". The default is "``NRZ``".
 
         Returns
         -------
@@ -197,7 +198,7 @@ class SpiSim:
         cfg_dict["TRSTIME"] = transition_time if transition_time is not None else cfg_dict["TRSTIME"]
         cfg_dict["SIGBETA"] = signal_loss_factor if signal_loss_factor is not None else cfg_dict["SIGBETA"]
         cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
-        cfg_dict["NCYCLES"] = reflections_lenght if reflections_lenght is not None else cfg_dict["NCYCLES"]
+        cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
         new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
         with open(new_cfg_file, "w") as fp:

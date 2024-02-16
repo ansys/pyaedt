@@ -172,7 +172,7 @@ class VirtualCompliance:
             if _design and _design.design_name != design_name or _design is None:
                 try:
                     _design = get_pyaedt_app(self._project_name, design_name)
-                except:  # pragma: no cover
+                except Exception:  # pragma: no cover
                     self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
                     continue
             if os.path.exists(os.path.join(self._template_folder, config_file)):
@@ -294,7 +294,6 @@ class VirtualCompliance:
             if not os.path.exists(config_file):
                 config_file = os.path.join(self._template_folder, config_file)
             name = template_report["name"]
-            pass_fail = template_report["pass_fail"]
             pass_fail_criteria = template_report.get("pass_fail_criteria", "")
             design_name = template_report["design_name"]
             if _design and _design.design_name != design_name or _design is None:
@@ -316,7 +315,7 @@ class VirtualCompliance:
                     if erl_value:
                         table_out.append([trace_name, erl_value, pass_fail_criteria])
                 pdf_report.add_table(
-                    f"Effective Return Losses",
+                    "Effective Return Losses",
                     table_out,
                 )
 
