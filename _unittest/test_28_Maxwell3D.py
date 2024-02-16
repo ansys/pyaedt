@@ -75,6 +75,9 @@ class TestClass:
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
+        assert self.aedtapp.assign_material(plate, "pec")
+        assert self.aedtapp.assign_material(plate, "perfect conductor")
+
     @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
     def test_01_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
