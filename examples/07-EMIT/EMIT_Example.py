@@ -71,13 +71,13 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
 
-if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if aedt_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX) 
     tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX) 
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
-    domain.set_interferer(rad3.name,tx_bands[0])
+    domain.set_interferer(rad3.name, tx_bands[0])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(ResultType.EMI)
     if worst.has_valid_values():

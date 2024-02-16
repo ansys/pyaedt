@@ -41,7 +41,7 @@ new_thread = True
 # a default setup.
 
 tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
-                        specified_version=desktop_version,
+                        specified_version=aedt_version,
                         non_graphical=non_graphical,
                         new_desktop_session=new_thread
                         )

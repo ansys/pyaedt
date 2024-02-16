@@ -17,7 +17,6 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-
 test_subfolder = "T26"
 
 
@@ -29,7 +28,6 @@ def aedtapp(add_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 class TestClass:
-
 
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
@@ -847,8 +845,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
         # rerun with N-1
-        self.aedtapp.results.revisions[-1].n_to_1_limit = 2**20
-        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2**20
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 2 ** 20
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2 ** 20
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 11652816
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
@@ -1026,7 +1024,7 @@ class TestClass:
         for ind in range(4):
             expected_interference_colors = all_interference_colors[ind]
             expected_interference_power = all_interference_power[ind]
-            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1:]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
                 domain, use_filter=True, filter_list=interference_filter
@@ -1062,7 +1060,7 @@ class TestClass:
         for ind in range(4):
             expected_protection_colors = all_protection_colors[ind]
             expected_protection_power = all_protection_power[ind]
-            protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
+            protection_filter = protection_filters[:ind] + protection_filters[ind + 1:]
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
@@ -1198,7 +1196,7 @@ class TestClass:
         appdata_local_path = tempfile.gettempdir()
         pid = os.getpid()
         dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
-        
+
         license_file_path = ''
         with os.scandir(dot_ansys_directory) as dir:
             for file in dir:
@@ -1206,19 +1204,19 @@ class TestClass:
                 # Since machine names can contain periods, there may be over five splits here
                 # We only care about the first split and last three splits
                 if len(filename_pieces) >= 5:
-                    if (filename_pieces[0] == 'ansyscl' and 
-                        filename_pieces[-3] == str(pid) and
-                        filename_pieces[-2].isnumeric() and 
-                        filename_pieces[-1] == 'log'):
+                    if (filename_pieces[0] == 'ansyscl' and
+                            filename_pieces[-3] == str(pid) and
+                            filename_pieces[-2].isnumeric() and
+                            filename_pieces[-1] == 'log'):
                         license_file_path = os.path.join(dot_ansys_directory, file.name)
                         break
-        
+
         assert license_file_path != ''
-        
+
         def count_license_actions(license_file_path):
             # Count checkout/checkins in most recent license connection
             checkouts = 0
-            checkins  = 0
+            checkins = 0
             with open(license_file_path, 'r') as license_file:
                 lines = license_file.read().strip().split('\n')
                 for line in lines:
@@ -1230,7 +1228,7 @@ class TestClass:
                     elif 'CHECKIN' in line:
                         checkins += 1
             return (checkouts, checkins)
-        
+
         # Figure out how many checkouts and checkins per run we expect
         # This could change depending on the user's EMIT HPC settings
         pre_first_run_checkouts, pre_first_run_checkins = count_license_actions(license_file_path)
@@ -1244,13 +1242,13 @@ class TestClass:
 
         # Run without license session
         for i in range(number_of_runs):
-            do_run()        
-        
-        # Run with license session
+            do_run()
+
+            # Run with license session
         with revision.get_license_session():
             for i in range(number_of_runs):
                 do_run()
-        
+
         end_checkouts, end_checkins = count_license_actions(license_file_path)
 
         checkouts = end_checkouts - start_checkouts
