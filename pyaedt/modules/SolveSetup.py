@@ -3372,15 +3372,10 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
         --------
-
-        Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
-        named ``"LinearCountSweep"``.
-
         >>> from pyaedt import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearCountSetup")
@@ -3535,7 +3530,6 @@ class SetupQ3D(Setup, object):
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
