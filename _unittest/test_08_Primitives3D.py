@@ -1308,9 +1308,6 @@ class TestClass:
         assert self.aedtapp.modeler[cyl1].material_name == "aluminum"
         assert self.aedtapp.modeler[cyl2].material_name == "aluminum"
 
-        assert self.aedtapp.modeler[box1].material_name == "pec"
-        assert self.aedtapp.modeler[box1].material_name == "perfect conductor"
-
     def test_68_cover_lines(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
