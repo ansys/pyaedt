@@ -82,6 +82,26 @@ class TestClass:
             step_size=0.1,
             sweep_type="Interpolating",
         )
+        assert mysetup.create_linear_step_sweep(
+            unit="GHz",
+            freqstart=1,
+            freqstop=20,
+            step_size=0.1,
+            sweep_type="Interpolating",
+        )
+        with pytest.raises(AttributeError) as execinfo:
+            mysetup.create_linear_step_sweep(
+                sweepname="invalid_sweep",
+                unit="GHz",
+                freqstart=1,
+                freqstop=20,
+                step_size=0.1,
+                sweep_type="Invalid",
+            )
+            assert (
+                    execinfo.args[0]
+                    == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            )
         assert mysetup.create_single_point_sweep(
             save_fields=True,
         )
