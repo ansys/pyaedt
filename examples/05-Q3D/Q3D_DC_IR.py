@@ -4,19 +4,19 @@ Q3D Extractor: PCB DCIR analysis
 This example shows how you can use PyAEDT to create a design in
 Q3D Extractor and run a DC IR Drop simulation starting from an EDB Project.
 """
-
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+
 import os
 import pyaedt
-
 
 ###############################################################################
 # Set up project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download needed project file and set up temporary project directory.
+
 project_dir = pyaedt.generate_unique_folder_name()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
 coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
@@ -31,13 +31,13 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # ~~~~~~~~
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
+
 edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
 edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
            ["GND"],
            output_aedb_path=output_edb,
            use_pyaedt_extent_computing=True,
            )
-
 
 ###############################################################################
 # Identify pin positions
@@ -99,8 +99,6 @@ setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
 
-
-
 ###############################################################################
 # Open Q3D
 # ~~~~~~~~
@@ -109,7 +107,6 @@ h3d.close_project()
 q3d = pyaedt.Q3d(output_q3d)
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
-
 
 ###############################################################################
 # Insert inductors
@@ -157,6 +154,7 @@ q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
 # Use previously calculated positions to identify faces,
 # select the net "1_Top" and
 # assign sources and sinks on nets.
+
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
 source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
 source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
@@ -224,7 +222,6 @@ q3d.post.plot_field_from_fieldplot(
     log_scale=False,
 )
 
-
 ###############################################################################
 # Computing Voltage on Source Circles
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,11 +250,11 @@ data = q3d.post.get_solution_data(
 for curve in curves:
     print(data.data_real(curve))
 
-
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
+
 q3d.save_project()
 q3d.release_desktop()

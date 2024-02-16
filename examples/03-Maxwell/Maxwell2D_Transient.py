@@ -121,7 +121,7 @@ face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
-animatedGif = maxwell_2d.post.plot_animated_field(
+gif = maxwell_2d.post.plot_animated_field(
     quantity="Mag_B",
     object_list=id_list,
     plot_type="Surface",
@@ -131,19 +131,19 @@ animatedGif = maxwell_2d.post.plot_animated_field(
     show=False,
     export_gif=False,
 )
-animatedGif.isometric_view = False
-animatedGif.camera_position = [15, 15, 80]
-animatedGif.focal_point = [15, 15, 0]
-animatedGif.roll_angle = 0
-animatedGif.elevation_angle = 0
-animatedGif.azimuth_angle = 0
+gif.isometric_view = False
+gif.camera_position = [15, 15, 80]
+gif.focal_point = [15, 15, 0]
+gif.roll_angle = 0
+gif.elevation_angle = 0
+gif.azimuth_angle = 0
 # Set off_screen to False to visualize the animation.
-# animatedGif.off_screen = False
-animatedGif.animate()
+# gif.off_screen = False
+gif.animate()
 
 ###############################################################################
-# Generate plot outside of AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate plot outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate the same plot outside AEDT.
 
 solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
