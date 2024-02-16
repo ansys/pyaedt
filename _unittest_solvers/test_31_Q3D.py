@@ -99,6 +99,9 @@ class TestClass:
         assert mysetup.update()
         sweep2 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
         assert sweep2
+        sweep2_1 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
+        assert sweep2_1
+        assert sweep2.name != sweep2_1.name
         assert sweep2.props["RangeEnd"] == "4GHz"
         sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
         assert sweep3
