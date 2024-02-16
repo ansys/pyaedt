@@ -569,10 +569,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             ]
         )
 
-        try:
-            component = self.modeler.schematic.create_component(component_library="", component_name=component_name)
+        component = self.modeler.schematic.create_component(component_library="", component_name=component_name)
+        if component:
             if is_loaded:
                 app.close_project(save_project=False)
-            return component
-        except:  # pragma: no cover
-            return False
+        return component
