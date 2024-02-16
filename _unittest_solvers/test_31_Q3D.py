@@ -97,11 +97,15 @@ class TestClass:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-        sweep2 = self.aedtapp.create_frequency_sweep(
-            mysetup.name, sweepname="mysweep2", units="GHz", freqstart=1, freqstop=4
-        )
+        sweep2 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
         assert sweep2
         assert sweep2.props["RangeEnd"] == "4GHz"
+        with pytest.raises(AttributeError) as execinfo:
+            sweep3 = mysetup.create_frequency_sweep(sweepname="mysweep3", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid")
+            assert (
+                    execinfo.args[0]
+                    == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            )
 
     def test_06c_autoidentify(self):
         assert self.aedtapp.auto_identify_nets()
