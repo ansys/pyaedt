@@ -100,8 +100,10 @@ class TestClass:
         sweep2 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
         assert sweep2
         assert sweep2.props["RangeEnd"] == "4GHz"
+        sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
+        assert sweep3
         with pytest.raises(AttributeError) as execinfo:
-            sweep3 = mysetup.create_frequency_sweep(sweepname="mysweep3", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid")
+            sweep4 = mysetup.create_frequency_sweep(sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid")
             assert (
                     execinfo.args[0]
                     == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
