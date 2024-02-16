@@ -5,8 +5,10 @@ from pyaedt import generate_unique_name
 from pyaedt import is_linux
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
+from pyaedt.generic.com_parameters import COMParameters
 from pyaedt.generic.general_methods import env_value
 from pyaedt.misc import current_version
+
 
 
 class SpiSim:
@@ -206,3 +208,18 @@ class SpiSim:
 
         out_processing = self._compute_spisim("CalcERL", self.touchstone_file, new_cfg_file)
         return self._get_output_parameter_from_result(out_processing, "ERL")
+
+    @pyaedt_function_handler
+    def compute_com(
+        self,
+        physical_layer,
+    ):
+        com_param = COMParameters(physical_layer)
+
+        if config_file:
+            with open(config_file, "r") as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if not line.startswith("#") and "=" in line:
+                        split_line = [i.strip() for i in line.split("=")]
+                        cfg_dict[split_line[0]] = split_line[1]
