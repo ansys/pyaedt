@@ -573,4 +573,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if component:
             if is_loaded:
                 app.close_project(save_project=False)
-        return component
+            return component
+        else:  # pragma: no cover
+            raise ValueError("Error in creating the component.")
