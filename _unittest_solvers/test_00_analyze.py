@@ -28,7 +28,7 @@ else:
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
-com_project_name = ("com_unit_test"
+com_project_name = ("com_unit_test_23r2"
                     "")
 
 @pytest.fixture()
@@ -85,7 +85,7 @@ def circuit_erl(add_app):
 
 @pytest.fixture(scope="class")
 def circuit_com(add_app):
-    app = add_app(com_project_name, design_name="1_channel", application=Circuit, subfolder=test_subfolder)
+    app = add_app(com_project_name, design_name="0_simple_channel", application=Circuit, subfolder=test_subfolder)
     return app
 
 @pytest.fixture(scope="class")
@@ -471,9 +471,11 @@ class TestClass:
         os.mkdir(report_dir)
         com_0, com_1 = spisim.compute_com(
             standard="50GAUI-1_C2C",
+            port_order="[1 2 3 4]",
             fext_snp=touchstone_file,
             next_snp=[touchstone_file, touchstone_file],
             out_folder=report_dir,
+
         )
         assert com_0 and com_1
 
