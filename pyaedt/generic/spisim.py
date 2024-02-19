@@ -248,6 +248,28 @@ class SpiSim:
         next_snp="",
         out_folder="",
     ):
+        """Compute Channel Operating Margin.
+
+        Parameters
+        ----------
+        standard : str
+            Name of the standard to apply.
+        config_file : str, optional
+            Config file to use.
+        port_order : str, optional
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
+            The default is ``None``. This parameter is ignored if there are more than four ports.
+        fext_snp : str, optional
+            Fext touchstone file to use.
+        next_snp : str, optional
+            Next touchstone file to use.
+        out_folder : str, optional
+            Output folder where to save report.
+
+        Returns
+        -------
+
+        """
         if standard == "custom":
             com_param = COMParameters()
             com_param.load(config_file)

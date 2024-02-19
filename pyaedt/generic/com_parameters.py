@@ -175,10 +175,22 @@ class COMParameters:
 
     @property
     def standard(self):
+        """Standard name.
+
+        Returns
+        -------
+        str
+        """
         return self._standard
 
     @property
     def parameters(self):
+        """Parameters of the standard with value.
+
+        Returns
+        -------
+        dict
+        """
         return {i: j for i, j in self.__dict__.items() if not i.startswith("_")}
 
     @standard.setter
@@ -193,6 +205,12 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load(self, file_path):
+        """Load configuration file.
+
+        Returns
+        -------
+        bool
+        """
         self._standard = "custom"
         with open(file_path, "r") as fp:
             lines = fp.readlines()
@@ -201,9 +219,21 @@ class COMParameters:
                     split_line = [i.strip() for i in line.split("=")]
                     name, value = split_line
                     self.__setattr__(name.lower(), str(value))
+        return True
 
     @pyaedt_function_handler
     def export(self, file_path):
+        """Generate a configuration file for SpiSim.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to configuration file to create.
+
+        Returns
+        -------
+        bool
+        """
         with open(file_path, "w") as fp:
             fp.write("################################################################################\n")
             fp.write("# MODULE: COM\n")
@@ -212,9 +242,11 @@ class COMParameters:
             for k, v in self.parameters.items():
                 fp.write("# {0}: {0}\n".format(k.upper()))
                 fp.write("{} = {}\n".format(k.upper(), v))
+        return True
 
     @pyaedt_function_handler
     def apply_120d_8(self):
+        """Apply 120D_8 Standard."""
         self.a_dd = "0.02"
         self.a_fe = "0.45"
         self.a_ne = "0.65"
@@ -374,6 +406,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def apply_93_8(self):
+        """Apply 93_8 Standard."""
         self.a_dd = "0.05"
         self.a_fe = "0.4"
         self.a_ne = "0.6"
