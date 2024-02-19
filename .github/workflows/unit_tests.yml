@@ -99,6 +99,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           python-package-name: 'pyaedt'
           dev-mode: false
+          hide-log: false
 
       # - name: 'Build and validate source distribution'
       #   run: |
