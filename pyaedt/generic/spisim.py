@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess  # nosec
 
 from pyaedt import generate_unique_name
@@ -182,7 +183,9 @@ class SpiSim:
                     if not line.startswith("#") and "=" in line:
                         split_line = [i.strip() for i in line.split("=")]
                         cfg_dict[split_line[0]] = split_line[1]
-        cfg_dict["INPARRY"] = self.touchstone_file.replace("\\", "/")
+
+        self.touchstone_file = self.touchstone_file.replace("\\", "/")
+        cfg_dict["INPARRY"] = self.touchstone_file
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -215,12 +218,12 @@ class SpiSim:
         cfg_dict["REFLRHO"] = permitted_reflection if permitted_reflection is not None else cfg_dict["REFLRHO"]
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
-        new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg")
+        new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
         with open(new_cfg_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write("{} = {}\n".format(k, v))
 
-        out_processing = self._compute_spisim("CalcERL", self.touchstone_file, new_cfg_file)
+        out_processing = self._compute_spisim("CalcERL", touchstone_file=self.touchstone_file, config_file=new_cfg_file, out_file=self.working_directory)
         return self._get_output_parameter_from_result(out_processing, "ERL")
 
 
