@@ -56,7 +56,7 @@ class SpiSim:
         command = [spisimExe, parameter, cfgCmmd]
         # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
         # try up to three times to be sure
-        out_processing = os.path.join(self.working_directory, generate_unique_name("spsim_out") + ".txt")
+        out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
         if is_linux:  # pragma: no cover
