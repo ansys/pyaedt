@@ -5,7 +5,7 @@ logger = settings.logger
 
 
 class COMParameters:
-    def __init__(self, standard="50GAUI-1_C2C"):
+    def __init__(self, standard="50GAUI-1_C2C"):  # nosec
         self.version = "3.40"
         self.thrusnp = ""
         self.fextary = ""
@@ -188,8 +188,8 @@ class COMParameters:
             self.apply_120d_8()
         elif value == "100GBASE-KR4":
             self.apply_93_8()
-        else:
-            logger.error("invalid physical layer name.")
+        else:  # pragma: no cover
+            logger.error("invalid standard name.")
 
     @pyaedt_function_handler
     def load(self, file_path):

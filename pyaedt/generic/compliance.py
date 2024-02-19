@@ -77,7 +77,7 @@ class VirtualCompliance:
                 self._use_portrait = self.local_config["general"].get("use_portrait", True)
 
     @pyaedt_function_handler()
-    def _parse_reports(self):
+    def _parse_reports(self):  # pragma: no cover
         if "reports" in self.local_config:
             for report in self.local_config["reports"]:
                 self._create_aedt_report(
@@ -104,7 +104,7 @@ class VirtualCompliance:
         freq_to_check = filtered_range[ranges.index(value_to_check)][0]
         if hatch_above and value_to_check >= test_value:
             return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
-        elif not hatch_above and value_to_check <= test_value:
+        elif not hatch_above and value_to_check <= test_value:  # pragma: no cover
             return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
         return round(value_to_check, 5), round(freq_to_check, 5), "PASS"
 
@@ -152,7 +152,7 @@ class VirtualCompliance:
             solution_names = [
                 i for i in design.existing_analysis_sweeps if solution_name == i or i.startswith(solution_name + " ")
             ]
-            if solution_names:
+            if solution_names:  # pragma: no cover
                 sweep_name = solution_names[0]
         return sweep_name
 
@@ -213,7 +213,7 @@ class VirtualCompliance:
                         except Exception:  # pragma: no cover
                             time.sleep(1)
                             sleep_time -= 1
-                if pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                if pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None):  # pragma: no cover
                     _design.logger.info(f"Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                     write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)

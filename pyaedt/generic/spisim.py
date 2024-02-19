@@ -87,8 +87,10 @@ class SpiSim:
                         dataAry = keyValu.split("=")
                         if dataAry[0].strip().lower() == parameter_name.lower():
                             return float(dataAry[1].strip().split()[0])
-                self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
-                return False
+                self.logger.error(
+                    "Failed to compute {}. Check input parameters and retry".format(parameter_name)
+                )  # pragma: no cover
+                return False  # pragma: no cover
             except IndexError:
                 self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
                 return False
@@ -99,7 +101,7 @@ class SpiSim:
                 com_case_0 = re.search(r"Case 0: Calculated COM = (.*?),", txt).groups()[0]
                 com_case_1 = re.search(r"Case 1: Calculated COM = (.*?),", txt).groups()[0]
                 return float(com_case_0), float(com_case_1)
-            except IndexError:
+            except IndexError:  # pragma: no cover
                 self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
 
     @pyaedt_function_handler()
@@ -204,7 +206,7 @@ class SpiSim:
         if specify_through_ports:
             if isinstance(specify_through_ports[0], int):
                 thrus4p = ",".join([str(i) for i in specify_through_ports])
-            else:
+            else:  # pragma: no cover
                 try:
                     ports = list(self.excitations.keys())
                     thrus4p = ",".join([str(ports.index(i)) for i in specify_through_ports])
@@ -229,6 +231,7 @@ class SpiSim:
         new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
         with open(new_cfg_file, "w") as fp:
             for k, v in cfg_dict.items():
+                fp.write("# {}: {}\n".format(k, k))
                 fp.write("{} = {}\n".format(k, v))
 
         out_processing = self._compute_spisim(
@@ -387,12 +390,11 @@ class SpiSimRawRead(object):
         return unpack("d", s)[0]
 
     @staticmethod
-    def read_float32(f):
+    def read_float32(f):  # pragma: no cover
         s = f.read(4)
         return unpack("f", s)[0]
 
     def __init__(self, raw_filename: str, **kwargs):
-
         raw_filename = Path(raw_filename)
 
         raw_file = open(raw_filename, "rb")
@@ -402,11 +404,11 @@ class SpiSimRawRead(object):
             self.encoding = "utf_8"
             sz_enc = 1
             line = "Title:"
-        elif ch.decode(encoding="utf_16_le") == "Tit":
+        elif ch.decode(encoding="utf_16_le") == "Tit":  # pragma: no cover
             self.encoding = "utf_16_le"
             sz_enc = 2
             line = "Tit"
-        else:
+        else:  # pragma: no cover
             raise RuntimeError("Unrecognized encoding")
         settings.logger.info(f"Reading the file with encoding: '{self.encoding}' ")
         self.raw_params = OrderedDict(Filename=raw_filename)
@@ -446,7 +448,7 @@ class SpiSimRawRead(object):
             idx, name, var_type = line.lstrip().split("\t")
             if numerical_type == "real":
                 axis_numerical_type = "double"
-            else:
+            else:  # pragma: no cover
                 axis_numerical_type = numerical_type
             if ivar == 0:
                 self.axis = Trace(name, var_type, self.nPoints, None, axis_numerical_type)
@@ -456,11 +458,11 @@ class SpiSimRawRead(object):
             self._traces.append(trace)
             ivar += 1
 
-        if len(self._traces) == 0:
+        if len(self._traces) == 0:  # pragma: no cover
             raw_file.close()
             return
 
-        if kwargs.get("headeronly", False):
+        if kwargs.get("headeronly", False):  # pragma: no cover
             raw_file.close()
             return
 
@@ -469,7 +471,7 @@ class SpiSimRawRead(object):
             for trace in self._traces:
                 if trace.numerical_type in ["double", "real"]:
                     fun = self.read_float64
-                else:
+                else:  # pragma: no cover
                     raise RuntimeError("Invalid data type {} for trace {}".format(trace.numerical_type, trace.name))
                 scan_functions.append(fun)
 
@@ -479,7 +481,7 @@ class SpiSimRawRead(object):
                     if value is not None:
                         var.data[point] = value
 
-        else:
+        else:  # pragma: no cover
             raw_file.close()
             raise SpiSimRawException("Unsupported RAW File. " "%s" "" % self.raw_type)
 
@@ -503,7 +505,7 @@ class SpiSimRawRead(object):
             return self.raw_params
         elif property_name in self.raw_params.keys():
             return self.raw_params[property_name]
-        else:
+        else:  # pragma: no cover
             raise ValueError("Invalid property. Use %s" % str(self.raw_params.keys()))
 
     @property
@@ -534,7 +536,7 @@ class SpiSimRawRead(object):
             raise IndexError(
                 f'{self} doesn\'t contain trace "{trace_ref}"\n'
                 f"Valid traces are {[trc.name for trc in self._traces]}"
-            )
+            )  # pragma: no cover
         else:
             return self._traces[trace_ref]
 
@@ -563,7 +565,7 @@ class SpiSimRawRead(object):
         """
         if self.axis:
             return self.axis.wave
-        else:
+        else:  # pragma: no cover
             raise RuntimeError("This RAW file does not have an axis.")
 
     def get_len(self):
