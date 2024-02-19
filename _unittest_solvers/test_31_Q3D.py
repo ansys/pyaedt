@@ -82,6 +82,26 @@ class TestClass:
             step_size=0.1,
             sweep_type="Interpolating",
         )
+        assert mysetup.create_linear_step_sweep(
+            unit="GHz",
+            freqstart=1,
+            freqstop=20,
+            step_size=0.1,
+            sweep_type="Interpolating",
+        )
+        with pytest.raises(AttributeError) as execinfo:
+            mysetup.create_linear_step_sweep(
+                sweepname="invalid_sweep",
+                unit="GHz",
+                freqstart=1,
+                freqstop=20,
+                step_size=0.1,
+                sweep_type="Invalid",
+            )
+            assert (
+                    execinfo.args[0]
+                    == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            )
         assert mysetup.create_single_point_sweep(
             save_fields=True,
         )
@@ -97,17 +117,25 @@ class TestClass:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
-        sweep2 = self.aedtapp.create_frequency_sweep(
-            mysetup.name, sweepname="mysweep2", units="GHz", freqstart=1, freqstop=4
-        )
+        sweep2 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
         assert sweep2
+        sweep2_1 = mysetup.create_frequency_sweep(sweepname="mysweep2", unit="GHz", freqstart=1, freqstop=4)
+        assert sweep2_1
+        assert sweep2.name != sweep2_1.name
         assert sweep2.props["RangeEnd"] == "4GHz"
+        sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
+        assert sweep3
+        with pytest.raises(AttributeError) as execinfo:
+            mysetup.create_frequency_sweep(sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid")
+            assert (
+                    execinfo.args[0]
+                    == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            )
 
     def test_06c_autoidentify(self):
         assert self.aedtapp.auto_identify_nets()
         assert self.aedtapp.delete_all_nets()
         assert self.aedtapp.auto_identify_nets()
-        pass
 
     def test_07_create_source_sinks(self):
         source = self.aedtapp.source("MyCylinder", axisdir=0, name="Source1")
