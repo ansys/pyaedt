@@ -162,6 +162,14 @@ solution_setup.props["Convergence Criteria - Flow"] = 0.0005
 solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
 ###############################################################################
+# Add 2-way coupling and solve the project
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ipk.assign_2way_coupling()
+ipk.analyze_setup(name=solution_setup.name)
+
+
+###############################################################################
 # Post-processing
 # ~~~~~~~~~~~~~~~~~~~
 # Plot temperature on the object surfaces
@@ -170,15 +178,16 @@ surface_list = []
 for name in ["Coil", "Core"]:
     surface_list.extend(ipk.modeler.get_object_faces(name))
 
-ipk.post.create_fieldplot_surface(
+surf_temperature = ipk.post.create_fieldplot_surface(
     surface_list,
     quantityName="SurfTemperature",
     plot_name="Surface Temperature"
 )
 
-###############################################################################
-# Add 2-way coupling and solve the project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(
+        "Global:XZ",
+        "Velocity Vectors"
+    )
 
-ipk.assign_2way_coupling()
-ipk.analyze_setup(name="Setup1")
+surf_temperature.export_image()
+velocity_cutplane.export_image(orientation="right")
