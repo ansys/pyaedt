@@ -5,6 +5,7 @@ from pyaedt import generate_unique_name
 from pyaedt import is_linux
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
+from pyaedt.generic.com_parameters import COMParameters
 from pyaedt.generic.general_methods import env_value
 from pyaedt.misc import current_version
 
@@ -12,7 +13,7 @@ from pyaedt.misc import current_version
 class SpiSim:
     """Provides support to SpiSim batch mode."""
 
-    def __init__(self, touchstone_file):
+    def __init__(self, touchstone_file=""):
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
@@ -40,11 +41,15 @@ class SpiSim:
         self._working_directory = val
 
     @pyaedt_function_handler()
-    def _compute_spisim(self, parameter, touchstone_file, config_file, out_file=None):
+    def _compute_spisim(self, parameter, out_file, touchstone_file="", config_file=""):
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
 
-        cfgCmmd = '-i %s -v CFGFILE="%s"' % (touchstone_file, config_file)
+        cfgCmmd = ""
+        if touchstone_file != "":
+            cfgCmmd = cfgCmmd + '-i "%s"' % touchstone_file
+        if config_file != "":
+            cfgCmmd = '-v CFGFILE="%s"' % config_file
         if out_file:
             cfgCmmd += ' -o "%s"' % out_file
         command = [spisimExe, parameter, cfgCmmd]
@@ -64,19 +69,29 @@ class SpiSim:
 
     @pyaedt_function_handler()
     def _get_output_parameter_from_result(self, out_file, parameter_name):
-        try:
-            with open(out_file, "r") as infile:
-                lines = infile.read()
-                parmDat = lines.split("[ParmDat]:", 1)[1]
-                for keyValu in parmDat.split(","):
-                    dataAry = keyValu.split("=")
-                    if dataAry[0].strip().lower() == parameter_name.lower():
-                        return float(dataAry[1].strip().split()[0])
-            self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
-            return False
-        except IndexError:
-            self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
-            return False
+        if parameter_name == "ERL":
+            try:
+                with open(out_file, "r") as infile:
+                    lines = infile.read()
+                    parmDat = lines.split("[ParmDat]:", 1)[1]
+                    for keyValu in parmDat.split(","):
+                        dataAry = keyValu.split("=")
+                        if dataAry[0].strip().lower() == parameter_name.lower():
+                            return float(dataAry[1].strip().split()[0])
+                self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
+                return False
+            except IndexError:
+                self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
+                return False
+        elif parameter_name == "COM":
+            try:
+                with open(out_file, "r") as infile:
+                    txt = infile.read()
+                com_case_0 = re.search(r"Case 0: Calculated COM = (.*?),", txt).groups()[0]
+                com_case_1 = re.search(r"Case 1: Calculated COM = (.*?),", txt).groups()[0]
+                return float(com_case_0), float(com_case_1)
+            except IndexError:
+                self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
 
     @pyaedt_function_handler()
     def compute_erl(
@@ -167,7 +182,7 @@ class SpiSim:
                     if not line.startswith("#") and "=" in line:
                         split_line = [i.strip() for i in line.split("=")]
                         cfg_dict[split_line[0]] = split_line[1]
-        cfg_dict["INPARRY"] = self.touchstone_file
+        cfg_dict["INPARRY"] = self.touchstone_file.replace("\\", "/")
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -207,3 +222,44 @@ class SpiSim:
 
         out_processing = self._compute_spisim("CalcERL", self.touchstone_file, new_cfg_file)
         return self._get_output_parameter_from_result(out_processing, "ERL")
+
+
+    @pyaedt_function_handler
+    def compute_com(
+        self,
+        standard,
+        config_file=None,
+        port_order=None,
+        fext_snp="",
+        next_snp="",
+        out_folder="",
+    ):
+        if standard == "custom":
+            com_param = COMParameters()
+            com_param.load(config_file)
+        else:
+            com_param = COMParameters(standard)
+
+        com_param.thrusnp = self.touchstone_file
+        com_param.fextary = fext_snp if not isinstance(fext_snp, list) else ";".join(fext_snp)
+        com_param.nextary = next_snp if not isinstance(next_snp, list) else ";".join(next_snp)
+        if port_order:
+            com_param.port_order = port_order
+
+        out_folder = out_folder if out_folder else self.working_directory
+
+        com_param.thrusnp = com_param.thrusnp.replace("\\", "/")
+        com_param.fextary = com_param.fextary.replace("\\", "/")
+        com_param.nextary = com_param.nextary.replace("\\", "/")
+
+        cfg_file = os.path.join(out_folder, "com_parameters.cfg")
+        com_param.export(cfg_file)
+
+        out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file, out_file=out_folder)
+        return self._get_output_parameter_from_result(out_processing, "COM")
+
+
+    @staticmethod
+    @pyaedt_function_handler
+    def com_parameters(standard="50GAUI-1_C2C"):
+        return COMParameters(standard)

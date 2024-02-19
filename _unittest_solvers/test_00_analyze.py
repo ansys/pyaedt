@@ -28,7 +28,8 @@ else:
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
-
+com_project_name = ("com_unit_test"
+                    "")
 
 @pytest.fixture()
 def sbr_platform(add_app):
@@ -81,7 +82,10 @@ def circuit_erl(add_app):
     app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
     return app
 
-
+@pytest.fixture(scope="class")
+def circuit_com(add_app):
+    app = add_app(com_project_name, design_name="1_channel", application=Circuit, subfolder=test_subfolder)
+    return app
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
@@ -453,3 +457,38 @@ class TestClass:
         spisim.touchstone_file = touchstone_file2
         erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
+
+    def test_09_compute_com(self, circuit_com):
+        touchstone_file = circuit_com.export_touchstone()
+        spisim = SpiSim(touchstone_file)
+
+        report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
+        os.mkdir(report_dir)
+        com_0, com_1 = spisim.compute_com(
+            standard="50GAUI-1_C2C",
+            fext_snp=touchstone_file,
+            next_snp=[touchstone_file, touchstone_file],
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
+
+        report_dir = os.path.join(spisim.working_directory, "100GBASE-KR4")
+        os.mkdir(report_dir)
+        com_0, com_1 = spisim.compute_com(
+            standard="100GBASE-KR4",
+            fext_snp=[touchstone_file, touchstone_file],
+            next_snp=touchstone_file,
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
+
+        report_dir = os.path.join(spisim.working_directory, "custom")
+        os.mkdir(report_dir)
+        spisim.com_parameters().export(os.path.join(spisim.working_directory, "custom.cfg"))
+        com_0, com_1 = spisim.compute_com(
+            standard="custom",
+            config_file=os.path.join(spisim.working_directory, "custom.cfg"),
+            port_order="[1 3 2 4]",
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
