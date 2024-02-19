@@ -28,8 +28,8 @@ else:
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
-com_project_name = ("com_unit_test_23r2"
-                    "")
+com_project_name = "com_unit_test_23r2"
+
 
 @pytest.fixture()
 def sbr_platform(add_app):
@@ -83,10 +83,12 @@ def circuit_erl(add_app):
     app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_com(add_app):
     app = add_app(com_project_name, design_name="0_simple_channel", application=Circuit, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
@@ -471,11 +473,7 @@ class TestClass:
         os.mkdir(report_dir)
         com_0, com_1 = spisim.compute_com(
             standard="50GAUI-1_C2C",
-            port_order="[1 2 3 4]",
-            fext_snp=touchstone_file,
-            next_snp=[touchstone_file, touchstone_file],
             out_folder=report_dir,
-
         )
         assert com_0 and com_1
 
@@ -489,13 +487,22 @@ class TestClass:
         )
         assert com_0 and com_1
 
+        com_example_file_folder = os.path.join(
+            local_path, "example_models", test_subfolder, "com_unit_test_sparam")
+        thru_s4p = os.path.join( com_example_file_folder, "SerDes_Demo_02_Thru.s4p")
+        fext_s4p = os.path.join( com_example_file_folder, "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
+        next_s4p = os.path.join( com_example_file_folder, "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
+
         report_dir = os.path.join(spisim.working_directory, "custom")
         os.mkdir(report_dir)
         spisim.com_parameters().export(os.path.join(spisim.working_directory, "custom.cfg"))
+        spisim.touchstone_file = thru_s4p
         com_0, com_1 = spisim.compute_com(
             standard="custom",
             config_file=os.path.join(spisim.working_directory, "custom.cfg"),
             port_order="[1 3 2 4]",
+            fext_snp=fext_s4p,
+            next_snp=next_s4p,
             out_folder=report_dir,
         )
         assert com_0 and com_1
