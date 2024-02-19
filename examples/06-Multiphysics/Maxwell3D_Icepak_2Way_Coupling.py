@@ -1,16 +1,43 @@
+"""
+Multiphysics: Maxwell 3D - Icepak electrothermal analysis
+---------------------------------------------------------
+This example uses PyAEDT to set up a conductor and a ferrite,
+and analyse the resistance increase of the coil because of the
+temperature increase.
+"""
+###########################################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
+
 import pyaedt
+from pyaedt.generic.constants import AXIS
+
+###########################################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+
+non_graphical = False
+
+###########################################################################################
+# Launch AEDT and Maxwell 3D
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
+# the version. It also creates an instance of the ``Maxwell3d`` class named ``m3d``.
 
 version = "2023.2"  # AEDT version
-
+project_name = "Maxwell-Icepak-2way-Coupling"
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
 
 m3d = pyaedt.Maxwell3d(
-    projectname=pyaedt.generate_unique_project_name(),
+    projectname=project_name,
     designname=maxwell_design_name,
     solution_type="EddyCurrent",
     specified_version=version,
-    non_graphical=False,
+    non_graphical=non_graphical,
 )
 
 ###############################################################################
@@ -22,7 +49,7 @@ coil = m3d.modeler.create_rectangle(
     csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil"
 )
 
-coil.sweep_around_axis(cs_axis="Z") # todo: what is the correct input?
+coil.sweep_around_axis(cs_axis=AXIS.Z)
 
 coil_terminal = m3d.modeler.create_rectangle(
     csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil_terminal"
@@ -31,7 +58,7 @@ coil_terminal = m3d.modeler.create_rectangle(
 core = m3d.modeler.create_rectangle(
     csPlane="XZ", position=[45, 0, -18], dimension_list=[7, 160], name="Core"
 )
-core.sweep_around_axis(cs_axis="Z")  # todo: what is the correct input?
+core.sweep_around_axis(cs_axis=AXIS.Z)
 
 region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
 
@@ -47,7 +74,7 @@ m3d.assign_material(core.name, "ferrite")
 ###############################################################################
 # Assign excitation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 10 turns, 50A
+# Coil consists of 10 turns, coil current 100A.
 
 m3d.assign_coil(["Coil_terminal"], conductor_number=10, name="Coil_terminal")
 
@@ -62,7 +89,7 @@ m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
 ###############################################################################
 # Assign mesh operations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Not necessary in eddy current solver, but when assigned, they speed up the simulation
+# Not necessary in eddy current solver, but when assigned, they speed up the simulation.
 
 m3d.mesh.assign_length_mesh(
     ["Core"], maxlength=15, meshop_name="Inside_Core", maxel=None
@@ -74,7 +101,7 @@ m3d.mesh.assign_length_mesh(
 ###############################################################################
 # Set conductivity temperature coefficient
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Conductivity is now function of temperature
+# Make conductivity function of temperature, resistivity temperature coefficient is 0.393%
 
 Cu = m3d.materials["copper"]
 cu_resistivity_temp_coefficient = 0.00393
@@ -83,13 +110,14 @@ Cu.conductivity.add_thermal_modifier_free_form("1.0/(1.0+{}*(Temp-20))".format(c
 ###############################################################################
 # Set object temperature and enable feedback
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Fro 2-way coupling
+# Set the temperature of the objects to default temperature (22deg C),
+# and enable temperature feedback for 2-way coupling
 
 m3d.modeler.set_objects_temperature(["Coil"])
 
 ###############################################################################
 # Assign matrix
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~
 # RL calculation
 
 m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
@@ -103,17 +131,16 @@ setup = m3d.create_setup(setupname="Setup1")
 setup.props["Frequency"] = "150kHz"
 m3d.analyze_setup("Setup1")
 
-# todo: how to get the resistance?
-#resistance = m3d.post.get_solution_data("Matrix1.R(Winding1,Winding1)").full_matrix_mag_phase[0]
-#m3d.logger.design_logger.info("Coil resistance without temperature feedback =  %f", resistance)
+report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
+solution = report.get_solution_data()
+resistance = solution.data_magnitude()[0]
+
+m3d.logger.info("*******Coil resistance BEFORE temperature feedback =  {:.2f}mOhm".format(1000*resistance))
 
 ###############################################################################
 # Icepak design
 # ~~~~~~~~~~~~~
 # Insert icepak design and copy solid objects from Maxwell, modify region dimensions
-
-# desktop = m3d.desktop_class
-# ipk = desktop[[m3d.project_name, icepak_design_name]]
 
 ipk = pyaedt.Icepak(designname=icepak_design_name)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
@@ -141,8 +168,7 @@ ipk.assign_em_losses(
 # ~~~~~~~~~~~~~~~~~~~
 # Assign opening
 
-ids = [f.id for f in m3d.modeler.objects_by_name["Region"].faces]
-ipk.assign_free_opening(ids , boundary_name="Opening1")
+faces = ipk.modeler["Region"].faces
 face_names = [face.id for face in faces]
 ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
@@ -151,7 +177,7 @@ ipk.assign_free_opening(face_names, boundary_name="Opening1")
 # ~~~~~~~~~~~~~~~~~~~
 
 solution_setup = ipk.create_setup()
-solution_setup.props["Convergence Criteria - Max Iterations"] = 200
+solution_setup.props["Convergence Criteria - Max Iterations"] = 50
 solution_setup.props["Flow Regime"] = "Turbulent"
 solution_setup.props["Turbulent Model Eqn"] = "ZeroEquation"
 solution_setup.props["Radiation Model"] = "Discrete Ordinates Model"
@@ -161,13 +187,13 @@ solution_setup.props["Solution Initialization - Z Velocity"] = "0.0005m_per_sec"
 solution_setup.props["Convergence Criteria - Flow"] = 0.0005
 solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
+
 ###############################################################################
 # Add 2-way coupling and solve the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ipk.assign_2way_coupling()
 ipk.analyze_setup(name=solution_setup.name)
-
 
 ###############################################################################
 # Post-processing
@@ -185,9 +211,29 @@ surf_temperature = ipk.post.create_fieldplot_surface(
 )
 
 velocity_cutplane = ipk.post.create_fieldplot_cutplane(
-        "Global:XZ",
-        "Velocity Vectors"
+        objlist="Global:XZ",
+        quantityName="Velocity Vectors",
+        plot_name="Velocity Vectors"
     )
 
 surf_temperature.export_image()
 velocity_cutplane.export_image(orientation="right")
+
+###############################################################################
+# Get new resistance from Maxwell
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Conductivity decreases when temperature increases --> resistance increases
+
+report_new = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
+solution_new = report_new.get_solution_data()
+resistance_new = solution_new.data_magnitude()[0]
+resistance_increase = (resistance_new - resistance)/resistance * 100
+m3d.logger.info("*******Coil resistance AFTER temperature feedback =  {:.2f}mOhm".format(1000*resistance_new))
+m3d.logger.info("*******Coil resistance increased by {:.2f}%".format(resistance_increase))
+
+
+##################################################################################
+# Release desktop
+# ~~~~~~~~~~~~~~~
+
+ipk.release_desktop()
