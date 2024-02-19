@@ -1,6 +1,14 @@
+# coding=utf-8
+from collections import OrderedDict
 import os
+from pathlib import Path
 import re
+from struct import unpack
 import subprocess  # nosec
+
+from numpy import float32
+from numpy import float64
+from numpy import zeros
 
 from pyaedt import generate_unique_name
 from pyaedt import is_linux
@@ -266,3 +274,307 @@ class SpiSim:
     @pyaedt_function_handler
     def com_parameters(standard="50GAUI-1_C2C"):
         return COMParameters(standard)
+
+
+def detect_encoding(file_path, expected_pattern="", re_flags=0):
+    """Check encoding of a file."""
+    for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
+        try:
+            with open(file_path, "r", encoding=encoding) as f:
+                lines = f.read()
+                f.seek(0)
+        except UnicodeDecodeError:
+            # This encoding didn't work, let's try again
+            continue
+        else:
+            if len(lines) == 0:
+                # Empty file
+                continue
+            if expected_pattern:
+                if not re.match(expected_pattern, lines, re_flags):
+                    # File did not have the expected string
+                    # Try again with a different encoding (This is unlikely to resolve the issue)
+                    continue
+            if encoding == "utf-8" and lines[1] == "\x00":
+                continue
+            return encoding
+    else:
+        return Exception("Failed to identify encoding.")
+
+
+class DataSet(object):
+    """
+    This is the base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis()
+    methods.
+    Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
+    implementations of the wave population.
+    Data can be retrieved directly by using the [] operator.
+    If numpy is available, the numpy vector can be retrieved by using the get_wave() method.
+    The parameter whattype defines what is the trace representing in the simulation, Voltage, Current a Time or
+    Frequency.
+    """
+
+    def __init__(self, name, whattype, datalen, numerical_type="real"):
+        """Base Class for both Axis and Trace Classes.
+        Defines the common operations between both."""
+        self.name = name
+        self.whattype = whattype
+        self.numerical_type = numerical_type
+        if numerical_type == "double":
+            self.data = zeros(datalen, dtype=float64)
+        elif numerical_type == "real":
+            self.data = zeros(datalen, dtype=float32)
+        else:
+            raise NotImplementedError
+
+    def __len__(self):
+        return len(self.data)
+
+    def __iter__(self):
+        return iter(self.data)
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    @property
+    def wave(self):
+        """Retrieves the trace data.
+
+        Returns
+        -------
+        :class:`numpy.array`
+            The trace values.
+        """
+        return self.data
+
+
+class Trace(DataSet):
+    """This class is used to represent a trace. It derives from DataSet and implements the additional methods to
+    support STEPed simulations.
+    This class is constructed by the get_trace() command.
+    Data can be accessed through the [] and len() operators, or by the get_wave() method.
+    If numpy is available the get_wave() method will return a numpy array.
+    """
+
+    def __init__(self, name, whattype, datalen, axis, numerical_type="real"):
+        super().__init__(name, whattype, datalen, numerical_type)
+        self.axis = axis
+
+    def get_len(self):
+        """
+        Returns the length of the axis.
+
+        Returns
+        -------
+        int
+            The number of data points.
+        """
+        return len(self.wave)
+
+
+class SpiSimRawException(Exception):
+    """Custom class for exception handling"""
+
+    ...
+
+
+class SpiSimRawRead(object):
+    """Class for reading SPISim wave Files. It can read all types of Files."""
+
+    @staticmethod
+    def read_float64(f):
+        s = f.read(8)
+        return unpack("d", s)[0]
+
+    @staticmethod
+    def read_float32(f):
+        s = f.read(4)
+        return unpack("f", s)[0]
+
+    def __init__(self, raw_filename: str, **kwargs):
+
+        raw_filename = Path(raw_filename)
+
+        raw_file = open(raw_filename, "rb")
+
+        ch = raw_file.read(6)
+        if ch.decode(encoding="utf_8") == "Title:":
+            self.encoding = "utf_8"
+            sz_enc = 1
+            line = "Title:"
+        elif ch.decode(encoding="utf_16_le") == "Tit":
+            self.encoding = "utf_16_le"
+            sz_enc = 2
+            line = "Tit"
+        else:
+            raise RuntimeError("Unrecognized encoding")
+        settings.logger.info(f"Reading the file with encoding: '{self.encoding}' ")
+        self.raw_params = OrderedDict(Filename=raw_filename)
+        self.backannotations = []
+        header = []
+        binary_start = 6
+        while True:
+            ch = raw_file.read(sz_enc).decode(encoding=self.encoding, errors="replace")
+            binary_start += sz_enc
+            if ch == "\n":
+                if self.encoding == "utf_8":
+                    line = line.rstrip("\r")
+                header.append(line)
+                if line in ("Binary:", "Values:"):
+                    self.raw_type = line
+                    break
+                line = ""
+            else:
+                line += ch
+
+        for line in header:
+            if not line.startswith("."):
+                k, _, v = line.partition(":")
+                if k == "Variables":
+                    break
+                self.raw_params[k] = v.strip()
+        self.nPoints = int(self.raw_params["No. Points"], 10)
+        self.nVariables = int(self.raw_params["No. Variables"], 10)
+        self._traces = []
+
+        self.axis = None
+        self.flags = self.raw_params["Flags"].split()
+        numerical_type = "real"
+        i = header.index("Variables:")
+        ivar = 0
+        for line in header[i + 1 : -1]:
+            idx, name, var_type = line.lstrip().split("\t")
+            if numerical_type == "real":
+                axis_numerical_type = "double"
+            else:
+                axis_numerical_type = numerical_type
+            if ivar == 0:
+                self.axis = Trace(name, var_type, self.nPoints, None, axis_numerical_type)
+                trace = self.axis
+            else:
+                trace = Trace(name, var_type, self.nPoints, self.axis, axis_numerical_type)
+            self._traces.append(trace)
+            ivar += 1
+
+        if len(self._traces) == 0:
+            raw_file.close()
+            return
+
+        if kwargs.get("headeronly", False):
+            raw_file.close()
+            return
+
+        if self.raw_type == "Binary:":
+            scan_functions = []
+            for trace in self._traces:
+                if trace.numerical_type in ["double", "real"]:
+                    fun = self.read_float64
+                else:
+                    raise RuntimeError("Invalid data type {} for trace {}".format(trace.numerical_type, trace.name))
+                scan_functions.append(fun)
+
+            for point in range(self.nPoints):
+                for i, var in enumerate(self._traces):
+                    value = scan_functions[i](raw_file)
+                    if value is not None:
+                        var.data[point] = value
+
+        else:
+            raw_file.close()
+            raise SpiSimRawException("Unsupported RAW File. " "%s" "" % self.raw_type)
+
+        raw_file.close()
+
+        self.raw_params["No. Points"] = self.nPoints
+        self.raw_params["No. Variables"] = self.nVariables
+        self.raw_params["Variables"] = [var.name for var in self._traces]
+
+    def get_raw_property(self, property_name=None):
+        """
+        Get a property. By default, it returns all properties defined in the RAW file.
+
+        :param property_name: name of the property to retrieve.
+        :type property_name: str
+        :returns: Property object
+        :rtype: str
+        :raises: ValueError if the property doesn't exist
+        """
+        if property_name is None:
+            return self.raw_params
+        elif property_name in self.raw_params.keys():
+            return self.raw_params[property_name]
+        else:
+            raise ValueError("Invalid property. Use %s" % str(self.raw_params.keys()))
+
+    @property
+    def trace_names(self):
+        """
+        Returns a list of exiting trace names of the RAW file.
+
+        Returns
+        -------
+        list
+            Trace names.
+        """
+        return [trace.name for trace in self._traces]
+
+    def get_trace(self, trace_ref):
+        """Retrieves the trace with the requested name (trace_ref).
+
+        Parameters
+        ----------
+        trace_ref: str, int
+            Name of the trace or the index of the trace.
+        """
+        if isinstance(trace_ref, str):
+            for trace in self._traces:
+                if trace_ref.casefold() == trace.name.casefold():  # The trace names are case-insensitive
+                    # assert isinstance(trace, DataSet)
+                    return trace
+            raise IndexError(
+                f'{self} doesn\'t contain trace "{trace_ref}"\n'
+                f"Valid traces are {[trc.name for trc in self._traces]}"
+            )
+        else:
+            return self._traces[trace_ref]
+
+    def get_wave(self, trace_ref):
+        """Retrieves the trace data with the requested name (trace_ref).
+
+        Parameters
+        ----------
+        trace_ref: str, int
+            Name of the trace or the index of the trace.
+
+        Returns
+        -------
+        :class:`numpy.array`
+            The trace values.
+        """
+        return self.get_trace(trace_ref).wave
+
+    def get_axis(self):
+        """This function is equivalent to get_trace(0).wave instruction.
+
+        Returns
+        -------
+        :class:`numpy.array`
+            Axis data.
+        """
+        if self.axis:
+            return self.axis.wave
+        else:
+            raise RuntimeError("This RAW file does not have an axis.")
+
+    def get_len(self):
+        """Compute the length of the data.
+
+        Returns
+        -------
+        int
+            Length of the data.
+        """
+        return self.axis.get_len()
+
+    def __getitem__(self, item):
+        return self.get_trace(item)
