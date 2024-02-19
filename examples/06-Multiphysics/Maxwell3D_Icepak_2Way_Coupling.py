@@ -136,7 +136,8 @@ ipk.assign_em_losses(
 # ~~~~~~~~~~~~~~~~~~~
 # Assign opening
 
-faces = ipk.modeler["Region"].faces
+ids = [f.id for f in m3d.modeler.objects_by_name["Region"].faces]
+ipk.assign_free_opening(ids , boundary_name="Opening1")
 face_names = [face.id for face in faces]
 ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
