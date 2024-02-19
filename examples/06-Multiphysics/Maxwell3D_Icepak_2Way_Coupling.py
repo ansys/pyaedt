@@ -117,7 +117,12 @@ m3d.analyze_setup("Setup1")
 
 ipk = pyaedt.Icepak(designname=icepak_design_name)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
-ipk.modeler.edit_region_dimensions([50, 50, 50, 50, 500, 500])
+
+# Set domain dimensions suitable for natural convection using the diameter of the coil
+ipk.modeler["Region"].delete()
+l=coil.bounding_dimension[0]
+ipk.modeler.create_region(0, False)
+ipk.modeler.edit_region_dimensions([l/2, l/2, l/2, l/2, l*2, l])
 
 ###############################################################################
 # Map coil losses
