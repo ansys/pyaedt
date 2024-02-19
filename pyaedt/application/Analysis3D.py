@@ -701,6 +701,7 @@ class FieldAnalysis3D(Analysis, object):
             if self.design_type == "HFSS":
                 solve_inside = matobj.is_dielectric()
             elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
+                solve_inside = True
                 if mat in ["pec", "perfect conductor"]:
                     solve_inside = False
             else:
