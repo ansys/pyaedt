@@ -301,8 +301,6 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
             if encoding == "utf-8" and lines[1] == "\x00":
                 continue
             return encoding
-    else:
-        return Exception("Failed to identify encoding.")
 
 
 class DataSet(object):
@@ -445,7 +443,7 @@ class SpiSimRawRead(object):
         i = header.index("Variables:")
         ivar = 0
         for line in header[i + 1 : -1]:
-            idx, name, var_type = line.lstrip().split("\t")
+            _, name, var_type = line.lstrip().split("\t")
             if numerical_type == "real":
                 axis_numerical_type = "double"
             else:  # pragma: no cover

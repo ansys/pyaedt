@@ -90,9 +90,9 @@ class COMParameters:
         self.pdf_bin_size = "1e-5"
         self.imprsp_trunc_threshold = "1E-3"
         self.n_v = ""
-        self.vec_pass_threshold = ""
-        self.com_pass_threshold = "3.0"
-        self.erl_pass_threshold = ""
+        self.vec_pass_threshold = ""  # nosec
+        self.com_pass_threshold = "3.0"  # nosec
+        self.erl_pass_threshold = ""  # nosec
         self.eh_max = ""
         self.eh_min = ""
         self.ctle_type = "CL93"
@@ -293,7 +293,7 @@ class COMParameters:
         self.n_v = ""
         self.vec_pass_threshold = ""
         self.com_pass_threshold = "3.0"
-        self.erl_pass_threshold = "8"
+        self.erl_pass_threshold = "8"  # nosec
         self.eh_max = ""
         self.eh_min = ""
         self.ctle_type = "CL93"
