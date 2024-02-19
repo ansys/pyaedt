@@ -147,23 +147,6 @@ face_names = [face.id for face in faces]
 ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
 ###############################################################################
-# Icepak mesh
-# ~~~~~~~~~~~~~~~~~~~
-# Assign mesh
-
-mesh_region = ipk.mesh.assign_mesh_region(objectlist=["Coil", "Core"])
-mesh_region.UserSpecifiedSettings = True
-mesh_region.MinGapX = "1mm"
-mesh_region.MinGapY = "1mm"
-mesh_region.MinGapZ = "1mm"
-mesh_region.MaxLevels = "2"
-mesh_region.MaxElementSizeX = "10mm"
-mesh_region.MaxElementSizeY = "10mm"
-mesh_region.MaxElementSizeZ = "10mm"
-mesh_region.update()
-
-
-###############################################################################
 # Icepak solution setup
 # ~~~~~~~~~~~~~~~~~~~
 
