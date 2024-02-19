@@ -223,9 +223,10 @@ class SpiSim:
             for k, v in cfg_dict.items():
                 fp.write("{} = {}\n".format(k, v))
 
-        out_processing = self._compute_spisim("CalcERL", touchstone_file=self.touchstone_file, config_file=new_cfg_file, out_file=self.working_directory)
+        out_processing = self._compute_spisim(
+            "CalcERL", touchstone_file=self.touchstone_file, config_file=new_cfg_file, out_file=self.working_directory
+        )
         return self._get_output_parameter_from_result(out_processing, "ERL")
-
 
     @pyaedt_function_handler
     def compute_com(
@@ -260,7 +261,6 @@ class SpiSim:
 
         out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file, out_file=out_folder)
         return self._get_output_parameter_from_result(out_processing, "COM")
-
 
     @staticmethod
     @pyaedt_function_handler
