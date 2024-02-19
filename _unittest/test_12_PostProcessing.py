@@ -33,6 +33,7 @@ else:
     m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
+test_emi_name = "EMI_RCV_241"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 ipk_post_proj = "for_icepak_post"
@@ -49,6 +50,12 @@ def field_test(add_app):
 @pytest.fixture(scope="class")
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def emi_receiver_test(add_app):
+    app = add_app(project_name=test_emi_name, design_name="CE_band", application=Circuit, subfolder=test_subfolder)
     return app
 
 
@@ -874,6 +881,24 @@ class TestClass:
         assert not plot.update()
         plot.surfaces_indexes.append(8)
         assert not plot.update()
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
+    def test_76_emi_receiver(self, emi_receiver_test):
+        emi_receiver_test.analyze()
+        new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
+        new_report.band = "2"
+        new_report.emission = "RE"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "2us"
+        new_report.net = "net_invented"
+        assert new_report.net != "net_invented"
+        assert new_report.create()
+        new_report2 = emi_receiver_test.post.reports_by_category.emi_receiver(
+            ["dBu(Average[net_6])", "dBu(Peak[net_6])", "dBu(QuasiPeak[net_6])", "dBu(RMS[net_6])"], "EMItransient"
+        )
+        assert new_report2.net == "net_6"
+        new_report2.time_stop = "2.5us"
+        assert new_report2.create()
 
     def test_98_get_variations(self, field_test):
         vars = field_test.available_variations.get_variation_strings()
