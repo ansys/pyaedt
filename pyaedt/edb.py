@@ -2671,6 +2671,7 @@ class Edb(Database):
 
         """
         option_config = {
+            "TOTAL_VIA_FILL": 0,
             "UNITE_NETS": 1,
             "ASSIGN_SOLDER_BALLS_AS_SOURCES": 0,
             "Q3D_MERGE_SOURCES": 0,
