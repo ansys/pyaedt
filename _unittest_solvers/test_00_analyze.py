@@ -28,7 +28,8 @@ else:
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
-
+com_project_name = ("com_unit_test"
+                    "")
 
 @pytest.fixture()
 def sbr_platform(add_app):
@@ -76,12 +77,16 @@ def circuit_app(add_app):
     app.modeler.schematic_units = "mil"
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_erl(add_app):
     app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
     return app
 
-
+@pytest.fixture(scope="class")
+def circuit_com(add_app):
+    app = add_app(com_project_name, design_name="1_channel", application=Circuit, subfolder=test_subfolder)
+    return app
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
@@ -90,7 +95,6 @@ def m3dtransient(add_app):
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, local_scratch, icepak_app, hfss3dl_solve):
         self.local_scratch = local_scratch
@@ -161,21 +165,13 @@ class TestClass:
         from pyaedt.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
-            dict_in = read_json(
-                os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json")
-            )
-            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
-                local_path, "example_models", test_subfolder, component
-            )
+            dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
+            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         else:
-            dict_in = read_json(
-                os.path.join(local_path, "example_models", test_subfolder, "array_simple.json")
-            )
-            dict_in["Circ_Patch_5GHz1"] = os.path.join(
-                local_path, "example_models", test_subfolder, component
-            )
+            dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
+            dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         hfss_app.add_3d_component_array_from_json(dict_in)
@@ -194,17 +190,14 @@ class TestClass:
         assert len(exported_files) > 0
 
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
-        assert hfss_app.post.export_field_file(quantity_name='Mag_E',
-                                               filename=fld_file1,
-                                               obj_list='Box1',
-                                               intrinsics="1GHz",
-                                               phase="5deg")
+        assert hfss_app.post.export_field_file(
+            quantity_name="Mag_E", filename=fld_file1, obj_list="Box1", intrinsics="1GHz", phase="5deg"
+        )
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
-        assert hfss_app.post.export_field_file(quantity_name='Mag_E',
-                                               filename=fld_file2,
-                                               obj_list='Box1',
-                                               intrinsics="1GHz")
+        assert hfss_app.post.export_field_file(
+            quantity_name="Mag_E", filename=fld_file2, obj_list="Box1", intrinsics="1GHz"
+        )
         assert os.path.exists(fld_file2)
 
     def test_03a_icepak_analyze_and_export_summary(self):
@@ -231,15 +224,21 @@ class TestClass:
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
 
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface",
-                                              variationlist=[], filename="A")  # check usage of deprecated arguments
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface",
-                                              variation_list=[], filename="B")
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume",
-                                              type="Boundary", filename="C")
-        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]),
-                                    ("C_Temperature.csv", ["box"])]:
-            with open(os.path.join(self.icepak_app.working_directory, file_name), 'r', newline='') as csv_file:
+        assert self.icepak_app.export_summary(
+            self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
+        )  # check usage of deprecated arguments
+        assert self.icepak_app.export_summary(
+            self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B"
+        )
+        assert self.icepak_app.export_summary(
+            self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C"
+        )
+        for file_name, entities in [
+            ("A_Temperature.csv", ["box", "Region"]),
+            ("B_Temperature.csv", ["box", "Region"]),
+            ("C_Temperature.csv", ["box"]),
+        ]:
+            with open(os.path.join(self.icepak_app.working_directory, file_name), "r", newline="") as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for _ in range(4):
                     _ = next(csv_reader)
@@ -275,28 +274,34 @@ class TestClass:
 
     def test_03e_icepak_ExportFLDFil(self):
         fld_file = os.path.join(self.local_scratch.path, "test_fld.fld")
-        self.icepak_app.post.export_field_file(quantity_name='Temp',
-                                               solution=self.icepak_app.nominal_sweep,
-                                               variation_dict={},
-                                               filename=fld_file,
-                                               obj_list='box')
+        self.icepak_app.post.export_field_file(
+            quantity_name="Temp",
+            solution=self.icepak_app.nominal_sweep,
+            variation_dict={},
+            filename=fld_file,
+            obj_list="box",
+        )
         assert os.path.exists(fld_file)
         fld_file_1 = os.path.join(self.local_scratch.path, "test_fld_1.fld")
         sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
-        self.icepak_app.post.export_field_file(quantity_name='Temp',
-                                               solution=self.icepak_app.nominal_sweep,
-                                               variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               filename=fld_file_1,
-                                               obj_list='box',
-                                               sample_points_file=sample_points_file)
+        self.icepak_app.post.export_field_file(
+            quantity_name="Temp",
+            solution=self.icepak_app.nominal_sweep,
+            variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+            filename=fld_file_1,
+            obj_list="box",
+            sample_points_file=sample_points_file,
+        )
         assert os.path.exists(fld_file_1)
         fld_file_2 = os.path.join(self.local_scratch.path, "test_fld_2.fld")
-        self.icepak_app.post.export_field_file(quantity_name='Temp',
-                                               solution=self.icepak_app.nominal_sweep,
-                                               variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               filename=fld_file_2,
-                                               obj_list='box',
-                                               sample_points_lists=[[0, 0, 0], [3, 6, 8], [4, 7, 9]])
+        self.icepak_app.post.export_field_file(
+            quantity_name="Temp",
+            solution=self.icepak_app.nominal_sweep,
+            variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+            filename=fld_file_2,
+            obj_list="box",
+            sample_points_lists=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
+        )
         assert os.path.exists(fld_file_2)
 
     def test_04a_3dl_generate_mesh(self):
@@ -408,30 +413,32 @@ class TestClass:
     def test_07_export_maxwell_fields(self, m3dtransient):
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
-        assert m3dtransient.post.export_field_file(quantity_name='Mag_B',
-                                            solution=m3dtransient.nominal_sweep,
-                                            variation_dict={},
-                                            filename=fld_file_3,
-                                            obj_list='Coil_A2',
-                                            intrinsics="10ms",
-                                            obj_type="Surf")
+        assert m3dtransient.post.export_field_file(
+            quantity_name="Mag_B",
+            solution=m3dtransient.nominal_sweep,
+            variation_dict={},
+            filename=fld_file_3,
+            obj_list="Coil_A2",
+            intrinsics="10ms",
+            obj_type="Surf",
+        )
         assert os.path.exists(fld_file_3)
         fld_file_4 = os.path.join(self.local_scratch.path, "test_fld_4.fld")
-        assert not m3dtransient.post.export_field_file(quantity_name='Mag_B',
-                                                       solution=m3dtransient.nominal_sweep,
-                                                       variation_dict=m3dtransient.available_variations.nominal_w_values_dict,
-                                                       filename=fld_file_4,
-                                                       obj_list='Coil_A2',
-                                                       obj_type="invalid")
+        assert not m3dtransient.post.export_field_file(
+            quantity_name="Mag_B",
+            solution=m3dtransient.nominal_sweep,
+            variation_dict=m3dtransient.available_variations.nominal_w_values_dict,
+            filename=fld_file_4,
+            obj_list="Coil_A2",
+            obj_type="invalid",
+        )
         setup = m3dtransient.setups[0]
         m3dtransient.setups[0].delete()
-        assert not m3dtransient.post.export_field_file(quantity_name='Mag_B',
-                                                       variation_dict={},
-                                                       filename=fld_file_4,
-                                                       obj_list='Coil_A2')
+        assert not m3dtransient.post.export_field_file(
+            quantity_name="Mag_B", variation_dict={}, filename=fld_file_4, obj_list="Coil_A2"
+        )
 
-        new_setup = m3dtransient.create_setup(setupname=setup.name,
-                                              setuptype=setup.setuptype)
+        new_setup = m3dtransient.create_setup(setupname=setup.name, setuptype=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
 
@@ -439,17 +446,54 @@ class TestClass:
         touchstone_file = circuit_erl.export_touchstone()
         spisim = SpiSim(touchstone_file)
 
-        erl_data2 = spisim.compute_erl(port_order="EvenOdd",bandwidth="40g",
-                                            tdr_duration=4,
-                                            z_terminations=50,
-                                            transition_time="10p",
-                                            fixture_delay=400e-12,
-                                            input_amplitude=1.0,
-                                            ber=1e-4,
-                                            )
+        erl_data2 = spisim.compute_erl(
+            port_order="EvenOdd",
+            bandwidth="40g",
+            tdr_duration=4,
+            z_terminations=50,
+            transition_time="10p",
+            fixture_delay=400e-12,
+            input_amplitude=1.0,
+            ber=1e-4,
+        )
         assert erl_data2
         circuit_erl.set_active_design("4_ports")
         touchstone_file2 = circuit_erl.export_touchstone()
         spisim.touchstone_file = touchstone_file2
         erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
+
+    def test_09_compute_com(self, circuit_com):
+        touchstone_file = circuit_com.export_touchstone()
+        spisim = SpiSim(touchstone_file)
+
+        report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
+        os.mkdir(report_dir)
+        com_0, com_1 = spisim.compute_com(
+            standard="50GAUI-1_C2C",
+            fext_snp=touchstone_file,
+            next_snp=[touchstone_file, touchstone_file],
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
+
+        report_dir = os.path.join(spisim.working_directory, "100GBASE-KR4")
+        os.mkdir(report_dir)
+        com_0, com_1 = spisim.compute_com(
+            standard="100GBASE-KR4",
+            fext_snp=[touchstone_file, touchstone_file],
+            next_snp=touchstone_file,
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
+
+        report_dir = os.path.join(spisim.working_directory, "custom")
+        os.mkdir(report_dir)
+        spisim.com_parameters().export(os.path.join(spisim.working_directory, "custom.cfg"))
+        com_0, com_1 = spisim.compute_com(
+            standard="custom",
+            config_file=os.path.join(spisim.working_directory, "custom.cfg"),
+            port_order="[1 3 2 4]",
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
