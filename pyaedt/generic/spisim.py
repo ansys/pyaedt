@@ -6,7 +6,6 @@ import re
 from struct import unpack
 import subprocess  # nosec
 
-from numpy import float32
 from numpy import float64
 from numpy import zeros
 
@@ -315,18 +314,17 @@ class DataSet(object):
     Frequency.
     """
 
-    def __init__(self, name, whattype, datalen, numerical_type="real"):
+    def __init__(
+        self,
+        name,
+        whattype,
+        datalen,
+    ):
         """Base Class for both Axis and Trace Classes.
         Defines the common operations between both."""
         self.name = name
         self.whattype = whattype
-        self.numerical_type = numerical_type
-        if numerical_type == "double":
-            self.data = zeros(datalen, dtype=float64)
-        elif numerical_type == "real":
-            self.data = zeros(datalen, dtype=float32)
-        else:
-            raise NotImplementedError
+        self.data = zeros(datalen, dtype=float64)
 
     def __len__(self):
         return len(self.data)
@@ -350,18 +348,22 @@ class DataSet(object):
 
 
 class Trace(DataSet):
-    """This class is used to represent a trace. It derives from DataSet and implements the additional methods to
-    support STEPed simulations.
+    """This class is used to represent a trace.
     This class is constructed by the get_trace() command.
-    Data can be accessed through the [] and len() operators, or by the get_wave() method.
     If numpy is available the get_wave() method will return a numpy array.
     """
 
-    def __init__(self, name, whattype, datalen, axis, numerical_type="real"):
-        super().__init__(name, whattype, datalen, numerical_type)
+    def __init__(
+        self,
+        name,
+        whattype,
+        datalen,
+        axis,
+    ):
+        super().__init__(name, whattype, datalen)
         self.axis = axis
 
-    def get_len(self):
+    def __len__(self):
         """
         Returns the length of the axis.
 
@@ -439,20 +441,15 @@ class SpiSimRawRead(object):
 
         self.axis = None
         self.flags = self.raw_params["Flags"].split()
-        numerical_type = "real"
         i = header.index("Variables:")
         ivar = 0
         for line in header[i + 1 : -1]:
             _, name, var_type = line.lstrip().split("\t")
-            if numerical_type == "real":
-                axis_numerical_type = "double"
-            else:  # pragma: no cover
-                axis_numerical_type = numerical_type
             if ivar == 0:
-                self.axis = Trace(name, var_type, self.nPoints, None, axis_numerical_type)
+                self.axis = Trace(name, var_type, self.nPoints, None)
                 trace = self.axis
             else:
-                trace = Trace(name, var_type, self.nPoints, self.axis, axis_numerical_type)
+                trace = Trace(name, var_type, self.nPoints, self.axis)
             self._traces.append(trace)
             ivar += 1
 
@@ -465,20 +462,11 @@ class SpiSimRawRead(object):
             return
 
         if self.raw_type == "Binary:":
-            scan_functions = []
-            for trace in self._traces:
-                if trace.numerical_type in ["double", "real"]:
-                    fun = self.read_float64
-                else:  # pragma: no cover
-                    raise RuntimeError("Invalid data type {} for trace {}".format(trace.numerical_type, trace.name))
-                scan_functions.append(fun)
-
             for point in range(self.nPoints):
                 for i, var in enumerate(self._traces):
-                    value = scan_functions[i](raw_file)
+                    value = self.read_float64(raw_file)
                     if value is not None:
                         var.data[point] = value
-
         else:  # pragma: no cover
             raw_file.close()
             raise SpiSimRawException("Unsupported RAW File. " "%s" "" % self.raw_type)
@@ -566,7 +554,7 @@ class SpiSimRawRead(object):
         else:  # pragma: no cover
             raise RuntimeError("This RAW file does not have an axis.")
 
-    def get_len(self):
+    def __len__(self):
         """Compute the length of the data.
 
         Returns
@@ -574,7 +562,7 @@ class SpiSimRawRead(object):
         int
             Length of the data.
         """
-        return self.axis.get_len()
+        return self.axis.__len__()
 
     def __getitem__(self, item):
         return self.get_trace(item)
