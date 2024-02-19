@@ -213,7 +213,9 @@ class VirtualCompliance:
                         except Exception:  # pragma: no cover
                             time.sleep(1)
                             sleep_time -= 1
-                if pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None):  # pragma: no cover
+                if (
+                    pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None)
+                ):  # pragma: no cover
                     _design.logger.info(f"Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                     write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
