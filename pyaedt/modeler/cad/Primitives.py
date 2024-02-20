@@ -2863,8 +2863,8 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        pyaedt.modeler.cad.object3d.Object3d, list
-            3D object, list of 3D object.
+        :class:`pyaedt.modeler.cad.object3d.Object3d` or list of :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Objects created.
 
         References
         ----------
