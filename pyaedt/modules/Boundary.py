@@ -1,5 +1,5 @@
 """
-This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
+This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``.
 """
 
 from abc import abstractmethod
