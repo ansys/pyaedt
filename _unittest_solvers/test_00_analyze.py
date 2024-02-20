@@ -468,6 +468,8 @@ class TestClass:
     def test_09_compute_com(self, local_scratch, circuit_com):
         touchstone_file = circuit_com.export_touchstone()
         spisim = SpiSim(touchstone_file)
+        assert spisim.com_standards
+        assert spisim.com_parameters()
 
         report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
         os.mkdir(report_dir)
@@ -494,9 +496,8 @@ class TestClass:
 
         report_dir = os.path.join(spisim.working_directory, "custom")
         os.mkdir(report_dir)
-        com_parameter = spisim.com_parameters()
-        assert com_parameter.standard
-        com_parameter.export(os.path.join(spisim.working_directory, "custom.cfg"))
+
+        spisim.export_com_configure_file(os.path.join(spisim.working_directory, "custom.cfg"))
         spisim.touchstone_file = thru_s4p
         com_0, com_1 = spisim.compute_com(
             standard="custom",

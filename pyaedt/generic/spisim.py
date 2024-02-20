@@ -294,10 +294,30 @@ class SpiSim:
         out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file, out_file=out_folder)
         return self._get_output_parameter_from_result(out_processing, "COM")
 
+    @property
+    def com_standards(self):
+        """List of supported COM standards."""
+        return list(COMParameters._STD_TABLE_MAPPING.keys())
+
     @staticmethod
     @pyaedt_function_handler
     def com_parameters(standard="50GAUI-1_C2C"):
-        return COMParameters(standard)
+        return COMParameters(standard).parameters
+
+    @pyaedt_function_handler
+    def export_com_configure_file(self, file_path, standard="50GAUI-1_C2C"):
+        """Generate a configuration file for SpiSim.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to configuration file to create.
+
+        Returns
+        -------
+        bool
+        """
+        return COMParameters(standard).export(file_path)
 
 
 def detect_encoding(file_path, expected_pattern="", re_flags=0):
