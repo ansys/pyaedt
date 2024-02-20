@@ -244,8 +244,8 @@ class SpiSim:
         standard,
         config_file=None,
         port_order=None,
-        fext_snp="",
-        next_snp="",
+        fext_s4p="",
+        next_s4p="",
         out_folder="",
     ):
         """Compute Channel Operating Margin.
@@ -259,9 +259,9 @@ class SpiSim:
         port_order : str, optional
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
             The default is ``None``. This parameter is ignored if there are more than four ports.
-        fext_snp : str, optional
+        fext_s4p : str, list, optional
             Fext touchstone file to use.
-        next_snp : str, optional
+        next_s4p : str, list, optional
             Next touchstone file to use.
         out_folder : str, optional
             Output folder where to save report.
@@ -276,20 +276,91 @@ class SpiSim:
         else:
             com_param = COMParameters(standard)
 
-        com_param.thrusnp = self.touchstone_file
-        com_param.fextary = fext_snp if not isinstance(fext_snp, list) else ";".join(fext_snp)
-        com_param.nextary = next_snp if not isinstance(next_snp, list) else ";".join(next_snp)
+        com_param.THRUSNP = self.touchstone_file
+        com_param.FEXTARY = fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p)
+        com_param.NEXTARY = next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p)
         if port_order:
-            com_param.port_order = port_order
+            com_param.PORT_ORDER = port_order
+
+        return self._compute_com(com_param, out_folder)
+
+    @pyaedt_function_handler
+    def compute_com_from_snp(
+            self,
+            standard,
+            config_file=None,
+            port_order=None,
+            tx_rx_port="(1,2);(3,4)",
+            fext_port="(7,8)",
+            next_port="(5,6)",
+            out_folder="",
+    ):
+        """Compute Channel Operating Margin from a single snp file.
+
+        Parameters
+        ----------
+        standard : str
+            Name of the standard to apply.
+        config_file : str, optional
+            Config file to use.
+        port_order : str, optional
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
+            The default is ``None``. This parameter is ignored if there are more than four ports.
+        tx_rx_port: str, optional
+            Through channel port.
+        fext_port : str, optional
+            Fext port.
+        next_port : str, optional
+            Next port.
+        out_folder : str, optional
+            Output folder where to save report.
+
+        Returns
+        -------
+
+        """
+        if standard == "custom":
+            com_param = COMParameters()
+            com_param.load(config_file)
+        else:
+            com_param = COMParameters(standard)
+
+        com_param.THRUSNP = self.touchstone_file
+        com_param.FSTTHRU = "/".join([tx_rx_port, next_port, fext_port])
+        if port_order:
+            com_param.PORT_ORDER = port_order
+        com_param.NUMPORT = self.touchstone_file.split(".")[-1].replace("s", "").replace("p","")
+
+        return self._compute_com(com_param, out_folder)
+
+    @pyaedt_function_handler
+    def _compute_com(
+        self,
+        com_parameter,
+        out_folder,
+    ):
+        """Compute Channel Operating Margin.
+
+        Parameters
+        ----------
+        com_parameter: :class:`COMParameters`
+            COMParameters class.
+        out_folder : str, optional
+            Output folder where to save report.
+
+        Returns
+        -------
+
+        """
 
         out_folder = out_folder if out_folder else self.working_directory
 
-        com_param.thrusnp = com_param.thrusnp.replace("\\", "/")
-        com_param.fextary = com_param.fextary.replace("\\", "/")
-        com_param.nextary = com_param.nextary.replace("\\", "/")
+        com_parameter.THRUSNP = com_parameter.THRUSNP.replace("\\", "/")
+        com_parameter.FEXTARY = com_parameter.FEXTARY.replace("\\", "/")
+        com_parameter.NEXTARY = com_parameter.NEXTARY.replace("\\", "/")
 
         cfg_file = os.path.join(out_folder, "com_parameters.cfg")
-        com_param.export(cfg_file)
+        com_parameter.export(cfg_file)
 
         out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file, out_file=out_folder)
         return self._get_output_parameter_from_result(out_processing, "COM")

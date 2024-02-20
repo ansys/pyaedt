@@ -465,7 +465,7 @@ class TestClass:
         erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
 
-    def test_09_compute_com(self, local_scratch, circuit_com):
+    def test_09a_compute_com(self, local_scratch, circuit_com):
         touchstone_file = circuit_com.export_touchstone()
         spisim = SpiSim(touchstone_file)
         assert spisim.com_standards
@@ -483,28 +483,47 @@ class TestClass:
         os.mkdir(report_dir)
         com_0, com_1 = spisim.compute_com(
             standard="100GBASE-KR4",
-            fext_snp=[touchstone_file, touchstone_file],
-            next_snp=touchstone_file,
+            fext_s4p=[touchstone_file, touchstone_file],
+            next_s4p=touchstone_file,
             out_folder=report_dir,
         )
         assert com_0 and com_1
 
+    def test_09b_compute_com(self, local_scratch):
         com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
         thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
-        fext_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p"))
-        next_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p"))
+        fext_s4p = local_scratch.copyfile(
+            os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
+        )
+        next_s4p = local_scratch.copyfile(
+            os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
+        )
 
-        report_dir = os.path.join(spisim.working_directory, "custom")
+        report_dir = os.path.join(local_scratch.path, "custom")
         os.mkdir(report_dir)
 
+        spisim = SpiSim(thru_s4p)
         spisim.export_com_configure_file(os.path.join(spisim.working_directory, "custom.cfg"))
-        spisim.touchstone_file = thru_s4p
         com_0, com_1 = spisim.compute_com(
             standard="custom",
             config_file=os.path.join(spisim.working_directory, "custom.cfg"),
             port_order="[1 3 2 4]",
-            fext_snp=fext_s4p,
-            next_snp=next_s4p,
+            fext_s4p=fext_s4p,
+            next_s4p=next_s4p,
             out_folder=report_dir,
+        )
+        assert com_0 and com_1
+
+    def test_09c_compute_com(self, local_scratch):
+        com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
+        snp = local_scratch.copyfile(os.path.join(com_example_file_folder, "5_C50.s20p"))
+
+        spisim = SpiSim(snp)
+        com_0, com_1 = spisim.compute_com_from_snp(
+            standard="100GBASE-KR4",
+            port_order="[1 3 2 4]",
+            tx_rx_port="(1,2);(3,4)",
+            fext_port="(5,6);(7,8);(9,10);(11,12)",
+            next_port="(13,14);(15,16);(17,18);(19,20)",
         )
         assert com_0 and com_1
