@@ -286,14 +286,14 @@ class SpiSim:
 
     @pyaedt_function_handler
     def compute_com_from_snp(
-            self,
-            standard,
-            config_file=None,
-            port_order=None,
-            tx_rx_port="(1,2);(3,4)",
-            fext_port="(7,8)",
-            next_port="(5,6)",
-            out_folder="",
+        self,
+        standard,
+        config_file=None,
+        port_order=None,
+        tx_rx_port="(1,2);(3,4)",
+        fext_port="(7,8)",
+        next_port="(5,6)",
+        out_folder="",
     ):
         """Compute Channel Operating Margin from a single snp file.
 
@@ -329,7 +329,7 @@ class SpiSim:
         com_param.FSTTHRU = "/".join([tx_rx_port, next_port, fext_port])
         if port_order:
             com_param.PORT_ORDER = port_order
-        com_param.NUMPORT = self.touchstone_file.split(".")[-1].replace("s", "").replace("p","")
+        com_param.NUMPORT = self.touchstone_file.split(".")[-1].replace("s", "").replace("p", "")
 
         return self._compute_com(com_param, out_folder)
 
