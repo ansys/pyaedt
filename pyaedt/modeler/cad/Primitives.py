@@ -2982,13 +2982,8 @@ class GeometryModeler(Modeler):
         ]
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
-        if isinstance(objid, list):
-            updated_obj = []
-            for sel_obj in objid:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
-        else:
-            return self.update_object(objid)
+
+        return self.update_object(objid)
 
     @pyaedt_function_handler()
     def section(self, object_list, plane, create_new=True, section_cross_object=False):
