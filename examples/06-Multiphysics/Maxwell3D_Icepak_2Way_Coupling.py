@@ -238,7 +238,7 @@ ipk.assign_2way_coupling()
 ipk.analyze_setup(name=solution_setup.name)
 
 ###############################################################################
-# Post-processing
+# Postprocessing
 # ~~~~~~~~~~~~~~~
 # Plot temperature on the object surfaces.
 
