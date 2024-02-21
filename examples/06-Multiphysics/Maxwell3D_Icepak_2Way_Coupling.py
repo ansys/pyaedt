@@ -70,10 +70,10 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
 # Assign materials
 # ~~~~~~~~~~~~~~~~
 # Create a material: Copper AWG40 Litz wire, strand diameter = 0.08mm, 24 parallel strands.
-# Assign materials: Coil --> AWG40 copper, core --> ferrite, region --> vacuum.
+# Assign materials: Assign Coil to AWG40 copper, core to ferrite, and region to vacuum.
 
 no_strands = 24
-strand_diameter = 0.08 #mm
+strand_diameter = 0.08 # mm
 
 cu_litz = m3d.materials.duplicate_material("copper", "copper_litz")
 cu_litz.stacking_type = "Litz Wire"
@@ -88,13 +88,15 @@ m3d.assign_material(core.name, "ferrite")
 ###############################################################################
 # Assign excitation
 # ~~~~~~~~~~~~~~~~~
-# Coil consists of 20 turns, coil current 10A.
+# Assign coil current, coil consists of 20 turns, total current 10A.
+# Note that each coil turn consists of 24 parallel Litz strands, see above.
 
 no_turns = 20
+coil_current = 10
 m3d.assign_coil(["Coil_terminal"], conductor_number=no_turns, name="Coil_terminal")
 m3d.assign_winding(
     is_solid=False,
-    current_value=10,
+    current_value=coil_current,
     name="Winding1",
 )
 
@@ -148,7 +150,8 @@ m3d.analyze_setup("Setup1")
 ###############################################################################
 # Postprocessing
 # ~~~~~~~~~~~~~~
-# Analytical vs. simulated coil resistance, and ohmic loss in coil before temperature feedback.
+# Calculate analytical DC resistance and compare it with the simulated coil resistance,
+# print them in the message manager, as well as ohmic loss in coil before temperature feedback.
 
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
 solution = report.get_solution_data()
