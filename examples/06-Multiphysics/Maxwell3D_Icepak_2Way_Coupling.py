@@ -125,7 +125,7 @@ cu_litz.conductivity.add_thermal_modifier_free_form("1.0/(1.0+{}*(Temp-20))".for
 # Set object temperature and enable feedback
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set the temperature of the objects to default temperature (22deg C),
-# and enable temperature feedback for 2-way coupling.
+# and enable temperature feedback for two-way coupling.
 
 m3d.modeler.set_objects_temperature(["Coil"])
 
