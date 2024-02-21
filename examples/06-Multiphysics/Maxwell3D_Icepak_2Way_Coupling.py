@@ -147,7 +147,7 @@ m3d.analyze_setup("Setup1")
 
 ###############################################################################
 # Postprocessing
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~
 # Analytical vs. simulated coil resistance, and ohmic loss in coil before temperature feedback.
 
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
