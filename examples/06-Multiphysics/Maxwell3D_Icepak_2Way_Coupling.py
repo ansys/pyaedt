@@ -46,7 +46,7 @@ m3d = pyaedt.Maxwell3d(
 ###############################################################################
 # Create geometry in Maxwell
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the coil, the coil terminal, the core, and the region.
+# Create the coil, coil terminal, core, and region.
 
 coil = m3d.modeler.create_rectangle(
     csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil"
