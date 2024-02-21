@@ -63,7 +63,7 @@ core = m3d.modeler.create_rectangle(
 )
 core.sweep_around_axis(cs_axis=AXIS.Z)
 
-# Magnetic flux is not concentrated by the core in +z-direction, therefore more padding is needed in that direction
+# Magnetic flux is not concentrated by the core in +z-direction. Therefore, more padding is needed in that direction.
 region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
 
 ###############################################################################
