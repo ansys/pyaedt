@@ -99,7 +99,7 @@ jobs:
       - name: "Check library vulnerabilities with development mode"
         uses: ansys/actions/check-vulnerabilities@v5
         with:
-          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          token: ${{ secrets.PYAEDTVULNERABILITIES}}
           python-package-name: 'pyaedt'
           dev-mode: false
           hide-log: false
