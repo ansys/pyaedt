@@ -69,7 +69,7 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
 ###############################################################################
 # Assign materials
 # ~~~~~~~~~~~~~~~~
-# Create new material: Copper AWG40 Litz wire, strand diameter = 0.08mm, 24 parallel strands.
+# Create a material: Copper AWG40 Litz wire, strand diameter = 0.08mm, 24 parallel strands.
 # Assign materials: Coil --> AWG40 copper, core --> ferrite, region --> vacuum.
 
 no_strands = 24
