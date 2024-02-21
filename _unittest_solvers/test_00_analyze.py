@@ -5,10 +5,8 @@ import time
 
 import pytest
 
-
 from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
-
 
 from pyaedt import is_linux
 from pyaedt import Icepak
@@ -43,6 +41,7 @@ def array(add_app):
     yield app
     app.close_project(save_project=False)
 
+
 @pytest.fixture()
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
@@ -68,11 +67,13 @@ def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
+
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
@@ -193,7 +194,7 @@ class TestClass:
         new_props = {"Convergence Criteria - Max Iterations": 3}
         setup.update(update_dictionary=new_props)
         airfaces = [i.id for i in self.icepak_app.modeler["Region"].faces]
-        self.icepak_app.assign_openings(airfaces)
+        opening = self.icepak_app.assign_openings(airfaces)
         self.icepak_app["Variable1"] = "0.5"
         assert self.icepak_app.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.icepak_app.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
@@ -207,17 +208,21 @@ class TestClass:
         )
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A") # check usage of deprecated arguments
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface", variation_list=[], filename="B")
-        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume", type="Boundary", filename="C")
-        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]), ("C_Temperature.csv", ["box"])]:
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometryType="Surface",
+                                              variationlist=[], filename="A")  # check usage of deprecated arguments
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Surface",
+                                              variation_list=[], filename="B")
+        assert self.icepak_app.export_summary(self.icepak_app.working_directory, geometry_type="Volume",
+                                              type="Boundary", filename="C")
+        for file_name, entities in [("A_Temperature.csv", ["box", "Region"]), ("B_Temperature.csv", ["box", "Region"]),
+                                    ("C_Temperature.csv", ["box"])]:
             with open(os.path.join(self.icepak_app.working_directory, file_name), 'r', newline='') as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for _ in range(4):
                     _ = next(csv_reader)
                 header = next(csv_reader)
                 entity_index = header.index("Entity")
-                csv_entities=[row[entity_index] for row in csv_reader]
+                csv_entities = [row[entity_index] for row in csv_reader]
                 assert all(e in csv_entities for e in entities)
 
         box = [i.id for i in self.icepak_app.modeler["box"].faces]
@@ -226,7 +231,29 @@ class TestClass:
         )
 
         # new post class
-        assert self.icepak_app.post.evaluate_faces_quantity(box, "Temperature")
+        out = self.icepak_app.post.evaluate_faces_quantity(box, "HeatFlowRate")
+        assert out["Total"]
+        with pytest.raises(AttributeError):
+            self.icepak_app.post.evaluate_faces_quantity(box, "HeatFlowwwRate")
+        out = self.icepak_app.post.evaluate_object_quantity("box", "Temperature", volume=True)
+        assert out["Mean"]
+        out = self.icepak_app.post.evaluate_boundary_quantity(opening.name, "Ux")
+        assert out["Mean"]
+        if self.icepak_app.settings.aedt_version < "2024.1":
+            with pytest.raises(NotImplementedError):
+                self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
+        else:
+            out = self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
+            assert out["Mean"]
+            with pytest.raises(AttributeError):
+                self.icepak_app.post.evaluate_monitor_quantity("no_test_monitor2", "Temperature")
+        fs = self.icepak_app.post.create_field_summary()
+        fs.add_calculation("Boundary", "Surface", opening.name, "Ux")
+        fs.add_calculation("Object", "Volume", "box", "Temperature")
+        df = fs.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
+        d = fs.get_field_summary_data()
+        assert d["Mean"]
 
     def test_03b_icepak_get_output_variable(self):
         value = self.icepak_app.get_output_variable("OutputVariable1")
@@ -341,7 +368,7 @@ class TestClass:
         assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
-    def test_05d_circuit_push_excitation_time(self,circuit_app):
+    def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
         setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)

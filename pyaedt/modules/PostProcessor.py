@@ -4870,9 +4870,15 @@ class FieldSummary:
 
     @pyaedt_function_handler()
     def get_field_summary_data(
-        self, filename, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False
+        self, filename=None, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False
     ):
-        self.export_csv(filename, sweep_name, design_variation, intrinsic_value)
+        if not filename:
+            temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False)
+            temp_file.close()
+            self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
+            filename = temp_file.name
+        else:
+            self.export_csv(filename, sweep_name, design_variation, intrinsic_value)
         with open(filename, "r") as f:
             for _ in range(4):
                 _ = next(f)
@@ -4881,6 +4887,8 @@ class FieldSummary:
             for row in reader:
                 for key in row.keys():
                     out_dict[key].append(row[key])
+        if not filename:
+            temp_file.delete()
         if pandas_output:
             try:
                 import pandas as pd
@@ -4891,12 +4899,12 @@ class FieldSummary:
 
     @pyaedt_function_handler()
     def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
-        self._create_field_summary()
         if not sweep_name:
             sweep_name = self._app.nominal_sweep
         dv_string = ""
         for el in design_variation:
             dv_string += el + "='" + design_variation[el] + "' "
+        self._create_field_summary(sweep_name, dv_string)
         self._app.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
@@ -4912,8 +4920,8 @@ class FieldSummary:
         return True
 
     @pyaedt_function_handler()
-    def _create_field_summary(self):
-        arg = []
+    def _create_field_summary(self, setup, variation):
+        arg = ["SolutionName:=", setup, "Variation:=", variation]
         for i in self.calculations:
             arg.append("Calculation:=")
             arg.append(i)
@@ -5016,11 +5024,7 @@ class IcepakPostProcessor(PostProcessor, object):
 
     @pyaedt_function_handler
     def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
-        with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
-            temp_file.close()
-            content = fs.get_field_summary_data(
-                temp_file.name, sweep_name=setup_name, design_variation=design_variation
-            )
+        content = fs.get_field_summary_data(None, sweep_name=setup_name, design_variation=design_variation)
         pattern = r"\[([^]]*)\]"
         match = re.search(pattern, content["Quantity"][0])
         if match:
@@ -5178,15 +5182,17 @@ class IcepakPostProcessor(PostProcessor, object):
 
         >>> oModule.ExportFieldsSummary
         """
-        if self.app.monitor.face_monitor.get(monitor_name, None):
+        if settings.aedt_version < "2024.1":
+            raise NotImplementedError("Monitors are not supported in field summary in versions lower than 2024R1.")
+        if self._app.monitor.face_monitors.get(monitor_name, None):
             field_type = "Surface"
-        elif self.app.monitor.point_monitors.get(monitor_name, None):
+        elif self._app.monitor.point_monitors.get(monitor_name, None):
             field_type = "Volume"
         else:
             raise AttributeError("Monitor {} not found in the design.".format(monitor_name))
         fs = self.create_field_summary()
         fs.add_calculation(
-            "Object", field_type, monitor_name, quantity_name, side=side, ref_temperature=ref_temperature
+            "Monitor", field_type, monitor_name, quantity_name, side=side, ref_temperature=ref_temperature
         )
         return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
 
