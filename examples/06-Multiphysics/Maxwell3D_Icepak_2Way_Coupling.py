@@ -116,7 +116,7 @@ m3d.mesh.assign_length_mesh(
 ###############################################################################
 # Set conductivity temperature coefficient
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Set conductivity as a function of temperature, resistivity increases by 0.393% per K.
+# Set conductivity as a function of temperature. Resistivity increases by 0.393% per K.
 
 cu_resistivity_temp_coefficient = 0.00393
 cu_litz.conductivity.add_thermal_modifier_free_form("1.0/(1.0+{}*(Temp-20))".format(cu_resistivity_temp_coefficient))
