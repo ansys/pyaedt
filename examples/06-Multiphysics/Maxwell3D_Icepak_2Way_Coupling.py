@@ -281,7 +281,7 @@ resistance_increase = (resistance_new - resistance)/resistance * 100
 
 report_loss_new = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss_new = report_loss_new.get_solution_data()
-EM_loss_new = solution_loss_new.data_magnitude()[0]
+em_loss_new = solution_loss_new.data_magnitude()[0]
 
 m3d.logger.info("*******Coil resistance at 150kHz AFTER temperature feedback =  {:.2f}Ohm".format(resistance_new))
 m3d.logger.info("*******Coil resistance increased by {:.2f}%".format(resistance_increase))
