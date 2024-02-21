@@ -186,7 +186,7 @@ ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim
 ###############################################################################
 # Map coil losses
 # ~~~~~~~~~~~~~~~
-# Map ohmic losses from Maxwell to Icepak design
+# Map ohmic losses from Maxwell to the Icepak design.
 
 ipk.assign_em_losses(
     designname="1 Maxwell",
