@@ -146,7 +146,7 @@ setup.props["Frequency"] = "150kHz"
 m3d.analyze_setup("Setup1")
 
 ###############################################################################
-# Post-processing
+# Postprocessing
 # ~~~~~~~~~~~~~~~
 # Analytical vs. simulated coil resistance, and ohmic loss in coil before temperature feedback.
 
