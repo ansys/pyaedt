@@ -172,7 +172,7 @@ m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}
 ###############################################################################
 # Icepak design
 # ~~~~~~~~~~~~~
-# Insert icepak design and copy solid objects from Maxwell, modify region dimensions.
+# Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
 ipk = pyaedt.Icepak(designname=icepak_design_name)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
