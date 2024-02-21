@@ -198,7 +198,7 @@ ipk.assign_em_losses(
 ###############################################################################
 # Boundary conditions
 # ~~~~~~~~~~~~~~~~~~~
-# Assign opening
+# Assign opening.
 
 faces = ipk.modeler["Region"].faces
 face_names = [face.id for face in faces]
