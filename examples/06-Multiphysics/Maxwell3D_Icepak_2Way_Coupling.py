@@ -269,7 +269,7 @@ m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
 ###############################################################################
 # Get new resistance from Maxwell
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Temperature of the coil increases, and consequently also coil resistance increases
+# Temperature of the coil increases, and consequently also coil resistance increases.
 
 report_new = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
 solution_new = report_new.get_solution_data()
