@@ -240,7 +240,7 @@ ipk.analyze_setup(name=solution_setup.name)
 ###############################################################################
 # Post-processing
 # ~~~~~~~~~~~~~~~
-# Plot temperature on the object surfaces
+# Plot temperature on the object surfaces.
 
 surface_list = []
 for name in ["Coil", "Core"]:
