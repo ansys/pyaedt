@@ -239,7 +239,7 @@ ipk.analyze_setup(name=solution_setup.name)
 
 ###############################################################################
 # Postprocessing
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~
 # Plot temperature on the object surfaces.
 
 surface_list = []
