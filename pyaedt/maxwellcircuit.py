@@ -1,4 +1,5 @@
 """This module contains the ``MaxwellCircuit`` class."""
+
 from __future__ import absolute_import  # noreorder
 
 import math
@@ -35,7 +36,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional

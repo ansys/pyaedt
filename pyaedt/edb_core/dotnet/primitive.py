@@ -1,4 +1,5 @@
 """Primitive."""
+
 from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.dotnet.database import PolygonDataDotNet
 from pyaedt.edb_core.general import convert_py_list_to_net_list

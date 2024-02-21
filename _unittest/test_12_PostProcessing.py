@@ -10,6 +10,7 @@ from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.pdf import AnsysReport
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
 from pyaedt.generic.settings import settings
@@ -137,6 +138,9 @@ class TestClass:
             context="3D",
             report_category="Far Fields",
         )
+        report = AnsysReport()
+        report.create()
+        assert report.add_project_info(field_test)
 
     def test_09_manipulate_report_B(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -246,6 +250,9 @@ class TestClass:
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
         assert len(files) > 0
+        report = AnsysReport()
+        report.create()
+        assert report.add_project_info(circuit_test)
 
     def test_09b_export_report_B(self, q2dtest):
         q2dtest.analyze()
@@ -333,10 +340,20 @@ class TestClass:
             primary_sweep_variable="l1",
             context="Differential Pairs",
         )
+        new_report1 = diff_test.post.reports_by_category.standard()
+        assert new_report1.expressions
         new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
         new_report.differential_pairs = True
         assert new_report.create()
         assert new_report.get_solution_data()
+        new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
+        new_report2.differential_pairs = True
+        new_report2.pulse_rise_time = 3e-12
+        new_report2.time_windowing = 3
+        new_report2.domain = "Time"
+
+        assert new_report2.create()
+
         data1 = diff_test.post.get_solution_data(
             ["S(Diff1, Diff1)"],
             "LinearFrequency",
@@ -539,7 +556,7 @@ class TestClass:
     def test_68_eye_from_json(self, eye_test):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report.json"),
+            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report.toml"),
             solution_name="QuickEyeAnalysis",
         )
 

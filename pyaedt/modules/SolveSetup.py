@@ -5,6 +5,7 @@ This module provides all functionalities for creating and editing setups in AEDT
 It is based on templates to allow for easy creation and modification of setup properties.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -888,9 +889,130 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
+    @pyaedt_function_handler()
+    def start_continue_from_previous_setup(
+        self,
+        design_name,
+        solution_name,
+        map_variables_by_name=True,
+        parameters_dict=None,
+        project_name="This Project*",
+        force_source_to_solve=True,
+        preserve_partner_solution=True,
+    ):
+        """Start or continue from a previously solved setup.
+
+        Parameters
+        ----------
+        design_name : str
+            Name of the design.
+        solution_name : str, optional
+            Name of the solution in the format ``"setupname : solutionname"``.
+            For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
+        map_variables_by_name : bool, optional
+            Whether variables are mapped by name from the source design. The default is
+            ``True``.
+        parameters_dict : dict, optional
+            Dictionary of the parameters. This parameter is not considered if
+            ``map_variables_by_name = True``. If ``None``, the default value is
+            ``appname.available_variations.nominal_w_values_dict``.
+        project_name : str, optional
+            Name of the project with the design. The default is ``"This Project*"``.
+            However, you can supply the full path and name to another project.
+        force_source_to_solve : bool, optional
+            The default is ``True``.
+        preserve_partner_solution : bool, optional
+            The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> m2d = pyaedt.Maxwell2d()
+        >>> setup = m2d.get_setup("Setup1")
+        >>> setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
+
+        """
+
+        auto_update = self.auto_update
+        try:
+            self.auto_update = False
+
+            # parameters
+            params = OrderedDict({})
+            if map_variables_by_name:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = k
+            elif parameters_dict is None:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters_dict.items():
+                    params[k] = v
+            else:
+                for k, v in parameters_dict.items():
+                    if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                        params[k] = v
+                    else:
+                        params[k] = parameters_dict[v]
+
+            prev_solution = OrderedDict({})
+
+            # project name
+            if project_name != "This Project*":
+                if os.path.exists(project_name):
+                    prev_solution["Project"] = project_name
+                    self.props["PathRelativeTo"] = "SourceProduct"
+                else:
+                    raise ValueError("Project file path provided does not exist.")
+            else:
+                prev_solution["Project"] = project_name
+                self.props["PathRelativeTo"] = "TargetProject"
+
+            # design name
+            if not design_name or design_name is None:
+                raise ValueError("Provide design name to add mesh link to.")
+            elif design_name not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                prev_solution["Design"] = design_name
+
+            # solution name
+            if solution_name:
+                prev_solution["Soln"] = solution_name
+            else:
+                raise ValueError("Provide a valid solution name.")
+
+            self.props["PrevSoln"] = prev_solution
+
+            self.props["PrevSoln"]["Params"] = params
+            self.props["ForceSourceToSolve"] = force_source_to_solve
+            self.props["PreservePartnerSoln"] = preserve_partner_solution
+
+            self.props["IsGeneralTransient"] = True
+            if self.props["IsHalfPeriodicTransient"]:
+                raise UserWarning(
+                    "Half periodic TDM disabled because it is not "
+                    "supported with start/continue from a previously solved setup."
+                )
+
+            self.update()
+            self.auto_update = auto_update
+            return True
+        except:
+            self.auto_update = auto_update
+            return False
+
 
 class SetupCircuit(CommonSetup):
-    """Initializes, creates, and updates a circuit setup.
+    """Manages a circuit setup.
 
     Parameters
     ----------
@@ -2034,7 +2156,8 @@ class Setup3DLayout(CommonSetup):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         sweeptype : str, optional
-            Type of the sweep. Options are ``"Interpolating"`` and ``"Discrete"``.
+            Type of the sweep. Options are ``"Fast"``,
+            ``"Interpolating"``, and ``"Discrete"``.
             The default is ``"Interpolating"``.
 
         Returns
@@ -3244,36 +3367,25 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
         --------
-
-        Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
-        named ``"LinearCountSweep"``.
-
-        >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
-        ...                                                     sweepname="LinearCountSweep",
-        ...                                                     unit="MHz", freqstart=1.1e3,
-        ...                                                     freqstop=1200.1, num_of_freq_points=1658)
-        >>> type(linear_count_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
-
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup("LinearCountSetup")
+        >>> sweep = setup.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
+        >>> q3d.release_desktop(True, True)
         """
-
-        # Set default values for num_of_freq_points if a value was not passed. Also,
-        # check that sweep_type is valid.
-        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
-            num_of_freq_points = 401
-        elif num_of_freq_points is None and sweep_type == "Discrete":
-            num_of_freq_points = 5
+        if sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = num_of_freq_points or 401
+        elif sweep_type == "Discrete":
+            num_of_freq_points = num_of_freq_points or 5
         else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
@@ -3336,7 +3448,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -3346,20 +3458,19 @@ class SetupQ3D(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
         named ``"LinearStepSweep"``.
-
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearStepSetup")
         >>> linear_step_sweep = setup.create_linear_step_sweep(sweepname="LinearStepSweep",
         ...                                                   unit="MHz", freqstart=1.1e3,
         ...                                                   freqstop=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
-
+        >>> q3d.release_desktop(True, True)
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -3412,30 +3523,27 @@ class SetupQ3D(Setup, object):
         save_fields : bool, optional
             Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
 
-
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
         --------
-
-        Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
+        Create a setup named ``"SinglePointSetup"`` and use it in a single point sweep
         named ``"SinglePointSweep"``.
-
-        >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> single_point_sweep = hfss.create_single_point_sweep(setupname="LinearStepSetup",
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup("SinglePointSetup")
+        >>> single_point_sweep = setup.create_single_point_sweep(setupname="SinglePointSetup",
         ...                                                   sweepname="SinglePointSweep",
         ...                                                   unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
-
+        >>> q3d.release_desktop(True, True)
         """
         if sweepname is None:
             sweepname = generate_unique_name("SinglePoint")
@@ -3528,15 +3636,18 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
 
         Examples
         --------
-        >>> hfss = Hfss()
-        >>> setup = hfss.get_setup('Pyaedt_setup')
-        >>> sweep = setup.get_sweep('Sweep1')
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup()
+        >>> sweep = setup.create_frequency_sweep(sweepname="Sweep1")
         >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
         >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        >>> sweep = setup.get_sweep("Sweep1")
+        >>> q3d.release_desktop(True, True)
         """
         if sweepname:
             for sweep in self.sweeps:

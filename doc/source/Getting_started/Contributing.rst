@@ -44,7 +44,7 @@ released versions.
 Adhere to code style
 --------------------
 PyAEDT is compliant with `PyAnsys code style
-<https://dev.docs.pyansys.com/coding_style/index.html>`_. It uses the tool
+<https://dev.docs.pyansys.com/coding-style/index.html>`_. It uses the tool
 `pre-commit <https://pre-commit.com/>`_ to check the code style. You can install
 and activate this tool with:
 
@@ -68,7 +68,9 @@ For example::
   isort (python)...........................................................Passed
   flake8...................................................................Passed
   codespell................................................................Passed
-  fix requirements.txt.....................................................Passed
+  debug statements (python)................................................Passed
+  trim trailing whitespace.................................................Passed
+  Validate GitHub Workflows................................................Passed
   blacken-docs.............................................................Passed
 
 Log errors
