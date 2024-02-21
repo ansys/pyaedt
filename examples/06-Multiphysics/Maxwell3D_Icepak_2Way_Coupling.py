@@ -6,7 +6,6 @@ Coil current is set to 100A, and coil resistance and ohmic loss are analyzed.
 Ohmic loss is mapped to Icepak, and a thermal analysis is performed. Icepak calculates a temperature distribution,
 and it is mapped back to Maxwell (2-way coupling). Coil resistance and ohmic loss are analyzed again in Maxwell.
 Results are printed in AEDT Message Manager.
-Keywords: Litz wire model, Icepak coupling, 2-way coupling
 """
 ###########################################################################################
 # Perform required imports
