@@ -92,7 +92,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def edb(self):
-        """EBD. Supported only in Ironpython.
+        """EBD. Supported only in IronPython.
 
         Returns
         -------
