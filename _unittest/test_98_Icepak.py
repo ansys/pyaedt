@@ -168,6 +168,10 @@ class TestClass:
         assert templates
         self.aedtapp.setups[0].props = templates["IcepakSteadyState"]
         assert self.aedtapp.setups[0].update()
+        assert SetupKeys().get_default_icepak_template(default_type="Default")
+        assert SetupKeys().get_default_icepak_template(default_type="Forced Convection")
+        with pytest.raises(AttributeError):
+            SetupKeys().get_default_icepak_template(default_type="Default Convection")
 
     def test_09_existing_sweeps(self):
         assert self.aedtapp.existing_analysis_sweeps
