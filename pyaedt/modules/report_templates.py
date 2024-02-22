@@ -3828,7 +3828,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def band(self):
-        """Net attached to EMI receiver.
+        """Band attached to the EMI receiver.
 
         Returns
         -------
