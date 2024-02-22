@@ -243,7 +243,7 @@ class SpiSim:
         self,
         standard,
         config_file=None,
-        port_order=None,
+        port_order="EvenOdd",
         fext_s4p="",
         next_s4p="",
         out_folder="",
@@ -257,7 +257,7 @@ class SpiSim:
         config_file : str, optional
             Config file to use.
         port_order : str, optional
-            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
+            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files. The default is ``EvenOdd``.
             The default is ``None``. This parameter is ignored if there are more than four ports.
         fext_s4p : str, list, optional
             Fext touchstone file to use.
@@ -279,71 +279,9 @@ class SpiSim:
         com_param.THRUSNP = self.touchstone_file
         com_param.FEXTARY = fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p)
         com_param.NEXTARY = next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p)
-        if port_order:
-            com_param.PORT_ORDER = port_order
-        com_param.RESULT_DIR = out_folder if out_folder else self.working_directory
-        return self._compute_com(com_param)
 
-    @pyaedt_function_handler
-    def compute_com_from_snp(
-        self,
-        standard,
-        config_file=None,
-        tx_rx_port=((1, 2), (3, 4)),
-        fext_port=((5,6),(7,8)),
-        next_port=((9,10),(11,12)),
-        out_folder="",
-    ):
-        """Compute Channel Operating Margin from a single snp file.
 
-        Parameters
-        ----------
-        standard : str
-            Name of the standard to apply.
-        config_file : str, optional
-            Config file to use.
-        port_order : str, optional
-            Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files.
-            The default is ``None``. This parameter is ignored if there are more than four ports.
-        tx_rx_port: str, optional
-            Through channel port.
-        fext_port : str, optional
-            Fext port.
-        next_port : str, optional
-            Next port.
-        out_folder : str, optional
-            Output folder where to save report.
-
-        Returns
-        -------
-
-        """
-        if standard == "custom":
-            com_param = COMParameters()
-            com_param.load(config_file)
-        else:
-            com_param = COMParameters(standard)
-
-        com_param.THRUSNP = self.touchstone_file
-
-        tx, rx = tx_rx_port
-        FSTTHRU = f"({tx[0]},{tx[1]});({rx[0]}, {rx[1]})"
-
-        nxt = []
-        for i in next_port:
-            nxt.append(f"({i[0]},{i[1]})")
-        nxt = ";".join(nxt)
-        FSTTHRU = FSTTHRU + "/" + nxt
-
-        fxt = []
-        for i in fext_port:
-            fxt.append(f"({i[0]},{i[1]})")
-        fxt = ";".join(fxt)
-        FSTTHRU = FSTTHRU + "/" + fxt
-
-        com_param.FSTTHRU = FSTTHRU
-
-        com_param.NUMPORT = self.touchstone_file.split(".")[-1].replace("s", "").replace("p", "")
+        com_param.PORT_ORDER = "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]"
 
         com_param.RESULT_DIR = out_folder if out_folder else self.working_directory
         return self._compute_com(com_param)
@@ -359,8 +297,6 @@ class SpiSim:
         ----------
         com_parameter: :class:`COMParameters`
             COMParameters class.
-        out_folder : str, optional
-            Output folder where to save report.
 
         Returns
         -------

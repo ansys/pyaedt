@@ -507,22 +507,10 @@ class TestClass:
         com_0, com_1 = spisim.compute_com(
             standard="custom",
             config_file=os.path.join(spisim.working_directory, "custom.cfg"),
-            port_order="[1 3 2 4]",
+            port_order="EvenOdd",
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
             out_folder=report_dir,
         )
         assert com_0 and com_1
 
-    def test_09c_compute_com(self, local_scratch):
-        com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
-        snp = local_scratch.copyfile(os.path.join(com_example_file_folder, "5_C50.s20p"))
-
-        spisim = SpiSim(snp)
-        com_0, com_1 = spisim.compute_com_from_snp(
-            standard="100GBASE-KR4",
-            tx_rx_port=[(1,2),(3,4)],
-            fext_port=[(5,6),(7,8),(9,10),(11,12)],
-            next_port=[(13,14),(15,16),(17,18),(19,20)],
-        )
-        assert com_0 and com_1
