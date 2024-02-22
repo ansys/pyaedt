@@ -735,7 +735,7 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list, optional
-            Expression List to add into the report. The expression can be any of the available formula
+            One or more expressions to add into the report. An expression can be any of the formulas that
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
