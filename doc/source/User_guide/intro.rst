@@ -33,7 +33,7 @@ This code creates a project and saves it with PyAEDT:
     cir.release_desktop(save_project=True, close_desktop=True)
     # Desktop is released here.
 
-Ansys EDB proprietary layout format is accessible through pyaedt using the following
+The Ansys EDB proprietary layout format is accessible through PyAEDT using this
 code:
 
 .. code:: python
