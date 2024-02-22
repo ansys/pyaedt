@@ -5054,7 +5054,7 @@ class IcepakPostProcessor(PostProcessor, object):
     @pyaedt_function_handler()
     def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
         """
-        Get operating point of the fans in the design.
+        Get the operating point of the fans in the design.
 
         Parameters
         ----------
@@ -5075,11 +5075,11 @@ class IcepakPostProcessor(PostProcessor, object):
         Returns
         -------
         list
-            First element of the list is the csv filename, the second and third element of
-            the list are the quantities with units describing the fan operating point,
-            the fourth element contains the dictionary with the name of the fan instances
-            as keys and list with volumetric flow rates and pressure rise floats associated
-            with the operating points.
+            First element of the list is the CSV filename. The second and third elements
+            are the quantities with units describing the operating point of the fans.
+            The fourth element is a dictionary with the names of the fan instances
+            as keys and lists with volumetric flow rates and pressure rise floats associated
+            with the operating points as values.
 
         References
         ----------
@@ -5170,8 +5170,8 @@ class IcepakPostProcessor(PostProcessor, object):
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Select which mesh faces side to use. Available options are ``"Default"``, ``"Adjacent"``,
-            and ``"Combined"``. Default is ``"Default"``.
+            Which side of the mesh face to use. The default is ``Default``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
@@ -5183,10 +5183,11 @@ class IcepakPostProcessor(PostProcessor, object):
         Returns
         -------
         dict
-            Depending on the quantity chosen, the output dictionary can contain the following keys:
-
-                - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``Unit``
-                - ``"Total"`` and ``Unit``
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+            
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
 
         References
         ----------
@@ -5210,19 +5211,19 @@ class IcepakPostProcessor(PostProcessor, object):
         design_variation={},
         ref_temperature="",
     ):
-        """Export the field output on boundary.
+        """Export the field output on a boundary.
 
         Parameters
         ----------
         boundary_name : str
-            Name of boundary where the computation is to be performed.
+            Name of boundary to perform the computation on.
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Select which mesh faces side to use. Available options are ``"Default"``, ``"Adjacent"``,
-            and ``"Combined"``. Default is ``"Default"``.
+            Side of the mesh face to use. The default is ``"Default"``. 
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         volume : bool, optional
-            Whether to compute the quantity on the volume or on the surface. Default is ``False``.
+            Whether to compute the quantity on the volume or on the surface. The default is ``False``.
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
@@ -5270,12 +5271,12 @@ class IcepakPostProcessor(PostProcessor, object):
         Parameters
         ----------
         monitor_name : str
-            Name of boundary where the computation is to be performed.
+            Name of monitor to perform the computation on.
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Select which mesh faces side to use. Available options are ``"Default"``, ``"Adjacent"``,
-            and ``"Combined"``. Default is ``"Default"``.
+            Side of the mesh face to use. The default is ``"Default"``. 
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
@@ -5287,10 +5288,11 @@ class IcepakPostProcessor(PostProcessor, object):
         Returns
         -------
         dict
-            Depending on the quantity chosen, the output dictionary can contain the following keys:
-
-                - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``Unit``
-                - ``"Total"`` and ``Unit``
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+            
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
 
         References
         ----------
@@ -5298,14 +5300,14 @@ class IcepakPostProcessor(PostProcessor, object):
         >>> oModule.ExportFieldsSummary
         """
         if settings.aedt_version < "2024.1":
-            raise NotImplementedError("Monitors are not supported in field summary in versions lower than 2024R1.")
+            raise NotImplementedError("Monitors are not supported in field summary in versions lower than 2024 R1.")
         else:  # pragma: no cover
             if self._app.monitor.face_monitors.get(monitor_name, None):
                 field_type = "Surface"
             elif self._app.monitor.point_monitors.get(monitor_name, None):
                 field_type = "Volume"
             else:
-                raise AttributeError("Monitor {} not found in the design.".format(monitor_name))
+                raise AttributeError("Monitor {} is not found in the design.".format(monitor_name).)
             fs = self.create_field_summary()
             fs.add_calculation(
                 "Monitor", field_type, monitor_name, quantity_name, side=side, ref_temperature=ref_temperature
@@ -5323,19 +5325,19 @@ class IcepakPostProcessor(PostProcessor, object):
         design_variation={},
         ref_temperature="",
     ):
-        """Export the field output on/in object.
+        """Export the field output on or in an object.
 
         Parameters
         ----------
         object_name : str
-            Name of object where the computation is to be performed.
+            Name of object to perform the computation on.
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Select which mesh faces side to use. Available options are ``"Default"``, ``"Adjacent"``,
-            and ``"Combined"``. Default is ``"Default"``.
+            Side of the mesh face to use. The default is ``"Default"``. 
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         volume : bool, optional
-            Whether to compute the quantity on the volume or on the surface. Default is ``False``.
+            Whether to compute the quantity on the volume or on the surface. The default is ``False``.
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
@@ -5347,10 +5349,11 @@ class IcepakPostProcessor(PostProcessor, object):
         Returns
         -------
         dict
-            Depending on the quantity chosen, the output dictionary can contain the following keys:
-
-                - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``Unit``
-                - ``"Total"`` and ``Unit``
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+            
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
 
         References
         ----------
