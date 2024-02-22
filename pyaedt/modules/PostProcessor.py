@@ -5005,9 +5005,7 @@ class FieldSummary:
                         out_dict[key].append(row[key])
             os.remove(temp_file.name)
             if pandas_output:
-                try:
-                    import pandas as pd
-                except ImportError:  # pragma: no cover
+                if pd is None:
                     warnings.warn("pandas package is needed.")
                 return pd.DataFrame.from_dict(out_dict)
         return out_dict
