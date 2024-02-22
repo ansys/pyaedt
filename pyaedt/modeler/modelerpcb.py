@@ -101,7 +101,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         """
         if is_ironpython:
-            self.logger.warning("Edb is supported only in CPython.")
+            self.logger.warning("EDB is supported only in CPython.")
             return self._edb
 
         if settings.remote_api or settings.remote_rpc_session:
