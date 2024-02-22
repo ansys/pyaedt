@@ -5307,7 +5307,7 @@ class IcepakPostProcessor(PostProcessor, object):
             elif self._app.monitor.point_monitors.get(monitor_name, None):
                 field_type = "Volume"
             else:
-                raise AttributeError("Monitor {} is not found in the design.".format(monitor_name).)
+                raise AttributeError("Monitor {} is not found in the design.".format(monitor_name))
             fs = self.create_field_summary()
             fs.add_calculation(
                 "Monitor", field_type, monitor_name, quantity_name, side=side, ref_temperature=ref_temperature
