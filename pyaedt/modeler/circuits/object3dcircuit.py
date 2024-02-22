@@ -315,7 +315,10 @@ class ComponentParameters(dict):
                         [
                             "NAME:" + self._tab,
                             ["NAME:PropServers", self._component.composed_name],
-                            ["NAME:ChangedProps", ["NAME:" + key, "ButtonText:=", str(value)]],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                            ],
                         ],
                     ]
                 )
