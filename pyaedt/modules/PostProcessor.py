@@ -730,7 +730,7 @@ class Reports(object):
 
     @pyaedt_function_handler()
     def emi_receiver(self, expressions=None, setup_name=None):
-        """Create an EMI receiver Report object.
+        """Create an EMI receiver report.
 
         Parameters
         ----------
