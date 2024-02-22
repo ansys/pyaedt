@@ -736,7 +736,7 @@ class Reports(object):
         ----------
         expressions : str or list, optional
             One or more expressions to add into the report. An expression can be any of the formulas that
-            you can enter into the Electronics Desktop Report Editor.
+            can be entered into the Electronics Desktop Report Editor.
         setup_name : str, optional
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
