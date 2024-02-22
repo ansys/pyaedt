@@ -9,16 +9,15 @@ from unittest.mock import mock_open
 from mock import MagicMock
 from mock import PropertyMock
 from mock import patch
+from pyedb import Edb
+from pyedb.dotnet.edb_core.components import resistor_value_parser
+from pyedb.dotnet.edb_core.edb_data.edbvalue import EdbValue
+from pyedb.dotnet.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyedb.dotnet.edb_core.edb_data.sources import Source
+from pyedb.dotnet.edb_core.materials import Materials
+from pyedb.generic.constants import RadiationBoxType
+from pyedb.generic.general_methods import check_numeric_equivalence
 import pytest
-
-from pyaedt import Edb
-from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.edb_core.edb_data.edbvalue import EdbValue
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.sources import Source
-from pyaedt.edb_core.materials import Materials
-from pyaedt.generic.constants import RadiationBoxType
-from pyaedt.generic.general_methods import check_numeric_equivalence
 
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
@@ -2622,7 +2621,7 @@ class TestClass:
         edb.close()
 
     def test_134_hfss_extent_info(self):
-        from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
+        from pyedb.dotnet.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
 
         config = {
             "air_box_horizontal_extent_enabled": False,
@@ -2683,7 +2682,7 @@ class TestClass:
         gds_in = os.path.join(local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example.gds")
         gds_out = os.path.join(self.local_scratch.path, "sky130_fictitious_dtc_example.gds")
         self.local_scratch.copyfile(gds_in, gds_out)
-        from pyaedt.edb_core.edb_data.control_file import ControlFile
+        from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 
         c = ControlFile(c_file_in, layer_map=c_map)
         setup = c.setups.add_setup("Setup1", "1GHz")
@@ -2818,7 +2817,7 @@ class TestClass:
         edb.close()
 
     def test_143_add_layer_api_with_control_file(self):
-        from pyaedt.edb_core.edb_data.control_file import ControlFile
+        from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 
         ctrl = ControlFile()
         # Material
@@ -2959,7 +2958,7 @@ class TestClass:
         assert len(edbapp.nets["DDR4_DM3"].find_dc_short()) == 0
         edbapp.close()
 
-    @patch("pyaedt.edb_core.materials.Materials.materials", new_callable=PropertyMock)
+    @patch("pyedb.dotnet.edb_core.materials.Materials.materials", new_callable=PropertyMock)
     @patch.object(builtins, "open", new_callable=mock_open, read_data=MATERIALS)
     def test_149_materials_read_materials(self, mock_file_open, mock_materials_property):
         """Read materials from an AMAT file."""
