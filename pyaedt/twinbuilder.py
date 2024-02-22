@@ -374,8 +374,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent` or bool
+            Circuit component object if successful or ``False`` if fails.
 
         References
         ----------
@@ -481,7 +481,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             port_info_list.extend(port_info_list_A)
             port_info_list.extend(port_info_list_B)
         if not state_space_dynamic_link_type or state_space_dynamic_link_type == "RLGC":
-            state_space_dynamic_link_type = "{}RLGCTBLink".format(design_type)
+            if dkp.aedt_version_id >= "2024.1":  # pragma: no cover
+                state_space_dynamic_link_type = "Q3DRLGCLink"
+            else:
+                state_space_dynamic_link_type = "{}RLGCTBLink".format(design_type)
             q3d_model_type = 1
             ref_pin_style = 5
             enforce_passivity = False
@@ -566,8 +569,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             ]
         )
 
-        self.modeler.schematic.create_component(component_library="", component_name=component_name)
-
-        if is_loaded:
-            app.close_project(save_project=False)
-        return True
+        component = self.modeler.schematic.create_component(component_library="", component_name=component_name)
+        if component:
+            if is_loaded:
+                app.close_project(save_project=False)
+            return component
+        else:  # pragma: no cover
+            raise ValueError("Error in creating the component.")

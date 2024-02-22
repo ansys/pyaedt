@@ -1562,7 +1562,7 @@ class Icepak(FieldAnalysis3D):
         if object_list is None:
             object_list = []
 
-        self.logger.info("Mapping HFSS EM losses.")
+        self.logger.info("Mapping EM losses.")
 
         if self.project_name == source_project_name or source_project_name is None:
             project_name = "This Project*"
