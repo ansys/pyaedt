@@ -5185,7 +5185,7 @@ class IcepakPostProcessor(PostProcessor, object):
         dict
             Output dictionary, which depending on the quantity chosen, contains one
             of these sets of keys:
-            
+
             - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
             - ``"Total"`` and ``"Unit"``
 
@@ -5220,7 +5220,7 @@ class IcepakPostProcessor(PostProcessor, object):
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Side of the mesh face to use. The default is ``"Default"``. 
+            Side of the mesh face to use. The default is ``"Default"``.
             Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         volume : bool, optional
             Whether to compute the quantity on the volume or on the surface. The default is ``False``.
@@ -5275,7 +5275,7 @@ class IcepakPostProcessor(PostProcessor, object):
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Side of the mesh face to use. The default is ``"Default"``. 
+            Side of the mesh face to use. The default is ``"Default"``.
             Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
@@ -5290,7 +5290,7 @@ class IcepakPostProcessor(PostProcessor, object):
         dict
             Output dictionary, which depending on the quantity chosen, contains one
             of these sets of keys:
-            
+
             - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
             - ``"Total"`` and ``"Unit"``
 
@@ -5334,7 +5334,7 @@ class IcepakPostProcessor(PostProcessor, object):
         quantity_name : str
             Name of the quantity to export.
         side : str, optional
-            Side of the mesh face to use. The default is ``"Default"``. 
+            Side of the mesh face to use. The default is ``"Default"``.
             Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         volume : bool, optional
             Whether to compute the quantity on the volume or on the surface. The default is ``False``.
@@ -5351,7 +5351,7 @@ class IcepakPostProcessor(PostProcessor, object):
         dict
             Output dictionary, which depending on the quantity chosen, contains one
             of these sets of keys:
-            
+
             - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
             - ``"Total"`` and ``"Unit"``
 
