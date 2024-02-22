@@ -2,12 +2,11 @@ import os
 import re
 from warnings import warn
 
-from pyedb import Edb
-
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
@@ -93,7 +92,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def edb(self):
-        """EBD.
+        """EBD. Supported only in Ironpython
 
         Returns
         -------
@@ -101,9 +100,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
+        if is_ironpython:
+            self.logger.warning("Edb is supported only in CPython.")
+            return self._edb
+
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
         if not self._edb:
+            from pyedb import Edb
+
             self._edb = None
             if os.path.exists(self._edb_file) or inside_desktop:
                 self._edb = Edb(
@@ -118,6 +123,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
+                from pyedb import Edb
+
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,

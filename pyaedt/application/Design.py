@@ -2509,7 +2509,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def _close_edb(self):
-        if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
+        if self.design_type == "HFSS 3D Layout Design" and not is_ironpython:  # pragma: no cover
             if self.modeler and self.modeler._edb:
                 self.modeler._edb.close_edb()
 
