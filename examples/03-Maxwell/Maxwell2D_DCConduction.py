@@ -69,7 +69,7 @@ no_materials = 4
 # Voltage ports will be defined as perfect electric conductor (pec), conductor
 # gets the material defined by the 0th entry of the material array
 
-m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "pec")
+m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "gold")
 m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]"
 
 ##################################################################################
