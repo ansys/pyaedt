@@ -5059,17 +5059,17 @@ class IcepakPostProcessor(PostProcessor, object):
         Parameters
         ----------
         export_file : str, optional
-            Name of the file in which the fans' operating point is saved. The default is
+            Name of the file to save the operating point of the fans. The default is
             ``None``, in which case the filename is automatically generated.
         setup_name : str, optional
-            Setup name from which to determine the fans' operating point. The default is
+            Setup name to determine the operating point of the fans froms. The default is
             ``None``, in which case the first available setup is used.
         timestep : str, optional
-            Time, with units, at which to determine the fans' operating point. The default
-            is ``None``, in which case the first available timestep is used. This argument is
+            Time, with units, at which to determine the operating point of the fans. The default
+            is ``None``, in which case the first available timestep is used. This parameter is
             only relevant in transient simulations.
         design_variation : str, optional
-            Design variation from which to determine the fans' operating point. The default is
+            Design variation to determine the operating point of the fans from. The default is
             ``None``, in which case the nominal variation is used.
 
         Returns
