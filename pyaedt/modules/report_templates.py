@@ -3811,7 +3811,7 @@ class EMIReceiver(CommonReport):
 
     @property
     def net(self):
-        """Net attached to EMI receiver.
+        """Net attached to the EMI receiver.
 
         Returns
         -------
