@@ -280,7 +280,6 @@ class SpiSim:
         com_param.FEXTARY = fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p)
         com_param.NEXTARY = next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p)
 
-
         com_param.PORT_ORDER = "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]"
 
         com_param.RESULT_DIR = out_folder if out_folder else self.working_directory
