@@ -738,9 +738,10 @@ class Reports(object):
             One or more expressions to add into the report. An expression can be any of the formulas that
             can be entered into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep name
+            to use in the export or ``LastAdaptive``.
 
         Returns
         -------
