@@ -5006,7 +5006,7 @@ class FieldSummary:
             os.remove(temp_file.name)
             if pandas_output:
                 if pd is None:
-                    warnings.warn("pandas package is needed.")
+                    raise ImportError("pandas package is needed.")
                 return pd.DataFrame.from_dict(out_dict)
         return out_dict
 
