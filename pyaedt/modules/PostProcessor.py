@@ -16,7 +16,6 @@ import random
 import re
 import string
 import tempfile
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
