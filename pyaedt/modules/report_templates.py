@@ -3981,6 +3981,7 @@ class EMIReceiver(CommonReport):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not plot_name:
             self.plot_name = generate_unique_name("Plot")
