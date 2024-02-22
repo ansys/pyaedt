@@ -49,7 +49,7 @@ class SpiSim:
         self._working_directory = val
 
     @pyaedt_function_handler()
-    def _compute_spisim(self, parameter, out_file, touchstone_file="", config_file=""):
+    def _compute_spisim(self, parameter, out_file="", touchstone_file="", config_file=""):
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisimExe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
 
@@ -281,18 +281,17 @@ class SpiSim:
         com_param.NEXTARY = next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p)
         if port_order:
             com_param.PORT_ORDER = port_order
-
-        return self._compute_com(com_param, out_folder)
+        com_param.RESULT_DIR = out_folder if out_folder else self.working_directory
+        return self._compute_com(com_param)
 
     @pyaedt_function_handler
     def compute_com_from_snp(
         self,
         standard,
         config_file=None,
-        port_order=None,
-        tx_rx_port="(1,2);(3,4)",
-        fext_port="(7,8)",
-        next_port="(5,6)",
+        tx_rx_port=((1, 2), (3, 4)),
+        fext_port=((5,6),(7,8)),
+        next_port=((9,10),(11,12)),
         out_folder="",
     ):
         """Compute Channel Operating Margin from a single snp file.
@@ -326,18 +325,33 @@ class SpiSim:
             com_param = COMParameters(standard)
 
         com_param.THRUSNP = self.touchstone_file
-        com_param.FSTTHRU = "/".join([tx_rx_port, next_port, fext_port])
-        if port_order:
-            com_param.PORT_ORDER = port_order
+
+        tx, rx = tx_rx_port
+        FSTTHRU = f"({tx[0]},{tx[1]});({rx[0]}, {rx[1]})"
+
+        nxt = []
+        for i in next_port:
+            nxt.append(f"({i[0]},{i[1]})")
+        nxt = ";".join(nxt)
+        FSTTHRU = FSTTHRU + "/" + nxt
+
+        fxt = []
+        for i in fext_port:
+            fxt.append(f"({i[0]},{i[1]})")
+        fxt = ";".join(fxt)
+        FSTTHRU = FSTTHRU + "/" + fxt
+
+        com_param.FSTTHRU = FSTTHRU
+
         com_param.NUMPORT = self.touchstone_file.split(".")[-1].replace("s", "").replace("p", "")
 
-        return self._compute_com(com_param, out_folder)
+        com_param.RESULT_DIR = out_folder if out_folder else self.working_directory
+        return self._compute_com(com_param)
 
     @pyaedt_function_handler
     def _compute_com(
         self,
         com_parameter,
-        out_folder,
     ):
         """Compute Channel Operating Margin.
 
@@ -353,16 +367,15 @@ class SpiSim:
 
         """
 
-        out_folder = out_folder if out_folder else self.working_directory
-
         com_parameter.THRUSNP = com_parameter.THRUSNP.replace("\\", "/")
         com_parameter.FEXTARY = com_parameter.FEXTARY.replace("\\", "/")
         com_parameter.NEXTARY = com_parameter.NEXTARY.replace("\\", "/")
+        com_parameter.RESULT_DIR = com_parameter.RESULT_DIR.replace("\\", "/")
 
-        cfg_file = os.path.join(out_folder, "com_parameters.cfg")
+        cfg_file = os.path.join(com_parameter.RESULT_DIR, "com_parameters.cfg")
         com_parameter.export(cfg_file)
 
-        out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file, out_file=out_folder)
+        out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file)
         return self._get_output_parameter_from_result(out_processing, "COM")
 
     @property

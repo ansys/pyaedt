@@ -521,9 +521,8 @@ class TestClass:
         spisim = SpiSim(snp)
         com_0, com_1 = spisim.compute_com_from_snp(
             standard="100GBASE-KR4",
-            port_order="[1 3 2 4]",
-            tx_rx_port="(1,2);(3,4)",
-            fext_port="(5,6);(7,8);(9,10);(11,12)",
-            next_port="(13,14);(15,16);(17,18);(19,20)",
+            tx_rx_port=[(1,2),(3,4)],
+            fext_port=[(5,6),(7,8),(9,10),(11,12)],
+            next_port=[(13,14),(15,16),(17,18),(19,20)],
         )
         assert com_0 and com_1
