@@ -8,6 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
 
@@ -163,6 +164,10 @@ class TestClass:
         assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
         assert my_setup.update()
         assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
+        templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
+        assert templates
+        self.aedtapp.setups[0].props = templates["IcepakSteadyState"]
+        assert self.aedtapp.setups[0].update()
 
     def test_09_existing_sweeps(self):
         assert self.aedtapp.existing_analysis_sweeps
