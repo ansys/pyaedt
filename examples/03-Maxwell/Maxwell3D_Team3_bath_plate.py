@@ -3,6 +3,7 @@ Maxwell 3D: bath plate analysis
 -------------------------------
 This example uses PyAEDT to set up the TEAM 3 bath plate problem and
 solve it using the Maxwell 3D Eddy Current solver.
+https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
 """
 ##################################################################################
 # Perform required imports

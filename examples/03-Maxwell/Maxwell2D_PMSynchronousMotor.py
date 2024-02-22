@@ -552,7 +552,7 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 # Turn on core loss.
 
 core_loss_list = ['Rotor', 'Stator']
-M2D.set_core_losses(core_loss_list, value=True)
+M2D.set_core_losses(core_loss_list)
 
 ##########################################################
 # Compute transient inductance
