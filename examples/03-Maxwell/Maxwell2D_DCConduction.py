@@ -66,7 +66,7 @@ no_materials = 4
 ##################################################################################
 # Assign materials
 # ~~~~~~~~~~~~~~~~
-# Voltage ports will be defined as perfect electric conductor (pec), conductor
+# A voltage port is defined as a perfect electric conductor (pec). A conductor
 # gets the material defined by the 0th entry of the material array.
 
 m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "gold")
