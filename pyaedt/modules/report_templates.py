@@ -3844,7 +3844,7 @@ class EMIReceiver(CommonReport):
     def emission(self):
         """Emission test.
 
-        Options are ``"CE"``, and ``"RE"``.
+        Options are ``"CE"`` and ``"RE"``.
 
         Returns
         -------
