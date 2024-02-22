@@ -13,7 +13,7 @@ These examples use EDB (Electronics Database) with PyAEDT.
     import pyaedt
     edb = pyaedt.Edb("mylayout.aedb")
 
-    # User can launch Edb directly from PyEDB class.
+    # You can also launch EDB directly from PyEDB.
 
     import pyedb
     edb = pyedb.Edb("mylayout.aedb")
