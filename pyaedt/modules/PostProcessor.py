@@ -5059,7 +5059,7 @@ class IcepakPostProcessor(PostProcessor, object):
             Name of the file to save the operating point of the fans. The default is
             ``None``, in which case the filename is automatically generated.
         setup_name : str, optional
-            Setup name to determine the operating point of the fans froms. The default is
+            Setup name to determine the operating point of the fans. The default is
             ``None``, in which case the first available setup is used.
         timestep : str, optional
             Time, with units, at which to determine the operating point of the fans. The default
