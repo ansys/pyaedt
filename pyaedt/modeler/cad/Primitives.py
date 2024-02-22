@@ -8292,6 +8292,8 @@ class PrimitivesBuilder(object):
 
                 if primitive_type_cleaned in ["Blocks Cylinder", "Cylinder"]:
                     props = self._read_csv_cylinder_props(csv_data)
+                if primitive_type_cleaned in ["Blocks Prism", "Prism"]:
+                    props = self._read_csv_prism_props(csv_data)
                 if not props:
                     msg = "CSV file not valid."
                     self.logger.error(msg)
@@ -8587,6 +8589,81 @@ class PrimitivesBuilder(object):
                 col_cont += 1
             row_cont += 1
         return props_cyl
+
+    @pyaedt_function_handler()
+    def _read_csv_prism_props(self, csv_data):
+        """Convert csv data to PrimitivesBuilder properties.
+
+        Create a box instance.
+
+        Parameters
+        ----------
+        csv_data : :class:`pandas.DataFrame`
+
+        Returns
+        -------
+        dict
+            PrimitivesBuilder properties.
+        """
+        primitive_props = {
+            "Primitive Type": "Box",
+            "Name": "",
+            "X Length": 0,
+            "Y Length": 0,
+            "Z Length": 0,
+        }
+        instances_props = {"Name": "", "Coordinate System": "Global", "Origin": [0, 0, 0]}
+        required_csv_keys = ["name", "xc", "yc", "zc", "xd", "yd", "zd"]
+        # Take the keys
+        csv_keys = []
+        index_row = 0
+        for index_row, row in csv_data.iterrows():
+            if "#" not in row.iloc[0]:
+                csv_keys = row.array.dropna()
+                csv_keys = csv_keys.tolist()
+                break
+
+        if not all(k in required_csv_keys for k in csv_keys):
+            msg = "The column names in the CSV file do not match the expected names."
+            self.logger.error(msg)
+            raise ValueError
+        # Create instances and primitives
+        props_box = {}
+        row_cont = 0
+        for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
+            row_info = row.dropna().values
+            if len(row_info) != len(csv_keys):
+                msg = "Values missing in the CSV file "
+                self.logger.error(msg)
+                raise ValueError
+
+            if not props_cyl:
+                props_cyl = {"Primitives": [primitive_props], "Instances": [instances_props]}
+            else:
+                props_cyl["Primitives"].append(primitive_props.copy())
+                props_cyl["Instances"].append(instances_props.copy())
+
+            col_cont = 0
+            # Check for nan values in each column
+            for value in row_info:
+                if csv_keys[col_cont] == "name":
+                    props_cyl["Primitives"][row_cont]["Name"] = str(value)
+                    props_cyl["Instances"][row_cont]["Name"] = str(value)
+                elif csv_keys[col_cont] == "xc":
+                    props_cyl["Instances"][row_cont]["Origin"][0] = float(value)
+                elif csv_keys[col_cont] == "yc":
+                    props_cyl["Instances"][row_cont]["Origin"][1] = float(value)
+                elif csv_keys[col_cont] == "zc":
+                    props_cyl["Instances"][row_cont]["Origin"][2] = float(value)
+                elif csv_keys[col_cont] == "xd":
+                    props_cyl["Primitives"][row_cont]["X Length"] = float(value)
+                elif csv_keys[col_cont] == "yd":
+                    props_cyl["Primitives"][row_cont]["Y Length"] = float(value)
+                elif csv_keys[col_cont] == "zd":
+                    props_cyl["Primitives"][row_cont]["Z Length"] = float(value)
+                col_cont += 1
+            row_cont += 1
+        return props_box
 
     @pyaedt_function_handler()
     def convert_units(self, values):
