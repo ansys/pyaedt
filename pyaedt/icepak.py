@@ -35,7 +35,6 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.Boundary import _create_boundary
-from pyaedt.modules.PostProcessor import IcepakPostProcessor
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -168,7 +167,6 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
-        self._post = IcepakPostProcessor(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
