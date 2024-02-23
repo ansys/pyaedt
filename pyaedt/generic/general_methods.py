@@ -354,7 +354,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-def open_file(file_path, file_options="r"):
+def open_file(file_path, file_options="r", encoding=None):
     """Open a file and return the object.
 
     Parameters
@@ -363,6 +363,10 @@ def open_file(file_path, file_options="r"):
         Full absolute path to the file (either local or remote).
     file_options : str, optional
         Options for opening the file.
+    encoding : str, optional
+        Name of the encoding used to decode or encode the file.
+        The default used is platform dependent, but any encoding supported by Python can be
+        passed.
 
     Returns
     -------
@@ -373,15 +377,15 @@ def open_file(file_path, file_options="r"):
     dir_name = os.path.dirname(file_path)
     if "r" in file_options:
         if os.path.exists(file_path):
-            return open(file_path, file_options)
+            return open(file_path, file_options, encoding)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
             file_path
         ):  # pragma: no cover
             local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
             settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
-            return open(local_file, file_options)
+            return open(local_file, file_options, encoding)
     elif os.path.exists(dir_name):
-        return open(file_path, file_options)
+        return open(file_path, file_options, encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(dir_name):
         return settings.remote_rpc_session.open_file(file_path, file_options)
     else:

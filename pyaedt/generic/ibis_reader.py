@@ -621,7 +621,7 @@ class IbisReader(object):
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
 
-        file_to_open = check_and_download_file(self._filename)
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -980,7 +980,7 @@ class AMIReader(IbisReader):
 
         ami_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
-        file_to_open = check_and_download_file(self._filename)
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
