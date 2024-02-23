@@ -9,9 +9,13 @@ from __future__ import absolute_import  # noreorder
 
 import ast
 from collections import OrderedDict
+from collections import defaultdict
+import csv
 import os
 import random
+import re
 import string
+import tempfile
 
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
@@ -4911,3 +4915,457 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 pandas_enabled=waveform_data.enable_pandas_output,
             )
         return outputdata
+
+
+TOTAL_QUANTITIES = [
+    "HeatFlowRate",
+    "RadiationFlow",
+    "ConductionHeatFlow",
+    "ConvectiveHeatFlow",
+    "MassFlowRate",
+    "VolumeFlowRate",
+    "SurfJouleHeatingDensity",
+]
+AVAILABLE_QUANTITIES = [
+    "Temperature",
+    "SurfTemperature",
+    "HeatFlowRate",
+    "RadiationFlow",
+    "ConductionHeatFlow",
+    "ConvectiveHeatFlow",
+    "HeatTransCoeff",
+    "HeatFlux",
+    "RadiationFlux",
+    "Speed",
+    "Ux",
+    "Uy",
+    "Uz",
+    "SurfUx",
+    "SurfUy",
+    "SurfUz",
+    "Pressure",
+    "SurfPressure",
+    "MassFlowRate",
+    "VolumeFlowRate",
+    "MassFlux",
+    "ViscocityRatio",
+    "WallYPlus",
+    "TKE",
+    "Epsilon",
+    "Kx",
+    "Ky",
+    "Kz",
+    "SurfElectricPotential",
+    "ElectricPotential",
+    "SurfCurrentDensity",
+    "CurrentDensity",
+    "SurfCurrentDensityX",
+    "SurfCurrentDensityY",
+    "SurfCurrentDensityZ",
+    "CurrentDensityX",
+    "CurrentDensityY",
+    "CurrentDensityZ",
+    "SurfJouleHeatingDensity",
+    "JouleHeatingDensity",
+]
+
+
+class FieldSummary:
+    def __init__(self, app):
+        self._app = app
+        self.calculations = []
+
+    @pyaedt_function_handler()
+    def add_calculation(
+        self, entity, geometry, geometry_name, quantity, normal="", side="Default", mesh="All", ref_temperature=""
+    ):
+        if quantity not in AVAILABLE_QUANTITIES:
+            raise AttributeError(
+                "Quantity {} is not supported. Available quantities are:\n{}".format(
+                    quantity, ", ".join(AVAILABLE_QUANTITIES)
+                )
+            )
+        self.calculations.append(
+            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+        )  # TODO : last argument not documented
+
+    @pyaedt_function_handler()
+    def get_field_summary_data(self, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
+            temp_file.close()
+            self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
+            with open(temp_file.name, "r") as f:
+                for _ in range(4):
+                    _ = next(f)
+                reader = csv.DictReader(f)
+                out_dict = defaultdict(list)
+                for row in reader:
+                    for key in row.keys():
+                        out_dict[key].append(row[key])
+            os.remove(temp_file.name)
+            if pandas_output:
+                if pd is None:
+                    raise ImportError("pandas package is needed.")
+                return pd.DataFrame.from_dict(out_dict)
+        return out_dict
+
+    @pyaedt_function_handler()
+    def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
+        if not sweep_name:
+            sweep_name = self._app.nominal_sweep
+        dv_string = ""
+        for el in design_variation:
+            dv_string += el + "='" + design_variation[el] + "' "
+        self._create_field_summary(sweep_name, dv_string)
+        self._app.osolution.ExportFieldsSummary(
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                dv_string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                intrinsic_value,
+            ]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def _create_field_summary(self, setup, variation):
+        arg = ["SolutionName:=", setup, "Variation:=", variation]
+        for i in self.calculations:
+            arg.append("Calculation:=")
+            arg.append(i)
+        self._app.osolution.EditFieldsSummarySetting(arg)
+
+
+class IcepakPostProcessor(PostProcessor, object):
+    def __init__(self, app):
+        PostProcessorCommon.__init__(self, app)
+
+    @pyaedt_function_handler()
+    def create_field_summary(self):
+        return FieldSummary(self._app)
+
+    @pyaedt_function_handler()
+    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+        """
+        Get the operating point of the fans in the design.
+
+        Parameters
+        ----------
+        export_file : str, optional
+            Name of the file to save the operating point of the fans to. The default is
+            ``None``, in which case the filename is automatically generated.
+        setup_name : str, optional
+            Setup name to determine the operating point of the fans. The default is
+            ``None``, in which case the first available setup is used.
+        timestep : str, optional
+            Time, with units, at which to determine the operating point of the fans. The default
+            is ``None``, in which case the first available timestep is used. This parameter is
+            only relevant in transient simulations.
+        design_variation : str, optional
+            Design variation to determine the operating point of the fans from. The default is
+            ``None``, in which case the nominal variation is used.
+
+        Returns
+        -------
+        list
+            First element of the list is the CSV filename. The second and third elements
+            are the quantities with units describing the operating point of the fans.
+            The fourth element is a dictionary with the names of the fan instances
+            as keys and lists with volumetric flow rates and pressure rise floats associated
+            with the operating point as values.
+
+        References
+        ----------
+
+        >>> oModule.ExportFanOperatingPoint
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.create_fan()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        """
+
+        if export_file is None:
+            path = self._app.temp_directory
+            base_name = "{}_{}_FanOpPoint".format(self._app.project_name, self._app.design_name)
+            export_file = os.path.join(path, base_name + ".csv")
+            while os.path.exists(export_file):
+                file_name = generate_unique_name(base_name)
+                export_file = os.path.join(path, file_name + ".csv")
+        if setup_name is None:
+            setup_name = "{} : {}".format(self._app.get_setups()[0], self._app.solution_type)
+        if timestep is None:
+            timestep = ""
+            if self._app.solution_type == "Transient":
+                self._app.logger.warning("No timestep is specified. First timestep is exported.")
+        else:
+            if not self._app.solution_type == "Transient":
+                self._app.logger.warning("Simulation is steady-state. Timestep argument is ignored.")
+                timestep = ""
+        if design_variation is None:
+            design_variation = ""
+        self._app.osolution.ExportFanOperatingPoint(
+            [
+                "SolutionName:=",
+                setup_name,
+                "DesignVariationKey:=",
+                design_variation,
+                "ExportFilePath:=",
+                export_file,
+                "Overwrite:=",
+                True,
+                "TimeStep:=",
+                timestep,
+            ]
+        )
+        with open(export_file, "r") as f:
+            reader = csv.reader(f)
+            for line in reader:
+                if "Fan Instances" in line:
+                    vol_flow = line[1]
+                    p_rise = line[2]
+                    break
+            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
+        return [export_file, vol_flow, p_rise, var]
+
+    @pyaedt_function_handler
+    def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
+        content = fs.get_field_summary_data(sweep_name=setup_name, design_variation=design_variation)
+        pattern = r"\[([^]]*)\]"
+        match = re.search(pattern, content["Quantity"][0])
+        if match:
+            content["Unit"] = [match.group(1)]
+        else:  # pragma: no cover
+            content["Unit"] = [None]
+
+        if quantity_name in TOTAL_QUANTITIES:
+            return {i: content[i][0] for i in ["Total", "Unit"]}
+        return {i: content[i][0] for i in ["Min", "Max", "Mean", "Stdev", "Unit"]}
+
+    @pyaedt_function_handler()
+    def evaluate_faces_quantity(
+        self,
+        faces_list,
+        quantity_name,
+        side="Default",
+        setup_name=None,
+        design_variation={},
+        ref_temperature="",
+    ):
+        """Export the field surface output.
+
+        Parameters
+        ----------
+        faces_list : list
+            List of faces to apply.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Which side of the mesh face to use. The default is ``Default``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        name = generate_unique_name(quantity_name)
+        self._app.modeler.create_face_list(faces_list, name)
+        fs = self.create_field_summary()
+        fs.add_calculation("Object", "Surface", name, quantity_name, side=side, ref_temperature=ref_temperature)
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+
+    @pyaedt_function_handler()
+    def evaluate_boundary_quantity(
+        self,
+        boundary_name,
+        quantity_name,
+        side="Default",
+        volume=False,
+        setup_name=None,
+        design_variation={},
+        ref_temperature="",
+    ):
+        """Export the field output on a boundary.
+
+        Parameters
+        ----------
+        boundary_name : str
+            Name of boundary to perform the computation on.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Side of the mesh face to use. The default is ``"Default"``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        volume : bool, optional
+            Whether to compute the quantity on the volume or on the surface.
+            The default is ``False``, in which case the quantity will be evaluated
+            only on the surface .
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        fs = self.create_field_summary()
+        fs.add_calculation(
+            "Boundary",
+            ["Surface", "Volume"][int(volume)],
+            boundary_name,
+            quantity_name,
+            side=side,
+            ref_temperature=ref_temperature,
+        )
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+
+    @pyaedt_function_handler()
+    def evaluate_monitor_quantity(
+        self,
+        monitor_name,
+        quantity_name,
+        side="Default",
+        setup_name=None,
+        design_variation={},
+        ref_temperature="",
+    ):
+        """Export monitor field output.
+
+        Parameters
+        ----------
+        monitor_name : str
+            Name of monitor to perform the computation on.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Side of the mesh face to use. The default is ``"Default"``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        if settings.aedt_version < "2024.1":
+            raise NotImplementedError("Monitors are not supported in field summary in versions earlier than 2024 R1.")
+        else:  # pragma: no cover
+            if self._app.monitor.face_monitors.get(monitor_name, None):
+                field_type = "Surface"
+            elif self._app.monitor.point_monitors.get(monitor_name, None):
+                field_type = "Volume"
+            else:
+                raise AttributeError("Monitor {} is not found in the design.".format(monitor_name))
+            fs = self.create_field_summary()
+            fs.add_calculation(
+                "Monitor", field_type, monitor_name, quantity_name, side=side, ref_temperature=ref_temperature
+            )
+            return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+
+    @pyaedt_function_handler()
+    def evaluate_object_quantity(
+        self,
+        object_name,
+        quantity_name,
+        side="Default",
+        volume=False,
+        setup_name=None,
+        design_variation={},
+        ref_temperature="",
+    ):
+        """Export the field output on or in an object.
+
+        Parameters
+        ----------
+        object_name : str
+            Name of object to perform the computation on.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Side of the mesh face to use. The default is ``"Default"``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        volume : bool, optional
+            Whether to compute the quantity on the volume or on the surface. The default is ``False``.
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        fs = self.create_field_summary()
+        fs.add_calculation(
+            "Boundary",
+            ["Surface", "Volume"][int(volume)],
+            object_name,
+            quantity_name,
+            side=side,
+            ref_temperature=ref_temperature,
+        )
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)

@@ -166,7 +166,12 @@ class TestClass:
         self.aedtapp.modeler.create_regular_polygon(
             position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
         )
-        obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
+        obj = self.aedtapp.plot(
+            show=False,
+            export_path=os.path.join(self.local_scratch.path, "image.jpg"),
+            show_bounding=True,
+            show_grid=True,
+        )
         assert os.path.exists(obj.image_file)
         obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
         assert os.path.exists(obj2.image_file)
