@@ -8380,9 +8380,9 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _create_instance(self, name, cs, origin, primitive_data):
-        """Create primitive instance.
+        """Create a primitive instance.
 
-        Determine the primitive type and create an instance based on that
+        This method determines the primitive type and creates an instance based on this type.
 
         Parameters
         ----------
