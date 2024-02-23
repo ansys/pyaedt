@@ -158,18 +158,18 @@ resistance = solution.data_magnitude()[0]
 
 report_loss = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss = report_loss.get_solution_data()
-EM_loss = solution_loss.data_magnitude()[0]
+em_loss = solution_loss.data_magnitude()[0]
 
 # Analytical calculation of the DC resistance of the coil
 cu_cond = float(cu_litz.conductivity.value)
 l_conductor = no_turns*2*0.125*3.1415 # average radius of a coil turn = 0.125m
 # R = resistivity * length / area / no_strand
-R_analytical_DC = (1.0/cu_cond)*l_conductor/(3.1415*(strand_diameter/1000/2)**2)/no_strands
+r_analytical_DC = (1.0 / cu_cond) * l_conductor / (3.1415 * (strand_diameter / 1000 / 2) ** 2) / no_strands
 
 # Print results in the Message Manager
-m3d.logger.info("*******Coil analytical DC resistance =  {:.2f}Ohm".format(R_analytical_DC))
+m3d.logger.info("*******Coil analytical DC resistance =  {:.2f}Ohm".format(r_analytical_DC))
 m3d.logger.info("*******Coil resistance at 150kHz BEFORE temperature feedback =  {:.2f}Ohm".format(resistance))
-m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}W".format(EM_loss/1000))
+m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}W".format(em_loss / 1000))
 
 ###############################################################################
 # Icepak design
@@ -284,7 +284,7 @@ em_loss_new = solution_loss_new.data_magnitude()[0]
 
 m3d.logger.info("*******Coil resistance at 150kHz AFTER temperature feedback =  {:.2f}Ohm".format(resistance_new))
 m3d.logger.info("*******Coil resistance increased by {:.2f}%".format(resistance_increase))
-m3d.logger.info("*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W".format(EM_loss_new/1000))
+m3d.logger.info("*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W".format(em_loss_new/1000))
 
 ##################################################################################
 # Release desktop
