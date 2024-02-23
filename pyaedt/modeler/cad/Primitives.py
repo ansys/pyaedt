@@ -8592,7 +8592,7 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _read_csv_prism_props(self, csv_data):
-        """Convert csv data to PrimitivesBuilder properties.
+        """Convert CSV data to ``PrimitivesBuilder`` properties.
 
         Create a box instance.
 
