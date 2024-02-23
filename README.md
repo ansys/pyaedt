@@ -93,6 +93,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
   - Nexxim
   - EDB
   - Twin Builder
+  - EMIT
 
 ## Documentation and issues
 
