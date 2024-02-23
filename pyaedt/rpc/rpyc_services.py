@@ -172,6 +172,10 @@ class FileManagement(object):
         if self.client.root.pathexists(remotepath):
             return True
         return False
+    def unlink(self, remotepath):
+        if self.client.root.unlink(remotepath):
+            return True
+        return False
     def normpath(self, remotepath):
         return self.client.root.normpath(remotepath)
     def isdir(self, remotepath):
@@ -1052,6 +1056,12 @@ class GlobalService(rpyc.Service):
     @staticmethod
     def exposed_pathexists(remotepath):
         if os.path.exists(remotepath):
+            return True
+        return False
+
+    @staticmethod
+    def exposed_unlink(remotepath):
+        if os.unlink(remotepath):
             return True
         return False
 

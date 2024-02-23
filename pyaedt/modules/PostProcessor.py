@@ -2810,10 +2810,8 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
         else:  # pragma: no cover
             self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
-            file_path = check_and_download_file(local_path, file_path)
-        return file_path
+
+        return check_and_download_file(file_path)
 
     @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -3718,9 +3716,8 @@ class PostProcessor(PostProcessorCommon, object):
             for el in obj_list:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
-                if settings.remote_rpc_session_temp_folder:
-                    local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
-                    fname = check_and_download_file(local_path, fname)
+
+                fname = check_and_download_file(fname)
 
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
@@ -4994,7 +4991,7 @@ class FieldSummary:
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
             self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
-            with open(temp_file.name, "r") as f:
+            with open_file(temp_file.name, "r") as f:
                 for _ in range(4):
                     _ = next(f)
                 reader = csv.DictReader(f)
@@ -5124,7 +5121,7 @@ class IcepakPostProcessor(PostProcessor, object):
                 timestep,
             ]
         )
-        with open(export_file, "r") as f:
+        with open_file(export_file, "r") as f:
             reader = csv.reader(f)
             for line in reader:
                 if "Fan Instances" in line:

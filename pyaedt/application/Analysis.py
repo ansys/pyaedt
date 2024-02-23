@@ -1999,7 +1999,7 @@ class Analysis(Design, object):
         if machine == "localhost":
             while not os.path.exists(queue_file):
                 time.sleep(0.5)
-            with open(queue_file, "r") as f:
+            with open_file(queue_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "JobID" in line:

@@ -1632,7 +1632,7 @@ class Desktop(object):
         try:
             self._main.oDesktop.SetRegistryFromFile(registry_file)
             if make_active:
-                with open(registry_file, "r") as f:
+                with open_file(registry_file, "r") as f:
                     for line in f:
                         stripped_line = line.strip()
                         if "ConfigName" in stripped_line:
@@ -1780,8 +1780,8 @@ class Desktop(object):
             dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
             if not os.path.isfile(src):
                 raise FileNotFoundError("File not found: {}".format(src))
-            with open(src, "r") as build_file:
-                with open(dst, "w") as out_file:
+            with open_file(src, "r") as build_file:
+                with open_file(dst, "w") as out_file:
                     self.logger.info("Building to " + dst)
                     build_file_data = build_file.read()
                     build_file_data = (
@@ -2084,10 +2084,10 @@ class Desktop(object):
         elif job_id:
             command = [command, "jobinfo", "-i", job_id]
         cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("job_info"))
-        with open(cloud_info, "w") as outfile:
+        with open_file(cloud_info, "w") as outfile:
             subprocess.Popen(" ".join(command), stdout=outfile).wait()
         out = {}
-        with open(cloud_info, "r") as infile:
+        with open_file(cloud_info, "r") as infile:
             lines = infile.readlines()
             for i in lines:
                 if ":" in i.strip():
@@ -2190,11 +2190,11 @@ class Desktop(object):
         ver = self.aedt_version_id.replace(".", "R")
         command = [command, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
         cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("cloud_info"))
-        with open(cloud_info, "w") as outfile:
+        with open_file(cloud_info, "w") as outfile:
             subprocess.Popen(" ".join(command), stdout=outfile).wait()
 
         dict_out = {}
-        with open(cloud_info, "r") as infile:
+        with open_file(cloud_info, "r") as infile:
             lines = infile.readlines()
             for i in range(len(lines)):
                 line = lines[i].strip()

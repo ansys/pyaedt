@@ -6,6 +6,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.OptimetricsTemplates import defaultdoeSetup
 from pyaedt.modules.OptimetricsTemplates import defaultdxSetup
@@ -1218,7 +1219,7 @@ class ParametricSetups(object):
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
-        with open(filename, "r") as csvfile:
+        with open_file(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
             setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}

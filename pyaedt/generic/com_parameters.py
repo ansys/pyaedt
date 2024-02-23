@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
+from pyaedt.generic.general_methods import open_file
 
 logger = settings.logger
 
@@ -50,7 +51,7 @@ class COMParameters:
         bool
         """
         self._standard = "custom"
-        with open(file_path, "r") as fp:
+        with open_file(file_path, "r") as fp:
             lines = fp.readlines()
             for line in lines:
                 if not line.startswith("#") and "=" in line:
@@ -72,7 +73,7 @@ class COMParameters:
         -------
         bool
         """
-        with open(file_path, "w") as fp:
+        with open_file(file_path, "w") as fp:
             fp.write("################################################################################\n")
             fp.write("# MODULE: COM\n")
             fp.write("# GENERATED ON\n")

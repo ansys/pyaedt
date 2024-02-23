@@ -8,6 +8,7 @@ from fpdf import FontFace
 
 from pyaedt import __version__
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import open_file
 
 
 @dataclass
@@ -77,7 +78,7 @@ class AnsysReport(FPDF):
         if template_file:
             self.report_specs.template_name = template_file
         if os.path.exists(self.report_specs.template_name):
-            with open(self.report_specs.template_name, "r") as f:
+            with open_file(self.report_specs.template_name, "r") as f:
                 tdata = json.load(f)
             self.report_specs = ReportSpec(**tdata)
 

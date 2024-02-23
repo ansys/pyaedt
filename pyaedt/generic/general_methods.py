@@ -283,13 +283,16 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
 
 
 @pyaedt_function_handler()
-def check_and_download_file(local_path, remote_path, overwrite=True):
+def _check_path(path_to_check):
+    return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
+
+
+@pyaedt_function_handler()
+def check_and_download_file(remote_path, overwrite=True):
     """Check if a file is remote and either download it or return the path.
 
     Parameters
     ----------
-    local_path : str
-        Local path to save the file to.
     remote_path : str
         Path to the remote file.
     overwrite : bool, optional
@@ -301,9 +304,11 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     str
     """
     if settings.remote_rpc_session:
-        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
-        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
-        return local_path
+        remote_path = _check_path(remote_path)
+        local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(remote_path)[-1])
+        if settings.remote_rpc_session.filemanager.pathexists(remote_path):
+            settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+            return local_path
     return remote_path
 
 
@@ -423,7 +428,7 @@ def read_json(fn):
     dict
     """
     json_data = {}
-    with open(fn) as json_file:
+    with open_file(fn) as json_file:
         try:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
@@ -841,6 +846,11 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
+    if settings.remote_rpc_session:
+        if settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
+            return True
+        else:
+            return False
     return check_if_path_exists(project_path + ".lock")
 
 
@@ -861,6 +871,9 @@ def remove_project_lock(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
+    if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
+        settings.remote_rpc_session.filemanager.unlink(project_path + ".lock")
+        return True
     if os.path.exists(project_path + ".lock"):
         os.remove(project_path + ".lock")
     return True
@@ -882,6 +895,7 @@ def read_csv(filename, encoding="utf-8"):
     list
 
     """
+    filename = check_and_download_file(filename)
 
     lines = []
     with codecs.open(filename, "rb", encoding) as csvfile:
@@ -907,6 +921,7 @@ def read_csv_pandas(filename, encoding="utf-8"):
     :class:`pandas.DataFrame`
 
     """
+    filename = check_and_download_file(filename)
     try:
         import pandas as pd
 
@@ -949,6 +964,7 @@ def read_xlsx(filename):
     list
 
     """
+    filename = check_and_download_file(filename)
     try:
         import pandas as pd
 
@@ -1113,17 +1129,17 @@ def _create_json_file(json_dict, full_json_path):
     if not os.path.exists(os.path.dirname(full_json_path)):
         os.makedirs(os.path.dirname(full_json_path))
     if not is_ironpython:
-        with open(full_json_path, "w") as fp:
+        with open_file(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
     else:
         temp_path = full_json_path.replace(".json", "_temp.json")
-        with open(temp_path, "w") as fp:
+        with open_file(temp_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
-        with open(temp_path, "r") as file:
+        with open_file(temp_path, "r") as file:
             filedata = file.read()
         filedata = filedata.replace("True", "true")
         filedata = filedata.replace("False", "false")
-        with open(full_json_path, "w") as file:
+        with open_file(full_json_path, "w") as file:
             file.write(filedata)
         os.remove(temp_path)
     return True
@@ -1611,7 +1627,7 @@ def tech_to_control_file(tech_path, unit="nm", control_path=None):
         Out xml file.
     """
     result = []
-    with open(tech_path) as f:
+    with open_file(tech_path) as f:
         vals = list(CSS4_COLORS.values())
         id_layer = 0
         for line in f:
@@ -1632,7 +1648,7 @@ def tech_to_control_file(tech_path, unit="nm", control_path=None):
                 unit = line_split[1]
     if not control_path:
         control_path = os.path.splitext(tech_path)[0] + ".xml"
-    with open(control_path, "w") as f:
+    with open_file(control_path, "w") as f:
         f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
         f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
         f.write("\n")
@@ -1939,7 +1955,7 @@ def _check_installed_version(install_path, long_version):
     product_list_path = os.path.join(install_path, "config", "ProductList.txt")
     if os.path.isfile(product_list_path):
         try:
-            with open(product_list_path, "r") as f:
+            with open_file(product_list_path, "r") as f:
                 install_version = f.readline().strip()[-6:]
                 if install_version == long_version:
                     return True
