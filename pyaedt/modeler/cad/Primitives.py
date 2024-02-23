@@ -8350,7 +8350,7 @@ class PrimitivesBuilder(object):
         for instance_data in self.instances:
             name = instance_data.get("Name")
             if not name:
-                self.logger.error("``Name`` parameter not defined.")
+                self.logger.error("``Name`` parameter is not defined.")
                 return False
 
             cs = instance_data.get("Coordinate System")
