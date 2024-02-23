@@ -91,7 +91,7 @@ class Design(AedtObjects):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -137,13 +137,14 @@ class Design(AedtObjects):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
-        if self._desktop_class._connected_designs > 1:
-            self._desktop_class._connected_designs -= 1
-        elif self._desktop_class._initialized_from_design:
+        if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
+            self._desktop_class._connected_app_instances -= 1
+        if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
-    def __enter__(self):
-        pass
+    def __enter__(self):  # pragma: no cover
+        self._desktop_class._connected_app_instances += 1
+        return self
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -234,8 +235,6 @@ class Design(AedtObjects):
             port,
             aedt_process_id,
         )
-        self._desktop_class._connected_designs += 1
-
         self.student_version = self._desktop_class.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
@@ -410,7 +409,7 @@ class Design(AedtObjects):
             Dictionary of excitations.
         """
         _dict_out = {}
-        for bound in self._excitations:
+        for bound in self.design_excitations:
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:

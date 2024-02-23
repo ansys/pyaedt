@@ -9,130 +9,55 @@ PyAEDT documentation  |version|
 PyAEDT is a Python library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
 enabling straightforward and efficient automation in your workflow.
 
-.. grid:: 2
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_getting_started.png
-
-            Getting started
-            ^^^^^^^^^^^^^^^
-
-            New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
-
-            +++
-
-            .. button-link:: Getting_started/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  Getting started
-
-   .. grid-item-card::
-            :img-top: _static/assets/index_user_guide.png
-
-            User guide
-            ^^^^^^^^^^
-
-            This section provides in-depth information on PyAEDT key concepts.
-
-            +++
-            .. button-link:: User_guide/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  User guide
-
-
 
 .. grid:: 2
 
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
+    .. grid-item-card:: Getting started :fa:`person-running`
+        :link: Getting_started/index
+        :link-type: doc
 
-            AEDT API reference
-            ^^^^^^^^^^^^^^^^^^
+        New to PyAEDT? This section provides the information that you need to get started with PyAEDT.
 
-            The PyAEDT API reference contains descriptions of the functions and modules included in PyAEDT.
-            It describes how the methods work and the parameter that can be used.
+    .. grid-item-card:: User guide :fa:`book-open-reader`
+        :link: User_guide/index
+        :link-type: doc
 
-            +++
-            .. button-link:: API/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
+        This section provides in-depth information on PyAEDT key concepts.
 
-                  AEDT API reference
+.. grid:: 2
 
-   .. grid-item-card::
-            :img-top: _static/assets/index_api.png
+    .. grid-item-card::  AEDT API reference :fa:`book-bookmark`
+        :link: API/index
+        :link-type: doc
 
-            EDB API reference
-            ^^^^^^^^^^^^^^^^^
+        This section contains descriptions of the functions and modules included in PyAEDT.
+        It describes how the methods work and the parameter that can be used.
 
-            The PyAEDT EDB API reference contains descriptions of the functions and modules included in PyAEDT.
-            It describes how the methods work and the parameter that can be used.
+    .. grid-item-card::  EDB API reference :fa:`book-bookmark`
+        :link: EDBAPI/index.
+        :link-type: doc
 
-            +++
-            .. button-link:: EDBAPI/index.html
-               :color: secondary
-               :expand:
-               :outline:
-               :click-parent:
-
-                  EDB API reference
+        Contains descriptions of the functions and modules included in PyEDB.
+        It describes how the methods work and the parameter that can be used.
 
 .. jinja:: main_toctree
 
-    .. grid:: 2
+   .. grid:: 2
 
-           {% if run_examples %}
-           .. grid-item-card::
-                    :img-top: _static/assets/index_examples.png
+      {% if run_examples %}
+      .. grid-item-card:: Examples :fa:`scroll`
+         :link: examples/index
+         :link-type: doc
 
-                    Examples
-                    ^^^^^^^^
+         Explore examples that show how to use PyAEDT to perform different types of simulations.
+      
+      {% endif %}
 
-                    Explore examples that show how to use PyAEDT to
-                    perform different types of simulations.
+      .. grid-item-card:: Contribute :fa:`people-group`
+         :link: Getting_started/Contributing
+         :link-type: doc
 
-                    +++
-                    .. button-link:: examples/index.html
-                       :color: secondary
-                       :expand:
-                       :outline:
-                       :click-parent:
-
-                          Examples
-           {% endif %}
-
-        .. grid-item-card::
-                :img-top: _static/assets/index_contribute.png
-
-                Contribute
-                ^^^^^^^^^^
-                Learn how to contribute to the PyAEDT codebase
-                or documentation.
-
-                +++
-                .. button-link:: Getting_started/Contributing.html
-                   :color: secondary
-                   :expand:
-                   :outline:
-                   :click-parent:
-
-                      Contribute
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+         Learn how to contribute to the PyAEDT codebase or documentation.
 
 .. jinja:: main_toctree
 

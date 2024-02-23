@@ -3,8 +3,10 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+
 from itertools import combinations
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -14,7 +16,6 @@ import warnings
 
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core.components import Components
-from pyaedt.edb_core.configuration import Configuration
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -688,11 +689,6 @@ class Edb(Database):
         """
         warnings.warn("Use new property :func:`components` instead.", DeprecationWarning)
         return self.components
-
-    @property
-    def configuration(self):
-        """Edb configuration."""
-        return Configuration(self)
 
     @property
     def components(self):
@@ -3903,7 +3899,7 @@ class Edb(Database):
                 _layers = {k: v for k, v in self.stackup.stackup_layers.items() if k in layer_filter}
             for layer_name, layer in _layers.items():
                 thickness_variable = "${}_thick".format(layer_name)
-                self._clean_string_for_variable_name(thickness_variable)
+                thickness_variable = self._clean_string_for_variable_name(thickness_variable)
                 if thickness_variable not in self.variables:
                     self.add_design_variable(thickness_variable, layer.thickness)
                 layer.thickness = thickness_variable
@@ -3916,20 +3912,20 @@ class Edb(Database):
             for mat_name, material in _materials.items():
                 if material.conductivity < 1e4:
                     epsr_variable = "$epsr_{}".format(mat_name)
-                    self._clean_string_for_variable_name(epsr_variable)
+                    epsr_variable = self._clean_string_for_variable_name(epsr_variable)
                     if epsr_variable not in self.variables:
                         self.add_design_variable(epsr_variable, material.permittivity)
                     material.permittivity = epsr_variable
                     parameters.append(epsr_variable)
                     loss_tg_variable = "$loss_tangent_{}".format(mat_name)
-                    self._clean_string_for_variable_name(loss_tg_variable)
+                    loss_tg_variable = self._clean_string_for_variable_name(loss_tg_variable)
                     if not loss_tg_variable in self.variables:
                         self.add_design_variable(loss_tg_variable, material.loss_tangent)
                     material.loss_tangent = loss_tg_variable
                     parameters.append(loss_tg_variable)
                 else:
                     sigma_variable = "$sigma_{}".format(mat_name)
-                    self._clean_string_for_variable_name(sigma_variable)
+                    sigma_variable = self._clean_string_for_variable_name(sigma_variable)
                     if not sigma_variable in self.variables:
                         self.add_design_variable(sigma_variable, material.conductivity)
                     material.conductivity = sigma_variable
@@ -3941,7 +3937,7 @@ class Edb(Database):
                 paths = [path for path in self.modeler.paths if path.net_name in trace_net_filter]
             for path in paths:
                 trace_width_variable = "trace_w_{}_{}".format(path.net_name, path.id)
-                self._clean_string_for_variable_name(trace_width_variable)
+                trace_width_variable = self._clean_string_for_variable_name(trace_width_variable)
                 if trace_width_variable not in self.variables:
                     self.add_design_variable(trace_width_variable, path.width)
                 path.width = trace_width_variable
@@ -4046,4 +4042,6 @@ class Edb(Database):
             variable_name = variable_name.replace("-", "_")
         if "+" in variable_name:
             variable_name = variable_name.replace("+", "p")
+
+        variable_name = re.sub(r"[() ]", "_", variable_name)
         return variable_name
