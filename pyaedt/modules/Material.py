@@ -1287,6 +1287,7 @@ class Material(CommonMaterial, object):
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Transparency"])
         else:
             vals = list(CSS4_COLORS.values())
             if (materiallib._color_id) >= len(vals):
@@ -1294,6 +1295,7 @@ class Material(CommonMaterial, object):
             h = vals[materiallib._color_id].lstrip("#")
             self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
+            self._material_appearance.append(0)
             self._props["AttachedData"] = OrderedDict(
                 {
                     "MatAppearanceData": OrderedDict(
@@ -1302,6 +1304,8 @@ class Material(CommonMaterial, object):
                             "Red": self._material_appearance[0],
                             "Green": self._material_appearance[1],
                             "Blue": self._material_appearance[2],
+                            "Transparency": self._material_appearance[3]
+
                         }
                     )
                 }
@@ -1353,46 +1357,55 @@ class Material(CommonMaterial, object):
 
     @property
     def material_appearance(self):
-        """Material Appearance specified as an RGB list.
+        """Material Appearance specified as a list where first 3 items are rgb color and fourth one is transparency.
 
         Returns
         -------
         list
-            Color of the material in RGB.  Values are in the range ``[0, 255]``.
+            Color of the material in RGB and transparency.
+            Color Values are in the range ``[0, 255]``.
+            Transparency is float in the range ``[0,1]``
 
         Examples
         --------
-        Create a new material with color ``[0, 153, 153]`` (darker cyan).
+        Create a new material with color ``[0, 153, 153]`` (darker cyan) and transparency 0.5.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_material")
-        >>> rgbcolor = mat1.material_appearance
-        >>> mat1.material_appearance = [0, 153, 153]
+        >>> appearance_props = mat1.material_appearance
+        >>> mat1.material_appearance = [0, 153, 153, 0.5]
         """
         return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, rgb):
-        if not isinstance(rgb, (list, tuple)):
-            raise TypeError("`material_apperance` must be a list or tuple")
-        if len(rgb) != 3:
-            raise ValueError("`material_appearance` must be three items (RGB)")
-        value_int = []
-        for rgb_item in rgb:
-            rgb_int = int(rgb_item)
-            if rgb_int < 0 or rgb_int > 255:
-                raise ValueError("RGB value must be between 0 and 255")
-            value_int.append(rgb_int)
-        self._material_appearance = value_int
+    def material_appearance(self, appearance_props):
+        if not isinstance(appearance_props, (list, tuple)):
+            raise TypeError("`material_appearance` must be a list or tuple")
+        if len(appearance_props) != 4:
+            raise ValueError("`material_appearance` must be four items (R, G, B, transparency)")
+        value = []
+        for i in range(len(appearance_props)):
+            if i < 3:
+                rgb_int = int(appearance_props[i])
+                if rgb_int < 0 or rgb_int > 255:
+                    raise ValueError("RGB value must be between 0 and 255")
+                value.append(rgb_int)
+            else:
+                transparency = float(appearance_props[i])
+                if transparency < 0 or transparency > 1:
+                    raise ValueError("Transparency value must be between 0 and 1")
+                value.append(transparency)
+        self._material_appearance = value
         self._props["AttachedData"] = OrderedDict(
             {
                 "MatAppearanceData": OrderedDict(
                     {
                         "property_data": "appearance_data",
-                        "Red": value_int[0],
-                        "Green": value_int[1],
-                        "Blue": value_int[2],
+                        "Red": value[0],
+                        "Green": value[1],
+                        "Blue": value[2],
+                        "Transparency": value[3]
                     }
                 )
             }
