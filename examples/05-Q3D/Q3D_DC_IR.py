@@ -25,7 +25,6 @@ project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 
-
 ###############################################################################
 # Open EDB
 # ~~~~~~~~
@@ -128,7 +127,7 @@ q3d.modeler.set_working_coordinate_system("Global")
 
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
-comp3= q3d.modeler.insert_3d_component(res, targetCS="R106",geo_params={'$Resistance': 2000})
+comp3 = q3d.modeler.insert_3d_component(res, targetCS="R106",geo_params={'$Resistance': 2000})
 comp3.rotate(q3d.AXIS.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")
