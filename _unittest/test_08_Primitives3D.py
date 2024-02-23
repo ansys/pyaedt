@@ -28,6 +28,8 @@ cylinder_primitive_csv_file = "cylinder_geometry_creation.csv"
 cylinder_primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
 cylinder_primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.csv"
 prism_primitive_csv_file = "cylinder_geometry_creation.csv"
+prism_primitive_csv_file_missing_values = "prism_geometry_creation_missing_values.csv"
+prism_primitive_csv_file_wrong_keys = "prism_geometry_creation_wrong_keys.csv"
 
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
@@ -1878,6 +1880,15 @@ class TestClass:
         primitive_file = os.path.join(local_path, "example_models", test_subfolder, cylinder_primitive_csv_file)
         primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
         assert len(primitive_names) == 2
+        self.aedtapp.insert_design("PrimitiveFromFileTest")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, prism_primitive_csv_file_wrong_keys)
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, prism_primitive_csv_file_missing_values
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
 
     def test_91_primitives_builder(self, add_app):
         from pyaedt.generic.DataHandlers import json_to_dict
