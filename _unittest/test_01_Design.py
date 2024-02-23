@@ -230,6 +230,7 @@ class TestClass:
         assert not ds7
         assert ds4.delete()
         assert self.aedtapp.import_dataset1d(filename)
+        assert ds5.delete()
 
     def test_19a_import_dataset3d(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.tab")

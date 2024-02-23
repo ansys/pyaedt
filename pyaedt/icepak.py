@@ -4,7 +4,6 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import csv
-import math
 import os
 import warnings
 
@@ -12,6 +11,7 @@ from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -35,6 +35,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.Boundary import _create_boundary
+from pyaedt.modules.PostProcessor import IcepakPostProcessor
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -167,6 +168,7 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
+        self._post = IcepakPostProcessor(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -1256,130 +1258,359 @@ class Icepak(FieldAnalysis3D):
         ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         """
-        all_objs = self.modeler.object_names
-        self["FinPitch"] = self.modeler._arg_with_dim(pitch)
-        self["FinThickness"] = self.modeler._arg_with_dim(thick)
-        self["FinLength"] = self.modeler._arg_with_dim(length)
-        self["FinHeight"] = self.modeler._arg_with_dim(height)
-        self["DraftAngle"] = draftangle
-        self["PatternAngle"] = patternangle
-        self["FinSeparation"] = self.modeler._arg_with_dim(separation)
-        self["VerticalSeparation"] = self.modeler._arg_with_dim(vertical_separation)
-        self["HSHeight"] = self.modeler._arg_with_dim(hs_height)
-        self["HSWidth"] = self.modeler._arg_with_dim(hs_width)
-        self["HSBaseThick"] = self.modeler._arg_with_dim(hs_basethick)
-        if numcolumn_perside > 1:
-            self["NumColumnsPerSide"] = numcolumn_perside
-        if symmetric:
-            self["SymSeparation"] = self.modeler._arg_with_dim(symmetric_separation)
-        self["Tolerance"] = self.modeler._arg_with_dim(tolerance)
+        warnings.warn(
+            "This method is deprecated in 0.7.12. Use the create_parametric_heatsink_on_face() method.",
+            DeprecationWarning,
+        )
+        rect = self.modeler.create_rectangle(plane_enum, center, [hs_width, hs_height])
+        rect.rotate(plane_enum, rotation)
+        hs, _ = self.create_parametric_heatsink_on_face(
+            rect.faces[0],
+            relative=False,
+            hs_basethick=hs_basethick,
+            fin_thick=thick,
+            fin_length=length,
+            fin_height=height,
+            draft_angle=draftangle,
+            pattern_angle=patternangle,
+            separation=separation,
+            column_separation=vertical_separation,
+            symmetric=symmetric,
+            symmetric_separation=symmetric_separation,
+            numcolumn_perside=numcolumn_perside,
+            matname=matname,
+        )
+        rect.delete()
+        return bool(hs)
 
-        self.modeler.create_box(
-            ["-HSWidth/200", "-HSHeight/200", "-HSBaseThick"],
-            ["HSWidth*1.01", "HSHeight*1.01", "HSBaseThick+Tolerance"],
-            "HSBase",
+    @pyaedt_function_handler()
+    def create_parametric_heatsink_on_face(
+        self,
+        top_face,
+        relative=True,
+        hs_basethick=0.1,
+        fin_thick=0.05,
+        fin_length=0.25,
+        fin_height=0.5,
+        draft_angle=0,
+        pattern_angle=10,
+        separation=0.05,
+        column_separation=0.05,
+        symmetric=True,
+        symmetric_separation=0.05,
+        numcolumn_perside=2,
+        matname="Al-Extruded",
+    ):
+        """Create a parametric heat sink.
+
+        Parameters
+        ----------
+        top_face : modeler.cad.elements3d.FacePrimitive
+            Face to build the heatsink on.
+        relative : bool, optional
+            Whether the dimensions used as arguments of the function are
+            absolute or relative to the width and the height of the
+            top face.
+        hs_basethick : float, optional
+            Thickness of the heat sink base. If ``relative==True``, it is the
+            fraction of the ``top_face`` width. The default is ``0.1``.
+        fin_thick : float, optional
+            Thickness of the fin. If ``relative==True``, it is the fraction of
+             the ``top_face`` height. The default is ``0.50``.
+        fin_length : float, optional
+            Length of the fin. If ``relative==True``, it is the fraction of
+            the ``top_face`` width. The default is ``0.25``.
+        fin_height : float, optional
+            Height of the fin. If ``relative==True``, it is the fraction of
+            the ``top_face`` height. The default is ``1``.
+        draft_angle : float, optional
+            Draft angle in degrees. The default is ``0``.
+        pattern_angle : float, optional
+            Pattern angle in degrees. The default is ``10``.
+        separation : float, optional
+            Separation among the fins of one column. If ``relative==True``,
+            it is the fraction of the ``top_face`` width. The default is
+            ``0.05``.
+        column_separation : float, optional
+            Separation among columns of fins. If ``relative==True``, it is the
+            fraction of the ``top_face`` height. The default is ``0.1``.
+        symmetric : bool, optional
+            Whether the heat sink is symmetric. The default is ``True``.
+        symmetric_separation : optional
+            Separation between the two sides. If ``relative==True``, it is the
+            fraction of the ``top_face`` height. The default is ``0.01``.
+        numcolumn_perside : int, optional
+            Number of columns per side. The default is ``2``.
+        matname : str, optional
+            Name of the material. The default is ``Al-Extruded``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Heatsink created or ``False`` when failed.
+        dict
+            Variable mapping. Keys are the different parameters names, and values
+            are the corresponding variables names in Icepak.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> box = ipk.modeler.create_box([0,0,0], [1,2,3])
+        >>> top_face=box.top_face_z
+        >>> ipk.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        """
+        all_obj = self.modeler.object_names
+        center = top_face.center
+        normal = top_face.normal
+        ref_edge = top_face.edges[0]
+        x_vect = [ref_edge.midpoint[i] - center[i] for i in range(3)]
+        y_vect = go.v_cross(normal, x_vect)
+
+        if not go.is_parallel(
+            ref_edge.vertices[0].position,
+            ref_edge.vertices[1].position,
+            top_face.edges[1].vertices[0].position,
+            top_face.edges[1].vertices[1].position,
+        ):
+            perp_edge = top_face.edges[1]
+        else:
+            perp_edge = top_face.edges[2]
+        hs_height = ref_edge.length
+        hs_width = perp_edge.length
+
+        self.modeler.create_coordinate_system(origin=center, x_pointing=x_vect, y_pointing=y_vect)
+
+        hs_name = generate_unique_name("Heatsink")
+        hs_code = hs_name.replace("Heatsink_", "")
+
+        name_map = {
+            "HSHeight": "HSHeight_" + hs_code,
+            "HSWidth": "HSWidth_" + hs_code,
+            "DraftAngle": "DraftAngle_" + hs_code,
+            "PatternAngle": "PatternAngle_" + hs_code,
+            "FinThickness": "FinThickness_" + hs_code,
+            "FinLength": "FinLength_" + hs_code,
+            "FinHeight": "FinHeight_" + hs_code,
+            "ColumnSeparation": "ColumnSeparation_" + hs_code,
+            "FinSeparation": "FinSeparation_" + hs_code,
+            "HSBaseThick": "HSBaseThick_" + hs_code,
+            "NumColumnsPerSide": "NumColumnsPerSide_" + hs_code,
+            "SymSeparation_Factor": "SymSeparation_Factor_" + hs_code,
+            "SymSeparation": "SymSeparation_" + hs_code,
+            "_num": "_num_" + hs_code,
+        }
+
+        self[name_map["HSHeight"]] = self.modeler._arg_with_dim(hs_height)
+        self[name_map["HSWidth"]] = self.modeler._arg_with_dim(hs_width)
+        self[name_map["DraftAngle"]] = draft_angle
+        self[name_map["PatternAngle"]] = pattern_angle
+
+        for var, var_name, width_or_height in zip(
+            [fin_thick, fin_length, fin_height, column_separation, separation, hs_basethick],
+            ["FinThickness", "FinLength", "FinHeight", "ColumnSeparation", "FinSeparation", "HSBaseThick"],
+            [0, 1, 0, 0, 1, 1],
+        ):
+            if relative:
+                name_map[var_name + "_Factor"] = var_name + "_Factor_" + hs_code
+                self[name_map[var_name + "_Factor"]] = var
+                self[name_map[var_name]] = (
+                    name_map[var_name + "_Factor"] + "*" + [name_map["HSHeight"], name_map["HSWidth"]][width_or_height]
+                )
+            else:
+                self[name_map[var_name]] = self.modeler._arg_with_dim(var)
+
+        if numcolumn_perside > 1:
+            self[name_map["NumColumnsPerSide"]] = numcolumn_perside
+        if symmetric:
+            if relative:
+                self[name_map["SymSeparation_Factor"]] = symmetric_separation
+                self[name_map["SymSeparation"]] = name_map["SymSeparation_Factor"] + "*" + name_map["HSHeight"]
+            else:
+                self[name_map["SymSeparation"]] = self.modeler._arg_with_dim(symmetric_separation)
+
+        hs_base = self.modeler.create_box(
+            ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
+            [name_map["HSWidth"], name_map["HSHeight"], name_map["HSBaseThick"]],
+            generate_unique_name("HSBase"),
             matname,
         )
         fin_line = []
-        fin_line.append(self.Position(0, 0, 0))
-        fin_line.append(self.Position(0, "FinThickness", 0))
-        fin_line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
-        fin_line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
-        fin_line.append(self.Position(0, 0, 0))
-        self.modeler.create_polyline(fin_line, cover_surface=True, name="Fin")
+        fin_line.append(self.Position(0, 0, name_map["HSBaseThick"]))
+        fin_line.append(self.Position(0, name_map["FinThickness"], name_map["HSBaseThick"]))
+        fin_line.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinThickness"]
+                + "+"
+                + name_map["FinLength"]
+                + "*sin("
+                + name_map["PatternAngle"]
+                + "*3.14/180)",
+                name_map["HSBaseThick"],
+            )
+        )
+        fin_line.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                name_map["HSBaseThick"],
+            )
+        )
+        fin_line.append(self.Position(0, 0, name_map["HSBaseThick"]))
+        fin_base = self.modeler.create_polyline(fin_line, cover_surface=True, name=generate_unique_name("Fin"))
         fin_line2 = []
-        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        fin_line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
         fin_line2.append(
             self.Position(
-                "FinLength",
-                "FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness",
-                "FinHeight",
+                0,
+                "sin(" + name_map["DraftAngle"] + "*3.14/180)*" + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
             )
         )
         fin_line2.append(
             self.Position(
-                "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
+                0,
+                name_map["FinThickness"] + "-sin(" + name_map["DraftAngle"] + "*3.14/180)*" + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
             )
         )
-        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        self.modeler.create_polyline(fin_line2, cover_surface=True, name="Fin_top")
-        self.modeler.connect(["Fin", "Fin_top"])
-        self.modeler["Fin"].material_name = matname
-        num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
-        self.modeler.move("Fin", self.Position(0, "-FinSeparation-FinThickness", 0))
-        self.modeler.duplicate_along_line("Fin", self.Position(0, "FinSeparation+FinThickness", 0), num, True)
-        all_names = self.modeler.object_names
-        list = [i for i in all_names if "Fin" in i]
+        fin_line2.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinThickness"]
+                + " + "
+                + name_map["FinLength"]
+                + "*sin("
+                + name_map["PatternAngle"]
+                + "*3.14/180)-sin("
+                + name_map["DraftAngle"]
+                + "*3.14/180)*"
+                + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_line2.append(
+            self.Position(
+                name_map["FinLength"],
+                name_map["FinLength"]
+                + "*sin("
+                + name_map["PatternAngle"]
+                + "*3.14/180)+sin("
+                + name_map["DraftAngle"]
+                + "*3.14/180)*"
+                + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_line2.append(
+            self.Position(
+                0,
+                "sin(" + name_map["DraftAngle"] + "*3.14/180)*" + name_map["FinThickness"],
+                name_map["FinHeight"] + "+" + name_map["HSBaseThick"],
+            )
+        )
+        fin_top = self.modeler.create_polyline(fin_line2, cover_surface=True, name=generate_unique_name("Fin_top"))
+        self.modeler.connect([fin_base.name, fin_top.name])
+        self.modeler[fin_base.name].material_name = matname
+        self[name_map["_num"]] = (
+            "nint(("
+            + name_map["HSWidth"]
+            + "+"
+            + name_map["FinLength"]
+            + "*sin("
+            + name_map["PatternAngle"]
+            + "*3.14/180))/("
+            + name_map["FinSeparation"]
+            + " + "
+            + name_map["FinThickness"]
+            + "))"
+        )
+        self.modeler.move(
+            fin_base.name,
+            self.Position(
+                "-" + name_map["HSHeight"] + "/2",
+                "-"
+                + name_map["HSWidth"]
+                + "/2-("
+                + name_map["FinSeparation"]
+                + "+"
+                + name_map["FinThickness"]
+                + ")*"
+                + name_map["_num"],
+                0,
+            ),
+        )
+        self.modeler.duplicate_along_line(
+            fin_base.name,
+            self.Position(0, name_map["FinSeparation"] + "+" + name_map["FinThickness"], 0),
+            name_map["_num"] + "*2",
+            True,
+        )
         if numcolumn_perside > 0:
             self.modeler.duplicate_along_line(
-                list,
-                self.Position("FinLength+VerticalSeparation", "FinLength*sin(PatternAngle*3.14/180)", 0),
-                "NumColumnsPerSide",
+                fin_base.name,
+                self.Position(
+                    name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
+                    name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                    0,
+                ),
+                name_map["NumColumnsPerSide"],
                 True,
             )
-
-        all_names = self.modeler.object_names
-        list = [i for i in all_names if "Fin" in i]
-        self.modeler.split(list, self.PLANE.ZX, "PositiveOnly")
-        all_names = self.modeler.object_names
-        list = [i for i in all_names if "Fin" in i]
-        self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
-        self.modeler.set_working_coordinate_system("TopRight")
-        self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
+        cs = self.modeler.oeditor.GetActiveCoordinateSystem()
+        cs_ymax = self.modeler.create_coordinate_system(
+            self.Position(0, name_map["HSHeight"] + "/2", 0),
+            mode="view",
+            view="XY",
+            name=generate_unique_name("yMax"),
+            reference_cs=cs,
+        )
+        self.modeler.set_working_coordinate_system(cs_ymax.name)
+        self.modeler.split(fin_base.name, self.PLANE.ZX, "NegativeOnly")
+        cs_ymin = self.modeler.create_coordinate_system(
+            self.Position(0, "-" + name_map["HSHeight"], 0),
+            mode="view",
+            view="XY",
+            name=generate_unique_name("yMin"),
+            reference_cs=cs_ymax.name,
+        )
+        self.modeler.set_working_coordinate_system(cs_ymin.name)
+        self.modeler.split(fin_base.name, self.PLANE.ZX, "PositiveOnly")
 
         if symmetric:
-            self.modeler.create_coordinate_system(
-                self.Position("(HSWidth-SymSeparation)/2", 0, 0),
+            cs_center_right_sep = self.modeler.create_coordinate_system(
+                self.Position("-" + name_map["SymSeparation"] + "/2", 0, 0),
                 mode="view",
                 view="XY",
-                name="CenterRightSep",
-                reference_cs="TopRight",
+                name=generate_unique_name("CenterRightSep"),
+                reference_cs=cs_ymax.name,
             )
 
-            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
+            self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
             self.modeler.create_coordinate_system(
-                self.Position("SymSeparation/2", 0, 0),
+                self.Position(name_map["SymSeparation"] + "/2", 0, 0),
                 mode="view",
                 view="XY",
-                name="CenterRight",
-                reference_cs="CenterRightSep",
+                name=generate_unique_name("CenterRight"),
+                reference_cs=cs_center_right_sep.name,
             )
-            self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
-            center_line = []
-            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            center_line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
-            center_line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            center_line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            self.modeler.create_polyline(center_line, cover_surface=True, name="Center")
-            self.modeler.thicken_sheet("Center", "-FinHeight-2*Tolerance")
-            all_names = self.modeler.object_names
-            list = [i for i in all_names if "Fin" in i]
-            self.modeler.subtract(list, "Center", False)
+            self.modeler.duplicate_and_mirror(fin_base.name, self.Position(0, 0, 0), self.Position(1, 0, 0))
         else:
-            self.modeler.create_coordinate_system(
-                self.Position("HSWidth", 0, 0), mode="view", view="XY", name="BottomRight", reference_cs="TopRight"
+            cs_xmax = self.modeler.create_coordinate_system(
+                self.Position(name_map["HSWidth"] + "/2", 0, 0),
+                mode="view",
+                view="XY",
+                name=generate_unique_name("xMax"),
+                reference_cs=cs,
             )
-            self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
-        all_objs2 = self.modeler.object_names
-        list_to_move = [i for i in all_objs2 if i not in all_objs]
-        center[0] -= hs_width / 2
-        center[1] -= hs_height / 2
-        center[2] += hs_basethick
-        self.modeler.set_working_coordinate_system("Global")
-        self.modeler.move(list_to_move, center)
-        if plane_enum == self.PLANE.XY:
-            self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
-        elif plane_enum == self.PLANE.ZX:
-            self.modeler.rotate(list_to_move, self.AXIS.X, 90)
-            self.modeler.rotate(list_to_move, self.AXIS.Y, rotation)
-        elif plane_enum == self.PLANE.YZ:
-            self.modeler.rotate(list_to_move, self.AXIS.Y, 90)
-            self.modeler.rotate(list_to_move, self.AXIS.Z, rotation)
-        self.modeler.unite(list_to_move)
-        self.modeler[list_to_move[0]].name = "HeatSink1"
-        return True
+            self.modeler.set_working_coordinate_system(cs_xmax.name)
+            self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
+        all_obj = [obj for obj in self.modeler.object_names if not obj in all_obj]
+        hs_final_name = self.modeler.unite(all_obj)
+        hs = self.modeler[hs_final_name]
+        hs.name = hs_name
+        return hs, name_map
 
     # fmt: off
     @pyaedt_function_handler()
@@ -4472,51 +4703,10 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.create_fan()
-        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
         """
 
-        if export_file is None:
-            path = self.temp_directory
-            base_name = "{}_{}_FanOpPoint".format(self.project_name, self.design_name)
-            export_file = os.path.join(path, base_name + ".csv")
-            while os.path.exists(export_file):
-                file_name = generate_unique_name(base_name)
-                export_file = os.path.join(path, file_name + ".csv")
-        if setup_name is None:
-            setup_name = "{} : {}".format(self.get_setups()[0], self.solution_type)
-        if timestep is None:
-            timestep = ""
-            if self.solution_type == "Transient":
-                self.logger.warning("No timestep specified. First timestep will be exported.")
-        else:
-            if not self.solution_type == "Transient":
-                self.logger.warning("Simulation is steady-state, timestep argument is ignored.")
-                timestep = ""
-        if design_variation is None:
-            design_variation = ""
-        self.osolution.ExportFanOperatingPoint(
-            [
-                "SolutionName:=",
-                setup_name,
-                "DesignVariationKey:=",
-                design_variation,
-                "ExportFilePath:=",
-                export_file,
-                "Overwrite:=",
-                True,
-                "TimeStep:=",
-                timestep,
-            ]
-        )
-        with open(export_file, "r") as f:
-            reader = csv.reader(f)
-            for line in reader:
-                if "Fan Instances" in line:
-                    vol_flow = line[1]
-                    p_rise = line[2]
-                    break
-            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
-        return [export_file, vol_flow, p_rise, var]
+        return self.post.get_fans_operating_point(export_file, setup_name, timestep, design_variation)
 
     @pyaedt_function_handler()
     def assign_free_opening(

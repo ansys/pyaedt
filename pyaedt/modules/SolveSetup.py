@@ -1996,6 +1996,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):
         edb = self.p_app.modeler.edb
+        if not edb:
+            return
         net_primitives = edb.modeler.primitives_by_net
         primitive_dict = {}
         for net, primitives in net_primitives.items():
@@ -2059,6 +2061,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_via_position_per_net(self):
         via_dict = {}
+        if not self.p_app.modeler.edb:
+            return
         via_list = list(self.p_app.modeler.edb.padstacks.instances.values())
         if via_list:
             for net in list(self.p_app.modeler.edb.nets.nets.keys()):
