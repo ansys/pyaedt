@@ -8364,7 +8364,7 @@ class PrimitivesBuilder(object):
 
             origin = instance_data.get("Origin")
             if not origin:
-                self.logger.warning("``Origin`` parameter not defined, ``[0, 0, 0]`` is assigned.")
+                self.logger.warning("``Origin`` parameter not defined. ``[0, 0, 0]`` is assigned.")
                 instance_data["Origin"] = [0, 0, 0]
                 origin = instance_data.get("Origin")
             else:
