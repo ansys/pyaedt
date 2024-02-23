@@ -8417,9 +8417,7 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _create_cylinder_instance(self, name, cs, origin, data):
-        """Create cylinder instance.
-
-        Create a cylinder instance.
+        """Create a cylinder instance.
 
         Parameters
         ----------
