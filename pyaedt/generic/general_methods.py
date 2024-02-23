@@ -375,7 +375,9 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
     object
         Opened file.
     """
+    file_path = str(file_path)
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+
     dir_name = os.path.dirname(file_path)
     if "r" in file_options:
         if os.path.exists(file_path):
