@@ -8703,7 +8703,7 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _create_coordinate_system(self):
-        """Create coordinate system defined in the object."""
+        """Create a coordinate system defined in the object."""
         for cs in self.coordinate_systems:
             cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
             name = cs.get("Name")
