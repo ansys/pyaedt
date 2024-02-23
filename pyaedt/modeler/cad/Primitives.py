@@ -8308,7 +8308,7 @@ class PrimitivesBuilder(object):
             props = input_dict
 
         if not props or not all(key in props for key in ["Primitives", "Instances"]):
-            msg = "Wrong input data."
+            msg = "Input data is wrong."
             self.logger.error(msg)
             raise AttributeError(msg)
 
