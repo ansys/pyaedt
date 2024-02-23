@@ -5220,7 +5220,9 @@ class IcepakPostProcessor(PostProcessor, object):
             Side of the mesh face to use. The default is ``"Default"``.
             Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
         volume : bool, optional
-            Whether to compute the quantity on the volume or on the surface. The default is ``False``.
+            Whether to compute the quantity on the volume or on the surface.
+            The default is ``False``, in which case the quantity will be evaluated
+            only on the surface .
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
