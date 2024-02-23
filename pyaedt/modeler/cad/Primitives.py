@@ -4652,7 +4652,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         input_file : str, optional
-            Path to a json file containing report settings.
+            Path to a JSON file containing report settings.
         input_dict : dict, optional
             Dictionary containing report settings.
 
