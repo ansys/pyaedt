@@ -8276,7 +8276,7 @@ class PrimitivesBuilder(object):
         self._app = app
         props = {}
         if not input_dict and not input_file:  # pragma: no cover
-            msg = "Either one of a json file or a dictionary has to be passed as input."
+            msg = "Either a JSON file or a dictionary must be passed as input."
             self.logger.error(msg)
             raise TypeError(msg)
         elif input_file:
