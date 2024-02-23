@@ -232,11 +232,22 @@ class SpiSim:
             for k, v in cfg_dict.items():
                 fp.write("# {}: {}\n".format(k, k))
                 fp.write("{} = {}\n".format(k, v))
-
-        out_processing = self._compute_spisim(
-            "CalcERL", touchstone_file=self.touchstone_file, config_file=new_cfg_file, out_file=self.working_directory
-        )
-        return self._get_output_parameter_from_result(out_processing, "ERL")
+        retries = 3
+        trynumb = 0
+        while trynumb < retries:
+            out_processing = self._compute_spisim(
+                "CalcERL",
+                touchstone_file=self.touchstone_file,
+                config_file=new_cfg_file,
+                out_file=self.working_directory,
+            )
+            results = self._get_output_parameter_from_result(out_processing, "ERL")
+            if results:
+                return results
+            self.logger.warning("Failing to compute ERL, retrying...")
+            trynumb += 1
+        self.logger.error("Failed to compute ERL.")
+        return False
 
     @pyaedt_function_handler
     def compute_com(

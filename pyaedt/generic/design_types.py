@@ -1704,7 +1704,7 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    from pyaedt.edb import Edb as app
+    from pyedb import Edb as app
 
     return app(
         edbpath=edbpath,

@@ -34,8 +34,8 @@ enabling straightforward and efficient automation in your workflow.
         It describes how the methods work and the parameter that can be used.
 
     .. grid-item-card::  EDB API reference :fa:`book-bookmark`
-        :link: EDBAPI/index.
-        :link-type: doc
+        :link: https://edb.docs.pyansys.com/version/stable/
+        :link-type: url
 
         Contains descriptions of the functions and modules included in PyEDB.
         It describes how the methods work and the parameter that can be used.
@@ -67,7 +67,6 @@ enabling straightforward and efficient automation in your workflow.
        Getting_started/index
        User_guide/index
        API/index
-       EDBAPI/index
        {% if run_examples %}
        examples/index
        {% endif %}
