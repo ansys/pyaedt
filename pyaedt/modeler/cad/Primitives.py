@@ -3423,7 +3423,10 @@ class GeometryModeler(Modeler):
 
         try:
             selections = self.convert_to_selections(object_list)
-            vArg1 = ["NAME:Selections", "Selections:=", selections]
+            if len(selections) == 1:
+                vArg1 = ["NAME:Selections", "Selections:=", selections[0]]
+            else:
+                vArg1 = ["NAME:Selections", "Selections:=", selections]
             self.oeditor.Copy(vArg1)
             return selections
         except AttributeError:
