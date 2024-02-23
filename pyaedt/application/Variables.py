@@ -2317,7 +2317,7 @@ class DataSet(object):
             del self._app.project_datasets[self.name]
         else:
             self._app._odesign.DeleteDataset(self.name)
-            del self._app.project_datasets[self.name]
+            del self._app.design_datasets[self.name]
         return True
 
     @pyaedt_function_handler()
