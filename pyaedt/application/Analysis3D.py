@@ -151,6 +151,8 @@ class FieldAnalysis3D(Analysis, object):
         if self._post is None:
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
+            elif self.design_type == "Icepak":
+                from pyaedt.modules.AdvancedPostProcessing import IcepakPostProcessor as PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
