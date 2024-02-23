@@ -8410,7 +8410,7 @@ class PrimitivesBuilder(object):
                 instance = self._create_box_instance(name, cs, origin, primitive_data)
 
         if not instance:
-            self.logger.warning("Unsupported primitive type: {}".format(primitive_type))
+            self.logger.warning("Primitive type: {}".format(primitive_type) is unsupported.)
             return None
 
         return instance
