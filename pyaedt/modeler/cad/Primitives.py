@@ -8301,7 +8301,7 @@ class PrimitivesBuilder(object):
                     self.logger.error(msg)
                     raise TypeError(msg)
             else:
-                msg = "Format not valid."
+                msg = "Format is not valid."
                 self.logger.error(msg)
                 raise TypeError(msg)
         else:
