@@ -8252,7 +8252,7 @@ class PrimitivesBuilder(object):
     app :
         Inherited parent object.
     input_file : str, optional
-        Path to a json file containing primitive settings.
+        Path to a JSON file containing primitive settings.
     input_dict : dict, optional
         Dictionary containing primitive settings.
 
