@@ -1304,8 +1304,7 @@ class Material(CommonMaterial, object):
                             "Red": self._material_appearance[0],
                             "Green": self._material_appearance[1],
                             "Blue": self._material_appearance[2],
-                            "Transparency": self._material_appearance[3]
-
+                            "Transparency": self._material_appearance[3],
                         }
                     )
                 }
@@ -1405,7 +1404,7 @@ class Material(CommonMaterial, object):
                         "Red": value[0],
                         "Green": value[1],
                         "Blue": value[2],
-                        "Transparency": value[3]
+                        "Transparency": value[3],
                     }
                 )
             }
