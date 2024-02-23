@@ -8706,7 +8706,7 @@ class PrimitivesBuilder(object):
             cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
             name = cs.get("Name")
             if not name:
-                self.logger.warning("Coordinate system does not have Name parameter.")
+                self.logger.warning("Coordinate system does not have a 'Name' parameter.")
                 return False
             if name in cs_names:
                 self.logger.warning("Coordinate system {} already exists.".format(name))
