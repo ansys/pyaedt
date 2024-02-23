@@ -1079,9 +1079,11 @@ class Stackup(object):
         """
         layers = list(self.stackup_layers.values())
         layers.sort(key=lambda lay: lay.lower_elevation)
-        top_layer = layers[-1]
-        bottom_layer = layers[0]
-        thickness = abs(top_layer.upper_elevation - bottom_layer.lower_elevation)
+        thickness = 0
+        if layers:
+            top_layer = layers[-1]
+            bottom_layer = layers[0]
+            thickness = abs(top_layer.upper_elevation - bottom_layer.lower_elevation)
         return round(thickness, 7)
 
     @pyaedt_function_handler()

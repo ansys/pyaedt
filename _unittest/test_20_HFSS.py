@@ -1246,10 +1246,10 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
-            dict_in = json_to_dict(
+            dict_in = read_json(
                 os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple_232.json")
             )
             dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
@@ -1257,7 +1257,7 @@ class TestClass:
             )
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
         else:
-            dict_in = json_to_dict(
+            dict_in = read_json(
                 os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
             )
             dict_in["Circ_Patch_5GHz1"] = os.path.join(
@@ -1624,3 +1624,14 @@ class TestClass:
         aedtapp.solution_type = "Transient Composite"
         assert aedtapp.solution_type == "Transient Composite"
         aedtapp.close_project(save_project=False)
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_68_import_gds_3d(self):
+        self.aedtapp.insert_design("gds_import_H3D")
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (0, 0), 9: (0, 0)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
+        assert not self.aedtapp.import_gds_3d(gds_file, {})
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
+        assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})

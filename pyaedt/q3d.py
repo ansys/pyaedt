@@ -1229,7 +1229,7 @@ class Q3d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
+        machine. The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -1781,6 +1781,17 @@ class Q3d(QExtractor, object):
     def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
         """Create a frequency sweep.
 
+        .. deprecated:: 0.7.12
+            This method is deprecated. To create a frequency sweep use ``create_frequency_sweep()``
+            from setup object.
+            Example
+            -------
+            >>> from pyaedt import Q3d
+            >>> q3d = Q3d()
+            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
+            >>> q3d.release_desktop(True, True)
+
         Parameters
         ----------
         setupname : str
@@ -1840,6 +1851,21 @@ class Q3d(QExtractor, object):
         self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
         """Create a discrete sweep with a single frequency value.
+
+        .. deprecated:: 0.7.12
+            This method is deprecated. To create a discrete frequency sweep use ``create_frequency_sweep()``
+            from setup object.
+            Example
+            -------
+            >>> from pyaedt import Q3d
+            >>> q3d = Q3d()
+            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
+            ...                                        freqstart=0.5,
+            ...                                        freqstop=1.5,
+            ...                                        sweepname="Sweep1",
+            ...                                        sweep_type="Discrete")
+            >>> q3d.release_desktop(True, True)
 
         Parameters
         ----------
@@ -2033,7 +2059,7 @@ class Q2d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored
+        machine. The default is ``False``. This parameter is ignored
         when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.

@@ -77,7 +77,7 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    new_desktop_session : bool
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
@@ -2088,8 +2088,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file name when successful, ``False`` when failed.
         """
         if variations is None:
             variations = list(self.available_variations.nominal_w_values_dict.keys())
@@ -2180,7 +2180,7 @@ class Analysis(Design, object):
                 NonStandardExtensions,
             )
         self.logger.info("Touchstone correctly exported to %s", filename)
-        return True
+        return OutFile
 
     @pyaedt_function_handler()
     def value_with_units(

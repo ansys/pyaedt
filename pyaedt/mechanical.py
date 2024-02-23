@@ -44,7 +44,7 @@ class Mechanical(FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
+        machine. The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.

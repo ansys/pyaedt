@@ -50,6 +50,9 @@ class TestClass:
     def test_01_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
 
+    def test_01_installed_path(self):
+        assert self.aedtapp.desktop_class.install_path
+
     def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, test_project_name)
@@ -227,6 +230,7 @@ class TestClass:
         assert not ds7
         assert ds4.delete()
         assert self.aedtapp.import_dataset1d(filename)
+        assert ds5.delete()
 
     def test_19a_import_dataset3d(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.tab")
