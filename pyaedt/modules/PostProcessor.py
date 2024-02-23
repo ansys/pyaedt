@@ -5056,7 +5056,7 @@ class IcepakPostProcessor(PostProcessor, object):
         Parameters
         ----------
         export_file : str, optional
-            Name of the file to save the operating point of the fans. The default is
+            Name of the file to save the operating point of the fans to. The default is
             ``None``, in which case the filename is automatically generated.
         setup_name : str, optional
             Setup name to determine the operating point of the fans. The default is
@@ -5076,7 +5076,7 @@ class IcepakPostProcessor(PostProcessor, object):
             are the quantities with units describing the operating point of the fans.
             The fourth element is a dictionary with the names of the fan instances
             as keys and lists with volumetric flow rates and pressure rise floats associated
-            with the operating points as values.
+            with the operating point as values.
 
         References
         ----------
@@ -5103,10 +5103,10 @@ class IcepakPostProcessor(PostProcessor, object):
         if timestep is None:
             timestep = ""
             if self._app.solution_type == "Transient":
-                self._app.logger.warning("No timestep specified. First timestep will be exported.")
+                self._app.logger.warning("No timestep is specified. First timestep is exported.")
         else:
             if not self._app.solution_type == "Transient":
-                self._app.logger.warning("Simulation is steady-state, timestep argument is ignored.")
+                self._app.logger.warning("Simulation is steady-state. Timestep argument is ignored.")
                 timestep = ""
         if design_variation is None:
             design_variation = ""
@@ -5232,10 +5232,10 @@ class IcepakPostProcessor(PostProcessor, object):
         Returns
         -------
         dict
-            Depending on the quantity chosen, the output dictionary can contain the following keys:
-
-                - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``Unit``
-                - ``"Total"`` and ``Unit``
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
 
         References
         ----------
@@ -5297,7 +5297,7 @@ class IcepakPostProcessor(PostProcessor, object):
         >>> oModule.ExportFieldsSummary
         """
         if settings.aedt_version < "2024.1":
-            raise NotImplementedError("Monitors are not supported in field summary in versions lower than 2024 R1.")
+            raise NotImplementedError("Monitors are not supported in field summary in versions earlier than 2024 R1.")
         else:  # pragma: no cover
             if self._app.monitor.face_monitors.get(monitor_name, None):
                 field_type = "Surface"
