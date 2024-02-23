@@ -8259,7 +8259,7 @@ class PrimitivesBuilder(object):
     Returns
     -------
     :class:`pyaedt.modeler.cad.PrimitivesBuilder`
-        Primitives builder object if succeeded.
+        Primitives builder object if successful.
 
     Examples
     --------
