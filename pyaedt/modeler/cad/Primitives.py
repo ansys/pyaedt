@@ -8667,7 +8667,7 @@ class PrimitivesBuilder(object):
     def convert_units(self, values):
         """Convert input values to default units.
 
-        If the value has units, it is converted to a numeric value with the default units.
+        If a value has units, convert it to a numeric value with the default units.
 
         Parameters
         ----------
