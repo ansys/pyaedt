@@ -669,6 +669,14 @@ class TestClass:
         sweep_vector = [5, 0, 0]
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_vector")
         assert rect1.sweep_along_vector(sweep_vector)
+        rect2 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.YZ, [0, 40, 0], [20, 20], "rectangle_to_vector2"
+        )
+        rect3 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.YZ, [0, 80, 0], [20, 20], "rectangle_to_vector3"
+        )
+        rect_list = [rect2, rect3]
+        assert self.aedtapp.modeler.sweep_along_vector(objid=rect_list, sweep_vector=sweep_vector)
 
     def test_48_coordinate_systems_parametric(self):
         self.aedtapp["var1"] = "5mm"

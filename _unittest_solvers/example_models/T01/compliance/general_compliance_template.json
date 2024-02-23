@@ -8,7 +8,14 @@
 		 "delete_after_export":true,
 		 "project": ""
         },
-	
+	"parameters": [{"name": "erl",
+	"design_name": "Circuit1",
+	"config": "spisim_erl.cfg",
+	"traces" : ["RX1", "RX3"],
+	"trace_pins" : [ [7,8,18,17]],
+	"pass_fail":true,
+	"pass_fail_criteria":10
+	}],
     "reports": [
         {"name":"tr1",
 	"design_name":"32GTps_circuit",
