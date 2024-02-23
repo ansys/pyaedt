@@ -8714,7 +8714,7 @@ class PrimitivesBuilder(object):
             mode = cs.get("Mode")
             if not mode or not any(key in mode for key in ["Axis/Position", "Euler Angle ZYZ", "Euler Angle ZXZ"]):
                 self.logger.warning(
-                    "Coordinate system does not have Mode parameter or it is not valid, "
+                    "Coordinate system does not have a 'Mode' parameter or it is not valid. "
                     "Options are 'Axis/Position', 'Euler Angle ZYZ', and 'Euler Angle ZXZ'."
                 )
                 return False
