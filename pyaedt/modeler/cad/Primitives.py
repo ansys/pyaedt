@@ -8245,7 +8245,7 @@ class GeometryModeler(Modeler):
 
 
 class PrimitivesBuilder(object):
-    """Create primitives based on json file or dictionary of properties.
+    """Create primitives from a JSON file or dictionary of properties.
 
     Parameters
     ----------
