@@ -8460,7 +8460,7 @@ class PrimitivesBuilder(object):
             internal_radius = self.convert_units([internal_radius])[0]
             radius = self.convert_units([data.get("Radius")])[0]
             if internal_radius > radius:
-                self.logger.warning("Internal radius is bigger than external radius.")
+                self.logger.warning("Internal radius is larger than external radius.")
             elif internal_radius != 0:
                 cyl2 = self._app.modeler.create_cylinder(
                     cs_axis=data.get("Plane"),
