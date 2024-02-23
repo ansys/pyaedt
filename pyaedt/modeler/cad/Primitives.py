@@ -8355,7 +8355,7 @@ class PrimitivesBuilder(object):
 
             cs = instance_data.get("Coordinate System")
             if not cs:
-                self.logger.warning("``Coordinate System`` parameter not defined, ``Global`` is assigned.")
+                self.logger.warning("``Coordinate System`` parameter is not defined, ``Global`` is assigned.")
                 instance_data["Coordinate System"] = "Global"
                 cs = instance_data.get("Coordinate System")
             elif instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names:
