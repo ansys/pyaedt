@@ -8342,7 +8342,7 @@ class PrimitivesBuilder(object):
         if self.coordinate_systems:
             cs_flag = self._create_coordinate_system()
             if not cs_flag:
-                self.logger.error("Wrong coordinate system definition.")
+                self.logger.error("Wrong coordinate system is defined.")
                 return False
 
         cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
