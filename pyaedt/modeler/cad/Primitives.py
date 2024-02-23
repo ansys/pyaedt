@@ -4647,7 +4647,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def import_primitives_from_file(self, input_file=None, input_dict=None):
-        """Import and create primitives from a json file or dictionary of properties.
+        """Import and create primitives from a JSON file or dictionary of properties.
 
         Parameters
         ----------
