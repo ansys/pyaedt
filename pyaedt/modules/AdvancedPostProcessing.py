@@ -19,7 +19,6 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
 from pyaedt.modules.PostProcessor import FieldSummary
 from pyaedt.modules.PostProcessor import PostProcessor as Post
-from pyaedt.modules.PostProcessor import PostProcessorCommon
 from pyaedt.modules.PostProcessor import TOTAL_QUANTITIES
 
 if not is_ironpython:
@@ -1016,7 +1015,7 @@ class PostProcessor(Post):
 
 class IcepakPostProcessor(PostProcessor, object):
     def __init__(self, app):
-        PostProcessorCommon.__init__(self, app)
+        PostProcessor.__init__(self, app)
 
     @pyaedt_function_handler()
     def create_field_summary(self):
