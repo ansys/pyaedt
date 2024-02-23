@@ -1916,13 +1916,13 @@ class SetupKeys:
         ----------
         default_type : str
             Which default template to use. Available options are ``"Default"``,
-            ``"Forced Convection"``, ``"Natural Convection"``
-            and ``"Mixed Convection"``.
+            ``"Forced Convection"``, ``"Mixed Convection"``
+            and ``"Natural Convection"``.
 
         Returns
         -------
         dict
-            Dictionary containing icepak default setup for the chosen simulation type.
+            Dictionary containing the Icepak default setup for the chosen simulation type.
 
 
         """
