@@ -151,6 +151,8 @@ class FieldAnalysis3D(Analysis, object):
         if self._post is None:
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
+            elif self.design_type == "Icepak":
+                from pyaedt.modules.AdvancedPostProcessing import IcepakPostProcessor as PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
@@ -705,6 +707,10 @@ class FieldAnalysis3D(Analysis, object):
         if matobj:
             if self.design_type == "HFSS":
                 solve_inside = matobj.is_dielectric()
+            elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
+                solve_inside = True
+                if mat in ["pec", "perfect conductor"]:
+                    solve_inside = False
             else:
                 solve_inside = True
             slice_sel = min(50, len(selections))

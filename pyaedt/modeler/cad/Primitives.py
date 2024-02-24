@@ -2863,8 +2863,8 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.cad.object3d.Object3d` or list of :class:`pyaedt.modeler.cad.object3d.Object3d`
+            One or more objects created.
 
         References
         ----------
@@ -2883,7 +2883,13 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        return self.update_object(objid)
+        if isinstance(objid, list):
+            updated_obj = []
+            for sel_obj in objid:
+                updated_obj.append(self.update_object(sel_obj))
+            return updated_obj
+        else:
+            return self.update_object(objid)
 
     @pyaedt_function_handler()
     def sweep_along_path(
