@@ -186,7 +186,7 @@ class TestClass:
         assert len(exported_files) == 0
         hfss_app.analyze_setup(name="test", num_cores=6)
         exported_files = hfss_app.export_results()
-        assert len(exported_files) == 3
+        assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
             matrix_type="Y",
         )
