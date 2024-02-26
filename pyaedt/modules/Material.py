@@ -1386,7 +1386,7 @@ class Material(CommonMaterial, object):
             raise ValueError("`material_appearance` must be four items (R, G, B, transparency).")
         elif len(appearance_props) == 3:
             transparency_value = self.material_appearance[3]
-            msg = "Only RGB specified, transparency is set to " + str(transparency_value)
+            msg = "Only RGB specified. Transparency is set to " + str(transparency_value)
             self.logger.info(msg)
             appearance_props.append(transparency_value)
         value = []
