@@ -1394,7 +1394,7 @@ class Material(CommonMaterial, object):
             if i < 3:
                 rgb_int = int(appearance_props[i])
                 if rgb_int < 0 or rgb_int > 255:
-                    raise ValueError("RGB value must be between 0 and 255")
+                    raise ValueError("RGB value must be between 0 and 255.")
                 value.append(rgb_int)
             else:
                 transparency = float(appearance_props[i])
