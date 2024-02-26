@@ -229,7 +229,7 @@ solutions.plot()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
 
-ladder_plate = m3d.modeler.objects("LadderPlate")
+ladder_plate = m3d.modeler.objects_by_name["LadderPlate"]
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
 m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 
