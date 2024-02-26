@@ -1356,7 +1356,8 @@ class Material(CommonMaterial, object):
 
     @property
     def material_appearance(self):
-        """Material appearance specified as a list where first 3 items are rgb color and fourth one is transparency.
+        """Material appearance specified as a list where the first three items are
+        RGB color and the fourth one is transparency.
 
         Returns
         -------
