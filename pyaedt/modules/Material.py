@@ -1383,7 +1383,7 @@ class Material(CommonMaterial, object):
         if not isinstance(appearance_props, (list, tuple)):
             raise TypeError("`material_appearance` must be a list or tuple.")
         if len(appearance_props) != 3 and len(appearance_props) != 4:
-            raise ValueError("`material_appearance` must be four items (R, G, B, transparency)")
+            raise ValueError("`material_appearance` must be four items (R, G, B, transparency).")
         elif len(appearance_props) == 3:
             transparency_value = self.material_appearance[3]
             msg = "Only RGB specified, transparency is set to " + str(transparency_value)
