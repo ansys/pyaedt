@@ -1399,7 +1399,7 @@ class Material(CommonMaterial, object):
             else:
                 transparency = float(appearance_props[i])
                 if transparency < 0 or transparency > 1:
-                    raise ValueError("Transparency value must be between 0 and 1")
+                    raise ValueError("Transparency value must be between 0 and 1".)
                 value.append(transparency)
         self._material_appearance = value
         self._props["AttachedData"] = OrderedDict(
