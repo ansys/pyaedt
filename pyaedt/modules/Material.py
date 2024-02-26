@@ -1381,7 +1381,7 @@ class Material(CommonMaterial, object):
     @material_appearance.setter
     def material_appearance(self, appearance_props):
         if not isinstance(appearance_props, (list, tuple)):
-            raise TypeError("`material_appearance` must be a list or tuple")
+            raise TypeError("`material_appearance` must be a list or tuple.")
         if len(appearance_props) != 3 and len(appearance_props) != 4:
             raise ValueError("`material_appearance` must be four items (R, G, B, transparency)")
         elif len(appearance_props) == 3:
