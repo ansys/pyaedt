@@ -9,9 +9,12 @@ from __future__ import absolute_import  # noreorder
 
 import ast
 from collections import OrderedDict
+from collections import defaultdict
+import csv
 import os
 import random
 import string
+import tempfile
 
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
@@ -4911,3 +4914,126 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 pandas_enabled=waveform_data.enable_pandas_output,
             )
         return outputdata
+
+
+TOTAL_QUANTITIES = [
+    "HeatFlowRate",
+    "RadiationFlow",
+    "ConductionHeatFlow",
+    "ConvectiveHeatFlow",
+    "MassFlowRate",
+    "VolumeFlowRate",
+    "SurfJouleHeatingDensity",
+]
+AVAILABLE_QUANTITIES = [
+    "Temperature",
+    "SurfTemperature",
+    "HeatFlowRate",
+    "RadiationFlow",
+    "ConductionHeatFlow",
+    "ConvectiveHeatFlow",
+    "HeatTransCoeff",
+    "HeatFlux",
+    "RadiationFlux",
+    "Speed",
+    "Ux",
+    "Uy",
+    "Uz",
+    "SurfUx",
+    "SurfUy",
+    "SurfUz",
+    "Pressure",
+    "SurfPressure",
+    "MassFlowRate",
+    "VolumeFlowRate",
+    "MassFlux",
+    "ViscocityRatio",
+    "WallYPlus",
+    "TKE",
+    "Epsilon",
+    "Kx",
+    "Ky",
+    "Kz",
+    "SurfElectricPotential",
+    "ElectricPotential",
+    "SurfCurrentDensity",
+    "CurrentDensity",
+    "SurfCurrentDensityX",
+    "SurfCurrentDensityY",
+    "SurfCurrentDensityZ",
+    "CurrentDensityX",
+    "CurrentDensityY",
+    "CurrentDensityZ",
+    "SurfJouleHeatingDensity",
+    "JouleHeatingDensity",
+]
+
+
+class FieldSummary:
+    def __init__(self, app):
+        self._app = app
+        self.calculations = []
+
+    @pyaedt_function_handler()
+    def add_calculation(
+        self, entity, geometry, geometry_name, quantity, normal="", side="Default", mesh="All", ref_temperature=""
+    ):
+        if quantity not in AVAILABLE_QUANTITIES:
+            raise AttributeError(
+                "Quantity {} is not supported. Available quantities are:\n{}".format(
+                    quantity, ", ".join(AVAILABLE_QUANTITIES)
+                )
+            )
+        self.calculations.append(
+            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+        )  # TODO : last argument not documented
+
+    @pyaedt_function_handler()
+    def get_field_summary_data(self, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
+            temp_file.close()
+            self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
+            with open(temp_file.name, "r") as f:
+                for _ in range(4):
+                    _ = next(f)
+                reader = csv.DictReader(f)
+                out_dict = defaultdict(list)
+                for row in reader:
+                    for key in row.keys():
+                        out_dict[key].append(row[key])
+            os.remove(temp_file.name)
+            if pandas_output:
+                if pd is None:
+                    raise ImportError("pandas package is needed.")
+                return pd.DataFrame.from_dict(out_dict)
+        return out_dict
+
+    @pyaedt_function_handler()
+    def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
+        if not sweep_name:
+            sweep_name = self._app.nominal_sweep
+        dv_string = ""
+        for el in design_variation:
+            dv_string += el + "='" + design_variation[el] + "' "
+        self._create_field_summary(sweep_name, dv_string)
+        self._app.osolution.ExportFieldsSummary(
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                dv_string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                intrinsic_value,
+            ]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def _create_field_summary(self, setup, variation):
+        arg = ["SolutionName:=", setup, "Variation:=", variation]
+        for i in self.calculations:
+            arg.append("Calculation:=")
+            arg.append(i)
+        self._app.osolution.EditFieldsSummarySetting(arg)

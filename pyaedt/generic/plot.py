@@ -730,6 +730,7 @@ class CommonPlotter(object):
         self._frames = []
         self.show_axes = True
         self.show_legend = True
+        self.digits_format = "%.2e"
         self.show_grid = True
         self.is_notebook = is_notebook()
         self.gif_file = None
@@ -1539,7 +1540,7 @@ class ModelPlotter(CommonPlotter):
                 shadow=True,
                 n_labels=9,
                 italic=True,
-                fmt="%.1f",
+                fmt=self.digits_format,
                 font_family="arial",
                 interactive=True,
                 color=axes_color,
@@ -1594,7 +1595,7 @@ class ModelPlotter(CommonPlotter):
         if self.show_axes:
             self.pv.show_axes()
         if not self.is_notebook and self.show_grid:
-            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt="%.2e")
+            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt=self.digits_format)
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
 
