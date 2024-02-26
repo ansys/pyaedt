@@ -226,8 +226,8 @@ class Hfss(FieldAnalysis3D, object):
     class BoundaryType(object):
         """Creates and manages boundaries."""
 
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid, FEBI) = range(
-            0, 10
+        (PerfectE, PerfectH, Aperture, Radiation, Impedance, AnisotropicImp, LayeredImp, LumpedRLC, FiniteCond, Hybrid, FEBI) = range(
+            0, 11
         )
 
     @property
