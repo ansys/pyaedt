@@ -1363,8 +1363,8 @@ class Material(CommonMaterial, object):
         -------
         list
             Color of the material in RGB and transparency.
-            Color Values are in the range ``[0, 255]``.
-            Transparency is float in the range ``[0,1]``
+            Color values are in the range ``[0, 255]``.
+            Transparency is a float in the range ``[0,1]``.
 
         Examples
         --------
