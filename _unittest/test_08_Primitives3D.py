@@ -27,7 +27,7 @@ primitive_json_file = "primitives_file.json"
 cylinder_primitive_csv_file = "cylinder_geometry_creation.csv"
 cylinder_primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
 cylinder_primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.csv"
-prism_primitive_csv_file = "cylinder_geometry_creation.csv"
+prism_primitive_csv_file = "prism_geometry_creation.csv"
 prism_primitive_csv_file_missing_values = "prism_geometry_creation_missing_values.csv"
 prism_primitive_csv_file_wrong_keys = "prism_geometry_creation_wrong_keys.csv"
 
@@ -248,12 +248,20 @@ class TestClass:
         tol = 1e-9
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
+    def test_06_position(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        with pytest.raises(IndexError) as execinfo:
+            item = udp[3]
+            assert str(execinfo) == "Position index not correct."
+        assert self.aedtapp.modeler.Position([0])
+
+    def test_07_sweep_options(self):
+        assert self.aedtapp.modeler.SweepOptions()
+
     def test_11a_get_object_name_from_edge(self):
         o = self.create_copper_box()
         edge = o.edges[0].id
         assert self.aedtapp.modeler.get_object_name_from_edge_id(edge) == o.name
-
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
         dimensions = [10, 10, 5]
         o = self.aedtapp.modeler.create_box(udp, dimensions)
         assert len(o.name) == 16
@@ -1630,6 +1638,7 @@ class TestClass:
         assert obj_3dcomp.mesh_assembly
         obj_3dcomp.name = "Dipole_pyaedt"
         assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
+        assert self.aedtapp.modeler["Dipole_pyaedt"]
         assert obj_3dcomp.name == "Dipole_pyaedt"
         if config["desktopVersion"] < "2023.1":
             assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
@@ -1877,7 +1886,7 @@ class TestClass:
 
     def test_90_import_prism_primitives_csv(self):
         self.aedtapp.insert_design("PrimitiveFromFile")
-        primitive_file = os.path.join(local_path, "example_models", test_subfolder, cylinder_primitive_csv_file)
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, prism_primitive_csv_file)
         primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
         assert len(primitive_names) == 2
         self.aedtapp.insert_design("PrimitiveFromFileTest")

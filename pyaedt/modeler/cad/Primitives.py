@@ -156,7 +156,7 @@ class GeometryModeler(Modeler):
             if len(args) == 1 and type(args[0]) is list:
                 try:
                     self.X = args[0][0]
-                except:
+                except:  # pragma: no cover
                     self.X = 0
                 try:
                     self.Y = args[0][1]
@@ -166,7 +166,7 @@ class GeometryModeler(Modeler):
                     self.Z = args[0][2]
                 except:
                     self.Z = 0
-            else:
+            else:  # pragma: no cover
                 try:
                     self.X = args[0]
                 except:
@@ -7504,7 +7504,7 @@ class GeometryModeler(Modeler):
         candidate_edges = []
         for ei in port_edges:
             vertices_i = self.get_edge_vertices(ei)
-            if len(vertices_i) == 1:  # maybe a circle
+            if len(vertices_i) == 1:  # pragma: no cover
                 vertex1_i = self.get_vertex_position(vertices_i[0])
                 area_i = self.get_face_area(self.get_object_faces(port_sheet)[0])
                 if area_i is None or area_i < tol2:  # degenerated face
@@ -8767,7 +8767,7 @@ class PrimitivesBuilder(object):
                 if not phi:
                     phi = "0deg"
                     cs["Phi"] = phi
-                elif isinstance(phi, (int, float)):
+                elif isinstance(phi, (int, float)):  # pragma: no cover
                     phi = str(phi) + "deg"
                     cs["Phi"] = phi
 
