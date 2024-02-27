@@ -4783,7 +4783,7 @@ class Hfss(FieldAnalysis3D, object):
 
         >>> impedance_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
         ...                                         name="ImpedanceForFaces")
-        >>> ids = hfss.modeler["ImpedanceForFaces"].faces[:3]
+        >>> ids = hfss.modeler.get_object_faces("ImpedanceForFaces")[:3]
         >>> impedance = hfss.assign_impedance_boundary_to_faces(ids,
         ...     boundary_name="ImpedanceToFaces", resistance=60, reactance=-20)
         >>> type(impedance)
