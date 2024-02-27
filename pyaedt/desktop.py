@@ -101,7 +101,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
-    if not self.custom_lsf_command:
+    if not settings.custom_lsf_command:
         if settings.lsf_queue:
             command = [
                 "bsub",
@@ -134,11 +134,11 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     else:
         command = settings.custom_lsf_command.split(" ")
     print(command)
-    try:
+    try:  # nosec
         p = subprocess.Popen(
             " ".join(str(x) for x in command), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-    except FileNotFoundError:
+    except FileNotFoundError:  # nosec
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     timeout = settings.lsf_timeout
