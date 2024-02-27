@@ -8611,7 +8611,7 @@ class PrimitivesBuilder(object):
             "Z Length": 0,
         }
         instances_props = {"Name": "", "Coordinate System": "Global", "Origin": [0, 0, 0]}
-        required_csv_keys = ["name", "xc", "yc", "zc", "xd", "yd", "zd"]
+        required_csv_keys = ["name", "xs", "ys", "zs", "xd", "yd", "zd"]
         # Take the keys
         csv_keys = []
         index_row = 0
@@ -8647,11 +8647,11 @@ class PrimitivesBuilder(object):
                 if csv_keys[col_cont] == "name":
                     props_box["Primitives"][row_cont]["Name"] = str(value)
                     props_box["Instances"][row_cont]["Name"] = str(value)
-                elif csv_keys[col_cont] == "xc":
+                elif csv_keys[col_cont] == "xs":
                     props_box["Instances"][row_cont]["Origin"][0] = float(value)
-                elif csv_keys[col_cont] == "yc":
+                elif csv_keys[col_cont] == "ys":
                     props_box["Instances"][row_cont]["Origin"][1] = float(value)
-                elif csv_keys[col_cont] == "zc":
+                elif csv_keys[col_cont] == "zs":
                     props_box["Instances"][row_cont]["Origin"][2] = float(value)
                 elif csv_keys[col_cont] == "xd":
                     props_box["Primitives"][row_cont]["X Length"] = float(value)
