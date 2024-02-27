@@ -62,10 +62,10 @@ source = tb.modeler.schematic.create_voltage_source("V_AC", "ESINE", 100, 50, [-
 
 # Create the four diodes of the bridge rectifier.
 
-diode1 = tb.modeler.schematic.create_diode(compname="D1", location=[10 * G, 6 * G], angle=3 * math.pi / 2)
-diode2 = tb.modeler.schematic.create_diode(compname="D2", location=[20 * G, 6 * G], angle=3 * math.pi / 2)
-diode3 = tb.modeler.schematic.create_diode(compname="D3", location=[10 * G, -4 * G], angle=3 * math.pi / 2)
-diode4 = tb.modeler.schematic.create_diode(compname="D4", location=[20 * G, -4 * G], angle=3 * math.pi / 2)
+diode1 = tb.modeler.schematic.create_diode(compname="D1", location=[10 * G, 6 * G], angle=270)
+diode2 = tb.modeler.schematic.create_diode(compname="D2", location=[20 * G, 6 * G], angle=270)
+diode3 = tb.modeler.schematic.create_diode(compname="D3", location=[10 * G, -4 * G], angle=270)
+diode4 = tb.modeler.schematic.create_diode(compname="D4", location=[20 * G, -4 * G], angle=270)
 
 # Create a capacitor filter.
 
