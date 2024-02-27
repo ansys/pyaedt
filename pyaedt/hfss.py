@@ -226,9 +226,19 @@ class Hfss(FieldAnalysis3D, object):
     class BoundaryType(object):
         """Creates and manages boundaries."""
 
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, AnisotropicImp, LayeredImp, LumpedRLC, FiniteCond, Hybrid, FEBI) = range(
-            0, 11
-        )
+        (
+            PerfectE,
+            PerfectH,
+            Aperture,
+            Radiation,
+            Impedance,
+            AnisotropicImp,
+            LayeredImp,
+            LumpedRLC,
+            FiniteCond,
+            Hybrid,
+            FEBI,
+        ) = range(0, 11)
 
     @property
     def hybrid(self):
@@ -3692,11 +3702,23 @@ class Hfss(FieldAnalysis3D, object):
             )
             return self._create_boundary(sourcename, props, "Impedance")
         return False
-    
+
     @pyaedt_function_handler()
     def assign_anisotropic_impedance_to_sheet(
-        self, sheet_name, sourcename=None, ZxxResi=0, ZxxReac=0, ZxyResi=0, ZxyReac=0, ZyxResi=0, ZyxReac=0, ZyyResi=0, ZyyReac=0, is_infground=False, coord_sys="Global"
-        ):
+        self,
+        sheet_name,
+        sourcename=None,
+        ZxxResi=0,
+        ZxxReac=0,
+        ZxyResi=0,
+        ZxyReac=0,
+        ZyxResi=0,
+        ZyxReac=0,
+        ZyyResi=0,
+        ZyyReac=0,
+        is_infground=False,
+        coord_sys="Global",
+    ):
         """Create an anisotropic impedance taking one sheet.
 
         Parameters
@@ -3766,16 +3788,16 @@ class Hfss(FieldAnalysis3D, object):
             props = OrderedDict(
                 {
                     "Objects": [sheet_name],
-                    "CoordSystem":      str(coord_sys),
-                    "InfGroundPlane":   is_infground,
-                    "ZxxResistance":    str(ZxxResi),
-                    "ZxxReactance":	    str(ZxxReac),
-                    "ZxyResistance":    str(ZxyResi),
-                    "ZxyReactance":	    str(ZxyReac),
-                    "ZyxResistance":    str(ZyxResi),
-                    "ZyxReactance":	    str(ZyxReac),
-                    "ZyyResistance":    str(ZyyResi),
-                    "ZyyReactance":     str(ZyyReac),
+                    "CoordSystem": str(coord_sys),
+                    "InfGroundPlane": is_infground,
+                    "ZxxResistance": str(ZxxResi),
+                    "ZxxReactance": str(ZxxReac),
+                    "ZxyResistance": str(ZxyResi),
+                    "ZxyReactance": str(ZxyReac),
+                    "ZyxResistance": str(ZyxResi),
+                    "ZyxReactance": str(ZyxReac),
+                    "ZyyResistance": str(ZyyResi),
+                    "ZyyReactance": str(ZyyReac),
                 }
             )
             return self._create_boundary(sourcename, props, "Anisotropic Impedance")
@@ -4747,7 +4769,9 @@ class Hfss(FieldAnalysis3D, object):
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
     @pyaedt_function_handler()
-    def assign_impedance_boundary_to_faces(self, faces_id, boundary_name="", resistance=50, reactance=0, is_infground=False):
+    def assign_impedance_boundary_to_faces(
+        self, faces_id, boundary_name="", resistance=50, reactance=0, is_infground=False
+    ):
         """Assign an impedance boundary to one or more faces.
 
         Parameters
@@ -4797,18 +4821,32 @@ class Hfss(FieldAnalysis3D, object):
                 boundary_name = generate_unique_name("Imped")
             elif boundary_name in self.modeler.get_boundaries_name():
                 boundary_name = generate_unique_name(boundary_name)
-                
-            props = {"Resistance":  str(resistance),
-                     "Reactance":   str(reactance),}
-            
+
+            props = {
+                "Resistance": str(resistance),
+                "Reactance": str(reactance),
+            }
+
             return self.create_boundary(self.BoundaryType.Impedance, faces_list, boundary_name, is_infground, props)
         else:
             return False
 
     @pyaedt_function_handler()
     def assign_anisotropic_impedance_boundary_to_face(
-        self, face_id, boundary_name="", ZxxResi=0, ZxxReac=0, ZxyResi=0, ZxyReac=0, ZyxResi=0, ZyxReac=0, ZyyResi=0, ZyyReac=0, is_infground=False, coord_sys="Global"
-        ):
+        self,
+        face_id,
+        boundary_name="",
+        ZxxResi=0,
+        ZxxReac=0,
+        ZxyResi=0,
+        ZxyReac=0,
+        ZyxResi=0,
+        ZyxReac=0,
+        ZyyResi=0,
+        ZyyReac=0,
+        is_infground=False,
+        coord_sys="Global",
+    ):
         """Assign an anisotropic impedance boundary to one face.
 
         Parameters
@@ -4878,17 +4916,19 @@ class Hfss(FieldAnalysis3D, object):
                 boundary_name = generate_unique_name("Anisotropic")
             elif boundary_name in self.modeler.get_boundaries_name():
                 boundary_name = generate_unique_name(boundary_name)
-                
-            props = {"ZxxResistance":   str(ZxxResi),
-                     "ZxxReactance":	str(ZxxReac),
-                     "ZxyResistance":   str(ZxyResi),
-                     "ZxyReactance":	str(ZxyReac),
-                     "ZyxResistance":   str(ZyxResi),
-                     "ZyxReactance":	str(ZyxReac),
-                     "ZyyResistance":   str(ZyyResi),
-                     "ZyyReactance":    str(ZyyReac),
-                     "CoordSystem":     str(coord_sys),}
-            
+
+            props = {
+                "ZxxResistance": str(ZxxResi),
+                "ZxxReactance": str(ZxxReac),
+                "ZxyResistance": str(ZxyResi),
+                "ZxyReactance": str(ZxyReac),
+                "ZyxResistance": str(ZyxResi),
+                "ZyxReactance": str(ZyxReac),
+                "ZyyResistance": str(ZyyResi),
+                "ZyyReactance": str(ZyyReac),
+                "CoordSystem": str(coord_sys),
+            }
+
             return self.create_boundary(self.BoundaryType.AnisotropicImp, face_list, boundary_name, is_infground, props)
         else:
             return False
