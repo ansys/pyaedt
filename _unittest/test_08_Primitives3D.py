@@ -262,6 +262,7 @@ class TestClass:
         o = self.create_copper_box()
         edge = o.edges[0].id
         assert self.aedtapp.modeler.get_object_name_from_edge_id(edge) == o.name
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
         dimensions = [10, 10, 5]
         o = self.aedtapp.modeler.create_box(udp, dimensions)
         assert len(o.name) == 16
