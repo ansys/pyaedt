@@ -8246,7 +8246,7 @@ class PrimitivesBuilder(object):
     >>> from pyaedt import Hfss
     >>> from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
     >>> aedtapp = Hfss()
-    >>> primitive_file = "primitive_file.json"
+    >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
     >>> primitives_builder.create()
     >>> aedtapp.release_desktop()
