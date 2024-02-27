@@ -3754,7 +3754,7 @@ class Hfss(FieldAnalysis3D, object):
         is_infground : bool, optional
             Whether the impedance is an infinite ground. The default is ``False``.
         coord_sys : optional
-            The name of the coordinate system for the xy plane. The default is ``Global``.
+            Name of the coordinate system for the xy plane. The default is ``"Global"``.
 
         Returns
         -------
