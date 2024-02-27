@@ -8410,7 +8410,7 @@ class PrimitivesBuilder(object):
                 instance = self._create_box_instance(name, cs, origin, primitive_data)
 
         if not instance:
-            self.logger.warning("Primitive type: {}".format(primitive_type) is unsupported.)
+            self.logger.warning("Primitive type: {} is unsupported.".format(primitive_type))
             return None
 
         return instance
@@ -8511,13 +8511,12 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _read_csv_cylinder_props(self, csv_data):
-        """Convert CSV data to ``PrimitivesBuilder`` properties.
-
-        Create a cylinder instance.
+        """Convert cylinder CSV data to ``PrimitivesBuilder`` properties.
 
         Parameters
         ----------
         csv_data : :class:`pandas.DataFrame`
+            Cylinder properties in CSV format.
 
         Returns
         -------
@@ -8597,6 +8596,7 @@ class PrimitivesBuilder(object):
         Parameters
         ----------
         csv_data : :class:`pandas.DataFrame`
+            Box properties in CSV format.
 
         Returns
         -------

@@ -1961,5 +1961,3 @@ class TestClass:
         primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
         primitive_names = primitives_builder.create()
         assert all(element is None for element in primitive_names)
-
-        # CSV Test missed
