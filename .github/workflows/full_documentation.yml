@@ -33,7 +33,7 @@ jobs:
   full_documentation:
     # The type of runner that the job will run on
     name: full_documentation
-    runs-on: [windows-latest, pyaedt]
+    runs-on: [Windows, self-hosted, pyaedt]
     timeout-minutes: 720
     strategy:
       matrix:
