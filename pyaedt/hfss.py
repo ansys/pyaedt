@@ -4777,7 +4777,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         faces_id :
-            Face ID(s) to assign the impedance boundary condition to.
+            One or more face IDs to assign the impedance boundary condition to.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         resistance : optional
@@ -4802,7 +4802,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box. Select the first 3 faces of this box and assign an impedance
+        Create a box. Select the first three faces of this box and assign an impedance
         boundary to them.
 
         >>> impedance_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
@@ -4856,33 +4856,33 @@ class Hfss(FieldAnalysis3D, object):
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         ZxxResi : optional
-            Resistance value of xx component in ohms. The default is ``0``. If ``None``,
+            Resistance value of the xx component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZxxReac : optional
-            Reactance value of xx component in ohms. The default is ``0``. If ``None``,
+            Reactance value of the xx component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZxyResi : optional
-            Resistance value of xy component in ohms. The default is ``0``. If ``None``,
+            Resistance value of the xy component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZxyReac : optional
-            Reactance value of xy component in ohms. The default is ``0``. If ``None``,
+            Reactance value of the xy component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZyxResi : optional
-            Resistance value of yx component in ohms. The default is ``0``. If ``None``,
+            Resistance value of the yx component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZyxReac : optional
-            Reactance value of yx component in ohms. The default is ``0``. If ``None``,
+            Reactance value of the yx component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZyyResi : optional
-            Resistance value of yy component in ohms. The default is ``0``. If ``None``,
+            Resistance value of the yy component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         ZyyReac : optional
-            Reactance value of yy component in ohms. The default is ``0``. If ``None``,
+            Reactance value of the yy component in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
         is_infground : bool, optional
             Whether the impedance is an infinite ground. The default is ``False``.
-        coord_sys : optional
-            The name of the coordinate system for the xy plane. The default is ``Global``.
+        coord_sys : str, optional
+            Name of the coordinate system for the xy plane. The default is ``"Global"``.
 
         Returns
         -------
