@@ -4782,8 +4782,8 @@ class Hfss(FieldAnalysis3D, object):
         boundary to them.
 
         >>> impedance_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
-        ...                                         name="ImpedanceForFaces")
-        >>> ids = hfss.modeler.get_object_faces("ImpedanceForFaces")[:3]
+        ...                                         name="ImpedanceBox")
+        >>> ids = hfss.modeler.get_object_faces("ImpedanceBox")[:3]
         >>> impedance = hfss.assign_impedance_boundary_to_faces(ids,
         ...     boundary_name="ImpedanceToFaces", resistance=60, reactance=-20)
         >>> type(impedance)
@@ -4802,6 +4802,94 @@ class Hfss(FieldAnalysis3D, object):
                      "Reactance":   str(reactance),}
             
             return self.create_boundary(self.BoundaryType.Impedance, faces_list, boundary_name, is_infground, props)
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def assign_anisotropic_impedance_boundary_to_face(
+        self, face_id, boundary_name="", ZxxResi=0, ZxxReac=0, ZxyResi=0, ZxyReac=0, ZyxResi=0, ZyxReac=0, ZyyResi=0, ZyyReac=0, is_infground=False, coord_sys="Global"
+        ):
+        """Assign an anisotropic impedance boundary to one face.
+
+        Parameters
+        ----------
+        face_id :
+            Face ID to assign the anisotropic impedance boundary condition to.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
+        ZxxResi : optional
+            Resistance value of xx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZxxReac : optional
+            Reactance value of xx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZxyResi : optional
+            Resistance value of xy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZxyReac : optional
+            Reactance value of xy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyxResi : optional
+            Resistance value of yx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyxReac : optional
+            Reactance value of yx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyyResi : optional
+            Resistance value of yy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyyReac : optional
+            Reactance value of yy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        is_infground : bool, optional
+            Whether the impedance is an infinite ground. The default is ``False``.
+        coord_sys : optional
+            The name of the coordinate system for the xy plane. The default is ``Global``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignAnisotropicImpedance
+
+        Examples
+        --------
+
+        Create a box. Select the first face of this box and assign an anisotropic
+        impedance boundary to it.
+
+        >>> anisotropic_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                           name="AnisotropicBox")
+        >>> face_id = hfss.modeler.get_object_faces("AnisotropicBox")[0]
+        >>> anisotropic = hfss.assign_anisotropic_impedance_boundary_to_face(face_id,
+        ...     boundary_name="AnisotropicToFace", ZxxResi=377, ZxyResi=50, ZyyReac=-20)
+        >>> type(anisotropic)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            face_list = self.modeler.convert_to_selections(face_id, True)
+            if not boundary_name:
+                boundary_name = generate_unique_name("Anisotropic")
+            elif boundary_name in self.modeler.get_boundaries_name():
+                boundary_name = generate_unique_name(boundary_name)
+                
+            props = {"ZxxResistance":   str(ZxxResi),
+                     "ZxxReactance":	str(ZxxReac),
+                     "ZxyResistance":   str(ZxyResi),
+                     "ZxyReactance":	str(ZxyReac),
+                     "ZyxResistance":   str(ZyxResi),
+                     "ZyxReactance":	str(ZyxReac),
+                     "ZyyResistance":   str(ZyyResi),
+                     "ZyyReactance":    str(ZyyReac),
+                     "CoordSystem":     str(coord_sys),}
+            
+            return self.create_boundary(self.BoundaryType.AnisotropicImp, face_list, boundary_name, is_infground, props)
         else:
             return False
 
