@@ -4,7 +4,6 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import io
-import json
 import os
 import re
 
@@ -12,8 +11,9 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
@@ -2189,7 +2189,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Parameters
         ----------
         geometry_selection : str
-            Objects to apply the impedance boundary to.
+            Faces or objects to apply the impedance boundary to.
         material_name : str, optional
             If it is different from ``None``, then material properties values will be extracted from
             the named material in the list of materials available. The default value is ``None``.
@@ -2216,11 +2216,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box and assign impedance boundary to it.
+        Create a box and assign impedance boundary to the faces.
 
-        >>> impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
-        >>> impedance_assignment = self.aedtapp.assign_impedance(impedance_box.name, "InsulatingExample")
-        >>> type(impedance_assignment)
+        >>> shield = m3d.modeler.create_box([-50, -50, -50], [294, 294, 19], name="shield")
+        >>> shield_faces = m3d.modeler.select_allfaces_fromobjects(["shield"])
+        >>> impedance_assignment = m3d.assign_impedance(shield_faces, "ShieldImpedance")
+
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
@@ -2235,7 +2236,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 impedance_name = generate_unique_name(impedance_name)
 
             listobj = self.modeler.convert_to_selections(geometry_selection, True)
-            props = {"Objects": listobj}
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
 
             if material_name is not None:
                 props["UseMaterial"] = True
@@ -2938,8 +2944,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open_file(design_file, "w") as fps:
-            json.dump(convert(self.design_data), fps, indent=4)
+        write_configuration_file(self.design_data, design_file)
         return True
 
     @pyaedt_function_handler()
@@ -2953,9 +2958,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open_file(design_file, "r") as fps:
-            design_data = json.load(fps)
-        return design_data
+        return read_configuration_file(design_file)
 
     @pyaedt_function_handler()
     def assign_balloon(self, edge_list, bound_name=None):

@@ -5,8 +5,8 @@ import uuid
 from _unittest.conftest import config
 import pytest
 
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import read_json
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
 from pyaedt.generic.settings import settings
@@ -78,7 +78,6 @@ class TestClass:
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
-
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
         )
@@ -86,6 +85,7 @@ class TestClass:
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic
         )
+        assert not self.aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
         assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
@@ -613,7 +613,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
+        dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(

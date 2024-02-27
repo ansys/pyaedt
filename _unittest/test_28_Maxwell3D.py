@@ -75,6 +75,11 @@ class TestClass:
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
+        self.aedtapp.assign_material(plate, "pec")
+        assert not plate.solve_inside
+        self.aedtapp.assign_material(plate, "perfect conductor")
+        assert not plate.solve_inside
+
     @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
     def test_01_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
@@ -639,6 +644,9 @@ class TestClass:
 
     def test_40_assign_impedance(self):
         impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        impedance_faces = self.aedtapp.modeler.select_allfaces_fromobjects([impedance_box.name])
+        assert self.aedtapp.assign_impedance(impedance_faces, "copper")
+        assert self.aedtapp.assign_impedance(impedance_box, "copper")
         impedance_assignment = self.aedtapp.assign_impedance(
             impedance_box.name,
             permeability=1.3,

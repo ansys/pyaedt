@@ -411,19 +411,26 @@ class CommonReport(object):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            return list(self.props.get("expressions", {}).keys())
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        return [k.get("name", None) for k in self.props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append(value)
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def report_category(self):
@@ -1015,6 +1022,20 @@ class CommonReport(object):
             self.primary_sweep = "Freq"
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
+
+    @property
+    def use_pulse_in_tdr(self):
+        """Defines if the TDR should use a pulse or step.
+
+        Returns
+        -------
+        bool
+        """
+        return self.props["context"].get("use_pulse_in_tdr", False)
+
+    @use_pulse_in_tdr.setter
+    def use_pulse_in_tdr(self, val):
+        self.props["context"]["use_pulse_in_tdr"] = val
 
     @pyaedt_function_handler()
     def _convert_dict_to_report_sel(self, sweeps):
@@ -2029,6 +2050,58 @@ class Standard(CommonReport):
             return 1
 
     @property
+    def pulse_rise_time(self):
+        """Value of Pulse rise time for TDR plot.
+
+        Returns
+        -------
+        float
+        """
+        return self.props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
+
+    @pulse_rise_time.setter
+    def pulse_rise_time(self, val):
+        self.props["context"]["pulse_rise_time"] = val
+
+    @property
+    def time_windowing(self):
+        """Returns the TDR time windowing. Options are:
+             * ``0`` : Rectangular
+            * ``1`` : Bartlett
+            * ``2`` : Blackman
+            * ``3`` : Hamming
+            * ``4`` : Hanning
+            * ``5`` : Kaiser
+            * ``6`` : Welch
+            * ``7`` : Weber
+            * ``8`` : Lanzcos.
+
+        Returns
+        -------
+        int
+        """
+        _time_windowing = self.props["context"].get("time_windowing", 0)
+        return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
+
+    @time_windowing.setter
+    def time_windowing(self, val):
+        available_values = {
+            "rectangular": 0,
+            "bartlett": 1,
+            "blackman": 2,
+            "hamming": 3,
+            "hanning": 4,
+            "kaiser": 5,
+            "welch": 6,
+            "weber": 7,
+            "lanzcos": 8,
+        }
+        if isinstance(val, int):
+            self.props["context"]["time_windowing"] = val
+        elif isinstance(val, str) and val.lower in available_values:
+            self.props["context"]["time_windowing"] = available_values[val.lower()]
+
+    @property
     def _context(self):
         ctxt = []
         if self._post.post_solution_type in ["TR", "AC", "DC"]:
@@ -2078,33 +2151,70 @@ class Standard(CommonReport):
                         self._did,
                         0,
                         2,
-                        0,
-                        False,
+                        self.pulse_rise_time,
+                        self.use_pulse_in_tdr if self.pulse_rise_time else False,
                         False,
                         -1,
                         1,
-                        0,
+                        self.time_windowing,
                         1,
                         1,
                         "",
-                        0,
-                        0,
+                        self.pulse_rise_time / 5,
+                        self.pulse_rise_time * 100,
                         "EnsDiffPairKey",
                         False,
                         "1",
                         "IDIID",
                         False,
-                        "1",
+                        "1" if not self.pulse_rise_time else "3",
                     ],
                 ]
             else:
                 ctxt = [
                     "NAME:Context",
                     "SimValueContext:=",
-                    [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
+                    [
+                        self._did,
+                        0,
+                        2,
+                        self.pulse_rise_time,
+                        self.use_pulse_in_tdr if self.pulse_rise_time else False,
+                        False,
+                        -1,
+                        1,
+                        self.time_windowing,
+                        1,
+                        1,
+                        "",
+                        self.pulse_rise_time / 5,
+                        self.pulse_rise_time * 100,
+                        "IDIID",
+                        False,
+                        "1" if not self.pulse_rise_time else "3",
+                    ],
                 ]
         elif self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
-            ctxt = ["NAME:Context", "SimValueContext:=", [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    self._did,
+                    0,
+                    2,
+                    self.pulse_rise_time,
+                    self.use_pulse_in_tdr if self.pulse_rise_time else False,
+                    False,
+                    -1,
+                    1,
+                    self.time_windowing,
+                    1,
+                    1,
+                    "",
+                    self.pulse_rise_time / 5,
+                    self.pulse_rise_time * 100,
+                ],
+            ]
             if self.sub_design_id:
                 ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
                 for el in ctxt_temp:
@@ -2334,33 +2444,40 @@ class AMIConturEyeDiagram(CommonReport):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            expr_head = "Eye"
-            expressions = [i for i in self.props["expressions"].keys()]
-            new_exprs = []
-            for expr in expressions:
-                if not ".int_ami" in expr:
-                    qtype = int(self.quantity_type)
-                    if qtype == 0:
-                        new_exprs.append("Initial{}(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
-                    elif qtype == 1:
-                        new_exprs.append("{}AfterSource(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
-                    elif qtype == 2:
-                        new_exprs.append("{}AfterChannel(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
-                    elif qtype == 3:
-                        new_exprs.append("{}AfterProbe(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
-            return new_exprs
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        expr_head = "Eye"
+        new_exprs = []
+        for expr_dict in self.props["expressions"]:
+            expr = expr_dict["name"]
+            if not ".int_ami" in expr:
+                qtype = int(self.quantity_type)
+                if qtype == 0:
+                    new_exprs.append("Initial{}(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
+                elif qtype == 1:
+                    new_exprs.append("{}AfterSource(".format(expr_head) + expr + ".int_ami_tx)<Bit Error Rate>")
+                elif qtype == 2:
+                    new_exprs.append("{}AfterChannel(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+                elif qtype == 3:
+                    new_exprs.append("{}AfterProbe(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+        return new_exprs
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append = value
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def quantity_type(self):
@@ -2747,35 +2864,42 @@ class AMIEyeDiagram(CommonReport):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            expr_head = "Wave"
-            if self.report_category == "Statistical Eye":
-                expr_head = "Eye"
-            expressions = [i for i in self.props["expressions"].keys()]
-            new_exprs = []
-            for expr in expressions:
-                if not ".int_ami" in expr:
-                    qtype = int(self.quantity_type)
-                    if qtype == 0:
-                        new_exprs.append("Initial{}<".format(expr_head) + expr + ".int_ami_tx>")
-                    elif qtype == 1:
-                        new_exprs.append("{}AfterSource<".format(expr_head) + expr + ".int_ami_tx>")
-                    elif qtype == 2:
-                        new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
-                    elif qtype == 3:
-                        new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
-            return new_exprs
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        expr_head = "Wave"
+        if self.report_category == "Statistical Eye":
+            expr_head = "Eye"
+        new_exprs = []
+        for expr_dict in self.props["expressions"]:
+            expr = expr_dict["name"]
+            if not ".int_ami" in expr:
+                qtype = int(self.quantity_type)
+                if qtype == 0:
+                    new_exprs.append("Initial{}<".format(expr_head) + expr + ".int_ami_tx>")
+                elif qtype == 1:
+                    new_exprs.append("{}AfterSource<".format(expr_head) + expr + ".int_ami_tx>")
+                elif qtype == 2:
+                    new_exprs.append("{}AfterChannel<".format(expr_head) + expr + ".int_ami_rx>")
+                elif qtype == 3:
+                    new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
+        return new_exprs
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append = value
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def quantity_type(self):
@@ -3275,19 +3399,26 @@ class EyeDiagram(AMIEyeDiagram):
         -------
         str
         """
-        if self.props.get("expressions", {}):
-            return list(self.props.get("expressions", {}).keys())
-        return []
+        if self.props.get("expressions", None) is None:
+            return []
+        return [k.get("name", None) for k in self.props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
-        self.props["expressions"] = {}
-        if value is None:
-            value = []
-        elif not isinstance(value, list):
-            value = [value]
-        for el in value:
-            self.props["expressions"][el] = {}
+        if isinstance(value, dict):
+            self.props["expressions"].append = value
+        elif isinstance(value, list):
+            self.props["expressions"] = []
+            for el in value:
+                if isinstance(el, dict):
+                    self.props["expressions"].append(el)
+                else:
+                    self.props["expressions"].append({"name": el})
+        elif isinstance(value, str):
+            if isinstance(self.props["expressions"], list):
+                self.props["expressions"].append({"name": value})
+            else:
+                self.props["expressions"] = [{"name": value}]
 
     @property
     def time_start(self):

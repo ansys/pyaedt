@@ -1996,6 +1996,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):
         edb = self.p_app.modeler.edb
+        if not edb:
+            return
         net_primitives = edb.modeler.primitives_by_net
         primitive_dict = {}
         for net, primitives in net_primitives.items():
@@ -2059,6 +2061,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_via_position_per_net(self):
         via_dict = {}
+        if not self.p_app.modeler.edb:
+            return
         via_list = list(self.p_app.modeler.edb.padstacks.instances.values())
         if via_list:
             for net in list(self.p_app.modeler.edb.nets.nets.keys()):
@@ -3367,36 +3371,25 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
         --------
-
-        Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
-        named ``"LinearCountSweep"``.
-
-        >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
-        ...                                                     sweepname="LinearCountSweep",
-        ...                                                     unit="MHz", freqstart=1.1e3,
-        ...                                                     freqstop=1200.1, num_of_freq_points=1658)
-        >>> type(linear_count_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
-
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup("LinearCountSetup")
+        >>> sweep = setup.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
+        >>> q3d.release_desktop(True, True)
         """
-
-        # Set default values for num_of_freq_points if a value was not passed. Also,
-        # check that sweep_type is valid.
-        if num_of_freq_points is None and sweep_type in ["Interpolating", "Fast"]:
-            num_of_freq_points = 401
-        elif num_of_freq_points is None and sweep_type == "Discrete":
-            num_of_freq_points = 5
+        if sweep_type in ["Interpolating", "Fast"]:
+            num_of_freq_points = num_of_freq_points or 401
+        elif sweep_type == "Discrete":
+            num_of_freq_points = num_of_freq_points or 5
         else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
@@ -3459,7 +3452,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -3469,20 +3462,19 @@ class SetupQ3D(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
         named ``"LinearStepSweep"``.
-
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearStepSetup")
         >>> linear_step_sweep = setup.create_linear_step_sweep(sweepname="LinearStepSweep",
         ...                                                   unit="MHz", freqstart=1.1e3,
         ...                                                   freqstop=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
-
+        >>> q3d.release_desktop(True, True)
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -3535,30 +3527,27 @@ class SetupQ3D(Setup, object):
         save_fields : bool, optional
             Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
 
-
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
         ----------
-
         >>> oModule.InsertFrequencySweep
 
         Examples
         --------
-
-        Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
+        Create a setup named ``"SinglePointSetup"`` and use it in a single point sweep
         named ``"SinglePointSweep"``.
-
-        >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> single_point_sweep = hfss.create_single_point_sweep(setupname="LinearStepSetup",
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup("SinglePointSetup")
+        >>> single_point_sweep = setup.create_single_point_sweep(setupname="SinglePointSetup",
         ...                                                   sweepname="SinglePointSweep",
         ...                                                   unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
-
+        >>> q3d.release_desktop(True, True)
         """
         if sweepname is None:
             sweepname = generate_unique_name("SinglePoint")
@@ -3651,15 +3640,18 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
+        :class:`pyaedt.modules.SolveSweeps.SweepQ3D` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
 
         Examples
         --------
-        >>> hfss = Hfss()
-        >>> setup = hfss.get_setup('Pyaedt_setup')
-        >>> sweep = setup.get_sweep('Sweep1')
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d()
+        >>> setup = q3d.create_setup()
+        >>> sweep = setup.create_frequency_sweep(sweepname="Sweep1")
         >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
         >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        >>> sweep = setup.get_sweep("Sweep1")
+        >>> q3d.release_desktop(True, True)
         """
         if sweepname:
             for sweep in self.sweeps:
