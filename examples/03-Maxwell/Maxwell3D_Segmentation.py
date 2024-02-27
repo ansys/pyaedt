@@ -10,8 +10,16 @@ The method is valid and usable for any object the user would like to segment.
 # Perform required imports.
 
 from pyaedt import downloads
-from pyaedt import generate_unique_folder_name
 from pyaedt import Maxwell3d
+
+import tempfile
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -25,8 +33,8 @@ non_graphical = False
 # Download .aedt file example
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set local temporary folder to export the .aedt file to.
-temp_folder = generate_unique_folder_name()
-aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments.aedt", temp_folder)
+
+aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments.aedt", temp_dir.name)
 
 ##################################################################################
 # Launch Maxwell 3D
@@ -98,3 +106,4 @@ sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_nu
 
 m3d.save_project()
 m3d.release_desktop()
+temp_dir.cleanup()

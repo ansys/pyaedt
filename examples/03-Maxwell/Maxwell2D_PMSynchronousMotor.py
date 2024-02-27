@@ -11,7 +11,7 @@ an interior permanent magnet electric motor.
 # Perform required imports.
 
 from math import sqrt as mysqrt
-from pyaedt import generate_unique_folder_name
+
 import csv
 import os
 import pyaedt
@@ -24,17 +24,11 @@ import pyaedt
 
 desktopVersion = "2023.2"
 
-sName = "MySetupAuto"
-sType = "TransientXY"
+setup_name = "MySetupAuto"
+solver = "TransientXY"
 
-pName = pyaedt.generate_unique_project_name()
-dName = "Sinusoidal"
-
-#################################################################################
-# Initialize dictionaries
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize dictionaries that contain all the definitions for the design
-# variables and output variables.
+project_name = pyaedt.generate_unique_project_name()
+design_name = "Sinusoidal"
 
 #################################################################################
 # Initialize definitions for stator, rotor, and shaft 
@@ -124,10 +118,10 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(projectname=pName,
+M2D = pyaedt.Maxwell2d(projectname=project_name,
                        specified_version=desktopVersion,
-                       designname=dName,
-                       solution_type=sType,
+                       designname=design_name,
+                       solution_type=solver,
                        new_desktop_session=True,
                        non_graphical=non_graphical
                        )
@@ -558,7 +552,7 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 # Turn on core loss.
 
 core_loss_list = ['Rotor', 'Stator']
-M2D.set_core_losses(core_loss_list, value=True)
+M2D.set_core_losses(core_loss_list)
 
 ##########################################################
 # Compute transient inductance
@@ -586,7 +580,7 @@ M2D.change_symmetry_multiplier("SymmetryFactor")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup and validate it.
 
-setup = M2D.create_setup(setupname=sName)
+setup = M2D.create_setup(setupname=setup_name)
 setup.props["StopTime"] = "StopTime"
 setup.props["TimeStep"] = "TimeStep"
 setup.props["SaveFieldsType"] = "None"
@@ -715,7 +709,7 @@ for k, v in post_params.items():
 # Analyze and save the project.
 
 M2D.save_project()
-M2D.analyze_setup(sName, use_auto_settings=False)
+M2D.analyze_setup(setup_name, use_auto_settings=False)
 
 ##########################################################
 # Create flux lines plot on region
