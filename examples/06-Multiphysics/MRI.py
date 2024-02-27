@@ -112,6 +112,7 @@ hfss.post.plot_field(quantity="Average_SAR",
                      plot_type="CutPlane",
                      show_legend=False,
                      filter_objects=["implant_box"],
+                     show=False
                      )
 
 ###############################################################################
