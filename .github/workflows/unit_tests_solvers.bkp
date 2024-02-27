@@ -30,7 +30,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: [windows-latest, pyaedt]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: ['3.10']
