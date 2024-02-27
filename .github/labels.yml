@@ -30,10 +30,6 @@
   description: Anything related to testing
   color: 5802B8
 
-- name: edb
-  description: Anything related to the EDB API
-  color: C4C25D
-
 - name: examples
   description: Anything related to the examples
   color: 3C2E5F
