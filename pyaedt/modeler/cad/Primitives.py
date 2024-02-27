@@ -15,6 +15,7 @@ import warnings
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _uname
@@ -3036,7 +3037,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        object_list : list
+        object_list : list, str
             List of objects to separate.
         create_group : bool, optional
             Whether to create a group. The default is ``False``.
@@ -3117,7 +3118,7 @@ class GeometryModeler(Modeler):
         blank_list : str, Object3d, int or List of str, int and Object3d.
             List of objects to subtract from. The list can be of
             either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
-        tool_list : list
+        tool_list : list, str
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
         keep_originals : bool, optional
@@ -3325,8 +3326,8 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        unite_list : list
-            List of objects.
+        unite_list : list, str
+            List of objects to unite.
         purge : bool, optional
             Purge history after unite. Default is False.
         keep_originals : bool, optional
@@ -4649,6 +4650,32 @@ class GeometryModeler(Modeler):
         )
         self.refresh_all_ids()
         return True
+
+    @pyaedt_function_handler()
+    def import_primitives_from_file(self, input_file=None, input_dict=None):
+        """Import and create primitives from a JSON file or dictionary of properties.
+
+        Parameters
+        ----------
+        input_file : str, optional
+            Path to a JSON file containing report settings.
+        input_dict : dict, optional
+            Dictionary containing report settings.
+
+        Returns
+        -------
+        list
+            List of created primitives.
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> aedtapp = Icepak()
+        >>> aedtapp.modeler.import_primitives_from_file(r'C:\temp\primitives.json')
+        """
+        primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
+        primitive_names = primitives_builder.create()
+        return primitive_names
 
     @pyaedt_function_handler()
     def modeler_variable(self, value):
@@ -8220,4 +8247,552 @@ class GeometryModeler(Modeler):
                     ],
                 ]
             )
+        return True
+
+
+class PrimitivesBuilder(object):
+    """Create primitives from a JSON file or dictionary of properties.
+
+    Parameters
+    ----------
+    app :
+        Inherited parent object.
+    input_file : str, optional
+        Path to a JSON file containing primitive settings.
+    input_dict : dict, optional
+        Dictionary containing primitive settings.
+
+    Returns
+    -------
+    :class:`pyaedt.modeler.cad.PrimitivesBuilder`
+        Primitives builder object if successful.
+
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
+    >>> aedtapp = Hfss()
+    >>> primitive_file = "primitives_file.json"
+    >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
+    >>> primitives_builder.create()
+    >>> aedtapp.release_desktop()
+    """
+
+    def __init__(self, app, input_file=None, input_dict=None):
+        self._app = app
+        props = {}
+        if not input_dict and not input_file:  # pragma: no cover
+            msg = "Either a JSON file or a dictionary must be passed as input."
+            self.logger.error(msg)
+            raise TypeError(msg)
+        elif input_file:
+            file_format = os.path.splitext(os.path.basename(input_file))[1]
+            if file_format == ".json":
+                props = json_to_dict(input_file)
+            elif file_format == ".csv":
+                import re
+
+                from pyaedt.generic.general_methods import read_csv_pandas
+
+                csv_data = read_csv_pandas(filename=input_file)
+                primitive_type = csv_data.columns[0]
+                primitive_type_cleaned = re.sub(r"^#\s*", "", primitive_type)
+
+                if primitive_type_cleaned in ["Blocks Cylinder", "Cylinder"]:
+                    props = self._read_csv_cylinder_props(csv_data)
+                if primitive_type_cleaned in ["Blocks Prism", "Prism"]:
+                    props = self._read_csv_prism_props(csv_data)
+                if not props:
+                    msg = "CSV file not valid."
+                    self.logger.error(msg)
+                    raise TypeError(msg)
+            else:
+                msg = "Format is not valid."
+                self.logger.error(msg)
+                raise TypeError(msg)
+        else:
+            props = input_dict
+
+        if not props or not all(key in props for key in ["Primitives", "Instances"]):
+            msg = "Input data is wrong."
+            self.logger.error(msg)
+            raise AttributeError(msg)
+
+        if "Units" in props:
+            self.units = props["Units"]
+        else:
+            self.units = "mm"
+        self._app.modeler.units = self.units
+        self.primitives = props["Primitives"]
+        self.instances = props["Instances"]
+        self.coordinate_systems = None
+        if "Coordinate Systems" in props:
+            self.coordinate_systems = props["Coordinate Systems"]
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create instances of defined primitives.
+
+        Returns
+        -------
+        list
+            List of instance names created.
+        """
+        created_instances = []
+
+        if self.coordinate_systems:
+            cs_flag = self._create_coordinate_system()
+            if not cs_flag:
+                self.logger.error("Wrong coordinate system is defined.")
+                return False
+
+        cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
+
+        for instance_data in self.instances:
+            name = instance_data.get("Name")
+            if not name:
+                self.logger.error("``Name`` parameter is not defined.")
+                return False
+
+            cs = instance_data.get("Coordinate System")
+            if not cs:
+                self.logger.warning("``Coordinate System`` parameter is not defined, ``Global`` is assigned.")
+                instance_data["Coordinate System"] = "Global"
+                cs = instance_data.get("Coordinate System")
+            elif instance_data["Coordinate System"] != "Global" and instance_data["Coordinate System"] not in cs_names:
+                self.logger.error("Coordinate system {} does not exist.".format(cs))
+                return False
+
+            origin = instance_data.get("Origin")
+            if not origin:
+                self.logger.warning("``Origin`` parameter not defined. ``[0, 0, 0]`` is assigned.")
+                instance_data["Origin"] = [0, 0, 0]
+                origin = instance_data.get("Origin")
+            else:
+                origin = self.convert_units(origin)
+
+            primitive_data = next((primitive for primitive in self.primitives if primitive["Name"] == name), None)
+
+            if primitive_data:
+                instance = self._create_instance(name, cs, origin, primitive_data)
+                created_instances.append(instance)
+
+        return created_instances
+
+    @pyaedt_function_handler()
+    def _create_instance(self, name, cs, origin, primitive_data):
+        """Create a primitive instance.
+
+        This method determines the primitive type and creates an instance based on this type.
+
+        Parameters
+        ----------
+        name : str
+            Name for the primitive.
+        cs : str
+            Reference coordinate system.
+        origin : list
+            Instance origin position.
+        primitive_data : dict
+            Primitive information.
+
+        Returns
+        -------
+        str
+            Instance name.
+        """
+        primitive_type = primitive_data["Primitive Type"]
+        instance = None
+        if primitive_type == "Cylinder":
+            if self._app.modeler._is3d:
+                instance = self._create_cylinder_instance(name, cs, origin, primitive_data)
+        if primitive_type == "Box":
+            if self._app.modeler._is3d:
+                instance = self._create_box_instance(name, cs, origin, primitive_data)
+
+        if not instance:
+            self.logger.warning("Primitive type: {} is unsupported.".format(primitive_type))
+            return None
+
+        return instance
+
+    @pyaedt_function_handler()
+    def _create_cylinder_instance(self, name, cs, origin, data):
+        """Create a cylinder instance.
+
+        Parameters
+        ----------
+        name : str
+            Name for the primitive.
+        cs : str
+            Reference coordinate system.
+        origin : list
+            Instance origin position.
+        data : dict
+            Cylinder information.
+
+        Returns
+        -------
+        str
+            Instance name.
+        """
+        if not data.get("Plane"):
+            data["Plane"] = 0
+        if not data.get("Radius"):
+            data["Radius"] = 10
+        if not data.get("Height"):
+            data["Height"] = 50
+        if not data.get("Number of Segments"):
+            data["Number of Segments"] = 0
+
+        self._app.modeler.set_working_coordinate_system(cs)
+
+        cyl1 = self._app.modeler.create_cylinder(
+            cs_axis=data.get("Plane"),
+            position=origin,
+            radius=data.get("Radius"),
+            height=data.get("Height"),
+            numSides=int(data.get("Number of Segments")),
+            name=name,
+        )
+
+        internal_radius = data.get("Internal Radius")
+        if internal_radius:
+            internal_radius = self.convert_units([internal_radius])[0]
+            radius = self.convert_units([data.get("Radius")])[0]
+            if internal_radius > radius:
+                self.logger.warning("Internal radius is larger than external radius.")
+            elif internal_radius != 0:
+                cyl2 = self._app.modeler.create_cylinder(
+                    cs_axis=data.get("Plane"),
+                    position=origin,
+                    radius=internal_radius,
+                    height=data.get("Height"),
+                    numSides=data.get("Number of Segments"),
+                    name=name,
+                )
+                self._app.modeler.subtract(blank_list=cyl1, tool_list=cyl2, keep_originals=False)
+
+        return cyl1
+
+    def _create_box_instance(self, name, cs, origin, data):
+        """Create a box instance.
+
+        Parameters
+        ----------
+        name : str
+            Name for the primitive.
+        cs : str
+            Reference coordinate system.
+        origin : list
+            Instance origin position.
+        data : dict
+            Box information.
+
+        Returns
+        -------
+        str
+            Instance name.
+        """
+        if not data.get("X Length"):
+            data["X Length"] = 10
+        if not data.get("Y Length"):
+            data["Y Length"] = 10
+        if not data.get("Z Length"):
+            data["Z Length"] = 10
+
+        self._app.modeler.set_working_coordinate_system(cs)
+
+        box1 = self._app.modeler.create_box(
+            position=origin,
+            dimensions_list=[data["X Length"], data["Y Length"], data["Z Length"]],
+            name=name,
+        )
+        return box1
+
+    @pyaedt_function_handler()
+    def _read_csv_cylinder_props(self, csv_data):
+        """Convert CSV data to ``PrimitivesBuilder`` properties.
+
+        Create a cylinder instance.
+
+        Parameters
+        ----------
+        csv_data : :class:`pandas.DataFrame`
+
+        Returns
+        -------
+        dict
+            PrimitivesBuilder properties.
+        """
+        primitive_props = {
+            "Primitive Type": "Cylinder",
+            "Name": "",
+            "Plane": 0,
+            "Height": 1.0,
+            "Radius": 2,
+            "Internal Radius": 0.0,
+            "Number of Segments": 0,
+        }
+        instances_props = {"Name": "", "Coordinate System": "Global", "Origin": [0, 0, 0]}
+        required_csv_keys = ["name", "xc", "yc", "zc", "plane", "radius", "iradius", "height"]
+        # Take the keys
+        csv_keys = []
+        index_row = 0
+        for index_row, row in csv_data.iterrows():
+            if "#" not in row.iloc[0]:
+                csv_keys = row.array.dropna()
+                csv_keys = csv_keys.tolist()
+                break
+
+        if not all(k in required_csv_keys for k in csv_keys):
+            msg = "The column names in the CSV file do not match the expected names."
+            self.logger.error(msg)
+            raise ValueError
+        # Create instances and primitives
+        props_cyl = {}
+        row_cont = 0
+        for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
+            row_info = row.dropna().values
+            if len(row_info) != len(csv_keys):
+                msg = "Values missing in the CSV file "
+                self.logger.error(msg)
+                raise ValueError
+
+            if not props_cyl:
+                props_cyl = {"Primitives": [primitive_props], "Instances": [instances_props]}
+            else:
+                props_cyl["Primitives"].append(primitive_props.copy())
+                props_cyl["Instances"].append(instances_props.copy())
+
+            col_cont = 0
+            # Check for nan values in each column
+            for value in row_info:
+                if csv_keys[col_cont] == "name":
+                    props_cyl["Primitives"][row_cont]["Name"] = str(value)
+                    props_cyl["Instances"][row_cont]["Name"] = str(value)
+                elif csv_keys[col_cont] == "xc":
+                    props_cyl["Instances"][row_cont]["Origin"][0] = float(value)
+                elif csv_keys[col_cont] == "yc":
+                    props_cyl["Instances"][row_cont]["Origin"][1] = float(value)
+                elif csv_keys[col_cont] == "zc":
+                    props_cyl["Instances"][row_cont]["Origin"][2] = float(value)
+                elif csv_keys[col_cont] == "plane":
+                    props_cyl["Primitives"][row_cont]["Plane"] = int(value)
+                elif csv_keys[col_cont] == "radius":
+                    props_cyl["Primitives"][row_cont]["Radius"] = float(value)
+                elif csv_keys[col_cont] == "iradius":
+                    props_cyl["Primitives"][row_cont]["Internal Radius"] = float(value)
+                elif csv_keys[col_cont] == "height":
+                    props_cyl["Primitives"][row_cont]["Height"] = float(value)
+                col_cont += 1
+            row_cont += 1
+        return props_cyl
+
+    @pyaedt_function_handler()
+    def _read_csv_prism_props(self, csv_data):
+        """Convert CSV data to ``PrimitivesBuilder`` properties.
+
+        Create a box instance.
+
+        Parameters
+        ----------
+        csv_data : :class:`pandas.DataFrame`
+
+        Returns
+        -------
+        dict
+            PrimitivesBuilder properties.
+        """
+        primitive_props = {
+            "Primitive Type": "Box",
+            "Name": "",
+            "X Length": 0,
+            "Y Length": 0,
+            "Z Length": 0,
+        }
+        instances_props = {"Name": "", "Coordinate System": "Global", "Origin": [0, 0, 0]}
+        required_csv_keys = ["name", "xs", "ys", "zs", "xd", "yd", "zd"]
+        # Take the keys
+        csv_keys = []
+        index_row = 0
+        for index_row, row in csv_data.iterrows():
+            if "#" not in row.iloc[0]:
+                csv_keys = row.array.dropna()
+                csv_keys = csv_keys.tolist()
+                break
+
+        if not all(k in required_csv_keys for k in csv_keys):
+            msg = "The column names in the CSV file do not match the expected names."
+            self.logger.error(msg)
+            raise ValueError
+        # Create instances and primitives
+        props_box = {}
+        row_cont = 0
+        for index_row_new, row in csv_data.iloc[index_row + 1 :].iterrows():
+            row_info = row.dropna().values
+            if len(row_info) != len(csv_keys):
+                msg = "Values missing in the CSV file "
+                self.logger.error(msg)
+                raise ValueError
+
+            if not props_box:
+                props_box = {"Primitives": [primitive_props], "Instances": [instances_props]}
+            else:
+                props_box["Primitives"].append(primitive_props.copy())
+                props_box["Instances"].append(instances_props.copy())
+
+            col_cont = 0
+            # Check for nan values in each column
+            for value in row_info:
+                if csv_keys[col_cont] == "name":
+                    props_box["Primitives"][row_cont]["Name"] = str(value)
+                    props_box["Instances"][row_cont]["Name"] = str(value)
+                elif csv_keys[col_cont] == "xs":
+                    props_box["Instances"][row_cont]["Origin"][0] = float(value)
+                elif csv_keys[col_cont] == "ys":
+                    props_box["Instances"][row_cont]["Origin"][1] = float(value)
+                elif csv_keys[col_cont] == "zs":
+                    props_box["Instances"][row_cont]["Origin"][2] = float(value)
+                elif csv_keys[col_cont] == "xd":
+                    props_box["Primitives"][row_cont]["X Length"] = float(value)
+                elif csv_keys[col_cont] == "yd":
+                    props_box["Primitives"][row_cont]["Y Length"] = float(value)
+                elif csv_keys[col_cont] == "zd":
+                    props_box["Primitives"][row_cont]["Z Length"] = float(value)
+                col_cont += 1
+            row_cont += 1
+        return props_box
+
+    @pyaedt_function_handler()
+    def convert_units(self, values):
+        """Convert input values to default units.
+
+        If a value has units, convert it to a numeric value with the default units.
+
+        Parameters
+        ----------
+        values : list
+            List of values.
+
+        Returns
+        -------
+        list
+            List of numeric values.
+        """
+        extracted_values = []
+        for value in values:
+            if isinstance(value, (int, float)):
+                extracted_values.append(value)
+            elif isinstance(value, str):
+                value_number, units = decompose_variable_value(value)
+                if units:
+                    value_number = self._length_unit_conversion(value_number, units)
+                extracted_values.append(value_number)
+
+        return extracted_values
+
+    @pyaedt_function_handler()
+    def _length_unit_conversion(self, value, input_units):
+        """Convert value to input units."""
+        from pyaedt.generic.constants import unit_converter
+
+        converted_value = unit_converter(value, unit_system="Length", input_units=input_units, output_units=self.units)
+        return converted_value
+
+    @pyaedt_function_handler()
+    def _create_coordinate_system(self):
+        """Create a coordinate system defined in the object."""
+        for cs in self.coordinate_systems:
+            cs_names = [cs.name for cs in self._app.modeler.coordinate_systems]
+            name = cs.get("Name")
+            if not name:
+                self.logger.warning("Coordinate system does not have a 'Name' parameter.")
+                return False
+            if name in cs_names:
+                self.logger.warning("Coordinate system {} already exists.".format(name))
+                continue
+            mode = cs.get("Mode")
+            if not mode or not any(key in mode for key in ["Axis/Position", "Euler Angle ZYZ", "Euler Angle ZXZ"]):
+                self.logger.warning(
+                    "Coordinate system does not have a 'Mode' parameter or it is not valid. "
+                    "Options are 'Axis/Position', 'Euler Angle ZYZ', and 'Euler Angle ZXZ'."
+                )
+                return False
+
+            origin = cs.get("Origin")
+            reference_cs = cs.get("Reference CS")
+            if not origin:
+                origin = [0, 0, 0]
+                cs["Origin"] = origin
+            else:
+                origin = self.convert_units(origin)
+
+            if not reference_cs:
+                reference_cs = "Global"
+                cs["Reference CS"] = reference_cs
+
+            if mode == "Axis/Position":
+                x_axis = cs.get("X Axis")
+                y_point = cs.get("Y Point")
+
+                if not x_axis:
+                    x_axis = [1, 0, 0]
+                    cs["X Axis"] = x_axis
+                if not y_point:
+                    y_point = [0, 1, 0]
+                    cs["Y Point"] = y_point
+                new_cs = self._app.modeler.create_coordinate_system(
+                    origin=origin,
+                    reference_cs=reference_cs,
+                    name=name,
+                    mode="axis",
+                    x_pointing=x_axis,
+                    y_pointing=y_point,
+                    psi=0,
+                    theta=0,
+                    phi=0,
+                )
+                cs["Name"] = new_cs.name
+            else:
+                phi = cs.get("Phi")
+                theta = cs.get("Theta")
+                psi = cs.get("Psi")
+
+                if not phi:
+                    phi = "0deg"
+                    cs["Phi"] = phi
+                elif isinstance(phi, (int, float)):
+                    phi = str(phi) + "deg"
+                    cs["Phi"] = phi
+
+                if not theta:
+                    theta = "0deg"
+                    cs["Theta"] = theta
+                elif isinstance(theta, (int, float)):
+                    theta = str(theta) + "deg"
+                    cs["Theta"] = theta
+
+                if not psi:
+                    psi = "0deg"
+                    cs["Psi"] = psi
+                elif isinstance(psi, (int, float)):
+                    psi = str(psi) + "deg"
+                    cs["Psi"] = psi
+
+                if mode == "Euler Angle ZYZ":
+                    cs_mode = "zyz"
+                else:
+                    cs_mode = "zxz"
+
+                new_cs = self._app.modeler.create_coordinate_system(
+                    origin=origin, reference_cs=reference_cs, name=name, mode=cs_mode, psi=psi, theta=theta, phi=phi
+                )
+                cs["Name"] = new_cs.name
+
         return True

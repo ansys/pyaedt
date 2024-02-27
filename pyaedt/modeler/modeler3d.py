@@ -1301,7 +1301,7 @@ class Modeler3D(Primitives3D):
 
         Parameters
         ----------
-        objects_list : list
+        objects_list : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
             a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.

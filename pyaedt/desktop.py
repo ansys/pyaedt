@@ -101,37 +101,46 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
-    if settings.lsf_queue:
-        command = [
-            "bsub",
-            "-n",
-            str(settings.lsf_num_cores),
-            "-R",
-            '"rusage[mem={}]"'.format(settings.lsf_ram),
-            "-queue {}".format(settings.lsf_queue),
-            "-Is",
-            settings.lsf_aedt_command,
-            "-grpcsrv",
-            str(port),
-        ]
+    if not settings.custom_lsf_command:
+        if settings.lsf_queue:
+            command = [
+                "bsub",
+                "-n",
+                str(settings.lsf_num_cores),
+                "-R",
+                '"rusage[mem={}]"'.format(settings.lsf_ram),
+                "-queue {}".format(settings.lsf_queue),
+                "-Is",
+                settings.lsf_aedt_command,
+                "-grpcsrv",
+                str(port),
+            ]
+        else:
+            command = [
+                "bsub",
+                "-n",
+                str(settings.lsf_num_cores),
+                "-R",
+                '"rusage[mem={}]"'.format(settings.lsf_ram),
+                "-Is",
+                settings.lsf_aedt_command,
+                "-grpcsrv",
+                str(port),
+            ]
+        if non_graphical:
+            command.append("-ng")
+        if settings.wait_for_license:
+            command.append("-waitforlicense")
     else:
-        command = [
-            "bsub",
-            "-n",
-            str(settings.lsf_num_cores),
-            "-R",
-            '"rusage[mem={}]"'.format(settings.lsf_ram),
-            "-Is",
-            settings.lsf_aedt_command,
-            "-grpcsrv",
-            str(port),
-        ]
-    if non_graphical:
-        command.append("-ng")
-    if settings.wait_for_license:
-        command.append("-waitforlicense")
+        command = settings.custom_lsf_command.split(" ")
     print(command)
-    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:  # nosec
+        p = subprocess.Popen(
+            " ".join(str(x) for x in command), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+    except FileNotFoundError:  # nosec
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
@@ -1909,7 +1918,7 @@ class Desktop(object):
                 elif "\\	$end" == line[:6]:
                     lin = "\\	$end \\'{}\\'\\\n".format(clustername)
                     f1.write(lin)
-                elif "NumCores" in line:
+                elif "NumCores=" in line:
                     lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
                     f1.write(lin)
                 elif "NumNodes=1" in line:

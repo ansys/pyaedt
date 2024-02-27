@@ -6,6 +6,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
+from pyaedt import Icepak
+from pyaedt import Q2d
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -21,6 +23,14 @@ step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
+primitive_json_file = "primitives_file.json"
+cylinder_primitive_csv_file = "cylinder_geometry_creation.csv"
+cylinder_primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
+cylinder_primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.csv"
+prism_primitive_csv_file = "prism_geometry_creation.csv"
+prism_primitive_csv_file_missing_values = "prism_geometry_creation_missing_values.csv"
+prism_primitive_csv_file_wrong_keys = "prism_geometry_creation_wrong_keys.csv"
+
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -238,11 +248,20 @@ class TestClass:
         tol = 1e-9
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
+    def test_06_position(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        with pytest.raises(IndexError) as execinfo:
+            item = udp[3]
+            assert str(execinfo) == "Position index not correct."
+        assert self.aedtapp.modeler.Position([0])
+
+    def test_07_sweep_options(self):
+        assert self.aedtapp.modeler.SweepOptions()
+
     def test_11a_get_object_name_from_edge(self):
         o = self.create_copper_box()
         edge = o.edges[0].id
         assert self.aedtapp.modeler.get_object_name_from_edge_id(edge) == o.name
-
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         dimensions = [10, 10, 5]
         o = self.aedtapp.modeler.create_box(udp, dimensions)
@@ -1620,6 +1639,7 @@ class TestClass:
         assert obj_3dcomp.mesh_assembly
         obj_3dcomp.name = "Dipole_pyaedt"
         assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
+        assert self.aedtapp.modeler["Dipole_pyaedt"]
         assert obj_3dcomp.name == "Dipole_pyaedt"
         if config["desktopVersion"] < "2023.1":
             assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
@@ -1841,3 +1861,113 @@ class TestClass:
             volume_padding=None,
             priority=None,
         )
+
+    def test_88_import_primitives_file_json(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 9
+
+    def test_89_import_cylinder_primitives_csv(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, cylinder_primitive_csv_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 2
+        self.aedtapp.insert_design("PrimitiveFromFileTest")
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, cylinder_primitive_csv_file_wrong_keys
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, cylinder_primitive_csv_file_missing_values
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+
+    def test_90_import_prism_primitives_csv(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, prism_primitive_csv_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 2
+        self.aedtapp.insert_design("PrimitiveFromFileTest")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, prism_primitive_csv_file_wrong_keys)
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, prism_primitive_csv_file_missing_values
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+
+    def test_91_primitives_builder(self, add_app):
+        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
+
+        ipk = add_app(application=Icepak)
+
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
+        primitive_dict = json_to_dict(primitive_file)
+
+        with pytest.raises(TypeError):
+            PrimitivesBuilder(ipk)
+
+        del primitive_dict["Primitives"]
+        with pytest.raises(AttributeError):
+            PrimitivesBuilder(ipk, input_dict=primitive_dict)
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Name"]
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Mode"]
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Origin"]
+        del primitive_dict["Coordinate Systems"][0]["Y Point"]
+        del primitive_dict["Coordinate Systems"][1]["Phi"]
+        del primitive_dict["Coordinate Systems"][1]["Theta"]
+        primitive_dict["Coordinate Systems"][1]["Mode"] = "Euler Angle ZXZ"
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.coordinate_systems[0]["X Axis"]
+        del primitives_builder.coordinate_systems[1]["Psi"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 9
+
+        ipk.modeler.coordinate_systems[0].delete()
+        ipk.modeler.coordinate_systems[0].delete()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Name"]
+        assert not primitives_builder.create()
+        assert len(primitive_names) == 9
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Coordinate System"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 9
+        ipk.modeler.coordinate_systems[0].delete()
+        ipk.modeler.coordinate_systems[0].delete()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        primitives_builder.instances[0]["Coordinate System"] = "Invented"
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Origin"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 9
+
+        q2d = add_app(application=Q2d)
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
+        primitive_names = primitives_builder.create()
+        assert all(element is None for element in primitive_names)
