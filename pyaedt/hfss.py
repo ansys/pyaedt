@@ -3685,6 +3685,94 @@ class Hfss(FieldAnalysis3D, object):
             )
             return self._create_boundary(sourcename, props, "Impedance")
         return False
+    
+    @pyaedt_function_handler()
+    def assign_anisotropic_impedance_to_sheet(
+        self, sheet_name, sourcename=None, ZxxResi=0, ZxxReac=0, ZxyResi=0, ZxyReac=0, ZyxResi=0, ZyxReac=0, ZyyResi=0, ZyyReac=0, is_infground=False, coord_sys="Global"
+        ):
+        """Create an anisotropic impedance taking one sheet.
+
+        Parameters
+        ----------
+        sheet_name : str
+            Name of the sheet to apply the boundary to.
+        sourcename : str, optional
+            Name of the anisotropic impedance. The default is ``None``.
+        ZxxResi : optional
+            Resistance value of xx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZxxReac : optional
+            Reactance value of xx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZxyResi : optional
+            Resistance value of xy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZxyReac : optional
+            Reactance value of xy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyxResi : optional
+            Resistance value of yx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyxReac : optional
+            Reactance value of yx component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyyResi : optional
+            Resistance value of yy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        ZyyReac : optional
+            Reactance value of yy component in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        is_infground : bool, optional
+            Whether the impedance is an infinite ground. The default is ``False``.
+        coord_sys : optional
+            The name of the coordinate system for the xy plane. The default is ``Global``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignAnisotropicImpedance
+
+        Examples
+        --------
+
+        Create a sheet and use it to create an anisotropic impedance.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
+        ...                                       [0, 0, 5], [10, 2], name="AnisotropicSheet")
+        >>> anisotropic_to_sheet = hfss.assign_anisotropic_impedance_to_sheet(sheet.name, "AnisotropicFromSheet",
+                                                                              ZxxResi=377, ZxyResi=50, ZyyReac=-20)
+        >>> type(anisotropic_to_sheet)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            if not sourcename:
+                sourcename = generate_unique_name("Anisotropic")
+            elif sourcename in self.modeler.get_boundaries_name():
+                sourcename = generate_unique_name(sourcename)
+            props = OrderedDict(
+                {
+                    "Objects": [sheet_name],
+                    "CoordSystem":      str(coord_sys),
+                    "InfGroundPlane":   is_infground,
+                    "ZxxResistance":    str(ZxxResi),
+                    "ZxxReactance":	    str(ZxxReac),
+                    "ZxyResistance":    str(ZxyResi),
+                    "ZxyReactance":	    str(ZxyReac),
+                    "ZyxResistance":    str(ZyxResi),
+                    "ZyxReactance":	    str(ZyxReac),
+                    "ZyyResistance":    str(ZyyResi),
+                    "ZyyReactance":     str(ZyyReac),
+                }
+            )
+            return self._create_boundary(sourcename, props, "Anisotropic Impedance")
+        return False
 
     @pyaedt_function_handler()
     def create_circuit_port_from_edges(
