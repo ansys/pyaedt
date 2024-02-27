@@ -3020,7 +3020,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def create_boundary(
-        self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
+        self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False, props={}
     ):
         """Create a boundary given specific inputs.
 
@@ -3036,6 +3036,8 @@ class Hfss(FieldAnalysis3D, object):
             Name of the boundary. The default is ``""``.
         is_infinite_gnd : bool, optional
             Whether the boundary is an infinite ground. The default is ``False``.
+        props : dict, optional
+            Additional properties for the boundary. The default is an empty dict ``{}``.
 
         Returns
         -------
@@ -3044,7 +3046,6 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        props = {}
         sheet_name = self.modeler.convert_to_selections(sheet_name, True)
         if type(sheet_name) is list:
             if type(sheet_name[0]) is str:
@@ -3063,6 +3064,12 @@ class Hfss(FieldAnalysis3D, object):
             props["IsFssReference"] = False
             props["IsForPML"] = False
             boundary_type = "Radiation"
+        elif boundary_type == self.BoundaryType.Impedance:
+            props["InfGroundPlane"] = is_infinite_gnd
+            boundary_type = "Impedance"
+        elif boundary_type == self.BoundaryType.AnisotropicImp:
+            props["InfGroundPlane"] = is_infinite_gnd
+            boundary_type = "Anisotropic Impedance"
         elif boundary_type == self.BoundaryType.Hybrid:
             props["IsLinkedRegion"] = False
             props["Type"] = "SBR+"
@@ -4738,6 +4745,65 @@ class Hfss(FieldAnalysis3D, object):
         else:
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
+
+    @pyaedt_function_handler()
+    def assign_impedance_boundary_to_faces(self, faces_id, boundary_name="", resistance=50, reactance=0, is_infground=False):
+        """Assign an impedance boundary to one or more faces.
+
+        Parameters
+        ----------
+        faces_id :
+            Face ID(s) to assign the impedance boundary condition to.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
+        resistance : optional
+            Resistance value in ohms. The default is ``50``. If ``None``,
+            this parameter is disabled.
+        reactance : optional
+            Reactance value in ohms. The default is ``0``. If ``None``,
+            this parameter is disabled.
+        is_infground : bool, optional
+            Whether the impedance is an infinite ground. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
+
+        Examples
+        --------
+
+        Create a box. Select the first 3 faces of this box and assign an impedance
+        boundary to them.
+
+        >>> impedance_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                         name="ImpedanceForFaces")
+        >>> ids = hfss.modeler["ImpedanceForFaces"].faces[:3]
+        >>> impedance = hfss.assign_impedance_boundary_to_faces(ids,
+        ...     boundary_name="ImpedanceToFaces", resistance=60, reactance=-20)
+        >>> type(impedance)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            faces_list = self.modeler.convert_to_selections(faces_id, True)
+            if not boundary_name:
+                boundary_name = generate_unique_name("Imped")
+            elif boundary_name in self.modeler.get_boundaries_name():
+                boundary_name = generate_unique_name(boundary_name)
+                
+            props = {"Resistance":  str(resistance),
+                     "Reactance":   str(reactance),}
+            
+            return self.create_boundary(self.BoundaryType.Impedance, faces_list, boundary_name, is_infground, props)
+        else:
+            return False
 
     @pyaedt_function_handler()
     def _create_sbr_doppler_setup(
