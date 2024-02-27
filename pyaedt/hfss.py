@@ -3047,7 +3047,7 @@ class Hfss(FieldAnalysis3D, object):
         is_infinite_gnd : bool, optional
             Whether the boundary is an infinite ground. The default is ``False``.
         props : dict, optional
-            Additional properties for the boundary. The default is an empty dict ``{}``.
+            Additional properties for the boundary. The default is ``{}``.
 
         Returns
         -------
