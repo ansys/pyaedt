@@ -3036,7 +3036,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        object_list : list
+        object_list : list, str
             List of objects to separate.
         create_group : bool, optional
             Whether to create a group. The default is ``False``.
@@ -3117,7 +3117,7 @@ class GeometryModeler(Modeler):
         blank_list : str, Object3d, int or List of str, int and Object3d.
             List of objects to subtract from. The list can be of
             either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
-        tool_list : list
+        tool_list : list, str
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
         keep_originals : bool, optional
@@ -3325,8 +3325,8 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        unite_list : list
-            List of objects.
+        unite_list : list, str
+            List of objects to unite.
         purge : bool, optional
             Purge history after unite. Default is False.
         keep_originals : bool, optional

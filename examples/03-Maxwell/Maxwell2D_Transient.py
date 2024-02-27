@@ -25,6 +25,14 @@ Install these libraries with:
 
 import os
 import pyaedt
+import tempfile
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -71,7 +79,7 @@ maxwell_2d.assign_balloon(region.edges)
 # ~~~~~~~~~~
 # Plot the model.
 
-maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.working_directory, "Image.jpg"), plot_air_objects=True)
+maxwell_2d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Create setup
@@ -113,29 +121,29 @@ face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
-animatedGif = maxwell_2d.post.plot_animated_field(
-    "Mag_B",
-    id_list,
-    "Surface",
+gif = maxwell_2d.post.plot_animated_field(
+    quantity="Mag_B",
+    object_list=id_list,
+    plot_type="Surface",
     intrinsics={"Time": "0s"},
     variation_variable="Time",
     variation_list=timesteps,
     show=False,
     export_gif=False,
 )
-animatedGif.isometric_view = False
-animatedGif.camera_position = [15, 15, 80]
-animatedGif.focal_point = [15, 15, 0]
-animatedGif.roll_angle = 0
-animatedGif.elevation_angle = 0
-animatedGif.azimuth_angle = 0
+gif.isometric_view = False
+gif.camera_position = [15, 15, 80]
+gif.focal_point = [15, 15, 0]
+gif.roll_angle = 0
+gif.elevation_angle = 0
+gif.azimuth_angle = 0
 # Set off_screen to False to visualize the animation.
-# animatedGif.off_screen = False
-animatedGif.animate()
+# gif.off_screen = False
+gif.animate()
 
 ###############################################################################
-# Generate plot outside of AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate plot outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate the same plot outside AEDT.
 
 solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
@@ -147,3 +155,4 @@ solutions.plot()
 # Close AEDT.
 
 maxwell_2d.release_desktop()
+temp_dir.cleanup()
