@@ -2864,8 +2864,8 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.cad.object3d.Object3d` or list of :class:`pyaedt.modeler.cad.object3d.Object3d`
+            One or more objects created.
 
         References
         ----------
@@ -2884,7 +2884,13 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        return self.update_object(objid)
+        if isinstance(objid, list):
+            updated_obj = []
+            for sel_obj in objid:
+                updated_obj.append(self.update_object(sel_obj))
+            return updated_obj
+        else:
+            return self.update_object(objid)
 
     @pyaedt_function_handler()
     def sweep_along_path(
@@ -4644,32 +4650,6 @@ class GeometryModeler(Modeler):
         )
         self.refresh_all_ids()
         return True
-
-    @pyaedt_function_handler()
-    def import_primitives_from_file(self, input_file=None, input_dict=None):
-        """Import and create primitives from a JSON file or dictionary of properties.
-
-        Parameters
-        ----------
-        input_file : str, optional
-            Path to a JSON file containing report settings.
-        input_dict : dict, optional
-            Dictionary containing report settings.
-
-        Returns
-        -------
-        list
-            List of created primitives.
-
-        Examples
-        --------
-        >>> from pyaedt import Icepak
-        >>> aedtapp = Icepak()
-        >>> aedtapp.modeler.import_primitives_from_file(r'C:\temp\primitives.json')
-        """
-        primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
-        primitive_names = primitives_builder.create()
-        return primitive_names
 
     @pyaedt_function_handler()
     def modeler_variable(self, value):
