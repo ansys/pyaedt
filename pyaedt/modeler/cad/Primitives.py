@@ -8641,30 +8641,30 @@ class PrimitivesBuilder(object):
                 self.logger.error(msg)
                 raise ValueError
 
-            if not props_cyl:
-                props_cyl = {"Primitives": [primitive_props], "Instances": [instances_props]}
+            if not props_box:
+                props_box = {"Primitives": [primitive_props], "Instances": [instances_props]}
             else:
-                props_cyl["Primitives"].append(primitive_props.copy())
-                props_cyl["Instances"].append(instances_props.copy())
+                props_box["Primitives"].append(primitive_props.copy())
+                props_box["Instances"].append(instances_props.copy())
 
             col_cont = 0
             # Check for nan values in each column
             for value in row_info:
                 if csv_keys[col_cont] == "name":
-                    props_cyl["Primitives"][row_cont]["Name"] = str(value)
-                    props_cyl["Instances"][row_cont]["Name"] = str(value)
+                    props_box["Primitives"][row_cont]["Name"] = str(value)
+                    props_box["Instances"][row_cont]["Name"] = str(value)
                 elif csv_keys[col_cont] == "xc":
-                    props_cyl["Instances"][row_cont]["Origin"][0] = float(value)
+                    props_box["Instances"][row_cont]["Origin"][0] = float(value)
                 elif csv_keys[col_cont] == "yc":
-                    props_cyl["Instances"][row_cont]["Origin"][1] = float(value)
+                    props_box["Instances"][row_cont]["Origin"][1] = float(value)
                 elif csv_keys[col_cont] == "zc":
-                    props_cyl["Instances"][row_cont]["Origin"][2] = float(value)
+                    props_box["Instances"][row_cont]["Origin"][2] = float(value)
                 elif csv_keys[col_cont] == "xd":
-                    props_cyl["Primitives"][row_cont]["X Length"] = float(value)
+                    props_box["Primitives"][row_cont]["X Length"] = float(value)
                 elif csv_keys[col_cont] == "yd":
-                    props_cyl["Primitives"][row_cont]["Y Length"] = float(value)
+                    props_box["Primitives"][row_cont]["Y Length"] = float(value)
                 elif csv_keys[col_cont] == "zd":
-                    props_cyl["Primitives"][row_cont]["Z Length"] = float(value)
+                    props_box["Primitives"][row_cont]["Z Length"] = float(value)
                 col_cont += 1
             row_cont += 1
         return props_box
