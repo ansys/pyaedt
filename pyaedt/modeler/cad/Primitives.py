@@ -156,7 +156,7 @@ class GeometryModeler(Modeler):
             if len(args) == 1 and type(args[0]) is list:
                 try:
                     self.X = args[0][0]
-                except:  # pragma: no cover
+                except:
                     self.X = 0
                 try:
                     self.Y = args[0][1]
@@ -166,7 +166,7 @@ class GeometryModeler(Modeler):
                     self.Z = args[0][2]
                 except:
                     self.Z = 0
-            else:  # pragma: no cover
+            else:
                 try:
                     self.X = args[0]
                 except:
@@ -2864,8 +2864,8 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d` or list of :class:`pyaedt.modeler.cad.object3d.Object3d`
-            One or more objects created.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -2884,13 +2884,7 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        if isinstance(objid, list):
-            updated_obj = []
-            for sel_obj in objid:
-                updated_obj.append(self.update_object(sel_obj))
-            return updated_obj
-        else:
-            return self.update_object(objid)
+        return self.update_object(objid)
 
     @pyaedt_function_handler()
     def sweep_along_path(
@@ -7504,7 +7498,7 @@ class GeometryModeler(Modeler):
         candidate_edges = []
         for ei in port_edges:
             vertices_i = self.get_edge_vertices(ei)
-            if len(vertices_i) == 1:  # pragma: no cover
+            if len(vertices_i) == 1:  # maybe a circle
                 vertex1_i = self.get_vertex_position(vertices_i[0])
                 area_i = self.get_face_area(self.get_object_faces(port_sheet)[0])
                 if area_i is None or area_i < tol2:  # degenerated face
@@ -8517,12 +8511,13 @@ class PrimitivesBuilder(object):
 
     @pyaedt_function_handler()
     def _read_csv_cylinder_props(self, csv_data):
-        """Convert cylinder CSV data to ``PrimitivesBuilder`` properties.
+        """Convert CSV data to ``PrimitivesBuilder`` properties.
+
+        Create a cylinder instance.
 
         Parameters
         ----------
         csv_data : :class:`pandas.DataFrame`
-            Cylinder properties in CSV format.
 
         Returns
         -------
@@ -8602,7 +8597,6 @@ class PrimitivesBuilder(object):
         Parameters
         ----------
         csv_data : :class:`pandas.DataFrame`
-            Box properties in CSV format.
 
         Returns
         -------
@@ -8767,7 +8761,7 @@ class PrimitivesBuilder(object):
                 if not phi:
                     phi = "0deg"
                     cs["Phi"] = phi
-                elif isinstance(phi, (int, float)):  # pragma: no cover
+                elif isinstance(phi, (int, float)):
                     phi = str(phi) + "deg"
                     cs["Phi"] = phi
 
