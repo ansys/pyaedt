@@ -503,12 +503,13 @@ class TestClass:
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plot1.name,
+            plotname=plot1.name,
             project_path=self.local_scratch.path,
             meshplot=False,
             imageformat="jpg",
-            view="isometric",
+            view="xy",
             show=False,
+            plot_label=plot1.name + " label",
         )
         assert os.path.exists(plot_obj.image_file)
         os.unlink(plot_obj.image_file)

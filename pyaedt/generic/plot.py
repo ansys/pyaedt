@@ -1758,9 +1758,10 @@ class ModelPlotter(CommonPlotter):
             )
 
         for field in self._fields:
+            sargs["title"] = field.label
             field._cached_mesh = self.pv.add_mesh(
                 field._cached_polydata,
-                scalars=field.label,
+                scalars=field.scalar_name,
                 log_scale=False if self.convert_fields_in_db else field.log_scale,
                 scalar_bar_args=sargs,
                 cmap=field.color_map,
@@ -1774,14 +1775,14 @@ class ModelPlotter(CommonPlotter):
             mins = 1e20
             maxs = -1e20
             for el in self.frames:
-                if np.min(el._cached_polydata.point_data[el.label]) < mins:
-                    mins = np.min(el._cached_polydata.point_data[el.label])
-                if np.max(el._cached_polydata.point_data[el.label]) > maxs:
-                    maxs = np.max(el._cached_polydata.point_data[el.label])
+                if np.min(el._cached_polydata.point_data[el.scalar_name]) < mins:
+                    mins = np.min(el._cached_polydata.point_data[el.scalar_name])
+                if np.max(el._cached_polydata.point_data[el.scalar_name]) > maxs:
+                    maxs = np.max(el._cached_polydata.point_data[el.scalar_name])
 
         self.frames[0]._cached_mesh = self.pv.add_mesh(
             self.frames[0]._cached_polydata,
-            scalars=self.frames[0].label,
+            scalars=self.frames[0].scalar_name,
             log_scale=False if self.convert_fields_in_db else self.frames[0].log_scale,
             scalar_bar_args=sargs,
             cmap=self.frames[0].color_map,
@@ -1800,6 +1801,12 @@ class ModelPlotter(CommonPlotter):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
                 self.pv.camera.up = self.view_up
+            elif self.camera_position == "xy":
+                self.pv.view_xy()
+            elif self.camera_position == "xz":
+                self.pv.view_xz()
+            elif self.camera_position == "yz":
+                self.pv.view_yz()
             else:
                 self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
@@ -1832,7 +1839,7 @@ class ModelPlotter(CommonPlotter):
                     break
                 i = 0
                 first_loop = False
-            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].label]
+            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].scalar_name]
             self.pv.update_scalars(scalars, render=False)
             if not hasattr(self.pv, "ren_win"):
                 break
