@@ -391,7 +391,11 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        file_to_add = self.export_field_plot(plotname, self._app.working_directory, file_format="case")
+        if self.field_plots[plotname].field_type == "DC R/L Fields":
+            file_format = "fldplt"
+        else:
+            file_format = "case"
+        file_to_add = self.export_field_plot(plotname, self._app.working_directory, file_format=file_format)
         model = self.get_model_plotter_geometries(
             generate_mesh=False,
             get_objects_from_aedt=plot_cad_objs,

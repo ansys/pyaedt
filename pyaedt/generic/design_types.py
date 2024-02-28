@@ -1723,7 +1723,7 @@ def Siwave(
     specified_version=None,
 ):
     """Siwave Class."""
-    from pyaedt.siwave import Siwave as app
+    from pyedb.siwave import Siwave as app
 
     return app(
         specified_version=specified_version,
