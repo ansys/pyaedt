@@ -54,6 +54,58 @@ jobs:
         run: |
           python -c "import pyaedt; from pyaedt import __version__"
 
+  doc-build:
+    name: Documentation build without examples
+    runs-on: ubuntu-latest
+    needs: [doc-style]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Update pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install pyaedt and documentation dependencies
+        run: |
+          pip install .[doc]
+
+      - name: Retrieve PyAEDT version
+        id: version
+        run: |
+          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+
+      - name: Install OS packages
+        run: |
+          sudo apt update
+          sudo apt install libgl1-mesa-glx xvfb graphviz
+
+      # TODO: Update this step once pyaedt-examples is ready
+      - name: Build documentation without examples
+        run: |
+          make -C doc clean
+          mkdir doc/source/examples -p
+          echo $'Examples\n========' > doc/source/examples/index.rst
+          xvfb-run make -C doc html-noexamples
+
+      # # Verify that sphinx generates no warnings
+      # - name: Check for warnings
+      #   run: |
+      #     python doc/print_errors.py
+
+      # - name: Upload HTML documentation without examples artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: documentation-no-examples-html
+      #     path: doc/_build/html
+      #     retention-days: 7
+
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
