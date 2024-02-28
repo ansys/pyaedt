@@ -80,7 +80,7 @@ class ReportTemplate:
 
     @property
     def config_file(self):
-        """configuration file.
+        """Configuration file.
 
         Returns
         -------
