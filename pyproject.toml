@@ -108,6 +108,31 @@ doc = [
     "sphinx_design",
     "sphinx_jinja",
 ]
+doc-noexamples = [
+    "ansys-sphinx-theme==0.13.1",
+    "imageio==2.31.5",
+    "imageio-ffmpeg==0.4.9",
+    "matplotlib==3.5.3; python_version == '3.7'",
+    "matplotlib==3.7.3; python_version == '3.8'",
+    "matplotlib==3.8.0; python_version > '3.8'",
+    "numpydoc==1.5.0; python_version == '3.7'",
+    "numpydoc==1.6.0; python_version > '3.7'",
+    "vtk==9.2.6",
+    "pyvista==0.42.2; python_version > '3.7'",
+    "pyvista==0.38.0; python_version <= '3.7'",
+    "recommonmark==0.7.1",
+    "Sphinx==7.1.2; python_version <= '3.9'",
+    "Sphinx==7.2.6; python_version >= '3.9'",
+    "sphinx-autodoc-typehints==1.24.0",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-gallery==0.14.0",
+    "sphinx-notfound-page==1.0.0",
+    "sphinxcontrib-websupport==1.2.4; python_version <= '3.9'",
+    "sphinxcontrib-websupport==1.2.5; python_version <= '3.7'",
+    "sphinx_design",
+    "sphinx_jinja",
+]
+
 full = [
     "imageio",
     "matplotlib==3.5.3; python_version == '3.7'",
@@ -146,6 +171,9 @@ all = [
     "utm",
     "scikit-rf==0.31.0",
     "openpyxl==3.1.2",
+]
+ci = [
+    "vtk-osmesa==9.2.20230527.dev0",
 ]
 
 [tool.flit.module]

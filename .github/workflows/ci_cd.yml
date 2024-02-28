@@ -73,7 +73,7 @@ jobs:
 
       - name: Install pyaedt and documentation dependencies
         run: |
-          pip install .[doc]
+          pip install .[doc-noexamples]
 
       - name: Retrieve PyAEDT version
         id: version
@@ -81,10 +81,9 @@ jobs:
           echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      - name: Install OS packages
+      - name: Install OS package
         run: |
-          sudo apt update
-          sudo apt install libgl1-mesa-glx xvfb graphviz
+          sudo apt install graphviz
 
       # TODO: Update this step once pyaedt-examples is ready
       - name: Build documentation without examples
@@ -92,7 +91,7 @@ jobs:
           make -C doc clean
           mkdir doc/source/examples -p
           echo $'Examples\n========' > doc/source/examples/index.rst
-          xvfb-run make -C doc html-noexamples
+          make -C doc html-noexamples
 
       # # Verify that sphinx generates no warnings
       # - name: Check for warnings
