@@ -109,100 +109,65 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-#   testing-windows:
-#     name: Testing and coverage (Windows)
-#     needs: [smoke-tests]
-#     runs-on: [ self-hosted, windows-latest, pyaedt ]
-#     continue-on-error: ${{ matrix.experimental }}
-#     strategy:
-#       fail-fast: false
-#     steps:
-#       - name: Install Git and clone project
-#         uses: actions/checkout@v4
+  test-solver-windows:
+    name: Testing solvers and coverage (Windows)
+    needs: [smoke-tests]
+    runs-on: runs-on: [ self-hosted, Windows, pyaedt ]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
 
-#       - name: Set up Python without using cache
-#         uses: actions/setup-python@v5
-#         if: inputs.use-cache == 'false'
-#         with:
-#           python-version: ${{ inputs.MAIN_PYTHON_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-#       - name: Create Python virtual environment
-#         run: |
-#           python -m venv .venv
-#           . .venv\Scripts\Activate.ps1
-#           python -m pip install -U pip
-#           python -m pip install wheel setuptools -U
-#           python -c "import sys; print(sys.executable)"
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
 
-#       - name: Install Python library and tests dependencies
-#         run: |
-#           . .venv\Scripts\Activate.ps1
-#           python -m pip install .[tests]
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
 
-#       - name: Uninstall conflicting CI packages
-#         run: |
-#           .\.venv\Scripts\Activate.ps1
-#           pip uninstall vtk -y
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          .venv\Scripts\Activate.ps1
+          # Uninstall conflicting dependencies
+          pip uninstall vtk -y
+          pip install --extra-index-url https://wheels.vtk.org .[ci]
 
-#       - name: Install CI related dependencies
-#         run: |
-#           .\.venv\Scripts\Activate.ps1
-#           pip install --extra-index-url https://wheels.vtk.org .[ci]
+      - name: 'Unit testing'
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            .venv\Scripts\Activate.ps1
+            Set-Item -Path env:PYTHONMALLOC -Value "malloc"
+            pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
-#       - name: "Executing legacy tests"
-#         uses: nick-fields/retry@v3
-#         with:
-#           max_attempts: 3
-#           retry_on: error
-#           timeout_minutes: 10
-#           command: |
-#             . .venv\Scripts\Activate.ps1
-#             Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-#             pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
-#             pytest -m "legacy" -n auto --dist loadfile -v --cov
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-system-solver-tests
+          file: ./coverage.xml
+          flags: system,solver
 
-#       - name: "Create coverage files"
-#         run: |
-#           . .venv\Scripts\Activate.ps1
-#           python -m coverage html -d .cov\legacy-html
-#           python -m coverage xml -o .cov\legacy.xml
-
-#       - name: Upload Coverage Results
-#         if: always()
-#         uses: actions/upload-artifact@v4
-#         with:
-#           path: .cov\legacy-html
-#           name: html-legacy-coverage
-#           retention-days: 7
-
-#       - name: Upload coverage to Codecov
-#         uses: codecov/codecov-action@v3
-#         env:
-#           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-#         with:
-#           files: .cov/legacy.xml
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-solver-results
+          path: junit/test-results.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
