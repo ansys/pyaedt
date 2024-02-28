@@ -1409,7 +1409,7 @@ class ModelPlotter(CommonPlotter):
                         else:
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
                             filedata.point_data[field.label] = np.array(values)
-                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                            field.scalar_name = filedata.point_data.active_scalars_name
                         field._cached_polydata = filedata
 
     @pyaedt_function_handler()
