@@ -189,6 +189,10 @@ addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xm
 testpaths = [
     "_unittest",
 ]
+filterwarnings = [  
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning:pyaedt.*"
+]
 
 [tool.numpydoc_validation]
 checks = [
