@@ -17,12 +17,12 @@ import pyaedt
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_custom_reports(destination=temp_folder)
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
 
-desktopVersion = "2023.2"
+aedt_version = "2024.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -43,7 +43,7 @@ NewThread = True
 
 cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
                      non_graphical=non_graphical,
-                     specified_version=desktopVersion,
+                     specified_version=aedt_version,
                      new_desktop_session=True
                      )
 cir.analyze()

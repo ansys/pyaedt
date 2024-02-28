@@ -47,7 +47,7 @@ target = pyaedt.Hfss(
 
 source = pyaedt.Hfss(projectname=target.project_name,
                      designname="feeder",
-                     specified_version="2023.2",
+                     specified_version=aedt_version,
                      )
 
 ###############################################################################
