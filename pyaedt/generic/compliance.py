@@ -400,7 +400,7 @@ class VirtualCompliance:
         name = report["name"]
 
         if name in self._reports.values():
-            self._desktop_class.logger.warning(f"{name} already exists. name has to be unique.")
+            self._desktop_class.logger.warning(f"{name} already exists. The name must be unique.")
         else:
             if is_parameter:
                 self._parameters[report["name"]] = ParametersTemplate(report)
