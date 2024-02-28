@@ -268,7 +268,7 @@ class VirtualCompliance:
     template : str
         Full path to the template. Supported formats are JSON and TOML.
     project_path : str, optional
-        Full path to the project to use. If provided, it will ignore the project field inside the template.
+        Full path to the project. If a path is provided, the project field inside the template is ignored.
     """
 
     def __init__(self, desktop, template):
