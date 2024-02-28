@@ -677,7 +677,7 @@ class VirtualCompliance:
             ]
         ]
         if not trace_data:  # pragma: no cover
-            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
+            msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
             self._desktop_class.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
