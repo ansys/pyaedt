@@ -141,6 +141,9 @@ class Analysis(Design, object):
         self.VIEW = VIEW()
         self.GRAVITY = GRAVITY()
 
+        if not settings.lazy_load:
+            self._materials = self.materials
+
     @property
     def native_components(self):
         """Native Component dictionary.

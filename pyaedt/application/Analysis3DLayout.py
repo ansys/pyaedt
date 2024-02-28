@@ -4,6 +4,7 @@ from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations3DLayout
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
 
@@ -91,6 +92,10 @@ class FieldAnalysis3DLayout(Analysis):
         self._mesh = None
         self._post = None
         self._configurations = Configurations3DLayout(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
 
     @property
     def configurations(self):
