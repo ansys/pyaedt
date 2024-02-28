@@ -100,19 +100,13 @@ project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
-
-# Check for the local config file, otherwise use default desktop configuration
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
-    with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    config = {"run_examples": True}
-
 release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
+
+# Do not run examples by default
+run_examples = bool(int(os.getenv("PYAEDT_DOC_RUN_EXAMPLES", "0")))
 
 # -- General configuration ---------------------------------------------------
 
@@ -236,7 +230,6 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
 
@@ -255,7 +248,8 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
+# if is_windows and bool(os.getenv("PYAEDT_CI_RUN_EXAMPLES", "0")):
+if run_examples:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
@@ -267,37 +261,32 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
-    if config["run_examples"]:
-        extensions.append("sphinx_gallery.gen_gallery")
-
-        sphinx_gallery_conf = {
-            # convert rst to md for ipynb
-            "pypandoc": True,
-            # path to your examples scripts
-            "examples_dirs": ["../../examples/"],
-            # path where to save gallery generated examples
-            "gallery_dirs": ["examples"],
-            # Pattern to search for examples files
-            "filename_pattern": r"\.py",
-            # Remove the "Download all examples" button from the top level gallery
-            "download_all_examples": False,
-            # Sort gallery examples by file name instead of number of lines (default)
-            "within_subsection_order": FileNameSortKey,
-            # directory where function granular galleries are stored
-            "backreferences_dir": None,
-            # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-pyaedt",
-            "image_scrapers": ("pyvista", "matplotlib"),
-            "ignore_pattern": "flycheck*",
-            "thumbnail_size": (350, 350),
-            # 'first_notebook_cell': ("%matplotlib inline\n"
-            #                         "from pyvista import set_plot_theme\n"
-            #                         "set_plot_theme('document')"),
-        }
+    extensions.append("sphinx_gallery.gen_gallery")
+    sphinx_gallery_conf = {
+        # convert rst to md for ipynb
+        "pypandoc": True,
+        # path to your examples scripts
+        "examples_dirs": ["../../examples/"],
+        # path where to save gallery generated examples
+        "gallery_dirs": ["examples"],
+        # Pattern to search for examples files
+        "filename_pattern": r"\.py",
+        # Remove the "Download all examples" button from the top level gallery
+        "download_all_examples": False,
+        # Sort gallery examples by file name instead of number of lines (default)
+        "within_subsection_order": FileNameSortKey,
+        # Directory where function granular galleries are stored
+        "backreferences_dir": None,
+        # Modules for which function level galleries are created.  In
+        "doc_module": "ansys-pyaedt",
+        "image_scrapers": ("pyvista", "matplotlib"),
+        "ignore_pattern": "flycheck*",
+        "thumbnail_size": (350, 350),
+    }
 
 jinja_contexts = {
     "main_toctree": {
-        "run_examples": config["run_examples"],
+        "run_examples": run_examples,
     },
 }
 # def prepare_jinja_env(jinja_env) -> None:
