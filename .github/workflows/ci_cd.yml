@@ -112,7 +112,7 @@ jobs:
   test-solver-windows:
     name: Testing solvers and coverage (Windows)
     needs: [smoke-tests]
-    runs-on: runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install Git and checkout project
@@ -176,7 +176,7 @@ jobs:
   test-windows:
     name: Testing and coverage (Windows)
     needs: [smoke-tests]
-    runs-on: runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install Git and checkout project
