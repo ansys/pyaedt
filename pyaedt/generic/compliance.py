@@ -189,7 +189,7 @@ class ParametersTemplate:
 
     @property
     def pass_fail_criteria(self):
-        """Define pass fail criteria.
+        """Pass/fail criteria.
 
         Returns
         -------
