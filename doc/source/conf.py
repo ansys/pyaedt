@@ -7,9 +7,7 @@ import pathlib
 import sys
 import warnings
 
-import pyvista
 import numpy as np
-import json
 from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (ansys_favicon, 
                                 get_version_match, pyansys_logo_black,
@@ -230,26 +228,27 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# Manage errors
-pyvista.set_error_output_file("errors.txt")
-
-# Ensure that offscreen rendering is used for docs generation
-pyvista.OFF_SCREEN = True
-
-# Preferred plotting style for documentation
-# pyvista.set_plot_theme('document')
-
-# must be less than or equal to the XVFB window size
-pyvista.global_theme["window_size"] = np.array([1024, 768])
-
-# Save figures in specified directory
-pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
-if not os.path.exists(pyvista.FIGURE_PATH):
-    os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
 # if is_windows and bool(os.getenv("PYAEDT_CI_RUN_EXAMPLES", "0")):
 if run_examples:
+    import pyvista
+
+    # # Pyvista settings
+
+    # Ensure that offscreen rendering is used for docs generation
+    pyvista.OFF_SCREEN = True
+    # Save figures in specified directory
+    pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
+    if not os.path.exists(pyvista.FIGURE_PATH):
+        os.makedirs(pyvista.FIGURE_PATH)
+    # Necessary for pyvista when building the sphinx gallery
+    pyvista.BUILDING_GALLERY = True
+
+    # Manage errors
+    pyvista.set_error_output_file("errors.txt")
+    # Must be less than or equal to the XVFB window size
+    pyvista.global_theme["window_size"] = np.array([1024, 768])
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
@@ -257,9 +256,6 @@ if run_examples:
         category=UserWarning,
         message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
     )
-
-    # necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
 
     extensions.append("sphinx_gallery.gen_gallery")
     sphinx_gallery_conf = {
@@ -289,18 +285,6 @@ jinja_contexts = {
         "run_examples": run_examples,
     },
 }
-# def prepare_jinja_env(jinja_env) -> None:
-#     """
-#     Customize the jinja env.
-#
-#     Notes
-#     -----
-#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
-#     """
-#     jinja_env.globals["project_name"] = project
-#
-#
-# autoapi_prepare_jinja_env = prepare_jinja_env
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
