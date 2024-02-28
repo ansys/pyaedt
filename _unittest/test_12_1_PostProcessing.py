@@ -527,6 +527,19 @@ class TestClass:
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
+        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
+            plotname=plot1.name,
+            project_path=self.local_scratch.path,
+            meshplot=False,
+            imageformat="jpg",
+            view="xy",
+            show=False,
+            plot_label=plot1.name + " label",
+            file_format="aedtplt",
+        )
+        assert os.path.exists(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file)
+
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14B_Field_Ploton_Vector(self):
         cutlist = ["Global:XY"]

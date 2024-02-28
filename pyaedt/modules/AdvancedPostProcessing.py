@@ -330,6 +330,7 @@ class PostProcessor(Post):
         show_bounding=False,
         show_legend=True,
         plot_as_separate_objects=True,
+        file_format="case",
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -377,6 +378,12 @@ class PostProcessor(Post):
             Whether to display the legend or not. The default is ``True``.
         plot_as_separate_objects : bool, optional
             Plot each object separately. It may require more time to export from AEDT.
+        file_format : str, optional
+            File format of the exported plot.
+            Available options are: ``"case"`` or ``"aedtplt"``.
+            In case the active design is a Q3D design, the file format is automatically
+            set to ``"fldplt"``.
+            The default is ``"case"``.
 
         Returns
         -------
@@ -393,8 +400,6 @@ class PostProcessor(Post):
 
         if self.field_plots[plotname].field_type == "DC R/L Fields":
             file_format = "fldplt"
-        else:
-            file_format = "case"
         file_to_add = self.export_field_plot(plotname, self._app.working_directory, file_format=file_format)
         model = self.get_model_plotter_geometries(
             generate_mesh=False,

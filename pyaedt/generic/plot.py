@@ -1345,12 +1345,12 @@ class ModelPlotter(CommonPlotter):
                         field._cached_polydata.point_data[field.label] = np.array(
                             [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
                         )
-                        field.scalar_name = field.label
+                        field.scalar_name = field.field._cached_polydata.point_data.active_scalars_name
 
                         field.is_vector = True
                     else:
                         field._cached_polydata.point_data[field.label] = scalars[0]
-                        field.scalar_name = field.label
+                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                         field.is_vector = False
                     field.log = log1
                 else:
@@ -1403,13 +1403,13 @@ class ModelPlotter(CommonPlotter):
                             filedata["vectors"] = np.vstack(values) * vector_scale
                             field.label = "Vector " + field.label
                             filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
-                            field.scalar_name = field.label
+                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                             field.is_vector = True
                             field.is_vector = True
                         else:
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
                             filedata.point_data[field.label] = np.array(values)
-                            field.scalar_name = field.label
+                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                         field._cached_polydata = filedata
 
     @pyaedt_function_handler()
