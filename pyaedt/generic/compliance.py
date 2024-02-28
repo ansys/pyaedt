@@ -66,7 +66,7 @@ class ReportTemplate:
 
     @property
     def group_plots(self):
-        """Group plots in single chart or keep independent.
+        """Flag indicating if plots are grouped into a single chart or kept independent.
 
         Returns
         -------
