@@ -13,6 +13,13 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Setup project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,7 +38,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
+edb = pyaedt.Edb(aedb_project, edbversion=aedt_version)
 edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
                               use_pyaedt_extent_computing=True, )
 
@@ -71,7 +78,7 @@ location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=True, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, specified_version=aedt_version, non_graphical=True, new_desktop_session=True)
 
 ###############################################################################
 # Export to Q3D

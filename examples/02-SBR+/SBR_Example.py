@@ -15,6 +15,13 @@ import pyaedt
 
 project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -33,7 +40,7 @@ target = pyaedt.Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2023.2",
+    specified_version=aedt_version,
     new_desktop_session=True,
     non_graphical=non_graphical
 )
