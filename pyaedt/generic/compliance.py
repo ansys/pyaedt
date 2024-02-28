@@ -569,6 +569,7 @@ class VirtualCompliance:
                             pdf_report.add_section()
                         else:
                             first_trace = False
+                        pdf_report.add_page_break()
                         pdf_report.add_sub_chapter(f"{name} for trace {trace}")
                         sleep_time = 10
                         while sleep_time > 0:
