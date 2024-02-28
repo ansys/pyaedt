@@ -301,7 +301,7 @@ class VirtualCompliance:
 
     @property
     def reports(self):
-        """Reports available in the Virtual complaince.
+        """Reports available in the Virtual compliance.
 
         Returns
         -------
