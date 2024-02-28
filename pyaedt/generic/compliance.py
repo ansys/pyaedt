@@ -481,7 +481,7 @@ class VirtualCompliance:
         for template_report in self._reports.values():
             config_file = template_report.config_file
             if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
-                self._desktop_class.logger.error(f"{config_file} not found.")
+                self._desktop_class.logger.error(f"{config_file} is not found.")
                 continue
             name = template_report.name
             traces = template_report.traces
