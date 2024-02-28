@@ -125,7 +125,7 @@ class ReportTemplate:
 
     @property
     def pass_fail(self):
-        """Define if apply pass fail criteria.
+        """Flag indicating if pass/fail criteria is applied.
 
         Returns
         -------
