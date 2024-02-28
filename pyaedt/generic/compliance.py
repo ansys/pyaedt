@@ -203,7 +203,7 @@ class ParametersTemplate:
 
     @property
     def config_file(self):
-        """configuration file.
+        """Configuration file.
 
         Returns
         -------
