@@ -287,9 +287,16 @@ class VirtualCompliance:
         self._parse_template()
         self._desktop_class = desktop
 
+    @pyaedt_function_handler()
     def load_project(self):
+        """Open the aedt project in Electronics Desktop.
+
+        Returns
+        -------
+        bool
+        """
         if not self._project_file:
-            self._desktop_class.logger.error("Project is missed.")
+            self._desktop_class.logger.error("Project path has not been provided.")
             return False
         self._desktop_class.load_project(self._project_file)
         project = self._desktop_class.odesktop.GetActiveProject()
@@ -298,6 +305,7 @@ class VirtualCompliance:
             project.GetPath(), self._project_name + ".pyaedt", generate_unique_name(self._template_name)
         )
         os.makedirs(self._output_folder, exist_ok=True)
+        return True
 
     @property
     def reports(self):
