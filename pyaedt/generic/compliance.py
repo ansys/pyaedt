@@ -917,13 +917,15 @@ class VirtualCompliance:
                     report.add_table("Components", components, col_widths=[75, 275])
 
     @pyaedt_function_handler()
-    def create_compliance_report(self, file_name="compliance_test.pdf"):
+    def create_compliance_report(self, file_name="compliance_test.pdf", close_project=True):
         """Create the Virtual Compliance report.
 
         Parameters
         ----------
         file_name : str
             Output file name.
+        close_project : bool, optional
+            Whether to close the project at the end of the report generation or not. Default is `True`.
 
         Returns
         -------
@@ -962,6 +964,8 @@ class VirtualCompliance:
             self._create_project_info(report)
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
+        if close_project:
+            self._desktop_class.odesktop.CloseProject(self._project_file)
         if output:
             self._desktop_class.logger.info(f"Report has been saved in {output}")
         return output
