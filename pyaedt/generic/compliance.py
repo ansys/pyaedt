@@ -66,7 +66,7 @@ class ReportTemplate:
 
     @property
     def group_plots(self):
-        """Group plots in single chart or keep independent.
+        """Flag indicating if plots are grouped into a single chart or kept independent.
 
         Returns
         -------
@@ -80,7 +80,7 @@ class ReportTemplate:
 
     @property
     def config_file(self):
-        """configuration file.
+        """Configuration file.
 
         Returns
         -------
@@ -125,7 +125,7 @@ class ReportTemplate:
 
     @property
     def pass_fail(self):
-        """Define if apply pass fail criteria.
+        """Flag indicating if pass/fail criteria is applied.
 
         Returns
         -------
@@ -189,7 +189,7 @@ class ParametersTemplate:
 
     @property
     def pass_fail_criteria(self):
-        """Define pass fail criteria.
+        """Pass/fail criteria.
 
         Returns
         -------
@@ -203,7 +203,7 @@ class ParametersTemplate:
 
     @property
     def config_file(self):
-        """configuration file.
+        """Configuration file.
 
         Returns
         -------
@@ -245,7 +245,7 @@ class ParametersTemplate:
 
     @property
     def pass_fail(self):
-        """Define if apply pass fail criteria.
+        """Flag indicating if pass/fail criteria is applied.
 
         Returns
         -------
@@ -268,7 +268,7 @@ class VirtualCompliance:
     template : str
         Full path to the template. Supported formats are JSON and TOML.
     project_path : str, optional
-        Full path to the project to use. If provided, it will ignore the project field inside the template.
+        Full path to the project. If a path is provided, the project field inside the template is ignored.
     """
 
     def __init__(self, desktop, template):
@@ -301,7 +301,7 @@ class VirtualCompliance:
 
     @property
     def reports(self):
-        """Reports available in the Virtual complaince.
+        """Reports available in the virtual compliance.
 
         Returns
         -------
@@ -400,7 +400,7 @@ class VirtualCompliance:
         name = report["name"]
 
         if name in self._reports.values():
-            self._desktop_class.logger.warning(f"{name} already exists. name has to be unique.")
+            self._desktop_class.logger.warning(f"{name} already exists. The name must be unique.")
         else:
             if is_parameter:
                 self._parameters[report["name"]] = ParametersTemplate(report)
@@ -481,7 +481,7 @@ class VirtualCompliance:
         for template_report in self._reports.values():
             config_file = template_report.config_file
             if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
-                self._desktop_class.logger.error(f"{config_file} not found.")
+                self._desktop_class.logger.error(f"{config_file} is not found.")
                 continue
             name = template_report.name
             traces = template_report.traces
@@ -688,7 +688,7 @@ class VirtualCompliance:
             ]
         ]
         if not trace_data:  # pragma: no cover
-            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
+            msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
             self._desktop_class.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
