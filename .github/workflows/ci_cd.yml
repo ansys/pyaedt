@@ -240,7 +240,6 @@ jobs:
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
-    steps:
       - uses: actions/checkout@v4
 
       - name: Run Ironpython tests
