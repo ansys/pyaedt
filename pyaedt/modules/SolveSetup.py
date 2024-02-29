@@ -1975,7 +1975,7 @@ class Setup3DLayout(CommonSetup):
             if len(obj_list) == 1:
                 net = net.replace("-", "m")
                 net = net.replace("+", "p")
-                net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                 obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
@@ -1984,7 +1984,7 @@ class Setup3DLayout(CommonSetup):
                 try:
                     net = net.replace("-", "m")
                     net = net.replace("+", "p")
-                    net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                    net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
                 except:
