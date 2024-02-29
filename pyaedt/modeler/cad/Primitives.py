@@ -5940,6 +5940,8 @@ class GeometryModeler(Modeler):
             Choose the padding definition. Available options are: ``"Percentage Offset"``,
             ``"Transverse Percentage Offset"``, ``"Absolute Offset"`` and
             ``"Absolute Position"``. The default is ``"Percentage Offset"``.
+        region_name : str, optional
+            String with region name. Default is "Region".
 
         Returns
         -------
@@ -5966,9 +5968,7 @@ class GeometryModeler(Modeler):
                 pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
             pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
 
-        return self._create_region(
-            self, pad_value=300, pad_type="Percentage Offset", region_name="Region", type="Region"
-        )
+        return self._create_region(pad_value, pad_type, region_name, region_type="Region")
 
     @pyaedt_function_handler()
     def create_object_from_edge(self, edge, non_model=False):

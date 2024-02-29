@@ -8,6 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.MeshIcepak import MeshRegion
 
 test_subfolder = "T98"
 
@@ -75,7 +76,7 @@ class TestClass:
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
         self.aedtapp.create_meshregion_component()
-        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
+        pcb_mesh_region = MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
         pcb_mesh_region.name = "PCB_Region"
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2

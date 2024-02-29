@@ -347,7 +347,7 @@ class MeshRegion(object):
         self.MinGapX = "1"
         self.MinGapY = "1"
         self.MinGapZ = "1"
-        self.Objects = ""
+        self._objects = ""
         self.SubModels = False
         self.Enable = True
         if settings.aedt_version > "2021.2":
@@ -369,13 +369,13 @@ class MeshRegion(object):
 
     @property
     def Objects(self):
-        return self.Objects
+        return self._objects
 
     @Objects.setter
     def Objects(self, objects):
         if settings.aedt_version > "2023.2":
             self.subregion.parts(objects)
-        self.Objects = objects
+        self._objects = objects
 
     @pyaedt_function_handler()
     def _dim_arg(self, value):
@@ -585,9 +585,9 @@ class GlobalMeshRegion(MeshRegion):
             app.modeler.get_bounding_dimension(),
             app.modeler.model_units,
             app,
-            objects=self.global_region.name,
-            name="Global",
+            name="Settings",
         )
+        self.Objects = self.global_region.name
 
     def delete(self):
         self.global_region.object.delete()
@@ -722,10 +722,11 @@ class IcepakMesh(object):
                     ):
                         dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                         if ds == "Global":
-                            ds = "Settings"
-                        meshop = self.MeshRegion(
-                            self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
-                        )
+                            meshop = GlobalMeshRegion(self._app)
+                        else:
+                            meshop = MeshRegion(
+                                self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
+                            )
                         for el in dict_prop:
                             if el in meshop.__dict__:
                                 meshop.__dict__[el] = dict_prop[el]
@@ -1043,7 +1044,7 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app)
+        meshregion = MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name
