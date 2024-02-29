@@ -806,10 +806,8 @@ class Materials(object):
                         for point_element in range(0, len(dataset_loaded["X"]) - 1):
                             datasets[dataset]["Coordinates"]["Points"].append(dataset_loaded["X"][point_element])
                             datasets[dataset]["Coordinates"]["Points"].append(dataset_loaded["Y"][point_element])
-
                 if new_data:
                     data[mat_name] = new_data[mat_name]
-
         else:
             self.logger.error("Invalid file extension.")
             return False
@@ -860,6 +858,8 @@ class Materials(object):
                     newname = mat_name
 
                 newmat = self.add_material(newname, props=data[mat_name])
+                newmat._props = data[mat_name]
+                newmat._update_material()
                 materials_added.append(newmat)
         return materials_added
 

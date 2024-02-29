@@ -1278,6 +1278,17 @@ class Material(CommonMaterial, object):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         self._material_update = material_update
+        self._wire_type = None
+        self._wire_width = None
+        self._wire_diameter = None
+        self._wire_width_direction = None
+        self._wire_thickness_direction = None
+        self._wire_thickness = None
+        self._stacking_type = None
+        self._stacking_direction = None
+        self._stacking_factor = None
+        self._strand_number = None
+
         if "thermal_material_type" in self._props:
             self.thermal_material_type = self._props["thermal_material_type"]["Choice"]
         if "PhysicsTypes" in self._props:
