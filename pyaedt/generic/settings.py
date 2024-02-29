@@ -72,7 +72,7 @@ class Settings(object):
     @property
     def lazy_load(self):
         """Flag for enabling and disabling the lazy load.
-        Default is ``True``.
+        The default is ``True``.
 
         Returns
         -------
