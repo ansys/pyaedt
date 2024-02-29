@@ -375,15 +375,15 @@ class PostProcessor(Post):
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
         show_legend : bool, optional
-            Whether to display the legend or not. The default is ``True``.
+            Whether to display the legend. The default is ``True``.
         plot_as_separate_objects : bool, optional
-            Plot each object separately. It may require more time to export from AEDT.
+            Whether to plot each object separately, which can require
+            more time to export from AEDT. The default is ``True``.
         file_format : str, optional
-            File format of the exported plot.
-            Available options are: ``"case"`` or ``"aedtplt"``.
-            In case the active design is a Q3D design, the file format is automatically
+            File format to export the plot to. The default is ``"case".
+            Options are ``"aedtplt"`` and ``"case"``.
+            If the active design is a Q3D design, the file format is automatically
             set to ``"fldplt"``.
-            The default is ``"case"``.
 
         Returns
         -------
