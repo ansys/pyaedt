@@ -1,5 +1,6 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
@@ -64,6 +65,9 @@ class FieldAnalysisCircuit(Analysis):
         self._post = None
         self._internal_excitations = None
         self._internal_sources = None
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._post = self.post
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
