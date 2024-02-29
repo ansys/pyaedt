@@ -95,6 +95,10 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = None
         self._mesh = None
         self._configurations = Configurations(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
 
     @property
     def configurations(self):
