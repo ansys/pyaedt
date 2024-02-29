@@ -5810,92 +5810,59 @@ class GeometryModeler(Modeler):
         else:
             return False
 
-    @pyaedt_function_handler()
-    def create_region(self, pad_percent=300, is_percentage=True):
-        """Create an air region.
+    @pyaedt_function_handler
+    def create_subregion(self, padding_values, padding_types, region_name, parts, region_type="SubRegion"):
+        is_percentage = padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(
+            padding_values, padding_types, region_name, parts, region_type, is_percentage
+        )
+        self.oeditor.CreateSubregion(arg, arg2)
+        return self._create_object(region_name)
 
-        Parameters
-        ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
-        is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Region object.
-
-        References
-        ----------
-
-        >>> oEditor.CreateRegion
-        """
-        return self._create_region(pad_percent=pad_percent, is_percentage=is_percentage)
+    def reassign_subregion(self, region, parts):
+        is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(
+            region.padding_values, region.padding_types, region.name, parts, "SubRegion", is_percentage
+        )
+        self.oeditor.ReassignSubregion(arg, arg2)
+        return self._create_object(region.name)
 
     @pyaedt_function_handler()
-    def _create_region(self, pad_percent=300, is_percentage=True):
-        """Create an air region.
-
-        Parameters
-        ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
-        is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Region object.
-
-        References
-        ----------
-
-        >>> oEditor.CreateRegion
-        """
-        if "Region" in self.object_names:
-            return None
-        if not isinstance(pad_percent, list):
-            pad_percent = [pad_percent] * 6
-
-        arg = ["NAME:RegionParameters"]
-
-        # TODO: Can the order be updated to match the UI?
-        p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
-        i = 0
-        for pval in p:
-            region_type = "Percentage Offset"
-            if not is_percentage:
-                region_type = "Absolute Offset"
+    def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
+        arg = ["NAME:{}Parameters".format(region_type)]
+        p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
+        for i, pval in enumerate(p):
+            region_type = pad_type
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
             arg.append(region_type)
             arg.append(qvalstr)
-            if isinstance(pad_percent[i], str):
-                units = decompose_variable_value(pad_percent[i])[1]
-                if not units and pad_percent[i].isnumeric():
-                    if not is_percentage:
-                        units = self.model_units
-                        pad_percent[i] += units
-                elif is_percentage:
+            if isinstance(pad_value[i], str):
+                units = decompose_variable_value(pad_value[i])[1]
+                if not units and pad_value[i].isnumeric() and not is_percentage:
+                    units = self.model_units
+                    pad_value[i] += units
+                elif units and is_percentage:
                     self.logger.error("Percentage input must not have units")
                     return False
             elif not is_percentage:
                 units = self.model_units
-                pad_percent[i] = str(pad_percent[i])
-                pad_percent[i] += units
-            arg.append(str(pad_percent[i]))
-            i += 1
+                pad_value[i] = str(pad_value[i])
+                pad_value[i] += units
+            arg.append(str(pad_value[i]))
+        flags = "Wireframe#"
+        if region_type == "SubRegion":
+            if not isinstance(parts, list):
+                parts = [parts]
+            arg.append(["NAME:SubRegionPartNames"] + parts)
+            flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",
             "Name:=",
-            "Region",
+            region_name,
             "Flags:=",
-            "Wireframe#",
+            flags,
             "Color:=",
             "(143 175 143)",
             "Transparency:=",
@@ -5917,8 +5884,64 @@ class GeometryModeler(Modeler):
             "IsLightweight:=",
             False,
         ]
+        return arg, arg2
+
+    @pyaedt_function_handler()
+    def _create_region(
+        self, pad_value=300, pad_type="Percentage Offset", region_name="Region", parts=None, region_type="Region"
+    ):
+        if region_name in self.object_names:
+            raise AttributeError("{} object already exists".format(region_name))
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 6
+        is_percentage = pad_type in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(pad_value, pad_type, region_name, parts, region_type, is_percentage)
         self.oeditor.CreateRegion(arg, arg2)
-        return self._create_object("Region")
+        return self._create_object(region_name)
+
+    @pyaedt_function_handler()
+    def create_region(self, pad_value=300, pad_type="Percentage Offset", region_name="Region", **kwarg):
+        """Create an air region.
+
+        Parameters
+        ----------
+        pad_value : float, str, list of floats or list of str, optional
+            Same padding is applied if not a list. The default is ``300``.
+            If a list of floats or str, interpret as adding for
+            ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        pad_type : str, optional
+            Choose the padding definition. Available options are: ``"Percentage Offset"``,
+            ``"Transverse Percentage Offset"``, ``"Absolute Offset"`` and
+            ``"Absolute Position"``. The default is ``"Percentage Offset"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Region object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
+        """
+        # backward compatibility
+        if kwarg:
+            if kwarg.get("is_percentage", False):
+                is_percentage = kwarg["is_percentage"]
+            else:
+                is_percentage = True
+            if kwarg.get("pad_percent", False):
+                pad_percent = kwarg["pad_percent"]
+            else:
+                pad_percent = 300
+            pad_value = pad_percent
+            if isinstance(pad_value, list):
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
+
+        return self._create_region(
+            self, pad_value=300, pad_type="Percentage Offset", region_name="Region", type="Region"
+        )
 
     @pyaedt_function_handler()
     def create_object_from_edge(self, edge, non_model=False):
