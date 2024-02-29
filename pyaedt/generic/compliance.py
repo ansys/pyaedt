@@ -1,7 +1,6 @@
 import os.path
-import time
-
 from pathlib import Path
+import time
 
 from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.filesystem import search_files
