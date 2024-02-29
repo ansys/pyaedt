@@ -189,8 +189,8 @@ addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xm
 testpaths = [
     "_unittest",
 ]
-filterwarnings = [  
-    "ignore::UserWarning",
+filterwarnings = [
+    "ignore::UserWarning:pyaedt.*",
     "ignore::DeprecationWarning:pyaedt.*"
 ]
 
