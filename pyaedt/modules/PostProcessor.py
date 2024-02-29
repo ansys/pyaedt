@@ -9,9 +9,12 @@ from __future__ import absolute_import  # noreorder
 
 import ast
 from collections import OrderedDict
+from collections import defaultdict
+import csv
 import os
 import random
 import string
+import tempfile
 
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
@@ -2782,34 +2785,29 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the file. The default is ``""``.
 
         file_format : str, optional
-            Name of the file extension. The default is ``"aedtplt"``. Option is ``"case"``.
+            Name of the file extension. The default is ``"aedtplt"``. Options are ``"case"`` and ``"fldplt"``.
 
         Returns
         -------
         str
-            File Path when succeeded.
+            File path when successful.
 
         References
         ----------
-
         >>> oModule.ExportFieldPlot
         """
         if not filename:
             filename = plotname
-        file_path = os.path.join(filepath, filename + "." + file_format)
-        if ".case" in file_path:
-            try:
-                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-            except:  # pragma: no cover
-                self.logger.warning("case file is not supported for this plot. Switching to aedtplt")
-                file_path = os.path.join(filepath, filename + ".aedtplt")
-                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        else:  # pragma: no cover
-            self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
-            file_path = check_and_download_file(local_path, file_path)
-        return file_path
+        filepath = os.path.join(filepath, filename + "." + file_format)
+        try:
+            self.ofieldsreporter.ExportFieldPlot(plotname, False, filepath)
+            if settings.remote_rpc_session_temp_folder:  # pragma: no cover
+                local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
+                filepath = check_and_download_file(local_path, filepath)
+            return filepath
+        except:  # pragma: no cover
+            self.logger.error("{} file format is not supported for this plot.".format(file_format))
+            return False
 
     @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -4911,3 +4909,126 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 pandas_enabled=waveform_data.enable_pandas_output,
             )
         return outputdata
+
+
+TOTAL_QUANTITIES = [
+    "HeatFlowRate",
+    "RadiationFlow",
+    "ConductionHeatFlow",
+    "ConvectiveHeatFlow",
+    "MassFlowRate",
+    "VolumeFlowRate",
+    "SurfJouleHeatingDensity",
+]
+AVAILABLE_QUANTITIES = [
+    "Temperature",
+    "SurfTemperature",
+    "HeatFlowRate",
+    "RadiationFlow",
+    "ConductionHeatFlow",
+    "ConvectiveHeatFlow",
+    "HeatTransCoeff",
+    "HeatFlux",
+    "RadiationFlux",
+    "Speed",
+    "Ux",
+    "Uy",
+    "Uz",
+    "SurfUx",
+    "SurfUy",
+    "SurfUz",
+    "Pressure",
+    "SurfPressure",
+    "MassFlowRate",
+    "VolumeFlowRate",
+    "MassFlux",
+    "ViscocityRatio",
+    "WallYPlus",
+    "TKE",
+    "Epsilon",
+    "Kx",
+    "Ky",
+    "Kz",
+    "SurfElectricPotential",
+    "ElectricPotential",
+    "SurfCurrentDensity",
+    "CurrentDensity",
+    "SurfCurrentDensityX",
+    "SurfCurrentDensityY",
+    "SurfCurrentDensityZ",
+    "CurrentDensityX",
+    "CurrentDensityY",
+    "CurrentDensityZ",
+    "SurfJouleHeatingDensity",
+    "JouleHeatingDensity",
+]
+
+
+class FieldSummary:
+    def __init__(self, app):
+        self._app = app
+        self.calculations = []
+
+    @pyaedt_function_handler()
+    def add_calculation(
+        self, entity, geometry, geometry_name, quantity, normal="", side="Default", mesh="All", ref_temperature=""
+    ):
+        if quantity not in AVAILABLE_QUANTITIES:
+            raise AttributeError(
+                "Quantity {} is not supported. Available quantities are:\n{}".format(
+                    quantity, ", ".join(AVAILABLE_QUANTITIES)
+                )
+            )
+        self.calculations.append(
+            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+        )  # TODO : last argument not documented
+
+    @pyaedt_function_handler()
+    def get_field_summary_data(self, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
+            temp_file.close()
+            self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
+            with open(temp_file.name, "r") as f:
+                for _ in range(4):
+                    _ = next(f)
+                reader = csv.DictReader(f)
+                out_dict = defaultdict(list)
+                for row in reader:
+                    for key in row.keys():
+                        out_dict[key].append(row[key])
+            os.remove(temp_file.name)
+            if pandas_output:
+                if pd is None:
+                    raise ImportError("pandas package is needed.")
+                return pd.DataFrame.from_dict(out_dict)
+        return out_dict
+
+    @pyaedt_function_handler()
+    def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
+        if not sweep_name:
+            sweep_name = self._app.nominal_sweep
+        dv_string = ""
+        for el in design_variation:
+            dv_string += el + "='" + design_variation[el] + "' "
+        self._create_field_summary(sweep_name, dv_string)
+        self._app.osolution.ExportFieldsSummary(
+            [
+                "SolutionName:=",
+                sweep_name,
+                "DesignVariationKey:=",
+                dv_string,
+                "ExportFileName:=",
+                filename,
+                "IntrinsicValue:=",
+                intrinsic_value,
+            ]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def _create_field_summary(self, setup, variation):
+        arg = ["SolutionName:=", setup, "Variation:=", variation]
+        for i in self.calculations:
+            arg.append("Calculation:=")
+            arg.append(i)
+        self._app.osolution.EditFieldsSummarySetting(arg)

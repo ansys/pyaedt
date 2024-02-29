@@ -185,7 +185,7 @@ class TestClass:
         assert len(exported_files) == 0
         hfss_app.analyze_setup(name="test", num_cores=6)
         exported_files = hfss_app.export_results()
-        assert len(exported_files) == 3
+        assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
             matrix_type="Y",
         )
@@ -211,7 +211,7 @@ class TestClass:
         new_props = {"Convergence Criteria - Max Iterations": 3}
         setup.update(update_dictionary=new_props)
         airfaces = [i.id for i in self.icepak_app.modeler["Region"].faces]
-        self.icepak_app.assign_openings(airfaces)
+        opening = self.icepak_app.assign_openings(airfaces)
         self.icepak_app["Variable1"] = "0.5"
         assert self.icepak_app.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.icepak_app.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
@@ -225,7 +225,6 @@ class TestClass:
         )
         self.icepak_app.analyze("SetupIPK", num_cores=6)
         self.icepak_app.save_project()
-
         assert self.icepak_app.export_summary(
             self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
         )  # check usage of deprecated arguments
@@ -253,6 +252,31 @@ class TestClass:
         assert os.path.exists(
             self.icepak_app.eval_surface_quantity_from_field_summary(box, savedir=self.icepak_app.working_directory)
         )
+
+        # new post class
+        out = self.icepak_app.post.evaluate_faces_quantity(box, "HeatFlowRate")
+        assert out["Total"]
+        with pytest.raises(AttributeError):
+            self.icepak_app.post.evaluate_faces_quantity(box, "HeatFlowwwRate")
+        out = self.icepak_app.post.evaluate_object_quantity("box", "Temperature", volume=True)
+        assert out["Mean"]
+        out = self.icepak_app.post.evaluate_boundary_quantity(opening.name, "Ux")
+        assert out["Mean"]
+        if self.icepak_app.settings.aedt_version < "2024.1":
+            with pytest.raises(NotImplementedError):
+                self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
+        else:
+            out = self.icepak_app.post.evaluate_monitor_quantity("test_monitor2", "Temperature")
+            assert out["Mean"]
+            with pytest.raises(AttributeError):
+                self.icepak_app.post.evaluate_monitor_quantity("no_test_monitor2", "Temperature")
+        fs = self.icepak_app.post.create_field_summary()
+        fs.add_calculation("Boundary", "Surface", opening.name, "Ux")
+        fs.add_calculation("Object", "Volume", "box", "Temperature")
+        df = fs.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
+        d = fs.get_field_summary_data()
+        assert d["Mean"]
 
     def test_03b_icepak_get_output_variable(self):
         value = self.icepak_app.get_output_variable("OutputVariable1")
@@ -412,6 +436,7 @@ class TestClass:
         )
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
+
     def test_07_export_maxwell_fields(self, m3dtransient):
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
@@ -513,4 +538,3 @@ class TestClass:
             out_folder=report_dir,
         )
         assert com_0 and com_1
-

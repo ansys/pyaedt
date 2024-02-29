@@ -151,6 +151,8 @@ class FieldAnalysis3D(Analysis, object):
         if self._post is None:
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
+            elif self.design_type == "Icepak":
+                from pyaedt.modules.AdvancedPostProcessing import IcepakPostProcessor as PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
@@ -323,7 +325,12 @@ class FieldAnalysis3D(Analysis, object):
                 for line in _all_lines:
                     if "VariableProp(" in line:
                         line_list = line.split("'")
-                        vars[line_list[1]] = line_list[len(line_list) - 2]
+                        if not [
+                            c for c in line_list[len(line_list) - 2] if c in ["+", "-", "*", "'" "," "/", "(", ")"]
+                        ]:
+                            self[line_list[1]] = line_list[len(line_list) - 2]
+                        else:
+                            vars[line_list[1]] = line_list[len(line_list) - 2]
                 aedt_fh.close()
                 return vars
             else:

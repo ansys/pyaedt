@@ -47,8 +47,8 @@ if not os.path.exists(results_folder):
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
-ParasolidPath = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
-m2d.modeler.import_3d_cad(ParasolidPath)
+parasolid_path = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
+m2d.modeler.import_3d_cad(parasolid_path)
 
 ##################################################################################
 # Define variables
@@ -66,10 +66,10 @@ no_materials = 4
 ##################################################################################
 # Assign materials
 # ~~~~~~~~~~~~~~~~
-# Voltage ports will be defined as perfect electric conductor (pec), conductor
-# gets the material defined by the 0th entry of the material array
+# A voltage port is defined as a perfect electric conductor (pec). A conductor
+# gets the material defined by the 0th entry of the material array.
 
-m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "pec")
+m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "gold")
 m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]"
 
 ##################################################################################
@@ -137,11 +137,24 @@ report = m2d.post.create_report(
     variations=variations,
     plotname="Resistance vs. Material",
 )
+
+###############################################################################
+# Get solution data
+# ~~~~~~~~~~~~~~~~~
+# Get solution data using the object ``report``` to get resistance values
+# and plot data outside AEDT.
+
 d = report.get_solution_data()
 resistence = d.data_magnitude()
 material_index = d.primary_sweep_values
 d.primary_sweep = "MaterialIndex"
 d.plot(snapshot_path=os.path.join(results_folder, "M2D_DCConduction.jpg"))
+
+###############################################################################
+# Create material index vs resistance table
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create material index vs resistance table to use in PDF report generator.
+# Create ``colors`` table to customize each row of the material index vs resistance table.
 
 material_index_vs_resistance = [["Material", "Resistance"]]
 colors = [[(255, 255, 255), (0, 255, 0)]]
@@ -208,32 +221,56 @@ model_picture = m2d.post.export_model_picture()
 # Generate a PDF report with output of simulation.
 
 pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2")
+
+# Customize text font.
+
 pdf_report.report_specs.font = "times"
 pdf_report.report_specs.text_font_size = 10
-pdf_report.project_name = m2d.project_name
+
+# Create report
+
 pdf_report.create()
+
+# Add project's design info to report.
+
 pdf_report.add_project_info(m2d)
+
+# Add model picture in a new chapter and add text.
+
 pdf_report.add_chapter("Model Picture")
 pdf_report.add_text("This section contains the model picture")
 pdf_report.add_image(model_picture, "Model Picture", width=80, height=60)
+
+# Add in a new chapter field overlay plots.
+
 pdf_report.add_chapter("Field overlay")
 pdf_report.add_sub_chapter("Plots")
 pdf_report.add_text("This section contains the fields overlay.")
 pdf_report.add_image(os.path.join(results_folder, "mag_E.jpg"), "Mag E", width=120, height=80)
 pdf_report.add_page_break()
+
+# Add a new section to display results.
+
 pdf_report.add_section()
 pdf_report.add_chapter("Results")
 pdf_report.add_sub_chapter("Resistance vs. Material")
 pdf_report.add_text("This section contains resistance vs material data.")
 # Aspect ratio is automatically calculated if only width is provided
 pdf_report.add_image(os.path.join(results_folder, "M2D_DCConduction.jpg"), width=130)
+
+# Add a new subchapter to display resistance data from previously created table.
+
 pdf_report.add_sub_chapter("Resistance data table")
 pdf_report.add_text("This section contains Resistance data.")
 pdf_report.add_table("Resistance Data", content=material_index_vs_resistance, formatting=colors, col_widths=[75, 100])
+
+# Add table of content and save PDF.
+
 pdf_report.add_toc()
 pdf_report.save_pdf(results_folder, "AEDT_Results.pdf")
 
 ##################################################################################
 # Release desktop
 # ~~~~~~~~~~~~~~~
+
 m2d.release_desktop()

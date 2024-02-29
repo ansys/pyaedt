@@ -35,7 +35,8 @@ dependencies = [
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     "fpdf2",
     "jsonschema",
-    "pytomlpp"
+    "pytomlpp; python_version < '3.12'",
+    "pyedb==0.4.0"
 ]
 
 [project.optional-dependencies]
