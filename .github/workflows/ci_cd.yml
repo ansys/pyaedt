@@ -229,7 +229,6 @@ jobs:
         with:
           name: pytest-results
           path: junit/test-results.xml
-        # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
 
 # # =================================================================================================
@@ -420,17 +419,17 @@ jobs:
 #           name: documentation-pdf
 #           path: doc/_build/latex/*.pdf
 #           retention-days: 7
+  package:
+    name: Package library
+    needs: [test-windows, test-solvers-windows, test-ironpython-windows, doc-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build library source and wheel artifacts
+        uses: ansys/actions/build-library@v5
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-#   package:
-#     name: Package library
-#     needs: [legacy-tests, docs-build]
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Build library source and wheel artifacts
-#         uses: ansys/actions/build-library@v5
-#         with:
-#           library-name: ${{ env.PACKAGE_NAME }}
-#           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
 #   release:
 #     name: Release project
