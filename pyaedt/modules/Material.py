@@ -1347,11 +1347,11 @@ class Material(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 smods = modifiers[mod]
-
-            property_value = (
-                self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
-            )
-            self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
+            property_value = MatProperties.get_defaultvalue(aedtname=property)
+            self.__dict__["_" + property] = MatProperty(self, property, property_value)
+            property_value = props[property] if property in props else None
+            if property_value is not None:
+                self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
         pass
 
     @property
