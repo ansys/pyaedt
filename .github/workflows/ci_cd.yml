@@ -109,11 +109,10 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  test-solver-windows:
+  test-solvers-windows:
     name: Testing solvers and coverage (Windows)
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@v4
@@ -145,13 +144,14 @@ jobs:
 
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
+        env:
+          PYTHONMALLOC: malloc
         with:
           max_attempts: 3
           retry_on: error
           timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            Set-Item -Path env:PYTHONMALLOC -Value "malloc"
             pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
@@ -166,7 +166,6 @@ jobs:
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
-        # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
 
 # # =================================================================================================
@@ -177,7 +176,6 @@ jobs:
     name: Testing and coverage (Windows)
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@v4
@@ -209,13 +207,14 @@ jobs:
 
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
+        env:
+          PYTHONMALLOC: malloc
         with:
           max_attempts: 3
           retry_on: error
           timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            Set-Item -Path env:PYTHONMALLOC -Value "malloc"
             pytest -n auto --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
