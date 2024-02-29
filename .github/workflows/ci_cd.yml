@@ -232,6 +232,36 @@ jobs:
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
 
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  test-ironpython-windows:
+    name: Testing and coverage (Windows)
+    needs: [smoke-tests]
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Ironpython tests
+        timeout-minutes: 5
+        run: |
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $processA.WaitForExit()
+
+      - name: Get log content
+        run: |
+          get-content .\_unittest_ironpython\pyaedt_unit_test_ironpython.log
+
+      - name: Check for errors
+        run: |
+          $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
+          if ($test_errors_failures -ne $null)
+          {
+            exit 1
+          }
+
 #   legacy-tests:
 #     name: Test dotnet
 #     runs-on: [ Windows, self-hosted, pyedb ]
