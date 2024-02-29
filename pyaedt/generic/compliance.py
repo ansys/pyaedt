@@ -519,6 +519,10 @@ class VirtualCompliance:
                 time.sleep(1)
                 if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
                     time.sleep(1)
+                    if not first_trace:
+                        pdf_report.add_page_break()
+                    else:
+                        first_trace = False
                     pdf_report.add_sub_chapter(f"{name}")
                     sleep_time = 10
                     while sleep_time > 0:
@@ -566,10 +570,10 @@ class VirtualCompliance:
                     time.sleep(1)
                     if out:
                         if not first_trace:
-                            pdf_report.add_section()
+                            pdf_report.add_page_break()
                         else:
                             first_trace = False
-                        pdf_report.add_page_break()
+
                         pdf_report.add_sub_chapter(f"{name} for trace {trace}")
                         sleep_time = 10
                         while sleep_time > 0:
@@ -653,9 +657,16 @@ class VirtualCompliance:
                 trace_pins = template_report.trace_pins
                 for trace_name, trace_pin in zip(traces, trace_pins):
                     spisim.touchstone_file = _design.export_touchstone()
+                    if not isinstance(trace_pin[0], int):
+                        try:
+                            ports = list(_design.excitations.keys())
+                            thrus4p = ",".join([str(ports.index(i)) for i in trace_pin])
+                            trace_pin = thrus4p
+                        except IndexError:
+                            _design.logger.error("Port not found.")
                     erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
-                        table_out.append([trace_name, erl_value, pass_fail_criteria])
+                        table_out.append([trace_name, erl_value, "PASS" if pass_fail_criteria else "FAIL"])
                 pdf_report.add_table(
                     "Effective Return Losses",
                     table_out,
