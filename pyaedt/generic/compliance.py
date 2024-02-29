@@ -1,6 +1,8 @@
 import os.path
 import time
 
+from pathlib import Path
+
 from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
@@ -297,6 +299,10 @@ class VirtualCompliance:
     @project_file.setter
     def project_file(self, val):
         self._project_file = val
+
+    @property
+    def project_name(self):
+        return Path(self.project_file).stem
 
     @property
     def use_portrait(self):
@@ -886,7 +892,7 @@ class VirtualCompliance:
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
         if close_project:
-            self._desktop_class.odesktop.CloseProject(self._project_file)
+            self._desktop_class.odesktop.CloseProject(self.project_name)
         if output:
             self._desktop_class.logger.info(f"Report has been saved in {output}")
         return output
