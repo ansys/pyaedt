@@ -12,6 +12,9 @@ from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.settings import settings
+
+settings.lazy_load = False
 
 
 @pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
