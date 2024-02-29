@@ -6,17 +6,19 @@ from __future__ import absolute_import  # noreorder
 
 import copy
 import fnmatch
-import json
 import math
 import os
 import re
 import sys
+import warnings
 
 from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_json
 from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Material import MatProperties
@@ -318,6 +320,7 @@ class Materials(object):
             return self._aedmattolibrary(self._get_aedt_case_name(materialname))
         else:
             material = Material(self, materialname, props, material_update=True)
+            material._update_material()
             if material:
                 self.logger.info("Material has been added. Edit it to update in Desktop.")
                 self.material_keys[materialname.lower()] = material
@@ -430,6 +433,7 @@ class Materials(object):
         mat_dict = self._create_mat_project_vars(matsweep)
 
         newmat = Material(self, material_name, material_update=False)
+        newmat._update_material()
         index = "$ID" + material_name
         newmat.is_sweep_material = True
         self._app[index] = 0
@@ -509,6 +513,7 @@ class Materials(object):
         if not new_name:
             new_name = material_name + "_clone"
         new_material = Material(self, new_name, material._props, material_update=False)
+        new_material._update_material()
 
         # Parameterize material properties if these were passed.
         if props:
@@ -672,6 +677,7 @@ class Materials(object):
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
         newmat = Material(self, matname, first_value, material_update=False)
+        newmat._update_material()
         newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
@@ -749,25 +755,67 @@ class Materials(object):
         return write_configuration_file(json_dict, full_json_path)
 
     @pyaedt_function_handler()
-    def import_materials_from_file(self, full_json_path):
-        """Import and create materials from a JSON file.
+    def import_materials_from_file(self, full_path=None, **kwargs):
+        """Import and create materials from a JSON or AMAT file.
 
         Parameters
         ----------
-        full_json_path : str
-            Full path and name for the JSON file.
+        full_path : str
+            Full path and name for the JSON or AMAT file.
 
         Returns
         -------
         List of :class:`pyaedt.modules.Material.Material`
 
         """
-        materials_added = []
-        with open_file(full_json_path, "r") as json_file:
-            data = json.load(json_file)
 
-        if "datasets" in list(data.keys()):
-            for el, val in data["datasets"].items():
+        if "full_json_path" in kwargs and kwargs["full_json_path"] is not None:  # pragma: no cover
+            warnings.warn(
+                "``full_json_path`` was deprecated in 0.8.1. Use ``full_path`` instead.",
+                DeprecationWarning,
+            )
+            full_path = kwargs["full_json_path"]
+
+        if full_path is None or not os.path.exists(full_path):
+            self.logger.error("Incorrect path provided.")
+            return False
+
+        _, file_extension = os.path.splitext(full_path)
+        json_flag = True
+        datasets = {}
+        if file_extension.lower() == ".json":
+            data = read_json(full_path)
+            if "datasets" in list(data.keys()):
+                datasets = data["datasets"]
+        elif file_extension.lower() == ".amat":
+            data = load_entire_aedt_file(full_path)
+            json_flag = False
+            new_data = {}
+
+            for mat_name in data:
+                if "MaterialDef" in data[mat_name] and mat_name in data[mat_name]["MaterialDef"]:
+                    new_data[mat_name] = data[mat_name]["MaterialDef"][mat_name]
+                else:
+                    new_data[mat_name] = data[mat_name]
+
+                if "RefDatasets" in data[mat_name]:
+                    for dataset in data[mat_name]["RefDatasets"]:
+                        dataset_loaded = data[mat_name]["RefDatasets"][dataset]
+                        datasets[dataset] = {"Coordinates": {"DimUnits": [], "Points": []}}
+                        datasets[dataset]["Coordinates"]["DimUnits"] = dataset_loaded["DimUnits"]
+                        for point_element in range(0, len(dataset_loaded["X"]) - 1):
+                            datasets[dataset]["Coordinates"]["Points"].append(dataset_loaded["X"][point_element])
+                            datasets[dataset]["Coordinates"]["Points"].append(dataset_loaded["Y"][point_element])
+                if new_data:
+                    data[mat_name] = new_data[mat_name]
+        else:
+            self.logger.error("Invalid file extension.")
+            return False
+
+        materials_added = []
+
+        if datasets:
+            for el, val in datasets.items():
                 numcol = len(val["Coordinates"]["DimUnits"])
                 xunit = val["Coordinates"]["DimUnits"][0]
                 yunit = val["Coordinates"]["DimUnits"][1]
@@ -777,26 +825,42 @@ class Materials(object):
                     val["Coordinates"]["Points"][i : i + numcol]
                     for i in range(0, len(val["Coordinates"]["Points"]), numcol)
                 ]
-                xval = new_list[0]
-                yval = new_list[1]
+                xval = [sublist[0] for sublist in new_list]
+                yval = [sublist[1] for sublist in new_list]
                 zval = None
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
-                    zval = new_list[2]
+                    zval = [sublist[2] for sublist in new_list]
                 self._app.create_dataset(
                     el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
                 )
+        if json_flag:
+            for el, val in data["materials"].items():
+                if el.lower() in list(self.material_keys.keys()):
+                    newname = generate_unique_name(el)
+                    self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
+                else:
+                    newname = el
+                newmat = Material(self, newname, val, material_update=True)
+                newmat._update_material()
+                # newmat.update()
+                self.material_keys[newname] = newmat
+                materials_added.append(newmat)
+        else:
+            for mat_name in data:
+                invalid_names = ["$base_index$", "$index$"]
+                if mat_name in invalid_names:
+                    continue
+                if mat_name.lower() in list(self.material_keys.keys()):
+                    newname = generate_unique_name(mat_name)
+                    self.logger.warning("Material %s already exists. Renaming to %s", mat_name, newname)
+                else:
+                    newname = mat_name
 
-        for el, val in data["materials"].items():
-            if el.lower() in list(self.material_keys.keys()):
-                newname = generate_unique_name(el)
-                self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
-            else:
-                newname = el
-            newmat = Material(self, newname, val, material_update=True)
-            # newmat.update()
-            self.material_keys[newname] = newmat
-            materials_added.append(newmat)
+                newmat = self.add_material(newname, props=data[mat_name])
+                newmat._props = data[mat_name]
+                newmat._update_material()
+                materials_added.append(newmat)
         return materials_added
 
     @pyaedt_function_handler()
@@ -847,6 +911,7 @@ class Materials(object):
                 ):
                     props[prop] = float(val[keys.index(prop)])
             new_material = Material(self, newname, props, material_update=True)
+            new_material._update_material()
             # new_material.update()
             self.material_keys[newname] = new_material
             materials_added.append(new_material)
