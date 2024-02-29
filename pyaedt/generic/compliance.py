@@ -30,7 +30,7 @@ default_keys = [
 ]
 
 
-class ReportTemplate:
+class CommonTemplate:
     def __init__(self, report):
         self._name = report["name"]
         self.report_type = report.get("type", "frequency")
@@ -63,20 +63,6 @@ class ReportTemplate:
     @report_type.setter
     def report_type(self, val):
         self._report_type = val
-
-    @property
-    def group_plots(self):
-        """Flag indicating if plots are grouped into a single chart or kept independent.
-
-        Returns
-        -------
-        bool
-        """
-        return self._group_plots
-
-    @group_plots.setter
-    def group_plots(self, val):
-        self._group_plots = val
 
     @property
     def config_file(self):
@@ -138,40 +124,31 @@ class ReportTemplate:
         self._pass_fail = val
 
 
-class ParametersTemplate:
+class ReportTemplate(CommonTemplate):
     def __init__(self, report):
-        self._name = report["name"]
-        self.report_type = report.get("type", "frequency")
-        self.config_file = report.get("config", "")
-        self.design_name = report.get("design_name", "")
-        self.traces = report.get("traces", [])
+        CommonTemplate.__init__(self, report)
+        self.group_plots = report.get("group_plots", False)
+
+    @property
+    def group_plots(self):
+        """Flag indicating if plots are grouped into a single chart or kept independent.
+
+        Returns
+        -------
+        bool
+        """
+        return self._group_plots
+
+    @group_plots.setter
+    def group_plots(self, val):
+        self._group_plots = val
+
+
+class ParametersTemplate(CommonTemplate):
+    def __init__(self, report):
+        CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
-        self.pass_fail = report.get("pass_fail", False)
         self.pass_fail_criteria = report.get("pass_fail", 0)
-
-    @property
-    def name(self):
-        """Parameter name.
-
-        Returns
-        -------
-        str
-        """
-        return self._name
-
-    @property
-    def report_type(self):
-        return self._report_type
-
-    @report_type.setter
-    def report_type(self, val):
-        """Report type.
-
-        Returns
-        -------
-        str
-        """
-        self._report_type = val
 
     @property
     def trace_pins(self):
@@ -200,62 +177,6 @@ class ParametersTemplate:
     @pass_fail_criteria.setter
     def pass_fail_criteria(self, val):
         self._pass_fail_criteria = val
-
-    @property
-    def config_file(self):
-        """Configuration file.
-
-        Returns
-        -------
-        str
-        """
-        return self._config_file
-
-    @config_file.setter
-    def config_file(self, val):
-        self._config_file = val
-
-    @property
-    def design_name(self):
-        """Design name in AEDT.
-
-        Returns
-        -------
-        str
-        """
-        return self._design_name
-
-    @design_name.setter
-    def design_name(self, val):
-        self._design_name = val
-
-    @property
-    def traces(self):
-        return self._traces
-
-    @traces.setter
-    def traces(self, val):
-        """Trace list.
-
-        Returns
-        -------
-        list
-        """
-        self._traces = val
-
-    @property
-    def pass_fail(self):
-        """Flag indicating if pass/fail criteria is applied.
-
-        Returns
-        -------
-        bool
-        """
-        return self._pass_fail
-
-    @pass_fail.setter
-    def pass_fail(self, val):
-        self._pass_fail = val
 
 
 class VirtualCompliance:
