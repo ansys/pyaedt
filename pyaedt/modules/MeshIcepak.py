@@ -622,7 +622,7 @@ class IcepakMesh(object):
         try:
             self.global_mesh_region = [mo for mo in self.meshregions if isinstance(mo, GlobalMeshRegion)][0]
         except IndexError:
-            self.global_mesh_region = None
+            self.global_mesh_region = GlobalMeshRegion(app)
         self._priorities_args = []
 
     @property
@@ -1062,22 +1062,12 @@ class IcepakMesh(object):
         except Exception:  # pragma : no cover
             created = False
         if created:
-            if virtual_region and self._app.check_beta_option_enabled(
-                "S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"
-            ):  # pragma : no cover
-                if is_submodel:
-                    meshregion.Objects = [i for i in objectlist if i in all_objs]
-                    meshregion.SubModels = [i for i in objectlist if i not in all_objs]
-                else:
-                    meshregion.Objects = objectlist
-                    meshregion.SubModels = None
-            else:
-                objectlist2 = self.modeler.object_names
-                added_obj = [i for i in objectlist2 if i not in all_objs]
-                if not added_obj:
-                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
-                meshregion.Objects = added_obj
-                meshregion.SubModels = None
+            objectlist2 = self.modeler.object_names
+            added_obj = [i for i in objectlist2 if i not in all_objs]
+            if not added_obj:
+                added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+            meshregion.Objects = added_obj
+            meshregion.SubModels = None
 
             meshregion.update()
             return meshregion

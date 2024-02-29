@@ -28,6 +28,7 @@ from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
+from pyaedt.modules.MeshIcepak import MeshRegion
 
 if not is_ironpython:
     from jsonschema import exceptions
@@ -1612,13 +1613,15 @@ class ConfigurationsIcepak(Configurations):
                             mesh_el.__dict__[el] = props[el]
                     return mesh_el.update()
 
-        bound = self._app.mesh.MeshRegion(
+        bound = MeshRegion(
             self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units, self._app
         )
         bound.name = name
         for el in props:
             if el in bound.__dict__:
                 bound.__dict__[el] = props[el]
+            elif el == "Objects":
+                bound.Objects = props[el]
         if bound.create():
             self._app.mesh.meshregions.append(bound)
             self._app.logger.info("mesh Operation {} added.".format(name))

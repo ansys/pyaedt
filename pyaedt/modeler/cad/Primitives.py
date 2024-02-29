@@ -3800,7 +3800,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage)
+        return self.create_region(pad_percent=[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage=is_percentage)
 
     @pyaedt_function_handler()
     def edit_region_dimensions(self, listvalues):
@@ -5917,8 +5917,9 @@ class GeometryModeler(Modeler):
     def _create_region(
         self, pad_value=300, pad_type="Percentage Offset", region_name="Region", parts=None, region_type="Region"
     ):
-        if region_name in self.object_names:
-            raise AttributeError("{} object already exists".format(region_name))
+        if region_name in self._app.modeler.objects_by_name:
+            self._app.logger.error("{} object already exists".format(region_name))
+            return False
         if not isinstance(pad_value, list):
             pad_value = [pad_value] * 6
         is_percentage = pad_type in ["Percentage Offset", "Transverse Percentage Offset"]
@@ -5966,6 +5967,9 @@ class GeometryModeler(Modeler):
             pad_value = pad_percent
             if isinstance(pad_value, list):
                 pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
+
+        if isinstance(pad_type, bool):
             pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
 
         return self._create_region(pad_value, pad_type, region_name, region_type="Region")
