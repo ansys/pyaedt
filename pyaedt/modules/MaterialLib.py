@@ -320,6 +320,7 @@ class Materials(object):
             return self._aedmattolibrary(self._get_aedt_case_name(materialname))
         else:
             material = Material(self, materialname, props, material_update=True)
+            material._update_material()
             if material:
                 self.logger.info("Material has been added. Edit it to update in Desktop.")
                 self.material_keys[materialname.lower()] = material
@@ -432,6 +433,7 @@ class Materials(object):
         mat_dict = self._create_mat_project_vars(matsweep)
 
         newmat = Material(self, material_name, material_update=False)
+        newmat._update_material()
         index = "$ID" + material_name
         newmat.is_sweep_material = True
         self._app[index] = 0
@@ -511,6 +513,7 @@ class Materials(object):
         if not new_name:
             new_name = material_name + "_clone"
         new_material = Material(self, new_name, material._props, material_update=False)
+        new_material._update_material()
 
         # Parameterize material properties if these were passed.
         if props:
@@ -674,6 +677,7 @@ class Materials(object):
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
         newmat = Material(self, matname, first_value, material_update=False)
+        newmat._update_material()
         newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
@@ -840,6 +844,7 @@ class Materials(object):
                 else:
                     newname = el
                 newmat = Material(self, newname, val, material_update=True)
+                newmat._update_material()
                 # newmat.update()
                 self.material_keys[newname] = newmat
                 materials_added.append(newmat)
@@ -906,6 +911,7 @@ class Materials(object):
                 ):
                     props[prop] = float(val[keys.index(prop)])
             new_material = Material(self, newname, props, material_update=True)
+            new_material._update_material()
             # new_material.update()
             self.material_keys[newname] = new_material
             materials_added.append(new_material)
