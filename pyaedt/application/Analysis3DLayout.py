@@ -117,11 +117,14 @@ class FieldAnalysis3DLayout(Analysis):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -387,9 +390,12 @@ class FieldAnalysis3DLayout(Analysis):
         :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         """
         if self._modeler is None:
+            self.logger.reset_timer()
             from pyaedt.modeler.modelerpcb import Modeler3DLayout
 
             self._modeler = Modeler3DLayout(self)
+            self.logger.info_timer("Modeler class has been initialized!")
+
         return self._modeler
 
     @property
