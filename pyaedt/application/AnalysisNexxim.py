@@ -128,9 +128,12 @@ class FieldAnalysisCircuit(Analysis):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -166,9 +169,12 @@ class FieldAnalysisCircuit(Analysis):
     def modeler(self):
         """Modeler object."""
         if self._modeler is None:
+            self.logger.reset_timer()
             from pyaedt.modeler.schematic import ModelerNexxim
 
             self._modeler = ModelerNexxim(self)
+            self.logger.info_timer("Modeler class has been initialized!")
+
         return self._modeler
 
     @property
