@@ -1,6 +1,7 @@
 """
 This module contains the `Mesh` class.
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -921,7 +922,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        names : list
+        names : list, str
             List of object names or face IDs.
         isinside : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
@@ -1002,7 +1003,13 @@ class Mesh(object):
 
     @pyaedt_function_handler()
     def assign_skin_depth(
-        self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2", meshop_name=None
+        self,
+        names,
+        skindepth="0.2mm",
+        maxelements=None,
+        triangulation_max_length="0.1mm",
+        numlayers="2",
+        meshop_name=None,
     ):
         """Assign a skin depth for the mesh refinement.
 
@@ -1010,8 +1017,10 @@ class Mesh(object):
         ----------
         names : list
            List of the object names or face IDs.
-        skindepth : bool
-            Whether the length mesh is inside the selection. The default is ``True``.
+        skindepth : str, float, optional
+            Skin depth value.
+            It can be either provided as a float or as a string.
+            The default is ``"0.2mm"``.
         maxelements : int, optional
             Maximum number of elements. The default is ``None``, which means this parameter is disabled.
         triangulation_max_length : str, optional

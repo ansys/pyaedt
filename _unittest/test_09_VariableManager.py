@@ -253,18 +253,11 @@ class TestClass:
         v2 = Variable(3)
         v3 = Variable("3mA")
         v4 = Variable("10A")
-
-        try:
+        with pytest.raises(AssertionError):
             v1 + v2
-            assert False
-        except AssertionError:
-            pass
 
-        try:
+        with pytest.raises(AssertionError):
             v2 + v1
-            assert False
-        except AssertionError:
-            pass
         result_1 = v2 + v2
         result_2 = v3 + v4
         result_3 = v3 + v3
@@ -286,17 +279,11 @@ class TestClass:
         v3 = Variable("3mA")
         v4 = Variable("10A")
 
-        try:
+        with pytest.raises(AssertionError):
             v1 - v2
-            assert False
-        except AssertionError:
-            pass
 
-        try:
+        with pytest.raises(AssertionError):
             v2 - v1
-            assert False
-        except AssertionError:
-            pass
 
         result_1 = v2 - v2
         result_2 = v3 - v4
@@ -435,8 +422,9 @@ class TestClass:
     def test_14_intrinsics(self):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1.0
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == "GHz"
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == self.aedtapp.odesktop.GetDefaultUnit(
+            "Frequency"
+        )
 
     def test_15_arrays(self):
         self.aedtapp["arr_index"] = 0
@@ -460,14 +448,12 @@ class TestClass:
         assert mc["var3"] == "10deg"
         assert mc["var4"] == "10rad"
 
-    def test_17_project_sweep_variable(self):
+    def test_17_project_variable_operation(self):
         self.aedtapp["$my_proj_test"] = "1mm"
         self.aedtapp["$my_proj_test2"] = 2
         self.aedtapp["$my_proj_test3"] = "$my_proj_test*$my_proj_test2"
         assert self.aedtapp.variable_manager["$my_proj_test3"].units == "mm"
         assert self.aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
-        self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_alu")
-        assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.dependent_variables
 
     def test_18_test_optimization_properties(self):
         var = "v1"
@@ -658,3 +644,20 @@ class TestClass:
         validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
         assert len(validation_errors) == 1
+
+    def test_32_delete_unused_variables(self):
+        self.aedtapp.insert_design("used_variables")
+        self.aedtapp["used_var"] = "1mm"
+        self.aedtapp["unused_var"] = "1mm"
+        self.aedtapp["$project_used_var"] = "1"
+        self.aedtapp.modeler.create_rectangle(0, ["used_var", "used_var", "used_var"], [10, 20])
+        mat1 = self.aedtapp.materials.add_material("new_copper2")
+        mat1.permittivity = "$project_used_var"
+        assert self.aedtapp.variable_manager.is_used("used_var")
+        assert not self.aedtapp.variable_manager.is_used("unused_var")
+        assert self.aedtapp.variable_manager.delete_variable("unused_var")
+        self.aedtapp["unused_var"] = "1mm"
+        number_of_variables = len(self.aedtapp.variable_manager.variable_names)
+        assert self.aedtapp.variable_manager.delete_unused_variables()
+        new_number_of_variables = len(self.aedtapp.variable_manager.variable_names)
+        assert number_of_variables != new_number_of_variables

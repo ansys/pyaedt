@@ -9,13 +9,13 @@ import os
 import re
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
@@ -56,7 +56,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -106,7 +106,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> import pyaedt
     >>> edb_path = "/path/to/edbfile.aedb"
     >>> edb = pyaedt.Edb(edb_path, edbversion=231)
-    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
     >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
@@ -147,9 +147,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    def __enter__(self):
-        return self
 
     @pyaedt_function_handler()
     def create_edge_port(
@@ -777,7 +774,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+        self,
+        setup_name=None,
+        sweep_name=None,
+        file_name=None,
+        variations=None,
+        variations_value=None,
+        renormalization=False,
+        impedance=None,
+        gamma_impedance_comments=False,
     ):
         """Export a Touchstone file.
 
@@ -797,6 +802,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
             The default is ``None``.
+        renormalization : bool, optional
+            Perform renormalization before export.
+            The default is ``False``.
+        impedance : float, optional
+            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
+            The default is ``None``.
+        gamma_impedance_comments : bool, optional
+            Include Gamma and Impedance values in comments.
+            The default is ``False``.
 
         Returns
         -------
@@ -814,6 +828,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             file_name=file_name,
             variations=variations,
             variations_value=variations_value,
+            renormalization=renormalization,
+            impedance=impedance,
+            comments=gamma_impedance_comments,
         )
 
     @pyaedt_function_handler()
@@ -1029,8 +1046,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ``save_fields=True``. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
-            ``"Interpolating"``, and ``"Discrete"``.  The default is
-            ``"Interpolating"``.
+            ``"Interpolating"``, and ``"Discrete"``.
+            The default is ``"Interpolating"``.
         interpolation_tol_percent : float, optional
             Error tolerance threshold for the interpolation
             process. The default is ``0.5``.
@@ -1076,7 +1093,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep = setupdata.add_sweep(sweepname=sweepname, sweeptype=sweep_type)
                 if not sweep:
                     return False
                 sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)

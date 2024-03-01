@@ -3,16 +3,23 @@ This module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
+
 from __future__ import absolute_import  # noreorder
 
+import csv
 import os
+import re
 import warnings
 
+from pyaedt import generate_unique_name
+from pyaedt import settings
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
+from pyaedt.modules.PostProcessor import FieldSummary
 from pyaedt.modules.PostProcessor import PostProcessor as Post
+from pyaedt.modules.PostProcessor import TOTAL_QUANTITIES
 
 if not is_ironpython:
     try:
@@ -199,7 +206,7 @@ class PostProcessor(Post):
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
 
         files = []
-        if get_objects_from_aedt:
+        if get_objects_from_aedt and self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             files = self.export_model_obj(
                 obj_list=objects,
                 export_as_single_objects=plot_as_separate_objects,
@@ -321,6 +328,9 @@ class PostProcessor(Post):
         dark_mode=False,
         show_grid=False,
         show_bounding=False,
+        show_legend=True,
+        plot_as_separate_objects=True,
+        file_format="case",
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -364,21 +374,39 @@ class PostProcessor(Post):
             Whether to display the axes grid or not. The default is ``False``.
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
+        show_legend : bool, optional
+            Whether to display the legend. The default is ``True``.
+        plot_as_separate_objects : bool, optional
+            Whether to plot each object separately, which can require
+            more time to export from AEDT. The default is ``True``.
+        file_format : str, optional
+            File format to export the plot to. The default is ``"case".
+            Options are ``"aedtplt"`` and ``"case"``.
+            If the active design is a Q3D design, the file format is automatically
+            set to ``"fldplt"``.
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        is_pcb = False
+        if self._app.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            is_pcb = True
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        file_to_add = self.export_field_plot(plotname, self._app.working_directory)
-
-        model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
-
+        if self.field_plots[plotname].field_type == "DC R/L Fields":
+            file_format = "fldplt"
+        file_to_add = self.export_field_plot(plotname, self._app.working_directory, file_format=file_format)
+        model = self.get_model_plotter_geometries(
+            generate_mesh=False,
+            get_objects_from_aedt=plot_cad_objs,
+            plot_as_separate_objects=plot_as_separate_objects,
+        )
+        model.show_legend = show_legend
         model.off_screen = not show
         if dark_mode:
             model.background_color = [40, 40, 40]
@@ -386,7 +414,10 @@ class PostProcessor(Post):
         model.show_grid = show_grid
         if file_to_add:
             model.add_field_from_file(
-                file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
+                file_to_add,
+                coordinate_units=self.modeler.model_units,
+                show_edges=meshplot,
+                log_scale=log_scale,
             )
             if plot_label:
                 model.fields[0].label = plot_label
@@ -395,6 +426,8 @@ class PostProcessor(Post):
             model.camera_position = view
         elif view != "isometric":
             self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
+        if is_pcb:
+            model.z_scale = 5
 
         if scale_min and scale_max:
             model.range_min = scale_min
@@ -420,13 +453,16 @@ class PostProcessor(Post):
         scale_min=None,
         scale_max=None,
         plot_cad_objs=True,
-        log_scale=True,
+        log_scale=False,
         export_path="",
         imageformat="jpg",
         keep_plot_after_generation=False,
         dark_mode=False,
         show_bounding=False,
         show_grid=False,
+        show_legend=True,
+        filter_objects=[],
+        plot_as_separate_objects=True,
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -462,7 +498,7 @@ class PostProcessor(Post):
         plot_cad_objs : bool, optional
             Whether to include objects in the plot. The default is ``True``.
         log_scale : bool, optional
-            Whether to plot fields in log scale. The default is ``True``.
+            Whether to plot fields in log scale. The default is ``False``.
         export_path : str, optional
             Image export path. Default is ``None`` to not export the image.
         imageformat : str, optional
@@ -477,12 +513,20 @@ class PostProcessor(Post):
             Whether to display the axes grid or not. The default is ``False``.
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        filter_objects : list, optional
+            Objects list for filtering the ``CutPlane`` plots.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            show = False
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
@@ -496,7 +540,9 @@ class PostProcessor(Post):
         elif plot_type == "Volume":
             plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
         else:
-            plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+            plotf = self.create_fieldplot_cutplane(
+                object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
+            )
         # if plotf:
         #     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)
 
@@ -516,6 +562,8 @@ class PostProcessor(Post):
             dark_mode=dark_mode,
             show_grid=show_grid,
             show_bounding=show_bounding,
+            show_legend=show_legend,
+            plot_as_separate_objects=plot_as_separate_objects,
         )
         if not keep_plot_after_generation:
             plotf.delete()
@@ -545,6 +593,8 @@ class PostProcessor(Post):
         dark_mode=False,
         show_grid=False,
         show_bounding=False,
+        show_legend=True,
+        filter_objects=[],
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -596,12 +646,18 @@ class PostProcessor(Post):
             Whether to display the axes grid or not. The default is ``False``.
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        filter_objects : list, optional
+            Objects list for filtering the ``CutPlane`` plots.
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            show = False
         if intrinsics is None:
             intrinsics = {}
         if not export_path:
@@ -622,9 +678,11 @@ class PostProcessor(Post):
             elif plot_type == "Volume":
                 plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
             else:
-                plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+                plotf = self.create_fieldplot_cutplane(
+                    object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
+                )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format="case")
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
@@ -637,6 +695,7 @@ class PostProcessor(Post):
             model.background_color = [40, 40, 40]
         model.bounding_box = show_bounding
         model.show_grid = show_grid
+        model.show_legend = show_legend
         if fields_to_add:
             model.add_frames_from_file(fields_to_add, log_scale=log_scale)
         if export_gif:
@@ -732,7 +791,9 @@ class PostProcessor(Post):
                     ]
                 )
             fields_to_add.append(
-                self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
+                self.export_field_plot(
+                    plotname, project_path, plotname + variation_variable + str(el), file_format="case"
+                )
             )
 
         model = self.get_model_plotter_geometries(generate_mesh=False)
@@ -959,3 +1020,342 @@ class PostProcessor(Post):
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
         scene.animate()
+
+
+class IcepakPostProcessor(PostProcessor, object):
+    def __init__(self, app):
+        PostProcessor.__init__(self, app)
+
+    @pyaedt_function_handler()
+    def create_field_summary(self):
+        return FieldSummary(self._app)
+
+    @pyaedt_function_handler()
+    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+        """
+        Get the operating point of the fans in the design.
+
+        Parameters
+        ----------
+        export_file : str, optional
+            Name of the file to save the operating point of the fans to. The default is
+            ``None``, in which case the filename is automatically generated.
+        setup_name : str, optional
+            Setup name to determine the operating point of the fans. The default is
+            ``None``, in which case the first available setup is used.
+        timestep : str, optional
+            Time, with units, at which to determine the operating point of the fans. The default
+            is ``None``, in which case the first available timestep is used. This parameter is
+            only relevant in transient simulations.
+        design_variation : str, optional
+            Design variation to determine the operating point of the fans from. The default is
+            ``None``, in which case the nominal variation is used.
+
+        Returns
+        -------
+        list
+            First element of the list is the CSV filename. The second and third elements
+            are the quantities with units describing the operating point of the fans.
+            The fourth element is a dictionary with the names of the fan instances
+            as keys and lists with volumetric flow rates and pressure rise floats associated
+            with the operating point as values.
+
+        References
+        ----------
+
+        >>> oModule.ExportFanOperatingPoint
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.create_fan()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        """
+
+        if export_file is None:
+            path = self._app.temp_directory
+            base_name = "{}_{}_FanOpPoint".format(self._app.project_name, self._app.design_name)
+            export_file = os.path.join(path, base_name + ".csv")
+            while os.path.exists(export_file):
+                file_name = generate_unique_name(base_name)
+                export_file = os.path.join(path, file_name + ".csv")
+        if setup_name is None:
+            setup_name = "{} : {}".format(self._app.get_setups()[0], self._app.solution_type)
+        if timestep is None:
+            timestep = ""
+            if self._app.solution_type == "Transient":
+                self._app.logger.warning("No timestep is specified. First timestep is exported.")
+        else:
+            if not self._app.solution_type == "Transient":
+                self._app.logger.warning("Simulation is steady-state. Timestep argument is ignored.")
+                timestep = ""
+        if design_variation is None:
+            design_variation = ""
+        self._app.osolution.ExportFanOperatingPoint(
+            [
+                "SolutionName:=",
+                setup_name,
+                "DesignVariationKey:=",
+                design_variation,
+                "ExportFilePath:=",
+                export_file,
+                "Overwrite:=",
+                True,
+                "TimeStep:=",
+                timestep,
+            ]
+        )
+        with open(export_file, "r") as f:
+            reader = csv.reader(f)
+            for line in reader:
+                if "Fan Instances" in line:
+                    vol_flow = line[1]
+                    p_rise = line[2]
+                    break
+            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
+        return [export_file, vol_flow, p_rise, var]
+
+    @pyaedt_function_handler
+    def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
+        content = fs.get_field_summary_data(sweep_name=setup_name, design_variation=design_variation)
+        pattern = r"\[([^]]*)\]"
+        match = re.search(pattern, content["Quantity"][0])
+        if match:
+            content["Unit"] = [match.group(1)]
+        else:  # pragma: no cover
+            content["Unit"] = [None]
+
+        if quantity_name in TOTAL_QUANTITIES:
+            return {i: content[i][0] for i in ["Total", "Unit"]}
+        return {i: content[i][0] for i in ["Min", "Max", "Mean", "Stdev", "Unit"]}
+
+    @pyaedt_function_handler()
+    def evaluate_faces_quantity(
+        self,
+        faces_list,
+        quantity_name,
+        side="Default",
+        setup_name=None,
+        design_variation=None,
+        ref_temperature="",
+    ):
+        """Export the field surface output.
+
+        Parameters
+        ----------
+        faces_list : list
+            List of faces to apply.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Which side of the mesh face to use. The default is ``Default``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        if design_variation is None:
+            design_variation = {}
+        name = generate_unique_name(quantity_name)
+        self._app.modeler.create_face_list(faces_list, name)
+        fs = self.create_field_summary()
+        fs.add_calculation("Object", "Surface", name, quantity_name, side=side, ref_temperature=ref_temperature)
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+
+    @pyaedt_function_handler()
+    def evaluate_boundary_quantity(
+        self,
+        boundary_name,
+        quantity_name,
+        side="Default",
+        volume=False,
+        setup_name=None,
+        design_variation=None,
+        ref_temperature="",
+    ):
+        """Export the field output on a boundary.
+
+        Parameters
+        ----------
+        boundary_name : str
+            Name of boundary to perform the computation on.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Side of the mesh face to use. The default is ``"Default"``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        volume : bool, optional
+            Whether to compute the quantity on the volume or on the surface.
+            The default is ``False``, in which case the quantity will be evaluated
+            only on the surface .
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        if design_variation is None:
+            design_variation = {}
+        fs = self.create_field_summary()
+        fs.add_calculation(
+            "Boundary",
+            ["Surface", "Volume"][int(volume)],
+            boundary_name,
+            quantity_name,
+            side=side,
+            ref_temperature=ref_temperature,
+        )
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+
+    @pyaedt_function_handler()
+    def evaluate_monitor_quantity(
+        self,
+        monitor_name,
+        quantity_name,
+        side="Default",
+        setup_name=None,
+        design_variation=None,
+        ref_temperature="",
+    ):
+        """Export monitor field output.
+
+        Parameters
+        ----------
+        monitor_name : str
+            Name of monitor to perform the computation on.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Side of the mesh face to use. The default is ``"Default"``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        if design_variation is None:
+            design_variation = {}
+        if settings.aedt_version < "2024.1":
+            raise NotImplementedError("Monitors are not supported in field summary in versions earlier than 2024 R1.")
+        else:  # pragma: no cover
+            if self._app.monitor.face_monitors.get(monitor_name, None):
+                field_type = "Surface"
+            elif self._app.monitor.point_monitors.get(monitor_name, None):
+                field_type = "Volume"
+            else:
+                raise AttributeError("Monitor {} is not found in the design.".format(monitor_name))
+            fs = self.create_field_summary()
+            fs.add_calculation(
+                "Monitor", field_type, monitor_name, quantity_name, side=side, ref_temperature=ref_temperature
+            )
+            return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+
+    @pyaedt_function_handler()
+    def evaluate_object_quantity(
+        self,
+        object_name,
+        quantity_name,
+        side="Default",
+        volume=False,
+        setup_name=None,
+        design_variation=None,
+        ref_temperature="",
+    ):
+        """Export the field output on or in an object.
+
+        Parameters
+        ----------
+        object_name : str
+            Name of object to perform the computation on.
+        quantity_name : str
+            Name of the quantity to export.
+        side : str, optional
+            Side of the mesh face to use. The default is ``"Default"``.
+            Options are ``"Adjacent"``, ``"Combined"``, and ``"Default"``.
+        volume : bool, optional
+            Whether to compute the quantity on the volume or on the surface. The default is ``False``.
+        setup_name : str, optional
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
+            The default is ``None``, in which case the active setup and active sweep are used.
+        design_variation : dict, optional
+            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+        ref_temperature: str, optional
+            Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+
+        Returns
+        -------
+        dict
+            Output dictionary, which depending on the quantity chosen, contains one
+            of these sets of keys:
+
+            - ``"Min"``, ``"Max"``, ``"Mean"``, ``"Stdev"``, and ``"Unit"``
+            - ``"Total"`` and ``"Unit"``
+
+        References
+        ----------
+
+        >>> oModule.ExportFieldsSummary
+        """
+        if design_variation is None:
+            design_variation = {}
+        fs = self.create_field_summary()
+        fs.add_calculation(
+            "Boundary",
+            ["Surface", "Volume"][int(volume)],
+            object_name,
+            quantity_name,
+            side=side,
+            ref_temperature=ref_temperature,
+        )
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)

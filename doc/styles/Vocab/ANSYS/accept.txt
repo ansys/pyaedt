@@ -1,37 +1,48 @@
-ANSYS
-Ansys
-ansys
-AEDB
 2D Extractor
+2D modeler
+3D modeler
+_static
+AEDB
+AEDT
 airbox
 airgap
+(?i)Ansys
+API
 autosave
 busbar
 busbars
 Bz
-circuit
-Circuit
+[Cc]ircuit
+codecov
+[Cc]om
+COM interface
+[Cc]omponents
+Conda
 CPython
 DesignXploration
 docstring
-Docstrings
-docstrings
+[Dd]ocstrings
 doppler
 EDB
+EDT
 efields
 EMIT
+FEBI
+FE-BI
 getters
 globals
-HFSS 3D Layout
+[Gg]gRPC
+HFSS
 Huray
 Icepak
 IronPython
+[Ll]ayout
 limitilines
 matplotlib
 Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
-Mechanical
+[Mm]echanical
 multiphysics
 multiplot
 namespaces
@@ -39,48 +50,39 @@ netlist
 Nexxim
 numpy
 numpydoc
-optimetrics
-Optimetrics
+[Oo]ptimetrics
 padstack
 padstacks
 parametrics
-polyline
-polylines
-Polyline
-Postprocessing
 PMs
+[Pp]olyline
+polylines
+Postprocessing
+pwl
 pyaedt
 PyAEDT
-PyPI
+(?i)PyAnsys
+[Pp]y[Pp][Ii]
 Python
+Python.NET
 pyvista
 Q2D Extractor
+Q3D
 Q3D Extractor
 RC
+reusability
 RF
 RMXprt
 scipy
-Siwave
 setters
+Siwave
+Slurm
 Spyder
+Stackup 3D
 stackups
 stripline
 subcircuit
+[Tt]oolkits
 Twin Builder
 Uncomment
 vias
-_static
-pwl
-Conda
-PyAnsys
-codecov
-mechanical
-reusability
-pypi
-EDT
-pyansys
-Slurm
-Python.NET
-Toolkits
-toolkits
-

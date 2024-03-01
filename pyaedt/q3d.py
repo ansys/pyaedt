@@ -1,4 +1,5 @@
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -7,13 +8,13 @@ import re
 import warnings
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
@@ -81,9 +82,6 @@ class QExtractor(FieldAnalysis3D, object):
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
-
-    def __enter__(self):
-        return self
 
     @property
     def excitations(self):
@@ -1231,7 +1229,7 @@ class Q3d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
+        machine. The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -1423,7 +1421,7 @@ class Q3d(QExtractor, object):
                 net_id = i.props.get("ID", None)  # pragma: no cover
                 break  # pragma: no cover
         for i in self.boundaries:
-            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
                 sinks.append(i.name)
         return sinks
 
@@ -1783,6 +1781,17 @@ class Q3d(QExtractor, object):
     def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
         """Create a frequency sweep.
 
+        .. deprecated:: 0.7.12
+            This method is deprecated. To create a frequency sweep use ``create_frequency_sweep()``
+            from setup object.
+            Example
+            -------
+            >>> from pyaedt import Q3d
+            >>> q3d = Q3d()
+            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
+            >>> q3d.release_desktop(True, True)
+
         Parameters
         ----------
         setupname : str
@@ -1842,6 +1851,21 @@ class Q3d(QExtractor, object):
         self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
         """Create a discrete sweep with a single frequency value.
+
+        .. deprecated:: 0.7.12
+            This method is deprecated. To create a discrete frequency sweep use ``create_frequency_sweep()``
+            from setup object.
+            Example
+            -------
+            >>> from pyaedt import Q3d
+            >>> q3d = Q3d()
+            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
+            ...                                        freqstart=0.5,
+            ...                                        freqstop=1.5,
+            ...                                        sweepname="Sweep1",
+            ...                                        sweep_type="Discrete")
+            >>> q3d.release_desktop(True, True)
 
         Parameters
         ----------
@@ -2035,7 +2059,7 @@ class Q2d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored
+        machine. The default is ``False``. This parameter is ignored
         when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.

@@ -340,14 +340,14 @@ class TestClass:
         o = self.create_copper_box()
         assert o.name in o.__str__()
         test_face = o.faces[0]
-        assert "FaceId" in test_face.__repr__()
-        assert "FaceId" in test_face.__str__()
+        assert isinstance(int(test_face.__str__()), int)
+        assert isinstance(int(test_face.__repr__()), int)
         test_edge = test_face.edges[0]
-        assert "EdgeId" in test_edge.__repr__()
-        assert "EdgeId" in test_edge.__str__()
+        assert isinstance(int(test_edge.__str__()), int)
+        assert isinstance(int(test_edge.__repr__()), int)
         test_vertex = test_face.vertices[0]
-        assert "Vertex" in test_vertex.__repr__()
-        assert "Vertex" in test_vertex.__str__()
+        assert isinstance(int(test_vertex.__str__()), int)
+        assert isinstance(int(test_vertex.__repr__()), int)
 
     def test_13_delete_self(self):
         o = self.create_copper_box()

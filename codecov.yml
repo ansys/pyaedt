@@ -20,7 +20,6 @@ coverage:
     - "pyaedt/rpc/**/*.py"  # ignore folders and all its contents
     - "pyaedt/generic/toolkit.py"  # ignore folders and all its contents
     - "pyaedt/doctest_fixtures/*.py"  # ignore folders and all its contents
-    - "pyaedt/siwave.py"  # ignore folders and all its contents
     - "pyaedt/setup.py"  # ignore folders and all its contents
     - "pyaedt/setup-distutils.py"  # ignore folders and all its contents
     - "pyaedt/_setup_common.py"  # ignore folders and all its contents

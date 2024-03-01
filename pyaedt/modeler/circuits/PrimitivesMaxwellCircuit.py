@@ -95,7 +95,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         id.set_property("R", value)
-
+        id.set_property("Name", compname)
         return id
 
     @pyaedt_function_handler()
@@ -138,6 +138,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         id.set_property("L", value)
+        id.set_property("Name", compname)
         return id
 
     @pyaedt_function_handler()
@@ -177,6 +178,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
 
         id.set_property("C", value)
+        id.set_property("Name", compname)
         return id
 
     @pyaedt_function_handler()
@@ -215,6 +217,8 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
+
+        id.set_property("Name", compname)
         return id
 
     @pyaedt_function_handler()
@@ -250,4 +254,5 @@ class MaxwellCircuitComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
+        id.set_property("Name", compname)
         return id

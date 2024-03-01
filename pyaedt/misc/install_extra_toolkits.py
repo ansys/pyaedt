@@ -22,20 +22,14 @@ available_toolkits = {
         "installation_path": "Project",
         "package_name": "ansys.aedt.toolkits.choke",
     },
+
     "MagnetSegmentationWizard": {
         "pip": "git+https://github.com/ansys/magnet-segmentation-toolkit.git",
         "image": "pyansys.png",
         "toolkit_script": "src/ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py",
         "installation_path": "Maxwell3d",
         "package_name": "magnet-segmentation-toolkit",
-    },
-    "TemplateToolkit": {
-        "pip": "git+https://github.com/ansys/pyaedt-toolkit-template.git",
-        "image": "pyansys.png",
-        "toolkit_script": "ansys/aedt/toolkits/template/run_toolkit.py",
-        "installation_path": "Project",
-        "package_name": "ansys.aedt.toolkits.template",
-    },
+    }
 }
 
 

@@ -58,7 +58,20 @@ class TestClass:
         assert self.aedtapp.get_sweeps("My_HFSS_Setup")
         sweep2 = setup1.add_sweep(sweepname="test_sweeptype", sweeptype="invalid")
         assert sweep2.props["Type"] == "Interpolating"
-        setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
+        sweep3 = setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
+        assert sweep3.props["Type"] == "Discrete"
+        sweep4 = setup1.create_frequency_sweep("GHz", 23, 25, 401, sweep_type="Fast")
+        assert sweep4.props["Type"] == "Fast"
+
+    def test_01c_create_hfss_setup_auto_open(self):
+        self.aedtapp.duplicate_design("auto_open")
+        for setup in self.aedtapp.get_setups():
+            self.aedtapp.delete_setup(setup)
+        self.aedtapp.set_auto_open()
+        setup1 = self.aedtapp.get_setup("Auto1")
+        setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
+        assert setup1.update({"MaximumPasses": 20})
+        assert setup1.props["SolveType"] == "MultiFrequency"
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit(specified_version=desktop_version)
@@ -74,6 +87,7 @@ class TestClass:
         setup1.enable()
 
     def test_03_non_valid_setup(self):
+        self.aedtapp.set_active_design("HFSSDesign")
         self.aedtapp.duplicate_design("non_valid")
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
         assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
@@ -100,6 +114,16 @@ class TestClass:
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
+    def test_05a_delete_sweep(self):
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup5", self.aedtapp.SETUPS.HFSSDrivenDefault)
+        setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "My_Sweep1", sweep_type="Fast")
+        sweeps = setup1.get_sweep_names()
+        assert len(sweeps) == 1
+        assert "My_Sweep1" in sweeps
+        setup1.delete_sweep("My_Sweep1")
+        sweeps = setup1.get_sweep_names()
+        assert len(sweeps) == 0
+
     def test_06_sweep_sbr(self):
         self.aedtapp.insert_design("sweepsbr")
         self.aedtapp.solution_type = "SBR+"
@@ -117,6 +141,9 @@ class TestClass:
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
         assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="DecadeCount")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="OctaveCount")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=1, variation_type="ExponentialCount")
         assert setup1.add_calculation(
             calculation="dB(S(1,1))", ranges={"Freq": "3.5GHz"}, solution="My_HFSS_Setup : LastAdaptive"
         )

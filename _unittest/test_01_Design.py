@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
@@ -49,6 +50,9 @@ class TestClass:
     def test_01_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
 
+    def test_01_installed_path(self):
+        assert self.aedtapp.desktop_class.install_path
+
     def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, test_project_name)
@@ -90,6 +94,7 @@ class TestClass:
     def test_06a_set_temp_dir(self):
         assert os.path.exists(self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir")))
         assert self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir"))
+        self.aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_08_objects(self):
         print(self.aedtapp.oboundary)
@@ -98,6 +103,8 @@ class TestClass:
         print(self.aedtapp.logger)
         print(self.aedtapp.variable_manager)
         print(self.aedtapp.materials)
+        print(self.aedtapp)
+        assert self.aedtapp.info
 
     def test_09_set_objects_deformation(self):
         assert self.aedtapp.modeler.set_objects_deformation(["inner"])
@@ -129,6 +136,9 @@ class TestClass:
 
     def test_14_get_nominal_variation(self):
         assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
+        assert isinstance(self.aedtapp.get_nominal_variation(), list)
+        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), list)
+        assert self.aedtapp.get_nominal_variation(with_values=True) != []
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("non_valid1", False)
@@ -220,6 +230,7 @@ class TestClass:
         assert not ds7
         assert ds4.delete()
         assert self.aedtapp.import_dataset1d(filename)
+        assert ds5.delete()
 
     def test_19a_import_dataset3d(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.tab")
@@ -403,3 +414,12 @@ class TestClass:
         assert "AmbRadTemp" in design_settings_dict
         assert "GravityVec" in design_settings_dict
         assert "GravityDir" in design_settings_dict
+
+    def test_41_desktop_reference_counting(self, desktop):
+        num_references = desktop._connected_app_instances
+        with Hfss() as hfss:
+            assert hfss
+            assert desktop._connected_app_instances == num_references + 1
+            hfss.set_active_design(hfss.design_name)
+            assert desktop._connected_app_instances == num_references + 1
+        assert desktop._connected_app_instances == num_references

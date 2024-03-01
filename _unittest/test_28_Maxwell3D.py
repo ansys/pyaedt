@@ -75,6 +75,11 @@ class TestClass:
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
+        self.aedtapp.assign_material(plate, "pec")
+        assert not plate.solve_inside
+        self.aedtapp.assign_material(plate, "perfect conductor")
+        assert not plate.solve_inside
+
     @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
     def test_01_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
@@ -639,6 +644,9 @@ class TestClass:
 
     def test_40_assign_impedance(self):
         impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        impedance_faces = self.aedtapp.modeler.select_allfaces_fromobjects([impedance_box.name])
+        assert self.aedtapp.assign_impedance(impedance_faces, "copper")
+        assert self.aedtapp.assign_impedance(impedance_box, "copper")
         impedance_assignment = self.aedtapp.assign_impedance(
             impedance_box.name,
             permeability=1.3,
@@ -819,14 +827,17 @@ class TestClass:
         assert isinstance(sheets[0][object_name], list)
         assert len(sheets[0][object_name]) == segments_number - 1
         segments_number = 4
+        mesh_sheets_number = 3
         object_name = "PM_I1_1"
         magnet_id = [obj.id for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
         sheets = cyl_gap.modeler.objects_segmentation(
-            magnet_id, segments_number=segments_number, apply_mesh_sheets=True
+            magnet_id, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=mesh_sheets_number
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0][object_name], list)
         assert len(sheets[0][object_name]) == segments_number - 1
+        assert isinstance(sheets[1][object_name], list)
+        assert len(sheets[1][object_name]) == mesh_sheets_number
         segmentation_thickness = 1
         object_name = "PM_O1"
         magnet = [obj for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
@@ -864,6 +875,7 @@ class TestClass:
         assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_53_assign_layout_force(self, layout_comp):
         nets_layers = {
@@ -916,3 +928,57 @@ class TestClass:
         assert m3d.assign_zero_tangential_h_field(
             box.top_face_z,
         )
+
+    def test_57_radiation(self):
+        self.aedtapp.insert_design("Radiation")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], matname="aluminum")
+        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], matname="aluminum")
+        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], matname="aluminum")
+        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], matname="aluminum")
+        bound = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
+        assert bound
+        bound2 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2
+        bound3 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
+        assert bound2.name != bound3.name
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
+        assert not self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
+
+    def test_58_solution_types_setup(self, add_app):
+        m3d = add_app(application=Maxwell3d, design_name="test_setups")
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.DCConduction
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ACConduction
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectricTransient
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()
+        m3d.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        assert setup
+        setup.delete()

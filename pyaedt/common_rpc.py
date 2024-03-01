@@ -1,13 +1,12 @@
 import os
 import signal
-import socket
 import sys
 import tempfile
 import time
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.aedt_logger import pyaedt_logger as logger
+from pyaedt.generic.settings import settings
 from pyaedt.misc import list_installed_ansysem
 
 # import sys
@@ -165,7 +164,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = socket.gethostname()
+    hostname = "0.0.0.0"
     t = ThreadedServer(
         ServiceManager,
         hostname=hostname,
@@ -226,7 +225,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = socket.gethostname()
+    hostname = "0.0.0.0"
     if threaded:
         service = ThreadedServer
     else:

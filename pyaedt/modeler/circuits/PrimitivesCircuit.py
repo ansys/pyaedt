@@ -230,7 +230,7 @@ class CircuitComponents(object):
         comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
         arg1 = ["Name:Selections", "Selections:=", [comp_id]]
         self.oeditor.AddPinIPorts(arg1)
-
+        self.refresh_all_ids()
         return True
 
     @pyaedt_function_handler()

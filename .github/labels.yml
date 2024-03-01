@@ -29,3 +29,7 @@
 - name: testing
   description: Anything related to testing
   color: 5802B8
+
+- name: examples
+  description: Anything related to the examples
+  color: 3C2E5F

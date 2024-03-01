@@ -5,11 +5,11 @@ import uuid
 from _unittest.conftest import config
 import pytest
 
-from pyaedt import settings
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import read_json
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
+from pyaedt.generic.settings import settings
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
@@ -78,7 +78,6 @@ class TestClass:
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
-
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
         )
@@ -86,8 +85,12 @@ class TestClass:
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic
         )
+        assert not self.aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
+        assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
+        mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
+        assert os.path.exists(mesh_file_path)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -199,7 +202,15 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
 
     def test_06_export_report_to_csv(self):
-        self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
+        self.aedtapp.post.export_report_to_csv(
+            self.local_scratch.path,
+            "MyTestScattering",
+            start="3GHz",
+            end="6GHz",
+            step="0.12GHz",
+            uniform=True,
+            use_trace_number_format=False,
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
 
     def test_06_export_report_to_rdat(self):
@@ -492,12 +503,13 @@ class TestClass:
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plot1.name,
+            plotname=plot1.name,
             project_path=self.local_scratch.path,
             meshplot=False,
             imageformat="jpg",
-            view="isometric",
+            view="xy",
             show=False,
+            plot_label=plot1.name + " label",
         )
         assert os.path.exists(plot_obj.image_file)
         os.unlink(plot_obj.image_file)
@@ -515,7 +527,20 @@ class TestClass:
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
+        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
+            plotname=plot1.name,
+            project_path=self.local_scratch.path,
+            meshplot=False,
+            imageformat="jpg",
+            view="xy",
+            show=False,
+            plot_label=plot1.name + " label",
+            file_format="aedtplt",
+        )
+        assert os.path.exists(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file)
+
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
     def test_14B_Field_Ploton_Vector(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -548,6 +573,10 @@ class TestClass:
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
         )
         assert os.path.exists(obj.image_file)
+        obj2 = self.aedtapp.post.plot_model_obj(
+            show=False, export_path=os.path.join(self.local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
+        )
+        assert os.path.exists(obj2.image_file)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self):
@@ -600,7 +629,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
+        dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(

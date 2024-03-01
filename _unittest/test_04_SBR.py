@@ -60,6 +60,7 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
 
     def test_02_add_antennas(self):
+        self.aedtapp.insert_design("add_antennas")
         dict1 = {"polarization": "Horizontal"}
         par_beam = self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.ParametricBeam, parameters_dict=dict1, antenna_name="TX1"
@@ -71,8 +72,8 @@ class TestClass:
         assert par_beam.update()
         self.aedtapp.modeler.user_defined_components["TX1_1"].native_properties["Unit"] = "mm"
 
-        assert len(self.aedtapp.native_components) == 3
-        assert len(self.aedtapp.modeler.user_defined_components) == 3
+        assert len(self.aedtapp.native_components) == 2
+        assert len(self.aedtapp.modeler.user_defined_components) == 2
         assert self.aedtapp.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1"})
         assert self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.CrossDipole, use_current_source_representation=True
@@ -109,6 +110,7 @@ class TestClass:
         assert array.update()
 
     def test_03_add_ffd_antenna(self):
+        self.aedtapp.insert_design("ffd_antenna")
         assert self.aedtapp.create_sbr_file_based_antenna(
             ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )

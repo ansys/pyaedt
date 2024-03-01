@@ -14,9 +14,16 @@ from pyaedt.generic.near_field_import import convert_nearfield_data
 test_subfolder = "T20"
 
 if config["desktopVersion"] > "2022.2":
+    component = "Circ_Patch_5GHz_232.a3dcomp"
+else:
+    component = "Circ_Patch_5GHz.a3dcomp"
+
+if config["desktopVersion"] > "2023.1":
     diff_proj_name = "differential_pairs_231"
 else:
     diff_proj_name = "differential_pairs"
+
+component_array = "Array_232"
 
 
 @pytest.fixture(scope="class")
@@ -246,8 +253,8 @@ class TestClass:
         assert sweep.props["Type"] == "Discrete"
 
         # Create a linear count sweep with the incorrect sweep type.
-        try:
-            sweep = self.aedtapp.create_linear_count_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_count_sweep(
                 setupname="MySetup",
                 sweepname="IncorrectStep",
                 unit="MHz",
@@ -256,12 +263,10 @@ class TestClass:
                 num_of_freq_points=1234,
                 sweep_type="Incorrect",
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0]
+                == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        assert exception_raised
         self.aedtapp["der_var"] = "1mm"
         self.aedtapp["der_var2"] = "2mm"
         setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
@@ -320,8 +325,8 @@ class TestClass:
         assert sweep.props["Type"] == "Fast"
 
         # Create a linear step sweep with the incorrect sweep type.
-        try:
-            sweep = self.aedtapp.create_linear_step_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_step_sweep(
                 setupname="MySetup",
                 sweepname="StepFast",
                 unit=units,
@@ -330,12 +335,10 @@ class TestClass:
                 step_size=step_size,
                 sweep_type="Incorrect",
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0]
+                == "Invalid value for 'sweep_type'. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        assert exception_raised
 
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
@@ -1150,37 +1153,28 @@ class TestClass:
         assert n_boundaries == 12
 
         # Use two boxes with different dimensions.
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box3)
-        except AttributeError as e:
-            assert e.args[0] == "The closest faces of the two objects must be identical in shape."
-        else:
-            assert False
+            assert execinfo.args[0] == "The closest faces of the two objects must be identical in shape."
 
         # Rotate box3 so that, box3 and box4 are not collinear anymore.
         # Spiral lumped port can only be created based on 2 collinear objects.
         box3.rotate(cs_axis="X", angle=90)
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
-        except AttributeError as e:
-            assert e.args[0] == "The two objects must have parallel adjacent faces."
-        else:
-            assert False
+            assert execinfo.args[0] == "The two objects must have parallel adjacent faces."
 
         # Rotate back box3
         # rotate them slightly so that they are still parallel, but not aligned anymore with main planes.
         box3.rotate(cs_axis="X", angle=-90)
         box3.rotate(cs_axis="Y", angle=5)
         box4.rotate(cs_axis="Y", angle=5)
-        try:
+        with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
-        except AttributeError as e:
             assert (
-                e.args[0]
+                execinfo.args[0]
                 == "The closest faces of the two objects must be aligned with the main planes of the reference system."
             )
-        else:
-            assert False
         self.aedtapp.delete_design("Design_Terminal_2", self.fall_back_name)
 
     def test_46_mesh_settings(self):
@@ -1201,12 +1195,9 @@ class TestClass:
 
         self.aedtapp.solution_type = "Modal"
         # Spiral lumped port can only be created in a 'Terminal' solution.
-        try:
+        with pytest.raises(Exception) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box1, box2)
-        except Exception as e:
-            exception_raised = True
-            assert e.args[0] == "This method can be used only in Terminal solutions."
-        assert exception_raised
+            assert execinfo.args[0] == "This method can be used only in 'Terminal' solutions."
         self.aedtapp.solution_type = "Terminal"
 
         # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+
@@ -1255,18 +1246,34 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.generic.general_methods import read_json
 
-        dict_in = json_to_dict(
-            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
-        )
-        dict_in["Circ_Patch_5GHz1"] = os.path.join(
-            local_path, "../_unittest/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
-        )
-        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+        if config["desktopVersion"] > "2023.1":
+            dict_in = read_json(
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple_232.json")
+            )
+            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
+        else:
+            dict_in = read_json(
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
+            )
+            dict_in["Circ_Patch_5GHz1"] = os.path.join(
+                local_path, "../_unittest/example_models", test_subfolder, component
+            )
+            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        array_name = self.aedtapp.component_array_names[0]
+        assert self.aedtapp.component_array[array_name].cells[2][2].rotation == 0
+        assert self.aedtapp.component_array_names
         dict_in["cells"][(3, 3)]["rotation"] = 90
-        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        component_array = self.aedtapp.add_3d_component_array_from_json(dict_in)
+        assert component_array.cells[2][2].rotation == 90
+        component_array.cells[2][2].rotation = 0
+        assert component_array.cells[2][2].rotation == 0
 
     def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()
@@ -1398,9 +1405,11 @@ class TestClass:
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        assert self.aedtapp.modeler.import_nastran(example_project2)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -1458,8 +1467,13 @@ class TestClass:
             name="Wave2",
             renormalize=False,
         )
-        assert self.aedtapp.set_phase_center_per_port()
-        assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        if self.aedtapp.desktop_class.is_grpc_api:
+            assert self.aedtapp.set_phase_center_per_port()
+            assert self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+        else:
+            assert not self.aedtapp.set_phase_center_per_port()
+            assert not self.aedtapp.set_phase_center_per_port(["Global", "Global"])
+
         assert not self.aedtapp.set_phase_center_per_port(["Global"])
         assert not self.aedtapp.set_phase_center_per_port("Global")
 
@@ -1470,3 +1484,154 @@ class TestClass:
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_65_component_array(self, add_app):
+        hfss_array = add_app(project_name=component_array, subfolder=test_subfolder)
+        assert len(hfss_array.component_array) == 1
+
+        array = hfss_array.component_array["A1"]
+        assert array.name == hfss_array.component_array_names[0]
+
+        cell1 = array.get_cell(1, 1)
+        cell2 = array[1, 1]
+        assert cell2
+        assert cell1.rotation == 0
+
+        assert not array.get_cell(0, 0)
+        assert not array.get_cell(10, 0)
+
+        lc = array.lattice_vector()
+        assert len(lc) == 6
+
+        assert len(array.component_names) == 4
+
+        assert len(array.post_processing_cells) == 4
+        post_cells = array.post_processing_cells
+        post_cells["Radome_Corner1"] = [8, 1]
+        array.post_processing_cells = post_cells
+        assert array.post_processing_cells["Radome_Corner1"] == [8, 1]
+
+        array.cells[0][1].component = None
+        assert not array.cells[0][1].component
+
+        array.cells[1][1].rotation = 90
+        assert array.cells[1][1].rotation == 90
+
+        array.cells[1][1].rotation = 10
+        assert not array.cells[1][1].rotation == 10
+
+        array.cells[1][1].is_active = False
+        array.cells[1][1].is_active = 1
+        assert not array.cells[1][1].is_active
+
+        assert array.cells[1][2].component == array.component_names[2]
+        assert not array.cells[1][2].component == "test"
+
+        array.cells[0][1].component = array.component_names[3]
+        assert array.cells[0][1].component == array.component_names[3]
+
+        hfss_array.component_array["A1"].name = "Array_new"
+        assert hfss_array.component_array_names[0] == "Array_new"
+        hfss_array.component_array["Array_new"].name = "A1"
+
+        omodel = hfss_array.get_oo_object(hfss_array.odesign, "Model")
+        oarray = hfss_array.get_oo_object(omodel, "A1")
+
+        assert array.visible
+        array.visible = False
+        assert not oarray.GetPropValue("Visible")
+        array.visible = True
+        assert oarray.GetPropValue("Visible")
+
+        assert array.show_cell_number
+        array.show_cell_number = False
+        assert not oarray.GetPropValue("Show Cell Number")
+        array.show_cell_number = True
+        assert oarray.GetPropValue("Show Cell Number")
+
+        assert array.render == "Shaded"
+        array.render = "Wireframe"
+        assert oarray.GetPropValue("Render") == "Wireframe"
+        array.render = "Shaded"
+        assert oarray.GetPropValue("Render") == "Shaded"
+        array.render = "Shaded1"
+        assert not array.render == "Shaded1"
+
+        a_choices = array.a_vector_choices
+        assert array.a_vector_name in a_choices
+        array.a_vector_name = a_choices[0]
+        assert oarray.GetPropValue("A Vector") == a_choices[0]
+        array.a_vector_name = "Test"
+        assert not array.a_vector_name == "Test"
+
+        b_choices = array.b_vector_choices
+        assert array.b_vector_name in b_choices
+        array.b_vector_name = b_choices[1]
+        assert oarray.GetPropValue("B Vector") == b_choices[1]
+        array.b_vector_name = "Test"
+        assert not array.b_vector_name == "Test"
+
+        assert array.a_size == 8
+
+        assert array.b_size == 8
+
+        assert array.a_length == 0.64
+
+        assert array.b_length == 0.64
+
+        assert len(array.lattice_vector()) == 6
+
+        assert array.padding_cells == 0
+        array.padding_cells = 2
+        assert oarray.GetPropValue("Padding") == "2"
+        array.padding_cells = 0
+
+        assert array.coordinate_system == "Global"
+        array.coordinate_system = "Corner"
+        array.coordinate_system = "Global"
+
+        array_csv = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_info.csv")
+        array_info = array.parse_array_info_from_csv(array_csv)
+        assert len(array_info) == 4
+        assert array_info["component"][1] == "02_Patch1"
+
+        assert len(array.get_component_objects()) == 4
+
+        assert len(array.get_cell_position()) == array.a_size
+
+        # Delete 3D Component
+        hfss_array.modeler.user_defined_components["03_Radome_Side1"].delete()
+        array.update_properties()
+        assert len(array.component_names) == 3
+        assert len(array.post_processing_cells) == 3
+
+        array.delete()
+        assert not hfss_array.component_array
+
+    def test_66_assign_febi(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_febi(["inner"])
+        assert len(aedtapp.boundaries) == 1
+        aedtapp.close_project(save_project=False)
+
+    def test_67_transient_composite(self, add_app):
+        aedtapp = add_app(project_name="test_66")
+        aedtapp.solution_type = "Transient Composite"
+        assert aedtapp.solution_type == "Transient Composite"
+        aedtapp.close_project(save_project=False)
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
+    def test_68_import_gds_3d(self):
+        self.aedtapp.insert_design("gds_import_H3D")
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (0, 0), 9: (0, 0)})
+        assert self.aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
+        assert not self.aedtapp.import_gds_3d(gds_file, {})
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
+        assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})

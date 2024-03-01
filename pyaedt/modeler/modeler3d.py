@@ -10,13 +10,11 @@ from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Modeler3D(GeometryModeler, Primitives3D, object):
-
+class Modeler3D(Primitives3D):
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -34,10 +32,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     """
 
     def __init__(self, application):
-        application.logger.reset_timer()
-        GeometryModeler.__init__(self, application, is3d=True)
-        Primitives3D.__init__(self)
-        application.logger.info_timer("Modeler3D class has been initialized!")
+        Primitives3D.__init__(self, application)
 
     def __get__(self, instance, owner):
         self._app = instance
@@ -84,6 +79,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         monitor_objects=None,
         datasets=None,
         native_components=None,
+        create_folder=True,
     ):
         """Create a 3D component file.
 
@@ -122,8 +118,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         password_type : str, optional
             Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
             The default is ``UserSuppliedPassword``.
-        hide_contents : bool, optional
-            Whether to hide contents. The default is ``False``.
+        hide_contents : bool or list, optional
+            List of object names to hide when the component is encrypted.
+            If set to an empty list or ``False``, all objects are visible.
         replace_names : bool, optional
             Whether to replace objects and material names.
             The default is ``False``.
@@ -146,6 +143,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of native_components names to export. The default is all
             native_components. This argument is relevant only if ``auxiliary_dict_file``
             is set to ``True``.
+        create_folder : Bool, optional
+            If the specified path to the folder where the 3D component should be saved
+            does not exist, then create the folder. Default is ``True``.
 
         Returns
         -------
@@ -163,6 +163,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             return False
         if component_outline not in ["BoundingBox", "None"]:
             return False
+        hide_contents_flag = is_encrypted and isinstance(hide_contents, list)
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -202,7 +203,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "PasswordType:=",
             password_type,
             "HideContents:=",
-            hide_contents,
+            hide_contents_flag,
             "ReplaceNames:=",
             replace_names,
             "ComponentOutline:=",
@@ -211,9 +212,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if object_list:
             objs = object_list
         else:
-            native_objs = [
-                obj.name for _, v in self.modeler.user_defined_components.items() for _, obj in v.parts.items()
-            ]
+            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if not native_components and native_objs:
                 self.logger.warning(
@@ -224,7 +223,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
-        arg.append("HiddenParts:="), arg.append([])
+        arg.append("HiddenParts:=")
+        if not hide_contents_flag:
+            arg.append([])
+        else:
+            arg.append(hide_contents)
         if included_cs:
             allcs = included_cs
         else:
@@ -296,7 +299,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
-                        mesh_comp.append(self.modeler.objects[item].name)
+                        mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
@@ -331,19 +334,25 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 config_dict = json.load(f)
             out_dict = {}
             if monitor_objects:
-                out_dict["monitor"] = config_dict["monitor"]
-                for i in list(out_dict["monitor"]):
-                    if i not in monitor_objects:
-                        del out_dict["monitor"][i]
+                out_dict["monitors"] = config_dict["monitors"]
+                to_remove = []
+                for i, mon in enumerate(out_dict["monitors"]):
+                    if mon["Name"] not in monitor_objects:
+                        to_remove.append(mon)
                     else:
-                        if out_dict["monitor"][i]["Type"] in ["Object", "Surface"]:
+                        if mon["Type"] in ["Object", "Surface"]:
                             self._app.modeler.refresh_all_ids()
-                            out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(out_dict["monitor"][i]["ID"])
+                            out_dict["monitors"][i]["ID"] = self._app.modeler.get_obj_id(mon["ID"])
+            for mon in to_remove:
+                out_dict["monitors"].remove(mon)
             if datasets:
                 out_dict["datasets"] = config_dict["datasets"]
-                for i in list(out_dict["datasets"]):
-                    if i not in datasets:
-                        del out_dict["datasets"][i]
+                to_remove = []
+                for dat in out_dict["datasets"]:
+                    if dat["Name"] not in datasets:
+                        to_remove.append(dat)
+                for dat in to_remove:
+                    out_dict["datasets"].remove(dat)
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
                 out_dict["native components"] = config_dict["native components"]
@@ -363,6 +372,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
+        if not os.path.isdir(os.path.dirname(component_file)):
+            self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
+            if create_folder:  # Folder doesn't exist.
+                os.mkdir(os.path.dirname(component_file))
+                self.logger.warning("Created folder '" + os.path.dirname(component_file) + "'")
+            else:
+                self.logger.warning("Unable to create 3D Component: '" + component_file + "'")
+                return False
         self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
         return True
 
@@ -441,9 +458,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if object_list:
             objs = object_list
         else:
-            native_objs = [
-                obj.name for _, v in self.modeler.user_defined_components.items() for _, obj in v.parts.items()
-            ]
+            native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if native_objs:
                 self.logger.warning(
@@ -525,7 +540,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     if isinstance(item, str):
                         mesh_comp.append(item)
                     else:
-                        mesh_comp.append(self.modeler.objects[item].name)
+                        mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
@@ -888,131 +903,116 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
-            for line in lines:
-                line_split = [line[i : i + 8] for i in range(0, len(line), 8)]
-                if len(line_split) < 5:
+            for lk in range(len(lines)):
+                line = lines[lk]
+                line_type = line[:8].strip()
+                if line.startswith("$") or line.startswith("*"):
                     continue
-                if line_split[0].startswith("GRID"):
-                    try:
-                        import re
-
-                        out = re.findall("^.{24}(.{8})(.{8})(.{8})", line)[0]
-                        n1 = out[0].replace(".-", ".e-").strip()
-                        n2 = out[1].replace(".-", ".e-").strip()
-                        n3 = out[2].replace(".-", ".e-").strip()
-
-                        if "-" in n1[1:]:
-                            n1 = n1[0] + n1[1:].replace("-", "e-")
-                        n1 = float(n1)
-                        if "-" in n2[1:]:
-                            n2 = n2[0] + n2[1:].replace("-", "e-")
-                        n2 = float(n2)
-                        if "-" in n3[1:]:
-                            n3 = n3[0] + n3[1:].replace("-", "e-")
-                        n3 = float(n3)
-
-                        nas_to_dict["Points"][int(line_split[1])] = [n1, n2, n3]
-                        nas_to_dict["PointsId"][int(line_split[1])] = id
+                elif line_type in ["GRID", "CTRIA3"]:
+                    grid_id = int(line[8:16])
+                    if line_type == "CTRIA3":
+                        tria_id = int(line[16:24])
+                    n1 = line[24:32].strip()
+                    if "-" in n1[1:]:
+                        n1 = n1[0] + n1[1:].replace("-", "e-")
+                    n2 = line[32:40].strip()
+                    if "-" in n2[1:]:
+                        n2 = n2[0] + n2[1:].replace("-", "e-")
+                    n3 = line[40:48].strip()
+                    if "-" in n3[1:]:
+                        n3 = n3[0] + n3[1:].replace("-", "e-")
+                    if line_type == "GRID":
+                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        nas_to_dict["PointsId"][grid_id] = grid_id
                         id += 1
-                    except:
-                        pass
-                elif line_split[0].startswith("CTRIA3"):
-                    if int(line_split[2]) in nas_to_dict["Triangles"]:
-                        nas_to_dict["Triangles"][int(line_split[2])].append(
-                            [
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                            ]
-                        )
                     else:
-                        nas_to_dict["Triangles"][int(line_split[2])] = [
-                            [
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
+                        if tria_id in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id].append(
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
+                            )
+                        else:
+                            nas_to_dict["Triangles"][tria_id] = [
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
                             ]
-                        ]
-                elif line_split[0].startswith("CPENTA"):
-                    if int(line_split[2]) in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][int(line_split[2])].append(
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
-                            ]
-                        )
+                elif line_type in ["GRID*", "CTRIA3*"]:
+                    grid_id = int(line[8:24])
+                    if line_type == "CTRIA3*":
+                        tria_id = int(line[24:40])
+                    n1 = line[40:56].strip()
+                    if "-" in n1[1:]:
+                        n1 = n1[0] + n1[1:].replace("-", "e-")
+                    n2 = line[56:72].strip()
+                    if "-" in n2[1:]:
+                        n2 = n2[0] + n2[1:].replace("-", "e-")
+
+                    n3 = line[72:88].strip()
+                    if not n3 or n3 == "*":
+                        lk += 1
+                        n3 = lines[lk][8:24].strip()
+                    if "-" in n3[1:]:
+                        n3 = n3[0] + n3[1:].replace("-", "e-")
+                    if line_type == "GRID*":
+                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        nas_to_dict["PointsId"][grid_id] = id
+                        id += 1
                     else:
-                        nas_to_dict["Solids"][int(line_split[2])] = [
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
+                        if tria_id in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id].append(
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
+                            )
+                        else:
+                            nas_to_dict["Triangles"][tria_id] = [
+                                [
+                                    int(n1),
+                                    int(n2),
+                                    int(n3),
+                                ]
                             ]
-                        ]
-                elif line_split[0].startswith("CHEXA"):
-                    if int(line_split[2]) in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][int(line_split[2])].append(
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
-                                int(line_split[9]),
-                                int(line_split[10]),
-                            ]
-                        )
+                elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
+                    obj_id = int(line[16:24])
+                    n1 = int(line[24:32])
+                    n2 = int(line[32:40])
+                    n3 = int(line[40:48])
+                    n4 = int(line[48:56])
+                    obj_list = [line_type, n1, n2, n3, n4]
+                    if line_type == "CPENTA":
+                        n5 = int(line[56:64])
+                        n6 = int(line[64:72])
+                        obj_list.extend([n5, n6])
+
+                    if line_type == "CHEXA":
+                        n5 = int(line[56:64])
+                        n6 = int(line[64:72])
+                        lk += 1
+                        n7 = int(lines[lk][8:16].strip())
+                        n8 = int(lines[lk][16:24].strip())
+
+                        obj_list.extend([n5, n6, n7, n8])
+                    if obj_id in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][obj_id].append(obj_list)
                     else:
-                        nas_to_dict["Solids"][int(line_split[2])] = [
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                                int(line_split[7]),
-                                int(line_split[8]),
-                                int(line_split[9]),
-                                int(line_split[10]),
-                            ]
-                        ]
-                elif line_split[0].startswith("CTETRA"):
-                    if int(line_split[2]) in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][int(line_split[2])].append(
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                            ]
-                        )
+                        nas_to_dict["Solids"][obj_id] = [[i for i in obj_list]]
+                elif line_type in ["CROD", "CBEAM"]:
+                    obj_id = int(line[16:24])
+                    n1 = int(line[24:32])
+                    n2 = int(line[32:40])
+                    if obj_id in nas_to_dict["Lines"]:
+                        nas_to_dict["Lines"][obj_id].append([n1, n2])
                     else:
-                        nas_to_dict["Solids"][int(line_split[2])] = [
-                            [
-                                line_split[0].strip(),
-                                int(line_split[3]),
-                                int(line_split[4]),
-                                int(line_split[5]),
-                                int(line_split[6]),
-                            ]
-                        ]
-                elif line_split[0].startswith("CROD") or line_split[0].startswith("CBEAM"):
-                    if int(line_split[2]) in nas_to_dict["Lines"]:
-                        nas_to_dict["Lines"][int(line_split[2])].append([int(line_split[3]), int(line_split[4])])
-                    else:
-                        nas_to_dict["Lines"][int(line_split[2])] = [[int(line_split[3]), int(line_split[4])]]
+                        nas_to_dict["Lines"][obj_id] = [[n1, n2]]
+
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
         if nas_to_dict["Triangles"]:
@@ -1039,6 +1039,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         n = [1, 0, 0]
                     else:
                         n = GeometryOperators.v_cross(cv1, cv2)
+
                     normal = GeometryOperators.normalize_vector(n)
                     if normal:
                         f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
@@ -1287,13 +1288,18 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
     @pyaedt_function_handler
     def objects_segmentation(
-        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False
+        self,
+        objects_list,
+        segmentation_thickness=None,
+        segments_number=None,
+        apply_mesh_sheets=False,
+        mesh_sheets_number=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
         ----------
-        objects_list : list
+        objects_list : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
             a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
@@ -1306,6 +1312,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Whether to apply mesh sheets to selected objects.
             Mesh sheets are needed in case the user would like to have additional layers
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
+        mesh_sheets_number : int, optional
+            Number of mesh sheets within one magnet segment.
+            If nothing is provided and ``apply_mesh_sheets=True``, the default value is ``2``.
 
         Returns
         -------
@@ -1339,7 +1348,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 segmentation_thickness = obj_axial_length / segments_number
             elif segmentation_thickness:
                 segments_number = round(obj_axial_length / segmentation_thickness)
-            face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
+            face_object = self.create_object_from_face(obj.bottom_face_z)
             # segment sheets
             segment_sheets[obj.name] = face_object.duplicate_along_line(
                 ["0", "0", segmentation_thickness], segments_number
@@ -1351,11 +1360,18 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 mesh_sheets = {}
                 mesh_objects = {}
                 # mesh sheets
-                self.move(face_object, [0, 0, segmentation_thickness / 4])
-                mesh_sheets[obj.name] = face_object.duplicate_along_line(
-                    [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
-                )
-                mesh_objects[obj.name] = []
+                mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
+                for i in range(len(segment_objects[obj.name]) + 1):
+                    if i == 0:
+                        face = obj.bottom_face_z
+                    else:
+                        face = segment_objects[obj.name][i - 1].faces[0]
+                    mesh_face_object = self.create_object_from_face(face)
+                    self.move(mesh_face_object, [0, 0, mesh_sheet_position])
+                    mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
+                        [0, 0, mesh_sheet_position], mesh_sheets_number
+                    )
+                mesh_objects[obj.name] = [mesh_face_object]
                 for value in mesh_sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         face_object.delete()
@@ -1427,7 +1443,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 self.logger.error("{} does not exist.".format(region))
                 return False
             create_region_name = region.GetChildNames()[0]
-            self.modeler.oeditor.ChangeProperty(
+            self.oeditor.ChangeProperty(
                 list(
                     [
                         "NAME:AllTabs",

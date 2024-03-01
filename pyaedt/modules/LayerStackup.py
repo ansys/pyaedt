@@ -3,6 +3,7 @@ This module contains these classes: `Layer` and `Layers`.
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -160,13 +161,13 @@ class Layer(object):
         # Rough option
         self._user = False
         self._RMdl = "Huray"
-        self._NR = 0.5
+        self._NR = 0.0005
         self._HRatio = 2.9
         self._BRMdl = "Huray"
-        self._BNR = 0.5
+        self._BNR = 0.0005
         self._BHRatio = 2.9
         self._SRMdl = "Huray"
-        self._SNR = 0.5
+        self._SNR = 0.0005
         self._SHRatio = 2.9
         # Solver option
         self._usp = False

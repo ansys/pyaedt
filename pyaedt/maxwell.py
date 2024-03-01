@@ -4,17 +4,16 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 import io
-import json
 import os
 import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
@@ -22,9 +21,6 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Maxwell(object):
-    def __enter__(self):
-        return self
-
     def __init__(self):
         pass
 
@@ -511,8 +507,8 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list : list
-            List of objects.
+        object_list : list, str
+            List of objects to assign eddy effects to.
         activate_eddy_effects : bool, optional
             Whether to activate eddy effects. The default is ``True``.
         activate_displacement_current : bool, optional
@@ -656,7 +652,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list : list
+        object_list : list, str
             List of objects to assign the current source to.
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.
@@ -801,8 +797,8 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject` or ``False``
+            Boundary object or bool if not successful.
 
         References
         ----------
@@ -1626,6 +1622,61 @@ class Maxwell(object):
             return False
 
     @pyaedt_function_handler()
+    def assign_radiation(self, input_object, radiation_name=None):
+        """Assign radiation boundary to one or more objects.
+
+        Radiation assignment can be calculated based upon the solver type.
+        Available solution type is: ``Eddy Current``.
+
+        Parameters
+        ----------
+        input_object : str, list
+            One or more objects to assign the radiation to.
+        radiation_name : str, optional
+            Name of the force. The default is ``None``, in which case the default
+            name is used.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Radiation objects. If the method fails to execute it returns ``False``.
+
+        References
+        ----------
+
+        >>> oModule.Radiation
+
+        Examples
+        --------
+
+        Assign radiation boundary to one box and one face:
+
+        >>> box1 = m3d.modeler.create_box([0, 0, 0], [2, 10, 10])
+        >>> box2 = m3d.modeler.create_box([10, 0, 0], [2, 10, 10])
+        >>> m3d.assign_radiation([box1, box2.faces[0]], force_name="radiation_boundary")
+        """
+
+        if self.solution_type in ["EddyCurrent"]:
+            if not radiation_name:
+                radiation_name = generate_unique_name("Radiation")
+            elif radiation_name in self.modeler.get_boundaries_name():
+                radiation_name = generate_unique_name(radiation_name)
+
+            listobj = self.modeler.convert_to_selections(input_object, True)
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
+            bound = BoundaryObject(self, radiation_name, props, "Radiation")
+            if bound.create():
+                self._boundaries[bound.name] = bound
+                return bound
+        self.logger.error("Excitation applicable only to Eddy current.")
+        return False
+
+    @pyaedt_function_handler()
     def enable_harmonic_force(
         self,
         objects,
@@ -1892,21 +1943,18 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
 
-        .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.
+        Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
+        The list of keywords here is not exhaustive.
 
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of the setup. Based on the solution type, options are
-            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``,
-            ``"HFSSEigen"``, ``"HFSSTransient"`` and ``"HFSSSBR"``.
-            The default is ``"HFSSDrivenAuto"``.
+            Type of the setup. Depending on the solution type, options are
+            ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
+            ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
+            and ``Transient"``.
         setupname : str, optional
             Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
@@ -1920,15 +1968,13 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.InsertSetup
 
         Examples
         --------
-
         >>> from pyaedt import Maxwell3d
         >>> app = Maxwell3d()
-        >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
+        >>> app.create_setup(setupname="My_Setup", setuptype="EddyCurrent", MaximumPasses=10, PercentError=2 )
 
         """
         if setuptype is None:
@@ -1985,7 +2031,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored
+        machine. The default is ``False``. This parameter is ignored
         when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -2143,7 +2189,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Parameters
         ----------
         geometry_selection : str
-            Objects to apply the impedance boundary to.
+            Faces or objects to apply the impedance boundary to.
         material_name : str, optional
             If it is different from ``None``, then material properties values will be extracted from
             the named material in the list of materials available. The default value is ``None``.
@@ -2170,11 +2216,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box and assign impedance boundary to it.
+        Create a box and assign impedance boundary to the faces.
 
-        >>> impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
-        >>> impedance_assignment = self.aedtapp.assign_impedance(impedance_box.name, "InsulatingExample")
-        >>> type(impedance_assignment)
+        >>> shield = m3d.modeler.create_box([-50, -50, -50], [294, 294, 19], name="shield")
+        >>> shield_faces = m3d.modeler.select_allfaces_fromobjects(["shield"])
+        >>> impedance_assignment = m3d.assign_impedance(shield_faces, "ShieldImpedance")
+
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
@@ -2189,7 +2236,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 impedance_name = generate_unique_name(impedance_name)
 
             listobj = self.modeler.convert_to_selections(geometry_selection, True)
-            props = {"Objects": listobj}
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
 
             if material_name is not None:
                 props["UseMaterial"] = True
@@ -2723,7 +2775,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
+        machine. The default is ``False``. This parameter is ignored when
         a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
@@ -2829,23 +2881,19 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     @property
     def model_depth(self):
         """Model depth."""
-
-        if "ModelDepth" in self.design_properties:
-            value_str = self.design_properties["ModelDepth"]
-            a = None
-            try:
-                a = float_units(value_str)
-            except:
-                a = self.variable_manager[value_str].value
-            finally:
-                return a
+        design_settings = self.design_settings()
+        if "ModelDepth" in design_settings:
+            value_str = design_settings["ModelDepth"]
+            return value_str
         else:
             return None
 
     @model_depth.setter
     def model_depth(self, value):
         """Set model depth."""
-        return self.change_design_settings({"ModelDepth": self.modeler._arg_with_dim(value, self.modeler.model_units)})
+        if isinstance(value, float) or isinstance(value, int):
+            value = self.modeler._arg_with_dim(value, self.modeler.model_units)
+        self.change_design_settings({"ModelDepth": value})
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):
@@ -2896,8 +2944,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open_file(design_file, "w") as fps:
-            json.dump(convert(self.design_data), fps, indent=4)
+        write_configuration_file(self.design_data, design_file)
         return True
 
     @pyaedt_function_handler()
@@ -2911,9 +2958,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open_file(design_file, "r") as fps:
-            design_data = json.load(fps)
-        return design_data
+        return read_configuration_file(design_file)
 
     @pyaedt_function_handler()
     def assign_balloon(self, edge_list, bound_name=None):

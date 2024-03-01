@@ -1,7 +1,7 @@
 $begin 'Configs'
 	$begin 'Configs'
 		$begin 'DSOConfig'
-			ConfigName='PyAEDT'
+			ConfigName='pyaedt_config'
 			DesignType='HFSS'
 			$begin 'DSOMachineList'
 				$begin 'DSOMachineInfo'

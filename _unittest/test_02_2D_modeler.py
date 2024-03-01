@@ -39,13 +39,19 @@ class TestClass:
         assert self.aedtapp.modeler._omaterial_manager
 
     def test_04_create_rectangle(self):
+        test_color = (220, 90, 0)
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, -2, -2], dimension_list=[3, 10], name="MyRectangle", matname="Copper"
+            position=[10, -2, -2],
+            dimension_list=[3, 10],
+            name="MyRectangle",
+            material_name="Copper",
+            color=test_color,
         )
         assert rect1.solve_inside
         assert rect1.model
         assert rect1.material_name == "vacuum"
+        assert rect2.color == test_color
         assert isclose(rect1.faces[0].area, 3.0 * 8.0)
 
         list_of_pos = [ver.position for ver in rect1.vertices]
@@ -73,8 +79,15 @@ class TestClass:
 
     def test_06_create_circle(self):
         circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
+
+        # TODO: deprecate "matname" as named argument, replace it with the Object3D property "material_name"
         circle2 = self.aedtapp.modeler.create_circle(
-            position=[0, -2, -2], radius=3, num_sides=6, name="MyCircle", matname="Copper"
+            position=[0, -2, -2],
+            radius=3,
+            num_sides=6,
+            name="MyCircle",
+            matname="Copper",
+            display_wireframe=True,
         )
         assert circle1.solve_inside
         assert circle1.model
@@ -85,6 +98,22 @@ class TestClass:
         assert circle2.model
         assert circle2.material_name == "copper"
         assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
+        circle3 = self.aedtapp.modeler.create_circle(
+            position=[0, 4, -2],
+            radius=2,
+            num_sides=8,
+            name="Circle3",
+            material_name="Copper",
+        )
+        assert circle3.material_name == "copper"
+        circle4 = self.aedtapp.modeler.create_circle(
+            position=[0, -4, -2],
+            radius=2.2,
+            num_sides=6,
+            name="NonModelCirc",
+            model=False,
+        )
+        assert not circle4.model
 
     def test_06a_calculate_radius_2D(self):
         circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
@@ -132,11 +161,17 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
+        self.aedtapp.solution_type = "MagnetostaticZ"
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
             position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
         )
-        obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
+        obj = self.aedtapp.plot(
+            show=False,
+            export_path=os.path.join(self.local_scratch.path, "image.jpg"),
+            show_bounding=True,
+            show_grid=True,
+        )
         assert os.path.exists(obj.image_file)
         obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
         assert os.path.exists(obj2.image_file)

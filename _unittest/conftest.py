@@ -17,6 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
+
 import json
 import os
 import random
@@ -138,6 +139,7 @@ def desktop():
     for key in keys:
         del _desktop_sessions[key]
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+    d.odesktop.SetTempDirectory(tempfile.gettempdir())
     d.disable_autosave()
     d.odesktop.SetDesktopConfiguration("All")
     d.odesktop.SetSchematicEnvironment(0)
@@ -176,6 +178,7 @@ def add_app(local_scratch):
             designname=design_name,
             solution_type=solution_type,
             specified_version=desktop_version,
+            non_graphical=NONGRAPHICAL,
         )
 
     return _method

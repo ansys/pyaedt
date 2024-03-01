@@ -9,6 +9,8 @@ import warnings
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
 from pyaedt.modules.SetupTemplates import SweepSiwave
@@ -166,6 +168,12 @@ class SweepHFSS(object):
                     try:
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
                         new_list.sort()
+                        new_list = unit_converter(
+                            values=new_list,
+                            unit_system="Freq",
+                            input_units="Hz",
+                            output_units=self._app._app.odesktop.GetDefaultUnit("Frequency"),
+                        )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
                         pass
@@ -368,10 +376,12 @@ class SweepHFSS3DLayout(object):
                 self.props = copy.deepcopy(Sweep3DLayout)
             # for t in props:
             #    _tuple2dict(t, self.props)
-            if SequenceMatcher(None, sweeptype.lower(), "kinterpolating").ratio() > 0.8:
+            if SequenceMatcher(None, sweeptype.lower(), "interpolating").ratio() > 0.8:
                 sweeptype = "kInterpolating"
-            elif SequenceMatcher(None, sweeptype.lower(), "kdiscrete").ratio() > 0.8:
+            elif SequenceMatcher(None, sweeptype.lower(), "discrete").ratio() > 0.8:
                 sweeptype = "kDiscrete"
+            elif SequenceMatcher(None, sweeptype.lower(), "fast").ratio() > 0.8:
+                sweeptype = "kBroadbandFast"
             else:
                 warnings.warn("Sweep type is invalid. `kInterpolating` is set as the default.")
                 sweeptype = "kInterpolating"
@@ -697,9 +707,15 @@ class SweepMatrix(object):
             solutions = load_entire_aedt_file(solutions_file)
             for k, v in solutions.items():
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
-                    try:
+                    try:  # pragma: no cover
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
                         new_list.sort()
+                        new_list = unit_converter(
+                            values=new_list,
+                            unit_system="Freq",
+                            input_units="Hz",
+                            output_units=self._app._app.odesktop.GetDefaultUnit("Frequency"),
+                        )
                         fr.append(new_list)
                     except (KeyError, NameError, IndexError):
                         pass
@@ -852,7 +868,7 @@ class SetupProps(OrderedDict):
     def _setitem_without_update(self, key, value):
         OrderedDict.__setitem__(self, key, value)
 
-    def _export_properties_to_json(self, file_path):
+    def _export_properties_to_json(self, file_path, overwrite=False):
         """Export all setup properties to a JSON file.
 
         Parameters
@@ -867,9 +883,13 @@ class SetupProps(OrderedDict):
         for k, v in self.items():
             if k not in FILTER_KEYS:
                 export_dict[k] = v
-        with open3(file_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
-        return True
+        if os.path.isfile(file_path) and not overwrite:
+            settings.logger.warning("Unable to overwrite file: %s." % (file_path))
+            return False
+        else:
+            with open3(file_path, "w", encoding="utf-8") as f:
+                f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
+            return True
 
     def _import_properties_from_json(self, file_path):
         """Import setup properties from a JSON file.

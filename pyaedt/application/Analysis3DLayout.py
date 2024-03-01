@@ -1,8 +1,10 @@
 import os
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations3DLayout
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
 
@@ -42,7 +44,7 @@ class FieldAnalysis3DLayout(Analysis):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -89,6 +91,21 @@ class FieldAnalysis3DLayout(Analysis):
         self._modeler = None
         self._mesh = None
         self._post = None
+        self._configurations = Configurations3DLayout(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def post(self):
@@ -100,11 +117,14 @@ class FieldAnalysis3DLayout(Analysis):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -370,9 +390,12 @@ class FieldAnalysis3DLayout(Analysis):
         :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         """
         if self._modeler is None:
+            self.logger.reset_timer()
             from pyaedt.modeler.modelerpcb import Modeler3DLayout
 
             self._modeler = Modeler3DLayout(self)
+            self.logger.info_timer("Modeler class has been initialized!")
+
         return self._modeler
 
     @property

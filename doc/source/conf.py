@@ -21,6 +21,7 @@ from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
@@ -70,9 +71,16 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     # return True if exclude else None
 
 
+def remove_doctree(app, exception):
+    """Remove the .doctree directory created during the documentation build.
+    """
+    shutil.rmtree(app.doctreedir)
+
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect('build-finished', remove_doctree)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -86,6 +94,7 @@ except ImportError:
     sys.path.append(os.path.join(root_path))
     from pyaedt import __version__
 
+from pyaedt import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -130,7 +139,7 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3.11", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "numpy": ("https://numpy.org/devdocs", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
@@ -246,7 +255,7 @@ if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
 # gallery build requires AEDT install
-if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
+if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
@@ -268,7 +277,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             "examples_dirs": ["../../examples/"],
             # path where to save gallery generated examples
             "gallery_dirs": ["examples"],
-            # Patter to search for examples files
+            # Pattern to search for examples files
             "filename_pattern": r"\.py",
             # Remove the "Download all examples" button from the top level gallery
             "download_all_examples": False,
@@ -318,6 +327,7 @@ html_context = {
 # specify the location of your github repo
 html_theme_options = {
     "github_url": "https://github.com/ansys/pyaedt",
+    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
@@ -337,6 +347,7 @@ html_theme_options = {
         "version_match": get_version_match(__version__),
     },
     "collapse_navigation": True,
+    "navigation_with_keys": True,
     "use_meilisearch": {
         "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {

@@ -77,16 +77,24 @@ class TestClass:
 
     def test_05_split(self):
         self.aedtapp.insert_design("split_test")
-        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split2")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split", color=(255, 0, 0))
+        assert box1.color == (255, 0, 0)
+        box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split2", transparency=1)
+        assert box2.transparency == 1
         split = self.aedtapp.modeler.split(box1.name, 2)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         split2 = box2.split(1)
         assert isinstance(split2, list)
         assert box2.name in split2[0]
-        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3")
-        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 20], [20, 30], name="rect1")
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3", display_wireframe=True)
+        assert box3.display_wireframe
+        rect1 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.XY, [10, 8, 20], [20, 30], name="rect1", transparency=0.5, display_wireframe=True
+        )
+        assert rect1.transparency == 0.5
+        assert rect1.display_wireframe
+        assert rect1.name == "rect1"
         split = self.aedtapp.modeler.split(objects=box3, sides="Both", tool=rect1.id)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
@@ -209,8 +217,10 @@ class TestClass:
         assert self.aedtapp.modeler.unite([o1, o2], purge=True) == o1.name
 
     def test_18_chamfer(self):
-        # TODO
-        assert True
+        o1 = self.aedtapp.modeler["box_to_split"]
+        assert abs(o1.volume - 4000.0) < tol
+        assert o1.top_edge_x.chamfer(1)
+        assert abs(o1.volume - 3990.0) < tol  # Volume decreased
 
     def test_19_clone(self):
         self.restore_model()
@@ -382,11 +392,8 @@ class TestClass:
         assert cs.change_cs_mode(1)
         assert cs.change_cs_mode(2)
 
-        try:
+        with pytest.raises(ValueError):
             cs.change_cs_mode(3)
-            assert False
-        except ValueError:
-            assert True
         assert cs.change_cs_mode(0)
         assert cs.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
@@ -662,6 +669,14 @@ class TestClass:
         sweep_vector = [5, 0, 0]
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_vector")
         assert rect1.sweep_along_vector(sweep_vector)
+        rect2 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.YZ, [0, 40, 0], [20, 20], "rectangle_to_vector2"
+        )
+        rect3 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.YZ, [0, 80, 0], [20, 20], "rectangle_to_vector3"
+        )
+        rect_list = [rect2, rect3]
+        assert self.aedtapp.modeler.sweep_along_vector(objid=rect_list, sweep_vector=sweep_vector)
 
     def test_48_coordinate_systems_parametric(self):
         self.aedtapp["var1"] = "5mm"
@@ -1041,3 +1056,52 @@ class TestClass:
         assert isinstance(face, FacePrimitive)
         face = self.aedtapp.modeler.get_face_by_id(random.randint(10000, 100000))
         assert not face
+
+    def test_62_copy_solid_bodies_udm_3dcomponent(self, add_app):
+        self.aedtapp.insert_design("udm")
+        my_udmPairs = []
+        mypair = ["ILD Thickness (ILD)", "0.006mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Spacing (LS)", "0.004mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Thickness (LT)", "0.005mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Width (LW)", "0.004mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["No. of Turns (N)", 2]
+        my_udmPairs.append(mypair)
+        mypair = ["Outer Diameter (OD)", "0.15mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Substrate Thickness", "0.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = [
+            "Inductor Type",
+            '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
+        ]
+        my_udmPairs.append(mypair)
+        mypair = ["Underpass Thickness (UT)", "0.001mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Via Thickness (VT)", "0.001mm"]
+        my_udmPairs.append(mypair)
+
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
+        )
+        assert len(obj_udm.parts) == 5
+        names = [p.name for p in obj_udm.parts.values()]
+        assert "Inductor" in names
+        assert "Substrate" in names
+        compfile = self.aedtapp.components3d["Bowtie_DM"]
+        obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile)
+        assert len(obj_3dcomp.parts) == 4
+        dest = add_app(design_name="IcepakDesign1", just_open=True)
+        dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
+        assert len(dest.modeler.object_list) == 9
+        assert "Arm" in dest.modeler.object_names
+        dest.delete_design("IcepakDesign1")
+        dest = add_app(design_name="IcepakDesign2", just_open=True)
+        dest.copy_solid_bodies_from(self.aedtapp)
+        dest2 = add_app(design_name="uUSB")
+        dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
+        assert len(dest2.modeler.objects) == 9
+        assert "port1" in dest2.modeler.object_names

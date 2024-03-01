@@ -2,6 +2,7 @@
 This module contains these classes: `CouplingsEmit`.
 This module provides for interacting with EMIT Analysis and Results windows.
 """
+
 import warnings
 
 

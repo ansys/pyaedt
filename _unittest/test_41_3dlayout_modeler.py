@@ -1,4 +1,5 @@
 import os
+import tempfile
 import time
 
 from _unittest.conftest import config
@@ -9,6 +10,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.pdf import AnsysReport
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
@@ -422,6 +424,7 @@ class TestClass:
             use_q3d_for_dc=True,
         )
         assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
+        assert sweep3.props["FreqSweepType"] == "kInterpolating"
         sweep4 = self.aedtapp.create_linear_step_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -433,11 +436,23 @@ class TestClass:
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+        assert sweep4.props["FreqSweepType"] == "kDiscrete"
+        sweep5 = self.aedtapp.create_linear_step_sweep(
+            setupname=setup_name,
+            unit="GHz",
+            freqstart=1,
+            freqstop=10,
+            step_size=0.12,
+            sweepname="RFBoardSweep4",
+            sweep_type="Fast",
+            save_fields=True,
+        )
+        assert sweep5.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+        assert sweep5.props["FreqSweepType"] == "kBroadbandFast"
 
         # Create a linear step sweep with the incorrect sweep type.
-        exception_raised = False
-        try:
-            sweep_raising_error = self.aedtapp.create_linear_step_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_linear_step_sweep(
                 setupname=setup_name,
                 unit="GHz",
                 freqstart=1,
@@ -447,12 +462,10 @@ class TestClass:
                 sweep_type="Incorrect",
                 save_fields=True,
             )
-        except AttributeError as e:
-            exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+                execinfo.args[0] == "Invalid value for 'sweep_type'. The value must be 'Discrete', "
+                "'Interpolating', or 'Fast'."
             )
-        assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
         setup_name = "RF_create_single_point"
@@ -474,19 +487,15 @@ class TestClass:
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
-        exception_raised = False
-        try:
-            sweep7 = self.aedtapp.create_single_point_sweep(
+        with pytest.raises(AttributeError) as execinfo:
+            self.aedtapp.create_single_point_sweep(
                 setupname=setup_name,
                 unit="GHz",
                 freq=[],
                 sweepname="RFBoardSingle",
                 save_fields=False,
             )
-        except AttributeError as e:
-            exception_raised = True
-            assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
-        assert exception_raised
+            assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
 
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
@@ -655,6 +664,7 @@ class TestClass:
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
+    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
@@ -678,12 +688,14 @@ class TestClass:
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
-        assert test.post.create_fieldplot_layers_nets(
+        pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
-            "Mag_Volume_Force_Density",
-            intrinsics={"Time": "1ms"},
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
             plot_name="Test_Layers",
         )
+        assert pl1
+        assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
         self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
@@ -759,6 +771,12 @@ class TestClass:
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
+
+    def test_96_2_report_design(self):
+        report = AnsysReport()
+        report.create()
+        self.aedtapp.save_project()
+        assert report.add_project_info(self.aedtapp)
 
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)

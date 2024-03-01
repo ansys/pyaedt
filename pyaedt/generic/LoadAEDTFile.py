@@ -62,7 +62,15 @@ _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
-_recognized_keywords = ["CurvesInfo", "Sweep Operations", "PropDisplayMap"]
+_recognized_keywords = [
+    "CurvesInfo",
+    "Sweep Operations",
+    "PropDisplayMap",
+    "Cells",
+    "Active",
+    "Rotation",
+    "PostProcessingCells",
+]
 _recognized_subkeys = ["simple(", "IDMap(", "WireSeg(", "PC("]
 
 # global variables
@@ -72,17 +80,7 @@ _count = 0
 
 
 def _parse_value(v):
-    """
-
-    Parameters
-    ----------
-    v :
-
-
-    Returns
-    -------
-
-    """
+    """Parse value in C# format."""
     #  duck typing parse of the value 'v'
     if v is None:
         pv = v
@@ -139,7 +137,7 @@ def _decode_recognized_subkeys(sk, d):
     Returns
     -------
     bool
-        Returns ``True`` if it finds and decode a recognized value.
+        Returns ``True`` if it finds and decodes a recognized value, ``False`` otherwise.
 
     """
     if sk.startswith(_recognized_subkeys[0]):  # 'simple(' is at the beginning of the value
@@ -147,7 +145,7 @@ def _decode_recognized_subkeys(sk, d):
         if m and m.group("SKEY1") == "simple":  # extra verification. SKEY2 is with spaces, so it's not considered here.
             elems = _separate_list_elements(m.group("LIST1"))
             if elems[0] == "thermal_expansion_coeffcient":
-                elems[0] = "thermal_expansion_coefficient"  # fix a typo in the amat files. AEDT supports both strings!
+                elems[0] = "thermal_expansion_coefficient"  # fix a typo in the AMAT files. AEDT supports both strings!
             d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
             return True
     elif re.search(r"^\w+IDMap\(.*\)$", sk, re.IGNORECASE):  # check if the format is AAKeyIDMap('10'=56802, '7'=56803)
@@ -180,7 +178,7 @@ def _decode_recognized_subkeys(sk, d):
 
 
 def _decode_recognized_key(keyword, line, d):
-    """Special decodings for keys belonging to  _recognized_keywords
+    """Special decodings for keys belonging to _recognized_keywords
 
     Parameters
     ----------
@@ -188,14 +186,18 @@ def _decode_recognized_key(keyword, line, d):
         dictionary key recognized
 
     line : str
-        Line.
+        The line following the recognized key
 
     d : dict
         Active dictionary.
 
+    Returns
     -------
+    bool
+        Returns ``True`` if it confirms and decodes a recognized key, ``False`` otherwise.
 
     """
+    global _count
     if keyword == _recognized_keywords[0]:  # 'CurvesInfo'
         m = re.search(r"\'(\d+)\'\((.*)\)$", line)
         if m:
@@ -204,16 +206,17 @@ def _decode_recognized_key(keyword, line, d):
             v2 = v.replace("\\'", '"')
             v3 = _separate_list_elements(v2)
             d[k] = v3
+        else:  # pragma: no cover
+            return False
     elif keyword == _recognized_keywords[1]:  # 'Sweep Operations'
         d["add"] = []
-        global _count
         line = _all_lines[_count + 1]
         while line.startswith("add("):
             d["add"].append(line.replace("add", "").translate({ord(i): None for i in " ()'"}).split(","))
             _count += 1
             line = _all_lines[_count + 1]
     elif keyword == _recognized_keywords[2]:  # PropDisplayMap
-        pattern = ".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
+        pattern = r".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
         match = re.search(pattern, line)
         d["Name"] = []
         for i in match.group(1).split(", "):
@@ -225,8 +228,55 @@ def _decode_recognized_key(keyword, line, d):
         temp_list.append("ExtentRect:=")
         temp_list.append([_parse_value(i) for i in match.group(3).split(", ")])
         d["Name"].append(temp_list)
+    elif keyword in _recognized_keywords[3:6]:  # Cells, Active, Rotation
+        li = _count
+        line_m = _all_lines[li]
+        li += 1
+        line_n = _all_lines[li]
+        if line_m[:2] != "m=" or line_n[:2] != "n=":  # pragma: no cover
+            return False
+        m = int(re.search(r"[m|n]=(\d+)", line_m).group(1))
+        d["rows"] = m
+        n = int(re.search(r"[m|n]=(\d+)", line_n).group(1))
+        d["columns"] = n
+        d["matrix"] = []
+        for i in range(m):
+            li += 1
+            r = re.search(r"\$begin 'r(\d+)'", _all_lines[li])
+            if not r or i != int(r.group(1)):  # pragma: no cover
+                return False  # there should be a row definition
+            d["matrix"].append([])
+            for _ in range(n):
+                li += 1
+                c = re.search(r"c\((.+)\)", _all_lines[li])
+                if not c:  # pragma: no cover
+                    return False  # there should be a column definition
+                if keyword == "Cells":
+                    c = int(c.group(1))
+                elif keyword == "Active":
+                    c = c.group(1).lower() == "true"
+                elif keyword == "Rotation":
+                    c = int(c.group(1)) * 90
+                d["matrix"][i].append(c)
+            li += 1
+            r = re.search(r"\$end 'r(\d+)'", _all_lines[li])
+            if not r or i != int(r.group(1)):  # pragma: no cover
+                return False  # there should be a row definition
+        _count = li
+    elif keyword == _recognized_keywords[6]:  # PostProcessingCells
+        li = _count
+        while _all_lines[li].startswith("OneCell"):
+            m = re.search(r"OneCell\((\d+), '(\d+)', '(\d+)'\)", _all_lines[li])
+            if m:
+                try:
+                    d[int(m.group(1))] = [int(m.group(2)), int(m.group(3))]
+                except ValueError:  # pragma: no cover
+                    continue
+            li += 1
+        _count = li - 1
     else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
+    return True
 
 
 def _decode_subkey(line, d):
@@ -346,7 +396,10 @@ def _walk_through_structure(keyword, save_dict):
                 nextlvl_begin_key = b.group(1)
                 _walk_through_structure(nextlvl_begin_key, save_dict[keyword])
             elif keyword in _recognized_keywords:
-                _decode_recognized_key(keyword, line, save_dict[keyword])
+                confirmed = _decode_recognized_key(keyword, line, save_dict[keyword])
+                if not confirmed:  # pragma: no cover
+                    # decode the line normally, since recognized key is not successful
+                    _decode_subkey(line, save_dict[keyword])
             else:  # decode key
                 _decode_subkey(line, save_dict[keyword])
         _count += 1

@@ -30,7 +30,7 @@ jobs:
   # This workflow contains a single job called "build"
   build_solvers:
     # The type of runner that the job will run on
-    runs-on: [ windows-latest, pyaedt ]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: [ '3.10' ]
@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -66,7 +66,7 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           max_attempts: 3
           retry_on: error
@@ -76,16 +76,16 @@ jobs:
             Set-Item -Path env:PYTHONMALLOC -Value "malloc"
             pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           name: 'Upload coverage to Codecov'
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-results
+          name: pytest-solver-results
           path: junit/test-results.xml
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
@@ -93,7 +93,7 @@ jobs:
 
   build:
     # The type of runner that the job will run on
-    runs-on: [windows-latest, pyaedt]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: ['3.10']
@@ -101,7 +101,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -129,24 +129,24 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           max_attempts: 3
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 50
           command: |
             testenv\Scripts\Activate.ps1
             Set-Item -Path env:PYTHONMALLOC -Value "malloc"
             pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           name: 'Upload coverage to Codecov'
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: junit/test-results.xml

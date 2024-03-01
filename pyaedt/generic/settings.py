@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 
@@ -9,6 +8,7 @@ class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
+        self._logger = None
         self._enable_logger = True
         self._enable_desktop_logs = True
         self._enable_screen_logs = True
@@ -48,6 +48,7 @@ class Settings(object):
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
+        self._custom_lsf_command = None
         self._aedt_environment_variables = {
             "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
             "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
@@ -62,9 +63,41 @@ class Settings(object):
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
-        self._desktop_launch_timeout = 90
+        self._desktop_launch_timeout = 120
         self._number_of_grpc_api_retries = 6
         self._retry_n_times_time_interval = 0.1
+        self._wait_for_license = False
+        self.__lazy_load = True
+
+    @property
+    def lazy_load(self):
+        """Flag for enabling and disabling the lazy load.
+        The default is ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__lazy_load
+
+    @lazy_load.setter
+    def lazy_load(self, value):
+        self.__lazy_load = value
+
+    @property
+    def wait_for_license(self):
+        """Whether if Electronics Desktop has to be launched with ``-waitforlicense`` flag enabled or not.
+        Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._wait_for_license
+
+    @wait_for_license.setter
+    def wait_for_license(self, value):
+        self._wait_for_license = value
 
     @property
     def retry_n_times_time_interval(self):
@@ -161,6 +194,16 @@ class Settings(object):
     @lsf_timeout.setter
     def lsf_timeout(self, value):
         self._lsf_timeout = int(value)
+
+    @property
+    def custom_lsf_command(self):
+        """Command to launch in the LSF Scheduler. The default is ``None``.
+        This attribute is valid only on Linux systems running LSF Scheduler."""
+        return self._custom_lsf_command
+
+    @custom_lsf_command.setter
+    def custom_lsf_command(self, value):
+        self._custom_lsf_command = value
 
     @property
     def aedt_version(self):
@@ -275,10 +318,11 @@ class Settings(object):
     @property
     def logger(self):
         """Active logger."""
-        try:
-            return logging.getLogger("Global")
-        except:  # pragma: no cover
-            return logging.getLogger(__name__)
+        return self._logger
+
+    @logger.setter
+    def logger(self, val):
+        self._logger = val
 
     @property
     def enable_error_handler(self):

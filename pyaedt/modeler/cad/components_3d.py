@@ -227,6 +227,8 @@ class UserDefinedComponent(object):
         group = None
         if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
             group = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Group")
+        if group is not None:
+            self._group_name = group
         return group
 
     @group_name.setter
@@ -478,7 +480,7 @@ class UserDefinedComponent(object):
         """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
         self._m_Editor.Delete(arg)
-        del self._primitives.modeler.user_defined_components[self.name]
+        del self._primitives.user_defined_components[self.name]
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
@@ -505,7 +507,7 @@ class UserDefinedComponent(object):
 
         >>> oEditor.DuplicateMirror
         """
-        return self._primitives.modeler.duplicate_and_mirror(
+        return self._primitives.duplicate_and_mirror(
             self.name, position, vector, is_3d_comp=True, duplicate_assignment=True
         )
 
@@ -533,11 +535,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Mirror
         """
         if self.is3dcomponent:
-            if self._primitives.modeler.mirror(self.name, position=position, vector=vector):
+            if self._primitives.mirror(self.name, position=position, vector=vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.modeler.mirror(part, position=position, vector=vector)
+                self._primitives.mirror(part, position=position, vector=vector)
             return self
         return False
 
@@ -567,11 +569,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Rotate
         """
         if self.is3dcomponent:
-            if self._primitives.modeler.rotate(self.name, cs_axis=cs_axis, angle=angle, unit=unit):
+            if self._primitives.rotate(self.name, cs_axis=cs_axis, angle=angle, unit=unit):
                 return self
         else:
             for part in self.parts:
-                self._primitives.modeler.rotate(part, cs_axis=cs_axis, angle=angle, unit=unit)
+                self._primitives.rotate(part, cs_axis=cs_axis, angle=angle, unit=unit)
             return self
         return False
 
@@ -595,11 +597,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Move
         """
         if self.is3dcomponent:
-            if self._primitives.modeler.move(self.name, vector=vector):
+            if self._primitives.move(self.name, vector=vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.modeler.move(part, vector=vector)
+                self._primitives.move(part, vector=vector)
             return self
 
         return False
@@ -631,7 +633,7 @@ class UserDefinedComponent(object):
 
         """
         if self.is3dcomponent:
-            ret, added_objects = self._primitives.modeler.duplicate_around_axis(
+            ret, added_objects = self._primitives.duplicate_around_axis(
                 self.name, cs_axis, angle, nclones, create_new_objects, True
             )
             return added_objects
@@ -670,10 +672,8 @@ class UserDefinedComponent(object):
             attach_object = kwargs["attachObject"]
 
         if self.is3dcomponent:
-            old_component_list = self._primitives.modeler.user_defined_component_names
-            _, added_objects = self._primitives.modeler.duplicate_along_line(
-                self.name, vector, nclones, attach_object, True
-            )
+            old_component_list = self._primitives.user_defined_component_names
+            _, added_objects = self._primitives.duplicate_along_line(self.name, vector, nclones, attach_object, True)
             return list(set(added_objects) - set(old_component_list))
         self._logger.warning("User-defined models do not support this operation.")
         return False

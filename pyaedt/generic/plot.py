@@ -595,7 +595,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     title : str, optional
         Plot Title Label. Default is `""`.
     levels : int, optional
-        Colormap levels. Default is `64`.
+        Color map levels. Default is `64`.
     snapshot_path : str, optional
         Full path to image to save. Default is None.
 
@@ -721,6 +721,7 @@ class FieldClass(object):
         self._is_frame = False
         self.is_vector = False
         self.vector_scale = 1.0
+        self.scalar_name = None
 
 
 class CommonPlotter(object):
@@ -730,6 +731,7 @@ class CommonPlotter(object):
         self._frames = []
         self.show_axes = True
         self.show_legend = True
+        self.digits_format = "%.2e"
         self.show_grid = True
         self.is_notebook = is_notebook()
         self.gif_file = None
@@ -1072,21 +1074,21 @@ class ModelPlotter(CommonPlotter):
     Here an example of standalone project
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
+    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
+    >>> model.add_field_from_file(r'D:\\Simulation\\helic_antenna.csv', True, "meter", 1)
     >>> model.background_color = (0,0,0)
     >>> model.plot()
 
     And here an example of animation:
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
-    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
-    ...           r'D:\Simulation\helic_antenna_40.fld']
-    >>> model.gif_file = r"D:\Simulation\animation.gif"
+    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
+    >>> frames = [r'D:\\Simulation\\helic_antenna.csv', r'D:\\Simulation\\helic_antenna_10.fld',
+    ...           r'D:\\Simulation\\helic_antenna_20.fld', r'D:\\Simulation\\helic_antenna_30.fld',
+    ...           r'D:\\Simulation\\helic_antenna_40.fld']
+    >>> model.gif_file = r"D:\\Simulation\\animation.gif"
     >>> model.animate()
     """
 
@@ -1125,7 +1127,9 @@ class ModelPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def add_object(self, cad_path, cad_color="dodgerblue", opacity=1, units="mm"):
-        """Add an mesh file to the scenario. It can be obj or any of pyvista supported files.
+        """Add a mesh file to the scenario.
+
+        The mesh file can be an object or any of the PyVista supported files.
 
         Parameters
         ----------
@@ -1320,7 +1324,12 @@ class ModelPlotter(CommonPlotter):
                 obj_to_iterate.append(i)
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
-                if ".aedtplt" in field.path:
+                if ".case" in field.path:
+                    reader = pv.get_reader(os.path.abspath(field.path)).read()
+                    field._cached_polydata = reader[reader.keys()[0]].extract_surface()
+                    field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+
+                elif ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
                     if self.convert_fields_in_db:
                         scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
@@ -1336,10 +1345,12 @@ class ModelPlotter(CommonPlotter):
                         field._cached_polydata.point_data[field.label] = np.array(
                             [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
                         )
+                        field.scalar_name = field.field._cached_polydata.point_data.active_scalars_name
 
                         field.is_vector = True
                     else:
                         field._cached_polydata.point_data[field.label] = scalars[0]
+                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                         field.is_vector = False
                     field.log = log1
                 else:
@@ -1392,10 +1403,13 @@ class ModelPlotter(CommonPlotter):
                             filedata["vectors"] = np.vstack(values) * vector_scale
                             field.label = "Vector " + field.label
                             filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
+                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                            field.is_vector = True
                             field.is_vector = True
                         else:
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
                             filedata.point_data[field.label] = np.array(values)
+                            field.scalar_name = filedata.point_data.active_scalars_name
                         field._cached_polydata = filedata
 
     @pyaedt_function_handler()
@@ -1516,6 +1530,8 @@ class ModelPlotter(CommonPlotter):
         bool
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv.enable_ssao()
+        self.pv.enable_parallel_projection()
         self.meshes = None
         if self.background_image:
             self.pv.add_background_image(self.background_image)
@@ -1530,7 +1546,7 @@ class ModelPlotter(CommonPlotter):
                 shadow=True,
                 n_labels=9,
                 italic=True,
-                fmt="%.1f",
+                fmt=self.digits_format,
                 font_family="arial",
                 interactive=True,
                 color=axes_color,
@@ -1542,12 +1558,13 @@ class ModelPlotter(CommonPlotter):
                 position_y=2,
             )
         for field in self._fields:
+            sargs["title"] = field.label
             if field.is_vector:
                 field._cached_polydata.set_active_vectors("vectors")
                 field._cached_polydata["vectors"] = field._cached_polydata["vectors"] * field.vector_scale
                 self.pv.add_mesh(
                     field._cached_polydata.arrows,
-                    scalars=field.label,
+                    scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
@@ -1556,7 +1573,7 @@ class ModelPlotter(CommonPlotter):
             elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
-                    scalars=field.label,
+                    scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
@@ -1567,12 +1584,14 @@ class ModelPlotter(CommonPlotter):
             else:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
-                    scalars=field.label,
+                    scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                     opacity=field.opacity,
                     show_edges=field.show_edge,
+                    smooth_shading=True,
+                    split_sharp_edges=True,
                 )
 
         self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
@@ -1582,17 +1601,23 @@ class ModelPlotter(CommonPlotter):
 
         if self.show_axes:
             self.pv.show_axes()
-        if not self.is_notebook:
-            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid)
+        if not self.is_notebook and self.show_grid:
+            self.pv.show_grid(color=tuple(axes_color), grid=self.show_grid, fmt=self.digits_format)
         if self.bounding_box:
             self.pv.add_bounding_box(color=tuple(axes_color))
-        self.pv.set_focus(self.pv.mesh.center)
 
         if not self.isometric_view:
+            self.pv.set_focus(self.pv.mesh.center)
             if isinstance(self.camera_position, (tuple, list)):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
                 self.pv.camera.viewup = self.view_up
+            elif self.camera_position == "xy":
+                self.pv.view_xy()
+            elif self.camera_position == "xz":
+                self.pv.view_xz()
+            elif self.camera_position == "yz":
+                self.pv.view_yz()
             else:
                 self.pv.camera_position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
@@ -1694,19 +1719,7 @@ class ModelPlotter(CommonPlotter):
             for m in self.fields:
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
-        if not self.isometric_view:
-            if isinstance(self.camera_position, (tuple, list)):
-                self.pv.camera.position = self.camera_position
-                self.pv.camera.focal_point = self.focal_point
-                self.pv.camera.up = self.view_up
-            else:
-                self.pv.camera_position = self.camera_position
-            self.pv.camera.azimuth += self.azimuth_angle
-            self.pv.camera.roll += self.roll_angle
-            self.pv.camera.elevation += self.elevation_angle
-        else:
-            self.pv.isometric_view()
-        self.pv.zoom = self.zoom
+
         self._animating = True
 
         if self.gif_file:
@@ -1745,19 +1758,15 @@ class ModelPlotter(CommonPlotter):
             )
 
         for field in self._fields:
+            sargs["title"] = field.label
             field._cached_mesh = self.pv.add_mesh(
                 field._cached_polydata,
-                scalars=field.label,
+                scalars=field.scalar_name,
                 log_scale=False if self.convert_fields_in_db else field.log_scale,
                 scalar_bar_args=sargs,
                 cmap=field.color_map,
                 opacity=field.opacity,
             )
-        # run until q is pressed
-        if self.pv.mesh:
-            self.pv.set_focus(self.pv.mesh.center)
-
-        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
         if self.range_min is not None and self.range_max is not None:
             mins = self.range_min
@@ -1766,14 +1775,14 @@ class ModelPlotter(CommonPlotter):
             mins = 1e20
             maxs = -1e20
             for el in self.frames:
-                if np.min(el._cached_polydata.point_data[el.label]) < mins:
-                    mins = np.min(el._cached_polydata.point_data[el.label])
-                if np.max(el._cached_polydata.point_data[el.label]) > maxs:
-                    maxs = np.max(el._cached_polydata.point_data[el.label])
+                if np.min(el._cached_polydata.point_data[el.scalar_name]) < mins:
+                    mins = np.min(el._cached_polydata.point_data[el.scalar_name])
+                if np.max(el._cached_polydata.point_data[el.scalar_name]) > maxs:
+                    maxs = np.max(el._cached_polydata.point_data[el.scalar_name])
 
         self.frames[0]._cached_mesh = self.pv.add_mesh(
             self.frames[0]._cached_polydata,
-            scalars=self.frames[0].label,
+            scalars=self.frames[0].scalar_name,
             log_scale=False if self.convert_fields_in_db else self.frames[0].log_scale,
             scalar_bar_args=sargs,
             cmap=self.frames[0].color_map,
@@ -1784,6 +1793,30 @@ class ModelPlotter(CommonPlotter):
             name="FieldPlot",
             opacity=self.frames[0].opacity,
         )
+        # run until q is pressed
+        if self.pv.mesh:
+            self.pv.set_focus(self.pv.mesh.center)
+        if not self.isometric_view:
+            if isinstance(self.camera_position, (tuple, list)):
+                self.pv.camera.position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
+                self.pv.camera.up = self.view_up
+            elif self.camera_position == "xy":
+                self.pv.view_xy()
+            elif self.camera_position == "xz":
+                self.pv.view_xz()
+            elif self.camera_position == "yz":
+                self.pv.view_yz()
+            else:
+                self.pv.camera_position = self.camera_position
+            self.pv.camera.azimuth += self.azimuth_angle
+            self.pv.camera.roll += self.roll_angle
+            self.pv.camera.elevation += self.elevation_angle
+        else:
+            self.pv.isometric_view()
+        self.pv.camera.zoom(self.zoom)
+        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+
         start = time.time()
         try:
             self.pv.update(1, force_redraw=True)
@@ -1806,7 +1839,7 @@ class ModelPlotter(CommonPlotter):
                     break
                 i = 0
                 first_loop = False
-            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].label]
+            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].scalar_name]
             self.pv.update_scalars(scalars, render=False)
             if not hasattr(self.pv, "ren_win"):
                 break

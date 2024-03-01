@@ -18,7 +18,6 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
-from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
@@ -33,6 +32,7 @@ from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
@@ -77,7 +77,7 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    new_desktop_session : bool
+    new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
@@ -141,6 +141,9 @@ class Analysis(Design, object):
         self.VIEW = VIEW()
         self.GRAVITY = GRAVITY()
 
+        if not settings.lazy_load:
+            self._materials = self.materials
+
     @property
     def native_components(self):
         """Native Component dictionary.
@@ -179,11 +182,14 @@ class Analysis(Design, object):
 
         """
         if not self._materials:
+            self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
             for material in self._materials.material_keys:
                 self._materials.material_keys[material]._material_update = True
+            self.logger.info_timer("Materials class has been initialized!")
+
         return self._materials
 
     @property
@@ -877,7 +883,7 @@ class Analysis(Design, object):
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
             if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
-                data_vals = list(data_vals)
+                data_vals = [data_vals]
             for ds in data_vals:
                 try:
                     if isinstance(ds, (OrderedDict, dict)):
@@ -1091,15 +1097,24 @@ class Analysis(Design, object):
         return list(setups)
 
     @pyaedt_function_handler()
-    def get_nominal_variation(self):
+    def get_nominal_variation(self, with_values=False):
         """Retrieve the nominal variation.
+
+        Parameters
+        ----------
+        with_values : bool
+            Whether to return nominal variation or nominal variation with values.
+            The default is ``False``.
 
         Returns
         -------
         list of str
             List of nominal variations.
         """
-        return self.available_variations.nominal
+        if not with_values:
+            return self.available_variations.nominal
+        else:
+            return self.available_variations.nominal_w_values
 
     @pyaedt_function_handler()
     def get_sweeps(self, name):
@@ -1186,7 +1201,7 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setuptype, name)
         elif setuptype == 4:
             setup = SetupSBR(self, setuptype, name)
-        elif setuptype in [5, 6, 7, 8, 9, 10]:
+        elif setuptype in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
             setup = SetupMaxwell(self, setuptype, name)
         elif setuptype in [14]:
             setup = SetupQ3D(self, setuptype, name)
@@ -1629,7 +1644,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name,
+        name=None,
         num_cores=4,
         num_tasks=1,
         num_gpu=0,
@@ -1644,7 +1659,7 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        name : str
+        name : str, optional
             Name of the setup, which can be an optimetric setup or a simple setup.
             If ``None`` all setups will be solved.
         num_cores : int, optional
@@ -1724,27 +1739,36 @@ class Analysis(Design, object):
                 skip_files = True
             if not skip_files:
                 if num_cores:
-                    skip_files = update_hpc_option(target_name, "NumCores", num_cores, False)
+                    succeeded = update_hpc_option(target_name, "NumCores", num_cores, False)
+                    skip_files = True if not succeeded else skip_files
                 if num_gpu:
-                    skip_files = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                    succeeded = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                    skip_files = True if not succeeded else skip_files
                 if num_tasks:
-                    skip_files = update_hpc_option(target_name, "NumEngines", num_tasks, False)
-                skip_files = update_hpc_option(target_name, "ConfigName", config_name, True)
-                skip_files = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                    succeeded = update_hpc_option(target_name, "NumEngines", num_tasks, False)
+                    skip_files = True if not succeeded else skip_files
+                succeeded = update_hpc_option(target_name, "ConfigName", config_name, True)
+                skip_files = True if not succeeded else skip_files
+                succeeded = update_hpc_option(target_name, "DesignType", self.design_type, True)
+                skip_files = True if not succeeded else skip_files
                 if self.design_type == "Icepak":
                     use_auto_settings = False
-                skip_files = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                succeeded = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+                skip_files = True if not succeeded else skip_files
                 if num_variations_to_distribute:
-                    skip_files = update_hpc_option(
+                    succeeded = update_hpc_option(
                         target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
                     )
+                    skip_files = True if not succeeded else skip_files
                 if isinstance(allowed_distribution_types, list):
                     num_adt = len(allowed_distribution_types)
                     adt_string = "', '".join(allowed_distribution_types)
                     adt_string = "[{}: '{}']".format(num_adt, adt_string)
-                    skip_files = update_hpc_option(
+
+                    succeeded = update_hpc_option(
                         target_name, "AllowedDistributionTypes", adt_string, False, separator=""
                     )
+                    skip_files = True if not succeeded else skip_files
 
             if settings.remote_rpc_session:
                 remote_name = (
@@ -2070,8 +2094,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file name when successful, ``False`` when failed.
         """
         if variations is None:
             variations = list(self.available_variations.nominal_w_values_dict.keys())
@@ -2162,7 +2186,7 @@ class Analysis(Design, object):
                 NonStandardExtensions,
             )
         self.logger.info("Touchstone correctly exported to %s", filename)
-        return True
+        return OutFile
 
     @pyaedt_function_handler()
     def value_with_units(
@@ -2185,7 +2209,7 @@ class Analysis(Design, object):
             Some common examples are:
             "in": inches
             "cm": centimeter
-            "um":  micron
+            "um": micron
             "mm": millimeter
             "meter": meters
             "mil": 0.001 inches (mils)
@@ -2199,7 +2223,7 @@ class Analysis(Design, object):
         str
             String that combines the value and the units (e.g. "1.2mm").
         """
-        if not units:
+        if units is None:
             if unit_system == "Length":
                 units = self.modeler.model_units
             else:

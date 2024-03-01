@@ -90,6 +90,7 @@ else:
     zstart = "l1/2 - t/2"  # Odd number of cavities, even number of irises.
     is_even = False
 
+
 ###############################################################################
 # Draw parametric waveguide filter
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,14 +100,15 @@ else:
 
 def place_iris(zpos, dz, n):
     w_str = "w" + str(n)  # Iris width parameter as a string.
-    this_name = "iris_a_"+str(n)  # Iris object name in the HFSS project.
+    this_name = "iris_a_" + str(n)  # Iris object name in the HFSS project.
     iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a',  dz],
-                                                    name=this_name, matname="silver"))
+    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a', dz],
+                                        name=this_name, matname="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
+
 
 ###############################################################################
 # Place irises
@@ -164,7 +166,7 @@ count = 0
 ports = []
 for n, z in enumerate(wg_z):
     face_id = hfss.modeler.get_faceid_from_position([0, 0, z], obj_name="waveguide")
-    u_start = [0, hfss.variable_manager["u_start"].evaluated_value,  z]
+    u_start = [0, hfss.variable_manager["u_start"].evaluated_value, z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
     ports.append(hfss.wave_port(face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False))
@@ -178,8 +180,8 @@ for n, z in enumerate(wg_z):
 # through the resonant structure while the mesh is refined.
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
-                           MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
-                           MaximumPasses=5)
+                          MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
+                          MaximumPasses=5)
 
 setup.create_frequency_sweep(
     unit="GHz",
@@ -187,8 +189,7 @@ setup.create_frequency_sweep(
     freqstart=9.5,
     freqstop=10.5,
     sweep_type="Interpolating",
-    )
-
+)
 
 #################################################################################
 #  Solve the project with two tasks.
@@ -199,8 +200,7 @@ setup.analyze(num_tasks=2)
 
 ###############################################################################
 # Generate S-Parameter Plots
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#################################################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
 #  Caution: The syntax for expressions must be identical to that used
@@ -209,7 +209,27 @@ setup.analyze(num_tasks=2)
 traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
 report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
 solution = report.get_solution_data()
+
 plt = solution.plot(solution.expressions)  # Matplotlib axes object.
+
+###############################################################################
+# Generate E field plot
+# ~~~~~~~~~~~~~~~~~~~~~
+#  The following command generates a field plot in HFSS and uses PyVista
+#  to plot the field in Jupyter.
+
+plot = hfss.post.plot_field(quantity="Mag_E",
+                            object_list=["Global:XZ"],
+                            plot_type="CutPlane",
+                            setup_name=hfss.nominal_adaptive,
+                            intrinsics={"Freq": "9.8GHz", "Phase": "0deg"},
+                            export_path=hfss.working_directory,
+                            show=False)
+
+###############################################################################
+# Save and close the desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  The following command saves the project to a file and closes the desktop.
 
 hfss.save_project()
 hfss.release_desktop()

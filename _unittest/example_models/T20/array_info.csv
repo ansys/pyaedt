@@ -1,0 +1,35 @@
+ArrayName,A1
+Size Along A Vector,8
+Size Along B Vector,8
+A Vector,02_Patch1_LatticePair1
+B Vector,02_Patch1_LatticePair2
+Component Index,Component Name
+1,02_Patch1
+2,01_Metal_Only1
+3,03_Radome_Side1
+4,Radome_Corner1
+Source Row,Source Column,Source Name,Magnitude,Phase
+3,3,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (2*ScanPhaseShiftA + 2*ScanPhaseShiftB)
+3,4,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (2*ScanPhaseShiftA + 3*ScanPhaseShiftB)
+3,5,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (2*ScanPhaseShiftA + 4*ScanPhaseShiftB)
+3,6,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (2*ScanPhaseShiftA + 5*ScanPhaseShiftB)
+4,3,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (3*ScanPhaseShiftA + 2*ScanPhaseShiftB)
+4,4,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (3*ScanPhaseShiftA + 3*ScanPhaseShiftB)
+4,5,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (3*ScanPhaseShiftA + 4*ScanPhaseShiftB)
+4,6,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (3*ScanPhaseShiftA + 5*ScanPhaseShiftB)
+5,3,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (4*ScanPhaseShiftA + 2*ScanPhaseShiftB)
+5,4,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (4*ScanPhaseShiftA + 3*ScanPhaseShiftB)
+5,5,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (4*ScanPhaseShiftA + 4*ScanPhaseShiftB)
+5,6,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (4*ScanPhaseShiftA + 5*ScanPhaseShiftB)
+6,3,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (5*ScanPhaseShiftA + 2*ScanPhaseShiftB)
+6,4,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (5*ScanPhaseShiftA + 3*ScanPhaseShiftB)
+6,5,02_Patch1_1:1,ScanMag1*1,ScanPhase1 + (5*ScanPhaseShiftA + 4*ScanPhaseShiftB)
+Array,Format: Component_index:Rotation_angle:Active_or_Passive
+4,3,3,3,3,3,3,4:90.0deg,
+3:270.0deg,2,2,2,2,2,2,3:90.0deg,
+3:270.0deg,2:0,1,1,1,1,2,3:90.0deg,
+3:270.0deg,2,1,1,1,1,2,3:90.0deg,
+3:270.0deg,2,1,1,1,1,2,3:90.0deg:0,
+3:270.0deg,2,1,1,1,1:0,2,,
+3:270.0deg,2,2,,2,2,2,3:90.0deg,
+4:270.0deg,3:180.0deg,3:180.0deg,,3:180.0deg,3:180.0deg,3:180.0deg,4:180.0deg,

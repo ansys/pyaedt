@@ -6,6 +6,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
+from pyaedt import Icepak
+from pyaedt import Q2d
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -21,6 +23,14 @@ step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
+primitive_json_file = "primitives_file.json"
+cylinder_primitive_csv_file = "cylinder_geometry_creation.csv"
+cylinder_primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
+cylinder_primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.csv"
+prism_primitive_csv_file = "prism_geometry_creation.csv"
+prism_primitive_csv_file_missing_values = "prism_geometry_creation_missing_values.csv"
+prism_primitive_csv_file_wrong_keys = "prism_geometry_creation_wrong_keys.csv"
+
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -51,7 +61,7 @@ def examples(local_scratch):
     scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
     scdoc_file = local_scratch.copyfile(scdoc_file)
     step_file = os.path.join(local_path, "example_models", test_subfolder, step)
-    component3d_file = os.path.join(local_scratch.path, component3d)
+    component3d_file = os.path.join(local_scratch.path, "comp_3d", component3d)
     encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cyl)
     test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
     test_98_project = local_scratch.copyfile(test_98_project)
@@ -170,17 +180,10 @@ class TestClass:
         assert o.material_name == "copper"
         assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
+        assert not self.aedtapp.modeler.create_box([0, 0], [10, 10, 10], "MyCreatedBox_12", "Copper")
+        assert not self.aedtapp.modeler.create_box([0, 0, 0], [10, 10], "MyCreatedBox_12", "Copper")
 
-    def test_03_create_box_assertions(self):
-        try:
-            invalid_entry = "Frank"
-            self.aedtapp.modeler.create_box([0, 0, 0], invalid_entry, "MyCreatedBox", "Copper")
-        except ValueError:
-            pass
-        else:
-            assert False
-
-    def test_04_create_polyhedron(self):
+    def test_03_create_polyhedron(self):
         o1 = self.aedtapp.modeler.create_polyhedron()
         assert o1.id > 0
         assert o1.name.startswith("New")
@@ -207,6 +210,37 @@ class TestClass:
         assert o1.name in self.aedtapp.modeler.solid_names
         assert o2.name in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
+
+        assert not self.aedtapp.modeler.create_polyhedron(
+            cs_axis=AXIS.Z,
+            center_position=[0, 0],
+            start_position=[0, 1, 0],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+
+        assert not self.aedtapp.modeler.create_polyhedron(
+            cs_axis=AXIS.Z,
+            center_position=[0, 0, 0],
+            start_position=[0, 1],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+
+        assert not self.aedtapp.modeler.create_polyhedron(
+            cs_axis=AXIS.Z,
+            center_position=[0, 0, 0],
+            start_position=[0, 0, 0],
+            height=2.0,
+            num_sides=5,
+            name="MyPolyhedron",
+            matname="Aluminum",
+        )
+
         pass
 
     def test_05_center_and_centroid(self):
@@ -214,11 +248,20 @@ class TestClass:
         tol = 1e-9
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
+    def test_06_position(self):
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        with pytest.raises(IndexError) as execinfo:
+            item = udp[3]
+            assert str(execinfo) == "Position index not correct."
+        assert self.aedtapp.modeler.Position([0])
+
+    def test_07_sweep_options(self):
+        assert self.aedtapp.modeler.SweepOptions()
+
     def test_11a_get_object_name_from_edge(self):
         o = self.create_copper_box()
         edge = o.edges[0].id
         assert self.aedtapp.modeler.get_object_name_from_edge_id(edge) == o.name
-
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         dimensions = [10, 10, 5]
         o = self.aedtapp.modeler.create_box(udp, dimensions)
@@ -276,6 +319,8 @@ class TestClass:
         assert o.name.startswith("MySphere")
         assert o.object_type == "Solid"
         assert o.is3d is True
+        assert not self.aedtapp.modeler.create_sphere([10, 10], radius, "MySphere", "Copper")
+        assert not self.aedtapp.modeler.create_sphere(udp, -5, "MySphere", "Copper")
 
     def test_15_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
@@ -287,6 +332,8 @@ class TestClass:
         assert o.name.startswith("MyCyl")
         assert o.object_type == "Solid"
         assert o.is3d is True
+        assert not self.aedtapp.modeler.create_cylinder(axis, [2, 2], radius, height, 8, "MyCyl", "Copper")
+        assert not self.aedtapp.modeler.create_cylinder(axis, udp, -0.1, height, 8, "MyCyl", "Copper")
         pass
 
     def test_16_create_ellipse(self):
@@ -414,6 +461,7 @@ class TestClass:
         assert o.name.startswith("MyRectangle")
         assert o.object_type == "Sheet"
         assert o.is3d is False
+        assert not self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5, 10], name="MyRectangle", matname="Copper")
 
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -423,6 +471,11 @@ class TestClass:
         assert o.name.startswith("MyCone")
         assert o.object_type == "Solid"
         assert o.is3d is True
+        assert not self.aedtapp.modeler.create_cone(axis, [1, 1], 20, 10, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, -20, 20, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, -20, 5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, -5, name="MyCone", matname="Copper")
 
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -647,6 +700,8 @@ class TestClass:
         assert o.edges[0].fillet()
         self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
+        r = self.create_rectangle(name="MyRect")
+        assert not r.edges[0].fillet()
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
@@ -665,12 +720,12 @@ class TestClass:
         assert prim3D.create_polyline(
             position_list=test_points, segment_type=PolylineSegment("Spline", num_points=3), name="PL03_spline_3pt"
         )
-        try:
+        with pytest.raises(ValueError) as execinfo:
             prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
-        except ValueError as e:
-            assert str(e) == "The position_list argument must contain at least 4 points for segment of type Spline."
-        else:
-            assert False
+            assert (
+                str(execinfo)
+                == "The 'position_list' argument must contain at least four points for segment of type 'Spline'."
+            )
         assert prim3D.create_polyline(
             position_list=[[100, 100, 0]],
             segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
@@ -987,12 +1042,9 @@ class TestClass:
         # test unclassified
         p11 = polyline_points[11]
         position_lst = [[-142, 130, 0], [-126, 63, 0], p11]
-        try:
+        with pytest.raises(ValueError) as execinfo:
             ind.insert_segment(position_lst, "Arc")
-        except ValueError as e:
-            assert str(e) == "Adding the segment result in an unclassified object. Undoing operation."
-        else:
-            assert False
+            assert str(execinfo) == "Adding the segment result in an unclassified object. Undoing operation."
         assert len(ind.points) == 64
         assert len(ind.segment_types) == 55
 
@@ -1071,6 +1123,12 @@ class TestClass:
             name="low",
         )
         assert b6
+        assert not self.aedtapp.modeler.create_bondwire(
+            [0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+        )
+        assert not self.aedtapp.modeler.create_bondwire(
+            [0, 0, 0], [10, 10], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+        )
 
     def test_56_create_group(self):
         assert self.aedtapp.modeler.create_group(["jedec51", "jedec41"], "mygroup")
@@ -1116,6 +1174,11 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         for i in list(self.aedtapp.modeler.objects.keys()):
             self.aedtapp.modeler.objects[i].material_name = "copper"
+
+        # Folder doesn't exist. Cannot create component.
+        assert not self.aedtapp.modeler.create_3dcomponent(self.component3d_file, create_folder=False)
+
+        # By default, the new folder is created.
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
         assert os.path.exists(self.component3d_file)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
@@ -1142,6 +1205,13 @@ class TestClass:
             included_cs="Global",
             is_encrypted=True,
             password="password_test",
+        )
+        assert self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+            hide_contents=["Solid"],
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
@@ -1269,11 +1339,12 @@ class TestClass:
         assert torus.is3d is True
 
     def test_70_create_torus_exceptions(self):
-        with pytest.raises(ValueError) as excinfo:
-            self.aedtapp.modeler.create_torus(
-                [30, 30], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
-            )
-            assert "Center argument must be a valid 3 element sequence." in str(excinfo.value)
+        assert self.aedtapp.modeler.create_torus(
+            [30, 30, 0], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+        )
+        assert not self.aedtapp.modeler.create_torus(
+            [30, 30], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+        )
 
     def test_71_create_point(self):
         name = "mypoint"
@@ -1517,20 +1588,22 @@ class TestClass:
             right_hand=False,
         )
 
-        # Test that an exception is raised if the name of the polyline is not provided.
-        # We can't use with.pytest.raises pattern below because IronPython does not support pytest.
-        try:
-            self.aedtapp.modeler.create_helix(
-                polyline_name="",
-                position=[0, 0, 0],
-                x_start_dir=1.0,
-                y_start_dir=1.0,
-                z_start_dir=1.0,
-            )
-        except ValueError as exc_info:
-            assert "The name of the polyline cannot be an empty string." in str(exc_info.args[0])
-        else:
-            assert False
+        assert not self.aedtapp.modeler.create_helix(
+            polyline_name="",
+            position=[0, 0, 0],
+            x_start_dir=1.0,
+            y_start_dir=1.0,
+            z_start_dir=1.0,
+        )
+
+        assert not self.aedtapp.modeler.create_helix(
+            polyline_name=polyline_left.name,
+            position=[0, 0],
+            x_start_dir=1.0,
+            y_start_dir=1.0,
+            z_start_dir=1.0,
+            right_hand=False,
+        )
 
     def test_78_get_touching_objects(self):
         box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], matname="copper")
@@ -1566,6 +1639,7 @@ class TestClass:
         assert obj_3dcomp.mesh_assembly
         obj_3dcomp.name = "Dipole_pyaedt"
         assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
+        assert self.aedtapp.modeler["Dipole_pyaedt"]
         assert obj_3dcomp.name == "Dipole_pyaedt"
         if config["desktopVersion"] < "2023.1":
             assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
@@ -1724,8 +1798,9 @@ class TestClass:
         )
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert comp.name in self.aedtapp.modeler.layout_component_names
         assert isinstance(comp, UserDefinedComponent)
-        assert len(self.aedtapp.modeler.modeler.user_defined_components[comp.name].parts) == 3
+        assert len(self.aedtapp.modeler.user_defined_components[comp.name].parts) == 3
         comp2 = self.aedtapp.modeler.insert_layout_component(
             self.layout_component, name="new_layout", parameter_mapping=True
         )
@@ -1746,3 +1821,153 @@ class TestClass:
         assert comp2.layout_component.display_mode == 1
         comp2.layout_component.layers["Trace"] = [True, True, 90]
         assert comp2.layout_component.update_visibility()
+
+    def test_87_set_mesh_fusion_settings(self):
+        self.aedtapp.insert_design("MeshFusionSettings")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box1.name],
+        )
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [100, 20, 30])
+        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box2.name],
+        )
+        assert self.aedtapp.set_mesh_fusion_settings(component=obj2_3dcomp.name, volume_padding=None, priority=None)
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name, "Dummy"], volume_padding=None, priority=None
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name],
+            volume_padding=[[0, 5, 0, 0, 0, 1], [0, 0, 0, 2, 0, 0]],
+            priority=None,
+        )
+        assert not self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=[[0, 0, 0, 2, 0, 0]], priority=None
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=None, priority=[obj2_3dcomp.name, "Dummy"]
+        )
+
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=[obj_3dcomp.name, obj2_3dcomp.name],
+            volume_padding=[[0, 5, 0, 0, 0, 1], [10, 0, 0, 2, 0, 0]],
+            priority=[obj_3dcomp.name],
+        )
+        assert self.aedtapp.set_mesh_fusion_settings(
+            component=None,
+            volume_padding=None,
+            priority=None,
+        )
+
+    def test_88_import_primitives_file_json(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 9
+
+    def test_89_import_cylinder_primitives_csv(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, cylinder_primitive_csv_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 2
+        self.aedtapp.insert_design("PrimitiveFromFileTest")
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, cylinder_primitive_csv_file_wrong_keys
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, cylinder_primitive_csv_file_missing_values
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+
+    def test_90_import_prism_primitives_csv(self):
+        self.aedtapp.insert_design("PrimitiveFromFile")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, prism_primitive_csv_file)
+        primitive_names = self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        assert len(primitive_names) == 2
+        self.aedtapp.insert_design("PrimitiveFromFileTest")
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, prism_primitive_csv_file_wrong_keys)
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+        primitive_file = os.path.join(
+            local_path, "example_models", test_subfolder, prism_primitive_csv_file_missing_values
+        )
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
+
+    def test_91_primitives_builder(self, add_app):
+        from pyaedt.generic.DataHandlers import json_to_dict
+        from pyaedt.modeler.cad.Primitives import PrimitivesBuilder
+
+        ipk = add_app(application=Icepak)
+
+        primitive_file = os.path.join(local_path, "example_models", test_subfolder, primitive_json_file)
+        primitive_dict = json_to_dict(primitive_file)
+
+        with pytest.raises(TypeError):
+            PrimitivesBuilder(ipk)
+
+        del primitive_dict["Primitives"]
+        with pytest.raises(AttributeError):
+            PrimitivesBuilder(ipk, input_dict=primitive_dict)
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Name"]
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Mode"]
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        del primitive_dict["Coordinate Systems"][0]["Origin"]
+        del primitive_dict["Coordinate Systems"][0]["Y Point"]
+        del primitive_dict["Coordinate Systems"][1]["Phi"]
+        del primitive_dict["Coordinate Systems"][1]["Theta"]
+        primitive_dict["Coordinate Systems"][1]["Mode"] = "Euler Angle ZXZ"
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.coordinate_systems[0]["X Axis"]
+        del primitives_builder.coordinate_systems[1]["Psi"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 9
+
+        ipk.modeler.coordinate_systems[0].delete()
+        ipk.modeler.coordinate_systems[0].delete()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Name"]
+        assert not primitives_builder.create()
+        assert len(primitive_names) == 9
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Coordinate System"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 9
+        ipk.modeler.coordinate_systems[0].delete()
+        ipk.modeler.coordinate_systems[0].delete()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        primitives_builder.instances[0]["Coordinate System"] = "Invented"
+        assert not primitives_builder.create()
+
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
+        del primitives_builder.instances[0]["Origin"]
+        primitive_names = primitives_builder.create()
+        assert len(primitive_names) == 9
+
+        q2d = add_app(application=Q2d)
+        primitive_dict = json_to_dict(primitive_file)
+        primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
+        primitive_names = primitives_builder.create()
+        assert all(element is None for element in primitive_names)

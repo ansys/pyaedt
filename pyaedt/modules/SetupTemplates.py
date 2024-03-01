@@ -192,6 +192,63 @@ Magnetostatic = OrderedDict(
 )
 """Maxwell magnetostatic setup properties and default values."""
 
+DCConduction = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 10,
+        "MinimumPasses": 2,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseNonLinearIterNum": False,
+        "UseIterativeSolver": False,
+        "RelativeResidual": 1e-06,
+        "NonLinearResidual": 0.001,
+    }
+)
+"""Maxwell DCConduction setup properties and default values."""
+
+ElectroDCConduction = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 10,
+        "MinimumPasses": 2,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseNonLinearIterNum": False,
+        "UseIterativeSolver": False,
+        "RelativeResidual": 1e-06,
+        "NonLinearResidual": 0.001,
+    }
+)
+"""Maxwell ElectroDCConduction setup properties and default values."""
+
+ACConduction = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 10,
+        "MinimumPasses": 2,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseNonLinearIterNum": False,
+        "NonLinearResidual": 0.001,
+        "Frequency": "60Hz",
+        "HasSweepSetup": False,
+    }
+)
+"""Maxwell ACConduction setup properties and default values."""
+
 Electrostatic = OrderedDict(
     {
         "Enabled": True,
@@ -562,6 +619,7 @@ NexximAMI = OrderedDict(
         "OutputQuantities": OutputQuantities,
         "NoiseOutputQuantities": NoiseOutputQuantities,
         "Name": "AMIAnalysis",
+        "InputType": 1,
         "AMIAnalysis": [32, False, False],
     }
 )
@@ -1359,7 +1417,6 @@ MechTransientThermal = OrderedDict(
     }
 )
 
-
 MechModal = OrderedDict(
     {
         "Enabled": True,
@@ -1625,7 +1682,7 @@ class SetupKeys:
         "EddyCurrent",
         "Electrostatic",
         "ElectroDCConduction",
-        "ElectroDCConduction",
+        "ElectricTransient",
         "IcepakSteadyState",
         "IcepakSteadyState",
         "IcepakSteadyState",
@@ -1673,6 +1730,8 @@ class SetupKeys:
         "NSSM",
         "TransientAPhiFormulation",
         "MechTransientThermal",
+        "DCConduction",
+        "ACConduction",
     ]
 
     SetupTemplates = {
@@ -1685,7 +1744,7 @@ class SetupKeys:
         6: Magnetostatic,
         7: EddyCurrent,
         8: Electrostatic,
-        9: Electrostatic,
+        9: ElectroDCConduction,
         10: ElectricTransient,
         11: SteadyTemperatureAndFlow,
         12: SteadyTemperatureOnly,
@@ -1734,6 +1793,8 @@ class SetupKeys:
         55: NSSM,
         56: MaxwellTransient,
         57: MechTransientThermal,
+        58: DCConduction,
+        59: ACConduction,
     }
 
     SetupTemplates_231 = {

@@ -3,18 +3,21 @@ import copy
 from datetime import datetime
 import json
 import os
+import pkgutil
 import tempfile
 
 from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
 from pyaedt import get_pyaedt_app
+from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.cad.Modeler import CoordinateSystem
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -25,6 +28,10 @@ from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
+
+if not is_ironpython:
+    from jsonschema import exceptions
+    from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -54,7 +61,7 @@ class ConfigurationsOptions(object):
     """Options class for the configurations.
     User can enable or disable import export components."""
 
-    def __init__(self):
+    def __init__(self, is_layout=False):
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -632,8 +639,9 @@ class ConfigurationsOptions(object):
 
 
 class ImportResults(object):
-    """Import Results Class.
-    Contains the results of the import operations. Each reusult can be ``True`` or ``False``.
+    """Contains the results of the import operations.
+
+    Each result can be ``True`` or ``False``.
     """
 
     def __init__(self):
@@ -673,19 +681,22 @@ class ImportResults(object):
 
 
 class Configurations(object):
-    """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
-    """
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
     def __init__(self, app):
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
+        # Read the default configuration schema from pyaedt
+        schema_bytes = pkgutil.get_data(__name__, "../misc/config.schema.json")
+        schema_string = schema_bytes.decode("utf-8")
+        self._schema = json.loads(schema_string)
+
     @staticmethod
     @pyaedt_function_handler()
     def _map_dict_value(dict_out, key, value):
-        dict_out["general"]["object_mapping"][key] = value
+        dict_out["general"]["object_mapping"][str(key)] = value
 
     @pyaedt_function_handler()
     def _map_object(self, props, dict_out):
@@ -711,12 +722,13 @@ class Configurations(object):
         if "Objects" in props:
             new_list = []
             for obj in props["Objects"]:
-                if isinstance(obj, int):
+                try:
+                    int(obj)
                     try:
                         new_list.append(mapping[str(obj)])
                     except KeyError:
                         pass
-                else:
+                except ValueError:
                     new_list.append(obj)
             props["Objects"] = new_list
         elif "Faces" in props:
@@ -965,7 +977,8 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def _update_datasets(self, name, data_dict):
+    def _update_datasets(self, data_dict):
+        name = data_dict["Name"]
         is_project_dataset = False
         if name.startswith("$"):
             is_project_dataset = True
@@ -984,9 +997,50 @@ class Configurations(object):
             )
 
     @pyaedt_function_handler()
+    def validate(self, config):
+        """Validate a configuration file against the schema. The default schema
+            can be found in ``pyaedt/misc/config.schema.json``.
+
+        Parameters
+        ----------
+        config : str, dict
+            Configuration as a JSON file or dictionary.
+
+        Returns
+        -------
+        bool
+            ``True`` if the configuration file is valid, ``False`` otherwise.
+            If the validation fails, a warning is also written to the logger.
+        """
+
+        if isinstance(config, str):
+            try:  # Try to parse config as a file
+                config_data = read_configuration_file(config)
+            except OSError:
+                self._app.logger.warning("Unable to parse %s", config)
+                return False
+        elif isinstance(config, dict):
+            config_data = config
+        else:
+            self._app.logger.warning("Incorrect data type.")
+            return False
+
+        if is_ironpython:
+            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
+        else:
+            try:
+                validate(instance=config_data, schema=self._schema)
+                return True
+            except exceptions.ValidationError as e:
+                self._app.logger.warning("Configuration is invalid.")
+                self._app.logger.warning("Validation error:" + e.message)
+                return False
+        return True
+
+    @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
-        The sections to be applied are defined with ``configuration.options`` class.
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+        The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
         Parameters
@@ -1002,9 +1056,8 @@ class Configurations(object):
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
         self.results._reset_results()
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
 
+        dict_in = read_configuration_file(config_file)
         if self.options._is_any_import_set:
             try:
                 self._app.modeler.model_units = dict_in["general"]["model_units"]
@@ -1060,8 +1113,9 @@ class Configurations(object):
                     self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self._app, el, val)
-                if newmat.update():
+                newmat = Material(self._app, el, val, material_update=True)
+                newmat._update_material()
+                if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
                     self.results.import_materials = False
@@ -1078,7 +1132,16 @@ class Configurations(object):
         #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
         #         if not self._update_face_coordinate_systems(name, props):
         #             self.results.import_face_coordinate_systems = False
-        self._app.modeler.set_working_coordinate_system("Global")
+
+        # Only set global CS in the appropriate context.
+        if self._app.design_type not in [
+            "HFSS 3D Layout Design",
+            "HFSS3DLayout",
+            "RMxprt",
+            "Twin Builder",
+            "Circuit Design",
+        ]:
+            self._app.modeler.set_working_coordinate_system("Global")
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -1088,8 +1151,14 @@ class Configurations(object):
 
         if self.options.import_datasets and dict_in.get("datasets", None):
             self.results.import_datasets = True
-            for k, v in dict_in["datasets"].items():
-                self._update_datasets(k, v)
+            if not isinstance(dict_in["datasets"], list):  # backward compatibility
+                dataset_list = []
+                for k, v in dict_in["datasets"].items():
+                    v["Name"] = k
+                    dataset_list.append(v)
+                dict_in["datasets"] = dataset_list
+            for dataset in dict_in["datasets"]:
+                self._update_datasets(dataset)
 
         if self.options.import_boundaries and dict_in.get("boundaries", None):
             self.results.import_boundaries = True
@@ -1143,7 +1212,7 @@ class Configurations(object):
         dict_out["general"]["date"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         dict_out["general"]["object_mapping"] = {}
         dict_out["general"]["output_variables"] = {}
-        if self._app.output_variables:
+        if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
             with open(oo_out, "r") as f:
@@ -1272,24 +1341,27 @@ class Configurations(object):
     def _export_datasets(self, dict_out):
         if self._app.project_datasets or self._app.design_datasets:
             if dict_out.get("datasets", None) is None:
-                dict_out["datasets"] = {}
+                dict_out["datasets"] = []
             for dataset_dict in [self._app.project_datasets, self._app.design_datasets]:
                 for k, obj in dataset_dict.items():
                     if k not in dict_out.get("material datasets", []):
-                        dict_out["datasets"][k] = {
-                            "v": obj.v,
-                            "vunit": obj.vunit,
-                            "x": obj.x,
-                            "xunit": obj.xunit,
-                            "y": obj.y,
-                            "yunit": obj.yunit,
-                            "z": obj.z,
-                            "zunit": obj.zunit,
-                        }
+                        dict_out["datasets"].append(
+                            {
+                                "Name": k,
+                                "v": obj.v,
+                                "vunit": obj.vunit,
+                                "x": obj.x,
+                                "xunit": obj.xunit,
+                                "y": obj.y,
+                                "yunit": obj.yunit,
+                                "z": obj.z,
+                                "zunit": obj.zunit,
+                            }
+                        )
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
-        dict_monitor = {}
+        dict_monitors = []
         native_parts = [
             part.name
             for udc_name, udc in self._app.modeler.user_defined_components.items()
@@ -1298,33 +1370,33 @@ class Configurations(object):
         ]
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
-                dict_monitor[mon_name] = {
+                dict_monitor = {
                     key: val
                     for key, val in self._app.monitor.all_monitors[mon_name].properties.items()
                     if key not in ["Name", "Object"]
                 }
-                if dict_monitor[mon_name]["Geometry Assignment"] in native_parts:
-                    dict_monitor[mon_name]["Native Assignment"] = [
+                dict_monitor["Name"] = mon_name
+                if dict_monitor["Geometry Assignment"] in native_parts:
+                    dict_monitor["Native Assignment"] = [
                         name
                         for name, dict_comp in self._app.modeler.user_defined_components.items()
-                        if dict_monitor[mon_name]["Geometry Assignment"]
+                        if dict_monitor["Geometry Assignment"]
                         in [part.name for part_id, part in dict_comp.parts.items()]
                     ][0]
-                    if dict_monitor[mon_name]["Type"] == "Face":
-                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            dict_monitor[mon_name]["ID"]
+                    if dict_monitor["Type"] == "Face":
+                        dict_monitor["Area Assignment"] = self._app.modeler.get_face_area(dict_monitor["ID"])
+                    elif dict_monitor["Type"] == "Surface":
+                        dict_monitor["Area Assignment"] = self._app.modeler.get_face_area(
+                            self._app.modeler.get_object_from_name(dict_monitor["ID"]).faces[0].id
                         )
-                    elif dict_monitor[mon_name]["Type"] == "Surface":
-                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            self._app.modeler.get_object_from_name(dict_monitor[mon_name]["ID"]).faces[0].id
-                        )
-                    elif dict_monitor[mon_name]["Type"] == "Object":
-                        bb = self._app.modeler.get_object_from_name([dict_monitor[mon_name]["ID"]][0]).bounding_box
-                        dict_monitor[mon_name]["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
-                        dict_monitor[mon_name]["Volume Assignment"] = self._app.modeler.get_object_from_name(
-                            dict_monitor[mon_name]["ID"]
+                    elif dict_monitor["Type"] == "Object":
+                        bb = self._app.modeler.get_object_from_name([dict_monitor["ID"]][0]).bounding_box
+                        dict_monitor["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
+                        dict_monitor["Volume Assignment"] = self._app.modeler.get_object_from_name(
+                            dict_monitor["ID"]
                         ).volume
-        dict_out["monitor"] = dict_monitor
+                dict_monitors.append(dict_monitor)
+        dict_out["monitors"] = dict_monitors
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
@@ -1360,8 +1432,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
-        """Export current design properties to json file.
-        The section to be exported are defined with ``configuration.options`` class.
+        """Export current design properties to a JSON or TOML file.
+        The sections to be exported are defined with ``configuration.options`` class.
 
 
         Parameters
@@ -1384,19 +1456,15 @@ class Configurations(object):
             )
         dict_out = {}
         self._export_general(dict_out)
-        for key, value in vars(self.options).items():
+        for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
-                getattr(self, key)(dict_out)
+                getattr(self, key)(dict_out)  # Call private export method to update dict_out.
 
         # update the json if it exists already
 
         if os.path.exists(config_file) and not overwrite:
-            with open(config_file, "r") as json_file:
-                try:
-                    dict_in = json.load(json_file)
-                except Exception:
-                    dict_in = {}
-            try:
+            dict_in = read_configuration_file(config_file)
+            try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
                         if k not in dict_out:
@@ -1405,17 +1473,18 @@ class Configurations(object):
                             for i, j in v.items():
                                 if i not in dict_out[k]:
                                     dict_out[k][i] = j
-            except KeyError:
-                pass
-        # write the updated json to file
-        if _create_json_file(dict_out, config_file):
+            except KeyError as e:
+                self._app.logger.error(str(e))
+
+        # write the updated dict to file
+        if write_configuration_file(dict_out, config_file):
             self._app.logger.info("Json file {} created correctly.".format(config_file))
             return config_file
         self._app.logger.error("Error creating json file {}.".format(config_file))
         return False
 
 
-class ConfigurationsOptionsIcepak(ConfigurationsOptions):
+class ConfigurationOptionsIcepak(ConfigurationsOptions):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1456,14 +1525,35 @@ class ConfigurationsOptionsIcepak(ConfigurationsOptions):
         self._export_native_components = val
 
 
-class ConfigurationsIcepak(Configurations):
-    """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
+class ConfigurationOptions3DLayout(ConfigurationsOptions):
+    def __init__(self, app):
+        ConfigurationsOptions.__init__(self)
+        self._export_mesh_operations = False
+        self._export_coordinate_systems = False
+        self._export_boundaries = False
+        self._export_object_properties = False
+        self._import_mesh_operations = False
+        self._import_coordinate_systems = False
+        self._import_boundaries = False
+        self._import_object_properties = False
+
+
+class Configurations3DLayout(Configurations):
+    """Enables export and import configuration options to be applied to a
+    new or existing 3DLayout design.
     """
 
     def __init__(self, app):
         Configurations.__init__(self, app)
-        self.options = ConfigurationsOptionsIcepak(app)
+        self.options = ConfigurationOptions3DLayout(app)
+
+
+class ConfigurationsIcepak(Configurations):
+    """Enables export and import configuration options to be applied on a new or existing design."""
+
+    def __init__(self, app):
+        Configurations.__init__(self, app)
+        self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
     def _update_object_properties(self, name, val):
@@ -1618,63 +1708,62 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def _monitor_assignment_finder(self, dict_in, monitor_obj, exclude_set):
-        if dict_in["monitor"][monitor_obj].get("Native Assignment", None):
+        idx = dict_in["monitors"].index(monitor_obj)
+        if monitor_obj.get("Native Assignment", None):
             objects_to_check = [obj for _, obj in self._app.modeler.objects.items()]
             objects_to_check = list(set(objects_to_check) - exclude_set)
-            if dict_in["monitor"][monitor_obj]["Type"] == "Face":
+            if monitor_obj["Type"] == "Face":
                 for obj in objects_to_check:
                     for f in obj.faces:
                         if (
-                            GeometryOperators.v_norm(
-                                GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
-                            )
+                            GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, monitor_obj["Location"]))
                             <= 1e-12
-                            and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                            and abs(f.area - monitor_obj["Area Assignment"]) <= 1e-12
                         ):
-                            dict_in["monitor"][monitor_obj]["ID"] = f.id
+                            monitor_obj["ID"] = f.id
+                            dict_in["monitors"][idx] = monitor_obj
                             return
-            elif dict_in["monitor"][monitor_obj]["Type"] == "Surface":
+            elif monitor_obj["Type"] == "Surface":
                 for obj in objects_to_check:
                     if len(obj.faces) == 1:
                         for f in obj.faces:
                             if (
-                                GeometryOperators.v_norm(
-                                    GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
-                                )
+                                GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, monitor_obj["Location"]))
                                 <= 1e-12
-                                and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                                and abs(f.area - monitor_obj["Area Assignment"]) <= 1e-12
                             ):
-                                dict_in["monitor"][monitor_obj]["ID"] = obj.name
+                                monitor_obj["ID"] = obj.name
+                                dict_in["monitors"][idx] = monitor_obj
                                 return
-            elif dict_in["monitor"][monitor_obj]["Type"] == "Object":
+            elif monitor_obj["Type"] == "Object":
                 for obj in objects_to_check:
                     bb = obj.bounding_box
                     if (
                         GeometryOperators.v_norm(
                             GeometryOperators.v_sub(
-                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)], dict_in["monitor"][monitor_obj]["Location"]
+                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)], monitor_obj["Location"]
                             )
                         )
                         <= 1e-12
-                        and abs(obj.volume - dict_in["monitor"][monitor_obj]["Volume Assignment"]) <= 1e-12
+                        and abs(obj.volume - monitor_obj["Volume Assignment"]) <= 1e-12
                     ):
-                        dict_in["monitor"][monitor_obj]["ID"] = obj.id
+                        monitor_obj["ID"] = obj.id
+                        dict_in["monitors"][idx] = monitor_obj
                         return
-            elif dict_in["monitor"][monitor_obj]["Type"] == "Vertex":
+            elif monitor_obj["Type"] == "Vertex":
                 for obj in objects_to_check:
                     for v in obj.vertices:
                         if (
-                            GeometryOperators.v_norm(
-                                GeometryOperators.v_sub(v.position, dict_in["monitor"][monitor_obj]["Location"])
-                            )
+                            GeometryOperators.v_norm(GeometryOperators.v_sub(v.position, monitor_obj["Location"]))
                             <= 1e-12
                         ):
-                            dict_in["monitor"][monitor_obj]["ID"] = v.id
+                            monitor_obj["ID"] = v.id
+                            dict_in["monitors"][idx] = monitor_obj
                             return
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -1696,8 +1785,7 @@ class ConfigurationsIcepak(Configurations):
             exclude_set = args[0]
         else:  # pragma: no cover
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
+        dict_in = read_configuration_file(config_file)
         self.results._reset_results()
 
         if self.options.import_native_components and dict_in.get("native components", None):
@@ -1723,16 +1811,24 @@ class ConfigurationsIcepak(Configurations):
                     result_native_component = False
 
         dict_in = Configurations.import_config(self, config_file)
-        if self.options.import_monitor and dict_in.get("monitor", None):
+        if self.options.import_monitor and dict_in.get("monitor", None):  # backward compatibility
+            dict_in["monitors"] = dict_in.pop("monitor")
+        if self.options.import_monitor and dict_in.get("monitors", None):
+            if not isinstance(dict_in["monitors"], list):  # backward compatibility
+                mon_list = []
+                for k, v in dict_in["monitors"].items():
+                    v["Name"] = k
+                    mon_list.append(v)
+                dict_in["monitors"] = mon_list
             self.results.import_monitor = True
-            for monitor_obj in dict_in["monitor"]:
+            for monitor_obj in dict_in["monitors"]:
                 self._monitor_assignment_finder(dict_in, monitor_obj, exclude_set)
-                m_type = dict_in["monitor"][monitor_obj]["Type"]
-                m_obj = dict_in["monitor"][monitor_obj]["ID"]
+                m_type = monitor_obj["Type"]
+                m_obj = monitor_obj["ID"]
                 if m_type == "Point":
-                    m_obj = dict_in["monitor"][monitor_obj]["Location"]
+                    m_obj = monitor_obj["Location"]
                 if not self.update_monitor(
-                    m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                    m_type, m_obj, monitor_obj["Quantity"], monitor_obj["Name"]
                 ):  # pragma: no cover
                     self.results.import_monitor = False
         try:

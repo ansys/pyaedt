@@ -2,7 +2,6 @@ import math
 from warnings import warn
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.cad.Primitives2D import Primitives2D
 
@@ -31,7 +30,7 @@ class ModelerRMxprt(Modeler):
         return self._app.oeditor
 
 
-class Modeler2D(GeometryModeler, Primitives2D):
+class Modeler2D(Primitives2D):
     """Provides the Modeler 2D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -49,8 +48,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
     """
 
     def __init__(self, application):
-        GeometryModeler.__init__(self, application, is3d=False)
-        Primitives2D.__init__(self)
+        Primitives2D.__init__(self, application)
         self._primitives = self
         self.logger.info("Modeler2D class has been initialized!")
 
@@ -135,11 +133,11 @@ class Modeler2D(GeometryModeler, Primitives2D):
             ``True`` when successful, ``False`` when failed.
         """
 
-        cir = self.modeler.create_circle([0, 0, 0], 3, name=name + "_split", matname="vacuum")
+        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", matname="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
-        objects = [i for i in self.modeler.object_names]
+        objects = [i for i in self.object_names]
         self.oeditor.Paste()
-        name1 = [i for i in self.modeler.object_names if i not in objects]
+        name1 = [i for i in self.object_names if i not in objects]
         self.intersect([name1[0], cir.name], keep_originals=False)
         self.subtract(name, name1[0])
         return True
