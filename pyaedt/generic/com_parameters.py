@@ -1,3 +1,5 @@
+import win32com.client as win32
+import pandas as pd
 from pathlib import Path
 
 from pyaedt import pyaedt_function_handler
@@ -45,6 +47,12 @@ class COMParameters:
     def load(self, file_path):
         """Load configuration file.
 
+
+        Parameters
+        ----------
+        file_path: str
+            Path of the configure file.
+
         Returns
         -------
         bool
@@ -57,6 +65,65 @@ class COMParameters:
                     split_line = [i.strip() for i in line.split("=")]
                     name, value = split_line
                     self.__setattr__(name, str(value))
+        return True
+
+    @pyaedt_function_handler
+    def load_ieee_excel(self, file_path):
+        """Load IEEE original configure file in Excel format.
+
+        Parameters
+        ----------
+        file_path: str
+         Path of the Execel file.
+
+        Returns
+        -------
+        bool
+        """
+        excel = win32.gencache.EnsureDispatch("Excel.Application")
+        excel.Visible = False
+
+        wb = excel.Workbooks.Open(file_path)
+        _com_param = wb.Sheets["COM_Settings"]
+
+        com_param = {}
+        com_param.update(_com_param.Range("A3", "B100").Value)
+        com_param.update(_com_param.Range("F2", "G100").Value)
+        com_param.update(_com_param.Range("J3", "K100").Value)
+
+        wb.Close(True)
+        excel.Quit()
+
+        com_param_map = self._CFG_DIR / "00_COMSettingsExplained.csv"
+        keys = {}
+        keyword_mapping = pd.read_csv(com_param_map, skiprows=2, na_values="")
+        keyword_mapping = keyword_mapping.fillna("")
+        for spisim_name, matlab_name in list(keyword_mapping.iloc[:, 1:3].values):
+            if not matlab_name:
+                matlab_name = spisim_name
+            keys[matlab_name] = spisim_name
+
+        spisim_com_cfg = {}
+        for k, v in com_param.items():
+            if not k:
+                continue
+            if k in [
+                "filter and Eq",
+                "Operational",
+                "TDR and ERL options",
+                "Noise, jitter",
+                "Table 92–12 parameters",
+                "Floating Tap Control",
+                "ICN & FOM_ILD parameters",
+                "Receiver testing",
+            ]:
+                continue
+            if k in keys:
+                spisim_com_cfg[keys[k]] = v
+
+        for i, j in spisim_com_cfg.items():
+            self.__setattr__(i, str(j))
+
         return True
 
     @pyaedt_function_handler

@@ -498,21 +498,21 @@ class TestClass:
 
         report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
         os.mkdir(report_dir)
-        com_0, com_1 = spisim.compute_com(
+        com = spisim.compute_com(
             standard="50GAUI-1_C2C",
             out_folder=report_dir,
         )
-        assert com_0 and com_1
+        assert com
 
         report_dir = os.path.join(spisim.working_directory, "100GBASE-KR4")
         os.mkdir(report_dir)
-        com_0, com_1 = spisim.compute_com(
+        com= spisim.compute_com(
             standard="100GBASE-KR4",
             fext_s4p=[touchstone_file, touchstone_file],
             next_s4p=touchstone_file,
             out_folder=report_dir,
         )
-        assert com_0 and com_1
+        assert com
 
     def test_09b_compute_com(self, local_scratch):
         com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
@@ -538,3 +538,16 @@ class TestClass:
             out_folder=report_dir,
         )
         assert com_0 and com_1
+
+    def test_09c_compute_com(self, local_scratch):
+        com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
+        thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
+        cfg = local_scratch.copyfile(os.path.join(com_example_file_folder, "config_com_ieee8023_93a=100GBASE-KR4.xls"))
+
+        spisim = SpiSim(thru_s4p)
+        com_result = spisim.compute_com(
+            standard="custom",
+            config_file=cfg,
+            port_order="EvenOdd",
+        )
+        assert com_result

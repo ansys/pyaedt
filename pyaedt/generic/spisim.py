@@ -97,9 +97,17 @@ class SpiSim:
             try:
                 with open(out_file, "r") as infile:
                     txt = infile.read()
-                com_case_0 = re.search(r"Case 0: Calculated COM = (.*?),", txt).groups()[0]
-                com_case_1 = re.search(r"Case 1: Calculated COM = (.*?),", txt).groups()[0]
-                return float(com_case_0), float(com_case_1)
+                i = 0
+                com_results = []
+                while True:
+                    m = re.search(r"Case {}: Calculated COM = (.*?),".format(i), txt)
+                    if m:
+                        com_results.append(float(m.groups()[0]))
+                        i = i + 1
+                    else:
+                        break
+
+                return com_results
             except IndexError:  # pragma: no cover
                 self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
 
@@ -277,9 +285,16 @@ class SpiSim:
         -------
 
         """
+
         if standard == "custom":
             com_param = COMParameters()
-            com_param.load(config_file)
+
+            if not isinstance(config_file, Path):
+                config_file = Path(config_file)
+            if config_file.suffix in [".xlsx", ".xls"]:
+                com_param.load_ieee_excel(config_file)
+            else:
+                com_param.load(config_file)
         else:
             com_param = COMParameters(standard)
 
