@@ -5838,21 +5838,71 @@ class GeometryModeler(Modeler):
             return False
 
     @pyaedt_function_handler
-    def create_subregion(self, padding_values, padding_types, region_name, parts, region_type="SubRegion"):
+    def create_subregion(self, padding_values, padding_types, parts, region_name=None):
+        """Create a subregion.
+
+        Parameters
+        ----------
+        padding_values : float, str, list of floats or list of str
+            Same padding is applied if not a list.
+            If a list of floats or str, interpret as padding for
+            ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        padding_types : str or list of str, optional
+            Choose the padding definition. Available options are: ``"Percentage Offset"``,
+            ``"Transverse Percentage Offset"``, ``"Absolute Offset"`` and
+            ``"Absolute Position"``. It is possible to choose different padding types
+            for different directions providing a list. The default is ``"Percentage Offset"``.
+        parts : list of str
+            List of names of parts to be included in the subregion.
+        region_name : str, optional
+            String with region name. Default is ``None`` in which case the name will be
+            generated automatically.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            SubRegion object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
+        """
         is_percentage = padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
         arg, arg2 = self._parse_region_args(
-            padding_values, padding_types, region_name, parts, region_type, is_percentage
+            padding_values, padding_types, region_name, parts, "SubRegion", is_percentage
         )
         self.oeditor.CreateSubregion(arg, arg2)
         return self._create_object(region_name)
 
     def reassign_subregion(self, region, parts):
+        """Modify parts in subregion.
+
+        Parameters
+        ----------
+        region : :class:`pyaedt.modules.MeshIcepak.SubRegion`
+            Subregion to modify.
+        parts : list of str
+            List of names of parts to be included in the subregion.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
+        """
         is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
         arg, arg2 = self._parse_region_args(
             region.padding_values, region.padding_types, region.name, parts, "SubRegion", is_percentage
         )
         self.oeditor.ReassignSubregion(arg, arg2)
-        return self._create_object(region.name)
+        if self._create_object(region.name):
+            return True
+        return False
 
     @pyaedt_function_handler()
     def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
