@@ -5756,14 +5756,15 @@ class Hfss(FieldAnalysis3D, object):
             col.append(k)
             col.append(str(v).replace(",", " "))
         args.append(col)
+
         if self.omodelsetup.IsArrayDefined():
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            self.save_project()
             self.omodelsetup.EditArray(args)
-            if settings.aedt_version < "2024.1":
-                self.save_project()
         else:
             self.omodelsetup.AssignArray(args)
-            if settings.aedt_version < "2024.1":
-                self.save_project()
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            self.save_project()
             self.component_array[array_name] = ComponentArray(self, array_name)
         self.component_array_names = [array_name]
         return self.component_array[array_name]
