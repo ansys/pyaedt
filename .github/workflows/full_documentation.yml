@@ -73,10 +73,10 @@ jobs:
           testenv\Scripts\Activate.ps1
           sphinx-build -j auto --color -b html -a doc/source doc/_build/html
 
-      - name: Create PDF Documentations
-        run: |
-            testenv\Scripts\Activate.ps1
-            .\doc\make.bat pdf
+#      - name: Create PDF Documentations
+#        run: |
+#            testenv\Scripts\Activate.ps1
+#            .\doc\make.bat pdf
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v3
@@ -85,12 +85,12 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
-      - name: Upload PDF documentation artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-pdf
-          path: doc/_build/pdf
-          retention-days: 7
+#      - name: Upload PDF documentation artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: documentation-pdf
+#          path: doc/_build/pdf
+#          retention-days: 7
 
 #      - name: Release
 #        uses: softprops/action-gh-release@v1
