@@ -182,11 +182,14 @@ class Analysis(Design, object):
 
         """
         if not self._materials:
+            self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
             for material in self._materials.material_keys:
                 self._materials.material_keys[material]._material_update = True
+            self.logger.info_timer("Materials class has been initialized!")
+
         return self._materials
 
     @property
