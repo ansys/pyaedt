@@ -436,7 +436,6 @@ class TestClass:
         )
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
-
     def test_07_export_maxwell_fields(self, m3dtransient):
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
@@ -506,7 +505,7 @@ class TestClass:
 
         report_dir = os.path.join(spisim.working_directory, "100GBASE-KR4")
         os.mkdir(report_dir)
-        com= spisim.compute_com(
+        com = spisim.compute_com(
             standard="100GBASE-KR4",
             fext_s4p=[touchstone_file, touchstone_file],
             next_s4p=touchstone_file,
@@ -543,11 +542,14 @@ class TestClass:
         com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
         thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
         cfg = local_scratch.copyfile(os.path.join(com_example_file_folder, "config_com_ieee8023_93a=100GBASE-KR4.xls"))
+        report_dir = os.path.join(local_scratch.path, "custom")
+        os.mkdir(report_dir)
 
         spisim = SpiSim(thru_s4p)
         com_result = spisim.compute_com(
             standard="custom",
             config_file=cfg,
             port_order="EvenOdd",
+            out_folder=report_dir,
         )
         assert com_result
