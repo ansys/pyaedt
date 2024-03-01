@@ -3626,8 +3626,10 @@ class NetworkObject(BoundaryObject):
         bool:
             True if successful.
         """
-        if not self.props.get("Faces", None):
+        if self.props.get("Faces", None):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
+        if self.props.get("Links", None):
+            self.props["Links"] = {link_name: link_values.props for link_name, link_values in self.links.items()}
         if not self.props.get("SchematicData", None):
             self.props["SchematicData"] = OrderedDict({})
         args = self._get_args()
