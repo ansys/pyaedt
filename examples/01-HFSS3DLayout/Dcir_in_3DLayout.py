@@ -126,7 +126,7 @@ voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Sources",
     category="Voltage")
-print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
+print({expression: voltage.data_magnitude(expression) for expression in voltage.expressions})
 
 ###############################################################################
 # Close AEDT
