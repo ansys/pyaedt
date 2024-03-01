@@ -188,6 +188,20 @@ class TestClass:
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
 
+        assert not self.aedtapp.materials.import_materials_from_file()
+        assert not self.aedtapp.materials.import_materials_from_file("mat.invented")
+        assert not self.aedtapp.materials.import_materials_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "mats.csv")
+        )
+
+        assert self.aedtapp.materials.import_materials_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
+        )
+        assert self.aedtapp.materials.import_materials_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "iron_pyaedt.amat")
+        )
+        x = 1
+
     def test_08B_import_materials_from_excel(self):
         mats = self.aedtapp.materials.import_materials_from_excel(
             os.path.join(local_path, "example_models", test_subfolder, "mats.xlsx")
