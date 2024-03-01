@@ -190,7 +190,7 @@ class Region(object):
 
 class SubRegion(Region):
     def __init__(self, app, region=None):
-        super().__init__(app)
+        super(SubRegion, self).__init__(app)
         self._region = region
 
     @property
@@ -580,7 +580,7 @@ class MeshRegion(object):
 class GlobalMeshRegion(MeshRegion):
     def __init__(self, app):
         self.global_region = Region(app)
-        super().__init__(
+        super(GlobalMeshRegion, self).__init__(
             app.omeshmodule,
             app.modeler.get_bounding_dimension(),
             app.modeler.model_units,
