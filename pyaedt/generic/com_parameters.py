@@ -1,6 +1,7 @@
-import win32com.client as win32
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
+import win32com.client as win32
 
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
