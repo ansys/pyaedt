@@ -829,18 +829,27 @@ class GeometryModeler(Modeler):
         """
         # TODO: Need to improve documentation for this method.
         added_objects = []
-
+        objs_ids = {}
+        if not self._object_names_to_ids:
+            for obj in self._all_object_names:
+                try:
+                    objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pass
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
-                self._create_object(obj_name)
+                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
             if obj_name not in self._object_names_to_ids:
-                self._create_object(obj_name)
+                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.point_names:
             if obj_name not in self.points.keys():
-                self._create_object(obj_name)
+                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         return added_objects
 

@@ -32,9 +32,7 @@ class Modeler3D(Primitives3D):
     """
 
     def __init__(self, application):
-        application.logger.reset_timer()
         Primitives3D.__init__(self, application)
-        application.logger.info_timer("Modeler3D class has been initialized!")
 
     def __get__(self, instance, owner):
         self._app = instance
