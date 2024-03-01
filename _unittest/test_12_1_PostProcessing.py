@@ -503,12 +503,13 @@ class TestClass:
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plot1.name,
+            plotname=plot1.name,
             project_path=self.local_scratch.path,
             meshplot=False,
             imageformat="jpg",
-            view="isometric",
+            view="xy",
             show=False,
+            plot_label=plot1.name + " label",
         )
         assert os.path.exists(plot_obj.image_file)
         os.unlink(plot_obj.image_file)
@@ -526,7 +527,20 @@ class TestClass:
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
+        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
+            plotname=plot1.name,
+            project_path=self.local_scratch.path,
+            meshplot=False,
+            imageformat="jpg",
+            view="xy",
+            show=False,
+            plot_label=plot1.name + " label",
+            file_format="aedtplt",
+        )
+        assert os.path.exists(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file)
+
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
     def test_14B_Field_Ploton_Vector(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
