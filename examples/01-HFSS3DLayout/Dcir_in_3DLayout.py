@@ -106,12 +106,6 @@ hfss3dl.save_project()
 ###############################################################################
 # Get element data
 # ~~~~~~~~~~~~~~~~~~~
-# Get loop resistance
-
-loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
-print(loop_resistance)
-
-# ~~~~~~~~~~~~~~~~~~~
 # Get current source
 
 current_source = hfss3dl.get_dcir_element_data_current_source(setup_name="my_setup")
@@ -137,5 +131,4 @@ print({expression: voltage.data_magnitude(expression) for  expression in voltage
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-hfss3dl.close_project()
 desktop.release_desktop()
