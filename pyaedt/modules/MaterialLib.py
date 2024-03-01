@@ -43,7 +43,6 @@ class Materials(object):
     """
 
     def __init__(self, app):
-        app.logger.reset_timer()
         self._app = app
         self._color_id = 0
         self._mats = []
@@ -54,7 +53,6 @@ class Materials(object):
         self.material_keys = {}
         self._surface_material_keys = {}
         self._load_from_project()
-        app.logger.info_timer("Material library initialized and project materials loaded successfully!")
 
     @property
     def odefinition_manager(self):
