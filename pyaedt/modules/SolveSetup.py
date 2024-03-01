@@ -1975,7 +1975,7 @@ class Setup3DLayout(CommonSetup):
             if len(obj_list) == 1:
                 net = net.replace("-", "m")
                 net = net.replace("+", "p")
-                net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                 obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
@@ -1984,7 +1984,7 @@ class Setup3DLayout(CommonSetup):
                 try:
                     net = net.replace("-", "m")
                     net = net.replace("+", "p")
-                    net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                    net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
                 except:
@@ -3272,9 +3272,9 @@ class SetupMaxwell(Setup, object):
         Notes
         -----
         By default a control program script will be called by the pre-installed Python interpreter:
-        ``<install_path>\Win64\commonfiles\CPython\37\winx64\Release\python\python.exe``.
+        ``<install_path>\\Win64\\commonfiles\\CPython\\37\\winx64\\Release\\python\\python.exe``.
         However, the user can specify a custom Python interpreter to be used by setting following environment variable:
-        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\python.exe>``
+        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\\python.exe>``
 
         References
         ----------
