@@ -173,7 +173,7 @@ class CommonRegion(object):
 
 class Region(CommonRegion):
     def __init__(self, app):
-        super(CommonRegion, self).__init__(app)
+        super(Region, self).__init__(app)
         try:
             self._update_region_data()
         except AttributeError:
