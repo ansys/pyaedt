@@ -4979,8 +4979,10 @@ class FieldSummary:
                     quantity, ", ".join(AVAILABLE_QUANTITIES)
                 )
             )
+        if isinstance(geometry_name, str):
+            geometry_name = [geometry_name]
         self.calculations.append(
-            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+            [entity, geometry, ",".join(geometry_name), quantity, normal, side, mesh, ref_temperature, False]
         )  # TODO : last argument not documented
 
     @pyaedt_function_handler()
