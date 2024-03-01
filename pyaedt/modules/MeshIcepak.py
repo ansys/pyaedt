@@ -7,7 +7,7 @@ from pyaedt.modules.Mesh import MeshOperation
 from pyaedt.modules.Mesh import meshers
 
 
-class CommonRegion:
+class CommonRegion(object):
     def __init__(self, app):
         self._app = app
         self._padding_type = None  # ["Percentage Offset"] * 6
@@ -16,12 +16,7 @@ class CommonRegion:
         self._dir_order = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
 
     def _get_object(self):
-        if isinstance(self, Region):
-            return [oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == command][0]
-        elif isinstance(self, SubRegion):
-            if not self._app.modeler.objects_by_name.get(self._region.name, False):
-                self._region = None
-            return self._region
+        return [oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == "CreateRegion"][0]
 
     def _set_region_data(self, value, direction=None, padding_type=True):
         self._update_region_data()
@@ -193,6 +188,11 @@ class SubRegion(CommonRegion):
     def __init__(self, app, region=None):
         super(SubRegion, self).__init__(app)
         self._region = region
+
+    def _get_object(self):
+        if not self._app.modeler.objects_by_name.get(self._region.name, False):
+            self._region = None
+        return self._region
 
     def create(self, padding_values, padding_types, region_name, parts):
         if (
