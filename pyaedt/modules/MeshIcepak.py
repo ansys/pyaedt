@@ -7,63 +7,37 @@ from pyaedt.modules.Mesh import MeshOperation
 from pyaedt.modules.Mesh import meshers
 
 
-class Region(object):
+class CommonRegion:
     def __init__(self, app):
         self._app = app
         self._padding_type = None  # ["Percentage Offset"] * 6
         self._padding_value = None  # [50] * 6
         self._coordinate_system = None  # "Global"
-        try:
-            self._update_region_data()
-        except AttributeError:
-            pass
         self._dir_order = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
 
-    def _get_region_object(self):
-        try:
-            return [
-                oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == "CreateRegion"
-            ][0]
-        except IndexError:
-            raise AttributeError("Global mesh region not found in modeler.")
-
-    def _update_region_data(self):
-        region = self._get_region_object()
-        create_region = region.history()
-        self._padding_type = []
-        self._padding_value = []
-        for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
-            self._padding_type.append(create_region.props["{} Padding Type".format(padding_direction)])
-            self._padding_value.append(create_region.props["{} Padding Data".format(padding_direction)])
-            self._coordinate_system = create_region.props["Coordinate System"]
-
-    def _get_region_data(self, direction=None, padding_type=True):
-        self._update_region_data()
-        idx = self._dir_order.index(direction)
-        if padding_type:
-            return self._padding_type[idx]
-        else:
-            return self._padding_value[idx]
+    def _get_object(self):
+        if isinstance(self, Region):
+            return [oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == command][0]
+        elif isinstance(self, SubRegion):
+            if not self._app.modeler.objects_by_name.get(self._region.name, False):
+                self._region = None
+            return self._region
 
     def _set_region_data(self, value, direction=None, padding_type=True):
         self._update_region_data()
-        region = self._get_region_object()
+        region = self._get_object()
         create_region = region.history()
         set_type = ["Data", "Type"][int(padding_type)]
         create_region.props["{} Padding {}".format(direction, set_type)] = value
 
-    def create(self, padding_types, padding_values, name="Region"):
-        self._app.modeler.create_region(padding_values, padding_types, region_name="Region")
-        self._update_region_data()
-
     @property
     def object(self):
-        return self._get_region_object()
+        return self._get_object()
 
     @property
     def name(self):
         try:
-            return self._get_region_object().name
+            return self._get_object().name
         except AttributeError:
             return None
 
@@ -127,15 +101,11 @@ class Region(object):
 
     @padding_types.setter
     def padding_types(self, values):
-        region = self._get_region_object()
-        create_region = region.history()
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, True)
 
     @padding_values.setter
     def padding_values(self, values):
-        region = self._get_region_object()
-        create_region = region.history()
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, False)
 
@@ -187,17 +157,42 @@ class Region(object):
     def negative_z_padding(self, value):
         self._set_region_data(value, "-Z", False)
 
+    def _update_region_data(self):
+        region = self._get_object()
+        create_region = region.history()
+        self._padding_type = []
+        self._padding_value = []
+        for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
+            self._padding_type.append(create_region.props["{} Padding Type".format(padding_direction)])
+            self._padding_value.append(create_region.props["{} Padding Data".format(padding_direction)])
+            self._coordinate_system = create_region.props["Coordinate System"]
 
-class SubRegion(Region):
+    def _get_region_data(self, direction=None, padding_type=True):
+        self._update_region_data()
+        idx = self._dir_order.index(direction)
+        if padding_type:
+            return self._padding_type[idx]
+        else:
+            return self._padding_value[idx]
+
+
+class Region(CommonRegion):
+    def __init__(self, app):
+        super(CommonRegion, self).__init__(app)
+        try:
+            self._update_region_data()
+        except AttributeError:
+            pass
+
+    def create(self, padding_types, padding_values, name="Region"):
+        self._app.modeler.create_region(padding_values, padding_types, region_name="Region")
+        self._update_region_data()
+
+
+class SubRegion(CommonRegion):
     def __init__(self, app, region=None):
         super(SubRegion, self).__init__(app)
         self._region = region
-
-    @property
-    def region(self):
-        if not self._app.modeler.objects_by_name.get(self._region.name, False):
-            self._region = None
-        return self._region
 
     def create(self, padding_values, padding_types, region_name, parts):
         if (
@@ -211,7 +206,6 @@ class SubRegion(Region):
 
     def delete(self):
         try:
-            name = self._region.name
             self._region.delete()
             self._app.mesh.meshregions.remove(
                 [mo for mo in self._app.mesh.meshregions.values() if mo.subregion == self][0]
