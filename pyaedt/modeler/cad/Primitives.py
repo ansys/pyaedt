@@ -5872,7 +5872,7 @@ class GeometryModeler(Modeler):
                     pad_value[i] += units
                 elif units and is_percentage:
                     self.logger.error("Percentage input must not have units")
-                    return False
+                    return False, False
             elif not is_percentage:
                 units = self.model_units
                 pad_value[i] = str(pad_value[i])
@@ -5924,8 +5924,11 @@ class GeometryModeler(Modeler):
             pad_value = [pad_value] * 6
         is_percentage = pad_type in ["Percentage Offset", "Transverse Percentage Offset"]
         arg, arg2 = self._parse_region_args(pad_value, pad_type, region_name, parts, region_type, is_percentage)
-        self.oeditor.CreateRegion(arg, arg2)
-        return self._create_object(region_name)
+        if arg and arg2:
+            self.oeditor.CreateRegion(arg, arg2)
+            return self._create_object(region_name)
+        else:
+            return False
 
     @pyaedt_function_handler()
     def create_region(self, pad_value=300, pad_type="Percentage Offset", region_name="Region", **kwarg):
@@ -5970,7 +5973,9 @@ class GeometryModeler(Modeler):
             pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
 
         if isinstance(pad_type, bool):
-            pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(pad_type)]
+            if isinstance(pad_value, list):
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
 
         return self._create_region(pad_value, pad_type, region_name, region_type="Region")
 
