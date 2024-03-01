@@ -2456,8 +2456,15 @@ class PostProcessor(PostProcessorCommon, object):
             elif object_type == "point":
                 self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
+
         if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
                 variation_dict.append("Time:=")
@@ -2600,8 +2607,15 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             self.logger.error("Error in the type of the grid.")
             return False
+
         if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
                 variation_dict.append("Time:=")
