@@ -1324,7 +1324,7 @@ class FieldAnalysis3D(Analysis, object):
         --------
         Import a GDS file in an HFSS 3D project.
 
-        >>> gds_path = r"C:\temp\gds1.gds"
+        >>> gds_path = r"C:\\temp\\gds1.gds"
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: (110, 5)}
