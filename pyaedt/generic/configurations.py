@@ -1115,6 +1115,7 @@ class Configurations(object):
                 else:
                     newname = el
                 newmat = Material(self._app, el, val, material_update=True)
+                newmat._update_material()
                 if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover

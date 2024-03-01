@@ -4671,7 +4671,7 @@ class GeometryModeler(Modeler):
         --------
         >>> from pyaedt import Icepak
         >>> aedtapp = Icepak()
-        >>> aedtapp.modeler.import_primitives_from_file(r'C:\temp\primitives.json')
+        >>> aedtapp.modeler.import_primitives_from_file(r'C:\\temp\\primitives.json')
         """
         primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
         primitive_names = primitives_builder.create()

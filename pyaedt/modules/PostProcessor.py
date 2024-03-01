@@ -2025,7 +2025,7 @@ class PostProcessorCommon(object):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        >>> aedtapp.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
         ...                                               solution_name="Setup1 : LastAdpative")
         """
         if not input_dict and not input_file:  # pragma: no cover
