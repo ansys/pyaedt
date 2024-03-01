@@ -832,7 +832,10 @@ class GeometryModeler(Modeler):
         objs_ids = {}
         if not self._object_names_to_ids:
             for obj in self._all_object_names:
-                objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
+                try:
+                    objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pass
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
                 pid = objs_ids[obj_name] if obj_name in objs_ids else 0
