@@ -20,8 +20,8 @@ import subprocess
 import pyaedt.generic.constants as consts
 
 # Check that emit is a compatible version
-emitapp_desktop_version = "2023.2"
-if emitapp_desktop_version < "2023.2":
+aedt_version = "2024.1"
+if aedt_version < "2023.2":
     print("Must have v2023.2 or later")
     sys.exit()
 
@@ -53,7 +53,7 @@ import openpyxl
 # Launch EMIT
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thread)
+desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
 
 # Add emitapi to system path
 emit_path = os.path.join(desktop.install_path, "Delcross")

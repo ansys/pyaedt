@@ -16,13 +16,18 @@ import csv
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #################################################################################
 # Initialize Maxwell 2D
 # ~~~~~~~~~~~~~~~~~~~~~
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
-
-desktopVersion = "2023.2"
 
 setup_name = "MySetupAuto"
 solver = "TransientXY"
@@ -119,7 +124,7 @@ non_graphical = False
 # Launch Maxwell 2D and save the project.
 
 M2D = pyaedt.Maxwell2d(projectname=project_name,
-                       specified_version=desktopVersion,
+                       specified_version=aedt_version,
                        designname=design_name,
                        solution_type=solver,
                        new_desktop_session=True,

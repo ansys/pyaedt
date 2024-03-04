@@ -27,6 +27,13 @@ import os
 import pyaedt
 import tempfile
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###########################################################################################
 # Create temporary directory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,7 +54,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Insert a Maxwell 2D design and save the project.
 
-maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="2023.2", non_graphical=non_graphical,
+maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version=aedt_version, non_graphical=non_graphical,
                               new_desktop_session=True, projectname=pyaedt.generate_unique_project_name())
 
 ###############################################################################
