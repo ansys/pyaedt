@@ -141,6 +141,9 @@ class Analysis(Design, object):
         self.VIEW = VIEW()
         self.GRAVITY = GRAVITY()
 
+        if not settings.lazy_load:
+            self._materials = self.materials
+
     @property
     def native_components(self):
         """Native Component dictionary.
@@ -179,11 +182,14 @@ class Analysis(Design, object):
 
         """
         if not self._materials:
+            self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
             for material in self._materials.material_keys:
                 self._materials.material_keys[material]._material_update = True
+            self.logger.info_timer("Materials class has been initialized!")
+
         return self._materials
 
     @property

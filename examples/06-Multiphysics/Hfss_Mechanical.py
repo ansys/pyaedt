@@ -13,6 +13,13 @@ includes Circuit, HFSS, and Mechanical.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -33,8 +40,7 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # ~~~~~~~~~~
 # Start HFSS and initialize the PyAEDT object.
 
-version = "2023.2"
-hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
+hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=aedt_version, non_graphical=non_graphical,
                    new_desktop_session=True)
 pin_names = hfss.excitations
 hfss.change_material_override(True)

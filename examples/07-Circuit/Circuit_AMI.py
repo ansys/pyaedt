@@ -21,12 +21,12 @@ import pyaedt
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folder)
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
 
-desktopVersion = "2023.2"
+aedt_version = "2024.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -48,7 +48,7 @@ NewThread = True
 
 pyaedt.settings.enable_pandas_output = True
 cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
-                     specified_version=desktopVersion, new_desktop_session=NewThread)
+                     specified_version=aedt_version, new_desktop_session=NewThread)
 
 ###############################################################################
 # Solve AMI setup

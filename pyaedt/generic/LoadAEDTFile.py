@@ -216,7 +216,7 @@ def _decode_recognized_key(keyword, line, d):
             _count += 1
             line = _all_lines[_count + 1]
     elif keyword == _recognized_keywords[2]:  # PropDisplayMap
-        pattern = ".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
+        pattern = r".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
         match = re.search(pattern, line)
         d["Name"] = []
         for i in match.group(1).split(", "):

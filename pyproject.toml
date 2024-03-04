@@ -36,7 +36,7 @@ dependencies = [
     "fpdf2",
     "jsonschema",
     "pytomlpp; python_version < '3.12'",
-    "pyedb==0.4.0"
+    "pyedb==0.5.0"
 ]
 
 [project.optional-dependencies]
@@ -188,6 +188,10 @@ minversion = "7.1"
 addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
 testpaths = [
     "_unittest",
+]
+filterwarnings = [
+    "ignore::UserWarning:pyaedt.*",
+    "ignore::DeprecationWarning:pyaedt.*"
 ]
 
 [tool.numpydoc_validation]

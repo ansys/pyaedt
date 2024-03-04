@@ -24,6 +24,13 @@ from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
 from pyaedt import settings
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,9 +42,9 @@ from pyaedt import settings
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
+
 ###############################################################################
 # Set up input data
 # ~~~~~~~~~~~~~~~~~
@@ -70,7 +77,7 @@ shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version,
+tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=aedt_version,
                  non_graphical=non_graphical, new_desktop_session=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
