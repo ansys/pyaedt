@@ -875,9 +875,9 @@ class NexximComponents(CircuitComponents):
         ----------
         compname : str, optional
             Name of the voltage pulse. The default is ``None``.
-        time_lists : list, optional
+        time_list : list, optional
             List of time points for the pwl voltage source. The default is ``[0]``.
-        voltage_lists : list, optional
+        voltage_list : list, optional
             List of voltages for the pwl voltage source. The default is ``[0]``.
         location : list of float, optional
             Position on the X axis and Y axis.
