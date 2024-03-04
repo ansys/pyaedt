@@ -25,7 +25,7 @@ available_toolkits = {
     "MagnetSegmentationWizard": {
         "pip": "git+https://github.com/ansys/magnet-segmentation-toolkit.git",
         "image": "pyansys.png",
-        "toolkit_script": "src/ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py",
+        "toolkit_script": "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py",
         "installation_path": "Maxwell3d",
         "package_name": "magnet-segmentation-toolkit",
     },
