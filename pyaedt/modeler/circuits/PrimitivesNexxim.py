@@ -866,6 +866,55 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
+    def create_voltage_pwl(
+        self, compname=None, time_list=[0], voltage_list=[0], location=[], angle=0, use_instance_id_netlist=False
+    ):
+        """Create a pwl voltage source.
+
+        Parameters
+        ----------
+        compname : str, optional
+            Name of the voltage pulse. The default is ``None``.
+        time_lists : list, optional
+            List of time points for the pwl voltage source. The default is ``[0]``.
+        voltage_lists : list, optional
+            List of voltages for the pwl voltage source. The default is ``[0]``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+        >>> oEditor.CreateComponent
+        """
+        cmpid = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="V_PWL",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        if len(time_list) != len(voltage_list):
+            raise ValueError("length of time not equal to length oif voltage")
+
+        for nr, pair in enumerate(zip(time_list, voltage_list)):
+            cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
+            cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
+
+        return cmpid
+
+    @pyaedt_function_handler()
     def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
