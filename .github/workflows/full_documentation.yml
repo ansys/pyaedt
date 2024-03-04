@@ -86,7 +86,7 @@ jobs:
           retention-days: 7
 
 #      - name: Upload PDF documentation artifact
-#        uses: actions/upload-artifact@v3
+#        uses: actions/upload-artifact@v4
 #        with:
 #          name: documentation-pdf
 #          path: doc/_build/pdf
