@@ -12,6 +12,13 @@ Q3D Extractor and run a DC IR Drop simulation starting from an EDB Project.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set up project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,7 +38,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
+edb = pyaedt.Edb(aedb_project, edbversion=aedt_version)
 edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
            ["GND"],
            output_aedb_path=output_edb,
@@ -87,7 +94,7 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=False, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, specified_version=aedt_version, non_graphical=False, new_desktop_session=True)
 
 ###############################################################################
 # Export to Q3D

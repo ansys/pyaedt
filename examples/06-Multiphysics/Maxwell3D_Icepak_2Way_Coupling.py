@@ -15,6 +15,13 @@ Results are printed in AEDT Message Manager.
 import pyaedt
 from pyaedt.generic.constants import AXIS
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +36,6 @@ non_graphical = False
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
 # the version. It also creates an instance of the ``Maxwell3d`` class named ``m3d``.
 
-version = "2023.2"  # AEDT version
 project_name = "Maxwell-Icepak-2way-Coupling"
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
@@ -38,7 +44,7 @@ m3d = pyaedt.Maxwell3d(
     projectname=project_name,
     designname=maxwell_design_name,
     solution_type="EddyCurrent",
-    specified_version=version,
+    specified_version=aedt_version,
     non_graphical=non_graphical,
 )
 

@@ -14,6 +14,13 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +35,8 @@ non_graphical = False
 # Launch HFSS 2023 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(specified_version="2023.2", non_graphical=non_graphical, designname="A1", new_desktop_session=True)
+hfss = pyaedt.Hfss(specified_version=aedt_version, non_graphical=non_graphical, designname="A1",
+                   new_desktop_session=True)
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
@@ -46,6 +54,7 @@ Np = 8
 Nr = 10
 gap = 3
 hfss["Tsub"] = "6" + hfss.modeler.model_units
+
 
 #############################################################
 # Standardize polyline
@@ -73,7 +82,6 @@ ind = hfss.modeler.create_spiral(
     material="copper",
     name="Inductor1",
 )
-
 
 ################################################################
 # Center return path
@@ -191,7 +199,7 @@ data.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabe
 # Export results to csv file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export results to csv file
-data.export_data_to_csv(os.path.join(hfss.toolkit_directory,"output.csv"))
+data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 ################################################################
 # Save project and close AEDT

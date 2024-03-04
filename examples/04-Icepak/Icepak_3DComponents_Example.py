@@ -18,12 +18,12 @@ import os
 temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
 
-###############################################################################
+##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2023.2"
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
