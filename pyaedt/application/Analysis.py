@@ -1529,7 +1529,7 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=True):
+    def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=False):
         """Solve the nominal design.
 
         .. deprecated:: 0.6.52
@@ -1571,7 +1571,7 @@ class Analysis(Design, object):
         num_tasks=1,
         num_gpu=1,
         acf_file=None,
-        use_auto_settings=True,
+        use_auto_settings=False,
         solve_in_batch=False,
         machine="localhost",
         run_in_thread=False,
@@ -1649,7 +1649,7 @@ class Analysis(Design, object):
         num_tasks=1,
         num_gpu=0,
         acf_file=None,
-        use_auto_settings=True,
+        use_auto_settings=False,
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
         revert_to_initial_mesh=False,
