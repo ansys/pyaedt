@@ -49,6 +49,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
+          target: 'all'
 
       - name: Import python package
         run: |
