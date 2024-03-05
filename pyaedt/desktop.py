@@ -176,12 +176,21 @@ def _check_grpc_port(port, machine_name=""):
 
 
 def _find_free_port():
-    from contextlib import closing
+    import random
 
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("127.0.0.1", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tries = 0
+    while True:
+        rand_port = random.randint(50051, 51000)
+        try:
+            sock.bind(("", rand_port))
+            sock.close()
+            return rand_port
+        except OSError:
+            tries += 1
+            if tries == 1000:
+                break
+    raise IOError("No free ports")
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover

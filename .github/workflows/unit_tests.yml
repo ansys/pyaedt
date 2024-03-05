@@ -70,7 +70,7 @@ jobs:
         with:
           max_attempts: 3
           retry_on: error
-          timeout_minutes: 60
+          timeout_minutes: 120
           command: |
             testenv_s\Scripts\Activate.ps1
             Set-Item -Path env:PYTHONMALLOC -Value "malloc"
@@ -133,7 +133,7 @@ jobs:
         with:
           max_attempts: 3
           retry_on: error
-          timeout_minutes: 50
+          timeout_minutes: 60
           command: |
             testenv\Scripts\Activate.ps1
             Set-Item -Path env:PYTHONMALLOC -Value "malloc"
