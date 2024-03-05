@@ -489,7 +489,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
         folder path.
     passivity : bool, optional
         ``True`` passivity check enabled, ``False`` disabled. Default value is ``True``
-    causality
+    causality : bool, optional
         ``True`` causality check enabled, ``False`` disabled. Default value is ``True``
     Returns : dict
         Dictionary with snp file name as key, list for passivity and causality is enabled. First element from list
