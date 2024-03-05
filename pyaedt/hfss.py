@@ -11,13 +11,13 @@ import warnings
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.DataHandlers import str_to_bool
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.settings import settings
 from pyaedt.modeler import cad
 from pyaedt.modeler.cad.component_array import ComponentArray
@@ -5597,7 +5597,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def add_3d_component_array_from_json(self, json_file, array_name=None):
-        """Add or edit a new 3D component array from a JSON file.
+        """Add or edit a new 3D component array from a JSON file or TOML file.
         The 3D component is placed in the layout if it is not present.
 
         Parameters
@@ -5644,16 +5644,16 @@ class Hfss(FieldAnalysis3D, object):
         >>> }
 
         >>> from pyaedt import Hfss
-        >>> from pyaedt.generic.DataHandlers import json_to_dict
+        >>> from pyaedt.generic.general_methods import read_configuration_file
         >>> hfss_app = Hfss()
-        >>> dict_in = json_to_dict(path\to\json_file)
+        >>> dict_in = read_configuration_file(r"path\\to\\json_file")
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
         self.hybrid = True
         if isinstance(json_file, dict):
             json_dict = json_file
         else:
-            json_dict = json_to_dict(json_file)
+            json_dict = read_configuration_file(json_file)
         if not array_name and self.omodelsetup.IsArrayDefined():
             array_name = self.omodelsetup.GetArrayNames()[0]
         elif not array_name:
@@ -5756,14 +5756,15 @@ class Hfss(FieldAnalysis3D, object):
             col.append(k)
             col.append(str(v).replace(",", " "))
         args.append(col)
+
         if self.omodelsetup.IsArrayDefined():
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            self.save_project()
             self.omodelsetup.EditArray(args)
-            if settings.aedt_version < "2024.1":
-                self.save_project()
         else:
             self.omodelsetup.AssignArray(args)
-            if settings.aedt_version < "2024.1":
-                self.save_project()
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            self.save_project()
             self.component_array[array_name] = ComponentArray(self, array_name)
         self.component_array_names = [array_name]
         return self.component_array[array_name]

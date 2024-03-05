@@ -1303,7 +1303,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -2509,7 +2509,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def _close_edb(self):
-        if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
+        if self.design_type == "HFSS 3D Layout Design" and not is_ironpython:  # pragma: no cover
             if self.modeler and self.modeler._edb:
                 self.modeler._edb.close_edb()
 
@@ -3131,10 +3131,10 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-            AedtObjects.__init__(self, is_inherithed=True)
-
         else:
             self.odesktop.SetActiveProject(legacy_name)
+        AedtObjects.__init__(self, is_inherithed=True)
+
         i = 0
         timeout = 10
         while True:
@@ -3305,6 +3305,11 @@ class Design(AedtObjects):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
+        if new_design is None:  # pragma: no cover
+            new_design = self.oproject.SetActiveDesign(unique_design_name)
+            if new_design is None:
+                self.logger.error("Fail to create new design.")
+                return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         self._odesign = new_design

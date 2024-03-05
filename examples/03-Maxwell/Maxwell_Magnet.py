@@ -12,6 +12,21 @@ compute mass center, and move coordinate systems.
 from pyaedt import Maxwell3d
 from pyaedt import generate_unique_project_name
 import os
+import tempfile
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -24,10 +39,10 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+# Launch AEDT in graphical mode.
 
 m3d = Maxwell3d(projectname=generate_unique_project_name(),
-                specified_version="2023.2",
+                specified_version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 
@@ -58,7 +73,7 @@ m3d.create_setup()
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
+m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Solve setup
@@ -91,9 +106,9 @@ m3d.post.ofieldsreporter.CalcStack("clear")
 # ~~~~~~~~~~~~~~~
 # Get mass center using the fields calculator.
 
-xval = m3d.post.get_scalar_field_value("CM_X", None)
-yval = m3d.post.get_scalar_field_value("CM_Y", None)
-zval = m3d.post.get_scalar_field_value("CM_Z", None)
+xval = m3d.post.get_scalar_field_value("CM_X")
+yval = m3d.post.get_scalar_field_value("CM_Y")
+zval = m3d.post.get_scalar_field_value("CM_Z")
 
 ###############################################################################
 # Create variables
@@ -120,3 +135,4 @@ cs1 = m3d.modeler.create_coordinate_system(
 
 m3d.save_project()
 m3d.release_desktop(close_projects=True, close_desktop=True)
+temp_dir.cleanup()

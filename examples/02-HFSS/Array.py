@@ -15,6 +15,13 @@ import pyaedt
 from pyaedt.modules.solutions import FfdSolutionData
 
 ##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. 
@@ -34,7 +41,7 @@ example_path = pyaedt.downloads.download_3dcomponent()
 # Launch HFSS and save the project.
 project_name = pyaedt.generate_unique_project_name(project_name="array")
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.2",
+                   specified_version=aedt_version,
                    designname="Array_Simple",
                    non_graphical=non_graphical,
                    new_desktop_session=True)
@@ -52,7 +59,7 @@ print("Project name " + project_name)
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
 
-dict_in = pyaedt.data_handler.json_to_dict(os.path.join(example_path, "array_simple.json"))
+dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 array = hfss.add_3d_component_array_from_json(dict_in)

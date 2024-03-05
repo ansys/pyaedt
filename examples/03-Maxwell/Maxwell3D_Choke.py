@@ -11,6 +11,21 @@ This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 import json
 import os
 import pyaedt
+import tempfile
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -19,7 +34,6 @@ import pyaedt
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-version = "2023.2"
 
 ###############################################################################
 # Launch Maxwell3D
@@ -28,7 +42,7 @@ version = "2023.2"
 
 m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",
-                       specified_version=version,
+                       specified_version=aedt_version,
                        non_graphical=non_graphical,
                        new_desktop_session=True
                        )
@@ -104,7 +118,7 @@ values = {
 # Covert a dictionary to a JSON file. PyAEDT methods ask for the path of the
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
-json_path = os.path.join(m3d.working_directory, "choke_example.json")
+json_path = os.path.join(temp_dir.name, "choke_example.json")
 
 with open(json_path, "w") as outfile:
     json.dump(values, outfile)
@@ -163,8 +177,8 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 
 mesh = m3d.mesh
 mesh.assign_skin_depth(
-    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-    0.20,
+    names=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    skindepth=0.20,
     triangulation_max_length="10mm",
     meshop_name="skin_depth",
 )
@@ -203,7 +217,7 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 
 m3d.save_project()
 m3d.modeler.fit_all()
-m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
+m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Close AEDT
@@ -213,3 +227,4 @@ m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"
 # All methods provide for saving the project before closing.
 
 m3d.release_desktop()
+temp_dir.cleanup()

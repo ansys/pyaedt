@@ -1704,7 +1704,7 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    from pyaedt.edb import Edb as app
+    from pyedb import Edb as app
 
     return app(
         edbpath=edbpath,
@@ -1723,7 +1723,7 @@ def Siwave(
     specified_version=None,
 ):
     """Siwave Class."""
-    from pyaedt.siwave import Siwave as app
+    from pyedb.siwave import Siwave as app
 
     return app(
         specified_version=specified_version,

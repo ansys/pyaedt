@@ -141,6 +141,9 @@ class Analysis(Design, object):
         self.VIEW = VIEW()
         self.GRAVITY = GRAVITY()
 
+        if not settings.lazy_load:
+            self._materials = self.materials
+
     @property
     def native_components(self):
         """Native Component dictionary.
@@ -179,11 +182,14 @@ class Analysis(Design, object):
 
         """
         if not self._materials:
+            self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
             for material in self._materials.material_keys:
                 self._materials.material_keys[material]._material_update = True
+            self.logger.info_timer("Materials class has been initialized!")
+
         return self._materials
 
     @property
@@ -1638,7 +1644,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name,
+        name=None,
         num_cores=4,
         num_tasks=1,
         num_gpu=0,
@@ -1653,7 +1659,7 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        name : str
+        name : str, optional
             Name of the setup, which can be an optimetric setup or a simple setup.
             If ``None`` all setups will be solved.
         num_cores : int, optional
@@ -2088,8 +2094,8 @@ class Analysis(Design, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            file name when successful, ``False`` when failed.
         """
         if variations is None:
             variations = list(self.available_variations.nominal_w_values_dict.keys())
@@ -2180,7 +2186,7 @@ class Analysis(Design, object):
                 NonStandardExtensions,
             )
         self.logger.info("Touchstone correctly exported to %s", filename)
-        return True
+        return OutFile
 
     @pyaedt_function_handler()
     def value_with_units(

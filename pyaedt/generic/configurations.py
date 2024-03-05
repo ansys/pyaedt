@@ -14,9 +14,10 @@ from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.cad.Modeler import CoordinateSystem
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -638,8 +639,9 @@ class ConfigurationsOptions(object):
 
 
 class ImportResults(object):
-    """Import Results Class.
-    Contains the results of the import operations. Each reusult can be ``True`` or ``False``.
+    """Contains the results of the import operations.
+
+    Each result can be ``True`` or ``False``.
     """
 
     def __init__(self):
@@ -694,7 +696,7 @@ class Configurations(object):
     @staticmethod
     @pyaedt_function_handler()
     def _map_dict_value(dict_out, key, value):
-        dict_out["general"]["object_mapping"][key] = value
+        dict_out["general"]["object_mapping"][str(key)] = value
 
     @pyaedt_function_handler()
     def _map_object(self, props, dict_out):
@@ -720,12 +722,13 @@ class Configurations(object):
         if "Objects" in props:
             new_list = []
             for obj in props["Objects"]:
-                if isinstance(obj, int):
+                try:
+                    int(obj)
                     try:
                         new_list.append(mapping[str(obj)])
                     except KeyError:
                         pass
-                else:
+                except ValueError:
                     new_list.append(obj)
             props["Objects"] = new_list
         elif "Faces" in props:
@@ -1012,8 +1015,7 @@ class Configurations(object):
 
         if isinstance(config, str):
             try:  # Try to parse config as a file
-                with open(config, "r") as config_file:
-                    config_data = json.load(config_file)
+                config_data = read_configuration_file(config)
             except OSError:
                 self._app.logger.warning("Unable to parse %s", config)
                 return False
@@ -1037,8 +1039,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a JSON file and apply it to the current design.
-        The sections to be applied are defined with ``configuration.options`` class.
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+        The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
         Parameters
@@ -1054,9 +1056,8 @@ class Configurations(object):
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
         self.results._reset_results()
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
 
+        dict_in = read_configuration_file(config_file)
         if self.options._is_any_import_set:
             try:
                 self._app.modeler.model_units = dict_in["general"]["model_units"]
@@ -1113,6 +1114,7 @@ class Configurations(object):
                 else:
                     newname = el
                 newmat = Material(self._app, el, val, material_update=True)
+                newmat._update_material()
                 if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
@@ -1430,8 +1432,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
-        """Export current design properties to json file.
-        The section to be exported are defined with ``configuration.options`` class.
+        """Export current design properties to a JSON or TOML file.
+        The sections to be exported are defined with ``configuration.options`` class.
 
 
         Parameters
@@ -1461,11 +1463,7 @@ class Configurations(object):
         # update the json if it exists already
 
         if os.path.exists(config_file) and not overwrite:
-            with open(config_file, "r") as json_file:
-                try:
-                    dict_in = json.load(json_file)
-                except Exception:
-                    dict_in = {}
+            dict_in = read_configuration_file(config_file)
             try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
@@ -1477,8 +1475,9 @@ class Configurations(object):
                                     dict_out[k][i] = j
             except KeyError as e:
                 self._app.logger.error(str(e))
-        # write the updated json to file
-        if _create_json_file(dict_out, config_file):
+
+        # write the updated dict to file
+        if write_configuration_file(dict_out, config_file):
             self._app.logger.info("Json file {} created correctly.".format(config_file))
             return config_file
         self._app.logger.error("Error creating json file {}.".format(config_file))
@@ -1764,7 +1763,7 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -1786,8 +1785,7 @@ class ConfigurationsIcepak(Configurations):
             exclude_set = args[0]
         else:  # pragma: no cover
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
+        dict_in = read_configuration_file(config_file)
         self.results._reset_results()
 
         if self.options.import_native_components and dict_in.get("native components", None):
