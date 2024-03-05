@@ -906,7 +906,7 @@ class NexximComponents(CircuitComponents):
         )
 
         if len(time_list) != len(voltage_list):
-            raise ValueError("length of time not equal to length of voltage")
+            raise ValueError("Length of time is not equal to length of voltage")
 
         for nr, pair in enumerate(zip(time_list, voltage_list)):
             cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
