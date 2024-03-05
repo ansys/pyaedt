@@ -2,10 +2,10 @@ from copy import copy
 import itertools
 import os
 import re
+import subprocess
 
 from pyaedt import is_ironpython
 from pyaedt.misc.misc import installed_versions
-import subprocess
 
 if not is_ironpython:
     import matplotlib.pyplot as plt
@@ -502,13 +502,13 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
     if not os.path.exists(folder):
         return out
     aedt_install_folder = list(installed_versions().values())[0]
-    pat_snp = re.compile('\.s\d+p')
+    pat_snp = re.compile("\.s\d+p")
     sNpFiles = {f: os.path.join(folder, f) for f in os.listdir(folder) if re.search(pat_snp, f)}
     if sNpFiles == {}:
         return out
     for snpf in sNpFiles:
         out[snpf] = []
-        if os.name == 'nt':
+        if os.name == "nt":
             genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
         else:
             genequiv_path = os.path.join(aedt_install_folder, "genequiv")
@@ -519,7 +519,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
             cmd.append("-checkcausality")
         cmd.append(sNpFiles[snpf])
         output_str = str(subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0])
-        output_lst = output_str.split('\\r\\n')
+        output_lst = output_str.split("\\r\\n")
         if len(output_lst) == 1:
             output_lst = output_str.splitlines()
         for line in output_lst:
@@ -544,4 +544,3 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
                 is_causal = False
                 out[snpf].append(["causality", is_causal, line])
     return out
-

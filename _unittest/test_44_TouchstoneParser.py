@@ -45,6 +45,7 @@ class TestClass:
 
     def test_03_check_touchstone_file(self):
         from pyaedt.generic.touchstone_parser import check_touchstone_files
+
         check = check_touchstone_files(folder=test_T44_dir)
         assert check
         for k, v in check.items():
