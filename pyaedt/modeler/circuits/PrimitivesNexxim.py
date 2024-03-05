@@ -867,7 +867,7 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def create_voltage_pwl(
-        self, compname=None, time_list=[0], voltage_list=[0], location=[], angle=0, use_instance_id_netlist=False
+        self, compname=None, time_list=None, voltage_list=None, location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a pwl voltage source.
 
@@ -880,7 +880,7 @@ class NexximComponents(CircuitComponents):
         voltage_list : list, optional
             List of voltages for the pwl voltage source. The default is ``[0]``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the x-axis and y-xis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -896,6 +896,9 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
+
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -904,13 +907,14 @@ class NexximComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
+        if (time_list is not None) and (voltage_list is not None):
 
-        if len(time_list) != len(voltage_list):
-            raise ValueError("Length of time is not equal to length of voltage")
+            if len(time_list) != len(voltage_list):
+                raise ValueError("Length of time is not equal to length of voltage")
 
-        for nr, pair in enumerate(zip(time_list, voltage_list)):
-            cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
-            cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
+            for nr, pair in enumerate(zip(time_list, voltage_list)):
+                cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
+                cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
 
         return cmpid
 

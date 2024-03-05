@@ -811,6 +811,15 @@ class TestClass:
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
 
     def test_46_create_vpwl(self):
+
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V1")
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0s"
+        assert myres.parameters["time2"] == "0s"
+        assert myres.parameters["val1"] == "0V"
+        assert myres.parameters["val2"] == "0V"
+
         myres = self.aedtapp.modeler.schematic.create_voltage_pwl(
             compname="V1", time_list=[0, "1u"], voltage_list=[0, 1]
         )
