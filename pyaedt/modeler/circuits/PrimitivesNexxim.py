@@ -907,14 +907,16 @@ class NexximComponents(CircuitComponents):
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
+
         if (time_list is not None) and (voltage_list is not None):
 
             if len(time_list) != len(voltage_list):
-                raise ValueError("Length of time is not equal to length of voltage")
-
-            for nr, pair in enumerate(zip(time_list, voltage_list)):
-                cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
-                cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
+                self.logger.error("Length of time is not equal to length of voltage.")
+                return False
+            else:
+                for nr, pair in enumerate(zip(time_list, voltage_list)):
+                    cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
+                    cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
 
         return cmpid
 

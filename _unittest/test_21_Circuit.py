@@ -812,6 +812,7 @@ class TestClass:
 
     def test_46_create_vpwl(self):
 
+        # default inputs
         myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V1")
         assert myres.refdes != ""
         assert type(myres.id) is int
@@ -819,9 +820,9 @@ class TestClass:
         assert myres.parameters["time2"] == "0s"
         assert myres.parameters["val1"] == "0V"
         assert myres.parameters["val2"] == "0V"
-
+        # time and voltage input list
         myres = self.aedtapp.modeler.schematic.create_voltage_pwl(
-            compname="V1", time_list=[0, "1u"], voltage_list=[0, 1]
+            compname="V2", time_list=[0, "1u"], voltage_list=[0, 1]
         )
         assert myres.refdes != ""
         assert type(myres.id) is int
@@ -829,3 +830,6 @@ class TestClass:
         assert myres.parameters["time2"] == "1u"
         assert myres.parameters["val1"] == "0"
         assert myres.parameters["val2"] == "1"
+        # time and voltage different length
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V3", time_list=[0], voltage_list=[0, 1])
+        assert myres is False
