@@ -4,6 +4,8 @@ import os
 import re
 
 from pyaedt import is_ironpython
+from pyaedt.misc.misc import installed_versions
+import subprocess
 
 if not is_ironpython:
     import matplotlib.pyplot as plt
@@ -475,3 +477,71 @@ def read_touchstone(file_path):
     """
     data = TouchstoneData(touchstone_file=file_path)
     return data
+
+
+@pyaedt_function_handler()
+def check_touchstone_files(folder="", passivity=True, causality=True):
+    """Check passivity and causality for all touchstone files included in folder.
+
+    Parameters
+    ----------
+    folder : str
+        folder path.
+    passivity : bool, optional
+        ``True`` passivity check enabled, ``False`` disabled. Default value is ``True``
+    causality
+        ``True`` causality check enabled, ``False`` disabled. Default value is ``True``
+    Returns : dict
+        Dictionary with snp file name as key, list for passivity and causality is enabled. First element from list
+        is str with ``"passivity"`` or ``"causality"`` as value. Second element bool with ``True`` when criteria passed
+        ``False`` otherwise. Last element str with the log information.
+    -------
+
+    """
+    out = {}
+    if not os.path.exists(folder):
+        return out
+    aedt_install_folder = list(installed_versions().values())[0]
+    pat_snp = re.compile('\.s\d+p')
+    sNpFiles = {f: os.path.join(folder, f) for f in os.listdir(folder) if re.search(pat_snp, f)}
+    if sNpFiles == {}:
+        return out
+    for snpf in sNpFiles:
+        out[snpf] = []
+        if os.name == 'nt':
+            genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
+        else:
+            genequiv_path = os.path.join(aedt_install_folder, "genequiv")
+        cmd = [genequiv_path]
+        if passivity:
+            cmd.append("-checkpassivity")
+        if causality:
+            cmd.append("-checkcausality")
+        cmd.append(sNpFiles[snpf])
+        output_str = str(subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0])
+        output_lst = output_str.split('\\r\\n')
+        if len(output_lst) == 1:
+            output_lst = output_str.splitlines()
+        for line in output_lst:
+            if "Input data" in line and passivity:
+                msg_log = line[17:]
+                is_passive = True
+                if "non-passive" in msg_log:
+                    is_passive = False
+                out[snpf].append(["passivity", is_passive, msg_log])
+            if "Maximum causality" in line and causality:
+                msg_log = line[17:]
+                is_causal = True
+                try:
+                    causality_check = float(msg_log.split("Maximum causality error: ")[-1].split("for entry")[0])
+                    if not causality_check == 0.0:
+                        is_causal = False
+                except:
+                    is_causal = False
+                    raise Exception("Failed evaluating causality value")
+                out[snpf].append(["causality", is_causal, msg_log])
+            if "Causality check is inconclusive" in line and causality:
+                is_causal = False
+                out[snpf].append(["causality", is_causal, line])
+    return out
+
