@@ -175,7 +175,7 @@ def _check_grpc_port(port, machine_name=""):
     return success
 
 
-def _find_free_port():
+def _find_free_port():  # nosec
     import random
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
