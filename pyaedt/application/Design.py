@@ -1229,18 +1229,19 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def remove_all_unused_definitions(self):
-        """Remove all project unused definitions.
+        """Remove all unused definitions in the project.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         self.oproject.RemoveAllUnusedDefinitions()
         return True
 
     @pyaedt_function_handler()
     def get_oo_name(self, aedt_object, object_name=None):
-        """Return the Object Oriented AEDT Properties names.
+        """Return the object-oriented AEDT property names.
 
         Parameters
         ----------

@@ -97,7 +97,7 @@ class Pin:
 
     @property
     def is_differential(self):
-        """Whether if the pin is differential or not.
+        """Flag indicating if the pin is differential.
 
         Returns
         -------
@@ -283,14 +283,14 @@ class Pin:
 
 
 class DifferentialPin:
-    """Differential pin from a component with all its data feature.
+    """Provides the differential pin from a component with all its data feature.
 
     Parameters
     ----------
     name : str
         Name of the pin.
     circuit : class:`pyaedt.circuit.Circuit`
-        Circuit in which the pin will be added to.
+        Circuit to add the pin to.
     """
 
     def __init__(self, name, buffer_name, circuit):
@@ -323,12 +323,12 @@ class DifferentialPin:
 
     @property
     def buffer_name(self):
-        """Full name of the buffer including the component name and the ibis filename."""
+        """Full name of the buffer including the component name and Ibis filename."""
         return self._buffer_name
 
     @property
     def short_name(self):
-        """Short name of the buffer without the ibis filename included."""
+        """Short name of the buffer, which excludes the Ibis filename."""
         return self._short_name
 
     @property
@@ -383,7 +383,7 @@ class DifferentialPin:
 
     @property
     def name(self):
-        """Full name of the pin including the component name and the ibis filename.
+        """Full name of the pin including the component name and Ibis filename.
 
         Examples
         --------
@@ -1037,7 +1037,7 @@ class IbisReader(object):
         return line.replace("[Component]", "").strip()
 
     def make_diff_pin_object(self, line, component, ibis):
-        """Extracts model's differential pin info.
+        """Extract the model's differential pin information.
 
         Parameters
         ----------
@@ -1046,7 +1046,7 @@ class IbisReader(object):
         component : str
             Name of the component.
         ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
-            ibis object containing all info.
+            Ibis object containing all pin information.
 
         Returns
         -------

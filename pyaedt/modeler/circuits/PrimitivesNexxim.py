@@ -75,12 +75,12 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def get_component(self, name):
-        """Retrieve  a component.
+        """Get a component.
 
         Parameters
         ----------
         name : str, int
-            Component to delete.
+            Name of the component.
 
         Returns
         -------
@@ -104,16 +104,17 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def delete_component(self, name):
-        """Retrieve and delete a component.
+        """Get and delete a component.
 
         Parameters
         ----------
         name : str, int
-            Component to delete.
+            Name of the component.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         cmp = self.get_component(name)
         if cmp:
@@ -123,7 +124,7 @@ class NexximComponents(CircuitComponents):
 
     @property
     def components_catalog(self):
-        """Return the syslib component catalog with all info.
+        """System library component catalog with all information.
 
         Returns
         -------

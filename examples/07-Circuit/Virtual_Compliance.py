@@ -1,8 +1,8 @@
 """
-Circuit: PCIE Virtual Compliance
+Circuit: PCIE virtual compliance
 --------------------------------
-This example shows how you can generate a compliance report in PyAEDT using
-the new class Virtual Compliance.
+This example shows how to generate a compliance report in PyAEDT using
+the ``VirtualCompliance`` class.
 """
 
 ###############################################################################
@@ -17,7 +17,7 @@ from pyaedt.generic.compliance import VirtualCompliance
 ###############################################################################
 # Download example files
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Download project and files needed to run the example.
+# Download the project and files needed to run the example.
 workdir = pyaedt.downloads.download_file('pcie_compliance')
 
 #workdir = r'C:\ansysdev\Models\Compliance\pcie\wf_pcie'
@@ -25,18 +25,18 @@ projectdir = os.path.join(workdir, "project")
 
 
 ###############################################################################
-# Launch Electronics Desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch Electronics Desktop.
+# Launch AEDT
+# ~~~~~~~~~~~
+# Launch AEDT.
 
 d = pyaedt.Desktop(241, new_desktop_session=False, non_graphical=True)
 
 
 ###############################################################################
-# Open and Solve Layout
+# Open and solve layout
 # ~~~~~~~~~~~~~~~~~~~~~
-# Open Hfss 3D Layout project and analyze it using Siwave solver.
-# Before solving we make sure that the model is solved from DC to 70GHz and that
+# Open the HFSS 3D Layout project and analyze it using the SIwave solver.
+# Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
 h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), specified_version=241)
@@ -52,7 +52,7 @@ touchstone_path = h3d.export_touchstone()
 ###############################################################################
 # Create LNA project
 # ~~~~~~~~~~~~~~~~~~
-# LNA Setup is useful to retrieve touchstone files
+# Use the LNA setup to retrieve Touchstone files
 # and generate frequency domain reports.
 
 cir = pyaedt.Circuit(projectname=h3d.project_name, designname="Touchstone")
@@ -60,17 +60,17 @@ cir = pyaedt.Circuit(projectname=h3d.project_name, designname="Touchstone")
 ###############################################################################
 # Add dynamic link object
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The layout project will be added as a dynamic link object.
-# It means that in case of modifications,
-# the circuit will always be linked to updated version of results.
+# Add the layout project as a dynamic link object
+# so that if modifications are made, the circuit
+# is always linked to the updated version of the results.
 
 sub = cir.modeler.components.add_subcircuit_3dlayout("main_cutout")
 
 ###############################################################################
 # Add ports and differential pairs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This section will add a port for each layout port and will rename it for circuit compatibility.
-# Furthermore, it will create differential pairs, useful to generate differential S-Parameters.
+# Add a port for each layout port and rename it for circuit compatibility.
+# Then, create differential pairs, which are useful for generating differential S-parameters.
 
 ports = []
 for pin in sub.pins:
@@ -99,7 +99,7 @@ for pin in ports:
 ###############################################################################
 # Create setup, analyze, and plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a setup and analyze data.
+# Create a setup and then analyze and plot the data.
 
 setup1 = cir.create_setup()
 setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 70GHz 1001"
@@ -109,9 +109,9 @@ cir.analyze()
 ###############################################################################
 # Create TDR project
 # ~~~~~~~~~~~~~~~~~~
-# Second step is to create a TDR project to compute Transient simulation and retrieve
-# TDR measurement on a differential pair.
-# The original Circuit schematic will be duplicated and modified to achieve this target.
+# Create a TDR project to compute transient simulation and retrieve
+# the TDR measurement on a differential pair.
+# The original circuit schematic is duplicated and modified to achieve this target.
 
 cir.duplicate_design("TDR")
 cir.set_active_design("TDR")
@@ -119,8 +119,8 @@ cir.set_active_design("TDR")
 ###############################################################################
 # Replace ports with TDR probe
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# In this steps the ports on the selected differential pair will be deleted.
-# Differential TDR probe will be placed and connected to the pins of the layout object.
+# Delete the ports on the selected differential pair.
+# Place and connect a differential TDR probe to the pins of the layout object.
 
 cir.modeler.components.delete_component("X1_A2_PCIe_Gen4_RX0_P")
 cir.modeler.components.delete_component( "IPort@X1_A3_PCIe_Gen4_RX0_N")
@@ -140,8 +140,8 @@ new_tdr_comp.parameters["Rise_time"] = "35ps"
 ###############################################################################
 # Create setup, analyze, and plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This step will first delete LNA setup, then will create a
-# transient setup and analyze data.
+# First, delete the LNA setup. Next, create a
+# transient setup and then analyze and plot the data.
 
 cir.delete_setup(cir.setups[0].name)
 setup2 = cir.create_setup(setupname="MyTransient", setuptype=cir.SETUPS.NexximTransient)
@@ -155,7 +155,7 @@ cir.analyze()
 ###############################################################################
 # Create AMI project
 # ~~~~~~~~~~~~~~~~~~
-# Third step is to create an Ibis AMI project to compute eye diagram simulation and retrieve
+# Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
 
 cir = pyaedt.Circuit(projectname=h3d.project_name, designname="AMI" )
@@ -163,9 +163,9 @@ sub = cir.modeler.components.create_touchstone_component(touchstone_path)
 
 
 ###############################################################################
-# Replace ports with ibis models
+# Replace ports with Ibis models
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Differential Tx and Rx Ibis models will be placed and connected to the pins of the layout object.
+# Place and connect differential TX and RX Ibis models to the pins of the layout object.
 
 
 p_pin1 = [i for i in sub.pins if i.name.replace(".","_") == "U1_AM25_PCIe_Gen4_TX0_CAP_P"][0]
@@ -190,8 +190,8 @@ tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
 ###############################################################################
 # Create setup, analyze, and plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This step will first delete LNA setup, then will create a
-# transient setup and analyze data.
+# First delete the LNA setup. Next, create a
+# transient setup and then analyze and plot the data.
 
 setup_ami = cir.create_setup("AMI", "NexximAMI")
 cir.oanalysis.AddAnalysisOptions(["NAME:DataBlock", "DataBlockID:=", 8, "Name:=", "Nexxim Options",
@@ -202,10 +202,10 @@ setup_ami.props["DataBlockSize"] = 1000
 setup_ami.analyze()
 cir.save_project()
 ###############################################################################
-# Create Virtual Compliance report
+# Create virtual compliance report
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This step will initialize the virtual compliance class
-# and setup project main info needed to generate the report.
+# Initialize the ``VirtualCompliance`` class
+# and set up the main project information needed to generate the report.
 
 
 template = os.path.join(workdir, "pcie_gen5_templates" , "main.json")
@@ -215,7 +215,7 @@ v = VirtualCompliance(cir.desktop_class, str(template))
 ###############################################################################
 # Customize project and design
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This step will define the path to the project file and the
+# Define the path to the project file and the
 # design names to be used in each report generation.
 
 v.project_file = cir.project_file
@@ -231,8 +231,8 @@ v.specs_folder = os.path.join(workdir, 'readme_pictures')
 ###############################################################################
 # Define trace names
 # ~~~~~~~~~~~~~~~~~~
-# Trace name can change with projects and users.
-# Compliance template can be reused and traces updated accordingly.
+# Change the trace name with projects and users.
+# Reuse the compliance template and update traces accordingly.
 
 
 v.reports["insertion losses"].traces =  [
@@ -248,9 +248,9 @@ v.parameters["erl"].trace_pins = [["X1_A5_PCIe_Gen4_RX1_P","X1_A6_PCIe_Gen4_RX1_
 
 
 ###############################################################################
-# Generate pdf  report
+# Generate PDF report
 # ~~~~~~~~~~~~~~~~~~~~
-# This step will generate the reports and produce a pdf report.
+# Generate the reports and produce a PDF report.
 
 v.create_compliance_report()
 

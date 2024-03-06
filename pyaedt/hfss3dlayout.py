@@ -815,7 +815,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Returns
         -------
         str
-            file name when successful, ``False`` when failed.
+            Filename when successful, ``False`` when failed.
 
         References
         ----------
