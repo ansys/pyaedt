@@ -5001,35 +5001,36 @@ class FieldSummary:
         Parameters
         ----------
         entity : str
-            Type of entity to perform the calculation on. Available options are:
-             ``"Boundary"``, ``"Object"`` and ``"Monitor``"
-             (``"Monitor"`` from version 2024 R1).
+            Type of entity to perform the calculation on. Options are
+             ``"Boundary"``, ``"Monitor``", and ``"Object"``. 
+             (``"Monitor"`` is available in version 2024 R1 and later.)
         geometry : str
-            Location to perform the calculation on. Available options are:
-            ``"Volume"`` and ``"Surface"``.
+            Location to perform the calculation on. Options are
+            ``"Surface"`` and ``"Volume"``.
         geometry_name : str or list of str
             Objects to perform the calculation on. If a list is provided,
-            the calculation will be performed on the combination of those
+            the calculation is performed on the combination of those
             objects.
         quantity : str
-            Quantity to be computed.
+            Quantity to compute.
         normal : list of floats
-            Coordinate values for direction relative to normal. Default is ``""``
+            Coordinate values for direction relative to normal. The default is ``""``,
             in which case the normal to the face is used.
         side : str, optional
-            String containing which side of the face to use. Available options
-            are ``"Default"``, ``"Adjacent"`` or ``"Combined"``. Default is "Default"
+            String containing which side of the face to use. The default is
+            ``"Default"``. Options are ``"Adjacent"``, ``"Combined"``, and
+            `"Default"``.
         mesh : str, optional
-            Whether to use all surface meshes (``"All"``) or reduced ones
-            (``"Reduced"``). Default is ``"All"``.
+            Surface meshes to use. The default is ``"All"``. Options are ``"All"`` and
+            ``"Reduced"``.
         ref_temperature : str, optional
-            Reference temperature to use in the calculation of heat transfer
-            coefficient. Default is ``"AmbientTemp"``.
+            Reference temperature to use in the calculation of the heat transfer
+            coefficient. The default is ``"AmbientTemp"``.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
         """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
@@ -5056,21 +5057,22 @@ class FieldSummary:
         Parameters
         ----------
         setup_name : str, optional
-            String containing the setup name to use for the computation.
-            Default is ``None`` in which case the nominal variation will be used.
+            Setup name to use for the computation. The
+            default is ``None``, in which case the nominal variation is used.
         design_variation : dict, optional
-            Dictionary containing the design variation to be used for the computation.
-            Default is  ``{}`` in which case nominal variation will be used.
+            Dictionary containing the design variation to use for the computation.
+            The default is  ``{}``, in which case nominal variation is used.
         intrinsic_value : str, optional
-            Intrinsic values to be used for the computation. Default is ``""``.
+            Intrinsic values to use for the computation. The default is ``""``.
         pandas_output : bool, optional
-            Whether to use pandas output or dictionary output. Default is ``False``.
+            Whether to use pandas output. The default is ``False``, in
+            which case the dictionary output is used.
 
         Returns
         -------
         dict or pandas.DataFrame
-            The output type depends on the boolean argument pandas_output.
-            It contains information exported from the field summary.
+            Output type depending on the Boolean ``pandas_output`` parameter.
+            The output consists of information exported from the field summary.
         """
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
@@ -5093,25 +5095,25 @@ class FieldSummary:
     @pyaedt_function_handler()
     def export_csv(self, filename, setup_name=None, design_variation={}, intrinsic_value=""):
         """
-        Get  field summary output computation.
+        Get the field summary output computation.
 
         Parameters
         ----------
         filename : str
             Path and filename to write the output file to.
         setup_name : str, optional
-            String containing the setup name to use for the computation.
-            Default is ``None`` in which case the nominal variation will be used.
+            Setup name to use for the computation. The
+            default is ``None``, in which case the nominal variation is used.
         design_variation : dict, optional
-            Dictionary containing the design variation to be used for the computation.
-            Default is  ``{}`` in which case nominal variation will be used.
+            Dictionary containing the design variation to use for the computation.
+            The default is  ``{}``, in which case the nominal variation is used.
         intrinsic_value : str, optional
-            Intrinsic values to be used for the computation. Default is ``""``.
+            Intrinsic values to use for the computation. The default is ``""``.
 
         Returns
         -------
         bool
-            True if successful.
+            ``True`` when successful, ``False`` when failed.
         """
         if not setup_name:
             setup_name = self._app.nominal_sweep

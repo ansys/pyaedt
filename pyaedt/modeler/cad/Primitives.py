@@ -5853,24 +5853,27 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         padding_values : float, str, list of floats or list of str
-            Same padding is applied if not a list.
-            If a list of floats or str, interpret as padding for
-            ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+            Padding values to apply. If a list is not provided, the same 
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpret as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
         padding_types : str or list of str, optional
-            Choose the padding definition. Available options are: ``"Percentage Offset"``,
-            ``"Transverse Percentage Offset"``, ``"Absolute Offset"`` and
-            ``"Absolute Position"``. It is possible to choose different padding types
-            for different directions providing a list. The default is ``"Percentage Offset"``.
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
         parts : list of str
-            List of names of parts to be included in the subregion.
+            List of names of parts to include in the subregion.
         region_name : str, optional
-            String with region name. Default is ``None`` in which case the name will be
-            generated automatically.
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
 
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3d.Object3d`
-            SubRegion object.
+            Subregion object.
 
         References
         ----------
@@ -5885,19 +5888,19 @@ class GeometryModeler(Modeler):
         return self._create_object(region_name)
 
     def reassign_subregion(self, region, parts):
-        """Modify parts in subregion.
+        """Modify parts in the subregion.
 
         Parameters
         ----------
         region : :class:`pyaedt.modules.MeshIcepak.SubRegion`
             Subregion to modify.
         parts : list of str
-            List of names of parts to be included in the subregion.
+            One or more names of the parts to include in the subregion.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -5996,15 +5999,20 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         pad_value : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for
-            ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+            Padding values to apply. If a list is not provided, the same 
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpret as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
         pad_type : str, optional
-            Choose the padding definition. Available options are: ``"Percentage Offset"``,
-            ``"Transverse Percentage Offset"``, ``"Absolute Offset"`` and
-            ``"Absolute Position"``. The default is ``"Percentage Offset"``.
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
         region_name : str, optional
-            String with region name. Default is "Region".
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
 
         Returns
         -------
