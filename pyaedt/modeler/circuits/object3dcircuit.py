@@ -396,6 +396,15 @@ class CircuitComponent(object):
         self._component_info = {}
         self._model_data = {}
 
+    @pyaedt_function_handler()
+    def delete(self):
+        self._oeditor.Delete(["NAME:Selections", "Selections:=", [self.composed_name]])
+        for k, v in self._circuit_components.components.items():
+            if v.name == self.name:
+                del self._circuit_components.components[k]
+                break
+        return True
+
     @property
     def refdes(self):
         """Reference designator."""

@@ -93,6 +93,21 @@ class Pin:
         self._r_value = None
         self._l_value = None
         self._c_value = None
+        self._is_differential = False
+
+    @property
+    def is_differential(self):
+        """Whether if the pin is differential or not.
+
+        Returns
+        -------
+        bool
+        """
+        return self._is_differential
+
+    @is_differential.setter
+    def is_differential(self, val):
+        self._is_differential = val
 
     @property
     def name(self):
@@ -214,6 +229,170 @@ class Pin:
     @c_value.setter
     def c_value(self, value):
         self._c_value = value
+
+    def add(self):
+        """Add a pin to the list of components in the Project Manager."""
+        try:
+            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+                self.buffer_name,
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    7,
+                    "CosimDefName:=",
+                    "DefaultIBISNetlist",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "Data:=",
+                    [],
+                    "GRef:=",
+                    [],
+                ],
+            )
+        except:
+            logger.error("Error adding {} pin component.".format(self.short_name))
+            return False
+
+    def insert(self, x, y, angle=0.0):
+        """Insert a pin at a defined location inside the graphical window.
+
+        Parameters
+        ----------
+        x : float
+            X position of the pin.
+        y : float
+            Y position of the pin.
+        angle : float, optional
+            Angle of the pin. The default value is ``"0.0"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        """
+
+        return self._circuit.modeler.schematic.create_component(
+            component_library=None,
+            component_name=self.buffer_name,
+            location=[x, y],
+            angle=angle,
+        )
+
+
+class DifferentialPin:
+    """Differential pin from a component with all its data feature.
+
+    Parameters
+    ----------
+    name : str
+        Name of the pin.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit in which the pin will be added to.
+    """
+
+    def __init__(self, name, buffer_name, circuit):
+        self._buffer_name = buffer_name
+        self._circuit = circuit
+        self._name = name
+        self._tdelay_min = None
+        self._tdelay_max = None
+        self._tdelay_type = None
+        self._vdiff = None
+        self._short_name = None
+        self._model = None
+
+    @property
+    def model(self):
+        """Model of the pin.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
+        'POWER'
+
+        """
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
+
+    @property
+    def buffer_name(self):
+        """Full name of the buffer including the component name and the ibis filename."""
+        return self._buffer_name
+
+    @property
+    def short_name(self):
+        """Short name of the buffer without the ibis filename included."""
+        return self._short_name
+
+    @property
+    def negative_pin(self):
+        """Negative pin.
+
+        Returns
+        -------
+        str
+        """
+        return self._negative_pin
+
+    @property
+    def vdiff(self):
+        """Differential voltage.
+
+        Returns
+        -------
+        float
+        """
+        return self._vdiff
+
+    @property
+    def tdelay_min(self):
+        """Minimum delay.
+
+        Returns
+        -------
+        float
+        """
+        return self._tdelay_min
+
+    @property
+    def tdelay_max(self):
+        """Maximum delay.
+
+        Returns
+        -------
+        float
+        """
+        return self._tdelay_max
+
+    @property
+    def tdelay_typ(self):
+        """Typical delay.
+
+        Returns
+        -------
+        float
+        """
+        return self._tdelay_typ
+
+    @property
+    def name(self):
+        """Full name of the pin including the component name and the ibis filename.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
+        'A1_MT47H64M4BP-3_25_u26a_800'
+
+        """
+        return self._name
 
     def add(self):
         """Add a pin to the list of components in the Project Manager."""
@@ -810,6 +989,11 @@ class IbisReader(object):
                 pin = self.make_pin_object(pin_info, component.name, ibis)
                 component.pins[pin.name] = pin
 
+            diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
+            for pin_info in diff_pin_list:
+
+                pin = self.make_diff_pin_object(pin_info, component, ibis)
+                component.pins[pin.name] = pin
             ibis.components[component.name] = component
 
     @classmethod
@@ -851,6 +1035,61 @@ class IbisReader(object):
 
         """
         return line.replace("[Component]", "").strip()
+
+    def make_diff_pin_object(self, line, component, ibis):
+        """Extracts model's differential pin info.
+
+        Parameters
+        ----------
+        line : str
+            Current line content.
+        component : str
+            Name of the component.
+        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+            ibis object containing all info.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.ibis_reader.Pin`
+            Pin object.
+
+        """
+
+        current_string = ""
+        component_name = component.name
+        current_string = line.strip().replace("\t", " ")
+
+        pin_name = self.get_first_parameter(current_string)
+        current_string = current_string[len(pin_name) + 1 :].strip()
+
+        neg_pin = self.get_first_parameter(current_string)
+        current_string = current_string[len(neg_pin) + 1 :].strip()
+
+        vdiff = self.get_first_parameter(current_string)
+        current_string = current_string[len(vdiff) + 1 :].strip()
+
+        tdelay_typ = self.get_first_parameter(current_string)
+        current_string = current_string[len(tdelay_typ) + 1 :].strip()
+
+        tdelay_min = self.get_first_parameter(current_string)
+        current_string = current_string[len(tdelay_min) + 1 :].strip()
+
+        tdelay_max = self.get_first_parameter(current_string)
+
+        single_ended_pin_name = pin_name + "_" + component_name + "_" + ibis.name
+        diff_pin_name = single_ended_pin_name + "_diff"
+        for pin_name, pinval in component.pins.items():
+            if single_ended_pin_name == pin_name:
+                pin = DifferentialPin(diff_pin_name, pinval.buffer_name + "_diff", pinval._circuit)
+                pin._short_name = pinval.short_name
+                pin._tdelay_max = tdelay_max
+                pin._tdelay_min = tdelay_min
+                pin._tdelay_typ = tdelay_typ
+                pin._negative_pin = neg_pin
+                pin._vdiff = diff_pin_name
+                pin._model = pinval.model
+                return pin
+        return
 
     def make_pin_object(self, line, component_name, ibis):
         """Extracts model's info.
@@ -1036,10 +1275,13 @@ class AMIReader(IbisReader):
                 arg_component = ["NAME:{}".format(ibis.components[component].name)]
                 for pin in ibis.components[component].pins:
                     arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
-                    if ibis.components[component].pins[pin].model not in model_selector_names:
-                        arg_component.append([False, False])
+                    flag = True
+                    if not isinstance(ibis.components[component].pins[pin], DifferentialPin):
+                        flag = False
+                    if model_selector_names and ibis.components[component].pins[pin].model not in model_selector_names:
+                        arg_component.append([False, flag])
                     else:
-                        arg_component.append([True, False])
+                        arg_component.append([True, flag])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)

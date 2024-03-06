@@ -73,6 +73,54 @@ class NexximComponents(CircuitComponents):
         self._currentId = 0
         self._components_catalog = None
 
+    @pyaedt_function_handler()
+    def get_component(self, name):
+        """Retrieve  a component.
+
+        Parameters
+        ----------
+        name : str, int
+            Component to delete.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+             Circuit Component Object.
+        """
+        if name in self.components:
+            return self.components[name]
+        else:
+            for comp in self.components.values():
+                if (
+                    comp.name == name
+                    or comp.name.split("@")[-1] == name
+                    or comp.composed_name == name
+                    or comp.schematic_id == name
+                    or comp.id == name
+                ):
+                    return comp
+        self.logger.error("Component not found : %s", name)
+        return False
+
+    @pyaedt_function_handler()
+    def delete_component(self, name):
+        """Retrieve and delete a component.
+
+        Parameters
+        ----------
+        name : str, int
+            Component to delete.
+
+        Returns
+        -------
+        bool
+        """
+        cmp = self.get_component(name)
+        if cmp:
+            cmp.delete()
+            return True
+        return False
+
     @property
     def components_catalog(self):
         """Return the syslib component catalog with all info.
