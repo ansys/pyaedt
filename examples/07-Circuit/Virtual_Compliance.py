@@ -14,6 +14,24 @@ import os.path
 import pyaedt
 from pyaedt.generic.compliance import VirtualCompliance
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The Boolean parameter ``new_thread`` defines whether to create a new instance
+# of AEDT or try to connect to an existing instance of it.
+
+non_graphical = True
+new_thread = True
+
 ###############################################################################
 # Download example files
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +47,7 @@ projectdir = os.path.join(workdir, "project")
 # ~~~~~~~~~~~
 # Launch AEDT.
 
-d = pyaedt.Desktop(241, new_desktop_session=False, non_graphical=True)
+d = pyaedt.Desktop(aedt_version, new_desktop_session=new_thread, non_graphical=non_graphical)
 
 
 ###############################################################################
@@ -175,7 +193,7 @@ n_pin2 = [i for i in sub.pins if i.name.replace(".","_") == "X1_B3_PCIe_Gen4_TX0
 
 ibis = cir.get_ibis_model_from_file(os.path.join(projectdir, "models", "pcieg5_32gt.ibs"), is_ami=True)
 tx = ibis.components["Spec_Model"].pins["1p_Spec_Model_pcieg5_32gt_diff"].insert(-0.05,0.01)
-rx = ibis.components["Spec_Model"].pins["2p_Spec_Model_pcieg5_32gt_diff"].insert(0.05,0.01, 90)
+rx = ibis.components["Spec_Model"].pins["2p_Spec_Model_pcieg5_32gt_diff"].insert(0.05,0.01, 180)
 
 tx_eye_name = tx.parameters["probe_name"]
 
