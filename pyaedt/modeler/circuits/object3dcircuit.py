@@ -398,6 +398,12 @@ class CircuitComponent(object):
 
     @pyaedt_function_handler()
     def delete(self):
+        """Delete the component.
+
+        Returns
+        -------
+        bool
+        """
         self._oeditor.Delete(["NAME:Selections", "Selections:=", [self.composed_name]])
         for k, v in self._circuit_components.components.items():
             if v.name == self.name:
