@@ -36,6 +36,13 @@ for package in required_packages:
 # Import required modules
 import plotly.graph_objects as go
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -47,7 +54,6 @@ import plotly.graph_objects as go
 
 non_graphical = False
 new_thread = True
-desktop_version = "2023.2"
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -55,11 +61,11 @@ desktop_version = "2023.2"
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-if desktop_version <= "2023.1":
+if aedt_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
+d = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
 emitapp = Emit(pyaedt.generate_unique_project_name())
 
 ###############################################################################

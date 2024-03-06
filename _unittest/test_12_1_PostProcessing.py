@@ -221,7 +221,7 @@ class TestClass:
         self.aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",
-            self.aedtapp.available_variations.nominal_w_values,
+            self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "Efield.fld"),
             grid_stop=[5, 5, 5],
             grid_step=[0.5, 0.5, 0.5],
@@ -233,7 +233,7 @@ class TestClass:
         self.aedtapp.post.export_field_file_on_grid(
             "Mag_E",
             "Setup1 : LastAdaptive",
-            self.aedtapp.available_variations.nominal_w_values,
+            self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
             gridtype="Spherical",
             grid_stop=[5, 300, 300],
@@ -246,7 +246,7 @@ class TestClass:
         self.aedtapp.post.export_field_file_on_grid(
             "Mag_E",
             "Setup1 : LastAdaptive",
-            self.aedtapp.available_variations.nominal_w_values,
+            self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
             gridtype="Cylindrical",
             grid_stop=[5, 300, 5],

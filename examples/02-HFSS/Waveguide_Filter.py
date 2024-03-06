@@ -19,11 +19,17 @@ import tempfile
 import pyaedt
 from pyaedt import general_methods
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Launch Ansys Electronics Desktop (AEDT)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-
 
 ###############################################################################
 # Define parameters and values for waveguide iris filter
@@ -56,7 +62,7 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 # Instantiate the HFSS application
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version="2023.2",
+                   specified_version=aedt_version,
                    designname="filter",
                    non_graphical=non_graphical,
                    new_desktop_session=True,
