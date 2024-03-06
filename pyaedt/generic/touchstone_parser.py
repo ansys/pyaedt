@@ -488,7 +488,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
     folder : str
         folder path.
     passivity : bool, optional
-        ``True`` passivity check enabled, ``False`` disabled. Default value is ``True``
+        Whether the passivity check is enabled, The default is ``True``.
     causality : bool, optional
         ``True`` causality check enabled, ``False`` disabled. Default value is ``True``
     Returns : dict
