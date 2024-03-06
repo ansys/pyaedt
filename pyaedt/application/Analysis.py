@@ -1529,7 +1529,7 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=False):
+    def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
         .. deprecated:: 0.6.52
