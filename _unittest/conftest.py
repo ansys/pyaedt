@@ -55,10 +55,12 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2023.2"
+default_version = "2024.1"
+
 if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])
+
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]

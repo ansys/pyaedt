@@ -18,6 +18,13 @@ import os
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +32,6 @@ from pyaedt.generic.pdf import AnsysReport
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktopVersion = "2023.2"
 
 ###############################################################################
 # Open project
@@ -43,7 +49,7 @@ project_file = pyaedt.generate_unique_project_name()
 # object is linked to it. Otherwise, a new design is created.
 
 aedtapp = pyaedt.Hfss(projectname=project_file,
-                      specified_version=desktopVersion,
+                      specified_version=aedt_version,
                       non_graphical=non_graphical,
                       new_desktop_session=NewThread
                       )
@@ -329,7 +335,7 @@ my_data.plot(trace_names, "db20",
 # Generate pdf report
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a pdf report with output of simultion.
-report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=desktopVersion)
+report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=aedt_version)
 report.create()
 report.add_section()
 report.add_chapter("Hfss Results")

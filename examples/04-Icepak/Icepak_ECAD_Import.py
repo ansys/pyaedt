@@ -21,6 +21,12 @@ from pyaedt import Desktop
 from pyaedt import Hfss3dLayout
 from pyaedt.modules.Boundary import BoundaryObject
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -30,7 +36,6 @@ from pyaedt.modules.Boundary import BoundaryObject
 
 non_graphical = False
 
-
 ###############################################################################
 # Download and open project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +44,7 @@ non_graphical = False
 temp_folder = pyaedt.generate_unique_folder_name()
 
 ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
-                    specified_version="2023.2",
+                    specified_version=aedt_version,
                     new_desktop_session=True,
                     non_graphical=non_graphical
                     )

@@ -3305,6 +3305,11 @@ class Design(AedtObjects):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
+        if new_design is None:  # pragma: no cover
+            new_design = self.oproject.SetActiveDesign(unique_design_name)
+            if new_design is None:
+                self.logger.error("Fail to create new design.")
+                return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         self._odesign = new_design

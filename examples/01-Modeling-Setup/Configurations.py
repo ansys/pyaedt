@@ -33,6 +33,13 @@ design has changed, the boundary fails to apply.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +55,7 @@ non_graphical = False
 
 project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = pyaedt.Icepak(projectname=project_full_name, specified_version="2023.2",
+ipk = pyaedt.Icepak(projectname=project_full_name, specified_version=aedt_version,
                     new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
