@@ -370,7 +370,7 @@ class MeshRegion(object):
     @Objects.setter
     def Objects(self, objects):
         if settings.aedt_version > "2023.2":
-            self.subregion.parts(objects)
+            self.subregion.parts = objects
         self._objects = objects
 
     @pyaedt_function_handler()
