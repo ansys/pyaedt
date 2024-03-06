@@ -190,7 +190,7 @@ class SubRegion(CommonRegion):
         self._region = region
 
     def _get_object(self):
-        if not self._app.modeler.objects_by_name.get(self._region.name, False):
+        if self._region and not self._app.modeler.objects_by_name.get(self._region.name, False):
             self._region = None
         return self._region
 
@@ -343,7 +343,7 @@ class MeshRegion(object):
         self.MinGapX = "1"
         self.MinGapY = "1"
         self.MinGapZ = "1"
-        self._objects = ""
+        self._objects = "Region"
         self.SubModels = False
         self.Enable = True
         if settings.aedt_version > "2021.2":
@@ -354,7 +354,7 @@ class MeshRegion(object):
             self.Enable2DCutCell = False
             self.EnforceCutCellMeshing = False
             self.Enforce2dot5DCutCell = False
-        if settings.aedt_version > "2023.2":
+        if settings.aedt_version > "2023.2" and not isinstance(self, GlobalMeshRegion):
             if app.modeler.objects.get(self.Objects, False):
                 self.subregion = SubRegion(app, app.modeler.objects[self.Objects])
             elif app.modeler.objects_by_name.get(self.Objects, False):
@@ -369,7 +369,7 @@ class MeshRegion(object):
 
     @Objects.setter
     def Objects(self, objects):
-        if settings.aedt_version > "2023.2":
+        if settings.aedt_version > "2023.2" and not isinstance(self, GlobalMeshRegion):
             self.subregion.parts = objects
         self._objects = objects
 
