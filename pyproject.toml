@@ -30,7 +30,7 @@ dependencies = [
     "cffi == 1.16.0;platform_system=='Linux' and python_version > '3.7'",
     "pywin32 >= 303;platform_system=='Windows'",
     "ansys-pythonnet>=3.1.0rc3",
-    "rpyc==5.3.1",
+    "rpyc==6.0.0",
     "psutil",
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     "fpdf2",
