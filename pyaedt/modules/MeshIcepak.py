@@ -556,7 +556,7 @@ class MeshRegion(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete mesh region.
+        """Delete the mesh region.
 
         Returns
         -------
