@@ -190,7 +190,7 @@ def _find_free_port():  # nosec
             tries += 1
             if tries == 1000:
                 break
-    raise IOError("No free ports")
+    raise IOError("No ports are free.")
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover

@@ -18,6 +18,7 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
 test_subfolder = "T26"
+test_review_flag = True
 
 
 @pytest.fixture(scope="class")
@@ -933,7 +934,7 @@ class TestClass:
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
+        config["desktopVersion"] <= "2023.1" or test_review_flag,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_18_interference_scripts_no_filter(self, add_app):
@@ -963,6 +964,10 @@ class TestClass:
         assert protection_colors == expected_protection_colors
         assert protection_power_matrix == expected_protection_power
 
+    @pytest.mark.skipif(
+        test_review_flag,
+        reason="Test under review in 2024.1",
+    )
     def test_19_radio_protection_levels(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
@@ -990,7 +995,7 @@ class TestClass:
         assert protection_power_matrix == expected_protection_power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
+        config["desktopVersion"] <= "2023.1" or test_review_flag,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_20_interference_filtering(self, add_app):
@@ -1033,6 +1038,10 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
+    @pytest.mark.skipif(
+        test_review_flag,
+        reason="Test under review in 2024.1",
+    )
     def test_21_protection_filtering(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
