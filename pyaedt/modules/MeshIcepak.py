@@ -528,7 +528,7 @@ class MeshRegion(object):
 
     @pyaedt_function_handler()
     def create(self):
-        """Create a new mesh region.
+        """Create a mesh region.
 
         Returns
         -------
