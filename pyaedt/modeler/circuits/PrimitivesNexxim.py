@@ -911,7 +911,7 @@ class NexximComponents(CircuitComponents):
         if (time_list is not None) and (voltage_list is not None):
 
             if len(time_list) != len(voltage_list):
-                self.logger.error("Length of time is not equal to length of voltage.")
+                self.logger.error("The number of time points is different than the number of voltages.")
                 return False
             else:
                 for nr, pair in enumerate(zip(time_list, voltage_list)):
