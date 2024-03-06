@@ -5853,7 +5853,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         padding_values : float, str, list of floats or list of str
-            Padding values to apply. If a list is not provided, the same 
+            Padding values to apply. If a list is not provided, the same
             value is applied to all padding directions. If a list of floats
             or strings is provided, the values are
             interpret as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
@@ -5999,7 +5999,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         pad_value : float, str, list of floats or list of str, optional
-            Padding values to apply. If a list is not provided, the same 
+            Padding values to apply. If a list is not provided, the same
             value is applied to all padding directions. If a list of floats
             or strings is provided, the values are
             interpret as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
