@@ -273,46 +273,48 @@ class MeshRegion(object):
         MaxLevels : str
             Maximum number of refinement level for Multi-Level Mesh. Default is ``"0"``.
         BufferLayers : str
-            Number of buffer layers between refinement level. Default is ``"0"``.
+            Number of buffer layers between the refinement level. The default is ``"0"``.
         UniformMeshParametersType : str
-            Whether to create a creates a uniform mesh with the same mesh size in all
+            Whether to create a uniform mesh with the same mesh size in all
             coordinate directions (``"Average"``) or different spacing in each
-            direction (``"XYZ Max Sizes"``). Default is ``"Average"``.
+            direction (``"XYZ Max Sizes"``). The default is ``"Average"``.
         StairStepMeshing : bool
-            Whether to disable vertices projection step used to obtain conformal mesh.
-            Default is ``False``.
+            Whether to disable the vertices projection step used to obtain the conformal mesh.
+            The default is ``False``.
         DMLMType : str
-            If ``EnforceMLMType`` is ``"2D"``, in which 2D plane mesh refinement is
-            constrained. Available options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
-            ``"2DMLM_XZ"`` or ``"2DMLM_XY"``. Default is ``"2DMLM_None"``
+            If ``EnforceMLMType`` is ``"2D"``, the 2D plane mesh refinement is
+            constrained in. Options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
+            ``"2DMLM_XZ"`` or ``"2DMLM_XY"``. The default is ``"2DMLM_None"``,
             which means ``Auto``.
         MinGapX : str
-            Minimum gap size along the X-axis. Default is ``"1"``.
+            Minimum gap size along the x axis. The default is ``"1"``.
         MinGapY : str
-            Minimum gap size along the Y-axis. Default is ``"1"``.
+            Minimum gap size along the y axis. The default is ``"1"``.
         MinGapZ : str
-            Minimum gap size along the Z-axis. Default is ``"1"``.
+            Minimum gap size along the z axis. The default is ``"1"``.
         Objects : list
-            Objects to which meshing settings are applied.
+            Objects to apply meshing settings to.
         SubModels : bool
-            SubModels to which meshing settings are applied.
-            Default is ``False``, so ``Objects`` attribute will be used.
+            Submodels to apply meshing settings to.
+            The default is ``False``, which means the ``Objects`` attribute is used.
         Enable : bool
-            Enable mesh region. Default is ``True``.
+            Whether to enable the mesh region. The Default is ``True``.
         ProximitySizeFunction : bool
-            Whether to use proximity-based size function. Default is ``True``.
+            Whether to use the proximity-based size function. The default
+            is ``True``.
         CurvatureSizeFunction : bool
-            Whether to use curvature-based size function. Default is ``True``.
+            Whether to use the curvature-based size function. The default
+            is ``True``.
         EnableTransition : bool
-            Whether to enable mesh transition. Default is ``False``.
+            Whether to enable mesh transition. The default is ``False``.
         OptimizePCBMesh : bool
-            Whether to optimize PCB mesh. Default is ``True``.
+            Whether to optimize the PCB mesh. The default is ``True``.
         Enable2DCutCell : bool
-            Whether to enable 2D cut cell meshing. Default is ``False``.
+            Whether to enable 2D cut cell meshing. The default is ``False``.
         EnforceCutCellMeshing : bool
-            Whether to enforce cut cell meshing. Default is ``False``.
+            Whether to enforce cut cell meshing. The default is ``False``.
         Enforce2dot5DCutCell : bool
-            Whether to enforce 2.5D cut cell meshing. Default is ``False``.
+            Whether to enforce 2.5D cut cell meshing. The default is ``False``.
     """
 
     def __init__(self, meshmodule, dimension, units, app, name=None):
