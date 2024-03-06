@@ -350,21 +350,24 @@ class VirtualCompliance:
     def _check_test_value(self, filtered_range, test_value, hatch_above):
         worst = 1e9
         worst_f = 0
+        val = None
         for filt, t in zip(filtered_range, test_value):
 
             if hatch_above:
                 if t - filt[1] < worst:
                     worst = t - filt[1]
                     worst_f = filt[0]
+                    val = filt[1]
             else:
                 if filt[1] - t < worst:
                     worst = filt[1] - t
                     worst_f = filt[0]
+                    val = filt[1]
         if worst < 0:
             result = "FAIL"
         else:
             result = "PASS"
-        return round(worst, 5), round(worst_f, 5), result
+        return round(val, 5), round(worst_f, 5), result
 
     @pyaedt_function_handler()
     def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
