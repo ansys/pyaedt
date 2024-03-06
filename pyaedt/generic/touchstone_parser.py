@@ -502,8 +502,12 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
     if not os.path.exists(folder):
         return out
     aedt_install_folder = list(installed_versions().values())[0]
-    pat_snp = re.compile("\.s\d+p")
+    pat_snp = re.compile("\.s\d+p$")
     sNpFiles = {f: os.path.join(folder, f) for f in os.listdir(folder) if re.search(pat_snp, f)}
+    pat_ts = re.compile('\.ts$')
+    for f in os.listdir(SParamFolder):
+        if re.search(pat_ts, f):
+            sNpFiles[f] = os.path.join(SParamFolder,f)
     if sNpFiles == {}:
         return out
     for snpf in sNpFiles:
@@ -542,5 +546,5 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
                 out[snpf].append(["causality", is_causal, msg_log])
             if "Causality check is inconclusive" in line and causality:
                 is_causal = False
-                out[snpf].append(["causality", is_causal, line])
+                out[snpf].append(["causality", is_causal, line[17:]])
     return out
