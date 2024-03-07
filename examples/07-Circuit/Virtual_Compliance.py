@@ -38,9 +38,7 @@ new_thread = True
 # Download the project and files needed to run the example.
 workdir = pyaedt.downloads.download_file('pcie_compliance')
 
-#workdir = r'C:\ansysdev\Models\Compliance\pcie\wf_pcie'
 projectdir = os.path.join(workdir, "project")
-
 
 ###############################################################################
 # Launch AEDT
@@ -48,7 +46,6 @@ projectdir = os.path.join(workdir, "project")
 # Launch AEDT.
 
 d = pyaedt.Desktop(aedt_version, new_desktop_session=new_thread, non_graphical=non_graphical)
-
 
 ###############################################################################
 # Open and solve layout
