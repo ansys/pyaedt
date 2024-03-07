@@ -42,7 +42,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
-          pip install .[all]
+          pip install .[all,dotnet]
           pip install jupyterlab
 
       - name: Verify pyaedt can be imported
