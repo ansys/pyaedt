@@ -1983,7 +1983,7 @@ class FfdSolutionData(object):
                 pointa=(0.55, 0.1),
                 pointb=(0.74, 0.1),
                 style="modern",
-                event_type="always",
+                interaction_event="always",
                 title_height=0.02,
                 color=axes_color,
             )
@@ -1995,7 +1995,7 @@ class FfdSolutionData(object):
                 pointa=(0.77, 0.1),
                 pointb=(0.98, 0.1),
                 style="modern",
-                event_type="always",
+                interaction_event="always",
                 title_height=0.02,
                 color=axes_color,
             )

@@ -707,6 +707,7 @@ class TestClass:
         self.aedtapp.insert_design("CreateWireTest")
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+        myres2 = self.aedtapp.modeler.components.get_component(myres.composed_name)
         self.aedtapp.modeler.schematic.create_wire(
             [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
         )
@@ -809,6 +810,7 @@ class TestClass:
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
+        assert self.aedtapp.remove_all_unused_definitions()
 
     def test_46_create_vpwl(self):
 
