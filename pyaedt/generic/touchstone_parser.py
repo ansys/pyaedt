@@ -491,7 +491,9 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
         Whether the passivity check is enabled, The default is ``True``.
     causality : bool, optional
         Whether the causality check is enabled. The default is ``True``.
-    Returns : dict
+    Returns
+    ----------
+    dict
         Dictionary with the SNP file name as the key and a list if the passivity and/or causality checks are enabled.
         The first element in the list is a str with ``"passivity"`` or ``"causality"`` as a value. The second element
         is a Boolean that is set to ``True`` when the criteria passed or ``False`` otherwise. The last element
