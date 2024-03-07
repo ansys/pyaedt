@@ -491,7 +491,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
         Whether the passivity check is enabled, The default is ``True``.
     causality : bool, optional
         Whether the causality check is enabled. The default is ``True``.
-        
+
     Returns
     ----------
     dict
