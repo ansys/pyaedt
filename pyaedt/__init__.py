@@ -64,7 +64,7 @@ from pyaedt.generic.general_methods import settings
 
 try:
     from pyaedt.generic.design_types import Hfss3dLayout
-except:
+except Exception as e:
     from pyaedt.generic.design_types import Hfss3dLayout
 
 from pyaedt.generic.design_types import Circuit

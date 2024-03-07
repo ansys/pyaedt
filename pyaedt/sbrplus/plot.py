@@ -125,7 +125,7 @@ class HDMPlotter(CommonPlotter):
         points, lines, depths = self._add_rays()
         try:
             conv = 1 / AEDT_UNITS["Length"][self.units]
-        except:
+        except Exception as e:
             conv = 1
         points = [i * conv for i in points]
         depth1 = pv.PolyData(points, lines=lines)
@@ -190,7 +190,7 @@ class HDMPlotter(CommonPlotter):
         self._add_objects()
         try:
             conv = 1 / AEDT_UNITS["Length"][self.units]
-        except:
+        except Exception as e:
             conv = 1
         points = [i * conv for i in points]
         fb = pv.PolyData(points, faces=faces)

@@ -209,7 +209,7 @@ class Materials(object):
                     self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
                     material_update=False,
                 )
-        except:
+        except Exception as e:
             pass
         return mats
 
@@ -381,14 +381,14 @@ class Materials(object):
             for mat in matlist:
                 try:
                     matprop[prop].append(float(mat.__dict__["_" + prop].value))
-                except:
+                except Exception as e:
                     self.logger.warning("Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
                 if a < tol:
                     del matprop[prop]
-            except:
+            except Exception as e:
                 pass
         return matprop
 

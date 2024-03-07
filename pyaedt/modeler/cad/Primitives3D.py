@@ -2954,7 +2954,7 @@ class Primitives3D(GeometryModeler):
             core_name = str(values["Core"]["Name"])
             if len(core_name) > 0:
                 values["Core"]["Name"] = core_name
-        except:
+        except Exception as e:
             self.logger.warning("Core Name must be a non-null string. A default name Core has been set.")
             values["Core"]["Name"] = "Core"
 
@@ -2969,7 +2969,7 @@ class Primitives3D(GeometryModeler):
                         " It can be add using the method add_material" % core_material
                     )
                     values["Core"]["Material"] = "ferrite"
-        except:
+        except Exception as e:
             self.logger.warning("Core Material must be a non-null string. A default material Core has been set.")
             values["Core"]["Material"] = "ferrite"
 
@@ -2977,7 +2977,7 @@ class Primitives3D(GeometryModeler):
             winding_name = str(values["Outer Winding"]["Name"])
             if len(winding_name) > 0:
                 values["Outer Winding"]["Name"] = winding_name
-        except:
+        except Exception as e:
             self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
 
@@ -2992,7 +2992,7 @@ class Primitives3D(GeometryModeler):
                         " It can be add using the method add_material" % winding_material
                     )
                     values["Outer Winding"]["Material"] = "copper"
-        except:
+        except Exception as e:
             self.logger.warning(
                 "Outer Winding Material must be a non-null string." " A default material Winding has been set."
             )
@@ -3024,7 +3024,7 @@ class Primitives3D(GeometryModeler):
                     "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except Exception as e:
             self.logger.error(
                 "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
             )
@@ -3309,7 +3309,7 @@ class Primitives3D(GeometryModeler):
                         + ".  It must be changed"
                     )
                     are_inequations_checkable = False
-            except:
+            except Exception as e:
                 receiving_variable = None
                 self.logger.error(
                     "The character entered is invalid. "
@@ -3331,7 +3331,7 @@ class Primitives3D(GeometryModeler):
                         + ".  It must be changed"
                     )
                     are_inequations_checkable = False
-            except:
+            except Exception as e:
                 receiving_variable = None
                 self.logger.error(
                     "The character entered is invalid. "

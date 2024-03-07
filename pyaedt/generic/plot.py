@@ -43,7 +43,7 @@ if not is_ironpython:
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install matplotlib\n\nRequires CPython."
         )
-    except:
+    except Exception as e:
         pass
 
 
@@ -1369,7 +1369,7 @@ class ModelPlotter(CommonPlotter):
                                 lines = list(dict.fromkeys(lines))
                                 # decimate = 2
                                 # del lines[decimate - 1 :: decimate]
-                        except:
+                        except Exception as e:
                             lines = []
                         for line in lines:
                             tmp = line.strip().split(delimiter)
@@ -1392,7 +1392,7 @@ class ModelPlotter(CommonPlotter):
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
-                        except:
+                        except Exception as e:
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
@@ -1453,7 +1453,7 @@ class ModelPlotter(CommonPlotter):
             def __call__(self, state):
                 try:
                     self.plot.button_widgets = [self.plot.button_widgets[0]]
-                except:
+                except Exception as e:
                     self.plot.button_widgets = []
                 self.id += 1
                 k = 0
@@ -1820,7 +1820,7 @@ class ModelPlotter(CommonPlotter):
         start = time.time()
         try:
             self.pv.update(1, force_redraw=True)
-        except:
+        except Exception as e:
             pass
         if self.gif_file:
             first_loop = True

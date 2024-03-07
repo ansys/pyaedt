@@ -236,7 +236,7 @@ class Pin:
                     [],
                 ],
             )
-        except:
+        except Exception as e:
             logger.error("Error adding {} pin component.".format(self.short_name))
             return False
 

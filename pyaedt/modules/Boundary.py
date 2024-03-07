@@ -111,7 +111,7 @@ class BoundaryCommon(PropsManager):
                             "MaxwellParameterType"
                         ],
                     ]
-        except:
+        except Exception as e:
             pass
         try:
             if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
@@ -123,7 +123,7 @@ class BoundaryCommon(PropsManager):
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds],
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
                     ]
-        except:
+        except Exception as e:
             pass
         try:
             if ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
@@ -137,7 +137,7 @@ class BoundaryCommon(PropsManager):
                         self._app.design_properties["BoundarySetup"]["Boundaries"][ds],
                         self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
                     ]
-        except:
+        except Exception as e:
             return []
 
 
@@ -1018,7 +1018,7 @@ class MaxwellParameters(BoundaryCommon, object):
                 ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
             )
             return matrix_name, join_name
-        except:
+        except Exception as e:
             self._app.logger.error("Failed to create Matrix Reduction")
             return False, False
 

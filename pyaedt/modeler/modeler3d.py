@@ -274,7 +274,7 @@ class Modeler3D(Primitives3D):
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
                 meshregions.remove("Global")
-            except:
+            except Exception as e:
                 pass
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
@@ -515,7 +515,7 @@ class Modeler3D(Primitives3D):
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
                 meshregions.remove("Global")
-            except:
+            except Exception as e:
                 pass
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)

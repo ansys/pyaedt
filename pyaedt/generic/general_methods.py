@@ -135,7 +135,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                     _write_mes("Method arguments: ")
                     first_time_log = False
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
-    except:
+    except Exception as e:
         pass
     args = [func.__name__] + [i for i in args_name if i not in ["self"]]
     if not func.__name__.startswith("_"):
@@ -758,7 +758,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
     try:
         if function.__name__ == "InvokeAedtObjMethod":
             func_name = args[1]
-    except:
+    except Exception as e:
         pass
     retry = 0
     ret_val = None
@@ -777,7 +777,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-        except:
+        except Exception as e:
             retry += 1
             time.sleep(settings.retry_n_times_time_interval)
         else:
@@ -1196,7 +1196,7 @@ def write_configuration_file(dict_in, full_path):
 #                 if non_graphical and "-ng" in cmd or not non_graphical:
 #                     if not version or (version and version in cmd[0]):
 #                         sessions.append(p.pid)
-#         except:
+#         except Exception as e:
 #             pass
 #     return sessions
 #
@@ -1242,7 +1242,7 @@ def write_configuration_file(dict_in, full_path):
 #                             except (IndexError, ValueError):
 #                                 # default desktop grpc port.
 #                                 sessions.append(50051)
-#         except:
+#         except Exception as e:
 #             pass
 #     return sessions
 #
@@ -1304,7 +1304,7 @@ def write_configuration_file(dict_in, full_path):
 #                                     -1,
 #                                 ]
 #                             )
-#         except:
+#         except Exception as e:
 #             pass
 #     return sessions
 
@@ -1357,7 +1357,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
                                 if i.pid == p.pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
                                     return_dict[p.pid] = i.laddr.port
                                     break
-        except:
+        except Exception as e:
             pass
     return return_dict
 
@@ -1916,7 +1916,7 @@ def _dim_arg(value, units):
         if isinstance(value, int):
             val = value
         return str(val) + units
-    except:
+    except Exception as e:
         return value
 
 
@@ -1943,7 +1943,7 @@ def _check_installed_version(install_path, long_version):
                 install_version = f.readline().strip()[-6:]
                 if install_version == long_version:
                     return True
-        except:
+        except Exception as e:
             pass
     return False
 

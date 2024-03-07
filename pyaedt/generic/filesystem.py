@@ -54,7 +54,7 @@ class Scratch:
         if os.path.exists(self._scratch_path):
             try:
                 self.remove()
-            except:
+            except Exception as e:
                 self._cleaned = False
         if self._cleaned:
             try:
@@ -68,7 +68,7 @@ class Scratch:
         try:
             # TODO check why on Anaconda 3.7 get errors with os.path.exists
             shutil.rmtree(self._scratch_path, ignore_errors=True)
-        except:
+        except Exception as e:
             pass
 
     def copyfile(self, src_file, dst_filename=None):

@@ -220,7 +220,7 @@ class Mesh3d(object):
                     for ops in self._app.design_properties["Setup"]["Data"][ds]["MeshOps"]:
                         props = self._app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
-        except:
+        except Exception as e:
             pass
         return meshops
 

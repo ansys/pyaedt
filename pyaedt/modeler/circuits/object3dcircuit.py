@@ -256,7 +256,7 @@ class CircuitPins(object):
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
-            except:
+            except Exception as e:
                 pass
         else:
             for cmp in component_pin:
@@ -264,13 +264,13 @@ class CircuitPins(object):
                     try:
                         page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
                         break
-                    except:
+                    except Exception as e:
                         continue
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0]
             )
-        except:
+        except Exception as e:
             x_loc = float(self._circuit_comp.location[0])
         if self.location[0] < x_loc:
             angle = comp_angle
@@ -282,7 +282,7 @@ class CircuitPins(object):
                 x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
                     decompose_variable_value(cmp._circuit_comp.location[0])[0]
                 )
-            except:
+            except Exception as e:
                 x_loc = float(cmp._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
             if len(cmp._circuit_comp.pins) == 2:
@@ -307,7 +307,7 @@ class ComponentParameters(dict):
         try:
             self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
             dict.__setitem__(self, key, value)
-        except:
+        except Exception as e:
             try:
                 self._component._oeditor.ChangeProperty(
                     [
@@ -323,7 +323,7 @@ class ComponentParameters(dict):
                     ]
                 )
                 dict.__setitem__(self, key, value)
-            except:
+            except Exception as e:
                 self._component._circuit_components.logger.warning(
                     "Property %s has not been edited.Check if readonly", key
                 )
@@ -351,7 +351,7 @@ class ModelParameters(object):
             _dict2arg(self.props, arg)
             self._component._circuit_components.o_model_manager.EditWithComps(self.name, arg, [])
             return True
-        except:
+        except Exception as e:
             self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
             return False
 
@@ -401,7 +401,7 @@ class CircuitComponent(object):
         """Reference designator."""
         try:
             return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
-        except:
+        except Exception as e:
             return ""
 
     @property
@@ -414,7 +414,7 @@ class CircuitComponent(object):
         """Property Data List."""
         try:
             return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
-        except:
+        except Exception as e:
             return []
 
     @property
@@ -468,7 +468,7 @@ class CircuitComponent(object):
             tab = "Quantities"
         try:
             proparray = self._oeditor.GetProperties(tab, self.composed_name)
-        except:
+        except Exception as e:
             proparray = []
 
         for j in proparray:
@@ -574,7 +574,7 @@ class CircuitComponent(object):
             self._location = [
                 round(i[0] * AEDT_UNITS["Length"][i[1]] / AEDT_UNITS["Length"][self.units], 10) for i in loc
             ]
-        except:
+        except Exception as e:
             self._location = []
         return self._location
 
@@ -657,7 +657,7 @@ class CircuitComponent(object):
             self._mirror = (
                 self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Mirror") == "true"
             )
-        except:
+        except Exception as e:
             self._mirror = False
         return self._mirror
 

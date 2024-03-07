@@ -160,7 +160,7 @@ class Circuit(FieldAnalysisCircuit, object):
         try:
             float(value)
             return value
-        except:
+        except Exception as e:
             return from_rkm_to_aedt(value)
 
     @pyaedt_function_handler()
@@ -211,7 +211,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         pval = param_re[1]
                         self[ppar] = pval
                         xpos = 0.0254
-                    except:
+                    except Exception as e:
                         pass
                 elif ".model" in line[:7].lower() or ".lib" in line[:4].lower():
                     model.append(line)
@@ -254,7 +254,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if len(fields) > 4 and "=" not in fields[4]:
                         try:
                             float(fields[4])
-                        except:
+                        except Exception as e:
                             self.logger.warning(
                                 "Component {} was not imported. Check it and manually import".format(name)
                             )
@@ -1428,12 +1428,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
         try:
             os.remove(tmpfile1)
-        except:  # pragma: no cover
+        except Exception as e:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
         try:
             self.odesign.SetDiffPairs(arg)
-        except:  # pragma: no cover
+        except Exception as e:  # pragma: no cover
             return False
         return True
 
@@ -1471,7 +1471,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
             self.odesign.LoadDiffPairsFromFile(new_file)
             os.remove(new_file)
-        except:  # pragma: no cover
+        except Exception as e:  # pragma: no cover
             return False
         return True
 
@@ -1627,7 +1627,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 if model1:
                     try:
                         pin1 = next(pin for pin in model1.pins if pin.name == connection[0][1])
-                    except:
+                    except Exception as e:
                         print("failed to get pin1")
                 model2 = next(
                     cmp for cmp in list(self.modeler.schematic.components.values()) if connection[1][0] in cmp.name
@@ -1635,7 +1635,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 if model2:
                     try:
                         pin2 = next(pin for pin in model2.pins if pin.name == connection[1][1])
-                    except:
+                    except Exception as e:
                         print("failed to get pin2")
                 if pin1 and pin2:
                     pin1.connect_to_component(component_pin=pin2, use_wire=False)
@@ -1676,7 +1676,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 setup_override_name=hfss.setup_names[0],
                 sweep_override_name=hfss.existing_analysis_sweeps[0].split(":")[1].strip(" "),
             )
-        except:
+        except Exception as e:
             self.logger.error(
                 "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
             )

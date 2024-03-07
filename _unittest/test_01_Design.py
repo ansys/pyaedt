@@ -374,7 +374,7 @@ class TestClass:
             f.write(" ")
         try:
             hfss = Hfss(projectname=file_name2, specified_version=desktop_version)
-        except:
+        except Exception as e:
             assert True
         try:
             os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
@@ -382,7 +382,7 @@ class TestClass:
             with open(file_name3, "w") as f:
                 f.write(" ")
             hfss = Hfss3dLayout(projectname=file_name3, specified_version=desktop_version)
-        except:
+        except Exception as e:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):

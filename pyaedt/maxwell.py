@@ -1482,7 +1482,7 @@ class Maxwell(object):
                 self._boundaries[bound.name] = bound
                 return bound
             return True
-        except:
+        except Exception as e:
             return False
 
     @pyaedt_function_handler()
@@ -1614,7 +1614,7 @@ class Maxwell(object):
                     self._boundaries[bound.name] = bound
                     return bound
                 return True
-            except:
+            except Exception as e:
                 self.logger.error("Couldn't assign current density to desired list of objects.")
                 return False
         else:
@@ -2302,7 +2302,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     self._boundaries[bound.name] = bound
                     return bound
                 return False
-            except:
+            except Exception as e:
                 return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
@@ -2355,7 +2355,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             for path in paths:
                 conduction_paths[path] = list(self.oboundary.GetConductionPathObjects(path))
             return conduction_paths
-        except:
+        except Exception as e:
             return conduction_paths
 
     @pyaedt_function_handler()
@@ -2478,7 +2478,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     return bound, bound2
                 else:
                     return bound, False
-        except:
+        except Exception as e:
             return False, False
 
     @pyaedt_function_handler

@@ -54,12 +54,12 @@ def _conv_number(number, typen=float):
     if typen is float:
         try:
             return float(number)
-        except:
+        except Exception as e:
             return number
     elif typen is int:
         try:
             return int(number)
-        except:
+        except Exception as e:
             return number
 
 
@@ -912,7 +912,7 @@ class Layer(object):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception as e:
                 val = value
         else:
             val = "{0}{1}".format(value, units)

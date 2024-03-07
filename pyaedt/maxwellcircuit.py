@@ -203,5 +203,5 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         try:
             self.odesign.ExportNetlist("", file_to_export)
             return file_to_export
-        except:
+        except Exception as e:
             return False

@@ -18,7 +18,7 @@ if is_linux and cpython:  # pragma: no cover
                 import dotnet
 
                 runtime = os.path.join(os.path.dirname(dotnet.__path__))
-            except:
+            except Exception as e:
                 import dotnetcore2
 
                 runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
@@ -48,7 +48,7 @@ else:
         load("coreclr")
         is_clr = True
 
-    except:
+    except Exception as e:
         pass
 
 

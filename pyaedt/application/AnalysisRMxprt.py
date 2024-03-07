@@ -147,7 +147,7 @@ class FieldAnalysisRMxprt(Analysis):
         try:
             self.odesign.SetThreshold(conductivity, permeability)
             return True
-        except:
+        except Exception as e:
             return False
 
     @pyaedt_function_handler()

@@ -294,7 +294,7 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
             if cl.aedt_port is None:
                 cl.aedt_port = aedt_port
         return cl
-    except:
+    except Exception as e:
         msg = "Error. No connection exists."
         msg += " Check if pyaedt_service_manager is running and if the port number is correct."
         logger.error(msg)
@@ -344,6 +344,6 @@ def connect(server_name, aedt_client_port):
         if not os.path.exists(settings.remote_rpc_session_temp_folder):
             os.makedirs(settings.remote_rpc_session_temp_folder)
         return client
-    except:
+    except Exception as e:
         logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
         return False
