@@ -66,6 +66,18 @@ You can also install PyAEDT from Conda-Forge:
 
     conda install -c conda-forge pyaedt
 
+To ensure you have all the necessary dependencies, including optional components, use the following command:
+
+.. code:: python
+
+    pip install pyaedt[all]
+
+If you are not utilizing GRPC, you can install the required dotnet dependencies separately:
+
+.. code:: python
+
+    pip install pyaedt[dotnet]
+
 
 Linux support
 ~~~~~~~~~~~~~
