@@ -320,9 +320,7 @@ class ComponentParameters(dict):
                     ]
                 )
                 if (
-                    self._component._oeditor.GetPropertyValue(
-                        "PassedParameterTab", self._component.composed_name, "BitPattern"
-                    )
+                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
                     != value
                 ):
                     try:
