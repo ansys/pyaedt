@@ -486,7 +486,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
     Parameters
     ----------
     folder : str
-        folder path.
+        Folder path. The default is ``""``.
     passivity : bool, optional
         Whether the passivity check is enabled, The default is ``True``.
     causality : bool, optional
