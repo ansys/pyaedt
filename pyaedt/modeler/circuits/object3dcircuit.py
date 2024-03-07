@@ -335,7 +335,7 @@ class ComponentParameters(dict):
                 dict.__setitem__(self, key, value)
             except Exception as e:
                 self._component._circuit_components.logger.warning(
-                    "Property %s has not been edited.Check if readonly", key
+                    "Property %s has not been edited. Check if read-only.", key
                 )
         else:
             try:
