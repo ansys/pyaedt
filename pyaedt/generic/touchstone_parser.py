@@ -481,7 +481,7 @@ def read_touchstone(file_path):
 
 @pyaedt_function_handler()
 def check_touchstone_files(folder="", passivity=True, causality=True):
-    """Check passivity and causality for all touchstone files included in folder.
+    """Check passivity and causality for all Touchstone files included in the folder.
 
     Parameters
     ----------
