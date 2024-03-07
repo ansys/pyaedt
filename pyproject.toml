@@ -31,7 +31,7 @@ dependencies = [
     "fpdf2",
     "jsonschema",
     "pytomlpp; python_version < '3.12'",
-    "pyedb==0.6.0"
+    "pyedb==0.5.0"
 ]
 
 [project.optional-dependencies]
