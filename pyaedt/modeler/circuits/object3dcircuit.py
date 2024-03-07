@@ -304,24 +304,24 @@ class ComponentParameters(dict):
     """Manages component parameters."""
 
     def __setitem__(self, key, value):
-        try:
-            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-            dict.__setitem__(self, key, value)
-        except:
-            try:
-                self._component._oeditor.ChangeProperty(
+        if key in ["Dataset"] and dict.__getitem__(self, key):
+            self._component._oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
                     [
-                        "NAME:AllTabs",
+                        "NAME:" + self._tab,
+                        ["NAME:PropServers", self._component.composed_name],
                         [
-                            "NAME:" + self._tab,
-                            ["NAME:PropServers", self._component.composed_name],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
-                            ],
+                            "NAME:ChangedProps",
+                            ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
                         ],
-                    ]
-                )
+                    ],
+                ]
+            )
+            dict.__setitem__(self, key, value)
+        else:
+            try:
+                self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
                 dict.__setitem__(self, key, value)
             except:
                 self._component._circuit_components.logger.warning(
