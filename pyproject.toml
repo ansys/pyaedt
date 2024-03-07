@@ -71,7 +71,7 @@ dotnet = [
     "dotnetcore2 ==3.1.23;platform_system=='Linux'",
 ]
 doc = [
-    "ansys-sphinx-theme==0.13.1",
+    "ansys-sphinx-theme==0.14.0",
     "imageio==2.31.5",
     "imageio-ffmpeg==0.4.9",
     "ipython==8.13.0; python_version < '3.9'",
