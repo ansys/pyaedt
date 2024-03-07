@@ -1988,10 +1988,9 @@ class Analysis(Design, object):
         batch_run.extend(options)
         batch_run.append(filename)
 
-        """
-        check for existing solution directory and delete if present so we
-        dont have old .asol files etc
-        """
+        # check for existing solution directory and delete it if it exists so we
+        # don't have old .asol files etc
+
         self.logger.info("Solving model in batch mode on " + machine)
         if run_in_thread and is_windows:
             DETACHED_PROCESS = 0x00000008
