@@ -72,7 +72,7 @@ To ensure you have all the necessary dependencies, including optional components
 
     pip install pyaedt[all]
 
-If you are not utilizing GRPC, you can install the required dotnet dependencies separately:
+If you are not utilizing gRPC, you can install the required dotnet dependencies separately:
 
 .. code:: python
 
