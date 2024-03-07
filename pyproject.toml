@@ -26,17 +26,12 @@ classifiers = [
 ]
 
 dependencies = [
-    "cffi == 1.15.1;platform_system=='Linux' and python_version == '3.7'",
-    "cffi == 1.16.0;platform_system=='Linux' and python_version > '3.7'",
-    "pywin32 >= 303;platform_system=='Windows'",
-    "ansys-pythonnet>=3.1.0rc3",
-    "rpyc==5.3.1",
+    "rpyc==6.0.0",
     "psutil",
-    "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     "fpdf2",
     "jsonschema",
     "pytomlpp; python_version < '3.12'",
-    "pyedb==0.5.0"
+    "pyedb==0.5.2"
 ]
 
 [project.optional-dependencies]
@@ -67,6 +62,13 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf==0.31.0",
+]
+dotnet = [
+    "cffi == 1.15.1;platform_system=='Linux' and python_version == '3.7'",
+    "cffi == 1.16.0;platform_system=='Linux' and python_version > '3.7'",
+    "pywin32 >= 303;platform_system=='Windows'",
+    "ansys-pythonnet>=3.1.0rc3",
+    "dotnetcore2 ==3.1.23;platform_system=='Linux'",
 ]
 doc = [
     "ansys-sphinx-theme==0.13.1",
