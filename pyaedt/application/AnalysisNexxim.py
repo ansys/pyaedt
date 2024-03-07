@@ -70,6 +70,33 @@ class FieldAnalysisCircuit(Analysis):
             self._post = self.post
 
     @pyaedt_function_handler()
+    def delete_setup(self, setupname):
+        """Delete a setup.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.RemoveSimSetup
+        """
+        if setupname in self.existing_analysis_setups:
+            self.oanalysis.RemoveSimSetup([setupname])
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
+            return True
+        return False
+
+    @pyaedt_function_handler()
     def push_down(self, component_name):
         """Push-down to the child component and reinitialize the Circuit object.
 
