@@ -328,12 +328,12 @@ class ComponentParameters(dict):
                             self._tab, self._component.composed_name, key, str(value)
                         )
                         dict.__setitem__(self, key, value)
-                    except Exception as e:
+                    except:
                         self._component._circuit_components.logger.warning(
                             "Property %s has not been edited.Check if readonly", key
                         )
                 dict.__setitem__(self, key, value)
-            except Exception as e:
+            except:
                 self._component._circuit_components.logger.warning(
                     "Property %s has not been edited.Check if readonly", key
                 )
@@ -341,7 +341,7 @@ class ComponentParameters(dict):
             try:
                 self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
                 dict.__setitem__(self, key, value)
-            except Exception as e:
+            except:
                 self._component._circuit_components.logger.warning(
                     "Property %s has not been edited.Check if readonly", key
                 )
