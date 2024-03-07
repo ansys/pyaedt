@@ -305,20 +305,25 @@ class ComponentParameters(dict):
 
     def __setitem__(self, key, value):
         if key in ["Dataset"] and dict.__getitem__(self, key):
-            self._component._oeditor.ChangeProperty(
-                [
-                    "NAME:AllTabs",
+            try:
+                self._component._oeditor.ChangeProperty(
                     [
-                        "NAME:" + self._tab,
-                        ["NAME:PropServers", self._component.composed_name],
+                        "NAME:AllTabs",
                         [
-                            "NAME:ChangedProps",
-                            ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                            "NAME:" + self._tab,
+                            ["NAME:PropServers", self._component.composed_name],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                            ],
                         ],
-                    ],
-                ]
-            )
-            dict.__setitem__(self, key, value)
+                    ]
+                )
+                dict.__setitem__(self, key, value)
+            except:
+                self._component._circuit_components.logger.warning(
+                    "Property %s has not been edited.Check if readonly", key
+                )
         else:
             try:
                 self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
