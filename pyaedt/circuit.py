@@ -1687,3 +1687,81 @@ class Circuit(FieldAnalysisCircuit, object):
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save_project=False)
         return hfss_3d_layout_model
+
+    @pyaedt_function_handler()
+    def create_tdr_schematic_from_snp(
+        self,
+        touchstone,
+        pins,
+        differential=True,
+        design_name="TDR",
+        rise_time=30,
+        use_convolution=True,
+        analyze=True,
+        plot=True,
+    ):
+
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(touchstone, Hfss3dLayout):
+            touchstone_path = touchstone.export_touchstone()
+        else:
+            touchstone_path = touchstone
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+        if differential:
+            tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
+        else:
+            tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
+        tdr_probe_names = []
+        for i in range(len(pins)):
+            new_tdr_comp = tdr_probe.place("Tdr_probe", [-0.05, 0.01], angle=-90)
+            if not differential:
+                if isinstance(pins[i], int):
+                    p_pin = pins[i]
+                else:
+                    p_pin = [i for i in sub.pins if i.name == pins[i]][0]
+            else:
+                if isinstance(pins[i][0], int):
+                    p_pin = pins[i][0]
+                    n_pin = pins[i][1]
+                else:
+                    p_pin = [i for i in sub.pins if i.name == pins[i][0]][0]
+                    n_pin = [i for i in sub.pins if i.name == pins[i][1]][0]
+
+            new_tdr_comp.pins[0].connect_to_component(p_pin)
+            if differential:
+                new_tdr_comp.pins[1].connect_to_component(n_pin)
+            new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
+            new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
+            if differential:
+                tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zdiff)")
+            else:
+                tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zl)")
+
+        setup = self.create_setup(setupname="Transient_TDR", setuptype=self.SETUPS.NexximTransient)
+        setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
+        if use_convolution:
+            self.oanalysis.AddAnalysisOptions(
+                [
+                    "NAME:DataBlock",
+                    "DataBlockID:=",
+                    8,
+                    "Name:=",
+                    "Nexxim Options",
+                    [
+                        "NAME:ModifiedOptions",
+                        "ts_convolution:=",
+                        True,
+                    ],
+                ]
+            )
+            setup.props["OptionName"] = "Nexxim Options"
+        if analyze:
+            self.analyze()
+        if plot:
+            for trace in tdr_probe_names:
+                self.post.create_report(trace)
+        return tdr_probe_names
