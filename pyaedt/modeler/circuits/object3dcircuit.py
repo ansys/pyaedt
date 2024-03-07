@@ -304,7 +304,7 @@ class ComponentParameters(dict):
     """Manages component parameters."""
 
     def __setitem__(self, key, value):
-        if key in ["Dataset"] and dict.__getitem__(self, key):
+        if not isinstance(value, (int, float)):
             try:
                 self._component._oeditor.ChangeProperty(
                     [
@@ -319,6 +319,21 @@ class ComponentParameters(dict):
                         ],
                     ]
                 )
+                if (
+                    self._component._oeditor.GetPropertyValue(
+                        "PassedParameterTab", self._component.composed_name, "BitPattern"
+                    )
+                    != value
+                ):
+                    try:
+                        self._component._oeditor.SetPropertyValue(
+                            self._tab, self._component.composed_name, key, str(value)
+                        )
+                        dict.__setitem__(self, key, value)
+                    except:
+                        self._component._circuit_components.logger.warning(
+                            "Property %s has not been edited.Check if readonly", key
+                        )
                 dict.__setitem__(self, key, value)
             except:
                 self._component._circuit_components.logger.warning(
