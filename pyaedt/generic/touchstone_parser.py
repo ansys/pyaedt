@@ -506,9 +506,9 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
     pat_snp = re.compile("\.s\d+p$")
     sNpFiles = {f: os.path.join(folder, f) for f in os.listdir(folder) if re.search(pat_snp, f)}
     pat_ts = re.compile("\.ts$")
-    for f in os.listdir(SParamFolder):
+    for f in os.listdir(folder):
         if re.search(pat_ts, f):
-            sNpFiles[f] = os.path.join(SParamFolder, f)
+            sNpFiles[f] = os.path.join(folder, f)
     if sNpFiles == {}:
         return out
     for snpf in sNpFiles:
