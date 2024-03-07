@@ -38,9 +38,7 @@ new_thread = True
 # Download the project and files needed to run the example.
 workdir = pyaedt.downloads.download_file('pcie_compliance')
 
-#workdir = r'C:\ansysdev\Models\Compliance\pcie\wf_pcie'
 projectdir = os.path.join(workdir, "project")
-
 
 ###############################################################################
 # Launch AEDT
@@ -48,7 +46,6 @@ projectdir = os.path.join(workdir, "project")
 # Launch AEDT.
 
 d = pyaedt.Desktop(aedt_version, new_desktop_session=new_thread, non_graphical=non_graphical)
-
 
 ###############################################################################
 # Open and solve layout
@@ -61,7 +58,7 @@ h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
 h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
-h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] =  'LIN 0MHz 70GHz 0.1GHz'
+h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] = 'LIN 0MHz 70GHz 0.1GHz'
 h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
 h3d.setups[0].sweeps[0].update()
 h3d.analyze()
@@ -92,26 +89,26 @@ sub = cir.modeler.components.add_subcircuit_3dlayout("main_cutout")
 
 ports = []
 for pin in sub.pins:
-    ports.append(cir.modeler.components.create_interface_port(name=pin.name.replace(".","_"), location=pin.location))
+    ports.append(cir.modeler.components.create_interface_port(name=pin.name.replace(".", "_"), location=pin.location))
 
 for pin in ports:
     pin_name = pin.name.split("_")
-    if pin_name[-1]=="P":
+    if pin_name[-1] == "P":
         component = pin_name[0]
         suffix = pin_name[-2] if "X" in pin_name[-2] else pin_name[-3]
         for neg_pin in ports:
             neg_pin_name = neg_pin.name.split("_")
             suffix_neg = neg_pin_name[-2] if "X" in neg_pin_name[-2] else neg_pin_name[-3]
-            if neg_pin_name[0]==component and suffix_neg == suffix and neg_pin.name[-1] == "N":
+            if neg_pin_name[0] == component and suffix_neg == suffix and neg_pin.name[-1] == "N":
                 cir.set_differential_pair(
-                        positive_terminal=pin.name,
-                        negative_terminal=neg_pin.name,
-                        common_name=f"COMMON_{component}_{suffix}",
-                        diff_name=f"{component}_{suffix}",
-                        common_ref_z=25,
-                        diff_ref_z=100,
-                        active=True,
-                    )
+                    positive_terminal=pin.name,
+                    negative_terminal=neg_pin.name,
+                    common_name=f"COMMON_{component}_{suffix}",
+                    diff_name=f"{component}_{suffix}",
+                    common_ref_z=25,
+                    diff_ref_z=100,
+                    active=True,
+                )
                 break
 
 ###############################################################################
@@ -141,19 +138,18 @@ cir.set_active_design("TDR")
 # Place and connect a differential TDR probe to the pins of the layout object.
 
 cir.modeler.components.delete_component("X1_A2_PCIe_Gen4_RX0_P")
-cir.modeler.components.delete_component( "IPort@X1_A3_PCIe_Gen4_RX0_N")
+cir.modeler.components.delete_component("IPort@X1_A3_PCIe_Gen4_RX0_N")
 sub = cir.modeler.components.get_component("main_cutout1")
 
 dif_end = cir.modeler.components.components_catalog["TDR_Differential_Ended"]
 
-new_tdr_comp = dif_end.place("Tdr_probe", [-0.05,0.01], angle=-90)
-p_pin = [i for i in sub.pins if i.name.replace(".","_") == "X1_A2_PCIe_Gen4_RX0_P"][0]
-n_pin = [i for i in sub.pins if i.name.replace(".","_") == "X1_A3_PCIe_Gen4_RX0_N"][0]
+new_tdr_comp = dif_end.place("Tdr_probe", [-0.05, 0.01], angle=-90)
+p_pin = [i for i in sub.pins if i.name.replace(".", "_") == "X1_A2_PCIe_Gen4_RX0_P"][0]
+n_pin = [i for i in sub.pins if i.name.replace(".", "_") == "X1_A3_PCIe_Gen4_RX0_N"][0]
 new_tdr_comp.pins[0].connect_to_component(p_pin)
 new_tdr_comp.pins[1].connect_to_component(n_pin)
 new_tdr_comp.parameters["Pulse_repetition"] = "2ms"
 new_tdr_comp.parameters["Rise_time"] = "35ps"
-
 
 ###############################################################################
 # Create setup, analyze, and plot
@@ -176,24 +172,22 @@ cir.analyze()
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
 
-cir = pyaedt.Circuit(projectname=h3d.project_name, designname="AMI" )
+cir = pyaedt.Circuit(projectname=h3d.project_name, designname="AMI")
 sub = cir.modeler.components.create_touchstone_component(touchstone_path)
-
 
 ###############################################################################
 # Replace ports with Ibis models
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Place and connect differential TX and RX Ibis models to the pins of the layout object.
 
-
-p_pin1 = [i for i in sub.pins if i.name.replace(".","_") == "U1_AM25_PCIe_Gen4_TX0_CAP_P"][0]
-n_pin1 = [i for i in sub.pins if i.name.replace(".","_") == "U1_AL25_PCIe_Gen4_TX0_CAP_N"][0]
-p_pin2 = [i for i in sub.pins if i.name.replace(".","_") == "X1_B2_PCIe_Gen4_TX0_P"][0]
-n_pin2 = [i for i in sub.pins if i.name.replace(".","_") == "X1_B3_PCIe_Gen4_TX0_N"][0]
+p_pin1 = [i for i in sub.pins if i.name.replace(".", "_") == "U1_AM25_PCIe_Gen4_TX0_CAP_P"][0]
+n_pin1 = [i for i in sub.pins if i.name.replace(".", "_") == "U1_AL25_PCIe_Gen4_TX0_CAP_N"][0]
+p_pin2 = [i for i in sub.pins if i.name.replace(".", "_") == "X1_B2_PCIe_Gen4_TX0_P"][0]
+n_pin2 = [i for i in sub.pins if i.name.replace(".", "_") == "X1_B3_PCIe_Gen4_TX0_N"][0]
 
 ibis = cir.get_ibis_model_from_file(os.path.join(projectdir, "models", "pcieg5_32gt.ibs"), is_ami=True)
-tx = ibis.components["Spec_Model"].pins["1p_Spec_Model_pcieg5_32gt_diff"].insert(-0.05,0.01)
-rx = ibis.components["Spec_Model"].pins["2p_Spec_Model_pcieg5_32gt_diff"].insert(0.05,0.01, 180)
+tx = ibis.components["Spec_Model"].pins["1p_Spec_Model_pcieg5_32gt_diff"].insert(-0.05, 0.01)
+rx = ibis.components["Spec_Model"].pins["2p_Spec_Model_pcieg5_32gt_diff"].insert(0.05, 0.01, 180)
 
 tx_eye_name = tx.parameters["probe_name"]
 
@@ -203,7 +197,6 @@ rx.pins[0].connect_to_component(p_pin2)
 rx.pins[1].connect_to_component(n_pin2)
 tx.parameters["UIorBPSValue"] = "31.25ps"
 tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
-
 
 ###############################################################################
 # Create setup, analyze, and plot
@@ -219,6 +212,7 @@ setup_ami.props["OptionName"] = "Nexxim Options"
 setup_ami.props["DataBlockSize"] = 1000
 setup_ami.analyze()
 cir.save_project()
+
 ###############################################################################
 # Create virtual compliance report
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,8 +231,7 @@ cir.save_project()
 #
 #
 
-
-template = os.path.join(workdir, "pcie_gen5_templates" , "main.json")
+template = os.path.join(workdir, "pcie_gen5_templates", "main.json")
 
 v = VirtualCompliance(cir.desktop_class, str(template))
 
@@ -271,8 +264,7 @@ v.specs_folder = os.path.join(workdir, 'readme_pictures')
 # Change the trace name with projects and users.
 # Reuse the compliance template and update traces accordingly.
 
-
-v.reports["insertion losses"].traces =  [
+v.reports["insertion losses"].traces = [
     "dB(S(U1_RX0,X1_RX0))",
     "dB(S(U1_RX1,X1_RX1))",
     "dB(S(U1_RX3,X1_RX3))"
@@ -281,8 +273,9 @@ v.reports["insertion losses"].traces =  [
 v.reports["eye1"].traces = [tx_eye_name]
 v.reports["eye3"].traces = [tx_eye_name]
 v.reports["tdr from circuit"].traces = [tdr_probe_name]
-v.parameters["erl"].trace_pins = [["X1_A5_PCIe_Gen4_RX1_P","X1_A6_PCIe_Gen4_RX1_N","U1_AR25_PCIe_Gen4_RX1_P","U1_AP25_PCIe_Gen4_RX1_N"],  [7,8,18,17]]
-
+v.parameters["erl"].trace_pins = [
+    ["X1_A5_PCIe_Gen4_RX1_P", "X1_A6_PCIe_Gen4_RX1_N", "U1_AR25_PCIe_Gen4_RX1_P", "U1_AP25_PCIe_Gen4_RX1_N"],
+    [7, 8, 18, 17]]
 
 ###############################################################################
 # Generate PDF report
@@ -309,4 +302,3 @@ v.parameters["erl"].trace_pins = [["X1_A5_PCIe_Gen4_RX1_P","X1_A6_PCIe_Gen4_RX1_
 v.create_compliance_report()
 
 d.release_desktop(True, True)
-
