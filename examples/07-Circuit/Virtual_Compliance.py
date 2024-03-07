@@ -224,6 +224,18 @@ cir.save_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize the ``VirtualCompliance`` class
 # and set up the main project information needed to generate the report.
+#
+#
+# .. image:: ../../_static/virtual_compliance_class.png
+#    :width: 400
+#    :alt: Virtual compliance class description.
+#
+#
+# .. image:: ../../_static/virtual_compliance_configs.png
+#    :width: 400
+#    :alt: Virtual compliance configuration files hierarchy.
+#
+#
 
 
 template = os.path.join(workdir, "pcie_gen5_templates" , "main.json")
@@ -235,6 +247,13 @@ v = VirtualCompliance(cir.desktop_class, str(template))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the path to the project file and the
 # design names to be used in each report generation.
+#
+#
+# .. image:: ../../_static/virtual_compliance_usage.png
+#    :width: 400
+#    :alt: Virtual compliance configuration usage example.
+#
+#
 
 v.project_file = cir.project_file
 v.reports["insertion losses"].design_name = "Touchstone"
@@ -269,6 +288,23 @@ v.parameters["erl"].trace_pins = [["X1_A5_PCIe_Gen4_RX1_P","X1_A6_PCIe_Gen4_RX1_
 # Generate PDF report
 # ~~~~~~~~~~~~~~~~~~~~
 # Generate the reports and produce a PDF report.
+#
+#
+# .. image:: ../../_static/virtual_compliance_scattering1.png
+#    :width: 400
+#    :alt: Insertion loss output.
+#
+#
+# .. image:: ../../_static/virtual_compliance_scattering2.png
+#    :width: 400
+#    :alt: Return loss output.
+#
+#
+# .. image:: ../../_static/virtual_compliance_eye.png
+#    :width: 400
+#    :alt: Eye diagram example.
+#
+#
 
 v.create_compliance_report()
 
