@@ -814,8 +814,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Filename when successful, ``False`` when failed.
 
         References
         ----------

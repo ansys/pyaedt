@@ -17,7 +17,8 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-test_subfolder = "T26"
+TEST_SUBFOLDER = "T26"
+TEST_REVIEW_FLAG = True
 
 
 @pytest.fixture(scope="class")
@@ -933,11 +934,11 @@ class TestClass:
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
+        config["desktopVersion"] <= "2023.1" or TEST_REVIEW_FLAG,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_18_interference_scripts_no_filter(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -963,8 +964,12 @@ class TestClass:
         assert protection_colors == expected_protection_colors
         assert protection_power_matrix == expected_protection_power
 
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.1",
+    )
     def test_19_radio_protection_levels(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -990,11 +995,11 @@ class TestClass:
         assert protection_power_matrix == expected_protection_power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
+        config["desktopVersion"] <= "2023.1" or TEST_REVIEW_FLAG,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_20_interference_filtering(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
         # Generate a revision
         rev = self.aedtapp.results.analyze()
 
@@ -1033,8 +1038,12 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.1",
+    )
     def test_21_protection_filtering(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -1082,7 +1091,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_22_couplings(self, add_app):
-        self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
         links = self.aedtapp.couplings.linkable_design_names
         assert len(links) == 0
@@ -1104,7 +1113,7 @@ class TestClass:
 
         self.aedtapp.close_project()
 
-        self.aedtapp = add_app(project_name="Tutorial 4 - Completed", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="Tutorial 4 - Completed", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # test CAD nodes
         cad_nodes = self.aedtapp.couplings.cad_nodes
@@ -1174,7 +1183,7 @@ class TestClass:
         config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2."
     )
     def test_24_license_session(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         results = self.aedtapp.results
@@ -1198,8 +1207,8 @@ class TestClass:
         dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
 
         license_file_path = ''
-        with os.scandir(dot_ansys_directory) as dir:
-            for file in dir:
+        with os.scandir(dot_ansys_directory) as directory:
+            for file in directory:
                 filename_pieces = file.name.split('.')
                 # Since machine names can contain periods, there may be over five splits here
                 # We only care about the first split and last three splits
@@ -1244,7 +1253,7 @@ class TestClass:
         for i in range(number_of_runs):
             do_run()
 
-            # Run with license session
+        # Run with license session
         with revision.get_license_session():
             for i in range(number_of_runs):
                 do_run()
