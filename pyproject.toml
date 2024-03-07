@@ -26,12 +26,12 @@ classifiers = [
 ]
 
 dependencies = [
-    "rpyc==5.3.1",
+    "rpyc==6.0.0",
     "psutil",
     "fpdf2",
     "jsonschema",
     "pytomlpp; python_version < '3.12'",
-    "pyedb==0.5.0"
+    "pyedb==0.5.2"
 ]
 
 [project.optional-dependencies]
