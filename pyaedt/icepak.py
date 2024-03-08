@@ -6106,7 +6106,7 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler
     def __create_dataset_assignment(self, type_assignment, ds_name, scale):
         """Create dataset condition assignments.
-        
+
         Parameters
         ----------
         type_assignment : str
