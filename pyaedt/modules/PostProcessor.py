@@ -13,6 +13,7 @@ from collections import defaultdict
 import csv
 import os
 import random
+import re
 import string
 import tempfile
 
@@ -76,7 +77,7 @@ TEMPLATES_BY_DESIGN = {
         "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum", "EMIReceiver"],
     "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
@@ -101,6 +102,7 @@ TEMPLATES_BY_NAME = {
     "AMI Contour": rt.AMIConturEyeDiagram,
     "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
+    "EMIReceiver": rt.EMIReceiver,
 }
 
 
@@ -725,6 +727,53 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def emi_receiver(self, expressions=None, setup_name=None):
+        """Create an EMI receiver report.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more expressions to add into the report. An expression can be any of the formulas that
+            can be entered into the Electronics Desktop Report Editor.
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep name
+            to use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.EMIReceiver`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.emi_receiver()
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
+            rep = rt.EMIReceiver(self._post_app, setup_name)
+            if not expressions:
+                expressions = "Average[{}]".format(rep.net)
+            else:
+                if not isinstance(expressions, list):
+                    expressions = [expressions]
+                pattern = r"\w+\[(.*?)\]"
+                for expression in expressions:
+                    match = re.search(pattern, expression)
+                    if match:
+                        net_name = match.group(1)
+                        rep.net = net_name
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
             return rep
         return
