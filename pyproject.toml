@@ -87,7 +87,7 @@ doc = [
     "numpydoc==1.6.0; python_version > '3.7'",
     "osmnx",
     "pypandoc==1.13",
-    "pytest-sphinx==0.5.0",
+    "pytest-sphinx==0.6.0",
     "vtk==9.2.6",
     "pyvista==0.43.3; python_version > '3.7'",
     "pyvista==0.38.0; python_version <= '3.7'",
