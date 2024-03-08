@@ -6104,15 +6104,34 @@ class Icepak(FieldAnalysis3D):
                                             high_side_rad_material=high_side_rad_material)
 
     @pyaedt_function_handler
-    def _create_dataset_assignment(self, type_assignment, ds_name, scale):
+    def __create_dataset_assignment(self, type_assignment, ds_name, scale):
+        """Create dataset condition assignments.
+        
+        Parameters
+        ----------
+        type_assignment : str
+            Type of assignment represented by the class.
+            Options are ``"Temp Dep"`` and ``"Transient"``.
+        ds_name : str
+            Dataset name to assign.
+        scale : str
+            Scaling factor for the y values of the dataset.
+
+        Returns
+        -------
+        bool or :class:`PieceWiseLinearDictionary`
+            Created dataset condition assignments when successful, ``False`` when failed.
+        """
         ds = None
         try:
             if ds_name.startswith("$"):
-                raise AttributeError("Only design datasets are supported.")
+                self.logger.error("Only design datasets are supported.")
+                return False
             else:
                 ds = self.design_datasets[ds_name]
         except KeyError:
-            raise AttributeError("Dataset {} not found.".format({ds_name}))
+            self.logger.error("Dataset {} not found.".format({ds_name}))
+            return False
         if not isinstance(scale, str):
             scale = str(scale)
         return PieceWiseLinearDictionary(type_assignment, ds, scale)
@@ -6135,7 +6154,7 @@ class Icepak(FieldAnalysis3D):
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
-        return self._create_dataset_assignment("Temp Dep", ds_name, scale)
+        return self.__create_dataset_assignment("Temp Dep", ds_name, scale)
 
     @pyaedt_function_handler
     def create_dataset_transient_assignment(self, ds_name, scale=1):
@@ -6155,7 +6174,7 @@ class Icepak(FieldAnalysis3D):
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
-        return self._create_dataset_assignment("Transient", ds_name, scale)
+        return self.__create_dataset_assignment("Transient", ds_name, scale)
 
     @pyaedt_function_handler
     def create_linear_transient_assignment(self, intercept, slope):
