@@ -73,9 +73,58 @@ class NexximComponents(CircuitComponents):
         self._currentId = 0
         self._components_catalog = None
 
+    @pyaedt_function_handler()
+    def get_component(self, name):
+        """Get a component.
+
+        Parameters
+        ----------
+        name : str, int
+            Name of the component.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+             Circuit Component Object.
+        """
+        if name in self.components:
+            return self.components[name]
+        else:
+            for comp in self.components.values():
+                if (
+                    comp.name == name
+                    or comp.name.split("@")[-1] == name
+                    or comp.composed_name == name
+                    or comp.schematic_id == name
+                    or comp.id == name
+                ):
+                    return comp
+        self.logger.error("Component not found : %s", name)
+        return False
+
+    @pyaedt_function_handler()
+    def delete_component(self, name):
+        """Get and delete a component.
+
+        Parameters
+        ----------
+        name : str, int
+            Name of the component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        cmp = self.get_component(name)
+        if cmp:
+            cmp.delete()
+            return True
+        return False
+
     @property
     def components_catalog(self):
-        """Return the syslib component catalog with all info.
+        """System library component catalog with all information.
 
         Returns
         -------
@@ -862,6 +911,61 @@ class NexximComponents(CircuitComponents):
             cmpid.set_property("PW", value_lists[5])
         if len(value_lists) > 6:
             cmpid.set_property("PER", value_lists[6])
+
+        return cmpid
+
+    @pyaedt_function_handler()
+    def create_voltage_pwl(
+        self, compname=None, time_list=None, voltage_list=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
+        """Create a pwl voltage source.
+
+        Parameters
+        ----------
+        compname : str, optional
+            Name of the voltage pulse. The default is ``None``.
+        time_list : list, optional
+            List of time points for the pwl voltage source. The default is ``[0]``.
+        voltage_list : list, optional
+            List of voltages for the pwl voltage source. The default is ``[0]``.
+        location : list of float, optional
+            Position on the x-axis and y-xis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+
+        cmpid = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="V_PWL",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        if (time_list is not None) and (voltage_list is not None):
+
+            if len(time_list) != len(voltage_list):
+                self.logger.error("The number of time points is different than the number of voltages.")
+                return False
+            else:
+                for nr, pair in enumerate(zip(time_list, voltage_list)):
+                    cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
+                    cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
 
         return cmpid
 

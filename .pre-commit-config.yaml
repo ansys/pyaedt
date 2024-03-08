@@ -5,10 +5,8 @@ files: |
     )
 exclude: |
     (?x)(
-        ^pyaedt/dlls/|
         ^pyaedt/rpc/|
         ^pyaedt/sbrplus/matlab/|
-        ^pyaedt/third_party/|
         pyaedt/conftest.py|
         _unittest/example_models/
     )

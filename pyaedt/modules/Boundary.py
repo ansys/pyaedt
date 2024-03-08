@@ -1968,11 +1968,11 @@ class Sources(object):
                     source_prop_dict[el] = None
                 elif el == "FreqDependentSourceData":
                     data = self._app.design_properties["NexximSources"]["Data"][source]["FDSFileName"]
-                    freqs = re.findall("freqs=\[(.*?)\]", data)
-                    magnitude = re.findall("magnitude=\[(.*?)\]", data)
-                    angle = re.findall("angle=\[(.*?)\]", data)
-                    vreal = re.findall("vreal=\[(.*?)\]", data)
-                    vimag = re.findall("vimag=\[(.*?)\]", data)
+                    freqs = re.findall(r"freqs=\[(.*?)\]", data)
+                    magnitude = re.findall(r"magnitude=\[(.*?)\]", data)
+                    angle = re.findall(r"angle=\[(.*?)\]", data)
+                    vreal = re.findall(r"vreal=\[(.*?)\]", data)
+                    vimag = re.findall(r"vimag=\[(.*?)\]", data)
                     source_file = re.findall("voltage_source_file=", data)
                     source_prop_dict["frequencies"] = None
                     source_prop_dict["vmag"] = None

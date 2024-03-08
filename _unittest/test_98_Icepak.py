@@ -464,6 +464,24 @@ class TestClass:
             rotation=45,
             tolerance=0.005,
         )
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 3])
+        top_face = box.top_face_z
+        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        assert hs
+        hs.delete()
+        box.rotate(0, 52)
+        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(
+            top_face,
+            relative=False,
+            symmetric=False,
+            fin_thick=0.2,
+            fin_length=0.95,
+            hs_basethick=0.2,
+            separation=0.2,
+            matname="Al-Extruded",
+        )
+        assert hs
+        hs.delete()
         self.aedtapp.delete_design()
 
     def test_37_check_bounding_box(self):
@@ -1194,6 +1212,7 @@ class TestClass:
         assert len(list(op_dict.keys())) == 2
         app.set_active_design("get_fan_op_point1")
         app.get_fans_operating_point()
+        app.get_fans_operating_point(timestep="0")
         app.close_project()
 
     def test_63_generate_mesh(self):

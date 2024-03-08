@@ -1,5 +1,6 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -72,6 +73,9 @@ class AnalysisTwinBuilder(Analysis):
         )
         self._modeler = None
         self._post = None
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._post = self.post
 
     @property
     def existing_analysis_sweeps(self):
@@ -108,9 +112,12 @@ class AnalysisTwinBuilder(Analysis):
         :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
         if self._post is None:  # pragma: no cover
+            self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @pyaedt_function_handler()

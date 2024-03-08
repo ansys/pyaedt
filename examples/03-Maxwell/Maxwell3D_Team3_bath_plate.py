@@ -3,6 +3,7 @@ Maxwell 3D: bath plate analysis
 -------------------------------
 This example uses PyAEDT to set up the TEAM 3 bath plate problem and
 solve it using the Maxwell 3D Eddy Current solver.
+https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
 """
 ##################################################################################
 # Perform required imports
@@ -11,6 +12,21 @@ solve it using the Maxwell 3D Eddy Current solver.
 
 import os
 import pyaedt
+import tempfile
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ##################################################################################
 # Set non-graphical mode
@@ -29,19 +45,17 @@ non_graphical = False
 
 project_name = "COMPUMAG"
 design_name = "TEAM 3 Bath Plate"
-Solver = "EddyCurrent"
-desktop_version = "2023.2"
+solver = "EddyCurrent"
 
 m3d = pyaedt.Maxwell3d(
-    projectname=pyaedt.generate_unique_project_name(),
+    projectname=project_name,
     designname=design_name,
-    solution_type=Solver,
-    specified_version=desktop_version,
+    solution_type=solver,
+    specified_version=aedt_version,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
-uom = m3d.modeler.model_units = "mm"
-modeler = m3d.modeler
+m3d.modeler.model_units = "mm"
 
 ###############################################################################
 # Add variable
@@ -50,7 +64,7 @@ modeler = m3d.modeler
 # position of the coil.
 
 Coil_Position = -20
-m3d["Coil_Position"] = str(Coil_Position) + uom  # Creates a design variable in Maxwell
+m3d["Coil_Position"] = str(Coil_Position) + m3d.modeler.model_units
 
 ################################################################################
 # Add material
@@ -110,27 +124,27 @@ m3d.assign_current(object_list=["SearchCoil_Section1"], amplitude=1260, solid=Fa
 # density. The following code also adds a small diameter cylinder to refine the
 # mesh locally around the line.
 
-Line_Points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
-P1 = modeler.create_polyline(position_list=Line_Points, name="Line_AB")
-P2 = modeler.create_polyline(position_list=Line_Points, name="Line_AB_MeshRefinement")
-P2.set_crosssection_properties(type="Circle", width="0.5mm")
+line_points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
+m3d.modeler.create_polyline(position_list=line_points, name="Line_AB")
+poly = m3d.modeler.create_polyline(position_list=line_points, name="Line_AB_MeshRefinement")
+poly.set_crosssection_properties(type="Circle", width="0.5mm")
 
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=False)
+m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Add Maxwell 3D setup
 # ~~~~~~~~~~~~~~~~~~~~
 # Add a Maxwell 3D setup with frequency points at 50 Hz and 200 Hz.
 
-Setup = m3d.create_setup(setupname="Setup1")
-Setup.props["Frequency"] = "200Hz"
-Setup.props["HasSweepSetup"] = True
-Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
+setup = m3d.create_setup(setupname="Setup1")
+setup.props["Frequency"] = "200Hz"
+setup.props["HasSweepSetup"] = True
+setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
 
 ################################################################################
 # Adjust eddy effects
@@ -138,32 +152,33 @@ Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=1
 # Adjust eddy effects for the ladder plate and the search coil. The setting for
 # eddy effect is ignored for the stranded conductor type used in the search coil.
 
-m3d.eddy_effects_on(["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
-m3d.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
+m3d.eddy_effects_on(object_list=["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
+m3d.eddy_effects_on(object_list=["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
 
 ################################################################################
 # Add linear parametric sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a linear parametric sweep for the two coil positions.
 
-sweepname = "CoilSweep"
-param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweepname)
+sweep_name = "CoilSweep"
+param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweep_name)
 param["SaveFields"] = True
 param["CopyMesh"] = False
 param["SolveWithCopiedMeshOnly"] = True
 
+################################################################################
 # Solve parametric sweep
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Solve the parametric sweep directly so that results of all variations are available.
 
-m3d.analyze_setup(sweepname)
+m3d.analyze_setup(sweep_name)
 
 ###############################################################################
 # Create expression for Bz
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create an expression for Bz using the fields calculator.
 
-Fields = m3d.odesign.GetModule("FieldsReporter")
+Fields = m3d.ofieldsreporter
 Fields.EnterQty("B")
 Fields.CalcOp("ScalarZ")
 Fields.EnterScalar(1000)
@@ -176,17 +191,7 @@ Fields.AddNamedExpression("Bz", "Fields")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot mag(Bz) as a function of frequency for both coil positions.
 
-variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["-20mm"]}
-m3d.post.create_report(
-    expressions="mag(Bz)",
-    report_category="Fields",
-    context="Line_AB",
-    variations=variations,
-    primary_sweep_variable="Distance",
-    plotname="mag(Bz) Along 'Line_AB' Offset Coil",
-)
-
-variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["0mm"]}
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
 m3d.post.create_report(
     expressions="mag(Bz)",
     report_category="Fields",
@@ -197,11 +202,9 @@ m3d.post.create_report(
 )
 
 ###############################################################################
-# Generate plot outside of AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate the same plot outside AEDT.
-
-variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
+# Get simulation results from a solved setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Get simulation results from a solved setup as a ``SolutionData`` object.
 
 solutions = m3d.post.get_solution_data(
     expressions="mag(Bz)",
@@ -232,13 +235,14 @@ solutions.plot()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
 
-surflist = modeler.get_object_faces("LadderPlate")
+ladder_plate = m3d.modeler.objects_by_name["LadderPlate"]
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
-m3d.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
+m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 
 ###############################################################################
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT from the script engine, leaving both AEDT and the project open.
 
-m3d.release_desktop(True, True)
+m3d.release_desktop(False, False)
+temp_dir.cleanup()

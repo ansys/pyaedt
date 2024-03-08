@@ -1228,8 +1228,20 @@ class Design(AedtObjects):
         return self._desktop_install_dir
 
     @pyaedt_function_handler()
+    def remove_all_unused_definitions(self):
+        """Remove all unused definitions in the project.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oproject.RemoveAllUnusedDefinitions()
+        return True
+
+    @pyaedt_function_handler()
     def get_oo_name(self, aedt_object, object_name=None):
-        """Return the Object Oriented AEDT Properties names.
+        """Return the object-oriented AEDT property names.
 
         Parameters
         ----------
@@ -1303,7 +1315,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -2509,7 +2521,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def _close_edb(self):
-        if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
+        if self.design_type == "HFSS 3D Layout Design" and not is_ironpython:  # pragma: no cover
             if self.modeler and self.modeler._edb:
                 self.modeler._edb.close_edb()
 
@@ -3305,6 +3317,11 @@ class Design(AedtObjects):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
+        if new_design is None:  # pragma: no cover
+            new_design = self.oproject.SetActiveDesign(unique_design_name)
+            if new_design is None:
+                self.logger.error("Fail to create new design.")
+                return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         self._odesign = new_design

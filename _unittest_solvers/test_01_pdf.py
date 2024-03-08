@@ -48,23 +48,30 @@ class TestClass(object):
         assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
-        template = os.path.join(local_path, "example_models", test_subfolder, "compliance",
-                                "general_compliance_template.json")
+        template = os.path.join(
+            local_path, "example_models", test_subfolder, "compliance", "general_compliance_template.json"
+        )
         template = local_scratch.copyfile(template)
         local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, "compliance", "ContourEyeDiagram_Custom.json")
         )
-        local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, "compliance",
-                                            "Sparameter_Custom.json"))
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "compliance", "spisim_erl.cfg")
+        )
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "compliance", "Sparameter_Custom.json")
+        )
         local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, "compliance", "Sparameter_Insertion_Custom.json")
         )
         local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance",
-                         "StatisticalEyeDiagram_Custom.json")
+            os.path.join(
+                local_path, "example_models", test_subfolder, "compliance", "StatisticalEyeDiagram_Custom.json"
+            )
         )
-        local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, "compliance",
-                                            "EyeDiagram_Custom.json"))
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "compliance", "EyeDiagram_Custom.json")
+        )
 
         import json
 
@@ -76,3 +83,18 @@ class TestClass(object):
             f.truncate()
         v = VirtualCompliance(aedtapp.desktop_class, template)
         assert v.create_compliance_report()
+
+    def test_spisim_raw_read(self, local_scratch):
+        from pyaedt.generic.spisim import SpiSimRawRead
+
+        raw_file = os.path.join(local_path, "example_models", test_subfolder, "SerDes_Demo_02_Thru.s4p_ERL.raw")
+        raw_file = local_scratch.copyfile(raw_file)
+
+        raw_file = SpiSimRawRead(raw_file)
+        assert raw_file.get_raw_property()
+        assert len(raw_file.get_raw_property("Variables"))
+        assert raw_file.trace_names
+        assert len(raw_file["time"])
+        assert len(raw_file.get_trace(0))
+        assert len(raw_file.get_wave(raw_file.trace_names[0])) == len(raw_file.get_axis())
+        assert raw_file.__len__() > 0

@@ -304,10 +304,7 @@ class ComponentParameters(dict):
     """Manages component parameters."""
 
     def __setitem__(self, key, value):
-        try:
-            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-            dict.__setitem__(self, key, value)
-        except:
+        if not isinstance(value, (int, float)):
             try:
                 self._component._oeditor.ChangeProperty(
                     [
@@ -315,10 +312,34 @@ class ComponentParameters(dict):
                         [
                             "NAME:" + self._tab,
                             ["NAME:PropServers", self._component.composed_name],
-                            ["NAME:ChangedProps", ["NAME:" + key, "ButtonText:=", str(value)]],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                            ],
                         ],
                     ]
                 )
+                if (
+                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
+                    != value
+                ):
+                    try:
+                        self._component._oeditor.SetPropertyValue(
+                            self._tab, self._component.composed_name, key, str(value)
+                        )
+                        dict.__setitem__(self, key, value)
+                    except:
+                        self._component._circuit_components.logger.warning(
+                            "Property %s has not been edited.Check if readonly", key
+                        )
+                dict.__setitem__(self, key, value)
+            except:
+                self._component._circuit_components.logger.warning(
+                    "Property %s has not been edited. Check if read-only.", key
+                )
+        else:
+            try:
+                self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
                 dict.__setitem__(self, key, value)
             except:
                 self._component._circuit_components.logger.warning(
@@ -392,6 +413,21 @@ class CircuitComponent(object):
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the component.
+
+        Returns
+        -------
+        bool
+        """
+        self._oeditor.Delete(["NAME:Selections", "Selections:=", [self.composed_name]])
+        for k, v in self._circuit_components.components.items():
+            if v.name == self.name:
+                del self._circuit_components.components[k]
+                break
+        return True
 
     @property
     def refdes(self):

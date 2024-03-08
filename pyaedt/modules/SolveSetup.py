@@ -1975,7 +1975,7 @@ class Setup3DLayout(CommonSetup):
             if len(obj_list) == 1:
                 net = net.replace("-", "m")
                 net = net.replace("+", "p")
-                net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                 obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
@@ -1984,7 +1984,7 @@ class Setup3DLayout(CommonSetup):
                 try:
                     net = net.replace("-", "m")
                     net = net.replace("+", "p")
-                    net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                    net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
                 except:
@@ -1996,6 +1996,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):
         edb = self.p_app.modeler.edb
+        if not edb:
+            return
         net_primitives = edb.modeler.primitives_by_net
         primitive_dict = {}
         for net, primitives in net_primitives.items():
@@ -2059,6 +2061,8 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_via_position_per_net(self):
         via_dict = {}
+        if not self.p_app.modeler.edb:
+            return
         via_list = list(self.p_app.modeler.edb.padstacks.instances.values())
         if via_list:
             for net in list(self.p_app.modeler.edb.nets.nets.keys()):
@@ -3268,9 +3272,9 @@ class SetupMaxwell(Setup, object):
         Notes
         -----
         By default a control program script will be called by the pre-installed Python interpreter:
-        ``<install_path>\Win64\commonfiles\CPython\37\winx64\Release\python\python.exe``.
+        ``<install_path>\\Win64\\commonfiles\\CPython\\37\\winx64\\Release\\python\\python.exe``.
         However, the user can specify a custom Python interpreter to be used by setting following environment variable:
-        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\python.exe>``
+        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\\python.exe>``
 
         References
         ----------

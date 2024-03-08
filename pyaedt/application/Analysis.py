@@ -141,6 +141,9 @@ class Analysis(Design, object):
         self.VIEW = VIEW()
         self.GRAVITY = GRAVITY()
 
+        if not settings.lazy_load:
+            self._materials = self.materials
+
     @property
     def native_components(self):
         """Native Component dictionary.
@@ -179,11 +182,14 @@ class Analysis(Design, object):
 
         """
         if not self._materials:
+            self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
             self._materials = Materials(self)
             for material in self._materials.material_keys:
                 self._materials.material_keys[material]._material_update = True
+            self.logger.info_timer("Materials class has been initialized!")
+
         return self._materials
 
     @property
@@ -1638,7 +1644,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name,
+        name=None,
         num_cores=4,
         num_tasks=1,
         num_gpu=0,
@@ -1653,7 +1659,7 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        name : str
+        name : str, optional
             Name of the setup, which can be an optimetric setup or a simple setup.
             If ``None`` all setups will be solved.
         num_cores : int, optional
@@ -1982,10 +1988,9 @@ class Analysis(Design, object):
         batch_run.extend(options)
         batch_run.append(filename)
 
-        """
-        check for existing solution directory and delete if present so we
-        dont have old .asol files etc
-        """
+        # check for existing solution directory and delete it if it exists so we
+        # don't have old .asol files etc
+
         self.logger.info("Solving model in batch mode on " + machine)
         if run_in_thread and is_windows:
             DETACHED_PROCESS = 0x00000008

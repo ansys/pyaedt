@@ -13,6 +13,13 @@ import pyaedt
 
 import os
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -27,7 +34,7 @@ non_graphical = False
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-hfss = pyaedt.Hfss(specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(specified_version=aedt_version, new_desktop_session=True, non_graphical=non_graphical)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
