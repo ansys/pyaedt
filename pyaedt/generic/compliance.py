@@ -348,17 +348,26 @@ class VirtualCompliance:
 
     @pyaedt_function_handler()
     def _check_test_value(self, filtered_range, test_value, hatch_above):
-        ranges = [k[1] for k in filtered_range]
-        if hatch_above:
-            value_to_check = max(ranges)
+        worst = 1e9
+        worst_f = 0
+        val = None
+        for filt, t in zip(filtered_range, test_value):
+
+            if hatch_above:
+                if t - filt[1] < worst:
+                    worst = t - filt[1]
+                    worst_f = filt[0]
+                    val = filt[1]
+            else:
+                if filt[1] - t < worst:
+                    worst = filt[1] - t
+                    worst_f = filt[0]
+                    val = filt[1]
+        if worst < 0:
+            result = "FAIL"
         else:
-            value_to_check = min(ranges)
-        freq_to_check = filtered_range[ranges.index(value_to_check)][0]
-        if hatch_above and value_to_check >= test_value:
-            return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
-        elif not hatch_above and value_to_check <= test_value:  # pragma: no cover
-            return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
-        return round(value_to_check, 5), round(freq_to_check, 5), "PASS"
+            result = "PASS"
+        return round(val, 5), round(worst_f, 5), result
 
     @pyaedt_function_handler()
     def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
@@ -594,7 +603,7 @@ class VirtualCompliance:
                     if not isinstance(trace_pin[0], int):
                         try:
                             ports = list(_design.excitations.keys())
-                            thrus4p = ",".join([str(ports.index(i)) for i in trace_pin])
+                            thrus4p = [ports.index(i) for i in trace_pin]
                             trace_pin = thrus4p
                         except IndexError:
                             _design.logger.error("Port not found.")
@@ -636,13 +645,19 @@ class VirtualCompliance:
                         result_range = self._get_frequency_range(
                             trace_values, limit_v["xpoints"][yy], limit_v["xpoints"][yy + 1]
                         )
+                        freq = [i[0] for i in result_range]
+                        slope = (limit_v["ypoints"][yy + 1] - limit_v["ypoints"][yy]) / (freq[-1] - freq[0])
+                        ypoints = []
+                        for i in range(len(freq)):
+                            if slope != 0:
+                                ypoints.append(limit_v["ypoints"][yy] + (freq[i] - freq[0]) / slope)
+                            else:
+                                ypoints.append(limit_v["ypoints"][yy])
                         hatch_above = False
                         if limit_v.get("hatch_above", True):
                             hatch_above = True
                         test_value = limit_v["ypoints"][yy]
-                        range_value, x_value, result_value = self._check_test_value(
-                            result_range, test_value, hatch_above
-                        )
+                        range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("y_units", "")
                         xunits = limit_v.get("x_units", "")
                         mystr = f"Zone  {zones}"
