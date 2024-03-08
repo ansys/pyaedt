@@ -1547,8 +1547,8 @@ class TestClass:
         assert not BoundaryDictionary("Temp Dep", "Linear")
         assert not BoundaryDictionary("Temperature Dep", "Linear")
         ds1_temp = self.aedtapp.create_dataset(
-                "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, xunit="cel", yunit="W"
-            )
+            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, xunit="cel", yunit="W"
+        )
         assert not self.aedtapp.create_temp_dep_assignment(ds1_temp.name)
         assert not self.aedtapp.create_temp_dep_assignment("nods")
 
