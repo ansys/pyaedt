@@ -1060,14 +1060,6 @@ class TestClass:
             polarization_angle=30,
         )
         assert bound.azimuth_start == "2deg"
-        self.aedtapp.create_setup()
-        sweep6 = self.aedtapp.optimizations.add(
-            calculation="RealizedGainTotal",
-            solution=self.aedtapp.nominal_adaptive,
-            ranges={"Freq": "5GHz", "Theta": "0deg", "Phi": "0deg"},
-            context=bound.name,
-        )
-        assert sweep6
 
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")

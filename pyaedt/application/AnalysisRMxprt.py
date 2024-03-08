@@ -1,5 +1,6 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 
 
 class FieldAnalysisRMxprt(Analysis):
@@ -48,9 +49,11 @@ class FieldAnalysisRMxprt(Analysis):
             port,
             aedt_process_id,
         )
-
         self._modeler = None
         self._post = None
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._post = self.post
 
     @property
     def post(self):
@@ -61,9 +64,12 @@ class FieldAnalysisRMxprt(Analysis):
         :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
         if self._post is None:  # pragma: no cover
+            self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property

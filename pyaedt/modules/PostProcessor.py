@@ -2025,7 +2025,7 @@ class PostProcessorCommon(object):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        >>> aedtapp.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
         ...                                               solution_name="Setup1 : LastAdpative")
         """
         if not input_dict and not input_file:  # pragma: no cover
@@ -2456,23 +2456,30 @@ class PostProcessor(PostProcessorCommon, object):
             elif object_type == "point":
                 self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
+
         if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
-                variation_dict.append("Time:=")
-                variation_dict.append(intrinsics)
+                variation.append("Time:=")
+                variation.append(intrinsics)
             else:
-                variation_dict.append("Freq:=")
-                variation_dict.append(intrinsics)
-                variation_dict.append("Phase:=")
+                variation.append("Freq:=")
+                variation.append(intrinsics)
+                variation.append("Phase:=")
                 if phase:
-                    variation_dict.append(phase)
+                    variation.append(phase)
                 else:
-                    variation_dict.append("0deg")
+                    variation.append("0deg")
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
-        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
+        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
         value = None
         if os.path.exists(file_name) or settings.remote_rpc_session:
             with open_file(file_name, "r") as f:
@@ -2600,20 +2607,27 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             self.logger.error("Error in the type of the grid.")
             return False
+
         if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
-                variation_dict.append("Time:=")
-                variation_dict.append(intrinsics)
+                variation.append("Time:=")
+                variation.append(intrinsics)
             else:
-                variation_dict.append("Freq:=")
-                variation_dict.append(intrinsics)
-                variation_dict.append("Phase:=")
+                variation.append("Freq:=")
+                variation.append(intrinsics)
+                variation.append("Phase:=")
                 if phase:
-                    variation_dict.append(phase)
+                    variation.append(phase)
                 else:
-                    variation_dict.append("0deg")
+                    variation.append("0deg")
 
         self.ofieldsreporter.ExportOnGrid(
             filename,
@@ -2621,7 +2635,7 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop_wu,
             grid_step_wu,
             solution,
-            variation_dict,
+            variation,
             True,
             gridtype,
             grid_center,

@@ -46,8 +46,8 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           python -m venv .pyaedt_test_env
-          export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
-          export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export ANSYSEM_ROOT241=/apps/AnsysEM/v241/Linux64
+          export LD_LIBRARY_PATH=$ANSYSEM_ROOT241/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
@@ -64,8 +64,8 @@ jobs:
           timeout_minutes: 60
           command: |
             export ANS_NODEPCHECK=1
-            export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
-            export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            export ANSYSEM_ROOT241=/apps/AnsysEM/v241/Linux64
+            export LD_LIBRARY_PATH=$ANSYSEM_ROOT241/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .pyaedt_test_env/bin/activate
             pytest --tx 6*popen --durations=50  --dist loadfile -v _unittest
 
@@ -78,8 +78,8 @@ jobs:
           timeout_minutes: 60
           command: |
             export ANS_NODEPCHECK=1
-            export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
-            export LD_LIBRARY_PATH=$ANSYSEM_ROOT232/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            export ANSYSEM_ROOT241=/apps/AnsysEM/v241/Linux64
+            export LD_LIBRARY_PATH=$ANSYSEM_ROOT241/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .pyaedt_test_env/bin/activate
             pytest --tx 2*popen --durations=50  --dist loadfile -v _unittest_solvers
 

@@ -95,6 +95,10 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = None
         self._mesh = None
         self._configurations = Configurations(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
 
     @property
     def configurations(self):
@@ -116,11 +120,13 @@ class FieldAnalysis3D(Analysis, object):
             Modeler object.
         """
         if self._modeler is None:
+            self.logger.reset_timer()
+
             from pyaedt.modeler.modeler2d import Modeler2D
             from pyaedt.modeler.modeler3d import Modeler3D
 
             self._modeler = Modeler2D(self) if self.design_type in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
-
+            self.logger.info_timer("Modeler class has been initialized!")
         return self._modeler
 
     @property
@@ -133,10 +139,14 @@ class FieldAnalysis3D(Analysis, object):
             Mesh object.
         """
         if self._mesh is None:
+            self.logger.reset_timer()
+
             from pyaedt.modules.Mesh import Mesh
             from pyaedt.modules.MeshIcepak import IcepakMesh
 
             self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
+            self.logger.info_timer("Mesh class has been initialized!")
+
         return self._mesh
 
     @property
@@ -149,6 +159,7 @@ class FieldAnalysis3D(Analysis, object):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             elif self.design_type == "Icepak":
@@ -156,6 +167,8 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -1320,7 +1333,7 @@ class FieldAnalysis3D(Analysis, object):
         --------
         Import a GDS file in an HFSS 3D project.
 
-        >>> gds_path = r"C:\temp\gds1.gds"
+        >>> gds_path = r"C:\\temp\\gds1.gds"
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: (110, 5)}

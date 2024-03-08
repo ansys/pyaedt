@@ -23,6 +23,7 @@ DesignXploration
 docstring
 [Dd]ocstrings
 doppler
+dotnet
 EDB
 EDT
 efields

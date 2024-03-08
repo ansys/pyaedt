@@ -15,6 +15,13 @@ from pyaedt import Maxwell3d
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #################################################################################
 # Download .aedt file example
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,11 +58,11 @@ curves_csv_1MHz = list(zip(data[data.columns[0]],
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+# Launch AEDT in graphical mode.
 
 m3d = Maxwell3d(projectname=aedt_file,
                 designname="02_3D eddycurrent_CmXY_for_thermal",
-                specified_version="2023.2",
+                specified_version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=False)
 
