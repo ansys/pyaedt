@@ -99,7 +99,7 @@ doc = [
     "sphinx-autobuild==2024.2.4",
     "sphinx-autodoc-typehints==1.24.0",
     "sphinx-copybutton==0.5.2",
-    "sphinx-gallery==0.14.0",
+    "sphinx-gallery==0.15.0",
     "sphinx-notfound-page==1.0.0",
     "sphinxcontrib-websupport==1.2.4; python_version <= '3.9'",
     "sphinxcontrib-websupport==1.2.5; python_version <= '3.7'",
