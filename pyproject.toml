@@ -53,7 +53,7 @@ tests = [
     "pandas==2.1.1; python_version > '3.9'",
     "pytest==8.0.2",
     "pytest-cov==4.1.0",
-    "pytest-xdist==3.3.1",
+    "pytest-xdist==3.5.0",
     "vtk==9.2.6",
     "pyvista==0.38.0; python_version <= '3.7'",
     "pyvista==0.43.3; python_version > '3.7'",
