@@ -541,6 +541,7 @@ class TestClass:
         unclassified = self.aedtapp.modeler.unclassified_objects
         assert self.aedtapp.modeler.delete(unclassified)
         assert len(self.aedtapp.modeler.unclassified_objects) != unclassified
+        assert len(self.aedtapp.modeler.unclassified_objects) == 0
 
     def test_27_get_object_history_properties(self):
         box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")
