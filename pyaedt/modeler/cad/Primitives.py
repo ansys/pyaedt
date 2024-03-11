@@ -5856,7 +5856,7 @@ class GeometryModeler(Modeler):
             Padding values to apply. If a list is not provided, the same
             value is applied to all padding directions. If a list of floats
             or strings is provided, the values are
-            interpret as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
         padding_types : str or list of str, optional
             Padding definition. The default is ``"Percentage Offset"``.
             Options are ``"Absolute Offset"``,
