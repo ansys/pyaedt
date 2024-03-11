@@ -5865,7 +5865,7 @@ class GeometryModeler(Modeler):
             different padding types can be provided for different
            directions.
         parts : list of str
-            List of names of parts to include in the subregion.
+            One or more names of the parts to include in the subregion.
         region_name : str, optional
             Region name. The default is ``None``, in which case the name
             is generated automatically.
