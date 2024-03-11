@@ -269,7 +269,7 @@ class MeshRegion(object):
         EnableMLM : bool
             Whether to enable MLM (multi-level mesh. The default is ``True``.
         EnforceMLMType : str
-            Type of MLM to use. The default is ``"3D"``. Options are ``"2D"`` and ``"3D"``. 
+            Type of MLM to use. The default is ``"3D"``. Options are ``"2D"`` and ``"3D"``.
         MaxLevels : str
             Maximum number of refinement levels for MLM. The default is ``"0"``.
         BufferLayers : str
@@ -285,7 +285,7 @@ class MeshRegion(object):
             If ``EnforceMLMType="2D"``, the 2D plane mesh that refinement is
             constrained in. The default is ``"2DMLM_None"``, which means
             ``Auto``. Options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
-            ``"2DMLM_XZ"``, and ``"2DMLM_XY"``. 
+            ``"2DMLM_XZ"``, and ``"2DMLM_XY"``.
         MinGapX : str
             Minimum gap size along the x axis. The default is ``"1"``.
         MinGapY : str
