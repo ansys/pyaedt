@@ -5003,7 +5003,7 @@ class FieldSummary:
         entity : str
             Type of entity to perform the calculation on. Options are
              ``"Boundary"``, ``"Monitor``", and ``"Object"``.
-             (``"Monitor"`` is available in version 2024 R1 and later.)
+             (``"Monitor"`` is available in AEDT 2024 R1 and later.)
         geometry : str
             Location to perform the calculation on. Options are
             ``"Surface"`` and ``"Volume"``.
