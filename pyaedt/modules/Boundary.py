@@ -21,6 +21,11 @@ from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
 from pyaedt.modules.CircuitTemplates import SourceKeys
 
+try:
+    import xmltodict
+except ImportError:
+    xmltodict = None
+
 
 class BoundaryProps(OrderedDict):
     """AEDT Boundary Component Internal Parameters."""
@@ -3579,6 +3584,7 @@ class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
     def __init__(self, app, name=None, props=None, create=False):
+        self._app = app
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -3616,6 +3622,130 @@ class NetworkObject(BoundaryObject):
             else:
                 new_list.append(item)
         return new_list
+
+    @pyaedt_function_handler
+    def export_jep30(self, filename):
+        if xmltodict is None:
+            self._app.logger.error("Please install xmltodict package.")
+            return False
+        faces = []
+        volumes = []
+        face_names = list(self.face_nodes.keys())
+        for face_node in self.face_nodes.values():
+            f_id = face_node.props["FaceID"]
+            faces.append(self._app.modeler.get_face_by_id(f_id))
+            obj = self._app.modeler[self._app.oeditor.GetObjectNameByFaceID(f_id)]
+            if not obj.solve_inside:
+                volumes.append(obj)
+
+        nodes_array = []
+        for i in range(len(faces)):
+            x = [i.position[0] for i in faces[i].vertices]
+            y = [i.position[1] for i in faces[i].vertices]
+            z = [i.position[2] for i in faces[i].vertices]
+            xmin, ymin, zmin = min(x), min(y), min(z)
+            dD = [max(x) - xmin, max(y) - ymin, max(z) - zmin]
+            dD.remove(0)
+            planes_array = ["yzPlane", "xzPlane", "xyPlane"]
+            try:
+                direction = faces[i].normal.index(1)
+            except ValueError:
+                try:
+                    direction = faces[i].normal.index(-1)
+                except KeyError:
+                    self._app.logger.error("Faces must be aligned with X,Y or Z axis.")
+                    return False
+            if direction is None:
+                self._app.logger.error("Face does not have a normal or pyAEDT is unable to compute it.")
+                return False
+            plane = planes_array[direction]
+            nodes_array.append(
+                {
+                    "Name": face_names[i],
+                    "NodeFace-Array": {
+                        "RectangularNodeFace": {
+                            "Position": {
+                                "x": xmin,
+                                "y": ymin,
+                                "z": zmin,
+                            },
+                            plane: {
+                                "d" + plane[0]: dD[0],
+                                "d" + plane[1]: dD[1],
+                            },
+                        }
+                    },
+                }
+            )
+        cubes = []
+        for i, cube in enumerate(volumes):
+            cubes.append(
+                {
+                    "CuboidalNodeVolume": {
+                        "Position": {
+                            "x": cube.bounding_box[0],
+                            "y": cube.bounding_box[1],
+                            "z": cube.bounding_box[2],
+                        },
+                        "Size": {
+                            "dx": cube.bounding_dimension[0],
+                            "dy": cube.bounding_dimension[1],
+                            "dz": cube.bounding_dimension[2],
+                        },
+                    }
+                }
+            )
+        nodes_array[0].update({"NodeVolume-Array": cubes})
+        resistances_array = []
+        for r in self.r_links.values():
+            if r.props[3] != "R":
+                self._app.logger.error("Only thermal resistances are supported.")
+                return False
+            resistances_array.append(
+                {
+                    "ThermalResistance": decompose_variable_value(r.props[-1])[0],
+                    "FromNode": r.props[0],
+                    "ToNode": r.props[1],
+                }
+            )
+        jedec_dictionary = {
+            "ThermalSection": {
+                "ThermalFamily-Array": {
+                    "ThermalFamily": {
+                        "ID": self.name,
+                        "ThermalData": {
+                            "UnitsForThermalData": {
+                                "DimensionUOM": "m",
+                                "NodalMassUOM": "kg",
+                                "PowerUOM": "W",
+                                "SpecificHeatCapacityUOM": "J/kg-K",
+                                "ThermalCapacitanceUOM": "J/K",
+                                "ThermalResistanceUOM": "K/W",
+                                "TemperatureUOM": "K",
+                            },
+                            "NetworkModels": {
+                                "DELPHIModel": {
+                                    "Name": self.name,
+                                    "PackageBodyCenterOffset-to-Origin": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "z": 0,
+                                    },
+                                    "CoreNetwork": {
+                                        "Node-Array": {"Node": nodes_array},
+                                        "ThermalResistance-Array": {"ThermalResistance": resistances_array},
+                                        "ThermalCapacitance-Array": {},
+                                    },
+                                }
+                            },
+                        },
+                    }
+                }
+            }
+        }
+        with open(filename, "w") as file:
+            file.write(xmltodict.unparse(jedec_dictionary))
+        return True
 
     @pyaedt_function_handler
     def create(self):
