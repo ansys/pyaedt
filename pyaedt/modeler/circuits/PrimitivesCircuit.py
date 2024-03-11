@@ -730,7 +730,7 @@ class CircuitComponents(object):
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
-
+        angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])

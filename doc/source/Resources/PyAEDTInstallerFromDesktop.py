@@ -139,7 +139,7 @@ def install_pyaedt():
                 zip_ref.extractall(unzipped_path)
 
             run_command(
-                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe, unzipped_path))
+                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe, unzipped_path))
             run_command(
                 '"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
 
