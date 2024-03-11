@@ -5063,7 +5063,7 @@ class FieldSummary:
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case nominal variation is used.
         intrinsic_value : str, optional
-            Intrinsic values to use for the computation. The default is ``""``, 
+            Intrinsic values to use for the computation. The default is ``""``,
             suitable when no frequency needs to be selected.
         pandas_output : bool, optional
             Whether to use pandas output. The default is ``False``, in
@@ -5109,7 +5109,7 @@ class FieldSummary:
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case the nominal variation is used.
         intrinsic_value : str, optional
-            Intrinsic values to use for the computation. The default is ``""``, 
+            Intrinsic values to use for the computation. The default is ``""``,
             suitable when no frequency needs to be selected.
 
         Returns
