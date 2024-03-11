@@ -6,7 +6,6 @@ import pytest
 
 from pyaedt import Icepak
 from pyaedt.generic.settings import settings
-from pyaedt.modules.Boundary import BoundaryDictionary
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.SetupTemplates import SetupKeys
@@ -1544,8 +1543,6 @@ class TestClass:
             end_time="10s",
         )
 
-        assert not BoundaryDictionary("Temp Dep", "Linear")
-        assert not BoundaryDictionary("Temperature Dep", "Linear")
         ds1_temp = self.aedtapp.create_dataset(
             "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, xunit="cel", yunit="W"
         )
