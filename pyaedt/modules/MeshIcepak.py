@@ -244,36 +244,36 @@ class MeshRegion(object):
         name : str
             Name of the mesh region.
         UserSpecifiedSettings : bool
-            Whether to use manual settings. Default is ``False``.
+            Whether to use manual settings. The default is ``False``.
         ComputeGap : bool
-            Whether to enable minimum gap override. Default is ``True``.
+            Whether to enable minimum gap override. The default is ``True``.
         Level : int
-            Automatic mesh detail level. Default is 3.
+            Automatic mesh detail level. The default is ``3``.
         MaxElementSizeX : str
-            Maximum element size along the X-axis. Default is 1/20 of the region
-            X-dimension.
+            Maximum element size along the x axis. The default is 1/20 of the region's
+            x dimension.
         MaxElementSizeY : str
-            Maximum element size along the Y-axis. Default is 1/20 of the region
-            Y-dimension.
+            Maximum element size along the y axis. The default is 1/20 of the region's
+            y dimension.
         MaxElementSizeZ : str
-            Maximum element size along the Z-axis. Default is 1/20 of the region
-            Z-dimension.
+            Maximum element size along the z axis. The default is 1/20 of the region's
+             z dimension.
         MinElementsInGap : str
-            Minimum number of elements in gaps between adjacent objects. Default is "3".
+            Minimum number of elements in gaps between adjacent objects. The default is ``3``.
         MinElementsOnEdge : str
-            Minimum number of elements on each edge of each object. Default is "2".
+            Minimum number of elements on each edge of each object. The default is ``2``.
         MaxSizeRatio : str
-            Maximum ratio of the sizes of adjacent elements. Default is "2".
+            Maximum ratio of the sizes of adjacent elements. The default is ``2``.
         NoOGrids : bool
-            Whether objects will have O-grids around them. Default is ``False``.
+            Whether objects have O-grids around them. The default is ``False``.
         EnableMLM : bool
-            Enable Multi-Level Mesh (MLM). Default is ``True``.
+            Whether to enable MLM (multi-level mesh. The default is ``True``.
         EnforceMLMType : str
-            Type of MLM to use, ``"2D"`` or ``"3D"``. Default is ``"3D"``.
+            Type of MLM to use. The default is ``"3D"``. Options are ``"2D"`` and ``"3D"``. 
         MaxLevels : str
-            Maximum number of refinement level for Multi-Level Mesh. Default is ``"0"``.
+            Maximum number of refinement levels for MLM. The default is ``"0"``.
         BufferLayers : str
-            Number of buffer layers between the refinement level. The default is ``"0"``.
+            Number of buffer layers between a refinement level. The default is ``"0"``.
         UniformMeshParametersType : str
             Whether to create a uniform mesh with the same mesh size in all
             coordinate directions (``"Average"``) or different spacing in each
@@ -282,10 +282,10 @@ class MeshRegion(object):
             Whether to disable the vertices projection step used to obtain the conformal mesh.
             The default is ``False``.
         DMLMType : str
-            If ``EnforceMLMType`` is ``"2D"``, the 2D plane mesh refinement is
-            constrained in. Options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
-            ``"2DMLM_XZ"`` or ``"2DMLM_XY"``. The default is ``"2DMLM_None"``,
-            which means ``Auto``.
+            If ``EnforceMLMType="2D"``, the 2D plane mesh that refinement is
+            constrained in. The default is ``"2DMLM_None"``, which means
+            ``Auto``. Options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
+            ``"2DMLM_XZ"``, and ``"2DMLM_XY"``. 
         MinGapX : str
             Minimum gap size along the x axis. The default is ``"1"``.
         MinGapY : str
@@ -295,10 +295,11 @@ class MeshRegion(object):
         Objects : list
             Objects to apply meshing settings to.
         SubModels : bool
-            Submodels to apply meshing settings to.
-            The default is ``False``, which means the ``Objects`` attribute is used.
+            Whether to apply meshing settings to submodels.
+            The default is ``False``, which means meshing settings are applied to
+            the ``Objects`` attribute.
         Enable : bool
-            Whether to enable the mesh region. The Default is ``True``.
+            Whether to enable the mesh region. The default is ``True``.
         ProximitySizeFunction : bool
             Whether to use the proximity-based size function. The default
             is ``True``.
