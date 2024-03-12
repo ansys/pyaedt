@@ -122,7 +122,6 @@ extensions = [
     "sphinx_design",
     "sphinx_jinja",
     "recommonmark",
-    "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
     "numpydoc",
