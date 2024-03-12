@@ -100,7 +100,7 @@ doc = [
     "Sphinx==7.1.2; python_version <= '3.9'",
     "Sphinx==7.2.6; python_version >= '3.9'",
     "sphinx-autobuild==2024.2.4",
-    "sphinx-autodoc-typehints==1.24.0",
+    "sphinx-autodoc-typehints==2.0.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.14.0",
     "sphinx-notfound-page==1.0.0",
