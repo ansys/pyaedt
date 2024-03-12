@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?= -j auto --color
+SPHINXOPTS    ?= -j auto --color -w build_errors.txt
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = _build
@@ -43,16 +43,19 @@ html-noexamples:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
+html:
+	@echo "Building HTML pages with running examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="1"
+	@# FIXME: currently linkcheck freezes and further investigation must be performed
+	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
+
 # Build PDF pages
 pdf:
 	@echo "Building PDF pages."
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
-
-# Build documentation as it is done in CI/CD
-cibuild: clean
-	mkdir source/examples -p
-	echo $'Examples\n========' > doc/source/examples/index.rst
-	$(MAKE) html-noexamples
-	# python print_errors.py
+	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
