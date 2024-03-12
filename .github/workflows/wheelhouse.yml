@@ -47,7 +47,7 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          pip install .[all]
+          pip install .[all,dotnet]
           pip install jupyterlab
 
 
@@ -82,7 +82,7 @@ jobs:
           retention-days: 7
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         with:
           generate_release_notes: true

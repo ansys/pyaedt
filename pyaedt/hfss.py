@@ -5646,7 +5646,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> from pyaedt import Hfss
         >>> from pyaedt.generic.general_methods import read_configuration_file
         >>> hfss_app = Hfss()
-        >>> dict_in = read_configuration_file(path\to\json_file)
+        >>> dict_in = read_configuration_file(r"path\\to\\json_file")
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
         self.hybrid = True
@@ -5756,14 +5756,15 @@ class Hfss(FieldAnalysis3D, object):
             col.append(k)
             col.append(str(v).replace(",", " "))
         args.append(col)
+
         if self.omodelsetup.IsArrayDefined():
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            self.save_project()
             self.omodelsetup.EditArray(args)
-            if settings.aedt_version < "2024.1":
-                self.save_project()
         else:
             self.omodelsetup.AssignArray(args)
-            if settings.aedt_version < "2024.1":
-                self.save_project()
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            self.save_project()
             self.component_array[array_name] = ComponentArray(self, array_name)
         self.component_array_names = [array_name]
         return self.component_array[array_name]

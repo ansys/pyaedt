@@ -829,18 +829,27 @@ class GeometryModeler(Modeler):
         """
         # TODO: Need to improve documentation for this method.
         added_objects = []
-
+        objs_ids = {}
+        if not self._object_names_to_ids:
+            for obj in self._all_object_names:
+                try:
+                    objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pass
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
-                self._create_object(obj_name)
+                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
             if obj_name not in self._object_names_to_ids:
-                self._create_object(obj_name)
+                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.point_names:
             if obj_name not in self.points.keys():
-                self._create_object(obj_name)
+                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         return added_objects
 
@@ -4671,7 +4680,7 @@ class GeometryModeler(Modeler):
         --------
         >>> from pyaedt import Icepak
         >>> aedtapp = Icepak()
-        >>> aedtapp.modeler.import_primitives_from_file(r'C:\temp\primitives.json')
+        >>> aedtapp.modeler.import_primitives_from_file(r'C:\\temp\\primitives.json')
         """
         primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
         primitive_names = primitives_builder.create()
@@ -6481,7 +6490,11 @@ class GeometryModeler(Modeler):
             objects = self.object_names
         objects = self._modeler.convert_to_selections(objects, return_list=True)
         for el in objects:
-            if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
+            if (
+                el not in self.object_names
+                and not list(self.oeditor.GetObjectsInGroup(el))
+                and not self.oeditor.GetObjectsInGroup("Unclassified")
+            ):
                 objects.remove(el)
         if not objects:
             self.logger.warning("No objects to delete")

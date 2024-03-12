@@ -12,6 +12,13 @@ Q3D Extractor and run a simulation.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +45,7 @@ pyaedt.settings.enable_debug_internal_methods_logger = False
 # This example uses SI units.
 
 q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
-               specified_version="2023.2",
+               specified_version=aedt_version,
                non_graphical=non_graphical,
                new_desktop_session=True)
 

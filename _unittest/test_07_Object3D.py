@@ -537,6 +537,12 @@ class TestClass:
         self.aedtapp.modeler.oeditor.Intersect(vArg1, vArg2)
         assert box1 in self.aedtapp.modeler.unclassified_objects
 
+    def test_26a_delete_unclassified_object(self):
+        unclassified = self.aedtapp.modeler.unclassified_objects
+        assert self.aedtapp.modeler.delete(unclassified)
+        assert len(self.aedtapp.modeler.unclassified_objects) != unclassified
+        assert len(self.aedtapp.modeler.unclassified_objects) == 0
+
     def test_27_get_object_history_properties(self):
         box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")
         cylinder = self.aedtapp.modeler.create_cylinder(
