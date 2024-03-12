@@ -211,7 +211,7 @@ class SpiSim:
         cfg_dict["THRUS4P"] = "" if "THRUS4P" not in cfg_dict else cfg_dict["THRUS4P"]
 
         if specify_through_ports:
-            if isinstance(specify_through_ports[0], int):
+            if isinstance(specify_through_ports[0], (str, int)):
                 thrus4p = ",".join([str(i) for i in specify_through_ports])
             else:  # pragma: no cover
                 self.logger.error("Port not found.")

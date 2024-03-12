@@ -13,11 +13,17 @@ and set up a doppler analysis.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 # Launch AEDT
 # ~~~~~~~~~~~
 # Launch AEDT.
 
-aedt_version = "2023.2"
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = pyaedt.downloads.download_multiparts()

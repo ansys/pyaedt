@@ -42,7 +42,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
-          pip install .[all]
+          pip install .[all,dotnet]
           pip install jupyterlab
 
       - name: Verify pyaedt can be imported
@@ -81,7 +81,7 @@ jobs:
           retention-days: 7
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         with:
           generate_release_notes: true

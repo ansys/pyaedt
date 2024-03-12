@@ -14,6 +14,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +36,7 @@ non_graphical = False
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
 cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                     specified_version="2023.2",
+                     specified_version=aedt_version,
                      new_desktop_session=True,
                      non_graphical=non_graphical
                      )

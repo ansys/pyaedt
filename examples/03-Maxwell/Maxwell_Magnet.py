@@ -14,6 +14,13 @@ from pyaedt import generate_unique_project_name
 import os
 import tempfile
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###########################################################################################
 # Create temporary directory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,7 +42,7 @@ non_graphical = False
 # Launch AEDT in graphical mode.
 
 m3d = Maxwell3d(projectname=generate_unique_project_name(),
-                specified_version="2023.2",
+                specified_version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 

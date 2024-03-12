@@ -291,7 +291,7 @@ class TestClass:
         assert len(data2.data_magnitude()) > 0
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
-        assert data3.units_sweeps["Spectrum"] == "GHz"
+        assert data3.units_sweeps["Spectrum"] == circuit_test.odesktop.GetDefaultUnit("Frequency")
         assert len(data3.data_real()) > 0
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
@@ -320,7 +320,6 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
-        pass
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_18_diff_plot(self, diff_test):
@@ -898,7 +897,7 @@ class TestClass:
             "Heat_Flow_Rate",
             scalar_function="Integrate",
             solution=None,
-            variation_dict=["power_block:=", ["0.25W"], "power_source:=", ["0.075W"]],
+            variation_dict={"power_block": "0.25W", "power_source": "0.075W"},
             isvector=False,
             intrinsics=None,
             phase=None,
@@ -910,7 +909,7 @@ class TestClass:
             "Heat_Flow_Rate",
             scalar_function="Integrate",
             solution=None,
-            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
             isvector=False,
             intrinsics=None,
             phase=None,
@@ -922,7 +921,7 @@ class TestClass:
             "Heat_Flow_Rate",
             scalar_function="Integrate",
             solution=None,
-            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
             isvector=False,
             intrinsics=None,
             phase=None,
@@ -934,7 +933,7 @@ class TestClass:
             "Temperature",
             scalar_function="Maximum",
             solution=None,
-            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
             isvector=False,
             intrinsics=None,
             phase=None,
@@ -946,7 +945,7 @@ class TestClass:
             "Temperature",
             scalar_function="Maximum",
             solution=None,
-            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
             isvector=False,
             intrinsics=None,
             phase=None,
