@@ -143,7 +143,7 @@ FLOATING_TAPS,B_FLOAT_RSS_MAX,B_float_RSS_MAX,floating DFE tap start for RSS flo
 ,N_F,N_f,UI span for floating taps. replaced by N_bmax
 ,N_TAIL_START,N_tail_start,start range for max RSS limit for DFE taps
 RX_FFE,CURSOR_GAIN,,only FFE and not supported
-,FFE_BACKOFF,,see if better zero foreced solution is better by backing off the number specified FFE taps one at at time
+,FFE_BACKOFF,,see if better zero forced solution is better by backing off the number specified FFE taps one at at time
 ,FFE_MAIN_CUR_MIN,,Rx FFE main cursor minimum
 ,FFE_POST_TAP_LEN,ffe_post_tap_len,Rx FFE post cursor tap length
 ,FFE_POST_TAP1_MAX,,Rx FFE post cursor tap1 limit
