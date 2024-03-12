@@ -1669,61 +1669,92 @@ class Desktop(object):
         return list(available_toolkits.keys())
 
     @pyaedt_function_handler()
-    def add_custom_toolkit(self, toolkit_name):  # pragma: no cover
+    def add_custom_toolkit(self, toolkit_name, wheel_toolkit=None):  # pragma: no cover
         """Add toolkit to AEDT Automation Tab.
 
         Parameters
         ----------
         toolkit_name : str
             Name of toolkit to add.
+        wheel_toolkit : str
+            Wheelhouse path.
 
         Returns
         -------
         bool
         """
+        from pyaedt import is_windows
         from pyaedt.misc.install_extra_toolkits import available_toolkits
 
         toolkit = available_toolkits[toolkit_name]
         toolkit_name = toolkit_name.replace("_", "")
 
-        def install(package_path, package_name=None):
-            executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+        # Set Python version based on AEDT version
+        python_version = "3.10" if self.aedt_version_id > "2023.1" else "3.7"
 
-            commands = []
-            if package_path.startswith("git") and package_name:
-                commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+        base_venv = sys.executable
 
-            commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
+        def run_command(command):
+            if is_windows:
+                command = '"{}"'.format(command)
+            ret_code = os.system(command)
+            return ret_code
 
-            if self.aedt_version_id == "2023.1" and is_windows and "AnsysEM" in sys.base_prefix:
-                commands.append([executable, "-m", "pip", "uninstall", "--yes", "pywin32"])
+        if is_windows:
+            venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(toolkit_name))
+            python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
+            pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
+        else:
+            venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(toolkit_name))
+            python_exe = os.path.join(venv_dir, "bin", "python")
+            pip_exe = os.path.join(venv_dir, "bin", "pip")
+            edt_root = os.path.normpath(self.odesktop.GetExeDir())
+            os.environ["ANSYSEM_ROOT{}".format(args.version)] = edt_root
+            ld_library_path_dirs_to_add = [
+                "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
+                    edt_root, python_version.replace(".", "_")
+                ),
+                "{}/common/mono/Linux64/lib64".format(edt_root),
+                "{}".format(edt_root),
+            ]
+            if args.version < "232":
+                ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
+            os.environ["LD_LIBRARY_PATH"] = (
+                ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+            )
+        if not os.path.exists(venv_dir):
+            run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
+            self.logger.info("Virtual environment created {}.".format(toolkit_name))
 
-            for command in commands:
-                if is_linux:
-                    p = subprocess.Popen(command)
-                else:
-                    p = subprocess.Popen(" ".join(command))
-                p.wait()
+            # Install the specified package
+            run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
+            run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
+        else:
+            import site
 
-        install(toolkit["pip"], toolkit.get("package_name", None))
-        import site
+            packages = site.getsitepackages()
+            full_path = None
+            for pkg in packages:
+                if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
+                    full_path = os.path.join(pkg, toolkit["toolkit_script"])
+                    break
+            if full_path:
+                # Update toolkit
+                run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
+            else:
+                # Install toolkit
+                run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
 
-        packages = site.getsitepackages()
-        full_path = None
-        for pkg in packages:
-            if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
-                full_path = os.path.join(pkg, toolkit["toolkit_script"])
-                break
-        if not full_path:
-            raise FileNotFoundError("Error finding the package.")
-        self.add_script_to_menu(
-            toolkit_name=toolkit_name,
-            script_path=full_path,
-            script_image=toolkit,
-            product=toolkit["installation_path"],
-            copy_to_personal_lib=False,
-            add_pyaedt_desktop_init=False,
-        )
+        # Install toolkit inside AEDT
+
+        # self.add_script_to_menu(
+        #     toolkit_name=toolkit_name,
+        #     script_path=full_path,
+        #     script_image=toolkit,
+        #     product=toolkit["installation_path"],
+        #     copy_to_personal_lib=False,
+        #     add_pyaedt_desktop_init=False,
+        # )
 
     @pyaedt_function_handler()
     def add_script_to_menu(

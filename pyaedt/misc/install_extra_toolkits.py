@@ -15,15 +15,8 @@ available_toolkits = {
         "installation_path": "HFSS",
         "package_name": "ansys.aedt.toolkits.antenna",
     },
-    "ChokeWizard": {
-        "pip": "git+https://github.com/ansys/pyaedt-choke-toolkit.git",
-        "image": "pyansys.png",
-        "toolkit_script": "ansys/aedt/toolkits/choke/choke_toolkit.py",
-        "installation_path": "Project",
-        "package_name": "ansys.aedt.toolkits.choke",
-    },
     "MagnetSegmentationWizard": {
-        "pip": "git+https://github.com/ansys/magnet-segmentation-toolkit.git",
+        "pip": "ansys-magnet-segmentation-toolkit",
         "image": "pyansys.png",
         "toolkit_script": "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py",
         "installation_path": "Maxwell3d",
