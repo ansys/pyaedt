@@ -82,29 +82,23 @@ jobs:
           echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      - name: Install OS package
-        run: |
-          sudo apt install graphviz
-
       # TODO: Update this step once pyaedt-examples is ready
       - name: Build documentation without examples
         run: |
           make -C doc clean
-          mkdir doc/source/examples -p
-          echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html-noexamples
 
-      # # Verify that sphinx generates no warnings
-      # - name: Check for warnings
-      #   run: |
-      #     python doc/print_errors.py
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
 
-      # - name: Upload HTML documentation without examples artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: documentation-no-examples-html
-      #     path: doc/_build/html
-      #     retention-days: 7
+      - name: Upload HTML documentation without examples artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-no-examples-html
+          path: doc/_build/html
+          retention-days: 7
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
