@@ -542,7 +542,7 @@ class TestClass:
         com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
         thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
         cfg = local_scratch.copyfile(os.path.join(com_example_file_folder, "config_com_ieee8023_93a=100GBASE-KR4.xls"))
-        report_dir = os.path.join(local_scratch.path, "custom")
+        report_dir = os.path.join(local_scratch.path, "custom1")
         os.mkdir(report_dir)
 
         spisim = SpiSim(thru_s4p)
