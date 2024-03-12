@@ -71,56 +71,20 @@ touchstone_path = h3d.export_touchstone()
 # and generate frequency domain reports.
 
 cir = pyaedt.Circuit(projectname=h3d.project_name, designname="Touchstone")
+status, diff_pairs, comm_pairs = cir.create_lna_schematic_from_snp(touchstone=touchstone_path,
+                                                                   start_frequency=0,
+                                                                   stop_frequency=70,
+                                                                   auto_assign_diff_pairs=True,
+                                                                   separation=".",
+                                                                   pattern=["component", "pin", "net"],
+                                                                   analyze=True
+                                                                   )
 
-###############################################################################
-# Add dynamic link object
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# Add the layout project as a dynamic link object
-# so that if modifications are made, the circuit
-# is always linked to the updated version of the results.
-
-sub = cir.modeler.components.add_subcircuit_3dlayout("main_cutout")
-
-###############################################################################
-# Add ports and differential pairs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Add a port for each layout port and rename it for circuit compatibility.
-# Then, create differential pairs, which are useful for generating differential S-parameters.
-
-ports = []
-for pin in sub.pins:
-    ports.append(cir.modeler.components.create_interface_port(name=pin.name.replace(".", "_"), location=pin.location))
-
-for pin in ports:
-    pin_name = pin.name.split("_")
-    if pin_name[-1] == "P":
-        component = pin_name[0]
-        suffix = pin_name[-2] if "X" in pin_name[-2] else pin_name[-3]
-        for neg_pin in ports:
-            neg_pin_name = neg_pin.name.split("_")
-            suffix_neg = neg_pin_name[-2] if "X" in neg_pin_name[-2] else neg_pin_name[-3]
-            if neg_pin_name[0] == component and suffix_neg == suffix and neg_pin.name[-1] == "N":
-                cir.set_differential_pair(
-                    positive_terminal=pin.name,
-                    negative_terminal=neg_pin.name,
-                    common_name=f"COMMON_{component}_{suffix}",
-                    diff_name=f"{component}_{suffix}",
-                    common_ref_z=25,
-                    diff_ref_z=100,
-                    active=True,
-                )
-                break
-
-###############################################################################
-# Create setup, analyze, and plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a setup and then analyze and plot the data.
-
-setup1 = cir.create_setup()
-setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 70GHz 1001"
-
-cir.analyze()
-
+insertion = cir.get_all_insertion_loss_list(trlist=diff_pairs, reclist=diff_pairs, tx_prefix="X1", rx_prefix="U1", math_formula="dB",
+                                            net_list=["RX0", "RX1", "RX2", "RX3"])
+return_diff = cir.get_all_return_loss_list(diff_pairs, "X1", math_formula="dB", net_list=["RX0", "RX1", "RX2", "RX3"])
+return_comm = cir.get_all_return_loss_list(comm_pairs, "COMMON_X1", math_formula="dB",
+                                           net_list=["RX0", "RX1", "RX2", "RX3"])
 ###############################################################################
 # Create TDR project
 # ~~~~~~~~~~~~~~~~~~
@@ -128,89 +92,42 @@ cir.analyze()
 # the TDR measurement on a differential pair.
 # The original circuit schematic is duplicated and modified to achieve this target.
 
-cir.duplicate_design("TDR")
-cir.set_active_design("TDR")
-
-###############################################################################
-# Replace ports with TDR probe
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Delete the ports on the selected differential pair.
-# Place and connect a differential TDR probe to the pins of the layout object.
-
-cir.modeler.components.delete_component("X1_A2_PCIe_Gen4_RX0_P")
-cir.modeler.components.delete_component("IPort@X1_A3_PCIe_Gen4_RX0_N")
-sub = cir.modeler.components.get_component("main_cutout1")
-
-dif_end = cir.modeler.components.components_catalog["TDR_Differential_Ended"]
-
-new_tdr_comp = dif_end.place("Tdr_probe", [-0.05, 0.01], angle=-90)
-p_pin = [i for i in sub.pins if i.name.replace(".", "_") == "X1_A2_PCIe_Gen4_RX0_P"][0]
-n_pin = [i for i in sub.pins if i.name.replace(".", "_") == "X1_A3_PCIe_Gen4_RX0_N"][0]
-new_tdr_comp.pins[0].connect_to_component(p_pin)
-new_tdr_comp.pins[1].connect_to_component(n_pin)
-new_tdr_comp.parameters["Pulse_repetition"] = "2ms"
-new_tdr_comp.parameters["Rise_time"] = "35ps"
-
-###############################################################################
-# Create setup, analyze, and plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# First, delete the LNA setup. Next, create a
-# transient setup and then analyze and plot the data.
-
-cir.delete_setup(cir.setups[0].name)
-setup2 = cir.create_setup(setupname="MyTransient", setuptype=cir.SETUPS.NexximTransient)
-setup2.props["TransientData"] = ["0.01ns", "10ns"]
-cir.oanalysis.AddAnalysisOptions(["NAME:DataBlock", "DataBlockID:=", 8, "Name:=", "Nexxim Options",
-                                  ["NAME:ModifiedOptions", "ts_convolution:=", True, ]])
-setup2.props["OptionName"] = "Nexxim Options"
-tdr_probe_name = f'O(A{new_tdr_comp.id}:zdiff)'
-cir.analyze()
+result, tdr_probe_name = cir.create_tdr_schematic_from_snp(touchstone=touchstone_path,
+                                                   probe_p_pins=["X1.A2.PCIe_Gen4_RX0_P"],
+                                                   probe_ref_pins=["X1.A3.PCIe_Gen4_RX0_N"],
+                                                   termination_pins=["U1.AP26.PCIe_Gen4_RX0_P",
+                                                                     "U1.AN26.PCIe_Gen4_RX0_N"],
+                                                   differential=True,
+                                                   design_name="TDR",
+                                                   rise_time=35,
+                                                   use_convolution=True,
+                                                   analyze=True,
+                                                   )
 
 ###############################################################################
 # Create AMI project
 # ~~~~~~~~~~~~~~~~~~
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
+result, eye_curve = cir.create_ami_schematic_from_snp(touchstone=touchstone_path,
+                                                      ibis_ami=os.path.join(projectdir, "models", "pcieg5_32gt.ibs"),
+                                                      component_name="Spec_Model",
+                                                      tx_buffer_name="1p",
+                                                      rx_buffer_name="2p",
+                                                      use_ibis_buffer=False,
+                                                      differential=True,
+                                                      tx_pins=["U1.AM25.PCIe_Gen4_TX0_CAP_P"],
+                                                      tx_refs=["U1.AL25.PCIe_Gen4_TX0_CAP_N"],
+                                                      rx_pins=["X1.B2.PCIe_Gen4_TX0_P"],
+                                                      rx_refs=["X1.B3.PCIe_Gen4_TX0_N"],
+                                                      bit_pattern="random_bit_count=2.5e3 random_seed=1",
+                                                      unit_interval="31.25ps",
+                                                      use_convolution=True,
+                                                      analyze=True,
+                                                      create_new_schematic=True,
+                                                      design_name="AMI",
+                                                      )
 
-cir = pyaedt.Circuit(projectname=h3d.project_name, designname="AMI")
-sub = cir.modeler.components.create_touchstone_component(touchstone_path)
-
-###############################################################################
-# Replace ports with Ibis models
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Place and connect differential TX and RX Ibis models to the pins of the layout object.
-
-p_pin1 = [i for i in sub.pins if i.name.replace(".", "_") == "U1_AM25_PCIe_Gen4_TX0_CAP_P"][0]
-n_pin1 = [i for i in sub.pins if i.name.replace(".", "_") == "U1_AL25_PCIe_Gen4_TX0_CAP_N"][0]
-p_pin2 = [i for i in sub.pins if i.name.replace(".", "_") == "X1_B2_PCIe_Gen4_TX0_P"][0]
-n_pin2 = [i for i in sub.pins if i.name.replace(".", "_") == "X1_B3_PCIe_Gen4_TX0_N"][0]
-
-ibis = cir.get_ibis_model_from_file(os.path.join(projectdir, "models", "pcieg5_32gt.ibs"), is_ami=True)
-tx = ibis.components["Spec_Model"].pins["1p_Spec_Model_pcieg5_32gt_diff"].insert(-0.05, 0.01)
-rx = ibis.components["Spec_Model"].pins["2p_Spec_Model_pcieg5_32gt_diff"].insert(0.05, 0.01, 180)
-
-tx_eye_name = tx.parameters["probe_name"]
-
-tx.pins[0].connect_to_component(p_pin1)
-tx.pins[1].connect_to_component(n_pin1)
-rx.pins[0].connect_to_component(p_pin2)
-rx.pins[1].connect_to_component(n_pin2)
-tx.parameters["UIorBPSValue"] = "31.25ps"
-tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
-
-###############################################################################
-# Create setup, analyze, and plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# First delete the LNA setup. Next, create a
-# transient setup and then analyze and plot the data.
-
-setup_ami = cir.create_setup("AMI", "NexximAMI")
-cir.oanalysis.AddAnalysisOptions(["NAME:DataBlock", "DataBlockID:=", 8, "Name:=", "Nexxim Options",
-                                  ["NAME:ModifiedOptions", "ts_convolution:=", True, ]])
-setup_ami.props["OptionName"] = "Nexxim Options"
-
-setup_ami.props["DataBlockSize"] = 1000
-setup_ami.analyze()
 cir.save_project()
 
 ###############################################################################
@@ -264,17 +181,18 @@ v.specs_folder = os.path.join(workdir, 'readme_pictures')
 # Change the trace name with projects and users.
 # Reuse the compliance template and update traces accordingly.
 
-v.reports["insertion losses"].traces = [
-    "dB(S(U1_RX0,X1_RX0))",
-    "dB(S(U1_RX1,X1_RX1))",
-    "dB(S(U1_RX3,X1_RX3))"
-]
 
-v.reports["eye1"].traces = [tx_eye_name]
-v.reports["eye3"].traces = [tx_eye_name]
-v.reports["tdr from circuit"].traces = [tdr_probe_name]
+v.reports["insertion losses"].traces = insertion
+
+v.reports["return losses"].traces = return_diff
+
+v.reports["common mode return losses"].traces = return_comm
+
+v.reports["eye1"].traces = [eye_curve[0]]
+v.reports["eye3"].traces = [eye_curve[0]]
+v.reports["tdr from circuit"].traces = tdr_probe_name
 v.parameters["erl"].trace_pins = [
-    ["X1_A5_PCIe_Gen4_RX1_P", "X1_A6_PCIe_Gen4_RX1_N", "U1_AR25_PCIe_Gen4_RX1_P", "U1_AP25_PCIe_Gen4_RX1_N"],
+    ["X1.A5.PCIe_Gen4_RX1_P", "X1.A6.PCIe_Gen4_RX1_N", "U1.AR25.PCIe_Gen4_RX1_P", "U1.AP25.PCIe_Gen4_RX1_N"],
     [7, 8, 18, 17]]
 
 ###############################################################################

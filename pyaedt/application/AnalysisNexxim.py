@@ -381,7 +381,9 @@ class FieldAnalysisCircuit(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitation_names=None, excitation_name_prefix=""):
+    def get_all_return_loss_list(
+        self, excitation_names=None, excitation_name_prefix="", math_formula="", net_list=None
+    ):
         """Retrieve a list of all return losses for a list of exctitations.
 
         Parameters
@@ -392,6 +394,10 @@ class FieldAnalysisCircuit(Analysis):
             For example ``["1", "2"]``.
         excitation_name_prefix : string, optional
              Prefix to add to the excitation names. The default is ``""``,
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+        net_list : list, optional
+            List of nets to filter the output. If None, all parameters will be returned.
 
         Returns
         -------
@@ -413,11 +419,17 @@ class FieldAnalysisCircuit(Analysis):
             excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
-            spar.append("S({},{})".format(i, i))
+            if net_list and [net for net in net_list if net in i]:
+                if math_formula:
+                    spar.append("{}(S({},{}))".format(math_formula, i, i))
+                else:
+                    spar.append("S({},{})".format(i, i))
         return spar
 
     @pyaedt_function_handler()
-    def get_all_insertion_loss_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix=""):
+    def get_all_insertion_loss_list(
+        self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=[]
+    ):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -431,6 +443,10 @@ class FieldAnalysisCircuit(Analysis):
             Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
         rx_prefix : str, optional
             Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+        net_list : list, optional
+            List of nets to filter the output. If None, all parameters will be returned.
 
         Returns
         -------
@@ -444,24 +460,40 @@ class FieldAnalysisCircuit(Analysis):
         >>> oEditor.GetAllPorts
         """
         if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
+            trlist = [i for i in list(self.excitations.keys())]
 
+        if reclist == None:
+            trlist = [i for i in list(self.excitations.keys())]
+        if tx_prefix:
+            trlist = [i for i in trlist if i.startswith(tx_prefix)]
+        if rx_prefix:
+            reclist = [i for i in reclist if i.startswith(rx_prefix)]
         spar = []
-        if not trlist:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if not reclist:
-            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
-        if len(trlist) != len(reclist):
+        if not net_list and len(trlist) != len(reclist):
             self.logger.error("The TX and RX lists should be the same length.")
             return False
-        for i, j in zip(trlist, reclist):
-            spar.append("S({},{})".format(i, j))
+        if net_list:
+            for el in net_list:
+                x = [i for i in trlist if el in i]
+                y = [i for i in reclist if el in i]
+                for x1 in x:
+                    for y1 in y:
+                        if x1[-2:] == y1[-2:]:
+                            if math_formula:
+                                spar.append("{}(S({},{}))".format(math_formula, x1, y1))
+                            else:
+                                spar.append("S({},{})".format(x1, y1))
+                            break
+        else:
+            for i, j in zip(trlist, reclist):
+                if math_formula:
+                    spar.append("{}(S({},{}))".format(math_formula, i, j))
+                else:
+                    spar.append("S({},{})".format(i, j))
         return spar
 
     @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
+    def get_next_xtalk_list(self, trlist=[], tx_prefix="", math_formula="", net_list=None):
         """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
@@ -471,6 +503,10 @@ class FieldAnalysisCircuit(Analysis):
             ``["1", "2", "3"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+        net_list : list, optional
+            List of nets to filter the output. If None, all parameters will be returned.
 
         Returns
         -------
@@ -487,14 +523,27 @@ class FieldAnalysisCircuit(Analysis):
         if not trlist:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         for i in trlist:
-            k = trlist.index(i) + 1
-            while k < len(trlist):
-                next.append("S({},{})".format(i, trlist[k]))
-                k += 1
+            if net_list and [net for net in net_list if net in i]:
+                k = trlist.index(i) + 1
+                while k < len(trlist):
+                    if math_formula:
+                        next.append("{}(S({},{}))".format(math_formula, i, trlist[k]))
+                    else:
+                        next.append("S({},{})".format(i, trlist[k]))
+                    k += 1
         return next
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(
+        self,
+        trlist=None,
+        reclist=None,
+        tx_prefix="",
+        rx_prefix="",
+        skip_same_index_couples=True,
+        math_formula="",
+        net_list=None,
+    ):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -514,6 +563,10 @@ class FieldAnalysisCircuit(Analysis):
             The default is ``True``, in which case the drivers and receivers
             with the same index position are considered insertion losses and
             excluded from the list.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
+        net_list : list, optional
+            List of nets to filter the output. If None, all parameters will be returned.
 
         Returns
         -------
@@ -537,9 +590,13 @@ class FieldAnalysisCircuit(Analysis):
         if not reclist:
             reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
-            for k in reclist:
-                if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
-                    fext.append("S({},{})".format(i, k))
+            if net_list and [net for net in net_list if net in i]:
+                for k in reclist:
+                    if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
+                        if math_formula:
+                            fext.append("{}(S({},{}))".format(math_formula, i, k))
+                        else:
+                            fext.append("S({},{})".format(i, k))
         return fext
 
     @pyaedt_function_handler()

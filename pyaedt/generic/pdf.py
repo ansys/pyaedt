@@ -574,7 +574,7 @@ class AnsysReport(FPDF):
         for section in self._outline:
             link = self.add_link()
             self.set_link(link, page=section.page_number)
-            string1 = f'{" " * section.level * 2} {section.name}'
+            string1 = f'{" " * section.level * 2} {section.name}'[:70]
             string2 = f"Page {section.page_number}"
             self.set_x(self.l_margin * 2)
             self.cell(
