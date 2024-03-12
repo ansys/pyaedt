@@ -15,7 +15,7 @@ def open_window(window, window_name, libraries):
         window.opened = True
         window.title(window_name)
         create_library_buttons(window, libraries)
-        root.minsize(400, 300)
+        root.minsize(550, 250)
     else:
         window.deiconify()
 
@@ -45,13 +45,14 @@ toolkit_levels = [
     "",
     "",
     "HFSS",
-    "Maxwell3d",
+    "Maxwell3D",
     "Icepak",
-    "Q3d",
-    "Maxwell2d",
-    "Q2d",
+    "Q3D",
+    "Maxwell2D",
+    "Q2D",
     "HFSS3DLayout",
-    "Mechanical" "Circuit",
+    "Mechanical",
+    "Circuit",
     "EMIT",
     "Simplorer",
     "",
