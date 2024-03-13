@@ -549,7 +549,7 @@ class GeometryModeler(Modeler):
                     if value not in new_obs3d:
                         new_obs3d.append(value)
 
-        except Exception as e:
+        except Exception:
             new_obs3d = []
         return new_obs3d
 
