@@ -10,10 +10,12 @@ def aedtapp(add_app):
     app = add_app(design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d)
     return app
 
+
 @pytest.fixture(scope="class")
 def axisymmetrical(add_app):
     app = add_app(design_name="2D_Primitives_3", solution_type="TransientZ", application=Maxwell2d)
     return app
+
 
 class TestClass:
     @pytest.fixture(autouse=True)
