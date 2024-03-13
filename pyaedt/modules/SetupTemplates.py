@@ -1666,7 +1666,80 @@ SweepSiwave = OrderedDict(
     }
 )
 
+icepak_newkeys_241 = {
+    "GPU Convergence Criteria - Flow": "0.001",
+    "GPU Convergence Criteria - Energy": "1e-05",
+    "GPU Convergence Criteria - Turbulent Kinetic Energy": "0.001",
+    "GPU Convergence Criteria - Turbulent Dissipation Rate": "0.001",
+    "GPU Convergence Criteria - Specific Dissipation Rate": "0.001",
+    "GPU Convergence Criteria - Discrete Ordinates": "1e-05",
+    "GPU Convergence Criteria - Joule Heating": "1e-07",
+    "Solution Initialization - Use Model Based Flow Initialization": False,
+    "Include Solar": False,
+    "Solar Radiation Model": "Solar Radiation Calculator",
+    "Solar Enable Participating Solids": False,
+    "Solar Radiation - Scattering Fraction": "0",
+    "Solar Radiation - North X": "0",
+    "Solar Radiation - North Y": "0",
+    "Solar Radiation - North Z": "1",
+    "Solar Radiation - Day": 1,
+    "Solar Radiation - Month": 1,
+    "Solar Radiation - Hours": 0,
+    "Solar Radiation - Minutes": 0,
+    "Solar Radiation - GMT": "0",
+    "Solar Radiation - Latitude": "0",
+    "Solar Radiation - Latitude Direction": "North",
+    "Solar Radiation - Longitude": "0",
+    "Solar Radiation - Longitude Direction": "East",
+    "Solar Radiation - Ground Reflectance": "0",
+    "Solar Radiation - Sunshine Fraction": "0",
+    "Linear Solver Type - Joule Heating": "F",
+    "Linear Solver Termination Criterion - Joule Heating": "1e-09",
+    "Linear Solver Residual Reduction Tolerance - Joule Heating": "1e-09",
+    "Maximum Cycles": "30",
+    "Linear Solver Stabilization - Joule Heating": "None",
+    "Coupled pressure-velocity formulation": False,
+    "2D Profile Interpolation Method": "Inverse Distance Weighted",
+    "TEC Coupling": False,
+}
+
+SteadyTemperatureOnly_241 = copy.deepcopy(SteadyTemperatureOnly)
+SteadyFlowOnly_241 = copy.deepcopy(SteadyFlowOnly)
+SteadyTemperatureAndFlow_241 = copy.deepcopy(SteadyTemperatureAndFlow)
+TransientTemperatureOnly_241 = copy.deepcopy(TransientTemperatureOnly)
+TransientTemperatureAndFlow_241 = copy.deepcopy(TransientTemperatureAndFlow)
+TransientFlowOnly_241 = copy.deepcopy(TransientFlowOnly)
+SteadyTemperatureOnly_241.update(icepak_newkeys_241)
+SteadyFlowOnly_241.update(icepak_newkeys_241)
+SteadyTemperatureAndFlow_241.update(icepak_newkeys_241)
+TransientTemperatureOnly_241.update(icepak_newkeys_241)
+TransientTemperatureAndFlow_241.update(icepak_newkeys_241)
+TransientFlowOnly_241.update(icepak_newkeys_241)
+
 list_modules = dir()
+
+icepak_forced_convection_update = {
+    "Convergence Criteria - Energy": "1e-12",
+    "Linear Solver Termination Criterion - Temperature": "1e-06",
+    "Linear Solver Residual Reduction Tolerance - Temperature": "1e-06",
+    "Sequential Solve of Flow and Energy Equations": True,
+}
+
+icepak_natural_convection_update = {
+    "Include Gravity": True,
+    "Solution Initialization - Z Velocity": "0.000980665m_per_sec",
+    "IsEnabled": True,
+    "Radiation Model": "Discrete Ordinates Model",
+    "Flow Iteration Per Radiation Iteration": "10",
+    "Time Step Interval": "1",
+    "ThetaDivision": "2",
+    "PhiDivision": "2",
+    "ThetaPixels": "2",
+    "Under-relaxation - Pressure": "0.7",
+    "Under-relaxation - Momentum": "0.3",
+    "Linear Solver Termination Criterion - Temperature": "1e-06",
+    "Linear Solver Residual Reduction Tolerance - Temperature": "1e-06",
+}
 
 
 class SetupKeys:
@@ -1803,6 +1876,15 @@ class SetupKeys:
     }
     SetupTemplates_232 = {}
 
+    SetupTemplates_241 = {
+        11: SteadyTemperatureAndFlow_241,
+        12: SteadyTemperatureOnly_241,
+        13: SteadyFlowOnly_241,
+        36: TransientTemperatureAndFlow_241,
+        37: TransientTemperatureOnly_241,
+        38: TransientFlowOnly_241,
+    }
+
     @staticmethod
     def _add_to_template(template_in, template_to_append):
         template_out = template_in.copy()
@@ -1815,10 +1897,47 @@ class SetupKeys:
         from pyaedt.generic.general_methods import settings
 
         template = SetupKeys.SetupTemplates
-        if settings.aedt_version is not None and settings.aedt_version >= "2023.1":
+        if settings.aedt_version is not None and settings.aedt_version >= "2024.1":
             template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
         elif settings.aedt_version is not None and settings.aedt_version >= "2023.2":
             template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
             template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+        elif settings.aedt_version is not None and settings.aedt_version >= "2023.1":
+            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
 
         return template
+
+    def get_default_icepak_template(self, default_type):
+        """
+        Update the setup based on the class arguments or a dictionary.
+
+        Parameters
+        ----------
+        default_type : str
+            Which default template to use. Available options are ``"Default"``,
+            ``"Forced Convection"``, ``"Mixed Convection"``
+            and ``"Natural Convection"``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the Icepak default setup for the chosen simulation type.
+
+
+        """
+        icepak_setups_n = [11, 12, 13, 36, 37, 38]
+        template = self.get_setup_templates()
+        icepak_template = {self.SetupNames[i]: template[i] for i in icepak_setups_n}
+        if default_type == "Default":
+            return icepak_template
+        elif default_type == "Forced Convection":
+            expand_dict = icepak_forced_convection_update
+        elif default_type == "Natural Convection" or default_type == "Mixed Convection":
+            expand_dict = icepak_natural_convection_update
+        else:
+            raise AttributeError("default_type {} is not supported.".format(default_type))
+        for i in icepak_setups_n:
+            icepak_template[self.SetupNames[i]].update(expand_dict)
+        return icepak_template

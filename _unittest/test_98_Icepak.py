@@ -8,6 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
 
@@ -163,6 +164,14 @@ class TestClass:
         assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
         assert my_setup.update()
         assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
+        templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
+        assert templates
+        self.aedtapp.setups[0].props = templates["IcepakSteadyState"]
+        assert self.aedtapp.setups[0].update()
+        assert SetupKeys().get_default_icepak_template(default_type="Default")
+        assert SetupKeys().get_default_icepak_template(default_type="Forced Convection")
+        with pytest.raises(AttributeError):
+            SetupKeys().get_default_icepak_template(default_type="Default Convection")
 
     def test_09_existing_sweeps(self):
         assert self.aedtapp.existing_analysis_sweeps
@@ -1475,6 +1484,71 @@ class TestClass:
         with pytest.raises(AttributeError):
             self.aedtapp.assign_conducting_plate_with_conductance([box_face.id, "surfPlateTest"])
 
-    def test_74_native_component_load(self, add_app):
+    def test_74_boundary_conditions_dictionaries(self):
+        box1 = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3])
+        ds_temp = self.aedtapp.create_dataset(
+            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, xunit="cel", yunit="W"
+        )
+        bc1 = self.aedtapp.create_temp_dep_assignment(ds_temp.name)
+        assert bc1
+        assert bc1.dataset_name == "ds_temp3"
+        assert self.aedtapp.assign_solid_block(box1.name, bc1)
+
+        self.aedtapp.solution_type = "Transient"
+
+        ds_time = self.aedtapp.create_dataset(
+            "ds_time3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, xunit="s", yunit="W"
+        )
+        bc2 = self.aedtapp.create_dataset_transient_assignment(ds_time.name)
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [20, 10])
+        assert bc2
+        assert self.aedtapp.assign_conducting_plate_with_resistance(rect.name, total_power=bc2)
+
+        cylinder = self.aedtapp.modeler.create_cylinder(0, [-10, -10, -10], 1, 50)
+        bc3 = self.aedtapp.create_sinusoidal_transient_assignment("1W", "3", "2", "0.5s")
+        assert bc3
+        assert self.aedtapp.assign_solid_block(cylinder.name, bc3)
+
+        bc4 = self.aedtapp.create_square_wave_transient_assignment("3m_per_sec", "0.5s", "3s", "1s", "0.5m_per_sec")
+        assert bc4
+        assert self.aedtapp.assign_free_opening(
+            self.aedtapp.modeler["Region"].faces[0].id, flow_type="Velocity", velocity=[bc4, 0, 0]
+        )
+
+        bondwire = self.aedtapp.modeler.create_bondwire([0, 0, 0], [1, 2, 3])
+        bc5 = self.aedtapp.create_linear_transient_assignment("0.01W", "5")
+        assert bc5
+        assert self.aedtapp.assign_solid_block(bondwire.name, bc5)
+
+        box2 = self.aedtapp.modeler.create_box([15, 15, 15], [1, 2, 3])
+        bc6 = self.aedtapp.create_exponential_transient_assignment("0W", "4", "2")
+        assert bc6
+        assert self.aedtapp.assign_power_law_resistance(
+            box2.name,
+            total_power=bc6,
+            power_law_constant=1.5,
+            power_law_exponent="3",
+        )
+
+        box = self.aedtapp.modeler.create_box([25, 25, 25], [1, 2, 3])
+        box.solve_inside = False
+        bc7 = self.aedtapp.create_powerlaw_transient_assignment("0.5kg_per_s", "10", "0.3")
+        assert bc7
+        assert self.aedtapp.assign_recirculation_opening(
+            [box.top_face_x.id, box.bottom_face_x.id],
+            box.top_face_x.id,
+            assignment_value=bc6,
+            flow_assignment=bc7,
+            start_time="0s",
+            end_time="10s",
+        )
+
+        ds1_temp = self.aedtapp.create_dataset(
+            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, xunit="cel", yunit="W"
+        )
+        assert not self.aedtapp.create_temp_dep_assignment(ds1_temp.name)
+        assert not self.aedtapp.create_temp_dep_assignment("nods")
+
+    def test_75_native_component_load(self, add_app):
         app = add_app(application=Icepak, project_name=native_import, subfolder=test_subfolder)
         assert len(app.native_components) == 1
