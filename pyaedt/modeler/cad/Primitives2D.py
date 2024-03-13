@@ -288,7 +288,8 @@ class Primitives2D(GeometryModeler, object):
         ----------
         pad_percent : float, str, list of floats or list of str, optional
             Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "-X", "-Y"]``.
+            If a list of floats or str, interpret as adding for ``["+X", "+Y", "-X", "-Y"]`` for XY geometry mode,
+            and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
         is_percentage : bool, optional
             Region definition in percentage or absolute value. The default is `True``.
 
@@ -304,9 +305,16 @@ class Primitives2D(GeometryModeler, object):
         """
         if not isinstance(pad_percent, list):
             if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
+                if self._app.solution_type in ["TransientXY", "MagnetostaticXY", "EddyCurrentXY", "ElectrostaticXY", "DCConductionXY", "ACConductionXY"]:
+                    pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
+                else:
+                    pad_percent = [pad_percent, 0, pad_percent, 0, 0, pad_percent]
         else:
             if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+                if self._app.solution_type in ["TransientXY", "MagnetostaticXY", "EddyCurrentXY", "ElectrostaticXY", "DCConductionXY", "ACConductionXY"]:
+                    pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+                else:
+                    pad_percent = [pad_percent[0], 0, pad_percent[1], 0, 0, pad_percent[2]]
+
 
         return self._create_region(pad_percent, is_percentage)
