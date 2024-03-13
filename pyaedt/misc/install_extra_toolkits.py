@@ -8,16 +8,16 @@ from pyaedt.misc.aedtlib_personalib_install import current_dir
 from pyaedt.misc.aedtlib_personalib_install import write_pretty_xml
 
 available_toolkits = {
-    "AntennaWizard": {
+    "Antenna Wizard": {
         "pip": "git+https://github.com/ansys/pyaedt-antenna-toolkit.git",
-        "image": "pyansys.png",
+        "image": "antenna.png",
         "toolkit_script": "ansys/aedt/toolkits/antenna/run_toolkit.py",
         "installation_path": "HFSS",
         "package_name": "ansys.aedt.toolkits.antenna",
     },
-    "MagnetSegmentationWizard": {
+    "Magnet Segmentation Wizard": {
         "pip": "ansys-magnet-segmentation-toolkit",
-        "image": "pyansys.png",
+        "image": "magnet_segmentation.png",
         "toolkit_script": "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py",
         "installation_path": "Maxwell3d",
         "package_name": "magnet-segmentation-toolkit",

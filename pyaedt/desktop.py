@@ -1730,31 +1730,25 @@ class Desktop(object):
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
         else:
-            import site
+            # Update toolkit
+            run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
 
-            packages = site.getsitepackages()
-            full_path = None
-            for pkg in packages:
-                if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
-                    full_path = os.path.join(pkg, toolkit["toolkit_script"])
-                    break
-            if full_path:
-                # Update toolkit
-                run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
-            else:
-                # Install toolkit
-                run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
 
-        # Install toolkit inside AEDT
+        script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", toolkit["image"])
 
-        # self.add_script_to_menu(
-        #     toolkit_name=toolkit_name,
-        #     script_path=full_path,
-        #     script_image=toolkit,
-        #     product=toolkit["installation_path"],
-        #     copy_to_personal_lib=False,
-        #     add_pyaedt_desktop_init=False,
-        # )
+        if not os.path.exists(tool_dir):
+            script_path = os.path.join(venv_dir, "Lib", "site-packages", os.path.normpath(toolkit["toolkit_script"]))
+            # Install toolkit inside AEDT
+            self.add_script_to_menu(
+                toolkit_name=toolkit_name,
+                script_path=script_path,
+                script_image=script_image,
+                product=toolkit["installation_path"],
+                copy_to_personal_lib=False,
+                executable_interpreter=python_exe,
+            )
 
     @pyaedt_function_handler()
     def add_script_to_menu(
@@ -1764,7 +1758,7 @@ class Desktop(object):
         script_image=None,
         product="Project",
         copy_to_personal_lib=True,
-        add_pyaedt_desktop_init=True,
+        executable_interpreter=None,
     ):
         """Add a script to the ribbon menu.
 
@@ -1787,6 +1781,8 @@ class Desktop(object):
             it applies to all designs. You can also specify a product, such as ``"HFSS"``.
         copy_to_personal_lib : bool, optional
             Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
+        executable_interpreter : None, optional
+            Executable python path. The default is the one current interpreter.
 
         Returns
         -------
@@ -1796,6 +1792,11 @@ class Desktop(object):
         if not os.path.exists(script_path):
             self.logger.error("Script does not exists.")
             return False
+        if not executable_interpreter:
+            executable_version_agnostic = sys.executable
+        else:
+            executable_version_agnostic = executable_interpreter
+
         from pyaedt.misc.install_extra_toolkits import write_toolkit_config
 
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
@@ -1814,7 +1815,7 @@ class Desktop(object):
             dest_script_path = os.path.join(lib_dir, os.path.split(script_path)[-1])
             shutil.copy2(script_path, dest_script_path)
         files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
-        executable_version_agnostic = sys.executable
+
         for file_name in files_to_copy:
             src = os.path.join(pathname, "misc", file_name + ".py_build")
             dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
