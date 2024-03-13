@@ -28,7 +28,7 @@ from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
-from pyaedt.modules.MeshIcepak import MeshRegion
+from pyaedt.modules.MeshIcepak import MeshRegionCommon
 
 if not is_ironpython:
     from jsonschema import exceptions
@@ -1614,7 +1614,7 @@ class ConfigurationsIcepak(Configurations):
                             mesh_el.__dict__[el] = props[el]
                     return mesh_el.update()
 
-        bound = MeshRegion(
+        bound = MeshRegionCommon(
             self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units, self._app
         )
         bound.name = name

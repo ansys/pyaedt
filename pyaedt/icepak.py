@@ -2768,6 +2768,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Create a bounding box to use as a mesh region in Icepak.
 
+        .. deprecated:: 0.8.3
+            Use ``create_subregion`` or ``create_region`` functions inside the modeler class.
+
         Parameters
         ----------
         scale_factor : float, optional
@@ -2787,6 +2790,12 @@ class Icepak(FieldAnalysis3D):
 
         >>> oeditor.ChangeProperty
         """
+        warnings.warn(
+            "``create_meshregion_component`` was deprecated in 0.8.3."
+            "Use ``create_subregion`` or ``create_region`` instead.",
+            DeprecationWarning,
+        )
+
         self.modeler.edit_region_dimensions([0, 0, 0, 0, 0, 0])
 
         vertex_ids = self.modeler.oeditor.GetVertexIDsFromObject("Region")

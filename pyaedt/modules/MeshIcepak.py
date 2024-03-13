@@ -1,4 +1,6 @@
+from abc import abstractmethod
 from collections import OrderedDict
+import warnings
 
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -16,7 +18,13 @@ class CommonRegion(object):
         self._dir_order = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
 
     def _get_object(self):
-        return [oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == "CreateRegion"][0]
+        if isinstance(self, Region):
+            return [
+                oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == "CreateRegion"
+            ][0]
+        else:
+            parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+            return [self._app.modeler[p] for p in parts]
 
     def _set_region_data(self, value, direction=None, padding_type=True):
         self._update_region_data()
@@ -185,9 +193,11 @@ class Region(CommonRegion):
 
 
 class SubRegion(CommonRegion):
-    def __init__(self, app, region=None):
+    def __init__(self, app, parts, name=None):
         super(SubRegion, self).__init__(app)
-        self._region = region
+        if name is None:
+            name = generate_unique_name("SubRegion")
+        self.create(0, "Percentage Offset", name, parts)
 
     def _get_object(self):
         if self._region and not self._app.modeler.objects_by_name.get(self._region.name, False):
@@ -236,143 +246,123 @@ class SubRegion(CommonRegion):
         self._app.modeler.reassign_subregion(self, parts)
 
 
-class MeshRegion(object):
+class MeshSettings(object):
+    automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
+    common_mesh_settings = {
+        "ProximitySizeFunction": True,
+        "CurvatureSizeFunction": True,
+        "EnableTransition": False,
+        "OptimizePCBMesh": True,
+        "Enable2DCutCell": False,
+        "EnforceCutCellMeshing": False,
+        "Enforce2dot5DCutCell": False,
+        "StairStepMeshing": False,
+    }
+    manual_mesh_settings = {
+        "MaxElementSizeX": "0.02mm",
+        "MaxElementSizeY": "0.02mm",
+        "MaxElementSizeZ": "0.03mm",
+        "MinElementsInGap": "3",
+        "MinElementsOnEdge": "2",
+        "MaxSizeRatio": "2",
+        "NoOGrids": False,
+        "EnableMLM": True,
+        "EnforeMLMType": "3D",
+        "MaxLevels": "0",
+        "BufferLayers": "0",
+        "UniformMeshParametersType": "Average",
+        "2DMLMType": "2DMLM_None",
+        "MinGapX": "1mm",
+        "MinGapY": "1mm",
+        "MinGapZ": "1mm",
+    }
+    aedt_20212_args = [
+        "ProximitySizeFunction",
+        "CurvatureSizeFunction",
+        "EnableTransition",
+        "OptimizePCBMesh",
+        "Enable2DCutCell",
+        "EnforceCutCellMeshing",
+        "Enforce2dot5DCutCell",
+    ]
+
+    def __init__(self, mesh_class, app):
+        self._app = app
+        self._mesh_class = mesh_class
+        self.instance_settings = self.common_mesh_settings.copy()
+        self.instance_settings.update(self.manual_mesh_settings.copy())
+        self.instance_settings.update(self.automatic_mesh_settings.copy())
+        if settings.aedt_version < "2021.2":
+            for arg in self.aedt_20212_args:
+                del self.instance_settings[arg]
+
+    def parse_settings(self):
+        out = []
+        for k, v in self.instance_settings:
+            out.append(k + ":=")
+            out.append(v)
+        return out
+
+    def _key_in_dict(self, key):
+        if self._mesh_class.manual_settings:
+            ref_dict = self.manual_mesh_settings
+        else:
+            ref_dict = self.automatic_mesh_settings
+        if key in ref_dict or key in self.common_mesh_settings:
+            return True
+        else:
+            return False
+
+    def __getitem__(self, key):
+        if self._key_in_dict(key):
+            return self.instance_settings[key]
+        else:
+            raise KeyError("Setting not available.")
+
+    def __setitem__(self, key, value):
+        if self._key_in_dict(key):
+            if self._mesh_class.automatic_mesh_settings and key == "MeshRegionResolution":
+                if value < 1:
+                    self._app.logger.warning("Minimum resolution value is 1.")
+                    value = 1
+            if value > 5:
+                self._app.logger.warning("Maximum resolution value is 5.")
+                value = 5
+            self.instance_settings[key] = value
+        else:
+            self._app.logger.error("Setting not available.")
+
+    def __delitem__(self, key):
+        self._app.logger.error("Setting cannot be removed.")
+
+    def __iter__(self):
+        return self.instance_settings.__iter__(self)
+
+    def __len__(self):
+        return self.instance_settings.__len__(self)
+
+    def __contains__(self, x):
+        return self.instance_settings.__contains__(self, x)
+
+
+class MeshRegionCommon(object):
     """
     Manages Icepak mesh region settings.
 
     Attributes:
         name : str
             Name of the mesh region.
-        UserSpecifiedSettings : bool
-            Whether to use manual settings. The default is ``False``.
-        ComputeGap : bool
-            Whether to enable minimum gap override. The default is ``True``.
-        Level : int
-            Automatic mesh detail level. The default is ``3``.
-        MaxElementSizeX : str
-            Maximum element size along the x axis. The default is 1/20 of the region's
-            x dimension.
-        MaxElementSizeY : str
-            Maximum element size along the y axis. The default is 1/20 of the region's
-            y dimension.
-        MaxElementSizeZ : str
-            Maximum element size along the z axis. The default is 1/20 of the region's
-             z dimension.
-        MinElementsInGap : str
-            Minimum number of elements in gaps between adjacent objects. The default is ``3``.
-        MinElementsOnEdge : str
-            Minimum number of elements on each edge of each object. The default is ``2``.
-        MaxSizeRatio : str
-            Maximum ratio of the sizes of adjacent elements. The default is ``2``.
-        NoOGrids : bool
-            Whether objects have O-grids around them. The default is ``False``.
-        EnableMLM : bool
-            Whether to enable MLM (multi-level mesh. The default is ``True``.
-        EnforceMLMType : str
-            Type of MLM to use. The default is ``"3D"``. Options are ``"2D"`` and ``"3D"``.
-        MaxLevels : str
-            Maximum number of refinement levels for MLM. The default is ``"0"``.
-        BufferLayers : str
-            Number of buffer layers between a refinement level. The default is ``"0"``.
-        UniformMeshParametersType : str
-            Whether to create a uniform mesh with the same mesh size in all
-            coordinate directions (``"Average"``) or different spacing in each
-            direction (``"XYZ Max Sizes"``). The default is ``"Average"``.
-        StairStepMeshing : bool
-            Whether to disable the vertices projection step used to obtain the conformal mesh.
-            The default is ``False``.
-        DMLMType : str
-            If ``EnforceMLMType="2D"``, the 2D plane mesh that refinement is
-            constrained in. The default is ``"2DMLM_None"``, which means
-            ``Auto``. Options are ``"2DMLM_None"``, ``"2DMLM_YZ"``,
-            ``"2DMLM_XZ"``, and ``"2DMLM_XY"``.
-        MinGapX : str
-            Minimum gap size along the x axis. The default is ``"1"``.
-        MinGapY : str
-            Minimum gap size along the y axis. The default is ``"1"``.
-        MinGapZ : str
-            Minimum gap size along the z axis. The default is ``"1"``.
-        Objects : list
-            Objects to apply meshing settings to.
-        SubModels : bool
-            Whether to apply meshing settings to submodels.
-            The default is ``False``, which means meshing settings are applied to
-            the ``Objects`` attribute.
-        Enable : bool
-            Whether to enable the mesh region. The default is ``True``.
-        ProximitySizeFunction : bool
-            Whether to use the proximity-based size function. The default
-            is ``True``.
-        CurvatureSizeFunction : bool
-            Whether to use the curvature-based size function. The default
-            is ``True``.
-        EnableTransition : bool
-            Whether to enable mesh transition. The default is ``False``.
-        OptimizePCBMesh : bool
-            Whether to optimize the PCB mesh. The default is ``True``.
-        Enable2DCutCell : bool
-            Whether to enable 2D cut cell meshing. The default is ``False``.
-        EnforceCutCellMeshing : bool
-            Whether to enforce cut cell meshing. The default is ``False``.
-        Enforce2dot5DCutCell : bool
-            Whether to enforce 2.5D cut cell meshing. The default is ``False``.
+        manual_settings : bool
+            Whether to use manual settings or
     """
 
-    def __init__(self, meshmodule, dimension, units, app, name=None):
-        if name is None:
-            name = "Settings"
+    def __init__(self, meshmodule, units, app, name):
         self.name = name
-        self.meshmodule = meshmodule
-        self.model_units = units
-        self.UserSpecifiedSettings = False
-        self.ComputeGap = True
-        self.Level = 3
-        self.MaxElementSizeX = str(float(dimension[0]) / 20)
-        self.MaxElementSizeY = str(float(dimension[1]) / 20)
-        self.MaxElementSizeZ = str(float(dimension[2]) / 20)
-        self.MinElementsInGap = "3"
-        self.MinElementsOnEdge = "2"
-        self.MaxSizeRatio = "2"
-        self.NoOGrids = False
-        self.EnableMLM = True
-        self.EnforeMLMType = "3D"
-        self.MaxLevels = "0"
-        self.BufferLayers = "0"
-        self.UniformMeshParametersType = "Average"
-        self.StairStepMeshing = False
-        self.DMLMType = "2DMLM_None"
-        self.MinGapX = "1"
-        self.MinGapY = "1"
-        self.MinGapZ = "1"
-        self._objects = "Region"
-        self.SubModels = False
-        self.Enable = True
-        if settings.aedt_version > "2021.2":
-            self.ProximitySizeFunction = True
-            self.CurvatureSizeFunction = True
-            self.EnableTransition = False
-            self.OptimizePCBMesh = True
-            self.Enable2DCutCell = False
-            self.EnforceCutCellMeshing = False
-            self.Enforce2dot5DCutCell = False
-        if settings.aedt_version > "2023.2" and not isinstance(self, GlobalMeshRegion):
-            if app.modeler.objects.get(self.Objects, False):
-                self.subregion = SubRegion(app, app.modeler.objects[self.Objects])
-            elif app.modeler.objects_by_name.get(self.Objects, False):
-                self.subregion = SubRegion(app, app.modeler.objects_by_name[self.Objects])
-            else:
-                self.subregion = SubRegion(app, None)
+        self.manual_settings = False
+        self.settings = MeshSettings(self, app)
+        self._meshmodule = meshmodule
+        self._model_units = units
         self._app = app
-
-    @property
-    def Objects(self):
-        return self._objects
-
-    @Objects.setter
-    def Objects(self, objects):
-        if settings.aedt_version > "2023.2" and not isinstance(self, GlobalMeshRegion):
-            self.subregion.parts = objects
-        self._objects = objects
 
     @pyaedt_function_handler()
     def _dim_arg(self, value):
@@ -380,30 +370,13 @@ class MeshRegion(object):
 
         return _dim_arg(value, self.model_units)
 
-    @property
-    def _new_versions_fields(self):
-        arg = []
-        if settings.aedt_version > "2021.2":
-            arg = [
-                "ProximitySizeFunction:=",
-                self.ProximitySizeFunction,
-                "CurvatureSizeFunction:=",
-                self.CurvatureSizeFunction,
-                "EnableTransition:=",
-                self.EnableTransition,
-                "OptimizePCBMesh:=",
-                self.OptimizePCBMesh,
-                "Enable2DCutCell:=",
-                self.Enable2DCutCell,
-                "EnforceCutCellMeshing:=",
-                self.EnforceCutCellMeshing,
-                "Enforce2dot5DCutCell:=",
-                self.Enforce2dot5DCutCell,
-            ]
-        elif settings.aedt_version > "2023.2":
-            self.subregion = None
+    @abstractmethod
+    def update(self):
+        pass
 
-        return arg
+    @abstractmethod
+    def delete(self):
+        pass
 
     @property
     def autosettings(self):
@@ -488,12 +461,35 @@ class MeshRegion(object):
         arg.extend(self._new_versions_fields)
         return arg
 
-    @property
-    def _odesign(self):
-        """Instance of a design in a project."""
-        return self._app._odesign
+    @abstractmethod
+    def create(self):
+        pass
 
-    @pyaedt_function_handler()
+    # backward compatibility
+    def __getattr__(self, name):
+        if name in self.settings:
+            return self.settings[name]
+        else:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+    def __setattr__(self, name, value):
+        if hasattr(self.settings, name):
+            self.settings[name] = value
+        else:
+            object.__setattr__(self, name, value)
+
+
+class GlobalMeshRegion(MeshRegionCommon):
+    def __init__(self, app):
+        self.global_region = Region(app)
+        super(GlobalMeshRegion, self).__init__(
+            app.omeshmodule,
+            app.modeler.model_units,
+            app,
+            name="Settings",
+        )
+
+    @pyaedt_function_handler
     def update(self):
         """Update mesh region settings with the settings in the object variable.
 
@@ -506,32 +502,70 @@ class MeshRegion(object):
         ----------
 
         >>> oModule.EditGlobalMeshRegion
-        >>> oModule.EditMeshRegion
         """
-        if self.name == "Settings":
-            args = ["NAME:Settings"]
-        else:
-            args = ["NAME:" + self.name, "Enable:=", self.Enable]
-        if self.UserSpecifiedSettings:
-            args += self.manualsettings
-        else:
-            args += self.autosettings
-        if self.name == "Settings":
-            try:
-                self.meshmodule.EditGlobalMeshRegion(args)
-                return True
-            except Exception:  # pragma : no cover
-                return False
-        else:
-            try:
-                self.meshmodule.EditMeshRegion(self.name, args)
-                return True
-            except Exception:  # pragma : no cover
-                return False
+        args = ["NAME:Settings"]
+        args += self.settings.parse_settings()
+        try:
+            self.meshmodule.EditGlobalMeshRegion(args)
+            return True
+        except Exception:  # pragma : no cover
+            return False
 
-    @pyaedt_function_handler()
-    def create(self):
-        """Create a mesh region.
+    @property
+    def Objects(self):
+        return self.global_region.name
+
+    def delete(self):
+        self.global_region.object.delete()
+        self.global_region = None
+
+    def create(self, padding_type, padding_value):
+        self.delete()
+        self.global_region = Region(self._app)
+        self.global_region.create(padding_type, padding_value)
+
+
+class MeshRegion(MeshRegionCommon):
+    def __init__(self, app, objects, name=None):
+        if name is None:
+            name = generate_unique_name("SubRegion")
+        super(MeshRegionCommon, self).__init__(
+            app.omeshmodule,
+            app.modeler.model_units,
+            app,
+            name,
+        )
+        self.enable = True
+        if settings.aedt_version > "2023.2":
+            if not isinstance(objects, list):
+                objects = [objects]
+            if not isinstance(objects[0], str):
+                objects = [o.name for o in objects]
+            if not all(o in app.modeler.objects_by_name for o in objects):
+                raise AttributeError("Objects specified not found in modeler.")
+            self._assignment = SubRegion(app, objects)
+        else:
+            self._assignment = objects
+        self.create()
+
+    def _parse_assignment_value(self, assignment=None):
+        if assignment is None:
+            assignment = self.assignment
+        a = []
+        if isinstance(assignment, SubRegion):
+            a += ["Objects:=", assignment.name]
+        else:
+            if any(o in self._app.modeler.object_names for o in assignment):
+                obj_assignment = [o for o in assignment if o in self._app.modeler.object_names]
+                a += ["Objects:=", obj_assignment]
+            if any(o in self._app.oeditor.GetChildNames("SubmodelDefinitions") for o in assignment):
+                obj_assignment = [o for o in assignment if o in self._app.oeditor.GetChildNames("SubmodelDefinitions")]
+                a += ["Submodels:=", obj_assignment]
+        return a
+
+    @pyaedt_function_handler
+    def update(self):
+        """Update mesh region settings with the settings in the object variable.
 
         Returns
         -------
@@ -541,19 +575,16 @@ class MeshRegion(object):
         References
         ----------
 
-        >>> oModule.AssignMeshRegion
-        >>> oModule.AssignVirtualMeshRegion
+        >>> oModule.EditMeshRegion
         """
-        assert self.name != "Settings", "Cannot create a new mesh region with this Name"
-        args = ["NAME:" + self.name, "Enable:=", self.Enable]
-        if self.UserSpecifiedSettings:
-            args += self.manualsettings
-        else:
-            args += self.autosettings
-        self.meshmodule.AssignMeshRegion(args)
-        self._app.mesh.meshregions.append(self)
-        self._app.modeler.refresh_all_ids()
-        return True
+        args = ["NAME:" + self.name, "Enable:=", self.enable]
+        args += self.settings.parse_settings()
+        self._parse_assignment_value()
+        try:
+            self.meshmodule.EditMeshRegion(args)
+            return True
+        except Exception:  # pragma : no cover
+            return False
 
     @pyaedt_function_handler()
     def delete(self):
@@ -573,27 +604,104 @@ class MeshRegion(object):
         self._app.mesh.meshregions.remove(self)
         return True
 
+    @property
+    def assignment(self):
+        if settings.aedt_version > "2023.2":
+            parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+            sub_regions = self._app.modeler.non_model_objects
+            subregion = None
+            for sr in sub_regions:
+                if "CreateSubRegion" == self._app.modeler[sr].history().command and all(
+                    p in self._app.modeler[sr].history().props["Part Names"] for p in parts
+                ):
+                    subregion = sr
+            self._assignment = subregion
+            return subregion
+        else:
+            return self._assignment
 
-class GlobalMeshRegion(MeshRegion):
-    def __init__(self, app):
-        self.global_region = Region(app)
-        super(GlobalMeshRegion, self).__init__(
-            app.omeshmodule,
-            app.modeler.get_bounding_dimension(),
-            app.modeler.model_units,
-            app,
-            name="Settings",
+    @assignment.setter
+    def assignment(self, value):
+        arg = ["NAME:Assignment"] + self._parse_assignment_value(value)
+        try:
+            self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
+            self._assignment = value
+        except Exception:  # pragma : no cover
+            self._app.logger.error("Mesh region reassignment failed.")
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a mesh region.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignMeshRegion
+        """
+        if self.name == "Settings":
+            self._app.logger.error("Cannot create a new mesh region with this Name")
+            return False
+        args = ["NAME:" + self.name, "Enable:=", self.enable]
+        args += self.settings.parse_settings()
+        args += self._parse_assignment_value()
+        self.meshmodule.AssignMeshRegion(args)
+        self._app.mesh.meshregions.append(self)
+        self._app.modeler.refresh_all_ids()
+        return True
+
+    # backward compatibility
+    @property
+    def Enable(self):
+        warnings.warn(
+            "`Enable` is deprecated. Use `enable` instead.",
+            DeprecationWarning,
         )
-        self.Objects = self.global_region.name
+        return self.enable
 
-    def delete(self):
-        self.global_region.object.delete()
-        self.global_region = None
+    @Enable.setter
+    def Enable(self, val):
+        warnings.warn(
+            "`Enable` is deprecated. Use `enable` instead.",
+            DeprecationWarning,
+        )
+        self.enable = val
 
-    def create(self, padding_type, padding_value):
-        self.delete()
-        self.global_region = Region(self._app)
-        self.global_region.create(padding_type, padding_value)
+    @property
+    def Objects(self):
+        warnings.warn(
+            "`Objects` is deprecated. Use `assignment` instead.",
+            DeprecationWarning,
+        )
+        return self.assignment
+
+    @Objects.setter
+    def Objects(self, objects):
+        warnings.warn(
+            "`Objects` is deprecated. Use `assignment` instead.",
+            DeprecationWarning,
+        )
+        self.assignment = objects
+
+    @property
+    def Submodels(self):
+        warnings.warn(
+            "`Submodels` is deprecated. Use `assignment` instead.",
+            DeprecationWarning,
+        )
+        return self.assignment
+
+    @Submodels.setter
+    def Submodels(self, objects):
+        warnings.warn(
+            "`Submodels` is deprecated. Use `assignment` instead.",
+            DeprecationWarning,
+        )
+        self.assignment = objects
 
 
 class IcepakMesh(object):
@@ -705,7 +813,7 @@ class IcepakMesh(object):
                             if ds == "Global":
                                 meshop = GlobalMeshRegion(self._app)
                             else:
-                                meshop = MeshRegion(
+                                meshop = MeshRegionCommon(
                                     self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
                                 )
                             for el in dict_prop:
@@ -721,7 +829,7 @@ class IcepakMesh(object):
                         if ds == "Global":
                             meshop = GlobalMeshRegion(self._app)
                         else:
-                            meshop = MeshRegion(
+                            meshop = MeshRegionCommon(
                                 self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
                             )
                         for el in dict_prop:
@@ -1041,7 +1149,7 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        meshregion = MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app)
+        meshregion = MeshRegionCommon(self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name

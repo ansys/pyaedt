@@ -5880,6 +5880,8 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateRegion
         """
+        if region_name is None:
+            region_name = generate_unique_name("SubRegion")
         is_percentage = padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
         arg, arg2 = self._parse_region_args(
             padding_values, padding_types, region_name, parts, "SubRegion", is_percentage
@@ -5944,7 +5946,9 @@ class GeometryModeler(Modeler):
         if region_type == "SubRegion":
             if not isinstance(parts, list):
                 parts = [parts]
-            arg.append(["NAME:SubRegionPartNames"] + parts)
+            if isinstance(parts, list):
+                parts = ",".join(parts)
+            arg += [["NAME:SubRegionPartNames", parts]]
             flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",

@@ -8,7 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
-from pyaedt.modules.MeshIcepak import MeshRegion
+from pyaedt.modules.MeshIcepak import MeshRegionCommon
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
@@ -76,8 +76,9 @@ class TestClass:
 
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
-        self.aedtapp.create_meshregion_component()
-        pcb_mesh_region = MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
+        assert self.aedtapp.create_meshregion_component()
+        self.aedtapp.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
+        pcb_mesh_region = MeshRegionCommon(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
         pcb_mesh_region.name = "PCB_Region"
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2
@@ -92,9 +93,12 @@ class TestClass:
         pcb_mesh_region.MinGapX = 1
         pcb_mesh_region.MinGapY = 1
         pcb_mesh_region.MinGapZ = 1
-        pcb_mesh_region.Objects = ["Component_Region"]
+        pcb_mesh_region.Objects = ["PCB"]
         assert pcb_mesh_region.create()
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+        pcb_mesh_region.Objects = box.name
         assert pcb_mesh_region.update()
+        subregion = self.aedtapp.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
         assert self.aedtapp.mesh.meshregions_dict
         assert pcb_mesh_region.delete()
 
