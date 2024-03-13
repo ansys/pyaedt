@@ -19,6 +19,7 @@ from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+from sphinx.util import logging
 import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
@@ -39,6 +40,12 @@ def visit_desc_content(self, node: Element) -> None:
 LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
+
+
+logger = logging.getLogger(__name__)
+
+
+# Sphinx event hooks
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -69,10 +76,29 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     # return True if exclude else None
 
 
+def directory_size(directory_path):
+    """Compute the size (in mega bytes) of a directory."""
+    res = 0
+    for path, _, files in os.walk(directory_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            res += os.stat(fp).st_size
+    # Convert in mega bytes
+    res /= 1e6
+    return res
+
 def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build.
-    """
-    shutil.rmtree(app.doctreedir)
+    """Remove the .doctree directory created during the documentation build."""
+
+    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
+    # where we want to build both HTML and PDF pages.
+    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
+        logger.info(f"Keeping directory {app.doctreedir}.")
+    else:
+        size = directory_size(app.doctreedir)
+        logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
+        shutil.rmtree(app.doctreedir, ignore_errors=True)
+        logger.info(f"Doctree removed.")
 
 
 def setup(app):
@@ -324,7 +350,6 @@ html_theme_options = {
         "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
             f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
-            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
         },
     },
 }
