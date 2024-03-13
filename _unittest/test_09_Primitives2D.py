@@ -10,11 +10,16 @@ def aedtapp(add_app):
     app = add_app(design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d)
     return app
 
+@pytest.fixture(scope="class")
+def axisymmetrical(add_app):
+    app = add_app(design_name="2D_Primitives_3", solution_type="TransientZ", application=Maxwell2d)
+    return app
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
+    def init(self, aedtapp, axisymmetrical, local_scratch):
         self.aedtapp = aedtapp
+        self.axisymmetrical = axisymmetrical
         self.local_scratch = local_scratch
 
     def create_rectangle(self, name=None):
@@ -73,6 +78,25 @@ class TestClass:
 
         region = self.aedtapp.modeler.create_region([100, 100, 100, 100, 100, 100])
         assert not region
+
+    def test_06_a_create_region_Z(self):
+        if self.axisymmetrical.modeler["Region"]:
+            self.axisymmetrical.modeler.delete("Region")
+        assert "Region" not in self.axisymmetrical.modeler.object_names
+        assert self.axisymmetrical.modeler.create_region([100, 50, 20])
+        self.axisymmetrical.modeler["Region"].delete()
+        assert self.axisymmetrical.modeler.create_region(100)
+        self.axisymmetrical.modeler["Region"].delete()
+        assert self.axisymmetrical.modeler.create_region("200")
+        self.axisymmetrical.modeler["Region"].delete()
+        assert self.axisymmetrical.modeler.create_region([100, "50mm", 20], False)
+        self.axisymmetrical.modeler["Region"].delete()
+        assert self.axisymmetrical.modeler.create_region([100, "50mm", "100"], False)
+        self.axisymmetrical.modeler["Region"].delete()
+        assert self.axisymmetrical.modeler.create_region(["50mm", "50mm", "50mm"], False)
+        self.axisymmetrical.modeler["Region"].delete()
+        assert self.axisymmetrical.modeler.create_region("10mm", False)
+        self.axisymmetrical.modeler["Region"].delete()
 
     def test_07_assign_material_ceramic(self, material="Ceramic_material"):
         self.aedtapp.assign_material(["Rectangle1"], material)
