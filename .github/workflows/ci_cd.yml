@@ -156,8 +156,8 @@ jobs:
           SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
-          make -C doc clean
-          make -C doc html
+          .\doc\make.bat clean
+          .\doc\make.bat html
 
       - name: Upload HTML documentation without examples artifact
         uses: actions/upload-artifact@v3
@@ -179,7 +179,7 @@ jobs:
           SPHINXBUILD_KEEP_DOCTREEDIR: "0"
         run: |
           .venv\Scripts\Activate.ps1
-          make -C doc pdf
+          .\doc\make.bat pdf
 
       - name: Upload PDF Documentation artifact
         uses: actions/upload-artifact@v3
