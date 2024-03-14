@@ -56,7 +56,7 @@ jobs:
           python -c "import pyaedt; from pyaedt import __version__"
 
   smoke-tests-with-install-target:
-    name: Build and perform smoke tests with install target ${{ matrix.target }}
+    name: Build and smoke tests (${{ matrix.os }} | Python ${{ matrix.python-version }} | Target ${{ matrix.install_target}})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -78,10 +78,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip build wheel
 
-      - name: "Install the library"
+      - name: "Install the library with specified install target"
         shell: bash
         run: |
-          python -m pip install ${{ matrix.install_target }}
+          python -m pip install .[${{ matrix.install_target }}]
 
       - name: "Verify if importlib-metadata needs to be installed"
         shell: bash
