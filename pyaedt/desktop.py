@@ -1687,7 +1687,6 @@ class Desktop(object):
         from pyaedt.misc.install_extra_toolkits import available_toolkits
 
         toolkit = available_toolkits[toolkit_name]
-        toolkit_name = toolkit_name.replace("_", "")
 
         # Set Python version based on AEDT version
         python_version = "3.10" if self.aedt_version_id > "2023.1" else "3.7"
@@ -1724,13 +1723,14 @@ class Desktop(object):
             )
         if not os.path.exists(venv_dir):
             run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
-            self.logger.info("Virtual environment created {}.".format(toolkit_name))
-
+            self.logger.info("Virtual environment for {} toolkit created.".format(toolkit_name))
+            self.logger.info("Installing dependencies.".format(toolkit_name))
             # Install the specified package
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
         else:
             # Update toolkit
+            self.logger.info("Installing dependencies.".format(toolkit_name))
             run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
 
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
@@ -1748,6 +1748,51 @@ class Desktop(object):
                 product=toolkit["installation_path"],
                 copy_to_personal_lib=False,
                 executable_interpreter=python_exe,
+            )
+
+    @pyaedt_function_handler()
+    def delete_custom_toolkit(self, toolkit_name):  # pragma: no cover
+        """Delete toolkit from AEDT Automation Tab.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of toolkit to add.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt import is_windows
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+
+        toolkit = available_toolkits[toolkit_name]
+
+        # Set Python version based on AEDT version
+        python_version = "3.10" if self.aedt_version_id > "2023.1" else "3.7"
+
+        if is_windows:
+            venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(toolkit_name))
+        else:
+            venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(toolkit_name))
+
+        if not os.path.exists(venv_dir):
+            self.logger.info("Virtual environment {} does not exist.".format(toolkit_name))
+        else:
+            try:
+                shutil.rmtree(venv_dir)
+                self.logger.info("Virtual environment {} does deleted.".format(toolkit_name))
+            except OSError as e:
+                self.logger.info(f"Error: {venv_dir} : {e.strerror}")
+
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
+
+        if os.path.exists(tool_dir):
+            # Install toolkit inside AEDT
+            self.remove_script_from_menu(
+                toolkit_name=toolkit_name,
+                product=toolkit["installation_path"],
             )
 
     @pyaedt_function_handler()
