@@ -1721,16 +1721,39 @@ class Desktop(object):
             os.environ["LD_LIBRARY_PATH"] = (
                 ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
             )
+        new_env = False
         if not os.path.exists(venv_dir):
+            new_env = True
             run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
             self.logger.info("Virtual environment for {} toolkit created.".format(toolkit_name))
-            self.logger.info("Installing dependencies.".format(toolkit_name))
+
+        if wheel_toolkit:
+            wheel_toolkit = os.path.normpath(wheel_toolkit)
+        self.logger.info("Installing dependencies.".format(toolkit_name))
+        if wheel_toolkit and os.path.exists(wheel_toolkit):
+            if not new_env:
+                run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit["pip"]))
+
+            import zipfile
+
+            unzipped_path = os.path.join(
+                os.path.dirname(wheel_toolkit), os.path.splitext(os.path.basename(wheel_toolkit))[0]
+            )
+            if os.path.exists(unzipped_path):
+                shutil.rmtree(unzipped_path, ignore_errors=True)
+            with zipfile.ZipFile(wheel_toolkit, "r") as zip_ref:
+                zip_ref.extractall(unzipped_path)
+
+            package_name = available_toolkits[toolkit_name]["package_name"]
+            run_command(
+                '"{}" install --no-cache-dir --no-index --find-links={} {}'.format(pip_exe, unzipped_path, package_name)
+            )
+        elif new_env:
             # Install the specified package
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
         else:
             # Update toolkit
-            self.logger.info("Installing dependencies.".format(toolkit_name))
             run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
 
         toolkit_dir = os.path.join(self.personallib, "Toolkits")

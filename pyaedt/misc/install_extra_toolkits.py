@@ -20,7 +20,7 @@ available_toolkits = {
         "image": "magnet_segmentation.png",
         "toolkit_script": "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py",
         "installation_path": "Maxwell3d",
-        "package_name": "magnet-segmentation-toolkit",
+        "package_name": "ansys.magnet.segmentation.toolkit",
     },
 }
 

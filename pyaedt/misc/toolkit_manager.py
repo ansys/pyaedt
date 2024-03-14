@@ -17,8 +17,6 @@ def create_library_buttons(frame, libraries):
     install_radio.grid(row=0, column=0, padx=5, pady=5)
     uninstall_radio.grid(row=0, column=2, padx=5, pady=5)
 
-    buttons.append(option_action)
-
     row = 1
     for library in libraries:
         if is_windows:
@@ -38,16 +36,22 @@ def create_library_buttons(frame, libraries):
         buttons.append(button)
         row += 1
 
-    return buttons
+    # Create entry box for directory path
+    entry_label = tk.Label(frame, text="Enter Wheelhouse:")
+    entry_label.grid(row=row, column=0, padx=5, pady=5)
+    directory_entry = tk.Entry(frame)
+    directory_entry.grid(row=row, column=1, padx=5, pady=5)
+
+    return buttons, option_action, directory_entry
 
 
 def open_window(window, window_name, libraries):
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
-        buttons = create_library_buttons(window, libraries)
+        buttons, option_action, directory_entry = create_library_buttons(window, libraries)
         root.minsize(500, 250)
-        return buttons
+        return buttons, option_action, directory_entry
     else:
         window.deiconify()
 
@@ -59,16 +63,14 @@ def toolkit_window(toolkit_level="Project"):
         if toolkit_info["installation_path"].lower() == toolkit_level.lower():
             specific_toolkits.append(toolkit_name)
     toolkit_window_var.minsize(300, 200)
-    buttons = open_window(toolkit_window_var, toolkit_level, specific_toolkits)
+    library_buttons, option_action, wheelhouse = open_window(toolkit_window_var, toolkit_level, specific_toolkits)
 
-    option_action = buttons[0]
-    library_buttons = buttons[1:]
     for button in library_buttons:
         # Attach event handlers or perform other actions
-        button.configure(command=lambda b=button, o=option_action: on_button_click(b, o))
+        button.configure(command=lambda b=button, o=option_action, w=wheelhouse: on_button_click(b, o, w))
 
 
-def on_button_click(button, option_action):
+def on_button_click(button, option_action, wheelhouse):
     if is_windows:
         venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(button["text"]))
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
@@ -105,13 +107,14 @@ def on_button_click(button, option_action):
         )
 
     action = option_action.get()
+    wheelhouse_path = wheelhouse.get()
 
     if os.path.isfile(python_exe) and action == "Install":
         desktop.logger.info(f"Updating {button['text']} toolkit.")
-        desktop.add_custom_toolkit(button["text"])
+        desktop.add_custom_toolkit(button["text"], wheelhouse_path)
     elif action == "Install":
         desktop.logger.info(f"Installing {button['text']} toolkit.")
-        desktop.add_custom_toolkit(button["text"])
+        desktop.add_custom_toolkit(button["text"], wheelhouse_path)
     elif os.path.isfile(python_exe) and action == "Uninstall":
         desktop.logger.info(f"Uninstalling {button['text']} toolkit.")
         desktop.delete_custom_toolkit(button["text"])
