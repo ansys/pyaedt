@@ -31,9 +31,16 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryDictionary
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import ExponentialDictionary
+from pyaedt.modules.Boundary import LinearDictionary
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.Boundary import PieceWiseLinearDictionary
+from pyaedt.modules.Boundary import PowerLawDictionary
+from pyaedt.modules.Boundary import SinusoidalDictionary
+from pyaedt.modules.Boundary import SquareWaveDictionary
 from pyaedt.modules.Boundary import _create_boundary
 from pyaedt.modules.monitor_icepak import Monitor
 
@@ -654,7 +661,7 @@ class Icepak(FieldAnalysis3D):
         """Create a source power for a face.
 
         .. deprecated:: 0.6.71
-            This method is replaced by `assign_source`.
+            This method is replaced by :obj:`~Icepak.assign_source`.
 
         Parameters
         ----------
@@ -745,7 +752,7 @@ class Icepak(FieldAnalysis3D):
         """Create a network block.
 
         .. deprecated:: 0.6.27
-            This method will be replaced by `create_two_resistor_network_block`.
+            This method is replaced by :obj:`~Icepak.create_two_resistor_network_block`.
 
         Parameters
         ----------
@@ -2073,7 +2080,7 @@ class Icepak(FieldAnalysis3D):
                 )
                 arg.append("Calculation:=")
                 arg.append([type, geometry_type, el, quantity, "", "Default"])
-            except Exception as e:
+            except Exception:
                 self.logger.warning("Object " + el + " not added.")
         if not output_dir:
             output_dir = self.working_directory
@@ -3538,50 +3545,30 @@ class Icepak(FieldAnalysis3D):
             or ``"Heat Transfer Coefficient"``.
         name : str, optional
             Name of the boundary condition. The default is ``None``.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Temperature to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified, the
-            unit is degrees Celsius. A dictionary can be used for transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``.
-
-             - The value for the ``"Type"`` key must be ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"``, and ``"Piecewise Linear"``.
-             The ``"Values"`` key contains a list of strings containing the parameters
-            required by the ``"Function"`` key selection. For example, ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line. The parameters required by
-            each ``Function`` key selection is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"0cel"``.
-        heat_flux : str or float or dict, optional
+            unit is degrees Celsius. Assign a transient condition using the
+            result of a function with the ``create_*_transient_assignment`` pattern.
+            The default is ``"0cel"``.
+        heat_flux : str or float or dict or BoundaryDictionary, optional
             Heat flux to assign to the wall. This parameter is relevant if
             ``ext_condition="Temperature"``. If a float value is specified,
-            the unit is irrad_W_per_m2. A dictionary can be used for temperature-dependent or transient
-            assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-            ``"Values"``.
-
-             - The value for the ``"Type"`` key must be ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
-             ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"0irrad_W_per_m2"``.
-        htc : str or float or dict, optional
+            the unit is irrad_W_per_m2. Assign a transient condition using the
+            result of a function with the ``create_*_transient_assignment`` pattern.
+            the unit is ``irrad_W_per_m2``. Assign a transient condition using the
+            result of a function with the ``create_*_transient_assignment`` pattern.
+            The default is ``"0irrad_W_per_m2"``.
+        htc : str or float or dict or BoundaryDictionary, optional
             Heat transfer coefficient to assign to the wall. This parameter
             is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
-            float value is specified, the unit is w_per_m2kel.
-            A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-             support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"0w_per_m2kel"``.
+            float value is specified, the unit is ``w_per_m2kel``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            the ``create_*_transient_assignment`` pattern.
+            Assign a temperature-dependent condition using the result of a
+            function with the pattern ``create_temp_dep_assignment``.
+            The default is ``"0w_per_m2kel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is
             the current unit system set in Icepak. The default is ``"0mm"``.
@@ -3643,21 +3630,13 @@ class Icepak(FieldAnalysis3D):
         ext_surf_rad_material : str, optional
             Surface material for the external surface radiation option. This parameter
             is relevant if ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
-        ext_surf_rad_ref_temp : str or float or dict, optional
+        ext_surf_rad_ref_temp : str or float or dict or BoundaryDictionary, optional
              Reference temperature for the external surface radiation option. This parameter
-             is relevant if  ``ext_surf_rad=True``.  If a float value is specified, the default
-             unit is degrees Celsius.  A dictionary can be used for transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``.
-
-             - The value for the ``"Type"`` key must be ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
-             ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"AmbientTemp"``.
+             is relevant if ``ext_surf_rad=True``.  If a float value is specified, the default
+             unit is degrees Celsius.
+             Assign a transient condition using the result of a function with
+             the pattern  ``create_*_transient_assignment``.
+             The default is ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
 
@@ -3717,7 +3696,7 @@ class Icepak(FieldAnalysis3D):
             ("Heat Flux", heat_flux, boundary_condition == "Heat Flux")
         ]:
             if to_add:
-                if isinstance(assignment_value, dict):
+                if isinstance(assignment_value, (dict, BoundaryDictionary)):
                     assignment_value = self._parse_variation_data(
                         quantity,
                         assignment_value["Type"],
@@ -3785,20 +3764,12 @@ class Icepak(FieldAnalysis3D):
             Name of the surface object or ID of the face.
         name : str, optional
             Name of the boundary condition. The default is ``None``.
-        heat_flux : str or float or dict, optional
-            Heat flux to assign to the wall. If a float value is
-            specified, the unit is ``irrad_W_per_m2``. A dictionary can be used for transient
-            assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-            ``"Values"``.
-
-             - The value for the ``"Type"`` key must be ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``.
-             ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"0irrad_W_per_m2"``.
+        heat_flux : str or float or dict or BoundaryDictionary, optional
+            Heat flux to assign to the wall. This parameter is relevant if
+            ``ext_condition="Temperature"``. If a float value is specified,
+            the unit is ``irrad_W_per_m2``. Assign a transient condition using the
+            result of a function with the ``create_*_transient_assignment`` pattern.
+            The default is ``"0irrad_W_per_m2"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is the
             current unit system set in Icepak. The default is ``"0mm"``.
@@ -3855,20 +3826,12 @@ class Icepak(FieldAnalysis3D):
             Name of the surface object or ID of the face.
         name : str, optional
             Name of the boundary condition. The default is ``None``.
-        temperature : str or float or dict, optional
-            Temperature to assign to the wall. If a float value is specified,
-            the unit is degrees Celsius.  A dictionary can be used for transient
-            assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-            ``"Values"``.
-
-             - The value for the ``"Type"`` key must be ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"``, and ``"Piecewise Linear"``.
-             The ``"Values"`` key contains a list of strings containing the parameters
-            required by the ``"Function"`` key selection. For example, ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line. The parameters required by
-            each ``Function`` key selection is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"0cel"``.
+        temperature : str or float or dict or BoundaryDictionary, optional
+            Temperature to assign to the wall. This parameter is relevant if
+            ``ext_condition="Temperature"``. If a float value is specified, the
+            unit is degrees Celsius. Assign a transient condition using the
+            result of a function with the ``create_*_transient_assignment`` pattern.
+            The default is ``"0cel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified used, the unit is the
             current unit system set in Icepak. The default is ``"0mm"``.
@@ -3941,18 +3904,15 @@ class Icepak(FieldAnalysis3D):
             Name of the surface object or id of the face.
         name : str, optional
             Name of the boundary condition. The default is ``None``.
-        htc : str or float or dict, optional
-            Heat transfer coefficient to assign to the wall. If a float value
-            is specified, the unit is ``w_per_m2kel``. A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-             support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"0w_per_m2kel"``.
+        htc : str or float or dict or BoundaryDictionary, optional
+            Heat transfer coefficient to assign to the wall. This parameter
+            is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
+            float value is specified, the unit is ``w_per_m2kel``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            Assign a temperature-dependent condition using the result of a
+            function with the pattern ``create_temp_dep_assignment``.
+            The default is ``"0w_per_m2kel"``.
         thickness : str or float, optional
             Thickness of the wall. If a float value is specified, the unit is the
             current unit system set in Icepak. The default is ``"0mm"``.
@@ -3986,15 +3946,15 @@ class Icepak(FieldAnalysis3D):
             Flow direction for the correlation option. This parameter is relevant
             if ``ht_correlation_type="Forced Convection"``. The default is ``"X"``.
         ht_correlation_value_type : str, optional
-             Value type for the forced convection correlation option. This
-             parameter is relevant if ``ht_correlation_type="Forced Convection"``.
-             Options are "Average Values" and "Local Values". The default
-             is ``"Average Values"``.
+            Value type for the forced convection correlation option. This
+            parameter is relevant if ``ht_correlation_type="Forced Convection"``.
+            Options are ``"Average Values"`` and ``"Local Values"``. The default
+            is ``"Average Values"``.
         ht_correlation_free_stream_velocity : str or float, optional
-             Free stream flow velocity. This parameter is relevant if
-             ``ht_correlation_type="Forced Convection"``.  If a float
-             value is specified, ``m_per_sec`` is the unit. The default
-             is ``"1m_per_sec"``.
+            Free stream flow velocity. This parameter is relevant if
+            ``ht_correlation_type="Forced Convection"``.  If a float
+            value is specified, ``m_per_sec`` is the unit. The default
+            is ``"1m_per_sec"``.
         ht_correlation_surface : str, optional
             Surface for the natural convection correlation option. This parameter is
             relevant if ``ht_correlation_type="Natural Convection"``. Options are "Top",
@@ -4013,20 +3973,13 @@ class Icepak(FieldAnalysis3D):
         ext_surf_rad_material : str, optional
             Surface material for the external surface radiation option. This parameter is
             relevant if ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
-        ext_surf_rad_ref_temp : str or float or dict, optional
-             Reference temperature for the external surface radiation option. This
-             parameter is relevant if ``ext_surf_rad=True``. If a float value is
-             specified, the default unit is degrees Celsius.
-              A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-             support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed. The default is ``"AmbientTemp"``.
+        ext_surf_rad_ref_temp : str or float or dict or BoundaryDictionary, optional
+            Reference temperature for the external surface radiation option. This parameter
+            is relevant if ``ext_surf_rad=True``.  If a float value is specified, the default
+            unit is degrees Celsius.
+            Assign a transient condition using the result of a function with
+            the pattern  ``create_*_transient_assignment``.
+            The default is ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
 
@@ -4193,30 +4146,26 @@ class Icepak(FieldAnalysis3D):
         thermal_condition : str
             Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
             ``"Temperature"``.
-        assignment_value : str or dict
-            Value and units of the input power, surface heat or temperature (depending on
-            ``thermal_condition``). A dictionary can be used for temperature dependent or transient
-             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"``, and
-             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-             - Accepted values for the ``"Function"`` key are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-             support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed.
+        assignment_value : str or dict or BoundaryDictionary
+            Value and units of the input power, surface heat, or temperature (depending on
+            ``thermal_condition``).
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            Assign a temperature-dependent condition using the result of a
+            function with the ``create_temp_dep_assignment`` pattern.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the boundary name
             is generated automatically.
         radiate : bool, optional
             Whether to enable radiation. The default is ``False``.
         voltage_current_choice : str or bool, optional
-            Whether to assign ``"Voltage"`` or ``"Current"`` or none of them. The default is
-            ``False`` (none of them is assigned).
-        voltage_current_value : str or dict, optional
-            Value and units of current or voltage assignment. A dictionary can be used for
-            transient assignment. The dictionary must be structured as described for the
-            ``assignment_value`` argument. The default is ``None``.
+            Whether to assign the ``"Voltage"`` or ``"Current"`` option. The default is
+            ``False``, in which case neither option is assigned.
+        voltage_current_value : str or dict or BoundaryDictionary, optional
+            Value and units of current or voltage assignment.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``None``.
 
         Returns
         -------
@@ -4253,7 +4202,7 @@ class Icepak(FieldAnalysis3D):
         props["Thermal Condition"] = thermal_condition
         for quantity, value in default_values.items():
             if quantity == thermal_condition:
-                if isinstance(assignment_value, dict):
+                if isinstance(assignment_value, (dict, BoundaryDictionary)):
                     assignment_value = self._parse_variation_data(
                         quantity,
                         assignment_value["Type"],
@@ -4273,7 +4222,7 @@ class Icepak(FieldAnalysis3D):
         props["Voltage/Current Option"] = voltage_current_choice
         for quantity, value in default_values.items():
             if voltage_current_choice == quantity:
-                if isinstance(voltage_current_value, dict):
+                if isinstance(voltage_current_value, (dict, BoundaryDictionary)):
                     if voltage_current_value["Type"] == "Temp Dep":
                         self.logger.error("Voltage or Current assignment does not support temperature dependence.")
                         return None
@@ -4419,39 +4368,31 @@ class Icepak(FieldAnalysis3D):
         ----------
         object_name : str or list
             Object name or a list of object names.
-        power_assignment : str or dict
+        power_assignment : str or dict or BoundaryDictionary
             String with the value and units of the power assignment or with
-            ``"Joule Heating"``. For a temperature-dependent or transient
-            assignment, a dictionary can be used. The dictionary should contain three keys:
-            ``"Type"``, ``"Function"``, and ``"Values"``.
-            - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
-            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
-            selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
-            accepted value is ``"Piecewise Linear"``. When the ``"Type"`` key is
-            set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-            ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"SquareWave"``.
-            - For the ``"Values"`` key, a list of strings contain the parameters required by
-            the ``"Function"`` key selection. For example, when``"Linear"`` is set as the
-            ``"Function"`` key, two parameters are required: the value of the variable
-            at t=0 and the slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation. The parameters
-            must contain the units where needed.
+            ``" If you don't want to assign a specific power but set a joule heating
+            dissipation, use ``power_assignment="Joule Heating"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            Assign a temperature-dependent condition using the result of a
+            function with the ``create_temp_dep_assignment`` pattern.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary name is automatically generated.
-        htc : float, str, or dict, optional
+        htc : float, str, or dict or BoundaryDictionary, optional
             String with the value and units of the heat transfer coefficient for the
-            external conditions. If a float is provided, the ``"w_per_m2kel"`` unit is used.
-            For a temperature-dependent or transient
-            assignment, a dictionary can be used. For more information, see the
-            description for the preceding ``power_assignment`` parameter. The
-            default is ``None``, in which case no external condition is applied.
-        ext_temperature : float, str or dict, optional
+            external conditions. If a float is provided, the unit is ``"w_per_m2kel"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern .
+            Assign a temperature-dependent condition using the result of a
+            function with the pattern ``create_temp_dep_assignment``.
+            The default is ``None``, in which case no external condition is applied.
+        ext_temperature : float, str or dict or BoundaryDictionary, optional
             String with the value and units of temperature for the external conditions.
             If a float is provided, the ``"cel"`` unit is used.
-            For a transient assignment, a dictionary can be used. For more information,
-            see the description for the preceding ``power_assignment`` parameter. The
-            default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
             set to ``None``.
 
         Returns
@@ -4477,7 +4418,7 @@ class Icepak(FieldAnalysis3D):
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
             self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
             return None
-        if isinstance(ext_temperature, dict) and ext_temperature["Type"] == "Temp Dep":
+        if isinstance(ext_temperature, (dict, BoundaryDictionary)) and ext_temperature["Type"] == "Temp Dep":
             self.logger.add_error_message(
                 'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
             )
@@ -4491,7 +4432,7 @@ class Icepak(FieldAnalysis3D):
                 )
                 return None
         props = {"Block Type": "Solid", "Objects": object_name}
-        if isinstance(power_assignment, dict):
+        if isinstance(power_assignment, (dict, BoundaryDictionary)):
             assignment_value = self._parse_variation_data(
                 "Total Power",
                 power_assignment["Type"],
@@ -4512,7 +4453,7 @@ class Icepak(FieldAnalysis3D):
         if htc:
             props["Use External Conditions"] = True
             for quantity, assignment in [("Temperature", ext_temperature), ("Heat Transfer Coefficient", htc)]:
-                if isinstance(assignment, dict):
+                if isinstance(assignment, (dict, BoundaryDictionary)):
                     assignment_value = self._parse_variation_data(
                         quantity,
                         assignment["Type"],
@@ -4546,30 +4487,22 @@ class Icepak(FieldAnalysis3D):
         assignment_type : str
             Type of the boundary assignment. Options are ``"Heat Transfer Coefficient"``,
             ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
-        assignment_value : str or dict
-            String with value and units of the assignment. If ``"Total Power"`` is
+        assignment_value : str or dict or BoundaryDictionary
+            String with a value and units of the assignment. If ``"Total Power"`` is
             the assignment type, ``"Joule Heating"`` can be used.
-            For a temperature-dependent or transient assignment, a dictionary can be used.
-            The dictionary should contain three keys: ``"Type"``, ``"Function"``, and ``"Values"``.
-            - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
-            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key selection. When the ``"Type"``
-            key is set to ``"Temp Dep"``, the only accepted value is ``"Piecewise Linear"``.
-            When the ``"Type"`` key is set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-            ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, a list of strings contain the parameters required by the ``"Function"``
-            key selection. For example, when``"Linear"`` is set as the ``"Function"`` key, two parameters are required:
-            the value of the variable at t=0 and the slope of the line.
-            For the parameters required by each ``"Function"`` key selection, see the Icepak documentation.
-            The parameters must contain the units where needed.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            Assign a temperature-dependent condition using the result of a
+            function with the pattern ``create_temp_dep_assignment``.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary is automatically generated.
-        external_temperature : str, dict or float, optional
+        external_temperature : str, dict or float or BoundaryDictionary, optional
             String with the value and unit of the temperature for the heat transfer
             coefficient. If a float value is specified, the ``"cel"`` unit is automatically
             added.
-            For a transient assignment, a dictionary can be used as described for the
-            ``assignment_value`` argument. Temperature dependent assignment is not supported.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientTemp"``.
 
         Returns
@@ -4625,7 +4558,7 @@ class Icepak(FieldAnalysis3D):
         props = {"Block Type": "Hollow", "Objects": object_name, "Thermal Condition": thermal_condition[0]}
         if thermal_condition[0] == "Fixed Heat":
             props["Use Total Power"] = thermal_condition[1] == "Total Power"
-        if isinstance(assignment_value, dict):
+        if isinstance(assignment_value, (dict, BoundaryDictionary)):
             assignment_value_dict = self._parse_variation_data(
                 thermal_condition[1],
                 assignment_value["Type"],
@@ -4641,7 +4574,7 @@ class Icepak(FieldAnalysis3D):
         else:
             props[thermal_condition[1]] = assignment_value
         if thermal_condition[0] == "Internal Conditions":
-            if isinstance(external_temperature, dict):
+            if isinstance(external_temperature, (dict, BoundaryDictionary)):
                 if external_temperature["Type"] == "Temp Dep":
                     self.logger.add_error_message('It is not possible to use "Temp Dep" for a temperature assignment.')
                     return None
@@ -4731,44 +4664,42 @@ class Icepak(FieldAnalysis3D):
             IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
         flow_type : int or str, optional
             Prescribed radiation flow type at the boundary. Available options are ``"Pressure"``,
             ``"Velocity"``, and ``"Mass Flow"``. The default is ``"Pressure"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern as an element of the list.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
-        mass_flow_rate : float or str or dict, optional
+        mass_flow_rate : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
+            the unit ``'kg_per_s'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             Default is ``"0kg_per_s"``.
         inflow : bool, optional
             Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
@@ -4796,15 +4727,16 @@ class Icepak(FieldAnalysis3D):
         """
         # Sanitize input
         for i in range(len(velocity)):
-            if not isinstance(velocity[i], str) and not isinstance(velocity[i], dict):
+            if not isinstance(velocity[i], str) and not isinstance(velocity[i], (dict, BoundaryDictionary)):
                 velocity[i] = str(velocity[i]) + "m_per_sec"
-        if not isinstance(mass_flow_rate, str) and not isinstance(mass_flow_rate, dict):
+        if not isinstance(mass_flow_rate, str) and not isinstance(mass_flow_rate, (dict, BoundaryDictionary)):
             mass_flow_rate = str(mass_flow_rate) + "kg_per_s"
-        if not isinstance(temperature, str) and not isinstance(temperature, dict):
+        if not isinstance(temperature, str) and not isinstance(temperature, (dict, BoundaryDictionary)):
             temperature = str(temperature) + "cel"
-        if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, dict):
+        if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, (dict,
+                                                                                                 BoundaryDictionary)):
             radiation_temperature = str(radiation_temperature) + "cel"
-        if not isinstance(pressure, str) and not isinstance(pressure, dict):
+        if not isinstance(pressure, str) and not isinstance(pressure, (dict, BoundaryDictionary)):
             pressure = str(pressure) + "pascal"
         # Dict creation
         props = {}
@@ -4846,7 +4778,7 @@ class Icepak(FieldAnalysis3D):
                 ("Z Velocity", velocity[2]),
             ]
         for quantity, assignment in possible_transient_properties:
-            if isinstance(assignment, dict):
+            if isinstance(assignment, (dict, BoundaryDictionary)):
                 if not self.solution_type == "Transient":
                     self.logger.error("Transient assignment is supported only in transient designs.")
                     return None
@@ -4888,30 +4820,28 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str or list
-           Integer indicating a face ID or a string indicating an object name. A list of face
-           IDs or object names is also accepted.
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
-            acceptable values associated with those keys can be found in the Icepak
-            documentation. The default is ``"AmbientPressure"``.
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
 
@@ -4962,32 +4892,30 @@ class Icepak(FieldAnalysis3D):
             IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
-            acceptable values associated with those keys can be found in the Icepak
-            documentation. The default is ``"AmbientPressure"``.
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"AmbientPressure"``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern as an element of the list.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
 
 
@@ -5035,37 +4963,35 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str or list
-           Integer indicating a face ID or a string indicating an object name. A list of face
-           IDs or object names is also accepted.
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case the name is generated automatically.
-        temperature : str or float or dict, optional
+        temperature : str or float or dict or BoundaryDictionary, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
-            can be passed to set a transient behaviour. The acceptable values associated with those
-            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
-        radiation_temperature : str or float, optional
+            automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+        radiation_temperature : str or floaty, optional
             Prescribed radiation temperature at the boundary. If a string is set,  a variable name
             or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
-            automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour.
-            The acceptable values associated with those keys can be found in the Icepak documentation.
+            automatically added.
             Default is ``"AmbientRadTemp"``.
-        pressure : float or str or dict, optional
+        pressure : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
-            acceptable values associated with those keys can be found in the Icepak
-            documentation. The default is ``"AmbientPressure"``.
-        mass_flow_rate : float or str or dict, optional
+            the unit ``'pascal'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"AmbientPressure"``.
+        mass_flow_rate : float or str or dict or BoundaryDictionary, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
-            Default is ``"0kg_per_s"``.
+            the unit ``'kg_per_s'`` is automatically added.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"0kg_per_s"``.
         inflow : bool, optional
             Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
             in which case an inflow is prescribed.
@@ -5235,24 +5161,13 @@ class Icepak(FieldAnalysis3D):
             objects specified as a list.
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
-            provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+            provided, a unique name is generated. The default is ``None``.
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
-            volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
+            volume. It is specified as a string with a value and unit, a float
+            where the default unit "W" is used.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5356,7 +5271,7 @@ class Icepak(FieldAnalysis3D):
                     "Y": [str(i) for i in values[1]]
                 }
 
-        if isinstance(total_power, dict):
+        if isinstance(total_power, (dict, BoundaryDictionary)):
             if not self.solution_type == "Transient":
                 self.logger.error("Transient assignment is supported only in transient designs.")
                 return None
@@ -5397,28 +5312,17 @@ class Icepak(FieldAnalysis3D):
             objects specified as a list.
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
-            provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+            provided, a unique name is generated. The default is ``None``.
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
-            volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
-            Default is ``"0W"``.
+            volume. It is specified as a string with a value and unit or a float
+            where the default unit ``"W"`` is used.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"0W"``.
         fluid : str, optional
-            The material of the volume to which the resistance is being
-            assigned. Default is ``"air"``.
+            Material of the volume to assign the resistance to. The
+            default is ``"air"``.
         laminar : bool, optional
             Whether the flow inside the volume must be treated as laminar or
             not. Default is ``False``.
@@ -5462,25 +5366,14 @@ class Icepak(FieldAnalysis3D):
             assigned. It can be a single object (a string) or multiple
             objects specified as a list.
         boundary_name : str, optional
-            The name of the boundary object that will be created. If not
-            provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
-            The total power transferred to the fluid through the resistance
-            volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
+            Name of the boundary object to create. If  a name is not
+            provided, a unique name is generated. The default is ``None``.
+        total_power : str, float, or dict or BoundaryDictionary, optional
+            Total power transferred to the fluid through the resistance
+            volume. It is specified as a string with a value and unit or a float
+            where the default unit ``"W"`` is used.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             Default is ``"0W"``.
         fluid : str, optional
             The material of the volume to which the resistance is being
@@ -5547,27 +5440,16 @@ class Icepak(FieldAnalysis3D):
             objects specified as a list.
         boundary_name : str, optional
             The name of the boundary object that will be created. If not
-            provided, a unique name will be generated. Default is ``None``.
-        total_power : str, float, or dict, optional
+            provided, a unique name is generated. The default is ``None``.
+        total_power : str, float, or dict or BoundaryDictionary, optional
             The total power transferred to the fluid through the resistance
-            volume. It is specified as a string with value and unit, a float
-            where the default unit "W" will be used, or a dictionary for
-            transient assignment. The dictionary should contain two keys:
-            ``"Function"`` and ``"Values"``.
-
-            - For the ``"Function"`` key, options are ``"Exponential"``,
-            ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
-            ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing
-            the parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-
-            Default is ``"0W"``.
+            volume. It is specified as a string with a value and unit or a float
+            where the default unit ``"W"`` is used.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
+            The default is ``"0W"``.
         fluid : str, optional
-            The material of the volume to which the resistance is being
+            Material of the volume to which the resistance is being
             assigned. Default is ``"air"``.
         laminar : bool, optional
             Whether the flow inside the volume must be treated as laminar or
@@ -5628,20 +5510,10 @@ class Icepak(FieldAnalysis3D):
             Type of the thermal assignment across the two recirculation
             faces. The default is ``"Temperature"``. Options are
             ``"Conductance"``, ``"Heat Input"``, and ``"Temperature"``.
-        assignment_value : str or dict, optional
-            String with value and units of the thermal assignment. For a
-            transient assignment, a dictionary can be used. The dictionary
-            should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, options are
-            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
-            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing the
-            parameters required by the ``"Function"`` key selection. For
-            example, when ``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each ``"Function"``
-            key selection, see the Icepak documentation.
-            The parameters must contain the units where needed.
+        assignment_value : str or dict or BoundaryDictionary, optional
+            String with a value and units of the thermal assignment.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             The default value is ``"0cel"``.
         conductance_external_temperature : str, optional
             External temperature value, which is needed if
@@ -5651,20 +5523,10 @@ class Icepak(FieldAnalysis3D):
             Flow specification for the recirculation zone. The default is
             ``"Mass Flow"``. Options are: ``"Mass Flow"``, ``"Mass Flux"``,
             and ``"Volume Flow"``.
-        flow_assignment : str or dict, optional
-            String with the value and units of the flow assignment. For a
-            transient assignment, a dictionary can be used. The dictionary
-            should contain two keys: ``"Function"`` and ``"Values"``.
-            - For the ``"Function"`` key, options are
-            ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``,
-            ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
-            - For the ``"Values"`` key, provide a list of strings containing the
-            parameters required by the ``"Function"`` key selection. For
-            example, when``"Linear"`` is set as the ``"Function"`` key, two
-            parameters are required: the value of the variable at t=0 and the
-            slope of the line. For the parameters required by each
-            ``"Function"`` key selection, see the Icepak documentation.
-            The parameters must contain the units where needed.
+        flow_assignment : str or dict or BoundaryDictionary, optional
+            String with the value and units of the flow assignment.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
             The default value is ``"0kg_per_s_m2"``.
         flow_direction : list, optional
             Flow direction enforced at the recirculation zone. The default value
@@ -5714,7 +5576,7 @@ class Icepak(FieldAnalysis3D):
         if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
             self.logger.warning(
                 '``start_time`` and ``end_time`` only effect steady-state simulations.')
-        elif self.solution_type == "Transient" and not (start_time and end_time):
+        elif self.solution_type == "Transient" and not (start_time is not None and end_time is not None):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
             start_time = "0s"
@@ -5734,7 +5596,7 @@ class Icepak(FieldAnalysis3D):
             extract_face = [extract_face.id]
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
-        if isinstance(assignment_value, dict):
+        if isinstance(assignment_value, (dict, BoundaryDictionary)):
             if not self.solution_type == "Transient":
                 self.logger.error("Transient assignment is supported only in transient designs.")
                 return None
@@ -5749,7 +5611,7 @@ class Icepak(FieldAnalysis3D):
             props[assignment_dict[thermal_specification]] = assignment_value
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
-        if isinstance(flow_assignment, dict):
+        if isinstance(flow_assignment, (dict, BoundaryDictionary)):
             if not self.solution_type == "Transient":
                 self.logger.error("Transient assignment is supported only in transient designs.")
                 return None
@@ -5952,12 +5814,13 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
         thermal_specification : str, optional
-            Type of condition to apply. The default is `"Thickness"``.
+            Type of condition to apply. The default is ``"Thickness"``.
             Options are ``"Conductance"``, ``"Thermal Impedance"``,
             ``"Thermal Resistance"``, and ``"Thickness"``.
         thickness : str or float, optional
@@ -6004,7 +5867,7 @@ class Icepak(FieldAnalysis3D):
         else:
             raise AttributeError("Invalid ``obj_plate`` argument.")
 
-        if isinstance(total_power, dict):
+        if isinstance(total_power, (dict, BoundaryDictionary)):
             assignment = self._parse_variation_data(
                 "Total Power",
                 total_power["Type"],
@@ -6059,10 +5922,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
         thickness : str or float, optional
             If ``thermal_specification="Thickness"``, this parameter represents the
             thickness to model with the plate. The default is ``"1mm"``. If a float,
@@ -6110,10 +5974,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
         thermal_resistance : str or float, optional
             If ``thermal_specification="Thermal Resistance"``, this parameter represents the
             thermal resistance of the plate. The default is ``"0Kel_per_W"``. If a float, the
@@ -6157,10 +6022,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
         thermal_impedance : str or float, optional
             If ``thermal_specification="Thermal Impedance"``, this parameter represents the
             thermal impedance of the plate. The default is ``"0Cel_m2_per_W"``. If a float, the
@@ -6204,10 +6070,11 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case a name is generated
             automatically.
-        total_power : str or float or dict, optional
+        total_power : str or float or dict or BoundaryDictionary, optional
             Power dissipated by the plate. The default is ``"0W"``. If a float,
-            the default unit is ``"W"``. A transient or temperature-dependent power
-            can be assigned with a dictionary.
+            the default unit is ``"W"``.
+            Assign a transient condition using the result of a function with
+            the ``create_*_transient_assignment`` pattern.
         conductance : str or float, optional
              If ``thermal_specification="Conductance"``, this parameter represents the
              conductance of the plate. The default is ``"0W_per_Cel"``. If a float, the default
@@ -6235,3 +6102,211 @@ class Icepak(FieldAnalysis3D):
                                             shell_conduction=shell_conduction,
                                             low_side_rad_material=low_side_rad_material,
                                             high_side_rad_material=high_side_rad_material)
+
+    @pyaedt_function_handler
+    def __create_dataset_assignment(self, type_assignment, ds_name, scale):
+        """Create dataset condition assignments.
+
+        Parameters
+        ----------
+        type_assignment : str
+            Type of assignment represented by the class.
+            Options are ``"Temp Dep"`` and ``"Transient"``.
+        ds_name : str
+            Dataset name to assign.
+        scale : str
+            Scaling factor for the y values of the dataset.
+
+        Returns
+        -------
+        bool or :class:`PieceWiseLinearDictionary`
+            Created dataset condition assignments when successful, ``False`` when failed.
+        """
+        ds = None
+        try:
+            if ds_name.startswith("$"):
+                self.logger.error("Only design datasets are supported.")
+                return False
+            else:
+                ds = self.design_datasets[ds_name]
+        except KeyError:
+            self.logger.error("Dataset {} not found.".format({ds_name}))
+            return False
+        if not isinstance(scale, str):
+            scale = str(scale)
+        return PieceWiseLinearDictionary(type_assignment, ds, scale)
+
+    @pyaedt_function_handler
+    def create_temp_dep_assignment(self, ds_name, scale=1):
+        """
+        Create a temperature-dependent assignment from a dataset.
+
+        Parameters
+        ----------
+        ds_name : str
+            Name of the dataset.
+        scale : float or str, optional
+            Value for scaling the y value of the dataset. The default is ``1``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.PieceWiseLinearDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+
+        """
+        return self.__create_dataset_assignment("Temp Dep", ds_name, scale)
+
+    @pyaedt_function_handler
+    def create_dataset_transient_assignment(self, ds_name, scale=1):
+        """
+        Create a transient assignment from a dataset.
+
+        Parameters
+        ----------
+        ds_name : str
+            Name of the dataset.
+        scale : float or str, optional
+            Value for scaling the y value of the dataset. The default is ``1``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.PieceWiseLinearDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+
+        """
+        return self.__create_dataset_assignment("Transient", ds_name, scale)
+
+    @pyaedt_function_handler
+    def create_linear_transient_assignment(self, intercept, slope):
+        """
+        Create an object to assign the linear transient condition to.
+
+        This method applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*t^c``
+
+        Parameters
+        ----------
+        intercept : str
+            Value of the assignment condition at the initial time, which
+            corresponds to the coefficient ``a`` in the formula.
+        coefficient : str
+            Coefficient that multiplies the power term, which
+            corresponds to the coefficient ``b`` in the formula.
+        scaling_exponent : str
+            Exponent of the power term, which.
+            corresponds to the coefficient ``c`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.LinearDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return LinearDictionary(intercept, slope)
+
+    @pyaedt_function_handler
+    def create_powerlaw_transient_assignment(self, intercept, coefficient, scaling_exponent):
+        """
+        Create an object to assign the power law transient condition to.
+
+        This method applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*t^c``
+
+        Parameters
+        ----------
+        intercept : str
+            Value of the assignment condition at the initial time, which
+            corresponds to the coefficient ``a`` in the formula.
+        coefficient : str
+            Coefficient that multiplies the power term, which
+            corresponds to the coefficient ``b`` in the formula.
+        scaling_exponent : str
+            Exponent of the power term, which
+            corresponds to the coefficient ``c`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.PowerLawDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return PowerLawDictionary(intercept, coefficient, scaling_exponent)
+
+    @pyaedt_function_handler
+    def create_exponential_transient_assignment(self, vertical_offset, coefficient, exponent_coefficient):
+        """
+        Create an object to assign the exponential transient condition to.
+
+        This method applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*exp(c*t)``
+
+        Parameters
+        ----------
+        vertical_offset : str
+            Vertical offset summed to the exponential law, which
+            corresponds to the coefficient ``a`` in the formula.
+        coefficient : str
+            Coefficient that multiplies the exponential term, which
+            corresponds to the coefficient ``b`` in the formula.
+        exponent_coefficient : str
+            Coefficient in the exponential term, which
+            corresponds to the coefficient ``c`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.ExponentialDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
+
+    @pyaedt_function_handler
+    def create_sinusoidal_transient_assignment(self, vertical_offset, vertical_scaling, period, period_offset):
+        """
+        Create an object to assign the sinusoidal transient condition to.
+
+        This method applies a condition ``y`` dependent on the time ``t``:
+            ``y=a+b*sin(2*pi(t-t0)/T)``
+
+        Parameters
+        ----------
+        vertical_offset : str
+            Vertical offset summed to the sinusoidal law, which
+            corresponds to the coefficient ``a`` in the formula.
+        vertical_scaling : str
+            Coefficient that multiplies the sinusoidal term, which
+            corresponds to the coefficient ``b`` in the formula.
+        period : str
+            Period of the sinusoid, which
+            corresponds to the coefficient ``T`` in the formula.
+        period_offset : str
+            Offset of the sinusoid, which corresponds to the coefficient ``t0`` in the formula.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.SinusoidalDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
+
+    @pyaedt_function_handler
+    def create_square_wave_transient_assignment(self, on_value, initial_time_off, on_time, off_time, off_value):
+        """
+        Create an object to assign the square wave transient condition to.
+
+        Parameters
+        ----------
+        on_value : str
+            Maximum value of the square wave.
+        initial_time_off : str
+            Time after which the square wave assignment starts.
+        on_time : str
+            Time for which the square wave keeps the maximum value during one period.
+        off_time : str
+            Time for which the square wave keeps the minimum value during one period.
+        off_value : str
+            Minimum value of the square wave.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.SquareWaveDictionary`
+            Boundary dictionary object that can be passed to boundary condition assignment functions.
+        """
+        return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
