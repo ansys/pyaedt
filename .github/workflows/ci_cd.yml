@@ -169,89 +169,89 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  doc-build-with-examples:
-    name: Documentation build with examples
-    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    needs: [doc-style]
-    timeout-minutes: 720
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@v4
+  # doc-build-with-examples:
+  #   name: Documentation build with examples
+  #   # if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+  #   runs-on: [ self-hosted, Windows, pyaedt ]
+  #   needs: [doc-style]
+  #   timeout-minutes: 720
+  #   steps:
+  #     - name: Install Git and checkout project
+  #       uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Create virtual environment
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+  #     - name: Create virtual environment
+  #       run: |
+  #         python -m venv .venv
+  #         .venv\Scripts\Activate.ps1
+  #         python -m pip install pip -U
+  #         python -m pip install wheel setuptools -U
+  #         python -c "import sys; print(sys.executable)"
 
-      - name: Install pyaedt and documentation dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install .[doc]
+  #     - name: Install pyaedt and documentation dependencies
+  #       run: |
+  #         .venv\Scripts\Activate.ps1
+  #         pip install .[doc]
 
-      - name: Retrieve PyAEDT version
-        id: version
-        run: |
-          .venv\Scripts\Activate.ps1
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+  #     - name: Retrieve PyAEDT version
+  #       id: version
+  #       run: |
+  #         .venv\Scripts\Activate.ps1
+  #         echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+  #         echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      - name: Uninstall conflicting CI packages
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip uninstall vtk -y
+  #     - name: Uninstall conflicting CI packages
+  #       run: |
+  #         .venv\Scripts\Activate.ps1
+  #         pip uninstall vtk -y
 
-      - name: Install CI related dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install --extra-index-url https://wheels.vtk.org .[ci]
+  #     - name: Install CI related dependencies
+  #       run: |
+  #         .venv\Scripts\Activate.ps1
+  #         pip install --extra-index-url https://wheels.vtk.org .[ci]
 
-      # TODO: Update this step once pyaedt-examples is ready
-      # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
-      - name: Build HTML documentation with examples
-        env:
-          SPHINXBUILD_KEEP_DOCTREEDIR: "1"
-        run: |
-          .venv\Scripts\Activate.ps1
-          .\doc\make.bat clean
-          .\doc\make.bat html
+  #     # TODO: Update this step once pyaedt-examples is ready
+  #     # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
+  #     - name: Build HTML documentation with examples
+  #       env:
+  #         SPHINXBUILD_KEEP_DOCTREEDIR: "1"
+  #       run: |
+  #         .venv\Scripts\Activate.ps1
+  #         .\doc\make.bat clean
+  #         .\doc\make.bat html
 
-      - name: Upload HTML documentation with examples artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-examples-html
-          path: doc/_build/html
-          retention-days: 7
+  #     - name: Upload HTML documentation with examples artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: documentation-examples-html
+  #         path: doc/_build/html
+  #         retention-days: 7
 
-      # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
-      # # Verify that sphinx generates no warnings
-      # - name: Check for warnings
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     python doc/print_errors.py
+  #     # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
+  #     # # Verify that sphinx generates no warnings
+  #     # - name: Check for warnings
+  #     #   run: |
+  #     #     .venv\Scripts\Activate.ps1
+  #     #     python doc/print_errors.py
 
-      # # Use environment variable to remove the doctree after the build of PDF pages
-      # - name: Build PDF documentation with examples
-      #   env:
-      #     SPHINXBUILD_KEEP_DOCTREEDIR: "0"
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     .\doc\make.bat pdf
+  #     # # Use environment variable to remove the doctree after the build of PDF pages
+  #     # - name: Build PDF documentation with examples
+  #     #   env:
+  #     #     SPHINXBUILD_KEEP_DOCTREEDIR: "0"
+  #     #   run: |
+  #     #     .venv\Scripts\Activate.ps1
+  #     #     .\doc\make.bat pdf
 
-      # - name: Upload PDF documentation with examples artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: documentation-pdf
-      #     path: doc/_build/latex/*.pdf
-      #     retention-days: 7
+  #     # - name: Upload PDF documentation with examples artifact
+  #     #   uses: actions/upload-artifact@v3
+  #     #   with:
+  #     #     name: documentation-pdf
+  #     #     path: doc/_build/latex/*.pdf
+  #     #     retention-days: 7
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
