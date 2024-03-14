@@ -303,7 +303,14 @@ class Primitives2D(GeometryModeler, object):
 
         >>> oEditor.CreateRegion
         """
-        SOLUTION_TYPES = ["TransientXY", "MagnetostaticXY", "EddyCurrentXY", "ElectrostaticXY", "DCConductionXY", "ACConductionXY"]
+        SOLUTION_TYPES = [
+            "TransientXY",
+            "MagnetostaticXY",
+            "EddyCurrentXY",
+            "ElectrostaticXY",
+            "DCConductionXY",
+            "ACConductionXY",
+        ]
         if not isinstance(pad_percent, list):
             if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
                 if self._app.solution_type in SOLUTION_TYPES:
