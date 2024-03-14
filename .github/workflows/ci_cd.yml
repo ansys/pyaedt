@@ -433,10 +433,62 @@ jobs:
           twine-username: "__token__"
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
-      - name: Release to GitHub
-        uses: ansys/actions/release-github@v4
+      # TODO: Uncomment once PDF file generation is fixed in CICD
+      # - name: Release to GitHub
+      #   uses: ansys/actions/release-github@v4
+      #   with:
+      #     library-name: ${{ env.PACKAGE_NAME }}
+      - name: "Download all artifacts that got generated in the CI/CD"
+        uses: actions/download-artifact@v3
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
+          path: /tmp/artifacts
+
+      - name: "Generate a distribution folder that will contain the desired artifacts"
+        shell: bash
+        run: mkdir -p dist
+
+      - name: "Moving documentation artifacts to dist/documentation directory"
+        shell: bash
+        run: |
+          mkdir -p dist/documentation
+          mv /tmp/artifacts/documentation-html dist/documentation/documentation-html
+
+      - name: "Compressing HTML documentation"
+        uses: vimtor/action-zip@v1.2
+        with:
+          files: dist/documentation/documentation-html
+          dest: dist/documentation/documentation-html.zip
+
+      - name: "Move wheelhouse artifacts to dist/wheelhouse directory"
+        shell: bash
+        run: |
+          mkdir -p dist/wheelhouse
+          mv /tmp/artifacts/**/*-wheelhouse-*.zip dist/wheelhouse/
+
+      - name: "Move wheel artifacts to dist/${{ env.PACKAGE_NAME }}-artifacts directory"
+        shell: bash
+        run: |
+          mv /tmp/artifacts/${{ env.PACKAGE_NAME }}-artifacts dist/${{ env.PACKAGE_NAME }}-artifacts
+
+      - name: "Display the structure of the 'dist/' folder"
+        shell: bash
+        run: ls -R dist/
+
+      - name: "Release to GitHub"
+        uses: softprops/action-gh-release@v2
+        with:
+          fail_on_unmatched_files: false
+          generate_release_notes: true 
+          files: |
+            # Include wheel and source distribution artifacts
+            dist/${{ inputs.library-name }}-artifacts/*.whl
+            dist/${{ inputs.library-name }}-artifacts/*.tar.gz
+
+            # Include wheelhouse artifacts
+            dist/wheelhouse/**/*-wheelhouse-*.zip
+
+            # Include HTML documentation artifacts
+            dist/documentation/documentation-html.zip
 
   upload-dev-doc:
     name: Upload dev documentation
