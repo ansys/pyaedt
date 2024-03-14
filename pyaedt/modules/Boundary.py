@@ -274,7 +274,7 @@ class NativeComponentObject(BoundaryCommon, object):
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
-        except Exception as e:
+        except Exception:
             self.excitation_name = self.name
         return True
 

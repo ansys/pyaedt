@@ -533,7 +533,7 @@ class Polyline(Object3d):
                         break
                 else:
                     current_segment = segment_types[vertex_count]
-            except Exception as e:
+            except Exception:
                 raise IndexError("Number of segments inconsistent with the number of points!")
 
             if current_segment:
