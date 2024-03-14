@@ -312,14 +312,7 @@ class Primitives2D(GeometryModeler, object):
                     pad_percent = [pad_percent, 0, pad_percent, 0, 0, pad_percent]
         else:
             if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                if self._app.solution_type in [
-                    "TransientXY",
-                    "MagnetostaticXY",
-                    "EddyCurrentXY",
-                    "ElectrostaticXY",
-                    "DCConductionXY",
-                    "ACConductionXY",
-                ]:
+                if self._app.solution_type in SOLUTION_TYPES:
                     pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
                 else:
                     pad_percent = [pad_percent[0], 0, pad_percent[1], 0, 0, pad_percent[2]]
