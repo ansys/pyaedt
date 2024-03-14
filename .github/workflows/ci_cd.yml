@@ -35,7 +35,7 @@ jobs:
           vale-version: "2.29.6"
 
   smoke-tests:
-    name: Build and Smoke tests
+    name: Build wheelhouse with target all and perform smoke tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -224,7 +224,7 @@ jobs:
           .\doc\make.bat clean
           .\doc\make.bat html
 
-      - name: Upload HTML documentation without examples artifact
+      - name: Upload HTML documentation with examples artifact
         uses: actions/upload-artifact@v3
         with:
           name: documentation-examples-html
