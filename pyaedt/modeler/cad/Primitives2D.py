@@ -288,7 +288,7 @@ class Primitives2D(GeometryModeler, object):
         ----------
         pad_percent : float, str, list of floats or list of str, optional
             Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "-X", "-Y"]`` for XY geometry mode,
+            If a list of floats or str, interpret as adding ``["+X", "+Y", "-X", "-Y"]`` for XY geometry mode,
             and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
         is_percentage : bool, optional
             Region definition in percentage or absolute value. The default is `True``.
