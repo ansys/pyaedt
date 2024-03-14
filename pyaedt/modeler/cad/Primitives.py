@@ -5922,12 +5922,15 @@ class GeometryModeler(Modeler):
     def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
         arg = ["NAME:{}Parameters".format(region_type)]
         p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 6
+        if not isinstance(pad_type, list):
+            pad_type = [pad_type] * 6
         for i, pval in enumerate(p):
-            region_type = pad_type
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
-            arg.append(region_type)
+            arg.append(pad_type[i])
             arg.append(qvalstr)
             if isinstance(pad_value[i], str):
                 units = decompose_variable_value(pad_value[i])[1]
@@ -5946,9 +5949,11 @@ class GeometryModeler(Modeler):
         if region_type == "SubRegion":
             if not isinstance(parts, list):
                 parts = [parts]
-            if isinstance(parts, list):
-                parts = ",".join(parts)
-            arg += [["NAME:SubRegionPartNames", parts]]
+            normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
+            submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
+            normal_parts = ",".join(normal_parts)
+            submodel_parts = ",".join(submodel_parts)
+            arg += [["NAME:SubRegionPartNames", normal_parts], ["NAME:SubRegionSubmodelNames", submodel_parts]]
             flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",

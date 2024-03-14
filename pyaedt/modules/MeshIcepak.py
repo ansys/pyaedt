@@ -2,6 +2,8 @@ from abc import abstractmethod
 from collections import OrderedDict
 import warnings
 
+from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
@@ -10,39 +12,13 @@ from pyaedt.modules.Mesh import meshers
 
 
 class CommonRegion(object):
-    def __init__(self, app):
+    def __init__(self, app, name):
         self._app = app
+        self._name = name
         self._padding_type = None  # ["Percentage Offset"] * 6
         self._padding_value = None  # [50] * 6
         self._coordinate_system = None  # "Global"
         self._dir_order = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
-
-    def _get_object(self):
-        if isinstance(self, Region):
-            return [
-                oo for o, oo in self._app.modeler.objects_by_name.items() if oo.history().command == "CreateRegion"
-            ][0]
-        else:
-            parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-            return [self._app.modeler[p] for p in parts]
-
-    def _set_region_data(self, value, direction=None, padding_type=True):
-        self._update_region_data()
-        region = self._get_object()
-        create_region = region.history()
-        set_type = ["Data", "Type"][int(padding_type)]
-        create_region.props["{} Padding {}".format(direction, set_type)] = value
-
-    @property
-    def object(self):
-        return self._get_object()
-
-    @property
-    def name(self):
-        try:
-            return self._get_object().name
-        except AttributeError:
-            return None
 
     @property
     def padding_types(self):
@@ -104,11 +80,15 @@ class CommonRegion(object):
 
     @padding_types.setter
     def padding_types(self, values):
+        if not isinstance(values, list):
+            values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, True)
 
     @padding_values.setter
     def padding_values(self, values):
+        if not isinstance(values, list):
+            values = [values] * 6
         for i, direction in enumerate(self._dir_order):
             self._set_region_data(values[i], direction, False)
 
@@ -160,8 +140,38 @@ class CommonRegion(object):
     def negative_z_padding(self, value):
         self._set_region_data(value, "-Z", False)
 
+    @property
+    def object(self):
+        if isinstance(self, Region):
+            return {
+                "CreateRegion": oo
+                for o, oo in self._app.modeler.objects_by_name.items()
+                if oo.history().command == "CreateRegion"
+            }.get("CreateRegion", None)
+        else:
+            return self._app.modeler.objects_by_name.get(self._name, None)
+
+    @property
+    def name(self):
+        return self.object.name
+
+    @name.setter
+    def name(self, value):
+        try:
+            self._app.modeler.objects_by_name[self._name].name = value
+        except KeyError:
+            if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
+                self._name = value
+
+    def _set_region_data(self, value, direction=None, padding_type=True):
+        self._update_region_data()
+        region = self.object
+        create_region = region.history()
+        set_type = ["Data", "Type"][int(padding_type)]
+        create_region.props["{} Padding {}".format(direction, set_type)] = value
+
     def _update_region_data(self):
-        region = self._get_object()
+        region = self.object
         create_region = region.history()
         self._padding_type = []
         self._padding_value = []
@@ -181,7 +191,7 @@ class CommonRegion(object):
 
 class Region(CommonRegion):
     def __init__(self, app):
-        super(Region, self).__init__(app)
+        super(Region, self).__init__(app, None)
         try:
             self._update_region_data()
         except AttributeError:
@@ -194,29 +204,27 @@ class Region(CommonRegion):
 
 class SubRegion(CommonRegion):
     def __init__(self, app, parts, name=None):
-        super(SubRegion, self).__init__(app)
         if name is None:
             name = generate_unique_name("SubRegion")
+        super(SubRegion, self).__init__(app, name)
         self.create(0, "Percentage Offset", name, parts)
-
-    def _get_object(self):
-        if self._region and not self._app.modeler.objects_by_name.get(self._region.name, False):
-            self._region = None
-        return self._region
 
     def create(self, padding_values, padding_types, region_name, parts):
         if (
-            self._region is not None and self._app.modeler.objects_by_name.get(self._region.name, False)
+            self.object is not None and self._app.modeler.objects_by_name.get(self.object.name, False)
         ) or self._app.modeler.objects_by_name.get(region_name, False):
-            raise AttributeError("{} already exists in the design.".format(self._region.name))
-        self._region = self._app.modeler.create_subregion(
-            padding_values, padding_types, region_name, parts, "SubRegion"
-        )
+            self._app.logger.error("{} already exists in the design.".format(self.object.name))
+            return False
+        if not isinstance(parts, list):
+            objects = [parts]
+            if not isinstance(objects[0], str):
+                objects = [o.name for o in objects]
+        self._app.modeler.create_subregion(padding_values, padding_types, parts, region_name)
         return True
 
     def delete(self):
         try:
-            self._region.delete()
+            self.object.delete()
             self._app.mesh.meshregions.remove(
                 [mo for mo in self._app.mesh.meshregions.values() if mo.subregion == self][0]
             )
@@ -225,18 +233,11 @@ class SubRegion(CommonRegion):
             return False
 
     @property
-    def name(self):
-        try:
-            return self._region.name
-        except Exception:
-            return False
-
-    @property
     def parts(self):
-        if self._region:
+        if self.object:
             return {
                 obj_name: self._app.modeler[obj_name]
-                for obj_name in self._region.history().props["Part Names"].split(",")
+                for obj_name in self.object.history().props["Part Names"].split(",")
             }
         else:
             return {}
@@ -296,10 +297,19 @@ class MeshSettings(object):
             for arg in self.aedt_20212_args:
                 del self.instance_settings[arg]
 
+    @pyaedt_function_handler()
+    def _dim_arg(self, value):
+        if isinstance(value, str):
+            return value
+        else:
+            return _dim_arg(value, self._app.modeler.model_units)
+
     def parse_settings(self):
         out = []
-        for k, v in self.instance_settings:
+        for k, v in self.instance_settings.items():
             out.append(k + ":=")
+            if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
+                v = self._dim_arg(v)
             out.append(v)
         return out
 
@@ -314,20 +324,28 @@ class MeshSettings(object):
             return False
 
     def __getitem__(self, key):
+        if key == "Level":
+            key = "MeshRegionResolution"
         if self._key_in_dict(key):
             return self.instance_settings[key]
         else:
             raise KeyError("Setting not available.")
 
     def __setitem__(self, key, value):
+        if key == "Level":
+            key = "MeshRegionResolution"
         if self._key_in_dict(key):
-            if self._mesh_class.automatic_mesh_settings and key == "MeshRegionResolution":
-                if value < 1:
-                    self._app.logger.warning("Minimum resolution value is 1.")
-                    value = 1
-            if value > 5:
-                self._app.logger.warning("Maximum resolution value is 5.")
-                value = 5
+            if key == "MeshRegionResolution":
+                try:
+                    value = int(value)
+                    if value < 1:
+                        self._app.logger.warning("Minimum resolution value is 1.")
+                        value = 1
+                    if value > 5:
+                        self._app.logger.warning("Maximum resolution value is 5.")
+                        value = 5
+                except TypeError:
+                    pass
             self.instance_settings[key] = value
         else:
             self._app.logger.error("Setting not available.")
@@ -336,13 +354,13 @@ class MeshSettings(object):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
-        return self.instance_settings.__iter__(self)
+        return self.instance_settings.__iter__()
 
     def __len__(self):
-        return self.instance_settings.__len__(self)
+        return self.instance_settings.__len__()
 
     def __contains__(self, x):
-        return self.instance_settings.__contains__(self, x)
+        return self.instance_settings.__contains__(x)
 
 
 class MeshRegionCommon(object):
@@ -357,18 +375,12 @@ class MeshRegionCommon(object):
     """
 
     def __init__(self, meshmodule, units, app, name):
-        self.name = name
         self.manual_settings = False
         self.settings = MeshSettings(self, app)
+        self._name = name
         self._meshmodule = meshmodule
         self._model_units = units
         self._app = app
-
-    @pyaedt_function_handler()
-    def _dim_arg(self, value):
-        from pyaedt.generic.general_methods import _dim_arg
-
-        return _dim_arg(value, self.model_units)
 
     @abstractmethod
     def update(self):
@@ -467,16 +479,18 @@ class MeshRegionCommon(object):
 
     # backward compatibility
     def __getattr__(self, name):
-        if name in self.settings:
-            return self.settings[name]
+        if "settings" in self.__dict__ and name in self.__dict__["settings"]:
+            return self.__dict__["settings"][name]
         else:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+            return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        if hasattr(self.settings, name):
+        if "settings" in self.__dict__ and name in self.settings:
             self.settings[name] = value
+        elif name == "UserSpecifiedSettings":
+            self.__dict__["manual_settings"] = value
         else:
-            object.__setattr__(self, name, value)
+            super().__setattr__(name, value)
 
 
 class GlobalMeshRegion(MeshRegionCommon):
@@ -506,9 +520,9 @@ class GlobalMeshRegion(MeshRegionCommon):
         args = ["NAME:Settings"]
         args += self.settings.parse_settings()
         try:
-            self.meshmodule.EditGlobalMeshRegion(args)
+            self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
-        except Exception:  # pragma : no cover
+        except GrpcApiError:  # pragma : no cover
             return False
 
     @property
@@ -526,34 +540,41 @@ class GlobalMeshRegion(MeshRegionCommon):
 
 
 class MeshRegion(MeshRegionCommon):
-    def __init__(self, app, objects, name=None):
+    def __init__(self, app, objects=None, name=None, **kwargs):
         if name is None:
-            name = generate_unique_name("SubRegion")
-        super(MeshRegionCommon, self).__init__(
+            name = generate_unique_name("MeshRegion")
+        super(MeshRegion, self).__init__(
             app.omeshmodule,
             app.modeler.model_units,
             app,
             name,
         )
         self.enable = True
-        if settings.aedt_version > "2023.2":
-            if not isinstance(objects, list):
-                objects = [objects]
-            if not isinstance(objects[0], str):
-                objects = [o.name for o in objects]
-            if not all(o in app.modeler.objects_by_name for o in objects):
-                raise AttributeError("Objects specified not found in modeler.")
+        if settings.aedt_version > "2023.2" and objects is not None:
             self._assignment = SubRegion(app, objects)
         else:
             self._assignment = objects
-        self.create()
+        if self._assignment is not None:
+            self.create()
+        # backward compatibility
+        if any(i in kwargs for i in ["dimension", "meshmodule", "unit"]):
+            warnings.warn(
+                "``MeshRegion`` initialization changed. ``meshmodule``, ``dimension``, ``unit`` "
+                "arguments are not supported anymore.",
+                DeprecationWarning,
+            )
+            if "dimension" in kwargs:
+                self.manual_settings = True
+                self.settings["MaxElementSizeX"] = float(kwargs["dimension"][0]) / 20
+                self.settings["MaxElementSizeY"] = float(kwargs["dimension"][1]) / 20
+                self.settings["MaxElementSizeZ"] = float(kwargs["dimension"][2]) / 20
 
     def _parse_assignment_value(self, assignment=None):
         if assignment is None:
             assignment = self.assignment
         a = []
         if isinstance(assignment, SubRegion):
-            a += ["Objects:=", assignment.name]
+            a += ["Objects:=", [assignment.name]]
         else:
             if any(o in self._app.modeler.object_names for o in assignment):
                 obj_assignment = [o for o in assignment if o in self._app.modeler.object_names]
@@ -562,6 +583,27 @@ class MeshRegion(MeshRegionCommon):
                 obj_assignment = [o for o in assignment if o in self._app.oeditor.GetChildNames("SubmodelDefinitions")]
                 a += ["Submodels:=", obj_assignment]
         return a
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._app.odesign.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Icepak",
+                    ["NAME:PropServers", "MeshRegion:{}".format(self.name)],
+                    ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]],
+                ],
+            ]
+        )
+        self._app.modeler.refresh()
+        self._name = value
+        if isinstance(self.assignment, SubRegion):
+            self._assignment = self.assignment
 
     @pyaedt_function_handler
     def update(self):
@@ -579,11 +621,12 @@ class MeshRegion(MeshRegionCommon):
         """
         args = ["NAME:" + self.name, "Enable:=", self.enable]
         args += self.settings.parse_settings()
-        self._parse_assignment_value()
+        args += self._parse_assignment_value()
+        args += ["UserSpecifiedSettings:=", not self.manual_settings]
         try:
-            self.meshmodule.EditMeshRegion(args)
+            self._app.omeshmodule.EditMeshRegion(self.name, args)
             return True
-        except Exception:  # pragma : no cover
+        except GrpcApiError:  # pragma : no cover
             return False
 
     @pyaedt_function_handler()
@@ -600,25 +643,41 @@ class MeshRegion(MeshRegionCommon):
 
         >>> oModule.DeleteMeshRegions()
         """
-        self.meshmodule.DeleteMeshRegions([self.name])
+        self._app.omeshmodule.DeleteMeshRegions([self.name])
         self._app.mesh.meshregions.remove(self)
         return True
 
     @property
     def assignment(self):
-        if settings.aedt_version > "2023.2":
-            parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
-            sub_regions = self._app.modeler.non_model_objects
-            subregion = None
-            for sr in sub_regions:
-                if "CreateSubRegion" == self._app.modeler[sr].history().command and all(
-                    p in self._app.modeler[sr].history().props["Part Names"] for p in parts
-                ):
-                    subregion = sr
-            self._assignment = subregion
-            return subregion
-        else:
+        if isinstance(self._assignment, SubRegion):
+            # try to update name
+            try:
+                parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                if not isinstance(parts, list):
+                    parts = [parts]
+                sub_regions = self._app.modeler.non_model_objects
+                subregion = None
+                for sr in sub_regions:
+                    p1 = []
+                    p2 = []
+                    if "Part Names" in self._app.modeler[sr].history().props:
+                        p1 = self._app.modeler[sr].history().props.get("Part Names", None)
+                        if not isinstance(p1, list):
+                            p1 = [p1]
+                    elif "Submodel Names" in self._app.modeler[sr].history().props:
+                        p2 = self._app.modeler[sr].history().props.get("Submodel Names", None)
+                        if not isinstance(p2, list):
+                            p2 = [p2]
+                    p1 += p2
+                    if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
+                        self._assignment.name = sr
+            except GrpcApiError:
+                pass
             return self._assignment
+        elif isinstance(self._assignment, list):
+            return self._assignment
+        else:
+            return [self._assignment]
 
     @assignment.setter
     def assignment(self, value):
@@ -626,7 +685,7 @@ class MeshRegion(MeshRegionCommon):
         try:
             self._app.omeshmodule.ReassignMeshRegion(self.name, arg)
             self._assignment = value
-        except Exception:  # pragma : no cover
+        except GrpcApiError:  # pragma : no cover
             self._app.logger.error("Mesh region reassignment failed.")
 
     @pyaedt_function_handler()
@@ -648,10 +707,12 @@ class MeshRegion(MeshRegionCommon):
             return False
         args = ["NAME:" + self.name, "Enable:=", self.enable]
         args += self.settings.parse_settings()
+        args += ["UserSpecifiedSettings:=", not self.manual_settings]
         args += self._parse_assignment_value()
-        self.meshmodule.AssignMeshRegion(args)
+        self._meshmodule.AssignMeshRegion(args)
         self._app.mesh.meshregions.append(self)
         self._app.modeler.refresh_all_ids()
+        self._assignment = self.assignment
         return True
 
     # backward compatibility
@@ -928,6 +989,8 @@ class IcepakMesh(object):
     def automatic_mesh_pcb(self, accuracy=2):
         """Create a custom mesh tailored on a PCB design.
 
+        .. deprecated:: 0.8.14
+
         Parameters
         ----------
         accuracy : int, optional
@@ -944,6 +1007,7 @@ class IcepakMesh(object):
 
         >>> oModule.EditMeshOperation
         """
+        warnings.warn("This method was deprecated in version 8.14.", DeprecationWarning)
         xsize = self.boundingdimension[0] / (15 * accuracy * accuracy)
         ysize = self.boundingdimension[1] / (15 * accuracy * accuracy)
         zsize = self.boundingdimension[2] / (10 * accuracy)
@@ -1120,7 +1184,7 @@ class IcepakMesh(object):
         return True
 
     @pyaedt_function_handler()
-    def assign_mesh_region(self, objectlist=[], level=5, is_submodel=False, name=None, virtual_region=False):
+    def assign_mesh_region(self, objectlist=[], level=5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -1131,12 +1195,8 @@ class IcepakMesh(object):
         level : int, optional
             Level of the surface mesh. Options are ``1`` through ``5``. The default
             is ``5``.
-        is_submodel : bool
-            Define if the object list is made by component models
         name : str, optional
             Name of the mesh region. The default is ``"MeshRegion1"``.
-        virtual_region : bool, optional
-            Whether to use the virtual mesh region beta feature (available from version 22.2). The default is ``False``.
 
         Returns
         -------
@@ -1149,32 +1209,23 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        meshregion = MeshRegionCommon(self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app)
-        meshregion.UserSpecifiedSettings = False
-        meshregion.Level = level
-        meshregion.name = name
-        meshregion.virtual_region = virtual_region
         if not objectlist:
             objectlist = [i for i in self.modeler.object_names]
-        if is_submodel:
-            meshregion.SubModels = objectlist
-        else:
-            meshregion.Objects = objectlist
+        meshregion = MeshRegion(self._app, objectlist, name)
+        meshregion.manual_settings = False
+        meshregion.Level = level
+        meshregion.name = name
         all_objs = [i for i in self.modeler.object_names]
-        try:
-            meshregion.create()
-            created = True
-        except Exception:  # pragma : no cover
-            created = False
+        created = bool(meshregion)
         if created:
-            objectlist2 = self.modeler.object_names
-            added_obj = [i for i in objectlist2 if i not in all_objs]
-            if not added_obj:
-                added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
-            meshregion.Objects = added_obj
-            meshregion.SubModels = None
-
-            meshregion.update()
+            if settings.aedt_version < "2024.1":
+                objectlist2 = self.modeler.object_names
+                added_obj = [i for i in objectlist2 if i not in all_objs]
+                if not added_obj:
+                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+                meshregion.Objects = added_obj
+                meshregion.SubModels = None
+                meshregion.update()
             return meshregion
         else:
             return False
