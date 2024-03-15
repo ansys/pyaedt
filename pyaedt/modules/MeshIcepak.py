@@ -807,9 +807,7 @@ class IcepakMesh(object):
                         if ds == "Global":
                             meshop = GlobalMeshRegion(self._app)
                         else:
-                            meshop = MeshRegionCommon(
-                                self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
-                            )
+                            meshop = MeshRegion(self._app, None, ds)
                         for el in dict_prop:
                             if el in meshop.__dict__:
                                 meshop.__dict__[el] = dict_prop[el]
