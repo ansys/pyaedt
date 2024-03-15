@@ -119,23 +119,23 @@ def add_pyaedt_to_aedt(
         if use_sys_lib:
             try:
                 sys_dir = os.path.join(sys_dir, "Toolkits")
-                install_toolkit(sys_dir, product, aedt_version)
+                install_toolkit(sys_dir, product, aedt_version, is_student_version=is_student_version)
                 print("Installed toolkit for {} in sys lib.".format(product))
                 # d.logger.info("Installed toolkit for {} in sys lib.".format(product))
 
             except IOError:
                 pers_dir = os.path.join(pers_dir, "Toolkits")
-                install_toolkit(pers_dir, product, aedt_version)
+                install_toolkit(pers_dir, product, aedt_version, is_student_version=is_student_version)
                 print("Installed toolkit for {} in sys lib.".format(product))
                 # d.logger.info("Installed toolkit for {} in personal lib.".format(product))
         else:
             pers_dir = os.path.join(pers_dir, "Toolkits")
-            install_toolkit(pers_dir, product, aedt_version)
+            install_toolkit(pers_dir, product, aedt_version, is_student_version=is_student_version)
             print("Installed toolkit for {} in sys lib.".format(product))
             # d.logger.info("Installed toolkit for {} in personal lib.".format(product))
 
 
-def install_toolkit(toolkit_dir, product, aedt_version):
+def install_toolkit(toolkit_dir, product, aedt_version, is_student_version=False):
     tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     lib_dir = os.path.join(tool_dir, "Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
@@ -148,7 +148,7 @@ def install_toolkit(toolkit_dir, product, aedt_version):
         tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
-    files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
+    files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter", "Run_Toolkit_Manager"]
     # Remove hard-coded version number from Python virtual environment path, and replace it with the corresponding AEDT
     # version's Python virtual environment.
     version_agnostic = False
@@ -170,6 +170,8 @@ def install_toolkit(toolkit_dir, product, aedt_version):
                     .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
+                    .replace("##TOOLKIT_MANAGER_SCRIPT##", os.path.join(lib_dir, "toolkit_manager.py"))
+                    .replace("##PYAEDT_STUDENT_VERSION##", str(is_student_version))
                 )
                 if not version_agnostic:
                     build_file_data = build_file_data.replace(" % version", "")
@@ -178,6 +180,10 @@ def install_toolkit(toolkit_dir, product, aedt_version):
     shutil.copyfile(
         os.path.join(current_dir, "jupyter_template.ipynb"),
         os.path.join(lib_dir, "jupyter_template.ipynb"),
+    )
+    shutil.copyfile(
+        os.path.join(current_dir, "toolkit_manager.py"),
+        os.path.join(lib_dir, "toolkit_manager.py"),
     )
     if aedt_version >= "2023.2":
         write_tab_config(os.path.join(toolkit_dir, product), lib_dir)
@@ -214,6 +220,7 @@ def write_tab_config(product_toolkit_dir, pyaedt_lib_dir, force_write=False):
     ET.SubElement(group, "button", label="Console", script="PyAEDT/Console")
     ET.SubElement(group, "button", label="Jupyter Notebook", script="PyAEDT/Jupyter")
     ET.SubElement(group, "button", label="Run PyAEDT Script", script="PyAEDT/Run PyAEDT Script")
+    ET.SubElement(group, "button", label="Toolkit Manager", script="PyAEDT/Run Toolkit Manager")
 
     # Backup any existing file if present
     if os.path.isfile(tab_config_file_path):
