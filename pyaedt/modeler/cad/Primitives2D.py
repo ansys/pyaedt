@@ -291,7 +291,7 @@ class Primitives2D(GeometryModeler, object):
             If a list of floats or strings, interpret as adding ``["+X", "+Y", "-X", "-Y"]`` for XY geometry mode,
             and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
         is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
+            Whether the region definition is a percentage or absolute value. The default is `True``.
 
         Returns
         -------
