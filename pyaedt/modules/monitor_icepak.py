@@ -306,7 +306,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(point_names))
                 for i, mn in enumerate(monitor_names):
                     self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
-            except Exception as e:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -354,7 +354,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(vertex_id))
                 for i, mn in enumerate(monitor_names):
                     self._point_monitors[mn] = PointMonitor(mn, "Vertex", vertex_id[i], monitor_quantity, self._app)
-            except Exception as e:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -410,7 +410,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(surface_name))
                 for i, mn in enumerate(monitor_names):
                     self._face_monitors[mn] = FaceMonitor(mn, "Surface", surface_name[i], monitor_quantity, self._app)
-            except Exception as e:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -457,7 +457,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(face_id))
                 for i, mn in enumerate(monitor_names):
                     self._face_monitors[mn] = FaceMonitor(mn, "Face", face_id[i], monitor_quantity, self._app)
-            except Exception as e:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -524,7 +524,7 @@ class Monitor:
                     self._point_monitors[mn] = PointMonitor(
                         mn, "Object", existing_names[i], monitor_quantity, self._app
                     )
-            except Exception as e:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -560,7 +560,7 @@ class Monitor:
             except KeyError:
                 del self._point_monitors[monitor_name]
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     @pyaedt_function_handler()

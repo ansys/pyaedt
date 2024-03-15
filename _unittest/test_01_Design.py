@@ -340,7 +340,7 @@ class TestClass:
             h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
         except Exception as e:
             exception_raised = True
-            assert e.args[0] == "Project doesn't exists. Check it and retry."
+            assert e.args[0] == "Project doesn't exist. Check it and retry."
         assert exception_raised
         settings.force_error_on_missing_project = False
 

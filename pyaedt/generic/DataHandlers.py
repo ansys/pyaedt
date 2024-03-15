@@ -312,7 +312,7 @@ def unique_string_list(element_list, only_string=True):
             error_message = "Invalid list data"
             try:
                 error_message += " {}".format(element_list)
-            except Exception as e:
+            except Exception:
                 pass
             raise Exception(error_message)
 
@@ -627,7 +627,7 @@ def float_units(val_str, units=""):
         b = loc.span()[0]
         var = [float(val_str[0:b]), val_str[b:]]
         val = var[0] * unit_val[var[1]]
-    except Exception as e:
+    except Exception:
         val = float(val_str)
 
     val = val / unit_val[units]

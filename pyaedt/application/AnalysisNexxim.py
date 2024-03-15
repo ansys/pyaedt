@@ -124,7 +124,7 @@ class FieldAnalysisCircuit(Analysis):
         try:
             self.oproject.SetActiveDesign(out_name)
             self.__init__(projectname=self.project_name, designname=out_name)
-        except Exception as e:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -141,7 +141,7 @@ class FieldAnalysisCircuit(Analysis):
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
             self.oproject.SetActiveDesign(parent_name)
             self.__init__(projectname=self.project_name, designname=parent_name)
-        except Exception as e:
+        except Exception:
             return False
         return True
 

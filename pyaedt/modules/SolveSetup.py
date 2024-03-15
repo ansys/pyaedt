@@ -167,7 +167,7 @@ class CommonSetup(PropsManager, object):
                                     self.sweeps.append(SweepMatrix(self, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = SetupProps(self, OrderedDict(setup_data))
-            except Exception as e:
+            except Exception:
                 self.props = SetupProps(self, OrderedDict())
 
     @property
@@ -885,7 +885,7 @@ class Setup(CommonSetup):
             self.update()
             self.auto_update = auto_update
             return True
-        except Exception as e:
+        except Exception:
             self.auto_update = auto_update
             return False
 
@@ -1006,7 +1006,7 @@ class Setup(CommonSetup):
             self.update()
             self.auto_update = auto_update
             return True
-        except Exception as e:
+        except Exception:
             self.auto_update = auto_update
             return False
 
@@ -1048,7 +1048,7 @@ class SetupCircuit(CommonSetup):
                         setup_data = setup
                         setup_data.pop("Sweeps", None)
                         self.props = SetupProps(self, setup_data)
-            except Exception as e:
+            except Exception:
                 self.props = SetupProps(self, OrderedDict())
         self.props["Name"] = self.name
 
@@ -1738,7 +1738,7 @@ class Setup3DLayout(CommonSetup):
                                 self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
 
                     self.props = SetupProps(self, OrderedDict(setup_data))
-            except Exception as e:
+            except Exception:
                 self.props = SetupProps(self, OrderedDict())
                 settings.logger.error("Unable to set props.")
 
@@ -1987,7 +1987,7 @@ class Setup3DLayout(CommonSetup):
                     net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
-                except Exception as e:
+                except Exception:
                     pass
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()

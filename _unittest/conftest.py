@@ -85,7 +85,7 @@ if os.path.exists(local_config_file):
     try:
         with open(local_config_file) as f:
             local_config = json.load(f)
-    except Exception as e:  # pragma: no cover
+    except Exception:  # pragma: no cover
         local_config = {}
     config.update(local_config)
 

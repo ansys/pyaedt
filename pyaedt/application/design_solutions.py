@@ -567,7 +567,7 @@ class DesignSolution(object):
         elif self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-            except Exception as e:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
             self._solution_type = solutions_defaults[self._design_type]
@@ -587,7 +587,7 @@ class DesignSolution(object):
             elif self._odesign:
                 try:
                     self._solution_type = self._odesign.GetSolutionType()
-                except Exception as e:
+                except Exception:
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
@@ -601,7 +601,7 @@ class DesignSolution(object):
                 else:
                     try:
                         self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                    except Exception as e:
+                    except Exception:
                         self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
@@ -653,7 +653,7 @@ class HFSSDesignSolution(DesignSolution, object):
                     self._solution_type = "Modal"
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
-            except Exception as e:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
             self._solution_type = solutions_defaults[self._design_type]
@@ -674,7 +674,7 @@ class HFSSDesignSolution(DesignSolution, object):
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                except Exception as e:
+                except Exception:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
         elif value is None:
             if self._odesign:
@@ -684,7 +684,7 @@ class HFSSDesignSolution(DesignSolution, object):
                         self._solution_type = "Modal"
                     elif "Terminal" in self._solution_type:
                         self._solution_type = "Terminal"
-                except Exception as e:
+                except Exception:
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
@@ -710,7 +710,7 @@ class HFSSDesignSolution(DesignSolution, object):
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                except Exception as e:
+                except Exception:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
@@ -812,7 +812,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         if self._odesign and "GetSolutionType":
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-            except Exception as e:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
@@ -843,7 +843,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                 else:
                     opts = ""
                 self._odesign.SetSolutionType(self._solution_options[self._solution_type]["name"], opts)
-            except Exception as e:
+            except Exception:
                 pass
 
 
@@ -894,7 +894,7 @@ class IcepakDesignSolution(DesignSolution, object):
         if self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-            except Exception as e:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
@@ -921,7 +921,7 @@ class IcepakDesignSolution(DesignSolution, object):
                 ]
                 try:
                     self._odesign.SetSolutionType(options)
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -942,7 +942,7 @@ class RmXprtDesignSolution(DesignSolution, object):
             try:
                 self._odesign.SetDesignFlow(self._design_type, solution_type)
                 self._solution_type = solution_type
-            except Exception as e:
+            except Exception:
                 pass
 
     @property

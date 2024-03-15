@@ -1089,7 +1089,7 @@ class Icepak(FieldAnalysis3D):
                         )
                     else:
                         total_power += float(power)
-            except Exception as e:
+            except Exception:
                 pass
             i += 1
         self.logger.info("Blocks inserted with total power %sW.", total_power)
@@ -3174,7 +3174,7 @@ class Icepak(FieldAnalysis3D):
                     ],
                 ]
             )
-        except Exception as e:
+        except Exception:
             self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         if mat.lower() not in self.materials.surface_material_keys:

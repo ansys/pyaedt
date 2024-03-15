@@ -1190,7 +1190,7 @@ class CommonMaterial(object):
         try:
             material_props = getattr(self, propname)
             material_props_type = material_props.type
-        except Exception as e:
+        except Exception:
             material_props_type = None
 
         if isinstance(propvalue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
@@ -1231,7 +1231,7 @@ class CommonMaterial(object):
                 self._props[propname]["BHCoordinates"] = bh
                 try:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
-                except Exception as e:
+                except Exception:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
             else:
                 bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
@@ -2556,7 +2556,7 @@ class Material(CommonMaterial, object):
         try:
             if float(cond) >= threshold:
                 return True
-        except Exception as e:
+        except Exception:
             return False
         return False
 

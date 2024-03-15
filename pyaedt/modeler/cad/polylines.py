@@ -385,7 +385,7 @@ class Polyline(Object3d):
         try:
             history = self.history()
             h_segments = history.segments
-        except Exception as e:  # pragma: no cover
+        except Exception:  # pragma: no cover
             history = None
             h_segments = None
         if h_segments:
@@ -807,7 +807,7 @@ class Polyline(Object3d):
                     at_start,
                 ]
             )
-        except Exception as e:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(seg_id, self.name))
         else:
             i_start, i_end = self._get_point_slice_from_segment_id(seg_id, at_start)
@@ -871,7 +871,7 @@ class Polyline(Object3d):
                     True,
                 ]
             )
-        except Exception as e:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(segment_id, self.name))
         else:
             segment_id.reverse()

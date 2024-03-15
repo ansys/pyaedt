@@ -464,7 +464,7 @@ class IcepakMesh(object):
                                 "Icepak",
                             )
                         )
-        except Exception as e:
+        except Exception:
             pass
         return meshops
 
@@ -502,7 +502,7 @@ class IcepakMesh(object):
                             if el in meshop.__dict__:
                                 meshop.__dict__[el] = dict_prop[el]
                         meshops.append(meshop)
-        except Exception as e:
+        except Exception:
             pass
         return meshops
 

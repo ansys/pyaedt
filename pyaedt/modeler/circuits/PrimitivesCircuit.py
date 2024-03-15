@@ -1200,7 +1200,7 @@ class CircuitComponents(object):
             w.id = int(wire_id)
             self.wires[w.id] = w
             return w
-        except Exception as e:
+        except Exception:
             return False
 
 

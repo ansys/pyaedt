@@ -505,7 +505,7 @@ class SweepHFSS3DLayout(object):
                 )
             self.props["Sweeps"]["Data"] += sweep_range
             return self.update()
-        except Exception as e:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
