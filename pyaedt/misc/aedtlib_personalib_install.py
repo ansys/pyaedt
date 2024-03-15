@@ -228,7 +228,7 @@ def write_tab_config(product_toolkit_dir, pyaedt_lib_dir, force_write=False):
 
     write_pretty_xml(root, tab_config_file_path)
 
-    files_to_copy = ["images/large/pyansys.png", "images/gallery/PyAEDT.png"]
+    files_to_copy = ["images/large/pyansys.png", "images/gallery/PyAEDT.png", "images/large/logo.png"]
     for file_name in files_to_copy:
         dest_file = os.path.normpath(os.path.join(pyaedt_lib_dir, file_name))
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)

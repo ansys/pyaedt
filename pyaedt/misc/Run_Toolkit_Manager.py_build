@@ -60,15 +60,14 @@ def main():
                 pyaedt_script,
             ]
             my_env = os.environ.copy()
-            subprocess.Popen(command, env=my_env)
+            subprocess.Popen(command, env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         else:
             command = [
                 '"{}"'.format(python_exe),
                 '"{}"'.format(pyaedt_script),
             ]
             my_env = os.environ.copy()
-            subprocess.Popen(" ".join(command), env=my_env)
-        oDesktop.RefreshToolkitUI()
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
     except Exception as e:
         show_error(str(e))
 
