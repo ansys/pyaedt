@@ -107,7 +107,6 @@ class Analysis(Design, object):
         port=0,
         aedt_process_id=None,
     ):
-        self.setups = []
         Design.__init__(
             self,
             application,
@@ -123,16 +122,14 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
         )
-        self._setup = None
+
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
         self._available_variations = self.AvailableVariations(self)
-        if self.design_type != "Maxwell Circuit":
-            self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
-
-        self.parametrics = ParametricSetups(self)
-        self.optimizations = OptimizationSetups(self)
+        self._setups = None
+        self._parametrics = None
+        self._optimizations = None
         self._native_components = []
         self.SOLUTIONS = SOLUTIONS()
         self.SETUPS = SETUPS()
@@ -143,6 +140,9 @@ class Analysis(Design, object):
 
         if not settings.lazy_load:
             self._materials = self.materials
+            self._setups = self.setups
+            self._parametrics = self.parametrics
+            self._optimizations = self.optimizations
 
     @property
     def native_components(self):
@@ -191,6 +191,49 @@ class Analysis(Design, object):
             self.logger.info_timer("Materials class has been initialized!")
 
         return self._materials
+
+    @property
+    def setups(self):
+        """Setups in the project.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.Setup`
+           Setups in the project.
+
+        """
+        if not self._setups:
+            if self.design_type != "Maxwell Circuit":
+                self._setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
+        return self._setups
+
+    @property
+    def parametrics(self):
+        """Setups in the project.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.DesignXPloration.ParametricSetups`
+           Parametric setups in the project.
+
+        """
+        if not self._parametrics:
+            self._parametrics = ParametricSetups(self)
+        return self._parametrics
+
+    @property
+    def optimizations(self):
+        """Optimizations in the project.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.DesignXPloration.OptimizationSetups`
+           Parametric setups in the project.
+
+        """
+        if not self._optimizations:
+            self._optimizations = OptimizationSetups(self)
+        return self._optimizations
 
     @property
     def Position(self):
