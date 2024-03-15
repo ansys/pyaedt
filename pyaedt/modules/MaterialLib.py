@@ -650,7 +650,7 @@ class Materials(object):
                 if el not in list(self.material_keys.keys()):
                     try:
                         self._aedmattolibrary(el)
-                    except Exception as e:
+                    except Exception:
                         self.logger.info("aedmattolibrary failed for material %s", el)
 
     @pyaedt_function_handler()

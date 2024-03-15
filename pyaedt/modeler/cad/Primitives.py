@@ -549,7 +549,7 @@ class GeometryModeler(Modeler):
                     if value not in new_obs3d:
                         new_obs3d.append(value)
 
-        except Exception as e:
+        except Exception:
             new_obs3d = []
         return new_obs3d
 
@@ -6490,7 +6490,11 @@ class GeometryModeler(Modeler):
             objects = self.object_names
         objects = self._modeler.convert_to_selections(objects, return_list=True)
         for el in objects:
-            if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
+            if (
+                el not in self.object_names
+                and not list(self.oeditor.GetObjectsInGroup(el))
+                and not self.oeditor.GetObjectsInGroup("Unclassified")
+            ):
                 objects.remove(el)
         if not objects:
             self.logger.warning("No objects to delete")
