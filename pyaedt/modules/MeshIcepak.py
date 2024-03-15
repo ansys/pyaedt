@@ -499,8 +499,8 @@ class MeshRegion(MeshRegionCommon):
             if any(o in self._app.modeler.object_names for o in assignment):
                 obj_assignment = [o for o in assignment if o in self._app.modeler.object_names]
                 a += ["Objects:=", obj_assignment]
-            if any(o in self._app.oeditor.GetChildNames("SubmodelDefinitions") for o in assignment):
-                obj_assignment = [o for o in assignment if o in self._app.oeditor.GetChildNames("SubmodelDefinitions")]
+            if any(o in self._app.modeler.user_defined_components for o in assignment):
+                obj_assignment = [o for o in assignment if o in self._app.modeler.user_defined_components]
                 a += ["Submodels:=", obj_assignment]
         return a
 
