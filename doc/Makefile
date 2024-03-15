@@ -16,12 +16,21 @@ help:
 
 .PHONY: help Makefile
 
+.install-deps:
+	@pip freeze | grep -q "vtk-osmesa" && is_vtk_osmesa_installed="yes" || is_vtk_osmesa_installed="no"
+	@if [ "${ON_CI}" = "True" ] && [ "$$is_vtk_osmesa_installed" != "yes" ]; then \
+		@echo "Removing package(s) to avoid conflicts with package(s) needed for CI/CD"; \
+		pip uninstall --yes vtk; \
+		@echo "Installing CI/CD required package(s)"; \
+		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0; \
+	fi
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
+%: .install-deps Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-clean:
+clean: .install-deps
 	@echo "Cleaning everything."
 	rm -rf $(BUILDDIR)/*
 	rm -rf examples/
@@ -34,7 +43,7 @@ clean:
 # 	@echo
 # 	@echo "Check finished. Report is in $(LINKCHECKDIR)."
 
-html-noexamples:
+html-noexamples: .install-deps
 	@echo "Building HTML pages without running examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="0"
 	@# FIXME: currently linkcheck freezes and further investigation must be performed
@@ -43,7 +52,7 @@ html-noexamples:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
-html:
+html: .install-deps
 	@echo "Building HTML pages with running examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="1"
 	@# FIXME: currently linkcheck freezes and further investigation must be performed
@@ -53,7 +62,7 @@ html:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
 # Build PDF pages
-pdf:
+pdf: .install-deps
 	@echo "Building PDF pages."
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
