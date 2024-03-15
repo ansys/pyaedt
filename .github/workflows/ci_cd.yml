@@ -288,8 +288,8 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
-          pip uninstall vtk -y
-          pip install --extra-index-url https://wheels.vtk.org .[ci]
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
 
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
@@ -351,8 +351,8 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
-          pip uninstall vtk -y
-          pip install --extra-index-url https://wheels.vtk.org .[ci]
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
 
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
