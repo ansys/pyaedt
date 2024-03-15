@@ -302,7 +302,7 @@ class MeshSettings(object):
         if isinstance(value, str):
             return value
         else:
-            return _dim_arg(value, self._app.modeler.model_units)
+            return _dim_arg(value, getattr(self._mesh_class, "_model_units"))
 
     def parse_settings(self):
         out = []
@@ -374,11 +374,10 @@ class MeshRegionCommon(object):
             Whether to use manual settings or
     """
 
-    def __init__(self, meshmodule, units, app, name):
+    def __init__(self, units, app, name):
         self.manual_settings = False
         self.settings = MeshSettings(self, app)
         self._name = name
-        self._meshmodule = meshmodule
         self._model_units = units
         self._app = app
 
@@ -390,89 +389,6 @@ class MeshRegionCommon(object):
     def delete(self):
         pass
 
-    @property
-    def autosettings(self):
-        """Automatic mesh settings."""
-        arg = [
-            "MeshMethod:=",
-            "MesherHD",
-            "UserSpecifiedSettings:=",
-            self.UserSpecifiedSettings,
-            "ComputeGap:=",
-            self.ComputeGap,
-            "MeshRegionResolution:=",
-            self.Level,
-            "MinGapX:=",
-            self._dim_arg(self.MinGapX),
-            "MinGapY:=",
-            self._dim_arg(self.MinGapY),
-            "MinGapZ:=",
-            self._dim_arg(self.MinGapZ),
-        ]
-        if self.SubModels:
-            arg.append("SubModels:=")
-            arg.append(self.SubModels)
-        if self.Objects:
-            arg.append("Objects:=")
-            arg.append(self.Objects)
-        arg.extend(self._new_versions_fields)
-        return arg
-
-    @property
-    def manualsettings(self):
-        """Manual mesh settings."""
-
-        arg = [
-            "MeshMethod:=",
-            "MesherHD",
-            "UserSpecifiedSettings:=",
-            self.UserSpecifiedSettings,
-            "ComputeGap:=",
-            self.ComputeGap,
-            "MaxElementSizeX:=",
-            self._dim_arg(self.MaxElementSizeX),
-            "MaxElementSizeY:=",
-            self._dim_arg(self.MaxElementSizeY),
-            "MaxElementSizeZ:=",
-            self._dim_arg(self.MaxElementSizeZ),
-            "MinElementsInGap:=",
-            self.MinElementsInGap,
-            "MinElementsOnEdge:=",
-            self.MinElementsOnEdge,
-            "MaxSizeRatio:=",
-            self.MaxSizeRatio,
-            "NoOGrids:=",
-            self.NoOGrids,
-            "EnableMLM:=",
-            self.EnableMLM,
-            "EnforeMLMType:=",
-            self.EnforeMLMType,
-            "MaxLevels:=",
-            self.MaxLevels,
-            "BufferLayers:=",
-            self.BufferLayers,
-            "UniformMeshParametersType:=",
-            self.UniformMeshParametersType,
-            "StairStepMeshing:=",
-            self.StairStepMeshing,
-            "2DMLMType:=",
-            self.DMLMType,
-            "MinGapX:=",
-            self._dim_arg(self.MinGapX),
-            "MinGapY:=",
-            self._dim_arg(self.MinGapY),
-            "MinGapZ:=",
-            self._dim_arg(self.MinGapZ),
-        ]
-        if self.SubModels:
-            arg.append("SubModels:=")
-            arg.append(self.SubModels)
-        if self.Objects:
-            arg.append("Objects:=")
-            arg.append(self.Objects)
-        arg.extend(self._new_versions_fields)
-        return arg
-
     @abstractmethod
     def create(self):
         pass
@@ -481,6 +397,8 @@ class MeshRegionCommon(object):
     def __getattr__(self, name):
         if "settings" in self.__dict__ and name in self.__dict__["settings"]:
             return self.__dict__["settings"][name]
+        elif name == "UserSpecifiedSettings":
+            return self.__dict__["manual_settings"]
         else:
             return self.__dict__[name]
 
@@ -497,11 +415,14 @@ class GlobalMeshRegion(MeshRegionCommon):
     def __init__(self, app):
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
-            app.omeshmodule,
             app.modeler.model_units,
             app,
             name="Settings",
         )
+
+    @property
+    def name(self):
+        return "Global"
 
     @pyaedt_function_handler
     def update(self):
@@ -544,7 +465,6 @@ class MeshRegion(MeshRegionCommon):
         if name is None:
             name = generate_unique_name("MeshRegion")
         super(MeshRegion, self).__init__(
-            app.omeshmodule,
             app.modeler.model_units,
             app,
             name,
@@ -709,7 +629,7 @@ class MeshRegion(MeshRegionCommon):
         args += self.settings.parse_settings()
         args += ["UserSpecifiedSettings:=", not self.manual_settings]
         args += self._parse_assignment_value()
-        self._meshmodule.AssignMeshRegion(args)
+        self._app.omeshmodule.AssignMeshRegion(args)
         self._app.mesh.meshregions.append(self)
         self._app.modeler.refresh_all_ids()
         self._assignment = self.assignment
@@ -1214,7 +1134,6 @@ class IcepakMesh(object):
         meshregion = MeshRegion(self._app, objectlist, name)
         meshregion.manual_settings = False
         meshregion.Level = level
-        meshregion.name = name
         all_objs = [i for i in self.modeler.object_names]
         created = bool(meshregion)
         if created:

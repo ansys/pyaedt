@@ -1331,6 +1331,7 @@ class TestClass:
         component_filepath = self.aedtapp.modeler.user_defined_components["test"].get_component_filepath()
         assert component_filepath
         comp = self.aedtapp.modeler.user_defined_components["test"].edit_definition()
+        comp.modeler.refresh_all_ids()
         comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
