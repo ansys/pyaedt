@@ -2080,7 +2080,7 @@ class Icepak(FieldAnalysis3D):
                 )
                 arg.append("Calculation:=")
                 arg.append([type, geometry_type, el, quantity, "", "Default"])
-            except Exception as e:
+            except Exception:
                 self.logger.warning("Object " + el + " not added.")
         if not output_dir:
             output_dir = self.working_directory
