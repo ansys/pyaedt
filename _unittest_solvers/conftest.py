@@ -116,7 +116,7 @@ def init_scratch():
 
     try:
         shutil.rmtree(test_folder, ignore_errors=True)
-    except Exception:
+    except Exception as e:
         print("Failed to delete {}. Reason: {}".format(test_folder, e))
 
 
