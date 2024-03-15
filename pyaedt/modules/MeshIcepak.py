@@ -408,7 +408,7 @@ class MeshRegionCommon(object):
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
         else:
-            super().__setattr__(name, value)
+            super(MeshRegionCommon, self).__setattr__(name, value)
 
 
 class GlobalMeshRegion(MeshRegionCommon):
@@ -454,10 +454,10 @@ class GlobalMeshRegion(MeshRegionCommon):
         self.global_region.object.delete()
         self.global_region = None
 
-    def create(self, padding_type, padding_value):
+    def create(self):
         self.delete()
         self.global_region = Region(self._app)
-        self.global_region.create(padding_type, padding_value)
+        self.global_region.create(self.padding_types, self.padding_values)
 
 
 class MeshRegion(MeshRegionCommon):
@@ -576,7 +576,6 @@ class MeshRegion(MeshRegionCommon):
                 if not isinstance(parts, list):
                     parts = [parts]
                 sub_regions = self._app.modeler.non_model_objects
-                subregion = None
                 for sr in sub_regions:
                     p1 = []
                     p2 = []
@@ -794,9 +793,7 @@ class IcepakMesh(object):
                             if ds == "Global":
                                 meshop = GlobalMeshRegion(self._app)
                             else:
-                                meshop = MeshRegionCommon(
-                                    self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
-                                )
+                                meshop = MeshRegion(self._app, None, ds)
                             for el in dict_prop:
                                 if el in meshop.__dict__:
                                     meshop.__dict__[el] = dict_prop[el]
@@ -1104,14 +1101,14 @@ class IcepakMesh(object):
         return True
 
     @pyaedt_function_handler()
-    def assign_mesh_region(self, objectlist=[], level=5, name=None, **kwargs):
+    def assign_mesh_region(self, objectlist=None, level=5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
         ----------
         objectlist : list, optional
             List of objects to apply the mesh region to. The default
-            is ``[]``.
+            is ``None``, in which case all objects are selected.
         level : int, optional
             Level of the surface mesh. Options are ``1`` through ``5``. The default
             is ``5``.
@@ -1129,7 +1126,7 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        if not objectlist:
+        if objectlist is None:
             objectlist = [i for i in self.modeler.object_names]
         meshregion = MeshRegion(self._app, objectlist, name)
         meshregion.manual_settings = False
