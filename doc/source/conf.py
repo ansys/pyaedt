@@ -88,9 +88,9 @@ def directory_size(directory_path):
     return res
 
 def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build."""
+    """Remove the ``.doctree`` directory created during the documentation build."""
 
-    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
+    # Keep the ``doctree`` directory to avoid creating it twice. This is typically helpful in CI/CD
     # where we want to build both HTML and PDF pages.
     if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
         logger.info(f"Keeping directory {app.doctreedir}.")
@@ -259,7 +259,7 @@ pygments_style = "sphinx"
 if run_examples:
     import pyvista
 
-    # # Pyvista settings
+    # # PyVista settings
 
     # Ensure that offscreen rendering is used for docs generation
     pyvista.OFF_SCREEN = True
@@ -279,7 +279,7 @@ if run_examples:
     warnings.filterwarnings(
         "ignore",
         category=UserWarning,
-        message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
+        message="Matplotlib is currently using agg, which is a non-GUI backend, so it cannot show the figure.",
     )
 
     extensions.append("sphinx_gallery.gen_gallery")
