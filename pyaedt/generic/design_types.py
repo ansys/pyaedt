@@ -1803,7 +1803,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     else:
         oDesign = oProject.SetActiveDesign(design_name)
     if not oDesign:
-        raise AttributeError("No Design Present.")
+        raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()
     if design_type in list(app_map.keys()):
         version = odesktop.GetVersion().split(".")
