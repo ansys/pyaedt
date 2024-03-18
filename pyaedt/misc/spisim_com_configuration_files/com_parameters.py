@@ -190,11 +190,12 @@ class COMParameters:
         Parameters
         ----------
         file_path: str
-            Path of the configure file.
+            Path of the configuration file.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         reverse_map = {j: i for i, j in spimsim_matlab_keywords_mapping.items()}
 
