@@ -1797,7 +1797,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         m = re.search(r"[^;]+$", el)
         design_names.append(m.group(0))
     if design_name and design_name not in design_names:
-        raise AttributeError("Design  {} doesn't exists in current Project.".format(design_name))
+        raise AttributeError("Design  {} doesn't exist in current project.".format(design_name))
     if not design_name:
         oDesign = oProject.GetActiveDesign()
     else:
