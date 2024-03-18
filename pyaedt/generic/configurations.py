@@ -1631,7 +1631,7 @@ class ConfigurationsIcepak(Configurations):
             self._app.mesh.meshregions.append(bound)
             self._app.logger.info("mesh Operation {} added.".format(name))
         except GrpcApiError:
-            self._app.logger.warning("Failed to add Mesh {} ".format(name))
+            self._app.logger.warning("Failed to add mesh {} ".format(name))
         return True
 
     @pyaedt_function_handler()
