@@ -1784,7 +1784,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     else:
         raise AttributeError("No Desktop Present.")
     if project_name and project_name not in odesktop.GetProjectList():
-        raise AttributeError("Project  {} doesn't exist in current Desktop.".format(project_name))
+        raise AttributeError("Project  {} doesn't exist in current desktop.".format(project_name))
     if not project_name:
         oProject = odesktop.GetActiveProject()
     else:
