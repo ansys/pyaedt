@@ -352,6 +352,7 @@ AEDT_UNITS = {
         "miles_per_minute": METER2MILES * SEC2MIN,
         "miles_per_sec": METER2MILES,
     },
+    "ThermalResistance": {"kel_per_W": 1, "cel_per_w": 1, "FahSec_per_btu": 0.0005269175, "kels_per_J": 1},
     "Time": {
         "fs": 1e-15,
         "ps": 1e-12,

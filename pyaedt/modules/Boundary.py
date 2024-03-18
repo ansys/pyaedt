@@ -11,6 +11,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.constants import CATEGORIESQ3D
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple
@@ -3630,12 +3631,13 @@ class NetworkObject(BoundaryObject):
             return False
         faces = []
         volumes = []
+        internals = []
         face_names = list(self.face_nodes.keys())
         for face_node in self.face_nodes.values():
             f_id = face_node.props["FaceID"]
             faces.append(self._app.modeler.get_face_by_id(f_id))
             obj = self._app.modeler[self._app.oeditor.GetObjectNameByFaceID(f_id)]
-            if not obj.solve_inside:
+            if not obj.solve_inside and obj not in volumes:
                 volumes.append(obj)
 
         nodes_array = []
@@ -3677,6 +3679,10 @@ class NetworkObject(BoundaryObject):
                     },
                 }
             )
+        for n in self.internal_nodes.values():
+            value, unit = decompose_variable_value(n.props["Power"])
+            value = unit_converter(value, unit_system="Power", input_units=unit, output_units="W")
+            nodes_array.append({"Name": n.name, "Power": value})
         cubes = []
         for i, cube in enumerate(volumes):
             cubes.append(
@@ -3701,9 +3707,11 @@ class NetworkObject(BoundaryObject):
             if r.props[3] != "R":
                 self._app.logger.error("Only thermal resistances are supported.")
                 return False
+            value, unit = decompose_variable_value(r.props[-1])
+            value = unit_converter(value, unit_system="ThermalResistance", input_units=unit, output_units="kel_per_W")
             resistances_array.append(
                 {
-                    "ThermalResistance": decompose_variable_value(r.props[-1])[0],
+                    "ThermalResistance": value,
                     "FromNode": r.props[0],
                     "ToNode": r.props[1],
                 }
@@ -3715,7 +3723,7 @@ class NetworkObject(BoundaryObject):
                         "ID": self.name,
                         "ThermalData": {
                             "UnitsForThermalData": {
-                                "DimensionUOM": "m",
+                                "DimensionUOM": self._app.modeler.model_units,
                                 "NodalMassUOM": "kg",
                                 "PowerUOM": "W",
                                 "SpecificHeatCapacityUOM": "J/kg-K",
