@@ -374,7 +374,7 @@ class TestClass:
             f.write(" ")
         try:
             hfss = Hfss(projectname=file_name2, specified_version=desktop_version)
-        except Exception as e:
+        except Exception:
             assert True
         try:
             os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
