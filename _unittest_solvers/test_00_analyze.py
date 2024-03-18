@@ -8,6 +8,8 @@ import pytest
 from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
 
+from pathlib import Path
+
 from pyaedt import is_linux
 from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
@@ -492,23 +494,11 @@ class TestClass:
     def test_09a_compute_com(self, local_scratch, circuit_com):
         touchstone_file = circuit_com.export_touchstone()
         spisim = SpiSim(touchstone_file)
-        assert spisim.com_standards
-        assert spisim.com_parameters()
 
         report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
         os.mkdir(report_dir)
         com = spisim.compute_com(
             standard="50GAUI-1_C2C",
-            out_folder=report_dir,
-        )
-        assert com
-
-        report_dir = os.path.join(spisim.working_directory, "100GBASE-KR4")
-        os.mkdir(report_dir)
-        com = spisim.compute_com(
-            standard="100GBASE-KR4",
-            fext_s4p=[touchstone_file, touchstone_file],
-            next_s4p=touchstone_file,
             out_folder=report_dir,
         )
         assert com
@@ -522,12 +512,12 @@ class TestClass:
         next_s4p = local_scratch.copyfile(
             os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
         )
-
         report_dir = os.path.join(local_scratch.path, "custom")
         os.mkdir(report_dir)
-
         spisim = SpiSim(thru_s4p)
+        spisim.working_directory = local_scratch.path
         spisim.export_com_configure_file(os.path.join(spisim.working_directory, "custom.cfg"))
+
         com_0, com_1 = spisim.compute_com(
             standard="custom",
             config_file=os.path.join(spisim.working_directory, "custom.cfg"),
@@ -538,18 +528,35 @@ class TestClass:
         )
         assert com_0 and com_1
 
-    def test_09c_compute_com(self, local_scratch):
-        com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
-        thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
-        cfg = local_scratch.copyfile(os.path.join(com_example_file_folder, "config_com_ieee8023_93a=100GBASE-KR4.xls"))
-        report_dir = os.path.join(local_scratch.path, "custom1")
-        os.mkdir(report_dir)
-
-        spisim = SpiSim(thru_s4p)
-        com_result = spisim.compute_com(
-            standard="custom",
-            config_file=cfg,
+        com_0, com_1 = spisim.compute_com(
+            standard="50GAUI-1_C2C",
             port_order="EvenOdd",
+            fext_s4p=fext_s4p,
+            next_s4p=next_s4p,
             out_folder=report_dir,
         )
-        assert com_result
+        assert com_0 and com_1
+        com_0, com_1 = spisim.compute_com(
+            standard="100GBASE-KR4",
+            port_order="EvenOdd",
+            fext_s4p=fext_s4p,
+            next_s4p=next_s4p,
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
+        com_0, com_1 = spisim.compute_com(
+            standard="100GBASE-KP4",
+            port_order="EvenOdd",
+            fext_s4p=fext_s4p,
+            next_s4p=next_s4p,
+            out_folder=report_dir,
+        )
+        assert com_0 and com_1
+
+    def test_09c_compute_com(self, local_scratch):
+        com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
+        thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
+        spisim = SpiSim(thru_s4p)
+        spisim.export_com_configure_file(com_example_file_folder / "test.json")
+        com_0, com_1 = spisim.compute_com("custom", com_example_file_folder / "test.json")
+        assert com_0 and com_1
