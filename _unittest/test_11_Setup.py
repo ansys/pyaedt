@@ -68,6 +68,7 @@ class TestClass:
         self.aedtapp.duplicate_design("auto_open")
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
+        assert not self.aedtapp.setups
         self.aedtapp.set_auto_open()
         setup1 = self.aedtapp.get_setup("Auto1")
         setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
@@ -81,7 +82,8 @@ class TestClass:
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
         setup1["SaveRadFieldsonly"] = True
         setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 301"
-        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 301"
+        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
+        assert circuit.setups[0].props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
         assert "SweepDefinition" in setup1.available_properties
         setup1.update()
         setup1.disable()
