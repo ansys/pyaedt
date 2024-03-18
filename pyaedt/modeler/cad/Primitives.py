@@ -735,6 +735,7 @@ class GeometryModeler(Modeler):
                         pid = operations["Operation"][0]["ParentPartID"]
                     except:
                         pass
+
                 is_polyline = False
                 if operations and "PolylineParameters" in operations.get("Operation", {}):
                     is_polyline = True
@@ -7948,7 +7949,6 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _create_object(self, name, pid=0, use_cached=False, is_polyline=False, **kwargs):
-
         if use_cached:
             line_names = self._lines
         else:
