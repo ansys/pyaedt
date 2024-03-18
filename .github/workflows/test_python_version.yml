@@ -1,0 +1,54 @@
+name: Documentation Build
+
+on: [pull_request, workflow_dispatch]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  smoke-tests-with-install-target:
+    name: Tests | Python ${{ matrix.python-version }} | Target ${{ matrix.install_target}})
+    runs-on: [Windows, self-hosted, pyaedt]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+    steps:
+      - name: "Install Git and clone project"
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .
+          pip install .[tests]
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv_s\Lib\site-packages\vtkmodules" -Force
+          python -c "import pyaedt; print('Imported pyaedt')"
+
+      - name: 'Unit testing'
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            .venv\Scripts\Activate.ps1
+            Set-Item -Path env:PYTHONMALLOC -Value "malloc"
+            pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+
