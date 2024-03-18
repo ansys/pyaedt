@@ -22,60 +22,162 @@ class CommonRegion(object):
 
     @property
     def padding_types(self):
+        """
+        Get a list of strings containing thepadding types used,
+        one for each direction, in the following order:
+        +X, -X, +Y, -Y, +Z, -Z.
+
+        Returns
+        -------
+        List[str]
+        """
         self._update_region_data()
         return self._padding_type
 
     @property
     def padding_values(self):
+        """
+        Get a list of padding values (string or float) used,
+        one for each direction, in the following order:
+        +X, -X, +Y, -Y, +Z, -Z.
+
+        Returns
+        -------
+        List[Union[str, float]]
+        """
         self._update_region_data()
         return self._padding_value
 
     @property
     def positive_x_padding_type(self):
+        """
+        Get a string with the padding type used in the +X direction.
+
+        Returns
+        -------
+        str
+        """
         return self._get_region_data("+X")
 
     @property
     def negative_x_padding_type(self):
+        """
+        Get a string with the padding type used in the -X direction.
+
+        Returns
+        -------
+        str
+        """
         return self._get_region_data("-X")
 
     @property
     def positive_y_padding_type(self):
+        """
+        Get a string with the padding type used in the +Y direction.
+
+        Returns
+        -------
+        str
+        """
         return self._get_region_data("+Y")
 
     @property
     def negative_y_padding_type(self):
+        """
+        Get a string with the padding type used in the -Y direction.
+
+        Returns
+        -------
+        str
+        """
         return self._get_region_data("-Y")
 
     @property
     def positive_z_padding_type(self):
+        """
+        Get a string with the padding type used in the +Z direction.
+
+        Returns
+        -------
+        str
+        """
         return self._get_region_data("+Z")
 
     @property
     def negative_z_padding_type(self):
+        """
+        Get a string with the padding type used in the -Z direction.
+
+        Returns
+        -------
+        str
+        """
         return self._get_region_data("-Z")
 
     @property
     def positive_x_padding(self):
+        """
+        Get a string with the padding value used in the +X direction.
+
+        Returns
+        -------
+        float
+        """
         return self._get_region_data("+X", False)
 
     @property
     def negative_x_padding(self):
+        """
+        Get a string with the padding value used in the -X direction.
+
+        Returns
+        -------
+        float
+        """
         return self._get_region_data("-X", False)
 
     @property
     def positive_y_padding(self):
+        """
+        Get a string with the padding value used in the +Y direction.
+
+        Returns
+        -------
+        float
+        """
         return self._get_region_data("+Y", False)
 
     @property
     def negative_y_padding(self):
+        """
+        Get a string with the padding value used in the -Y direction.
+
+        Returns
+        -------
+        float
+        """
         return self._get_region_data("-Y", False)
 
     @property
     def positive_z_padding(self):
+        """
+        Get a string with the padding value used in the +Z direction.
+
+        Returns
+        -------
+        float
+        """
         return self._get_region_data("+Z", False)
 
     @property
     def negative_z_padding(self):
+        """
+        Get a string with the padding value used in the -Z direction.
+
+        Returns
+        -------
+        float
+        """
         return self._get_region_data("-Z", False)
 
     @padding_types.setter
@@ -142,6 +244,13 @@ class CommonRegion(object):
 
     @property
     def object(self):
+        """
+        Get the subregion modeler object.
+
+        Returns
+        -------
+        ::class::modeler.cad.object3d.Object3d
+        """
         if isinstance(self, Region):
             return {
                 "CreateRegion": oo
@@ -153,6 +262,13 @@ class CommonRegion(object):
 
     @property
     def name(self):
+        """
+        Get the subregion name.
+
+        Returns
+        -------
+        str
+        """
         return self.object.name
 
     @name.setter
@@ -197,10 +313,6 @@ class Region(CommonRegion):
         except AttributeError:
             pass
 
-    def create(self, padding_types, padding_values, name="Region"):
-        self._app.modeler.create_region(padding_values, padding_types, region_name="Region")
-        self._update_region_data()
-
 
 class SubRegion(CommonRegion):
     def __init__(self, app, parts, name=None):
@@ -210,19 +322,51 @@ class SubRegion(CommonRegion):
         self.create(0, "Percentage Offset", name, parts)
 
     def create(self, padding_values, padding_types, region_name, parts):
-        if (
-            self.object is not None and self._app.modeler.objects_by_name.get(self.object.name, False)
-        ) or self._app.modeler.objects_by_name.get(region_name, False):
-            self._app.logger.error("{} already exists in the design.".format(self.object.name))
+        """
+        Create subregion object.
+
+        Parameters
+        ----------
+        padding_values : list of str or float
+            List of padding values to apply in each direction, in the following order:
+            +X, -X, +Y, -Y, +Z, -Z.
+        padding_types : list of str
+            List of padding types to apply in each direction, in the following order:
+            +X, -X, +Y, -Y, +Z, -Z.
+        region_name : str
+            Name to assign to the subregion.
+        parts : list of str
+            Parts to be included in the subregion.
+
+         Returns
+        -------
+        bool
+            True if successful, else False
+        """
+        try:
+            if (
+                self.object is not None and self._app.modeler.objects_by_name.get(self.object.name, False)
+            ) or self._app.modeler.objects_by_name.get(region_name, False):
+                self._app.logger.error("{} already exists in the design.".format(self.object.name))
+                return False
+            if not isinstance(parts, list):
+                objects = [parts]
+                if not isinstance(objects[0], str):
+                    objects = [o.name for o in objects]
+            self._app.modeler.create_subregion(padding_values, padding_types, parts, region_name)
+            return True
+        except:
             return False
-        if not isinstance(parts, list):
-            objects = [parts]
-            if not isinstance(objects[0], str):
-                objects = [o.name for o in objects]
-        self._app.modeler.create_subregion(padding_values, padding_types, parts, region_name)
-        return True
 
     def delete(self):
+        """
+        Delete the subregion object.
+
+         Returns
+        -------
+        bool
+            True if successful, else False
+        """
         try:
             self.object.delete()
             self._app.mesh.meshregions.remove(
@@ -234,6 +378,14 @@ class SubRegion(CommonRegion):
 
     @property
     def parts(self):
+        """
+        Parts included in the subregion.
+
+         Returns
+        -------
+        dict
+            Dictionary with the part names as keys and ::class::modeler.cad.object3d.Object3d as values.
+        """
         if self.object:
             return {
                 obj_name: self._app.modeler[obj_name]
@@ -244,6 +396,14 @@ class SubRegion(CommonRegion):
 
     @parts.setter
     def parts(self, parts):
+        """
+        Parts included in the subregion.
+
+        Parameters
+        -------
+        parts : List[str]
+            List of strings containing all the parts that must be included in the subregion.
+        """
         self._app.modeler.reassign_subregion(self, parts)
 
 
@@ -305,6 +465,14 @@ class MeshSettings(object):
             return _dim_arg(value, getattr(self._mesh_class, "_model_units"))
 
     def parse_settings(self):
+        """
+        Parse mesh region settings.
+
+        Returns
+        -------
+        dict
+            List of strings containing all the parts that must be included in the subregion.
+        """
         out = []
         for k, v in self.instance_settings.items():
             out.append(k + ":=")
