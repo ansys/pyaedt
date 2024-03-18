@@ -129,10 +129,13 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     message_to_print = ""
     messages = ""
-    try:
-        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
-    except (GrpcApiError, AttributeError, TypeError, IndexError):
-        pass
+    from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+    if len(list(_desktop_sessions.values())) == 1:
+        try:
+            messages = list(list(_desktop_sessions.values())[0].odesktop.GetMessages("", "", 2))[-1].lower()
+        except (GrpcApiError, AttributeError, TypeError, IndexError):
+            pass
     if "error" in messages:
         message_to_print = messages[messages.index("[error]") :]
     # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
@@ -210,10 +213,12 @@ def _function_handler_wrapper(user_function):
             except MethodNotSupportedError:
                 message = "This Method is not supported in current AEDT Design Type."
                 if settings.enable_screen_logs:
-                    print("**************************************************************")
-                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
-                    print("**************************************************************")
-                    print("")
+                    pyaedt_logger.logger.error("**************************************************************")
+                    pyaedt_logger.logger.error(
+                        "pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message)
+                    )
+                    pyaedt_logger.logger.error("**************************************************************")
+                    pyaedt_logger.logger.error("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
                 return False

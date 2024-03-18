@@ -328,7 +328,7 @@ class TestClass:
         aedt_obj = AedtObjects()
         assert aedt_obj.odesign
         assert aedt_obj.oproject
-        aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
+        aedt_obj = AedtObjects(aedt_obj._desktop_class, self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
 
     def test_34_force_project_path_disable(self):

@@ -133,7 +133,8 @@ class AedtLogger(object):
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False, desktop=None):
+        self._desktop_class = desktop
         self._oproject = None
         self._odesign = None
         self._project_name = ""
@@ -240,9 +241,8 @@ class AedtLogger(object):
 
     @property
     def _desktop(self):
-        if "oDesktop" in dir(sys.modules["__main__"]):
-            MainModule = sys.modules["__main__"]
-            return MainModule.oDesktop
+        if self._desktop_class:
+            return self._desktop_class.odesktop
         return None  # pragma: no cover
 
     @property
@@ -591,7 +591,7 @@ class AedtLogger(object):
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
-                print("PyAEDT INFO: Failed in Adding Desktop Message")
+                pass
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)
