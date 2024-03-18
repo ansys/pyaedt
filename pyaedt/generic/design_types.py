@@ -1759,8 +1759,8 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         Project name.
     design_name : str, optional
         Design name.
-    desktop :  :class:`pyaedt.desktop.Desktop`, optional
-        Desktop class.
+    desktop : :class:`pyaedt.desktop.Desktop`, optional
+        Desktop class. The default is ``None``.
 
     Returns
     -------
