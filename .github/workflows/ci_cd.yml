@@ -320,7 +320,7 @@ jobs:
 # # =================================================================================================
 
   test-ironpython-windows:
-    name: Testing and coverage (Windows)
+    name: Testing IronPython and coverage (Windows)
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
