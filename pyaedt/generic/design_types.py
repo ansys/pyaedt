@@ -1790,7 +1790,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     else:
         oProject = odesktop.SetActiveProject(project_name)
     if not oProject:
-        raise AttributeError("No Project Present.")
+        raise AttributeError("No project is present.")
     design_names = []
     deslist = list(oProject.GetTopDesignList())
     for el in deslist:
