@@ -382,7 +382,7 @@ class TestClass:
             with open(file_name3, "w") as f:
                 f.write(" ")
             hfss = Hfss3dLayout(projectname=file_name3, specified_version=desktop_version)
-        except Exception as e:
+        except Exception:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):
