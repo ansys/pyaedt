@@ -243,7 +243,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
     if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
         if close_desktop and desktop_class.parent_desktop_id:
             pyaedt_logger.error("A child desktop session is linked to this session.")
-            pyaedt_logger.error("Multiple Desktop sessions have to be released in reverse order.")
+            pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
             return False
         elif close_desktop:
             try:
