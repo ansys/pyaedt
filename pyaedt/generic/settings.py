@@ -232,7 +232,7 @@ class Settings(object):
     def use_multi_desktop(self):
         """Flag indicating if multiple desktop sessions are enabled in the same Python script.
         Current limitations follow:
-        
+
         - Release without closing the desktop is not possible,
         - The first desktop created must be the last to be closed.
 
