@@ -735,7 +735,12 @@ class GeometryModeler(Modeler):
                         pid = operations["Operation"][0]["ParentPartID"]
                     except:
                         pass
-                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True)
+
+                is_polyline = False
+                if operations and "PolylineParameters" in operations.get("Operation", {}):
+                    is_polyline = True
+
+                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
@@ -7943,7 +7948,7 @@ class GeometryModeler(Modeler):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0, use_cached=False, **kwargs):
+    def _create_object(self, name, pid=0, use_cached=False, is_polyline=False, **kwargs):
         if use_cached:
             line_names = self._lines
         else:
@@ -7965,8 +7970,7 @@ class GeometryModeler(Modeler):
             self._object_names_to_ids[o.name] = new_id
         else:
             o = Object3d(self, name)
-            commands = self._get_commands(name)
-            if commands and commands[0].startswith("CreatePolyline"):
+            if is_polyline:
                 o = self.get_existing_polyline(o)
             if pid:
                 new_id = pid
