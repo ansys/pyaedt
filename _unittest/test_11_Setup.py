@@ -69,7 +69,6 @@ class TestClass:
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
         self.aedtapp.set_auto_open()
-        self.aedtapp.setups
         setup1 = self.aedtapp.get_setup("Auto1")
         setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
         assert setup1.update({"MaximumPasses": 20})
