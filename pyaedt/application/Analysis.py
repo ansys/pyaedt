@@ -122,7 +122,7 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
         )
-
+        self._setup = None
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
