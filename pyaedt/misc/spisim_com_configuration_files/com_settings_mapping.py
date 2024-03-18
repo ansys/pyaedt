@@ -6,7 +6,6 @@ spimsim_matlab_keywords_mapping = {
     "CDR": "CDR",  # CDR method, default is 'MM' (Mueller-Muller)
     "COM Pass threshold": "COM_PASS_THRESHOLD",  # the pass fail threshold for COM in dB
     "Enforce Causality DIFF_TOL": "EC_DIFF_TOL",
-
     # Difference Tolerance parameter for causality, Hard enforcement, 1e-4,Soft enforcement, 1e-3
     "Enforce Causality pulse start tolerance": "EC_PULSE_TOL",
     # Tolerance parameter for causality, Hard enforcement, 0.05, Soft enforcement, .01
@@ -41,7 +40,6 @@ spimsim_matlab_keywords_mapping = {
     "USE_ETA0_PSD": "USE_ETA0_PSD",  # Used eta_0 PSD equation for sigma_n. Default is 0. Do not use.
     "VEC Pass threshold": "VEC_PASS_THRESHOLD",  # the pass fail threshold for VEC in dB only used when PMD_type is C2M
     # TABLE_93A1
-
     "A_fe": "A_FE",  # FEXT aggressor differential peak source output voltage (half of peak to peak)
     "A_ne": "A_NE",  # NEXT aggressor differential peak source output voltage (half of peak to peak)
     "A_v": "A_V",  # Victim differential peak source output voltage (half of peak to peak)
@@ -73,13 +71,11 @@ spimsim_matlab_keywords_mapping = {
     "z_p select": "Z_PSELECT",  # List of package length indexes used to run COM
     "z_p (TX)": "Z_PTX",  # List of victim transmitter package trace lengths in mm, one per case
     # TABLE_93A3
-
     "package_tl_gamma0_a1_a2": "PACKAGE_TL_GAMMA0_A1_A2",
     # Fitting parameters for package model per unit length. First element is in 1/mm and affects DC loss of package model . Second element is in ns1/2/mm and affects loss proportional to sqrt(f). Third element is in ns/mm and affects loss proportional to f.
     "package_tl_tau": "PACKAGE_TL_TAU",  # Package model transmission line delay ns/mm
     "package_Z_c": "PACKAGE_Z_C",  # Package model transmission line characteristic impedance [ Tx , Rx ]
     # TABLE_9212
-
     "board_tl_gamma0_a1_a2": "BOARD_TL_GAMMA0_A1_A2",
     # Fitting parameters for package model per unit length. First element is in 1/mm and affects DC loss of package model . Second element is in ns1/2/mm and affects loss proportional to sqrt(f). Third element is in ns/mm and affects loss proportional to f.
     "board_tl_tau": "BOARD_TL_TAU",  # Board model transmission line delay ns/mm
@@ -91,7 +87,6 @@ spimsim_matlab_keywords_mapping = {
     "z_bp (RX)": "Z_BPRX",  # Victim receiver board trace lengths in mm
     "z_bp (TX)": "Z_BPTX",  # Victim transmitter board trace lengths in mm
     # TDR_ERL
-
     "AUTO_TFX": "AUTO_TFX",  # Mostly used for device ERL. If sent to 1 the fixture tfx will be estimated.
     "beta_x": "BETA_X",  # (for ERL) use default 0
     "BTorder": "BT_ORDER",  # Bessel function order
@@ -107,7 +102,6 @@ spimsim_matlab_keywords_mapping = {
     "Turkey_Window": "TUKEY_WINDOW",  # required for ERL. Set to 1. Default is 0.
     "Z_T": "Z_T",  # single sided source termination reference resistance for TDR and ERL
     # ICN_PARAM
-
     "A_ft": "A_FT",  # FEXT aggressor amplitude for ICN. Defaults to A_fe if not specified
     "A_nt": "A_NT",  # NEXT aggressor amplitude for ICN. Defaults to A_ne if not specified
     "f_1": "F_1",  # start frequency for ICN and ILD calculations in GHz
@@ -115,7 +109,6 @@ spimsim_matlab_keywords_mapping = {
     "f_f": "F_F",  # For ICN: Fext transition rate cut off frequency for ICN calc in terms of fb
     "f_n": "F_N",  # For ICN: Next transition rate cut off frequency for ICN calc in terms of fb
     # FILTER_EQ
-
     "b_max(1)": "B_MAX1",  # DFE magnitude limit, first coefficient(ignored if Nb=0)
     "b_max(2..N_b)": "B_MAX2_N_B",
     # DFE magnitude limit, second coefficient and on (ignored if Nb<2). Can be a regular expression
@@ -146,7 +139,6 @@ spimsim_matlab_keywords_mapping = {
     "GDC_MIN": "GDC_MIN",  # max ACDC gain, if 0 ignore
     "N_b": "N_B",  # Decision feedback fixed equalizer (DFE) length
     # NOISE_JITTER
-
     "A_DD": "A_DD",  # Normalized peak dual-Dirac noise, this is half of the total bound uncorrelated jitter (BUJ) in UI
     "eta_0": "ETA_0",
     # One-sided noise spectral density (V^2/GHz).Input referred noise at TP5. Input referred noise at TP5
@@ -154,7 +146,6 @@ spimsim_matlab_keywords_mapping = {
     "sigma_RJ": "SIGMA_RJ",  # rms of of random jitter
     "SNR_TX": "SNR_TX",  # Transmitter SNDR noise in dB
     # RCV_NONSTD
-
     "FORCE_TR": "FORCE_TR",  # Included for earlier version support but should be set to 1 in most later config sheets.
     "Grr": "GRR",  # either do no use or set to 1 (for ERL)
     "GRR_LIMIT": "GRR_LIMIT",  # either do no use or set to 1 (for ERL)
@@ -174,7 +165,6 @@ spimsim_matlab_keywords_mapping = {
     "T_R_FILTER_TYPE": "T_R_FILTER_TYPE",  # included for earlier version support. Not recommended to use.
     "T_R_MEAS_POINT": "T_R_MEAS_POINT",  # included for earlier version support. Not recommended to use.
     # FLOATING_TAPS
-
     "B_float_RSS_MAX": "B_FLOAT_RSS_MAX",  # floating DFE tap start for RSS floating tap limit
     "bmaxg": "BMAXG",  # max DFE value for floating taps
     "N_bf": "N_BF",  # number of taps in group
@@ -182,7 +172,6 @@ spimsim_matlab_keywords_mapping = {
     "N_f": "N_F",  # UI span for floating taps. replaced by N_bmax
     "N_tail_start": "N_TAIL_START",  # start range for max RSS limit for DFE taps
     # RX_FFE
-
     "CURSOR_GAIN": "CURSOR_GAIN",  # only FFE and not supported
     "FFE_BACKOFF": "FFE_BACKOFF",
     # see if better zero forced solution is better by backing off the number specified FFE taps one at at time
@@ -193,10 +182,8 @@ spimsim_matlab_keywords_mapping = {
     "FFE_PRE_TAP1_MAX": "FFE_PRE_TAP1_MAX",  # Rx FFE pre cursor tap1 limit
     "FFE_TAP_STEP_SIZE": "FFE_TAP_STEP_SIZE",  # Rx FFE tap step size
     "FFE_TAPN_MAX": "FFE_TAPN_MAX",  # Rx FFE precursor tap N limit
-
     "Tukey_Window": "TUKEY_WINDOW",
     "TDR": "TDR",
-
     "SBR_GEN_METHOD": "SBR_GEN_METHOD",
     "NEXTARY": "NEXTARY",
     "HISTOGRAM_WINDOW_WEIGHT": "HISTOGRAM_WINDOW_WEIGHT",

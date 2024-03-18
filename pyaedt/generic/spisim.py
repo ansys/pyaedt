@@ -9,7 +9,8 @@ import subprocess  # nosec
 from numpy import float64
 from numpy import zeros
 
-from pyaedt import generate_unique_name, generate_unique_folder_name
+from pyaedt import generate_unique_folder_name
+from pyaedt import generate_unique_name
 from pyaedt import is_linux
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
