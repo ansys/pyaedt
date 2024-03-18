@@ -199,7 +199,7 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.Setup`
-           Setups in the project.
+            Setups in the project.
 
         """
         if not self._setups:
@@ -214,7 +214,7 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.DesignXPloration.ParametricSetups`
-           Parametric setups in the project.
+            Parametric setups in the project.
 
         """
         if not self._parametrics:
@@ -228,7 +228,7 @@ class Analysis(Design, object):
         Returns
         -------
         :class:`pyaedt.modules.DesignXPloration.OptimizationSetups`
-           Parametric setups in the project.
+            Parametric setups in the project.
 
         """
         if not self._optimizations:
