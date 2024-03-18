@@ -1,4 +1,4 @@
-name: Documentation Build
+name: Use test target with multiple python version
 
 on: [pull_request, workflow_dispatch]
 
@@ -10,7 +10,7 @@ concurrency:
 jobs:
 
   smoke-tests-with-install-target:
-    name: Tests | Python ${{ matrix.python-version }} | Target ${{ matrix.install_target}})
+    name: Tests | Python ${{ matrix.python-version }}
     runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       fail-fast: false
@@ -38,7 +38,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .
           pip install .[tests]
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv_s\Lib\site-packages\vtkmodules" -Force
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination ".venv\Lib\site-packages\vtkmodules" -Force
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
