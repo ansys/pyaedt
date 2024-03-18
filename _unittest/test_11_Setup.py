@@ -27,6 +27,7 @@ class TestClass:
     def test_01_create_hfss_setup(self):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
+        assert self.aedtapp.setups[0].name == setup1.name
         assert "SaveRadFieldsOnly" in setup1.props
         assert "SaveRadFieldsOnly" in setup1.available_properties
         setup1["SaveRadFieldsonly"] = True
@@ -68,6 +69,7 @@ class TestClass:
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
         self.aedtapp.set_auto_open()
+        self.aedtapp.setups
         setup1 = self.aedtapp.get_setup("Auto1")
         setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
         assert setup1.update({"MaximumPasses": 20})

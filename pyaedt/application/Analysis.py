@@ -1308,6 +1308,7 @@ class Analysis(Design, object):
                 setup.props = SetupProps(setup, new_dict)
                 setup.auto_update = True
 
+        tmp_setups = self.setups
         setup.create()
         if props:
             for el in props:
@@ -1315,7 +1316,9 @@ class Analysis(Design, object):
             setup.update()
 
         self.active_setup = name
-        self.setups.append(setup)
+
+        self._setups = tmp_setups + [setup]
+
         return setup
 
     @pyaedt_function_handler()
@@ -1350,9 +1353,9 @@ class Analysis(Design, object):
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])
-            for s in self.setups:
+            for s in self._setups:
                 if s.name == setupname:
-                    self.setups.remove(s)
+                    self._setups.remove(s)
             return True
         return False
 

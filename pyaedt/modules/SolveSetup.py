@@ -538,8 +538,7 @@ class Setup(CommonSetup):
             ``True`` if setup is deleted. ``False`` if it failed.
         """
 
-        self.omodule.DeleteSetups([self.name])
-        self._app.setups.remove(self)
+        self._app.delete_setup(self.name)
         return True
 
     @pyaedt_function_handler()
