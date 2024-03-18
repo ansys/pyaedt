@@ -556,21 +556,18 @@ class MeshRegionCommon(object):
         """
         Update the mesh region object.
         """
-        pass
 
     @abstractmethod
     def delete(self):
         """
         Delete the mesh region object.
         """
-        pass
 
     @abstractmethod
     def create(self):
         """
         Create the mesh region object.
         """
-        pass
 
     # backward compatibility
     def __getattr__(self, name):
