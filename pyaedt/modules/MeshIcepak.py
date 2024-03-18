@@ -539,7 +539,9 @@ class MeshRegionCommon(object):
         name : str
             Name of the mesh region.
         manual_settings : bool
-            Whether to use manual settings or
+            Whether to use manual settings or automatic ones.
+        settings : ::class::modules.MeshIcepak.MeshSettings
+            Dictionary-like object to handle settings
     """
 
     def __init__(self, units, app, name):
@@ -551,14 +553,23 @@ class MeshRegionCommon(object):
 
     @abstractmethod
     def update(self):
+        """
+        Update the mesh region object.
+        """
         pass
 
     @abstractmethod
     def delete(self):
+        """
+        Delete the mesh region object.
+        """
         pass
 
     @abstractmethod
     def create(self):
+        """
+        Create the mesh region object.
+        """
         pass
 
     # backward compatibility
@@ -590,6 +601,9 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def name(self):
+        """
+        Mesh region name.
+        """
         return "Global"
 
     @pyaedt_function_handler
@@ -616,13 +630,22 @@ class GlobalMeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self):
+        """
+        Get the region object from the modeler.
+        """
         return self.global_region.name
 
     def delete(self):
+        """
+        Delete the region object in the modeler.
+        """
         self.global_region.object.delete()
         self.global_region = None
 
     def create(self):
+        """
+        Create the region object in the modeler.
+        """
         self.delete()
         self.global_region = Region(self._app)
         self.global_region.create(self.padding_types, self.padding_values)
@@ -674,6 +697,13 @@ class MeshRegion(MeshRegionCommon):
 
     @property
     def name(self):
+        """
+        Name of the mesh region.
+
+        Returns
+        -------
+        str
+        """
         return self._name
 
     @name.setter
@@ -737,6 +767,13 @@ class MeshRegion(MeshRegionCommon):
 
     @property
     def assignment(self):
+        """
+        List of objects included in mesh region.
+
+        Returns
+        -------
+        list
+        """
         if isinstance(self._assignment, SubRegion):
             # try to update name
             try:
@@ -805,6 +842,13 @@ class MeshRegion(MeshRegionCommon):
     # backward compatibility
     @property
     def Enable(self):
+        """
+        Get whether the mesh region is enabled.
+
+        Returns
+        -------
+        book
+        """
         warnings.warn(
             "`Enable` is deprecated. Use `enable` instead.",
             DeprecationWarning,
@@ -821,6 +865,13 @@ class MeshRegion(MeshRegionCommon):
 
     @property
     def Objects(self):
+        """
+        List of objects included in mesh region.
+
+        Returns
+        -------
+        list
+        """
         warnings.warn(
             "`Objects` is deprecated. Use `assignment` instead.",
             DeprecationWarning,
@@ -837,6 +888,13 @@ class MeshRegion(MeshRegionCommon):
 
     @property
     def Submodels(self):
+        """
+        List of objects included in mesh region.
+
+        Returns
+        -------
+        list
+        """
         warnings.warn(
             "`Submodels` is deprecated. Use `assignment` instead.",
             DeprecationWarning,
