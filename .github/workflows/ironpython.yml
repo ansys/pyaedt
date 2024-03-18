@@ -2,6 +2,8 @@
 
 name: CI_Ironpython
 
+env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
 
 # Controls when the workflow will run
 on:

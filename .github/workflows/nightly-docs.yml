@@ -6,6 +6,7 @@ on:
     - cron:  '0 4 * * *'
 
 env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
