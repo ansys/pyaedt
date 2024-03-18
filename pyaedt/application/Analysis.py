@@ -127,9 +127,9 @@ class Analysis(Design, object):
             self.active_setup = setup_name
         self._materials = None
         self._available_variations = self.AvailableVariations(self)
-        self._setups = None
-        self._parametrics = None
-        self._optimizations = None
+        self._setups = []
+        self._parametrics = []
+        self._optimizations = []
         self._native_components = []
         self.SOLUTIONS = SOLUTIONS()
         self.SETUPS = SETUPS()
