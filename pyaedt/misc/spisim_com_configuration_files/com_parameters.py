@@ -1,6 +1,6 @@
+import json
 from pathlib import Path
 
-import json
 import toml
 
 from pyaedt import pyaedt_function_handler
@@ -12,11 +12,12 @@ logger = settings.logger
 
 class COMParameters:
     """Base class to manage COM parameters."""
+
     _CFG_DIR = Path(__file__).parent.parent / "spisim_com_configuration_files"
     _STD_TABLE_MAPPING = {
         "50GAUI-1_C2C": "com_120d_8.cfg",
         "100GBASE-KR4": "com_93_8.cfg",
-        "100GBASE-KP4": "com_94_17.cfg"
+        "100GBASE-KP4": "com_94_17.cfg",
     }
 
     def __init__(self, standard):
@@ -219,202 +220,228 @@ class COMParametersVer3p4(COMParameters):
     @pyaedt_function_handler
     def _init(self):
         """Initialize COM parameters."""
-        self.table_93a1.update({
-            "f_b": "",
-            "f_min": "",
-            "Delta_f": "",
-            "C_d": "",
-            "L_s": "",
-            "C_b": "",
-            "z_p select": "",
-            "z_p (TX)": "",
-            "z_p (NEXT)": "",
-            "z_p (FEXT)": "",
-            "z_p (RX)": "",
-            "C_p": "",
-            "R_0": "",
-            "R_d": "",
-            "A_v": "",
-            "A_fe": "",
-            "A_ne": "",
-            "AC_CM_RMS": "",
-            "L": "",
-            "M": "",
-        })
-        self.filter_and_eq.update({
-            "f_r": "",
-            "c(0)": "",
-            "c(-1)": "",
-            "c(-2)": "",
-            "c(-3)": "",
-            "c(1)": "",
-            "N_b": "",
-            "b_max(1)": "",
-            "b_max(2..N_b)": "",
-            "b_min(1)": "",
-            "b_min(2..N_b)": "",
-            "g_DC": "",
-            "f_z": "",
-            "f_p1": "",
-            "f_p2": "",
-            "g_DC_HP": "",
-            "f_HP_PZ": "",
-        })
-        self.io_control.update({
-            # "DIAGNOSTICS": "",
-            # "DISPLAY_WINDOW": "",
-            # "CSV_REPORT": "",
-            # "RESULT_DIR": "",
-            # "SAVE_FIGURES": "",
-            "Port Order": "",
-            "RUNTAG": "",
-            # "COM_CONTRIBUTION": "",
-        })
-        self.operational.update({
-            "COM Pass threshold": "",
-            "ERL Pass threshold": "",
-            "DER_0": "",
-            "T_r": "",
-            "FORCE_TR": "",
-            "Local Search": "",
-            # "BREAD_CRUMBS": "",
-            # "SAVE_CONFIG2MAT": "",
-            # "PLOT_CM": "",
-        })
-        self.tdr_and_erl_options.update({
-            "TDR": "",
-            "ERL": "",
-            "ERL_ONLY": "",
-            "TR_TDR": "",
-            "N": "",
-            "beta_x": "",
-            "rho_x": "",
-            "fixture delay time": "",
-            "TDR_W_TXPKG": "",
-            "N_bx": "",
-            "Tukey_Window": "",
-        })
-        self.noise_jitter.update({
-            "sigma_RJ": "",
-            "A_DD": "",
-            "eta_0": "",
-            "SNR_TX": "",
-            "R_LM": "",
-        })
-        self.table_93a3.update({
-            "package_tl_gamma0_a1_a2": "",
-            "package_tl_tau": "",
-            "package_Z_c": "",
-        })
-        self.table_92_12.update({
-            "board_tl_gamma0_a1_a2": "",
-            "board_tl_tau": "",
-            "board_Z_c": "",
-            "z_bp (TX)": "",
-            "z_bp (NEXT)": "",
-            "z_bp (FEXT)": "",
-            "z_bp (RX)": "",
-            "C_0": "",
-            "C_1": "",
-            "Include PCB": "",
-        })
-        self.floating_tap_control.update({
-            "N_bg": "",
-            "N_bf": "",
-            "N_f": "",
-            "bmaxg": "",
-            "B_float_RSS_MAX": "",
-            "N_tail_start": "",
-        })
-        self.icn_fom_ild_parameters.update({
-            "f_v": "",
-            "f_f": "",
-            "f_n": "",
-            "f_2": "",
-            "A_ft": "",
-            "A_nt": "",
-        })
-        self.receiver_testing.update({
-            "RX_CALIBRATION": "",
-            "Sigma BBN step": "",
-        })
-        self.spisim_control.update({
-            "VERSION": "",
-            "THRUSNP": "",
-            "FEXTARY": "",
-            "NEXTARY": "",
-            "SPECTAG": "",
-            "FSTTHRU": "",
-            "NUMPORT": "",
-            "GENHTML": "",
-        })
-        self.other_parameters.update({
-            "MIN_VEO_TEST": "",
-            "EH_MAX": "",
-            "F_HP_P": "",
-            "N_V": "",
-            "FFE_BACKOFF": "",
-            "ERR_PROPAGATION_COM_MARGIN": "",
-            "ACCM_MAX_FREQ": "",
-            "GDC_MIN": "",
-            "FIXTURE_BUILTIN_DELAY": "",
-            "C_V": "",
-            "T_R_FILTER_TYPE": "",
-            "FFE_TAP_STEP_SIZE": "",
-            "SBR_GEN_METHOD": "",
-            "NOISE_CREST_FACTOR": "",
-            "EC_DIFF_TOL": "",
-            "F_1": "",
-            "HISTOGRAM_WINDOW_WEIGHT": "",
-            "TDR_BUTTERWORTH": "",
-            "VEC_PASS_THRESHOLD": "",
-            "FFE_PRE_TAP1_MAX": "",
-            "SAMPLES_FOR_C2M": "",
-            "IDEAL_TX_TERM": "",
-            "IMPRSP_TRUNC_THRESHOLD": "",
-            "ENFORCE_CAUSALITY": "",
-            "T_R_MEAS_POINT": "",
-            "FFE_POST_TAP1_MAX": "",
-            "IDEAL_RX_TERM": "",
-            "PDF_BIN_SIZE": "",
-            "USE_ETA0_PSD": "",
-            "OPTIMIZE_LOOP_SPEED_UP": "",
-            "FORCE_PDF_BIN_SIZE": "",
-            "INC_PACKAGE": "",
-            "CURSOR_GAIN": "",
-            "C2": "",
-            "C_4": "",
-            "BUTTERWORTH": "",
-            "G2_QUAL": "",
-            "EH_MIN": "",
-            "INCLUDE_TX_RX_FILTER": "",
-            "FFE_POST_TAP_LEN": "",
-            "BESSEL_THOMSON": "",
-            "KAPPA2": "",
-            "F_HP_Z": "",
-            "EC_PULSE_TOL": "",
-            "EC_REL_TOL": "",
-            "INCLUDE_CTLE": "",
-            "Z_T": "",
-            "FFE_MAIN_CUR_MIN": "",
-            "BT_ORDER": "",
-            "T_O": "",
-            "FFE_TAPN_MAX": "",
-            "TDECQ": "",
-            "GRR_LIMIT": "",
-            "FFE_PRE_TAP_LEN": "",
-            "TDR_DURATION": "",
-            "C3": "",
-            "G_QUAL": "",
-            "AUTO_TFX": "",
-            "N_B_STEP": "",
-            "GX": "",
-            "CDR": "",
-            "CTLE_TYPE": "",
-            "KAPPA1": "",
-            "GRR": "",
-            "PMD_TYPE": "",
-            "MAX_BURST_LEN": "",
-            "SIGMA_R": "",
-            "RESULT_DIR": "",
-        })
+        self.table_93a1.update(
+            {
+                "f_b": "",
+                "f_min": "",
+                "Delta_f": "",
+                "C_d": "",
+                "L_s": "",
+                "C_b": "",
+                "z_p select": "",
+                "z_p (TX)": "",
+                "z_p (NEXT)": "",
+                "z_p (FEXT)": "",
+                "z_p (RX)": "",
+                "C_p": "",
+                "R_0": "",
+                "R_d": "",
+                "A_v": "",
+                "A_fe": "",
+                "A_ne": "",
+                "AC_CM_RMS": "",
+                "L": "",
+                "M": "",
+            }
+        )
+        self.filter_and_eq.update(
+            {
+                "f_r": "",
+                "c(0)": "",
+                "c(-1)": "",
+                "c(-2)": "",
+                "c(-3)": "",
+                "c(1)": "",
+                "N_b": "",
+                "b_max(1)": "",
+                "b_max(2..N_b)": "",
+                "b_min(1)": "",
+                "b_min(2..N_b)": "",
+                "g_DC": "",
+                "f_z": "",
+                "f_p1": "",
+                "f_p2": "",
+                "g_DC_HP": "",
+                "f_HP_PZ": "",
+            }
+        )
+        self.io_control.update(
+            {
+                # "DIAGNOSTICS": "",
+                # "DISPLAY_WINDOW": "",
+                # "CSV_REPORT": "",
+                # "RESULT_DIR": "",
+                # "SAVE_FIGURES": "",
+                "Port Order": "",
+                "RUNTAG": "",
+                # "COM_CONTRIBUTION": "",
+            }
+        )
+        self.operational.update(
+            {
+                "COM Pass threshold": "",
+                "ERL Pass threshold": "",
+                "DER_0": "",
+                "T_r": "",
+                "FORCE_TR": "",
+                "Local Search": "",
+                # "BREAD_CRUMBS": "",
+                # "SAVE_CONFIG2MAT": "",
+                # "PLOT_CM": "",
+            }
+        )
+        self.tdr_and_erl_options.update(
+            {
+                "TDR": "",
+                "ERL": "",
+                "ERL_ONLY": "",
+                "TR_TDR": "",
+                "N": "",
+                "beta_x": "",
+                "rho_x": "",
+                "fixture delay time": "",
+                "TDR_W_TXPKG": "",
+                "N_bx": "",
+                "Tukey_Window": "",
+            }
+        )
+        self.noise_jitter.update(
+            {
+                "sigma_RJ": "",
+                "A_DD": "",
+                "eta_0": "",
+                "SNR_TX": "",
+                "R_LM": "",
+            }
+        )
+        self.table_93a3.update(
+            {
+                "package_tl_gamma0_a1_a2": "",
+                "package_tl_tau": "",
+                "package_Z_c": "",
+            }
+        )
+        self.table_92_12.update(
+            {
+                "board_tl_gamma0_a1_a2": "",
+                "board_tl_tau": "",
+                "board_Z_c": "",
+                "z_bp (TX)": "",
+                "z_bp (NEXT)": "",
+                "z_bp (FEXT)": "",
+                "z_bp (RX)": "",
+                "C_0": "",
+                "C_1": "",
+                "Include PCB": "",
+            }
+        )
+        self.floating_tap_control.update(
+            {
+                "N_bg": "",
+                "N_bf": "",
+                "N_f": "",
+                "bmaxg": "",
+                "B_float_RSS_MAX": "",
+                "N_tail_start": "",
+            }
+        )
+        self.icn_fom_ild_parameters.update(
+            {
+                "f_v": "",
+                "f_f": "",
+                "f_n": "",
+                "f_2": "",
+                "A_ft": "",
+                "A_nt": "",
+            }
+        )
+        self.receiver_testing.update(
+            {
+                "RX_CALIBRATION": "",
+                "Sigma BBN step": "",
+            }
+        )
+        self.spisim_control.update(
+            {
+                "VERSION": "",
+                "THRUSNP": "",
+                "FEXTARY": "",
+                "NEXTARY": "",
+                "SPECTAG": "",
+                "FSTTHRU": "",
+                "NUMPORT": "",
+                "GENHTML": "",
+            }
+        )
+        self.other_parameters.update(
+            {
+                "MIN_VEO_TEST": "",
+                "EH_MAX": "",
+                "F_HP_P": "",
+                "N_V": "",
+                "FFE_BACKOFF": "",
+                "ERR_PROPAGATION_COM_MARGIN": "",
+                "ACCM_MAX_FREQ": "",
+                "GDC_MIN": "",
+                "FIXTURE_BUILTIN_DELAY": "",
+                "C_V": "",
+                "T_R_FILTER_TYPE": "",
+                "FFE_TAP_STEP_SIZE": "",
+                "SBR_GEN_METHOD": "",
+                "NOISE_CREST_FACTOR": "",
+                "EC_DIFF_TOL": "",
+                "F_1": "",
+                "HISTOGRAM_WINDOW_WEIGHT": "",
+                "TDR_BUTTERWORTH": "",
+                "VEC_PASS_THRESHOLD": "",
+                "FFE_PRE_TAP1_MAX": "",
+                "SAMPLES_FOR_C2M": "",
+                "IDEAL_TX_TERM": "",
+                "IMPRSP_TRUNC_THRESHOLD": "",
+                "ENFORCE_CAUSALITY": "",
+                "T_R_MEAS_POINT": "",
+                "FFE_POST_TAP1_MAX": "",
+                "IDEAL_RX_TERM": "",
+                "PDF_BIN_SIZE": "",
+                "USE_ETA0_PSD": "",
+                "OPTIMIZE_LOOP_SPEED_UP": "",
+                "FORCE_PDF_BIN_SIZE": "",
+                "INC_PACKAGE": "",
+                "CURSOR_GAIN": "",
+                "C2": "",
+                "C_4": "",
+                "BUTTERWORTH": "",
+                "G2_QUAL": "",
+                "EH_MIN": "",
+                "INCLUDE_TX_RX_FILTER": "",
+                "FFE_POST_TAP_LEN": "",
+                "BESSEL_THOMSON": "",
+                "KAPPA2": "",
+                "F_HP_Z": "",
+                "EC_PULSE_TOL": "",
+                "EC_REL_TOL": "",
+                "INCLUDE_CTLE": "",
+                "Z_T": "",
+                "FFE_MAIN_CUR_MIN": "",
+                "BT_ORDER": "",
+                "T_O": "",
+                "FFE_TAPN_MAX": "",
+                "TDECQ": "",
+                "GRR_LIMIT": "",
+                "FFE_PRE_TAP_LEN": "",
+                "TDR_DURATION": "",
+                "C3": "",
+                "G_QUAL": "",
+                "AUTO_TFX": "",
+                "N_B_STEP": "",
+                "GX": "",
+                "CDR": "",
+                "CTLE_TYPE": "",
+                "KAPPA1": "",
+                "GRR": "",
+                "PMD_TYPE": "",
+                "MAX_BURST_LEN": "",
+                "SIGMA_R": "",
+                "RESULT_DIR": "",
+            }
+        )
