@@ -999,8 +999,8 @@ class IcepakMesh(object):
                                 "Icepak",
                             )
                         )
-        except:
-            pass
+        except Exception as e:
+            self._app.logger.error(e.message, e.args)
         return meshops
 
     @pyaedt_function_handler()
@@ -1035,8 +1035,8 @@ class IcepakMesh(object):
                             if el in meshop.__dict__:
                                 meshop.__dict__[el] = dict_prop[el]
                         meshops.append(meshop)
-        except Exception:
-            pass
+        except Exception as e:
+            self._app.logger.error(e.message, e.args)
         return meshops
 
     @pyaedt_function_handler()
