@@ -120,19 +120,6 @@ doc-noexamples = [
     "sphinx_design>=0.4.0,<0.6",
     "sphinx-jinja>=2.0,<2.1",
 ]
-full = [
-    "imageio>=2.30.0,<2.35",
-    "matplotlib>=3.5.0,<3.9",
-    "numpy>=1.20.0,<2",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<1.10",
-    "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
-    "scikit-rf>=0.30.0,<0.33",
-    "SRTM.py",
-    "utm",
-    "vtk==9.2.6",
-]
 all = [
     "imageio>=2.30.0,<2.35",
     "matplotlib>=3.5.0,<3.9",
