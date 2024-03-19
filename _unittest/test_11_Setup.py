@@ -81,7 +81,7 @@ class TestClass:
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
         setup1["SaveRadFieldsonly"] = True
-        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 301"
+        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 302"
         assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
         assert circuit.setups[0].props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
         assert "SweepDefinition" in setup1.available_properties
