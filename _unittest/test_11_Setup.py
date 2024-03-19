@@ -68,6 +68,7 @@ class TestClass:
         self.aedtapp.duplicate_design("auto_open")
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
+            assert setup not in self.aedtapp.setups
         assert not self.aedtapp.setups
         self.aedtapp.set_auto_open()
         setup1 = self.aedtapp.get_setup("Auto1")
