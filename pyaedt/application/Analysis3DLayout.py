@@ -465,6 +465,7 @@ class FieldAnalysis3DLayout(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -478,7 +479,7 @@ class FieldAnalysis3DLayout(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup
 
     @pyaedt_function_handler()
@@ -501,7 +502,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
-        for setup in self.setups:
+        for setup in self._setups:
             if setupname == setup.name:
                 return setup
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)

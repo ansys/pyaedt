@@ -52,7 +52,7 @@
 ```
 4. 如果你需要其他库来做后期处理，可以使用以下方法来安装它们：
 ```sh
-pip install pyaedt[full]
+pip install pyaedt[all]
 ```
 
 ## 关于 PyAEDT
