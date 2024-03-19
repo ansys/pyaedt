@@ -325,7 +325,7 @@ class Polyline(Object3d):
 
             new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._primitives._create_object(self.name)
+            self._primitives._create_object(self.name, is_polyline=True)
 
     @property
     def start_point(self):

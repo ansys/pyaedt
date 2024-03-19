@@ -538,8 +538,7 @@ class Setup(CommonSetup):
             ``True`` if setup is deleted. ``False`` if it failed.
         """
 
-        self.omodule.DeleteSetups([self.name])
-        self._app.setups.remove(self)
+        self._app.delete_setup(self.name)
         return True
 
     @pyaedt_function_handler()
@@ -3627,6 +3626,10 @@ class SetupQ3D(Setup, object):
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
+        for setup in self.p_app.setups:
+            if self.name == setup.name:
+                setup.sweeps.append(sweep_n)
+                break
         return sweep_n
 
     @pyaedt_function_handler()
