@@ -557,6 +557,6 @@ class TestClass:
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
         spisim = SpiSim(thru_s4p)
-        spisim.export_com_configure_file(com_example_file_folder / "test.json")
-        com_0, com_1 = spisim.compute_com("custom", com_example_file_folder / "test.json")
+        spisim.export_com_configure_file(Path(local_scratch.path) / "test.json")
+        com_0, com_1 = spisim.compute_com("custom", Path(local_scratch.path) / "test.json")
         assert com_0 and com_1
