@@ -113,10 +113,8 @@ class COMParameters:
             self.receiver_testing[keyword] = value
         elif keyword in self.spisim_control:
             self.spisim_control[keyword] = value
-        elif keyword in self.other_parameters:
-            self.other_parameters[keyword] = value
         else:
-            logger.error("Invalid keyword.")
+            self.other_parameters[keyword] = value
 
     @pyaedt_function_handler
     def export(self, file_path):
@@ -127,7 +125,7 @@ class COMParameters:
         file_path : str
             Path of file.
         """
-        temp = {}
+        temp = dict()
         temp["table_93a1"] = self.table_93a1
         temp["filter_and_eq"] = self.filter_and_eq
         temp["io_control"] = self.io_control
@@ -269,7 +267,7 @@ class COMParametersVer3p4(COMParameters):
                 # "DIAGNOSTICS": "",
                 # "DISPLAY_WINDOW": "",
                 # "CSV_REPORT": "",
-                # "RESULT_DIR": "",
+                "RESULT_DIR": "",
                 # "SAVE_FIGURES": "",
                 "Port Order": "",
                 "RUNTAG": "",
@@ -370,77 +368,5 @@ class COMParametersVer3p4(COMParameters):
                 "FSTTHRU": "",
                 "NUMPORT": "",
                 "GENHTML": "",
-            }
-        )
-        self.other_parameters.update(
-            {
-                "MIN_VEO_TEST": "",
-                "EH_MAX": "",
-                "F_HP_P": "",
-                "N_V": "",
-                "FFE_BACKOFF": "",
-                "ERR_PROPAGATION_COM_MARGIN": "",
-                "ACCM_MAX_FREQ": "",
-                "GDC_MIN": "",
-                "FIXTURE_BUILTIN_DELAY": "",
-                "C_V": "",
-                "T_R_FILTER_TYPE": "",
-                "FFE_TAP_STEP_SIZE": "",
-                "SBR_GEN_METHOD": "",
-                "NOISE_CREST_FACTOR": "",
-                "EC_DIFF_TOL": "",
-                "F_1": "",
-                "HISTOGRAM_WINDOW_WEIGHT": "",
-                "TDR_BUTTERWORTH": "",
-                "VEC_PASS_THRESHOLD": "",
-                "FFE_PRE_TAP1_MAX": "",
-                "SAMPLES_FOR_C2M": "",
-                "IDEAL_TX_TERM": "",
-                "IMPRSP_TRUNC_THRESHOLD": "",
-                "ENFORCE_CAUSALITY": "",
-                "T_R_MEAS_POINT": "",
-                "FFE_POST_TAP1_MAX": "",
-                "IDEAL_RX_TERM": "",
-                "PDF_BIN_SIZE": "",
-                "USE_ETA0_PSD": "",
-                "OPTIMIZE_LOOP_SPEED_UP": "",
-                "FORCE_PDF_BIN_SIZE": "",
-                "INC_PACKAGE": "",
-                "CURSOR_GAIN": "",
-                "C2": "",
-                "C_4": "",
-                "BUTTERWORTH": "",
-                "G2_QUAL": "",
-                "EH_MIN": "",
-                "INCLUDE_TX_RX_FILTER": "",
-                "FFE_POST_TAP_LEN": "",
-                "BESSEL_THOMSON": "",
-                "KAPPA2": "",
-                "F_HP_Z": "",
-                "EC_PULSE_TOL": "",
-                "EC_REL_TOL": "",
-                "INCLUDE_CTLE": "",
-                "Z_T": "",
-                "FFE_MAIN_CUR_MIN": "",
-                "BT_ORDER": "",
-                "T_O": "",
-                "FFE_TAPN_MAX": "",
-                "TDECQ": "",
-                "GRR_LIMIT": "",
-                "FFE_PRE_TAP_LEN": "",
-                "TDR_DURATION": "",
-                "C3": "",
-                "G_QUAL": "",
-                "AUTO_TFX": "",
-                "N_B_STEP": "",
-                "GX": "",
-                "CDR": "",
-                "CTLE_TYPE": "",
-                "KAPPA1": "",
-                "GRR": "",
-                "PMD_TYPE": "",
-                "MAX_BURST_LEN": "",
-                "SIGMA_R": "",
-                "RESULT_DIR": "",
             }
         )
