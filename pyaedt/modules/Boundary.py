@@ -24,7 +24,7 @@ from pyaedt.modules.CircuitTemplates import SourceKeys
 
 try:
     import xmltodict
-except ImportError:
+except ImportError:  # pragma : no cover
     xmltodict = None
 
 
@@ -3626,7 +3626,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler
     def export_jep30(self, filename):
-        if xmltodict is None:
+        if xmltodict is None:  # pragma : no cover
             self._app.logger.error("Please install xmltodict package.")
             return False
         faces = []
@@ -3651,13 +3651,13 @@ class NetworkObject(BoundaryObject):
             planes_array = ["yzPlane", "xzPlane", "xyPlane"]
             try:
                 direction = faces[i].normal.index(1)
-            except ValueError:
+            except ValueError:  # pragma : no cover
                 try:
                     direction = faces[i].normal.index(-1)
                 except KeyError:
                     self._app.logger.error("Faces must be aligned with X,Y or Z axis.")
                     return False
-            if direction is None:
+            if direction is None:  # pragma : no cover
                 self._app.logger.error("Face does not have a normal or pyAEDT is unable to compute it.")
                 return False
             plane = planes_array[direction]
