@@ -27,6 +27,7 @@ class TestClass:
     def test_01_create_hfss_setup(self):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
+        assert self.aedtapp.setups[0].name == setup1.name
         assert "SaveRadFieldsOnly" in setup1.props
         assert "SaveRadFieldsOnly" in setup1.available_properties
         setup1["SaveRadFieldsonly"] = True
@@ -67,6 +68,8 @@ class TestClass:
         self.aedtapp.duplicate_design("auto_open")
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
+            assert setup not in self.aedtapp.setups
+        assert not self.aedtapp.setups
         self.aedtapp.set_auto_open()
         setup1 = self.aedtapp.get_setup("Auto1")
         setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
@@ -79,8 +82,9 @@ class TestClass:
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
         setup1["SaveRadFieldsonly"] = True
-        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 301"
-        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 301"
+        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 302"
+        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
+        assert circuit.setups[0].props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
         assert "SweepDefinition" in setup1.available_properties
         setup1.update()
         setup1.disable()
