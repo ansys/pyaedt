@@ -45,7 +45,7 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
 Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 ```sh
-  pip install pyaedt[full]
+  pip install pyaedt[all]
 ```
 
 You can also install PyAEDT from Conda-Forge with this command:
