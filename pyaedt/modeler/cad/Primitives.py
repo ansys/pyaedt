@@ -58,6 +58,27 @@ aedt_wait_time = 0.1
 class Objects(dict):
     """AEDT object dictionary."""
 
+    def _parse_objs(self):
+        if self.__refreshed is False and len(self.__dict__) != len(self.__parent.object_names):
+            self.__refreshed = True
+            self.__parent.logger.info("Parsing design objects. This operation can take time")
+            self.__parent.logger.reset_timer()
+            self.__parent.refresh_all_ids()
+            self.__parent.logger.info_timer("3D Modeler objects parsed.")
+
+    def keys(self):
+        self._parse_objs()
+
+        return dict.keys(self)
+
+    def values(self):
+        self._parse_objs()
+        return dict.values(self)
+
+    def items(self):
+        self._parse_objs()
+        return dict.items(self)
+
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
         self.__obj_names[value.name] = value
@@ -70,7 +91,7 @@ class Objects(dict):
         self.__parent.logger.info("Parsing design objects. This operation can take time")
         self.__parent.logger.reset_timer()
         self.__parent.refresh_all_ids()
-        self.logger.info_timer("3D Modeler objects parsed.")
+        self.__parent.logger.info_timer("3D Modeler objects parsed.")
         if item in self.__dict__:
             return self.__dict__[item]
         elif item in self.__obj_names:
@@ -82,9 +103,10 @@ class Objects(dict):
         self.__obj_names = {}
         if props:
             for key, value in props.items():
-                OrderedDict.__setitem__(self, key, value)
+                dict.__setitem__(self, key, value)
                 self.__obj_names[value._m_name] = value
         self.__parent = parent
+        self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
