@@ -2,6 +2,9 @@ name: Use test target with multiple python version
 
 on: [pull_request, workflow_dispatch]
 
+env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
