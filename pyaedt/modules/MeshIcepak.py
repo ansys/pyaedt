@@ -1000,7 +1000,7 @@ class IcepakMesh(object):
                             )
                         )
         except Exception as e:
-            self._app.logger.error(e.message, e.args)
+            self._app.logger.error(e)
         return meshops
 
     @pyaedt_function_handler()
@@ -1036,7 +1036,7 @@ class IcepakMesh(object):
                                 meshop.__dict__[el] = dict_prop[el]
                         meshops.append(meshop)
         except Exception as e:
-            self._app.logger.error(e.message, e.args)
+            self._app.logger.error(e)
         return meshops
 
     @pyaedt_function_handler()
