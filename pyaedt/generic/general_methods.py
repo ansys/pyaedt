@@ -211,11 +211,11 @@ def _function_handler_wrapper(user_function):
                     _log_method(user_function, args, kwargs)
                 return out
             except MethodNotSupportedError:
-                message = "This Method is not supported in current AEDT Design Type."
+                message = "This method is not supported in current AEDT design type."
                 if settings.enable_screen_logs:
                     pyaedt_logger.logger.error("**************************************************************")
                     pyaedt_logger.logger.error(
-                        "pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message)
+                        "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
                     )
                     pyaedt_logger.logger.error("**************************************************************")
                     pyaedt_logger.logger.error("")

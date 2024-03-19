@@ -1751,7 +1751,7 @@ app_map = {
 
 
 def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
-    """Returns the Pyaedt Object of specific project_name and design_name.
+    """Gets the PyAEDT object with a given project name and design name.
 
     Parameters
     ----------
@@ -1759,8 +1759,8 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         Project name.
     design_name : str, optional
         Design name.
-    desktop :  :class:`pyaedt.desktop.Desktop`, optional
-        Desktop class.
+    desktop : :class:`pyaedt.desktop.Desktop`, optional
+        Desktop class. The default is ``None``.
 
     Returns
     -------
@@ -1784,26 +1784,26 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     else:
         raise AttributeError("No Desktop Present.")
     if project_name and project_name not in odesktop.GetProjectList():
-        raise AttributeError("Project  {} doesn't exist in current Desktop.".format(project_name))
+        raise AttributeError("Project  {} doesn't exist in current desktop.".format(project_name))
     if not project_name:
         oProject = odesktop.GetActiveProject()
     else:
         oProject = odesktop.SetActiveProject(project_name)
     if not oProject:
-        raise AttributeError("No Project Present.")
+        raise AttributeError("No project is present.")
     design_names = []
     deslist = list(oProject.GetTopDesignList())
     for el in deslist:
         m = re.search(r"[^;]+$", el)
         design_names.append(m.group(0))
     if design_name and design_name not in design_names:
-        raise AttributeError("Design  {} doesn't exists in current Project.".format(design_name))
+        raise AttributeError("Design  {} doesn't exist in current project.".format(design_name))
     if not design_name:
         oDesign = oProject.GetActiveDesign()
     else:
         oDesign = oProject.SetActiveDesign(design_name)
     if not oDesign:
-        raise AttributeError("No Design Present.")
+        raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()
     if design_type in list(app_map.keys()):
         version = odesktop.GetVersion().split(".")

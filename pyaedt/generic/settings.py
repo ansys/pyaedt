@@ -230,10 +230,13 @@ class Settings(object):
 
     @property
     def use_multi_desktop(self):
-        """Enable multiple desktop sessions in same python script.
-        Current limitations are: release without closing desktop is not possible,
-        first desktop created has to be the last to be closed.
-        This is a beta feature."""
+        """Flag indicating if multiple desktop sessions are enabled in the same Python script.
+        Current limitations follow:
+
+        - Release without closing the desktop is not possible,
+        - The first desktop created must be the last to be closed.
+
+        Enabling multiple desktop sessions is a beta feature."""
 
         return self._use_multi_desktop
 
