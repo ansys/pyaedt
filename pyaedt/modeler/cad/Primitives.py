@@ -55,6 +55,38 @@ default_materials = {
 aedt_wait_time = 0.1
 
 
+class Objects(dict):
+    """AEDT object dictionary."""
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        self.__obj_names[value.name] = value
+
+    def __getitem__(self, item):
+        if item in self.__dict__:
+            return self.__dict__[item]
+        elif item in self.__obj_names:
+            return self.__obj_names[item]
+        self.__parent.logger.info("Parsing design objects. This operation can take time")
+        self.__parent.logger.reset_timer()
+        self.__parent.refresh_all_ids()
+        self.logger.info_timer("3D Modeler objects parsed.")
+        if item in self.__dict__:
+            return self.__dict__[item]
+        elif item in self.__obj_names:
+            return self.__obj_names[item]
+        raise KeyError(item)
+
+    def __init__(self, parent, props=None):
+        dict.__init__(self)
+        self.__obj_names = {}
+        if props:
+            for key, value in props.items():
+                OrderedDict.__setitem__(self, key, value)
+                self.__obj_names[value._m_name] = value
+        self.__parent = parent
+
+
 class GeometryModeler(Modeler):
     """Manages the main AEDT Modeler functionalities for geometry-based designs.
 
@@ -84,7 +116,9 @@ class GeometryModeler(Modeler):
         if isinstance(partId, (int, str)) and not (
             partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
         ):
+            self.logger.reset_timer()
             self.refresh_all_ids()
+            self.logger.info_timer("3D Modeler objects parsed.")
         if isinstance(partId, int):
             if partId in self.objects:
                 return self.objects[partId]
@@ -111,7 +145,7 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = {}
+        self.objects = Objects(self)
         self.user_defined_components = {}
         self._object_names_to_ids = {}
         self.points = {}
@@ -658,13 +692,14 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = {}
+        self.objects = Objects(self)
         self.user_defined_components = {}
         self._object_names_to_ids = {}
         self._currentId = 0
         self._refresh_object_types()
-        self._refresh_all_ids_from_aedt_file()
-        self.refresh_all_ids()
+        if not settings.lazy_objects_load:
+            self._refresh_all_ids_from_aedt_file()
+            self.refresh_all_ids()
 
     @pyaedt_function_handler()
     def _get_commands(self, name):
@@ -696,32 +731,31 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
-        if not self._design_properties or "ModelSetup" not in self._design_properties:
+        dp = copy.deepcopy(self._design_properties)
+        if not dp or "ModelSetup" not in dp:
             return False
 
         try:
-            groups = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
+            groups = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
         except KeyError:
             groups = []
         if not isinstance(groups, list):
             groups = [groups]
         try:
-            self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+            dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
         except KeyError:
             return 0
-        for el in self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-            "GeometryPart"
-        ]:
+        for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
                 operations = el.get("Operations", None)
             else:
-                attribs = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-                    "GeometryPart"
-                ]["Attributes"]
-                operations = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "ToplevelParts"
-                ]["GeometryPart"]["Operations"]
+                attribs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+                    "Attributes"
+                ]
+                operations = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+                    "Operations"
+                ]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
@@ -941,8 +975,9 @@ class GeometryModeler(Modeler):
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
-        if self._design_properties and "ModelSetup" in self._design_properties:
-            cs = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        dp = copy.deepcopy(self._design_properties)
+        if dp and "ModelSetup" in dp:
+            cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
@@ -964,9 +999,9 @@ class GeometryModeler(Modeler):
                             cs_id = cs[ds]["ID"]
                             id2name[cs_id] = name
                             op_id = cs[ds]["PlaceHolderOperationID"]
-                            geometry_part = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                "ToplevelParts"
-                            ]["GeometryPart"]
+                            geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+                                "GeometryPart"
+                            ]
                             if isinstance(geometry_part, (OrderedDict, dict)):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                 if isinstance(op, (OrderedDict, dict)):
@@ -1012,9 +1047,9 @@ class GeometryModeler(Modeler):
                                 cs_id = el["ID"]
                                 id2name[cs_id] = name
                                 op_id = el["PlaceHolderOperationID"]
-                                geometry_part = self._design_properties["ModelSetup"]["GeometryCore"][
-                                    "GeometryOperations"
-                                ]["ToplevelParts"]["GeometryPart"]
+                                geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+                                    "GeometryPart"
+                                ]
                                 if isinstance(geometry_part, (OrderedDict, dict)):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, (OrderedDict, dict)):
@@ -1062,12 +1097,13 @@ class GeometryModeler(Modeler):
         [Dict with List information]
         """
         design_lists = []
-        if self._design_properties and self._design_properties.get("ModelSetup", None):
+        dp = copy.deepcopy(self._design_properties)
+        if dp and dp.get("ModelSetup", None):
             key1 = "GeometryOperations"
             key2 = "GeometryEntityLists"
             key3 = "GeometryEntityListOperation"
             try:
-                entity_list = self._design_properties["ModelSetup"]["GeometryCore"][key1][key2]
+                entity_list = dp["ModelSetup"]["GeometryCore"][key1][key2]
                 if entity_list:
                     geom_entry = copy.deepcopy(entity_list[key3])
                     if isinstance(geom_entry, (dict, OrderedDict)):
@@ -8182,11 +8218,11 @@ class GeometryModeler(Modeler):
             if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
                 component_name = comp3d
                 break
-        if self._design_properties and self._design_properties.get("ModelSetup", None) and component_name:
+        if dp and dp.get("ModelSetup", None) and component_name:
             try:
-                native_comp_entry = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "SubModelDefinitions"
-                ]["NativeComponentDefinition"]
+                native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
+                    "NativeComponentDefinition"
+                ]
                 if native_comp_entry:
                     if isinstance(native_comp_entry, (dict, OrderedDict)):
                         native_comp_entry = [native_comp_entry]

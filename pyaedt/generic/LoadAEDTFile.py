@@ -23,7 +23,11 @@ def load_entire_aedt_file(filename):
         dictionary containing the decoded AEDT file
 
     """
-    return _load_entire_aedt_file(os.path.normpath(filename))
+    settings.logger.reset_timer()
+    settings.logger.info("Parsing {}.".format(filename))
+    f_d = _load_entire_aedt_file(os.path.normpath(filename))
+    settings.logger.info_timer("File {} correctly loaded.".format(filename))
+    return f_d
 
 
 def load_keyword_in_aedt_file(filename, keyword):

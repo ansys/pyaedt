@@ -148,6 +148,7 @@ def desktop():
     yield d
     d.release_desktop(True, True)
     time.sleep(1)
+    settings.lazy_objects_load = False
 
 
 @pytest.fixture(scope="module")
