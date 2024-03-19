@@ -1,8 +1,6 @@
 import json
 from pathlib import Path
 
-import toml
-
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.misc.spisim_com_configuration_files.com_settings_mapping import spimsim_matlab_keywords_mapping

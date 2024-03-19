@@ -9,8 +9,6 @@ spimsim_matlab_keywords_mapping = {
     # Difference Tolerance parameter for causality, Hard enforcement, 1e-4,Soft enforcement, 1e-3
     "Enforce Causality pulse start tolerance": "EC_PULSE_TOL",
     # Tolerance parameter for causality, Hard enforcement, 0.05, Soft enforcement, .01
-    "Enforce Causality pulse start tolerance": "EC_PULSE_TOL",
-    # Tolerance parameter for causality, Hard enforcement, 0.05, Soft enforcement, .01
     "Enforce Causality REL_TOL": "EC_REL_TOL",
     # Difference Tolerance parameter for causality, Hard enforcement, 1e-4,Soft enforcement, 1e-3
     "EH_MAX": "EH_MAX",  # used when PMD_type is C2M and is not really computed per spec
@@ -21,7 +19,8 @@ spimsim_matlab_keywords_mapping = {
     # Use to calculate  error propagation (not normally used)
     "Force PDF bin size": "FORCE_PDF_BIN_SIZE",  # do not use
     "Histogram_Window_Weight": "HISTOGRAM_WINDOW_WEIGHT",
-    # Weighting for VEC and VEO are histogram processing. Type are Gaussian,Dual Rayleigh,Triangle, and Rectangle (default)
+    # Weighting for VEC and VEO are histogram processing. Type are Gaussian,Dual Rayleigh,Triangle, and Rectangle
+    # (default)
     "Impulse response truncation threshold": "IMPRSP_TRUNC_THRESHOLD",  # Impulse response truncation threshold
     "Include PCB": "INCLUDE_PCB",  # Used to add a PCB one each side of the passed s-parameters.
     "nburst": "MAX_BURST_LEN",  # Use to calculate burst error rate (not normally used)
@@ -29,8 +28,8 @@ spimsim_matlab_keywords_mapping = {
     # used when PMD_type is C2M. This allow EH to go blow EH_min. If set to Zero it is ignored
     "N_v": "N_V",  # number of UI used to compute Vf
     "Optimize_loop_speed_up": "OPTIMIZE_LOOP_SPEED_UP",
-    # If set to 0 (or default) normal looping, If set to 1 loop speedup by slightly reducing PD Fbin and FIR_threshold for optimize looping only
-    "Force PDF bin size": "PDF_BIN_SIZE",  # do not use
+    # If set to 0 (or default) normal looping, If set to 1 loop speedup by slightly reducing PD Fbin and FIR_threshold
+    # for optimize looping only
     "Port Order": "PORT_ORDER",  # s parameter port order [ tx+ tx- rx+ rx-]
     "RUNTAG": "RUNTAG",  # This string is appended to the beginning of results files
     "SBR_GEN_METHOD": "SBR_GEN_METHOD",  # Pulse generation method: use IBIS's slew rate or filtered rectangular pause
@@ -44,7 +43,8 @@ spimsim_matlab_keywords_mapping = {
     "A_ne": "A_NE",  # NEXT aggressor differential peak source output voltage (half of peak to peak)
     "A_v": "A_V",  # Victim differential peak source output voltage (half of peak to peak)
     "AC_CM_RMS": "AC_CM_RMS",
-    # AC_CM_RMS is the CM BBN AWGN RMS at COM source point. Default is 0. Adds common mode noise source to the COM signal path for the through channel
+    # AC_CM_RMS is the CM BBN AWGN RMS at COM source point. Default is 0. Adds common mode noise source to the COM
+    # signal path for the through channel
     "ACCM_MAX_Freq": "ACCM_MAX_FREQ",  # F max for integrating ACCM voltage in Hz. Default is fb
     "C_b": "C_B",  # C_b in nF (single sided)
     "C_d": "C_D",  # C_d in nF (single sided)
@@ -72,12 +72,16 @@ spimsim_matlab_keywords_mapping = {
     "z_p (TX)": "Z_PTX",  # List of victim transmitter package trace lengths in mm, one per case
     # TABLE_93A3
     "package_tl_gamma0_a1_a2": "PACKAGE_TL_GAMMA0_A1_A2",
-    # Fitting parameters for package model per unit length. First element is in 1/mm and affects DC loss of package model . Second element is in ns1/2/mm and affects loss proportional to sqrt(f). Third element is in ns/mm and affects loss proportional to f.
+    # Fitting parameters for package model per unit length. First element is in 1/mm and affects DC loss of package
+    # model . Second element is in ns1/2/mm and affects loss proportional to sqrt(f). Third element is in ns/mm and
+    # affects loss proportional to f.
     "package_tl_tau": "PACKAGE_TL_TAU",  # Package model transmission line delay ns/mm
     "package_Z_c": "PACKAGE_Z_C",  # Package model transmission line characteristic impedance [ Tx , Rx ]
     # TABLE_9212
     "board_tl_gamma0_a1_a2": "BOARD_TL_GAMMA0_A1_A2",
-    # Fitting parameters for package model per unit length. First element is in 1/mm and affects DC loss of package model . Second element is in ns1/2/mm and affects loss proportional to sqrt(f). Third element is in ns/mm and affects loss proportional to f.
+    # Fitting parameters for package model per unit length. First element is in 1/mm and affects DC loss of package
+    # model . Second element is in ns1/2/mm and affects loss proportional to sqrt(f). Third element is in ns/mm and
+    # affects loss proportional to f.
     "board_tl_tau": "BOARD_TL_TAU",  # Board model transmission line delay ns/mm
     "board_Z_c": "BOARD_Z_C",  # Board model transmission line characteristic impedance [ Tx , Rx ]
     "C_0": "CB0",  # If Include PCB is set to 1, near device single ended capacitance C0  in nF is added
@@ -119,7 +123,8 @@ spimsim_matlab_keywords_mapping = {
     "c(-3)": "C_3",  # TX equalizer pre cursor tap -3
     "c(-4)": "C_4",  # TX equalizer pre cursor tap -4
     "c(0)": "C0",
-    # TX equalizer cursor minimum value (actual value is calculated as 1-sum(abs(tap)), Grid seat ignored for when C(0) is below this value
+    # TX equalizer cursor minimum value (actual value is calculated as 1-sum(abs(tap)), Grid seat ignored for when C(0)
+    # is below this value
     "c(1)": "C1",  # TX equalizer post cursor tap 1
     "c(2)": "C2",  # TX equalizer post cursor tap 2
     "c(3)": "C3",  # TX equalizer post cursor tap 3
@@ -129,7 +134,7 @@ spimsim_matlab_keywords_mapping = {
     "F_HP_Z": "F_HP_Z",  # CFT pole zero pair in GHz for low frequency CTF
     "f_p1": "F_P1",  # CTLE pole 1 in GHz
     "f_p2": "F_P2",  # CTLE pole 2 in GHz
-    "f_r": "F_R",  # reference receive filter in COM and in ICN/FOM_ILD calcs in terms of fb
+    "f_r": "F_R",  # Receiver filter in COM and in ICN/FOM_ILD calcs in terms of fb
     "f_z": "F_Z",  # CTLE zero in GHz
     "g_DC": "G_DC",  # AC-DC gain list
     "g_DC_HP": "G_DC_HP",  # CTF AC-DC gain list (GDC2)
@@ -143,7 +148,7 @@ spimsim_matlab_keywords_mapping = {
     "eta_0": "ETA_0",
     # One-sided noise spectral density (V^2/GHz).Input referred noise at TP5. Input referred noise at TP5
     "R_LM": "R_LM",  # Ratio of level separation mismatch. Relevant when not PAM-2 (NRZ).
-    "sigma_RJ": "SIGMA_RJ",  # rms of of random jitter
+    "sigma_RJ": "SIGMA_RJ",  # rms of random jitter
     "SNR_TX": "SNR_TX",  # Transmitter SNDR noise in dB
     # RCV_NONSTD
     "FORCE_TR": "FORCE_TR",  # Included for earlier version support but should be set to 1 in most later config sheets.
@@ -178,7 +183,7 @@ spimsim_matlab_keywords_mapping = {
     "FFE_MAIN_CUR_MIN": "FFE_MAIN_CUR_MIN",  # Rx FFE main cursor minimum
     "ffe_post_tap_len": "FFE_POST_TAP_LEN",  # Rx FFE post cursor tap length
     "FFE_POST_TAP1_MAX": "FFE_POST_TAP1_MAX",  # Rx FFE post cursor tap1 limit
-    "ffe_pre_tap_len": "FFE_PRE_TAP_LEN",  # Rx FFE pre cursor tap length
+    "ffe_pre_tap_len": "FFE_PRE_TAP_LEN",  # Rx FFE pre-cursor tap length
     "FFE_PRE_TAP1_MAX": "FFE_PRE_TAP1_MAX",  # Rx FFE pre cursor tap1 limit
     "FFE_TAP_STEP_SIZE": "FFE_TAP_STEP_SIZE",  # Rx FFE tap step size
     "FFE_TAPN_MAX": "FFE_TAPN_MAX",  # Rx FFE precursor tap N limit
@@ -232,7 +237,6 @@ spimsim_matlab_keywords_mapping = {
     "EC_REL_TOL": "EC_REL_TOL",
     "INC_PACKAGE": "INC_PACKAGE",
     "FFE_TAPN_MAX": "FFE_TAPN_MAX",
-    "FORCE_PDF_BIN_SIZE": "FORCE_PDF_BIN_SIZE",
     "MAX_BURST_LEN": "MAX_BURST_LEN",
     "GRR_LIMIT": "GRR_LIMIT",
     "GDC_MIN": "GDC_MIN",
