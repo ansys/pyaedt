@@ -454,11 +454,11 @@ class Desktop(object):
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
-        if settings.use_multi_desktop and not inside_desktop and new_desktop_session:
+        if settings.use_multi_desktop and is_windows and not inside_desktop and new_desktop_session:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
         elif len(_desktop_sessions.keys()) > 0:
-            if settings.use_multi_desktop and (port or aedt_process_id):
+            if settings.use_multi_desktop and is_windows and (port or aedt_process_id):
                 for el in list(_desktop_sessions.values()):
                     if (el.port != 0 and el.port == port) or (
                         el.aedt_process_id and el.aedt_process_id == aedt_process_id
