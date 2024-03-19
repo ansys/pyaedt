@@ -275,7 +275,8 @@ class SpiSim:
         Parameters
         ----------
         standard : str
-            Name of the standard to apply. Options are ``"Custom"`, ``"50GAUI-1_C2C"`, ``"100GBASE-KR4"`` and ``"100GBASE-KP4"``.
+            Name of the standard to apply. Options are ``"Custom"`, ``"50GAUI-1_C2C"`, ``"100GBASE-KR4"`` and
+            ``"100GBASE-KP4"``.
         config_file : str, Path, optional
             Config file to use.
         port_order : str, optional
