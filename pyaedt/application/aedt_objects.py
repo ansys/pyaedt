@@ -15,7 +15,7 @@ class AedtObjects(object):
                     self._odesktop = desktop.odesktop
                     break
         elif _desktop_sessions:
-            self._odesktop = list(_desktop_sessions.values())[-1]
+            self._odesktop = list(_desktop_sessions.values())[-1].odesktop
         elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
             self._odesktop = sys.modules["__main__"].oDesktop  # ironpython
 

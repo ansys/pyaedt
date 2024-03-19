@@ -455,7 +455,7 @@ class Desktop(object):
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
         if settings.use_multi_desktop and not inside_desktop and new_desktop_session:
-            pyaedt_logger.logger.info("Initializing new Desktop session.")
+            pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
         elif len(_desktop_sessions.keys()) > 0:
             if settings.use_multi_desktop and (port or aedt_process_id):
@@ -467,15 +467,15 @@ class Desktop(object):
             sessions = list(_desktop_sessions.keys())
             try:
                 process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
-                pyaedt_logger.logger.info("Returning found Desktop session with PID {}!".format(process_id))
+                pyaedt_logger.info("Returning found Desktop session with PID {}!".format(process_id))
                 cls._invoked_from_design = False
                 return _desktop_sessions[sessions[0]]
             except:
                 del _desktop_sessions[sessions[0]]
-                pyaedt_logger.logger.info("Initializing new Desktop session.")
+                pyaedt_logger.info("Initializing new Desktop session.")
                 return object.__new__(cls)
         else:
-            pyaedt_logger.logger.info("Initializing new Desktop session.")
+            pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
     def __init__(

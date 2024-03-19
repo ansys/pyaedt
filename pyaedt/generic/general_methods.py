@@ -213,14 +213,14 @@ def _function_handler_wrapper(user_function):
             except MethodNotSupportedError:
                 message = "This method is not supported in current AEDT design type."
                 if settings.enable_screen_logs:
-                    pyaedt_logger.logger.error("**************************************************************")
-                    pyaedt_logger.logger.error(
+                    pyaedt_logger.error("**************************************************************")
+                    pyaedt_logger.error(
                         "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
                     )
-                    pyaedt_logger.logger.error("**************************************************************")
-                    pyaedt_logger.logger.error("")
+                    pyaedt_logger.error("**************************************************************")
+                    pyaedt_logger.error("")
                 if settings.enable_file_logs:
-                    settings.logger.error(message)
+                    settings.error(message)
                 return False
             except GrpcApiError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
