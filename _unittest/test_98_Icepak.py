@@ -1207,6 +1207,8 @@ class TestClass:
         thermal_b = app.boundaries
         thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
         thermal_b[0].update()
+        assert not thermal_b[0].export_jep30(os.path.join(self.local_scratch.path, "temp.xml"))
+        assert thermal_b[1].export_jep30(os.path.join(self.local_scratch.path, "temp.xml"))
         app.close_project()
 
     def test_62_get_fans_operating_point(self, add_app):
