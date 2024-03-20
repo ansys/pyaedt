@@ -177,7 +177,7 @@ class GeometryModeler(Modeler):
         self.objects = Objects(self)
         self.user_defined_components = Objects(self)
         self._object_names_to_ids = {}
-        self.points = {}
+        self.points = Objects(self)
         self.refresh()
 
     class Position:
@@ -490,7 +490,7 @@ class GeometryModeler(Modeler):
             3D object.
         """
         self._refresh_points()
-        return [v for k, v in self.objects_by_name.items() if k in self._points]
+        return [v for k, v in self.points.items() if k in self._points]
 
     @property
     def unclassified_objects(self):
