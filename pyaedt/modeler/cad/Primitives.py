@@ -84,16 +84,16 @@ class Objects(dict):
         self.__obj_names[value.name] = value
 
     def __getitem__(self, item):
-        if item in self.__dict__:
-            return self.__dict__[item]
+        if item in dict.keys(self):
+            return dict.__getitem__(self, item)
         elif item in self.__obj_names:
             return self.__obj_names[item]
         self.__parent.logger.info("Parsing design objects. This operation can take time")
         self.__parent.logger.reset_timer()
         self.__parent.refresh_all_ids()
         self.__parent.logger.info_timer("3D Modeler objects parsed.")
-        if item in self.__dict__:
-            return self.__dict__[item]
+        if item in dict.keys(self):
+            return dict.__getitem__(self, item)
         elif item in self.__obj_names:
             return self.__obj_names[item]
         raise KeyError(item)
