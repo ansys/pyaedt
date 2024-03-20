@@ -84,10 +84,6 @@ class Objects(dict):
         self._parse_objs()
         return dict.__iter__(self)
 
-    def __len__(self):
-        self._parse_objs()
-        return dict.__len__(self)
-
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
         self.__obj_names[value.name] = value
