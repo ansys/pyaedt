@@ -8240,6 +8240,7 @@ class GeometryModeler(Modeler):
             if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
                 component_name = comp3d
                 break
+        dp = copy.deepcopy(self._design_properties)
         if dp and dp.get("ModelSetup", None) and component_name:
             try:
                 native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
