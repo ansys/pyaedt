@@ -85,6 +85,7 @@ class TestClass:
         if self.axisymmetrical.modeler["Region"]:
             self.axisymmetrical.modeler.delete("Region")
         assert "Region" not in self.axisymmetrical.modeler.object_names
+        assert not self.axisymmetrical.modeler.create_region(["100%", "50%", "20%"])
         assert self.axisymmetrical.modeler.create_region([100, 50, 20])
         self.axisymmetrical.modeler["Region"].delete()
         assert self.axisymmetrical.modeler.create_region(100)
