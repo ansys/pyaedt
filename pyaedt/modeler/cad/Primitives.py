@@ -88,10 +88,7 @@ class Objects(dict):
             return dict.__getitem__(self, item)
         elif item in self.__obj_names:
             return self.__obj_names[item]
-        self.__parent.logger.info("Parsing design objects. This operation can take time")
-        self.__parent.logger.reset_timer()
-        self.__parent.refresh_all_ids()
-        self.__parent.logger.info_timer("3D Modeler objects parsed.")
+        self._parse_objs()
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
         elif item in self.__obj_names:
