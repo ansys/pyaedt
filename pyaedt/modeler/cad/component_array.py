@@ -607,6 +607,8 @@ class ComponentArray(object):
         component_info = {}
         component_names = self.component_names
         for component in component_names.values():
+            if component not in self.__app.modeler.user_defined_components:
+                self._app.modeler.add_new_user_defined_component()
             parts = self.__app.modeler.user_defined_components[component].parts
             for part_name in parts.values():
                 if component not in component_info:

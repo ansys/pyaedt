@@ -722,7 +722,6 @@ class GeometryModeler(Modeler):
         self._object_names_to_ids = {}
         self._currentId = 0
         self._refresh_object_types()
-        self.add_new_user_defined_component()
         if not settings.lazy_objects_load:
             self._refresh_all_ids_from_aedt_file()
             self.refresh_all_ids()
