@@ -91,6 +91,7 @@ class Objects(dict):
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
         self.__obj_names[value.name] = value
+        self.__parent._object_names_to_ids[value._m_name] = key
 
     def __getitem__(self, item):
         if item in dict.keys(self):
@@ -163,7 +164,6 @@ class GeometryModeler(Modeler):
     def __init__(self, app, is3d=True):
         self._app = app
         Modeler.__init__(self, app)
-        # TODO Refactor this as a dictionary with names as key
         self._coordinate_systems = []
         self._user_lists = []
         self._planes = []
