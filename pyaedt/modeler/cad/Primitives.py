@@ -67,6 +67,10 @@ class Objects(dict):
             self.__parent.refresh_all_ids()
             self.__parent.logger.info_timer("3D Modeler objects parsed.")
 
+    def __contains__(self, item):
+        self._parse_objs()
+        return True if (item in dict.keys(self) or item in self.__obj_names) else False
+
     def keys(self):
         self._parse_objs()
 
@@ -461,8 +465,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_sheets()
-        return [self[name] for name in self.sheet_names if self[name]]
+        self._refresh_sheets()
+        return [v for k, v in self.objects_by_name.items() if k in self._sheets]
 
     @property
     def line_objects(self):
@@ -473,8 +477,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_lines()
-        return [self[name] for name in self.line_names if self[name]]
+        self._refresh_lines()
+        return [v for k, v in self.objects_by_name.items() if k in self._lines]
 
     @property
     def point_objects(self):
@@ -485,8 +489,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_points()
-        return [self.points[name] for name in self.point_names]
+        self._refresh_points()
+        return [v for k, v in self.objects_by_name.items() if k in self._points]
 
     @property
     def unclassified_objects(self):
@@ -497,8 +501,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_unclassified()
-        return [self[name] for name in self.unclassified_names if name is not None]
+        self._refresh_unclassified()
+        return [v for k, v in self.objects_by_name.items() if k in self._unclassified]
 
     @property
     def object_list(self):
@@ -510,7 +514,7 @@ class GeometryModeler(Modeler):
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names if name is not None and name not in self.point_names]
+        return [v for name, v in self.objects_by_name.items() if name is not None and name not in self.point_names]
 
     @property
     def solid_names(self):
