@@ -864,6 +864,7 @@ class GeometryModeler(Modeler):
         for old_id, obj in self.points.items():
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
+        self.objects = Objects(self)
         for k, v in new_object_dict.items():
             self.objects[k] = v
         self._object_names_to_ids = new_object_id_dict
