@@ -208,7 +208,7 @@ class COMParameters:
                     if kw in reverse_map:  # Get Matlab keyword
                         kw = reverse_map[kw]
                     self.set_parameter(kw, value)
-        return
+        return True
 
 
 class COMParametersVer3p4(COMParameters):
