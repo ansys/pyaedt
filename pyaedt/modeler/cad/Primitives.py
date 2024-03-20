@@ -63,6 +63,7 @@ class Objects(dict):
             self.__refreshed = True
             self.__parent.logger.info("Parsing design objects. This operation can take time")
             self.__parent.logger.reset_timer()
+            self.__parent._refresh_all_ids_from_aedt_file()
             self.__parent.refresh_all_ids()
             self.__parent.logger.info_timer("3D Modeler objects parsed.")
 
@@ -132,17 +133,17 @@ class GeometryModeler(Modeler):
             Returns ``None`` if the part ID or the object name is not found.
 
         """
-        if isinstance(partId, (int, str)) and not (
-            partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
-        ):
-            self.logger.reset_timer()
-            self.refresh_all_ids()
-            self.logger.info_timer("3D Modeler objects parsed.")
+        # if isinstance(partId, (int, str)) and not (
+        #     partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
+        # ):
+        #     self.logger.reset_timer()
+        #     self.refresh_all_ids()
+        #     self.logger.info_timer("3D Modeler objects parsed.")
         if isinstance(partId, int):
-            if partId in self.objects:
+            if partId in self.objects.keys():
                 return self.objects[partId]
-        elif partId in self._object_names_to_ids:
-            return self.objects[self._object_names_to_ids[partId]]
+        elif partId in self.objects_by_name:
+            return self.objects_by_name[partId]
         elif partId in self.user_defined_components:
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
@@ -764,6 +765,7 @@ class GeometryModeler(Modeler):
             dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
         except KeyError:
             return 0
+
         for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
@@ -853,7 +855,8 @@ class GeometryModeler(Modeler):
         for old_id, obj in self.points.items():
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
-        self.objects = new_object_dict
+        for k, v in new_object_dict.items():
+            self.objects[k] = v
         self._object_names_to_ids = new_object_id_dict
         self.points = new_points_dict
 
@@ -6651,9 +6654,9 @@ class GeometryModeler(Modeler):
             3D object returned.
 
         """
-        if objname in self._object_names_to_ids:
-            object_id = self.get_obj_id(objname)
-            return self.objects[object_id]
+        if objname in self.object_names:
+            # object_id = self.get_obj_id(objname)
+            return self.objects[objname]
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, stringname, case_sensitive=True):
