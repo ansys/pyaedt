@@ -121,7 +121,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def export(self, file_path):
-        """Export COM parameter to a json file.
+        """Export COM parameter to a JSON file.
 
         Parameters
         ----------
