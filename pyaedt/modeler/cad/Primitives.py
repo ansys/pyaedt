@@ -103,6 +103,7 @@ class Objects(dict):
             for key, value in props.items():
                 dict.__setitem__(self, key, value)
                 self.__obj_names[value._m_name] = value
+                self.__parent._object_names_to_ids[value._m_name] = key
         self.__parent = parent
         self.__refreshed = False
 
