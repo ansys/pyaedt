@@ -486,10 +486,7 @@ class MeshSettings(object):
             ref_dict = self.manual_mesh_settings
         else:
             ref_dict = self.automatic_mesh_settings
-        if key in ref_dict or key in self.common_mesh_settings:
-            return True
-        else:
-            return False
+        return key in ref_dict or key in self.common_mesh_settings
 
     def __getitem__(self, key):
         if key == "Level":

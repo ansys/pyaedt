@@ -6040,7 +6040,7 @@ class GeometryModeler(Modeler):
         """
         # backward compatibility
         if kwarg:
-            if kwarg.get("is_percentage", False):
+            if "is_percentage" in kwarg.keys():
                 is_percentage = kwarg["is_percentage"]
             else:
                 is_percentage = True
