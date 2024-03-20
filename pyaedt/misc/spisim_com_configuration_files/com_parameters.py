@@ -13,9 +13,12 @@ class COMParameters:
 
     _CFG_DIR = Path(__file__).parent.parent / "spisim_com_configuration_files"
     _STD_TABLE_MAPPING = {
-        "50GAUI-1_C2C": "com_120d_8.cfg",
-        "100GBASE-KR4": "com_93_8.cfg",
-        "100GBASE-KP4": "com_94_17.cfg",
+        "50GAUI-1-C2C": "com_120d_8.json",
+        "100GAUI-2-C2C": "com_120d_8.json",
+        "200GAUI-4": "com_120d_8.json",
+        "400GAUI-8": "com_120d_8.json",
+        "100GBASE-KR4": "com_93_8.json",
+        "100GBASE-KP4": "com_94_17.json",
     }
 
     def __init__(self, standard):
@@ -69,13 +72,13 @@ class COMParameters:
         -------
         str
         """
-        return self._standard
+        return self._standard  # pragma: no cover
 
     @standard.setter
     def standard(self, value):
         std_table = self._STD_TABLE_MAPPING[value]
         cfg_path = self._CFG_DIR / std_table
-        self.load_spisim_cfg(cfg_path)
+        self.load(cfg_path)
         self._standard = value
 
     @pyaedt_function_handler
@@ -211,7 +214,7 @@ class COMParameters:
 class COMParametersVer3p4(COMParameters):
     """Manages COM parameters of version 3.4."""
 
-    def __init__(self, standard="50GAUI-1_C2C"):
+    def __init__(self, standard="50GAUI-1-C2C"):
         super().__init__(standard)
 
     @pyaedt_function_handler

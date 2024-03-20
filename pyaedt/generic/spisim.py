@@ -275,7 +275,7 @@ class SpiSim:
         Parameters
         ----------
         standard : str
-            Name of the standard to apply. Options are ``"Custom"`, ``"50GAUI-1_C2C"`, ``"100GBASE-KR4"`` and
+            Name of the standard to apply. Options are ``"Custom"`, ``"50GAUI-1-C2C"`, ``"100GBASE-KR4"`` and
             ``"100GBASE-KP4"``.
         config_file : str, Path, optional
             Config file to use.
@@ -297,10 +297,10 @@ class SpiSim:
         com_param = COMParametersVer3p4()
         if standard.lower() == "custom":
 
-            if os.path.splitext(config_file) == ".cfg":
+            if os.path.splitext(config_file)[-1] == ".cfg":
                 com_param.load_spisim_cfg(config_file)
             else:
-                com_param.load_spisim_cfg(config_file)
+                com_param.load(config_file)
         else:
             com_param.standard = standard
 
@@ -346,7 +346,7 @@ class SpiSim:
         return self._get_output_parameter_from_result(out_processing, "COM")
 
     @pyaedt_function_handler
-    def export_com_configure_file(self, file_path, standard="50GAUI-1_C2C"):
+    def export_com_configure_file(self, file_path, standard="50GAUI-1-C2C"):
         """Generate a configuration file for SpiSim.
 
         Parameters
