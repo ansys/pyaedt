@@ -37,7 +37,6 @@ class COMParameters:
         self.other_parameters = {}
 
         self._init()
-        self._standard = standard
         self.standard = standard
 
     @pyaedt_function_handler
