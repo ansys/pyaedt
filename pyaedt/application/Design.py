@@ -346,8 +346,8 @@ class Design(AedtObjects):
                 bb.append(thermal)
                 bb.append(self.get_oo_property_value(othermal, thermal, "Type"))
 
-            if self.modeler.user_defined_components:
-                for component in self.modeler.user_defined_components:
+            if self.modeler.user_defined_components.items():
+                for component in self.modeler.user_defined_components.keys():
                     thermal_properties = self.get_oo_properties(self.oeditor, component)
                     if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
                         thermal_boundaries = self.design_properties["BoundarySetup"]["Boundaries"]

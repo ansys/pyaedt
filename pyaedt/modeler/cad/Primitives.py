@@ -149,7 +149,7 @@ class GeometryModeler(Modeler):
                 return self.objects[partId]
         elif partId in self.objects_by_name:
             return self.objects_by_name[partId]
-        elif partId in self.user_defined_components:
+        elif partId in self.user_defined_components.keys():
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
             return partId
@@ -171,7 +171,7 @@ class GeometryModeler(Modeler):
         self._unclassified = []
         self._all_object_names = []
         self.objects = Objects(self)
-        self.user_defined_components = {}
+        self.user_defined_components = Objects(self)
         self._object_names_to_ids = {}
         self.points = {}
         self.refresh()
@@ -601,7 +601,7 @@ class GeometryModeler(Modeler):
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
-            if self.user_defined_components:
+            if self.user_defined_components.keys():
                 existing_components = list(self.user_defined_components.keys())
                 new_obs3d = [i for i in obs3d if i]
                 for _, value in enumerate(existing_components):
@@ -622,7 +622,7 @@ class GeometryModeler(Modeler):
             Layout component names.
         """
         lc_names = []
-        if self.user_defined_components:
+        if self.user_defined_components.keys():
             for name, value in self.user_defined_components.items():
                 if value.layout_component:
                     lc_names.append(name)
@@ -718,7 +718,7 @@ class GeometryModeler(Modeler):
         self._unclassified = []
         self._all_object_names = []
         self.objects = Objects(self)
-        self.user_defined_components = {}
+        self.user_defined_components = Objects(self)
         self._object_names_to_ids = {}
         self._currentId = 0
         self._refresh_object_types()
@@ -933,7 +933,7 @@ class GeometryModeler(Modeler):
         """
         added_component = []
         for comp_name in self.user_defined_component_names:
-            if comp_name not in self.user_defined_components:
+            if comp_name not in self.user_defined_components.keys():
                 self._create_user_defined_component(comp_name)
             added_component.append(comp_name)
         return added_component
@@ -6962,7 +6962,7 @@ class GeometryModeler(Modeler):
 
         """
         oFaceIDs = []
-        if isinstance(partId, str) and partId in self._object_names_to_ids:
+        if isinstance(partId, str) and partId in self.objects_by_name:
             oFaceIDs = self.oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:

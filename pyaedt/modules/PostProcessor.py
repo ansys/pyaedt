@@ -3829,7 +3829,7 @@ class PostProcessor(PostProcessorCommon, object):
         group_hierarchy = {}
 
         groups = self._app.oeditor.GetChildNames("Groups")
-
+        self._app.modeler.add_new_user_defined_component()
         for g in groups:
             g1 = self._app.oeditor.GetChildObject(g)
             if g1:
@@ -4116,7 +4116,7 @@ class PostProcessor(PostProcessorCommon, object):
 
                 power_dict[bc_obj.name] = power_value
 
-        for native_comps in self.modeler.user_defined_components:
+        for native_comps in self.modeler.user_defined_components.keys():
             if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
                 native_key = "NativeComponentDefinitionProvider"
                 if native_key in self.modeler.user_defined_components[native_comps].native_properties:
