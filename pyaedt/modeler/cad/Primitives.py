@@ -59,7 +59,7 @@ class Objects(dict):
     """AEDT object dictionary."""
 
     def _parse_objs(self):
-        if self.__refreshed is False and len(self.__dict__) != len(self.__parent.object_names):
+        if self.__refreshed is False and dict.__len__(self) != len(self.__parent.object_names):
             self.__refreshed = True
             self.__parent.logger.info("Parsing design objects. This operation can take time")
             self.__parent.logger.reset_timer()
@@ -103,12 +103,12 @@ class Objects(dict):
     def __init__(self, parent, props=None):
         dict.__init__(self)
         self.__obj_names = {}
+        self.__parent = parent
         if props:
             for key, value in props.items():
                 dict.__setitem__(self, key, value)
                 self.__obj_names[value._m_name] = value
                 self.__parent._object_names_to_ids[value._m_name] = key
-        self.__parent = parent
         self.__refreshed = False
 
 
