@@ -40,7 +40,7 @@ jobs:
           make -C doc phtml
 
       - name: Upload documentation HTML artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: documentation-html
           path: doc/_build/html
