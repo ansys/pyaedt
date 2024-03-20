@@ -148,7 +148,7 @@ class COMParameters:
 
     @pyaedt_function_handler
     def load(self, file_path):
-        """Load COM parameters from a json file.
+        """Load COM parameters from a JSON file.
 
         Parameters
         ----------
