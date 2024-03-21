@@ -512,7 +512,7 @@ class TestClass:
         report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
         os.mkdir(report_dir)
         com = spisim.compute_com(
-            standard="50GAUI-1-C2C",
+            standard=1,
             out_folder=report_dir,
         )
         assert com
@@ -532,7 +532,7 @@ class TestClass:
         spisim.working_directory = local_scratch.path
 
         com_0, com_1 = spisim.compute_com(
-            standard="50GAUI-1-C2C",
+            standard=1,
             port_order="EvenOdd",
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
@@ -540,7 +540,7 @@ class TestClass:
         )
         assert com_0 and com_1
         com_0, com_1 = spisim.compute_com(
-            standard="100GBASE-KR4",
+            standard=2,
             port_order="EvenOdd",
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
@@ -548,7 +548,7 @@ class TestClass:
         )
         assert com_0 and com_1
         com_0, com_1 = spisim.compute_com(
-            standard="100GBASE-KP4",
+            standard=3,
             port_order="EvenOdd",
             fext_s4p=fext_s4p,
             next_s4p=next_s4p,
@@ -560,14 +560,18 @@ class TestClass:
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
         spisim = SpiSim(thru_s4p)
-        spisim.export_com_configure_file(Path(local_scratch.path) / "test.cfg")
-        com_0, com_1 = spisim.compute_com("custom", Path(local_scratch.path) / "test.cfg")
-        assert com_0 and com_1
 
         spisim.export_com_configure_file(os.path.join(spisim.working_directory, "custom.json"))
         com_0, com_1 = spisim.compute_com(
-            standard="custom",
+            standard=0,
             config_file=os.path.join(spisim.working_directory, "custom.json"),
             port_order="EvenOdd",
         )
+        assert com_0 and com_1
+
+        from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+        com_param = COMParametersVer3p4()
+        com_param.load(os.path.join(spisim.working_directory, "custom.json"),)
+        com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
+        com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1

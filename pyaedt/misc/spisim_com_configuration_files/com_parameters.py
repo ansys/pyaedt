@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 from pathlib import Path
 
@@ -8,20 +9,36 @@ from pyaedt.misc.spisim_com_configuration_files.com_settings_mapping import spim
 logger = settings.logger
 
 
+class COMStandards(Enum):
+    COM_CUSTOM = 0
+    COM_50GAUI_1_C2C = 1  # com_120d_8
+    COM_100GAUI_2_C2C = 2  # com_120d_8
+    COM_200GAUI_4 = 3  # com_120d_8
+    COM_400GAUI_8 = 4  # com_120d_8
+    COM_100GBASE_KR4 = 5  # com_93_8
+    COM_100GBASE_KP4 = 6  # com_94_17
+
+
 class COMParameters:
     """Base class to manage COM parameters."""
 
     _CFG_DIR = Path(__file__).parent.parent / "spisim_com_configuration_files"
     _STD_TABLE_MAPPING = {
-        "50GAUI-1-C2C": "com_120d_8.json",
-        "100GAUI-2-C2C": "com_120d_8.json",
-        "200GAUI-4": "com_120d_8.json",
-        "400GAUI-8": "com_120d_8.json",
-        "100GBASE-KR4": "com_93_8.json",
-        "100GBASE-KP4": "com_94_17.json",
+        "COM_50GAUI_1_C2C": "com_120d_8.json",
+        "COM_100GAUI_2_C2C": "com_120d_8.json",
+        "COM_200GAUI_4": "com_120d_8.json",
+        "COM_400GAUI_8": "com_120d_8.json",
+        "COM_100GBASE_KR4": "com_93_8.json",
+        "COM_100GBASE_KP4": "com_94_17.json",
     }
 
     def __init__(self, standard):
+        """
+
+        Parameters
+        ----------
+        standard  : int
+        """
         self.table_93a1 = {}
         self.filter_and_eq = {}
         self.io_control = {}
@@ -75,7 +92,7 @@ class COMParameters:
 
     @standard.setter
     def standard(self, value):
-        std_table = self._STD_TABLE_MAPPING[value]
+        std_table = self._STD_TABLE_MAPPING[COMStandards(value).name]
         cfg_path = self._CFG_DIR / std_table
         self.load(cfg_path)
         self._standard = value
@@ -154,6 +171,7 @@ class COMParameters:
         file_path : str,
             Path of file.
         """
+        self._init()
         with open(file_path) as f:  # pragma: no cover
             temp = json.load(f)
 
@@ -167,8 +185,8 @@ class COMParameters:
 
         Parameters
         ----------
-        file_path : str
-            Path of file.
+        file_path : str, Path
+            Full path of file.
         """
         with open(file_path, "w") as fp:
             fp.write("################################################################################\n")
@@ -213,7 +231,7 @@ class COMParameters:
 class COMParametersVer3p4(COMParameters):
     """Manages COM parameters of version 3.4."""
 
-    def __init__(self, standard="50GAUI-1-C2C"):
+    def __init__(self, standard=1):
         super().__init__(standard)
 
     @pyaedt_function_handler
