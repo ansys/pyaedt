@@ -963,21 +963,21 @@ class GeometryModeler(Modeler):
 
         """
         added_objects = []
-        objs_ids = {}
-        if not self._object_names_to_ids:
-            for obj in self._solids + self._sheets + self._lines:
-                try:
-                    objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
-                except:
-                    pass
+
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                try:
+                    pid = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
             if obj_name not in self._object_names_to_ids:
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                try:
+                    pid = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
 
@@ -4416,7 +4416,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in self._solids + self._sheets + self._lines:
+        for object in self.solid_names + self.sheet_names + self.line_names:
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:
