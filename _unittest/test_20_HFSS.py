@@ -7,8 +7,6 @@ from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
 
-import pyaedt
-
 small_number = 1e-10  # Used for checking equivalence.
 
 from pyaedt.generic.near_field_import import convert_nearfield_data
@@ -26,7 +24,6 @@ else:
     diff_proj_name = "differential_pairs"
 
 component_array = "Array_232"
-pyaedt.settings.lazy_objects_load = True
 
 
 @pytest.fixture(scope="class")

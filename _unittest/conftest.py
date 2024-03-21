@@ -94,7 +94,7 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
-
+settings.objects_lazy_load = False
 logger = pyaedt_logger
 
 
@@ -148,7 +148,6 @@ def desktop():
     yield d
     d.release_desktop(True, True)
     time.sleep(1)
-    settings.lazy_objects_load = False
 
 
 @pytest.fixture(scope="module")

@@ -32,7 +32,6 @@ eye_diagram = "SimpleChannel"
 ami = "ami"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
-settings.lazy_objects_load = True
 
 
 @pytest.fixture(scope="class")

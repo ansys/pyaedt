@@ -38,7 +38,6 @@ ami = "ami"
 ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
-settings.lazy_objects_load = True
 
 
 @pytest.fixture(scope="class")

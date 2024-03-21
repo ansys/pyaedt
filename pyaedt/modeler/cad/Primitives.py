@@ -71,7 +71,6 @@ class Objects(dict):
             elif self.__obj_type == "p":
                 self.__parent.logger.info("Parsing design points. This operation can take time")
                 self.__parent.logger.reset_timer()
-                self.__parent._refresh_all_ids_from_aedt_file()
                 self.__parent.add_new_points()
                 self.__parent.cleanup_points()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
@@ -108,11 +107,38 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
+    @pyaedt_function_handler()
     def __getitem__(self, item):
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
         elif item in self.__obj_names:
             return self.__obj_names[item]
+        if self.__obj_type == "o":
+            if isinstance(item, int):
+                try:
+                    id = item
+                    name = self.__parent.oeditor.GetObjectNameByID(id)
+                    o = self.__parent._create_object(name, id)
+                    self.__setitem__(id, o)
+                    return o
+                except:
+                    raise KeyError(item)
+
+            elif isinstance(item, str):
+                try:
+                    name = item
+                    id = self.__parent.oeditor.GetObjectIDByName(name)
+                    o = self.__parent._create_object(name, id)
+                    self.__setitem__(id, o)
+                    return o
+                except:
+                    raise KeyError(item)
+
+            elif isinstance(item, (Object3d, Polyline)):
+                self.__setitem__(item.id, item)
+                return item
+            else:
+                raise TypeError(item)
         self._parse_objs()
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
@@ -131,7 +157,9 @@ class Objects(dict):
                 self.__obj_names[value.name] = value
                 if self.__obj_type == "o":
                     self.__parent._object_names_to_ids[value.name] = key
-        self.__refreshed = False
+            self.__refreshed = True
+        else:
+            self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
@@ -160,15 +188,13 @@ class GeometryModeler(Modeler):
             Returns ``None`` if the part ID or the object name is not found.
 
         """
-        if isinstance(partId, int):
-            if partId in self.objects.keys():
-                return self.objects[partId]
-        elif partId in self.objects_by_name:
-            return self.objects_by_name[partId]
-        elif partId in self.user_defined_components.keys():
-            return self.user_defined_components[partId]
-        elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
-            return partId
+        try:
+            return self.objects[partId]
+        except:
+            if partId in self.user_defined_components.keys():
+                return self.user_defined_components[partId]
+            elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
+                return partId
         self.logger.error("Object '{}' not found.".format(partId))
         return None
 
@@ -737,7 +763,7 @@ class GeometryModeler(Modeler):
         self.objects = Objects(self, "o")
         self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
-        if not settings.lazy_objects_load:
+        if not settings.objects_lazy_load:
             self._refresh_all_ids_from_aedt_file()
             self.refresh_all_ids()
 

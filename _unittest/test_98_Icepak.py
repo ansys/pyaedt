@@ -4,7 +4,6 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-import pyaedt
 from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -12,7 +11,6 @@ from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
-pyaedt.settings.lazy_objects_load = True
 if config["desktopVersion"] > "2022.2":
     test_project_name = "Filter_Board_Icepak_231"
     src_project_name = "USB_Connector_IPK_231"
