@@ -30,7 +30,7 @@ def load_entire_aedt_file(filename):
     return f_d
 
 
-def load_keyword_in_aedt_file(filename, keyword):
+def load_keyword_in_aedt_file(filename, keyword, design_name=None):
     """Load s specific keyword in the AEDT file and return the dictionary
 
     Parameters
@@ -46,7 +46,7 @@ def load_keyword_in_aedt_file(filename, keyword):
         dictionary containing the decoded AEDT file
 
     """
-    return _load_keyword_in_aedt_file(filename, keyword)
+    return _load_keyword_in_aedt_file(filename, keyword, design_name)
 
 
 # --------------------------------------------------------------------
@@ -362,7 +362,7 @@ def _decode_subkey(line, d):
         d[k] = None
 
 
-def _walk_through_structure(keyword, save_dict):
+def _walk_through_structure(keyword, save_dict, design_name=None):
     """
 
     Parameters
@@ -379,12 +379,19 @@ def _walk_through_structure(keyword, save_dict):
     global _count
     begin_key = "$begin '{}'".format(keyword)
     end_key = "$end '{}'".format(keyword)
+    design_key = None
+    design_found = True
+    if design_name:
+        design_key = "Name='{}'".format(design_name)
+        design_found = False
     found = False
     saved_value = None
     while _count < _len_all_lines:
         line = _all_lines[_count]
+        if design_key and design_key in line:
+            design_found = True
         # begin_key is found
-        if begin_key == line:
+        if begin_key == line and design_found:
             found = True
             saved_value = save_dict.get(keyword)  # if the keyword is already present, save it
             save_dict[keyword] = {}
@@ -480,7 +487,7 @@ def _load_entire_aedt_file(filename):
     return main_dict
 
 
-def _load_keyword_in_aedt_file(filename, keyword):
+def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
     """Load a specific keyword in the AEDT file and return the dictionary
 
     Parameters
@@ -499,5 +506,5 @@ def _load_keyword_in_aedt_file(filename, keyword):
     _read_aedt_file(filename)
     # load the aedt file
     main_dict = {}
-    _walk_through_structure(keyword, main_dict)
+    _walk_through_structure(keyword, main_dict, design_name)
     return main_dict

@@ -61,11 +61,25 @@ class Objects(dict):
     def _parse_objs(self):
         if self.__refreshed is False and dict.__len__(self) != len(self.__parent.object_names):
             self.__refreshed = True
-            self.__parent.logger.info("Parsing design objects. This operation can take time")
-            self.__parent.logger.reset_timer()
-            self.__parent._refresh_all_ids_from_aedt_file()
-            self.__parent.refresh_all_ids()
-            self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            if self.__obj_type == "o":
+                self.__parent.logger.info("Parsing design objects. This operation can take time")
+                self.__parent.logger.reset_timer()
+                self.__parent._refresh_all_ids_from_aedt_file()
+                self.__parent.add_new_solids()
+                self.__parent.cleanup_solids()
+                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            elif self.__obj_type == "p":
+                self.__parent.logger.info("Parsing design points. This operation can take time")
+                self.__parent.logger.reset_timer()
+                self.__parent._refresh_all_ids_from_aedt_file()
+                self.__parent.add_new_points()
+                self.__parent.cleanup_points()
+                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            elif self.__obj_type == "u":
+                self.__parent.add_new_user_defined_component()
+
+    def __len__(self):
+        return dict.__len__(self)
 
     def __contains__(self, item):
         self._parse_objs()
@@ -91,7 +105,8 @@ class Objects(dict):
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
         self.__obj_names[value.name] = value
-        self.__parent._object_names_to_ids[value._m_name] = key
+        if self.__obj_type == "o":
+            self.__parent._object_names_to_ids[value.name] = key
 
     def __getitem__(self, item):
         if item in dict.keys(self):
@@ -105,18 +120,18 @@ class Objects(dict):
             return self.__obj_names[item]
         raise KeyError(item)
 
-    def __init__(self, parent, props=None):
+    def __init__(self, parent, obj_type="o", props=None):
         dict.__init__(self)
         self.__obj_names = {}
         self.__parent = parent
+        self.__obj_type = obj_type
         if props:
             for key, value in props.items():
                 dict.__setitem__(self, key, value)
-                self.__obj_names[value._m_name] = value
-                self.__parent._object_names_to_ids[value._m_name] = key
-            self.__refreshed = True
-        else:
-            self.__refreshed = False
+                self.__obj_names[value.name] = value
+                if self.__obj_type == "o":
+                    self.__parent._object_names_to_ids[value.name] = key
+        self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
@@ -145,12 +160,6 @@ class GeometryModeler(Modeler):
             Returns ``None`` if the part ID or the object name is not found.
 
         """
-        # if isinstance(partId, (int, str)) and not (
-        #     partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
-        # ):
-        #     self.logger.reset_timer()
-        #     self.refresh_all_ids()
-        #     self.logger.info_timer("3D Modeler objects parsed.")
         if isinstance(partId, int):
             if partId in self.objects.keys():
                 return self.objects[partId]
@@ -165,6 +174,7 @@ class GeometryModeler(Modeler):
 
     def __init__(self, app, is3d=True):
         self._app = app
+        self._model_data = {}
         Modeler.__init__(self, app)
         self._coordinate_systems = []
         self._user_lists = []
@@ -176,10 +186,10 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = Objects(self)
-        self.user_defined_components = Objects(self)
         self._object_names_to_ids = {}
-        self.points = {}
+        self.objects = Objects(self, "o")
+        self.user_defined_components = Objects(self, "u")
+        self.points = Objects(self, "p")
         self.refresh()
 
     class Position:
@@ -607,12 +617,12 @@ class GeometryModeler(Modeler):
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
-            # if self.user_defined_components.keys():
-            #     existing_components = list(self.user_defined_components.keys())
-            #     new_obs3d = [i for i in obs3d if i]
-            #     for _, value in enumerate(existing_components):
-            #         if value not in new_obs3d:
-            #             new_obs3d.append(value)
+            if self.user_defined_components.keys():
+                existing_components = list(self.user_defined_components.keys())
+                new_obs3d = [i for i in obs3d if i]
+                for _, value in enumerate(existing_components):
+                    if value not in new_obs3d:
+                        new_obs3d.append(value)
 
         except Exception:
             new_obs3d = []
@@ -723,10 +733,9 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = Objects(self)
-        self.user_defined_components = Objects(self)
         self._object_names_to_ids = {}
-        self._currentId = 0
+        self.objects = Objects(self, "o")
+        self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
         if not settings.lazy_objects_load:
             self._refresh_all_ids_from_aedt_file()
@@ -762,12 +771,8 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
-        # from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-        # dp = load_keyword_in_aedt_file(
-        #     r'C:\Users\mcapodif\Downloads\edb_test_10000_Circles_EMDesign_Setup1\edb_test_10000_Circles_EMDesign_Setup1.aedt',
-        #     "ModelSetup", "HFSSDesign1")
 
-        dp = copy.deepcopy(self._design_properties)
+        dp = copy.deepcopy(self._app.design_properties)
         if not dp or "ModelSetup" not in dp:
             return False
 
@@ -855,25 +860,62 @@ class GeometryModeler(Modeler):
            Dictionary of updated object IDs.
 
         """
+        self.cleanup_solids()
+        self.cleanup_points()
+
+    @pyaedt_function_handler()
+    def cleanup_solids(self):
+        """Clean up solids that no longer exist in the modeler because
+        they were removed by previous operations.
+
+        This method also updates object IDs that may have changed via
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite`
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+
+        Returns
+        -------
+        dict
+           Dictionary of updated object IDs.
+
+        """
         new_object_dict = {}
         new_object_id_dict = {}
-        new_points_dict = {}
 
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
-        for old_id, obj in self.objects.items():
-            if obj.name in all_objs:
-                # Check if ID can change in boolean operations
-                # updated_id = obj.id  # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = old_id
-                new_object_dict[old_id] = obj
+        if len(all_objs) != len(self._object_names_to_ids):
+            for old_id, obj in self.objects.items():
+                if obj.name in all_objs:
+                    # Check if ID can change in boolean operations
+                    # updated_id = obj.id  # By calling the object property we get the new id
+                    new_object_id_dict[obj.name] = old_id
+                    new_object_dict[old_id] = obj
+            self._object_names_to_ids = {}
+            self.objects = Objects(self, "o", new_object_dict)
+
+    @pyaedt_function_handler()
+    def cleanup_points(self):
+        """Clean up points that no longer exist in the modeler because
+        they were removed by previous operations.
+
+        This method also updates object IDs that may have changed via
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite`
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+
+        Returns
+        -------
+        dict
+           Dictionary of updated object IDs.
+
+        """
+        new_points_dict = {}
+
         for old_id, obj in self.points.items():
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
-        self.objects = Objects(self, new_object_dict)
 
-        self.points = new_points_dict
+        self.points = Objects(self, "p", new_points_dict)
 
     @pyaedt_function_handler()
     def find_new_objects(self):
@@ -903,11 +945,27 @@ class GeometryModeler(Modeler):
             List of added objects.
 
         """
-        # TODO: Need to improve documentation for this method.
+        added_objects = []
+        objs_ids = {}
+        added_objects = self.add_new_solids()
+        added_objects += self.add_new_points()
+        return added_objects
+
+    @pyaedt_function_handler()
+    def add_new_solids(self):
+        """Add objects that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added objects.
+
+        """
         added_objects = []
         objs_ids = {}
         if not self._object_names_to_ids:
-            for obj in self._all_object_names:
+            for obj in self._solids + self._sheets + self._lines:
                 try:
                     objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
                 except:
@@ -922,10 +980,24 @@ class GeometryModeler(Modeler):
                 pid = objs_ids[obj_name] if obj_name in objs_ids else 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
+
+        return added_objects
+
+    @pyaedt_function_handler()
+    def add_new_points(self):
+        """Add objects that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added objects.
+
+        """
+        added_objects = []
         for obj_name in self.point_names:
             if obj_name not in self.points.keys():
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
-                self._create_object(obj_name, pid=pid, use_cached=True)
+                self._create_object(obj_name, pid=0, use_cached=True)
                 added_objects.append(obj_name)
         return added_objects
 
@@ -953,7 +1025,8 @@ class GeometryModeler(Modeler):
     def refresh_all_ids(self):
         """Refresh all IDs."""
 
-        self.add_new_objects()
+        self.add_new_solids()
+        self.add_new_points()
         self.add_new_user_defined_component()
         self.cleanup_objects()
 
@@ -8040,7 +8113,6 @@ class GeometryModeler(Modeler):
                 new_id = o.id
             o = self.get_existing_polyline(o)
             self.objects[new_id] = o
-            self._object_names_to_ids[o.name] = new_id
         else:
             o = Object3d(self, name)
             if is_polyline:
@@ -8050,7 +8122,6 @@ class GeometryModeler(Modeler):
             else:
                 new_id = o.id
             self.objects[new_id] = o
-            self._object_names_to_ids[o.name] = new_id
 
         #  Set properties from kwargs.
         if len(kwargs) > 0:
@@ -8255,7 +8326,7 @@ class GeometryModeler(Modeler):
             if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
                 component_name = comp3d
                 break
-        dp = copy.deepcopy(self._design_properties)
+        dp = copy.deepcopy(self._app.design_properties)
         if dp and dp.get("ModelSetup", None) and component_name:
             try:
                 native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
