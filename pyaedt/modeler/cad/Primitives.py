@@ -4416,7 +4416,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in list(self._object_names_to_ids.keys()):
+        for object in self._solids + self._sheets + self._lines:
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:
@@ -5926,7 +5926,7 @@ class GeometryModeler(Modeler):
         o = self._resolve_object(obj)
         name = o.name
 
-        del self.objects[self._object_names_to_ids[name]]
+        del self.objects[self.objects_by_name[name].id]
         del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
@@ -6694,7 +6694,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.Delete
 
         """
-        objnames = self._object_names_to_ids
+        objnames = self.object_names
         num_del = 0
         for el in objnames:
             if case_sensitive:
@@ -6723,8 +6723,8 @@ class GeometryModeler(Modeler):
             Object ID.
 
         """
-        if objname in self._object_names_to_ids:
-            return self._object_names_to_ids[objname]
+        if objname in self.objects_by_name:
+            return self.objects_by_name[objname].id
         return None
 
     @pyaedt_function_handler()
