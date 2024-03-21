@@ -114,7 +114,9 @@ class Objects(dict):
                 dict.__setitem__(self, key, value)
                 self.__obj_names[value._m_name] = value
                 self.__parent._object_names_to_ids[value._m_name] = key
-        self.__refreshed = False
+            self.__refreshed = True
+        else:
+            self.__refreshed = False
 
 
 class GeometryModeler(Modeler):
@@ -177,7 +179,7 @@ class GeometryModeler(Modeler):
         self.objects = Objects(self)
         self.user_defined_components = Objects(self)
         self._object_names_to_ids = {}
-        self.points = Objects(self)
+        self.points = {}
         self.refresh()
 
     class Position:
@@ -605,12 +607,12 @@ class GeometryModeler(Modeler):
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
-            if self.user_defined_components.keys():
-                existing_components = list(self.user_defined_components.keys())
-                new_obs3d = [i for i in obs3d if i]
-                for _, value in enumerate(existing_components):
-                    if value not in new_obs3d:
-                        new_obs3d.append(value)
+            # if self.user_defined_components.keys():
+            #     existing_components = list(self.user_defined_components.keys())
+            #     new_obs3d = [i for i in obs3d if i]
+            #     for _, value in enumerate(existing_components):
+            #         if value not in new_obs3d:
+            #             new_obs3d.append(value)
 
         except Exception:
             new_obs3d = []
@@ -760,6 +762,11 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
+        # from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
+        # dp = load_keyword_in_aedt_file(
+        #     r'C:\Users\mcapodif\Downloads\edb_test_10000_Circles_EMDesign_Setup1\edb_test_10000_Circles_EMDesign_Setup1.aedt',
+        #     "ModelSetup", "HFSSDesign1")
+
         dp = copy.deepcopy(self._design_properties)
         if not dp or "ModelSetup" not in dp:
             return False
@@ -864,10 +871,8 @@ class GeometryModeler(Modeler):
         for old_id, obj in self.points.items():
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
-        self.objects = Objects(self)
-        for k, v in new_object_dict.items():
-            self.objects[k] = v
-        self._object_names_to_ids = new_object_id_dict
+        self.objects = Objects(self, new_object_dict)
+
         self.points = new_points_dict
 
     @pyaedt_function_handler()
