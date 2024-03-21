@@ -274,9 +274,15 @@ class SpiSim:
 
         Parameters
         ----------
-        standard : str
-            Name of the standard to apply. Options are ``"Custom"`, ``"50GAUI-1-C2C"`, ``"100GBASE-KR4"`` and
-            ``"100GBASE-KP4"``.
+        standard : int
+            Name of the standard to apply. Supported stdnards are as below.
+            COM_CUSTOM = 0
+            COM_50GAUI_1_C2C = 1
+            COM_100GAUI_2_C2C = 2
+            COM_200GAUI_4 = 3
+            COM_400GAUI_8 = 4
+            COM_100GBASE_KR4 = 5
+            COM_100GBASE_KP4 = 6
         config_file : str, Path, optional
             Config file to use.
         port_order : str, optional
@@ -295,8 +301,7 @@ class SpiSim:
         """
 
         com_param = COMParametersVer3p4()
-        if standard.lower() == "custom":
-
+        if standard == 0:
             if os.path.splitext(config_file)[-1] == ".cfg":
                 com_param.load_spisim_cfg(config_file)
             else:
@@ -346,22 +351,20 @@ class SpiSim:
         return self._get_output_parameter_from_result(out_processing, "COM")
 
     @pyaedt_function_handler
-    def export_com_configure_file(self, file_path, standard="50GAUI-1-C2C"):
+    def export_com_configure_file(self, file_path, standard=1):
         """Generate a configuration file for SpiSim.
 
         Parameters
         ----------
-        file_path : str, Path
+        file_path : str
             Full path to configuration file to create.
-
+        standard : int
+            Index of the standard.
         Returns
         -------
         bool
         """
-        if os.path.splitext(file_path)[-1] == ".cfg":
-            COMParametersVer3p4(standard).export_spisim_cfg(file_path)
-        else:
-            return COMParametersVer3p4(standard).export(file_path)
+        return COMParametersVer3p4(standard).export(file_path)
 
 
 def detect_encoding(file_path, expected_pattern="", re_flags=0):
