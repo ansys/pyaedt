@@ -331,6 +331,20 @@ class TestClass:
             sample_points_lists=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
         )
         assert os.path.exists(fld_file_2)
+        cs = self.icepak_app.modeler.create_coordinate_system()
+        fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
+        self.icepak_app.post.export_field_file(
+            quantity_name="Temp",
+            solution=self.icepak_app.nominal_sweep,
+            variation_dict=self.icepak_app.available_variations.nominal_w_values_dict,
+            filename=fld_file_3,
+            obj_list="box",
+            sample_points_lists=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
+            reference_coordinate_system=cs.name,
+            export_in_si_system=False,
+            export_field_in_reference=False,
+        )
+        assert os.path.exists(fld_file_3)
 
     def test_04a_3dl_generate_mesh(self):
         assert self.hfss3dl_solve.mesh.generate_mesh("Setup1")
