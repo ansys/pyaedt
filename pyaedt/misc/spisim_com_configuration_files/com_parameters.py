@@ -1,5 +1,5 @@
-import json
 from enum import Enum
+import json
 from pathlib import Path
 
 from pyaedt import pyaedt_function_handler
