@@ -356,7 +356,7 @@ class SpiSim:
 
         Parameters
         ----------
-        file_path : str
+        file_path : str, Path
             Full path to configuration file to create.
         standard : int
             Index of the standard.

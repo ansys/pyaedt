@@ -185,8 +185,8 @@ class COMParameters:
 
         Parameters
         ----------
-        file_path : str
-            Path of file.
+        file_path : str, Path
+            Full path of file.
         """
         with open(file_path, "w") as fp:
             fp.write("################################################################################\n")
