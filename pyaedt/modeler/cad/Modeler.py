@@ -1823,7 +1823,7 @@ class Lists(PropsManager, object):
                         object_list_new.append(int(element))
                     else:
                         if element in self._modeler.object_names:
-                            obj_id = self._modeler._object_names_to_ids[element]
+                            obj_id = self._modeler.objects[element].id
                             for sel in self._modeler.object_list:
                                 if sel.id == obj_id:
                                     for f in sel.faces:

@@ -257,6 +257,8 @@ class Polyline(Object3d):
                         )
                     self._positions = [list(i) for i in position_list[: self._segment_types[-1].num_points]]
                 else:  # AngularArc
+                    if not all(isinstance(x, list) for x in position_list):
+                        position_list = [position_list]
                     self._positions = [position_list[0]]
                     self._evaluate_arc_angle_extra_points(segment_type, start_point=position_list[0])
                     self._positions.extend(segment_type.extra_points[:])

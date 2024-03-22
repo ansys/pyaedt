@@ -1,11 +1,24 @@
 import sys
 
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(object):
-    def __init__(self, project=None, design=None, is_inherithed=False):
-        self._odesktop = sys.modules["__main__"].oDesktop
+    def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+        if desktop:
+            self._odesktop = desktop.odesktop
+        elif _desktop_sessions and project:
+            project_name = project.GetName()
+            for desktop in list(_desktop_sessions.values()):
+                if project_name in list(desktop.project_list):
+                    self._odesktop = desktop.odesktop
+                    break
+        elif _desktop_sessions:
+            self._odesktop = list(_desktop_sessions.values())[-1].odesktop
+        elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
+            self._odesktop = sys.modules["__main__"].oDesktop  # ironpython
+
         if not is_inherithed:
             if project:
                 self.oproject = project
