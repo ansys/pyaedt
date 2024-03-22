@@ -660,7 +660,12 @@ class MeshRegion(MeshRegionCommon):
         )
         self.enable = True
         if settings.aedt_version > "2023.2" and objects is not None:
-            self._assignment = SubRegion(app, objects)
+            if not isinstance(objects, list):
+                objects = [objects]
+            if self._app.modeler[objects[0]].history().command == "CreateSubRegion":
+                self._assignment = objects[0]
+            else:
+                self._assignment = SubRegion(app, objects)
         else:
             self._assignment = objects
         if self._assignment is not None:
