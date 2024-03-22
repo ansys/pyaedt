@@ -50,7 +50,7 @@ tests = [
     "pytest-cov>=4.0.0,<4.2",
     "pytest-xdist>=3.5.0,<3.6",
     "pyedb>=0.4.0,<0.5; python_version == '3.7'",
-    "pyedb>=0.5.0,<0.6; python_version > '3.7'",
+    "pyedb>=0.5.0,<0.7; python_version > '3.7'",
     "pyvista>=0.38.0,<0.44",
     "scikit-learn>=1.0.0,<1.5",
     "scikit-rf>=0.30.0,<0.33",
