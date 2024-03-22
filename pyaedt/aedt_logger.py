@@ -659,7 +659,7 @@ class AedtLogger(object):
             des_name = self.design_name
         try:
             self._desktop.ClearMessages(proj_name, des_name, level)
-        except Exception:
+        except Exception:  # pragma: no cover
             pass
 
     @property
