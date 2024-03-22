@@ -60,6 +60,12 @@ if sys.version_info.major > 2:
     import base64
 
 
+def load_aedt_thread(project_path):
+    pp = load_entire_aedt_file(project_path)
+    settings._project_properties[os.path.normpath(project_path)] = pp
+    settings._project_time_stamp = os.path.getmtime(project_path)
+
+
 class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
@@ -195,21 +201,16 @@ class Design(AedtObjects):
         port=0,
         aedt_process_id=None,
     ):
-        def load_aedt_thread(path):
-            start = time.time()
-            settings._project_properties[path] = load_entire_aedt_file(path)
-            settings._project_time_stamp = os.path.getmtime(project_name)
-            pyaedt_logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
 
-        t = None
+        self.__t = None
         if (
             not is_ironpython
             and project_name
             and os.path.exists(project_name)
             and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
-            t = threading.Thread(target=load_aedt_thread, args=(project_name,))
-            t.start()
+            self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
+            self.__t.start()
         self._init_variables()
         self._design_type = design_type
         self.last_run_log = ""
@@ -262,8 +263,11 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if t:
-            t.join()
+        # if t:
+        #     t.join()
+        if not self.__t and not settings.lazy_load and not is_ironpython and os.path.exists(self.project_file):
+            self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
+            self.__t.start()
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
@@ -342,8 +346,8 @@ class Design(AedtObjects):
                 bb.append(thermal)
                 bb.append(self.get_oo_property_value(othermal, thermal, "Type"))
 
-            if self.modeler.user_defined_components:
-                for component in self.modeler.user_defined_components:
+            if self.modeler.user_defined_components.items():
+                for component in self.modeler.user_defined_components.keys():
                     thermal_properties = self.get_oo_properties(self.oeditor, component)
                     if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
                         thermal_boundaries = self.design_properties["BoundarySetup"]["Boundaries"]
@@ -522,6 +526,9 @@ class Design(AedtObjects):
         dict
             Dictionary of the project properties.
         """
+        if self.__t:
+            self.__t.join()
+        self.__t = None
         start = time.time()
         if self.project_timestamp_changed or (
             os.path.exists(self.project_file)
@@ -555,7 +562,6 @@ class Design(AedtObjects):
            Dictionary of the design properties.
 
         """
-
         try:
             if model_names[self._design_type] in self.project_properties["AnsoftProject"]:
                 designs = self.project_properties["AnsoftProject"][model_names[self._design_type]]

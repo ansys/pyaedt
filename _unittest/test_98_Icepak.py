@@ -12,7 +12,6 @@ from pyaedt.modules.MeshIcepak import MeshRegion
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
-
 if config["desktopVersion"] > "2022.2":
     test_project_name = "Filter_Board_Icepak_231"
     src_project_name = "USB_Connector_IPK_231"

@@ -70,6 +70,22 @@ class Settings(object):
         self._retry_n_times_time_interval = 0.1
         self._wait_for_license = False
         self.__lazy_load = True
+        self.__objects_lazy_load = False
+
+    @property
+    def objects_lazy_load(self):
+        """Flag for enabling and disabling the lazy load.
+        The default is ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__objects_lazy_load
+
+    @objects_lazy_load.setter
+    def objects_lazy_load(self, value):
+        self.__objects_lazy_load = value
 
     @property
     def lazy_load(self):
