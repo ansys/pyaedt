@@ -220,10 +220,7 @@ class Design(AedtObjects):
         self._boundaries = {}
         self._project_datasets = {}
         self._design_datasets = {}
-        main_module = sys.modules["__main__"]
         self.close_on_exit = close_on_exit
-        self._global_logger = pyaedt_logger
-        self._logger = pyaedt_logger
         self._desktop_class = None
         self._desktop_class = _init_desktop_from_design(
             specified_version,
@@ -235,13 +232,16 @@ class Design(AedtObjects):
             port,
             aedt_process_id,
         )
+        self._global_logger = self._desktop_class.logger
+        self._logger = self._desktop_class.logger
+
         self.student_version = self._desktop_class.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
         self._mttime = None
-        self._desktop = main_module.oDesktop
+        self._desktop = self._desktop_class.odesktop
 
-        self._desktop_install_dir = main_module.sDesktopinstallDirectory
+        self._desktop_install_dir = settings.aedt_install_dir
         self._odesign = None
         self._oproject = None
         if design_type == "HFSS":
@@ -260,7 +260,7 @@ class Design(AedtObjects):
         self.odesign = design_name
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
-        AedtObjects.__init__(self, is_inherithed=True)
+        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
         if t:
             t.join()
@@ -2430,17 +2430,6 @@ class Design(AedtObjects):
         for a in props:
             self.__dict__.pop(a, None)
 
-        dicts = [self, sys.modules["__main__"]]
-        for dict_to_clean in dicts:
-            props = [
-                a
-                for a in dir(dict_to_clean)
-                if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))
-                or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
-            ]
-            for a in props:
-                dict_to_clean.__dict__[a] = None
-
         self._desktop_class = None
         gc.collect()
         return True
@@ -3145,7 +3134,7 @@ class Design(AedtObjects):
             self._odesign = None
         else:
             self.odesktop.SetActiveProject(legacy_name)
-        AedtObjects.__init__(self, is_inherithed=True)
+        AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
 
         i = 0
         timeout = 10
@@ -3501,7 +3490,7 @@ class Design(AedtObjects):
         self.odesign = actual_name[0]
         self.design_name = newname
         self._close_edb()
-        AedtObjects.__init__(self, is_inherithed=True)
+        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         if save_after_duplicate:
             self.oproject.Save()
             self._project_dictionary = None
