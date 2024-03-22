@@ -920,7 +920,7 @@ class Configurations(object):
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
+            self._app.logger.info("Mesh Operation {} added.".format(name))
             return True
         else:
             self._app.logger.warning("Failed to add Mesh {} ".format(name))
@@ -1145,6 +1145,14 @@ class Configurations(object):
             "Circuit Design",
         ]:
             self._app.modeler.set_working_coordinate_system("Global")
+
+        if self.options.import_mesh_operations and dict_in.get("mesh", None):
+            self.results.import_mesh_operations = True
+            for name, props in dict_in["mesh"].items():
+                self._convert_objects(props, dict_in["general"]["object_mapping"])
+                if not self._update_mesh_operations(name, props):
+                    self.results.import_mesh_operations = False
+
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -1170,13 +1178,6 @@ class Configurations(object):
                 self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
                 if not self._update_boundaries(name, dict_in["boundaries"][name]):
                     self.results.import_boundaries = False
-
-        if self.options.import_mesh_operations and dict_in.get("mesh", None):
-            self.results.import_mesh_operations = True
-            for name, props in dict_in["mesh"].items():
-                self._convert_objects(props, dict_in["general"]["object_mapping"])
-                if not self._update_mesh_operations(name, props):
-                    self.results.import_mesh_operations = False
 
         if self.options.import_setups and dict_in.get("setups", None):
             self.results.import_setup = True
@@ -1629,7 +1630,7 @@ class ConfigurationsIcepak(Configurations):
                 if el in bound.settings:
                     bound.settings[el] = props[el]
             self._app.mesh.meshregions.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
+            self._app.logger.info("Mesh Operation {} added.".format(name))
         except GrpcApiError:
             self._app.logger.warning("Failed to add mesh {} ".format(name))
         return True
@@ -1642,7 +1643,7 @@ class ConfigurationsIcepak(Configurations):
             self._app.modeler.refresh_all_ids()
             udc_parts_id = [part for _, uc in self._app.modeler.user_defined_components.items() for part in uc.parts]
         for val in self._app.modeler.objects.values():
-            if val.id in udc_parts_id:
+            if val.id in udc_parts_id or val.history().command == "CreateSubRegion":
                 continue
             dict_out["objects"][val.name] = {}
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
