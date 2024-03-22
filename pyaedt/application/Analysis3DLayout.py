@@ -340,7 +340,7 @@ class FieldAnalysis3DLayout(Analysis):
         return next
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -371,9 +371,9 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetAllPorts
         """
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in self.excitations if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in self.excitations if rx_prefix in i]
         for i in trlist:
             for k in reclist:
