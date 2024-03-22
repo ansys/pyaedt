@@ -2498,13 +2498,17 @@ class PostProcessor(PostProcessorCommon, object):
         variation_dict=None,
         filename=None,
         gridtype="Cartesian",
-        grid_center=[0, 0, 0],
-        grid_start=[0, 0, 0],
-        grid_stop=[0, 0, 0],
-        grid_step=[0, 0, 0],
+        grid_center=None,
+        grid_start=None,
+        grid_stop=None,
+        grid_step=None,
         isvector=False,
         intrinsics=None,
         phase=None,
+        export_with_sample_points=True,
+        reference_coordinate_system="Global",
+        export_in_si_system=True,
+        export_field_in_reference=True,
     ):
         """Use the field calculator to create a field file on a grid based on a solution and variation.
 
@@ -2542,6 +2546,18 @@ class PostProcessor(PostProcessorCommon, object):
             calculation. The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
+        export_with_sample_points : bool, optional
+            Whether to include the sample points in the file to export.
+            The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
+            The default is ``True``.
 
         Returns
         -------
@@ -2567,6 +2583,14 @@ class PostProcessor(PostProcessorCommon, object):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E", setup, var, path, 'Cartesian', [0, 0, 0],  intrinsics="8GHz")
         """
+        if grid_step is None:
+            grid_step = [0, 0, 0]
+        if grid_start is None:
+            grid_start = [0, 0, 0]
+        if grid_stop is None:
+            grid_stop = [0, 0, 0]
+        if grid_center is None:
+            grid_center = [0, 0, 0]
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -2629,6 +2653,18 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation.append("0deg")
 
+        export_options = [
+            "NAME:ExportOption",
+            "IncludePtInOutput:=",
+            export_with_sample_points,
+            "RefCSName:=",
+            reference_coordinate_system,
+            "PtInSI:=",
+            export_in_si_system,
+            "FieldInRefCS:=",
+            export_field_in_reference,
+        ]
+
         self.ofieldsreporter.ExportOnGrid(
             filename,
             grid_start_wu,
@@ -2636,7 +2672,7 @@ class PostProcessor(PostProcessorCommon, object):
             grid_step_wu,
             solution,
             variation,
-            True,
+            export_options,
             gridtype,
             grid_center,
             False,
@@ -2659,6 +2695,9 @@ class PostProcessor(PostProcessorCommon, object):
         sample_points_file=None,
         sample_points_lists=None,
         export_with_sample_points=True,
+        reference_coordinate_system="Global",
+        export_in_si_system=True,
+        export_field_in_reference=True,
     ):
         """Use the field calculator to create a field file based on a solution and variation.
 
@@ -2691,6 +2730,15 @@ class PostProcessor(PostProcessorCommon, object):
             List of the sample points. The default is ``None``.
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
+            The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
             The default is ``True``.
 
         Returns
@@ -2758,12 +2806,23 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.CalcOp("Value")
             self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation)
         elif sample_points_file:
+            export_options = [
+                "NAME:ExportOption",
+                "IncludePtInOutput:=",
+                export_with_sample_points,
+                "RefCSName:=",
+                reference_coordinate_system,
+                "PtInSI:=",
+                export_in_si_system,
+                "FieldInRefCS:=",
+                export_field_in_reference,
+            ]
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
                 variation,
-                export_with_sample_points,
+                export_options,
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
@@ -2771,12 +2830,23 @@ class PostProcessor(PostProcessorCommon, object):
                 f.write("Unit={}\n".format(self.model_units))
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
+            export_options = [
+                "NAME:ExportOption",
+                "IncludePtInOutput:=",
+                export_with_sample_points,
+                "RefCSName:=",
+                reference_coordinate_system,
+                "PtInSI:=",
+                export_in_si_system,
+                "FieldInRefCS:=",
+                export_field_in_reference,
+            ]
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
                 variation,
-                export_with_sample_points,
+                export_options,
             )
 
         if os.path.exists(filename):
