@@ -1466,7 +1466,6 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        global python_grpc_wrapper
         self.logger.oproject = None
         self.logger.odesign = None
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
