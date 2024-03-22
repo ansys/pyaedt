@@ -78,9 +78,25 @@ class Objects(dict):
                 self.__parent.add_new_user_defined_component()
 
     def __len__(self):
-        return dict.__len__(self)
+        if self.__refreshed:
+            return dict.__len__(self)
+        elif self.__obj_type == "o":
+            return len(self.__parent.object_names)
+        elif self.__obj_type == "p":
+            return len(self.__parent.point_names)
+        else:
+            return len(self.__parent.user_defined_component_names)
 
     def __contains__(self, item):
+        if self.__refreshed:
+            return True if (item in dict.keys(self) or item in self.__obj_names) else False
+        elif isinstance(item, str):
+            if self.__obj_type == "o":
+                return True if item in self.__parent.object_names else False
+            elif self.__obj_type == "p":
+                return True if item in self.__parent.point_names else False
+            else:
+                return True if item in self.__parent.user_defined_component_names else False
         self._parse_objs()
         return True if (item in dict.keys(self) or item in self.__obj_names) else False
 
@@ -188,13 +204,13 @@ class GeometryModeler(Modeler):
             Returns ``None`` if the part ID or the object name is not found.
 
         """
+        if isinstance(partId, (Object3d, UserDefinedComponent, Point)):
+            return partId
         try:
             return self.objects[partId]
         except:
             if partId in self.user_defined_components.keys():
                 return self.user_defined_components[partId]
-            elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
-                return partId
         self.logger.error("Object '{}' not found.".format(partId))
         return None
 
