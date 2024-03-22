@@ -1750,45 +1750,63 @@ app_map = {
 }
 
 
-def get_pyaedt_app(project_name=None, design_name=None):
-    """Returns the Pyaedt Object of specific project_name and design_name.
+def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
+    """Gets the PyAEDT object with a given project name and design name.
 
     Parameters
     ----------
-    project_name
-    design_name
+    project_name : str, optional
+        Project name.
+    design_name : str, optional
+        Design name.
+    desktop : :class:`pyaedt.desktop.Desktop`, optional
+        Desktop class. The default is ``None``.
 
     Returns
     -------
     :def :`pyaedt.Hfss`
         Any of the Pyaedt App initialized.
     """
-    main = sys.modules["__main__"]
-    if "oDesktop" in dir(main):
-        if project_name and project_name not in main.oDesktop.GetProjectList():
-            raise AttributeError("Project  {} doesn't exist in current Desktop.".format(project_name))
-        if not project_name:
-            oProject = main.oDesktop.GetActiveProject()
-        else:
-            oProject = main.oDesktop.SetActiveProject(project_name)
-        if not oProject:
-            raise AttributeError("No Project Present.")
-        design_names = []
-        deslist = list(oProject.GetTopDesignList())
-        for el in deslist:
-            m = re.search(r"[^;]+$", el)
-            design_names.append(m.group(0))
-        if design_name and design_name not in design_names:
-            raise AttributeError("Design  {} doesn't exists in current Project.".format(design_name))
-        if not design_name:
-            oDesign = oProject.GetActiveDesign()
-        else:
-            oDesign = oProject.SetActiveDesign(design_name)
-        if not oDesign:
-            raise AttributeError("No Design Present.")
-        design_type = oDesign.GetDesignType()
-        if design_type in list(app_map.keys()):
-            version = main.oDesktop.GetVersion().split(".")
-            v = ".".join([version[0], version[1]])
-            return app_map[design_type](project_name, design_name, specified_version=v)
+    from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+    odesktop = None
+    if desktop:
+        odesktop = desktop.odesktop
+    elif _desktop_sessions and project_name:
+        for desktop in list(_desktop_sessions.values()):
+            if project_name in list(desktop.project_list()):
+                odesktop = desktop.odesktop
+                break
+    elif _desktop_sessions:
+        odesktop = list(_desktop_sessions.values())[-1]
+    elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
+        odesktop = sys.modules["__main__"].oDesktop  # ironpython
+    else:
+        raise AttributeError("No Desktop Present.")
+    if project_name and project_name not in odesktop.GetProjectList():
+        raise AttributeError("Project  {} doesn't exist in current desktop.".format(project_name))
+    if not project_name:
+        oProject = odesktop.GetActiveProject()
+    else:
+        oProject = odesktop.SetActiveProject(project_name)
+    if not oProject:
+        raise AttributeError("No project is present.")
+    design_names = []
+    deslist = list(oProject.GetTopDesignList())
+    for el in deslist:
+        m = re.search(r"[^;]+$", el)
+        design_names.append(m.group(0))
+    if design_name and design_name not in design_names:
+        raise AttributeError("Design  {} doesn't exist in current project.".format(design_name))
+    if not design_name:
+        oDesign = oProject.GetActiveDesign()
+    else:
+        oDesign = oProject.SetActiveDesign(design_name)
+    if not oDesign:
+        raise AttributeError("No design is present.")
+    design_type = oDesign.GetDesignType()
+    if design_type in list(app_map.keys()):
+        version = odesktop.GetVersion().split(".")
+        v = ".".join([version[0], version[1]])
+        return app_map[design_type](project_name, design_name, specified_version=v)
     return None
