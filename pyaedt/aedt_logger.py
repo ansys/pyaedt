@@ -591,7 +591,7 @@ class AedtLogger(object):
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
 
-            except Exception:
+            except Exception:  # pragma: no cover
                 pass
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
