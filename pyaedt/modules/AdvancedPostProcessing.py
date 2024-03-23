@@ -649,7 +649,7 @@ class PostProcessor(Post):
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
-            The default is ``None`` in which case an empty string is passed.
+            The default is ``None`` in which case an empty list is passed.
 
         Returns
         -------
