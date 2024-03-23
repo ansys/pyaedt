@@ -580,7 +580,6 @@ class PostProcessor(Post):
         variation_variable="Phi",
         variation_list=["0deg"],
         view="isometric",
-        plot_label=None,
         show=True,
         scale_min=None,
         scale_max=None,
@@ -594,7 +593,7 @@ class PostProcessor(Post):
         show_grid=False,
         show_bounding=False,
         show_legend=True,
-        filter_objects=[],
+        filter_objects=None,
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -650,6 +649,7 @@ class PostProcessor(Post):
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
+            The default is ``None`` in which case an empty string is passed.
 
         Returns
         -------
@@ -662,6 +662,8 @@ class PostProcessor(Post):
             intrinsics = {}
         if not export_path:
             export_path = self._app.working_directory
+        if not filter_objects:
+            filter_objects = []
 
         v = 0
         fields_to_add = []
@@ -682,7 +684,7 @@ class PostProcessor(Post):
                     object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format="case")
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
