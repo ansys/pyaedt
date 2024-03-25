@@ -1398,7 +1398,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.SaveDiffPairsToFile(tmpfile1)
         with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
-        num_diffs_before = len(lines)
+
         old_arg = []
         for line in lines:
             data = line.split(",")

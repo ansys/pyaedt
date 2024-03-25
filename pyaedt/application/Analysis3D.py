@@ -577,6 +577,12 @@ class FieldAnalysis3D(Analysis, object):
         if removed_objects is None:
             removed_objects = []
 
+        sub_regions = []
+        if self.settings.aedt_version > "2023.2":
+            sub_regions = [
+                o for o in self.modeler.non_model_objects if self.modeler[o].history().command == "CreateSubRegion"
+            ]
+
         if not object_list:
             allObjects = self.modeler.object_names
             if removed_objects:
@@ -585,6 +591,8 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 if "Region" in allObjects:
                     allObjects.remove("Region")
+            for o in sub_regions:
+                allObjects.remove(o)
         else:
             allObjects = object_list[:]
 

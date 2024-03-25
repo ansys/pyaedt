@@ -925,9 +925,9 @@ class Desktop(object):
             StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
             if non_graphical or new_session:
                 self.launched_by_pyaedt = True
-                oapp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
+                return StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
             else:
-                oapp = StandalonePyScriptWrapper.CreateObject(version)
+                return StandalonePyScriptWrapper.CreateObject(version)
         else:
             base_path = settings.aedt_install_dir
             sys.path.insert(0, base_path)
@@ -2089,7 +2089,7 @@ class Desktop(object):
         >>> d.release_desktop(False,False)
         """
         command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
-        ver = self.aedt_version_id.replace(".", "R")
+
         if job_name:
             command = [command, "jobinfo", "-j", job_name]
         elif job_id:
