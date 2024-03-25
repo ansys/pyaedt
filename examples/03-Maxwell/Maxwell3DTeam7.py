@@ -424,9 +424,9 @@ m3d.analyze()
 
 surf_list = m3d.modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
-m3d.post.create_fieldplot_surface(surf_list, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
-m3d.post.create_fieldplot_surface(surf_list, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
-m3d.post.create_fieldplot_surface(surf_list, "Mesh", intrinsincDict=intrinsic_dict, plot_name="Mesh")
+m3d.post.create_fieldplot_surface(surf_list, "Mag_J", intrinsic_dict=intrinsic_dict, plot_name="Mag_J")
+m3d.post.create_fieldplot_surface(surf_list, "Mag_B", intrinsic_dict=intrinsic_dict, plot_name="Mag_B")
+m3d.post.create_fieldplot_surface(surf_list, "Mesh", intrinsic_dict=intrinsic_dict, plot_name="Mesh")
 
 ####################################################################################################
 # Release AEDT and clean up temporary directory

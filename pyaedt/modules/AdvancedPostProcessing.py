@@ -776,8 +776,8 @@ class PostProcessor(Post):
         if not project_path:
             project_path = self._app.working_directory
         for el in variation_list:
-            if plotname in self.field_plots and variation_variable in self.field_plots[plotname].intrinsincList:
-                self.field_plots[plotname].intrinsincList[variation_variable] = el
+            if plotname in self.field_plots and variation_variable in self.field_plots[plotname].intrinsics:
+                self.field_plots[plotname].intrinsics[variation_variable] = el
                 self.field_plots[plotname].update()
             else:
                 self._app._odesign.ChangeProperty(

@@ -2626,7 +2626,7 @@ class FieldPlot:
         Name of the solution.
     quantityName : str
         Name of the plot or the name of the object.
-    intrinsincList : dict, optional
+    intrinsics : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
@@ -2640,10 +2640,11 @@ class FieldPlot:
         cutplanelist=[],
         solutionName="",
         quantityName="",
-        intrinsincList={},
+        intrinsics={},
         seedingFaces=[],
         layers_nets=[],
         layers_plot_type="LayerNetsExtFace",
+        **kwargs,
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2656,7 +2657,10 @@ class FieldPlot:
         self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
-        self.intrinsincList = intrinsincList
+        if "intrinsincList" in kwargs:
+            self._postprocessor.logger.warning("``intrinsincList`` is deprecated, please use ``intrinsics`` instead.")
+            self.intrinsics = kwargs["intrinsicList"]
+        self.intrinsics = intrinsics
         self.name = "Field_Plot"
         self.plotFolder = "Field_Plot"
         self.Filled = False
@@ -2786,18 +2790,18 @@ class FieldPlot:
             List or dictionary of the variables for the field plot.
         """
         var = ""
-        if type(self.intrinsincList) is list:
+        if type(self.intrinsics) is list:
             l = 0
-            while l < len(self.intrinsincList):
-                val = self.intrinsincList[l + 1]
-                if ":=" in self.intrinsincList[l] and isinstance(self.intrinsincList[l + 1], list):
-                    val = self.intrinsincList[l + 1][0]
-                ll = self.intrinsincList[l].split(":=")
+            while l < len(self.intrinsics):
+                val = self.intrinsics[l + 1]
+                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
+                    val = self.intrinsics[l + 1][0]
+                ll = self.intrinsics[l].split(":=")
                 var += ll[0] + "='" + str(val) + "' "
                 l += 2
         else:
-            for a in self.intrinsincList:
-                var += a + "='" + str(self.intrinsincList[a]) + "' "
+            for a in self.intrinsics:
+                var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @property
@@ -3339,7 +3343,7 @@ class VRTFieldPlot:
         Ray Density. The default is ``2``.
     bounces : int, optional
         Maximum number of bounces. The default is ``5``.
-    intrinsinc_list : dict, optional
+    intrinsics : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
@@ -3352,13 +3356,17 @@ class VRTFieldPlot:
         max_frequency="1GHz",
         ray_density=2,
         bounces=5,
-        intrinsinc_list={},
+        intrinsics={},
+        **kwargs,
     ):
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
         self.quantity_name = quantity_name
-        self.intrinsics = intrinsinc_list
+        if "intrinsinc_list" in kwargs:
+            self._postprocessor.logger.warning("``intrinsinc_list`` is deprecated, please use ``intrinsics`` instead.")
+            self.intrinsics = kwargs["intrinsics"]
+        self.intrinsics = intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.max_frequency = max_frequency

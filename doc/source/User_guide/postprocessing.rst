@@ -68,7 +68,7 @@ You can plot the field plot directly in HFSS and export it to image files.
     plot1 = hfss.post.create_fieldplot_cutplane(objlist=cutlist,
                                                 quantityName=quantity_name,
                                                 setup_name=setup_name,
-                                                intrinsincDict=intrinsic)
+                                                intrinsic_dict=intrinsic)
 
 
 .. image:: ../Resources/field_plot.png

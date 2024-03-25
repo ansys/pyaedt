@@ -237,7 +237,7 @@ solutions.plot()
 
 ladder_plate = m3d.modeler.objects_by_name["LadderPlate"]
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
-m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
+m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsic_dict=intrinsic_dict, plot_name="Mag_J")
 
 ###############################################################################
 # Release AEDT

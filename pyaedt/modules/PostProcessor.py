@@ -2260,7 +2260,7 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].quantityName = self.ofieldsreporter.GetFieldPlotQuantityName(
                             setups_data[setup]["PlotName"]
                         )
-                        plots[plot_name].intrinsincList = self._get_intrinsic(setup)
+                        plots[plot_name].intrinsics = self._get_intrinsic(setup)
                         list_objs = setups_data[setup]["FieldPlotGeometry"][1:]
                         while list_objs:
                             id = list_objs[0]
@@ -2977,43 +2977,27 @@ class PostProcessor(PostProcessorCommon, object):
             plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
         if listtype == "CutPlane":
             plot = FieldPlot(
-                self,
-                cutplanelist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
+                self, cutplanelist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsics=intrinsics
             )
         elif listtype == "FacesList":
             plot = FieldPlot(
-                self,
-                surfacelist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
+                self, surfacelist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsics=intrinsics
             )
         elif listtype == "ObjList":
             plot = FieldPlot(
-                self,
-                objlist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
+                self, objlist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsics=intrinsics
             )
         elif listtype == "Line":
             plot = FieldPlot(
-                self,
-                linelist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
+                self, linelist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsics=intrinsics
             )
         elif listtype.startswith("Layer"):
             plot = FieldPlot(
                 self,
-                layers_nets=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsics,
+                intrinsics=intrinsics,
+                layers_nets=objlist,
                 layers_plot_type=listtype,
             )
         if self._app.design_type == "Q3D Extractor":  # pragma: no cover
@@ -3065,7 +3049,7 @@ class PostProcessor(PostProcessorCommon, object):
             surfacelist=surface_tracing_ids,
             solutionName=setup_name,
             quantityName=quantityName,
-            intrinsincList=intrinsics,
+            intrinsics=intrinsics,
             seedingFaces=seeding_faces_ids,
         )
         if field_type:
@@ -3084,7 +3068,14 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def create_fieldplot_line(
-        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, field_type="DC R/L Fields"
+        self,
+        objlist,
+        quantityName,
+        setup_name=None,
+        intrinsics=None,
+        plot_name=None,
+        field_type="DC R/L Fields",
+        **kwargs,
     ):
         """Create a field plot of the line.
 
@@ -3098,7 +3089,7 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
+        intrinsics : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -3116,13 +3107,16 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if "intrinsincDict" in kwargs:
+            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            intrinsics = kwargs["intrinsincDict"]
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name, field_type=field_type
+            objlist, quantityName, setup_name, intrinsics, "Line", plot_name, field_type=field_type
         )
 
     @pyaedt_function_handler()
@@ -3132,9 +3126,10 @@ class PostProcessor(PostProcessorCommon, object):
         in_volume_tracing_objs=None,
         surface_tracing_objs=None,
         setup_name=None,
-        intrinsinc_dict=None,
+        intrinsics=None,
         plot_name=None,
         field_type="DC R/L Fields",
+        **kwargs,
     ):
         """
         Create a field plot of the line.
@@ -3150,7 +3145,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_name : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsinc_dict : dict, optional
+        intrinsics : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -3171,8 +3166,11 @@ class PostProcessor(PostProcessorCommon, object):
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
-        if intrinsinc_dict is None:
-            intrinsinc_dict = {}
+        if "intrinsinc_dict" in kwargs:
+            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            intrinsics = kwargs["intrinsinc_dict"]
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3228,7 +3226,7 @@ class PostProcessor(PostProcessorCommon, object):
             surface_tracing_ids,
             "FieldLineTrace",
             setup_name,
-            intrinsinc_dict,
+            intrinsics,
             plot_name,
             field_type=field_type,
         )
@@ -3300,7 +3298,14 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def create_fieldplot_surface(
-        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, field_type="DC R/L Fields"
+        self,
+        objlist,
+        quantityName,
+        setup_name=None,
+        intrinsics=None,
+        plot_name=None,
+        field_type="DC R/L Fields",
+        **kwargs,
     ):
         """Create a field plot of surfaces.
 
@@ -3314,7 +3319,7 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
+        intrinsics : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -3332,8 +3337,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if "intrinsincDict" in kwargs:
+            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            intrinsics = kwargs["intrinsincDict"]
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3346,7 +3354,7 @@ class PostProcessor(PostProcessorCommon, object):
             elif self._app.modeler[obj]:
                 new_obj_list.extend([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
         return self._create_fieldplot(
-            new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
+            new_obj_list, quantityName, setup_name, intrinsics, "FacesList", plot_name, field_type=field_type
         )
 
     @pyaedt_function_handler()
@@ -3355,10 +3363,11 @@ class PostProcessor(PostProcessorCommon, object):
         objlist,
         quantityName,
         setup_name=None,
-        intrinsincDict=None,
+        intrinsics=None,
         plot_name=None,
-        filter_objects=[],
+        filter_objects=None,
         field_type="DC R/L Fields",
+        **kwargs,
     ):
         """Create a field plot of cut planes.
 
@@ -3372,13 +3381,14 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
+        intrinsics : dict, optional
             Dictionary containing all intrinsic variables.
             The default is ``{}``.
         plot_name : str, optional
             Name of the fieldplot to create.
         filter_objects : list, optional
             Objects list on which filter the plot.
+            The default value is ``None`` in which case an empty list is passed.
         field_type : str, optional
             Field type to plot. Valid only for Q3D Field plots.
 
@@ -3392,8 +3402,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if "intrinsincDict" in kwargs:
+            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            intrinsics = kwargs["intrinsincDict"]
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3403,7 +3416,7 @@ class PostProcessor(PostProcessorCommon, object):
             objlist,
             quantityName,
             setup_name,
-            intrinsincDict,
+            intrinsics,
             "CutPlane",
             plot_name,
             filter_boxes=filter_objects,
@@ -3416,9 +3429,10 @@ class PostProcessor(PostProcessorCommon, object):
         objlist,
         quantityName,
         setup_name=None,
-        intrinsincDict=None,
+        intrinsics=None,
         plot_name=None,
         field_type="DC R/L Fields",
+        **kwargs,
     ):
         """Create a field plot of volumes.
 
@@ -3432,7 +3446,7 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
+        intrinsics : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -3448,13 +3462,16 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if "intrinsincDict" in kwargs:
+            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            intrinsics = kwargs["intrinsincDict"]
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name, field_type=field_type
+            objlist, quantityName, setup_name, intrinsics, "ObjList", plot_name, field_type=field_type
         )
 
     @pyaedt_function_handler()
@@ -3815,7 +3832,7 @@ class PostProcessor(PostProcessorCommon, object):
             return [[fname, "aquamarine", 0.3]]
 
     @pyaedt_function_handler()
-    def export_mesh_obj(self, setup_name=None, intrinsic_dict=None):
+    def export_mesh_obj(self, setup_name=None, intrinsics=None):
         """Export the mesh in ``aedtplt`` format.
         The mesh has to be available in the selected setup.
         If a parametric model is provided user can choose the mesh to export providing a specific set of variations.
@@ -3829,7 +3846,7 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsic_dict : dict, optional.
+        intrinsics : dict, optional.
             Intrinsic dictionary that is needed for the export.
             The default is ``{}`` which assumes no variables are present in the dict or nominal values are used.
 
@@ -3844,12 +3861,12 @@ class PostProcessor(PostProcessorCommon, object):
         >>> hfss = Hfss()
         >>> hfss.analyze()
         >>> # Export report using defaults.
-        >>> hfss.post.export_mesh_obj(setup_name=None, intrinsic_dict=None)
+        >>> hfss.post.export_mesh_obj(setup_name=None, intrinsics=None)
         >>> # Export report using arguments.
-        >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsic_dict={"w1":"5mm", "l1":"3mm"})
+        >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsics={"w1":"5mm", "l1":"3mm"})
         """
-        if intrinsic_dict is None:
-            intrinsic_dict = {}
+        if intrinsics is None:
+            intrinsics = {}
         project_path = self._app.working_directory
 
         if not setup_name:
@@ -3860,7 +3877,7 @@ class PostProcessor(PostProcessorCommon, object):
             object3d = self._app.modeler[el]
             if not object3d.is3d or object3d.material_name not in ["vacuum", "air"]:
                 face_lists += [i.id for i in object3d.faces]
-        plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
+        plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsics)
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)
             plot.delete()
@@ -4317,10 +4334,7 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if custom_location is None:
             custom_location = [0, 0, 0]
-        vrt = VRTFieldPlot(
-            self,
-            is_creeping_wave=True,
-        )
+        vrt = VRTFieldPlot(self, is_creeping_wave=True)
         vrt.max_frequency = max_frequency
         vrt.sample_density = sample_density
         vrt.ray_density = ray_density
@@ -5120,7 +5134,9 @@ class FieldSummary:
         return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(self, setup_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+    def get_field_summary_data(
+        self, setup_name=None, design_variation={}, intrinsics="", pandas_output=False, **kwargs
+    ):
         """
         Get  field summary output computation.
 
@@ -5132,7 +5148,7 @@ class FieldSummary:
         design_variation : dict, optional
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case nominal variation is used.
-        intrinsic_value : str, optional
+        intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
             suitable when no frequency needs to be selected.
         pandas_output : bool, optional
@@ -5145,9 +5161,12 @@ class FieldSummary:
             Output type depending on the Boolean ``pandas_output`` parameter.
             The output consists of information exported from the field summary.
         """
+        if "intrinsic_value" in kwargs:
+            self._app.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            intrinsics = kwargs["intrinsic_value"]
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
-            self.export_csv(temp_file.name, setup_name, design_variation, intrinsic_value)
+            self.export_csv(temp_file.name, setup_name, design_variation, intrinsics)
             with open(temp_file.name, "r") as f:
                 for _ in range(4):
                     _ = next(f)
@@ -5164,7 +5183,7 @@ class FieldSummary:
         return out_dict
 
     @pyaedt_function_handler()
-    def export_csv(self, filename, setup_name=None, design_variation={}, intrinsic_value=""):
+    def export_csv(self, filename, setup_name=None, design_variation={}, intrinsics=""):
         """
         Get the field summary output computation.
 
@@ -5178,7 +5197,7 @@ class FieldSummary:
         design_variation : dict, optional
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case the nominal variation is used.
-        intrinsic_value : str, optional
+        intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
             suitable when no frequency needs to be selected.
 
@@ -5202,7 +5221,7 @@ class FieldSummary:
                 "ExportFileName:=",
                 filename,
                 "IntrinsicValue:=",
-                intrinsic_value,
+                intrinsics,
             ]
         )
         return True
