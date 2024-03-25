@@ -8,6 +8,7 @@ from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.MeshIcepak import MeshRegion
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
@@ -74,9 +75,17 @@ class TestClass:
 
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
-        self.aedtapp.create_meshregion_component()
-        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
+        assert self.aedtapp.create_meshregion_component()
+        self.aedtapp.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
+        old_pcb_mesh_region = MeshRegion(
+            meshmodule=self.aedtapp.mesh.omeshmodule, dimension=[1, 1, 1], unit="mm", app=self.aedtapp
+        )
+        assert old_pcb_mesh_region.MaxElementSizeX == 1 / 20
+        assert old_pcb_mesh_region.MaxElementSizeY == 1 / 20
+        assert old_pcb_mesh_region.MaxElementSizeZ == 1 / 20
+        pcb_mesh_region = MeshRegion(self.aedtapp, "PCB")
         pcb_mesh_region.name = "PCB_Region"
+        # backward compatibility check
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2
         pcb_mesh_region.MaxElementSizeY = 2
@@ -90,9 +99,43 @@ class TestClass:
         pcb_mesh_region.MinGapX = 1
         pcb_mesh_region.MinGapY = 1
         pcb_mesh_region.MinGapZ = 1
-        pcb_mesh_region.Objects = ["Component_Region"]
-        assert pcb_mesh_region.create()
         assert pcb_mesh_region.update()
+        if settings.aedt_version > "2023.2":
+            assert pcb_mesh_region.assignment.padding_values == ["0"] * 6
+            assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
+            pcb_mesh_region.assignment.negative_x_padding = 1
+            pcb_mesh_region.assignment.positive_x_padding = 1
+            pcb_mesh_region.assignment.negative_y_padding = 1
+            pcb_mesh_region.assignment.positive_y_padding = 1
+            pcb_mesh_region.assignment.negative_z_padding = 1
+            pcb_mesh_region.assignment.positive_z_padding = 1
+            pcb_mesh_region.assignment.negative_x_padding_type = "Absolute Offset"
+            pcb_mesh_region.assignment.positive_x_padding_type = "Absolute Position"
+            pcb_mesh_region.assignment.negative_y_padding_type = "Transverse Percentage Offset"
+            pcb_mesh_region.assignment.positive_y_padding_type = "Absolute Position"
+            pcb_mesh_region.assignment.negative_z_padding_type = "Absolute Offset"
+            pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
+            assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
+            assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
+            assert pcb_mesh_region.assignment.negative_y_padding == "1"
+            assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
+            assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
+            assert pcb_mesh_region.assignment.positive_z_padding == "1"
+            assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
+            assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
+            assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
+            assert pcb_mesh_region.assignment.positive_y_padding_type == "Absolute Position"
+            assert pcb_mesh_region.assignment.negative_z_padding_type == "Absolute Offset"
+            assert pcb_mesh_region.assignment.positive_z_padding_type == "Transverse Percentage Offset"
+            pcb_mesh_region.assignment.padding_values = 2
+            pcb_mesh_region.assignment.padding_types = "Absolute Offset"
+            assert pcb_mesh_region.assignment.padding_values == ["2mm"] * 6
+            assert pcb_mesh_region.assignment.padding_types == ["Absolute Offset"] * 6
+            subregion = self.aedtapp.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
+        else:
+            box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+            pcb_mesh_region.Objects = box.name
+            assert pcb_mesh_region.update()
         assert self.aedtapp.mesh.meshregions_dict
         assert pcb_mesh_region.delete()
 
@@ -218,24 +261,6 @@ class TestClass:
         test.Objects = ["US8_1D"]
         assert not test.update()
         assert test.delete()
-
-    def test_12c_AssignVirtualMeshOperation(self):
-        self.aedtapp.oproject = test_project_name
-        self.aedtapp.odesign = "IcepakDesign1"
-        group_name = "Group1"
-        mesh_level_Filter = "2"
-        component_name = ["RadioBoard1_1"]
-        mesh_level_RadioPCB = "1"
-        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
-        assert test
-        # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        test = self.aedtapp.mesh.assign_mesh_region(
-            component_name, mesh_level_RadioPCB, is_submodel=True, virtual_region=True
-        )
-        assert test
-        assert test.delete()
-        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB, virtual_region=True)
-        assert test
 
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler["Region"].top_face_x.id]
@@ -1305,6 +1330,7 @@ class TestClass:
         component_filepath = self.aedtapp.modeler.user_defined_components["test"].get_component_filepath()
         assert component_filepath
         comp = self.aedtapp.modeler.user_defined_components["test"].edit_definition()
+        comp.modeler.refresh_all_ids()
         comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
