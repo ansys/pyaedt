@@ -470,8 +470,6 @@ class CircuitComponent(object):
         -------
         :class:`pyaedt.modeler.Object3d.ModelParameters`
         """
-        """Return the model data if the component has one.
-        """
         if self._model_data:
             return self._model_data
         if self.model_name:

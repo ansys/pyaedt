@@ -3631,6 +3631,16 @@ class NetworkObject(BoundaryObject):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
         if not self.props.get("SchematicData", None):
             self.props["SchematicData"] = OrderedDict({})
+
+        if self.props.get("Links", None):
+            self.props["Links"] = {link_name: link_values.props for link_name, link_values in self.links.items()}
+        else:  # pragma : no cover
+            raise KeyError("Links information is missing.")
+        if self.props.get("Nodes", None):
+            self.props["Nodes"] = {node_name: node_values.props for node_name, node_values in self.nodes.items()}
+        else:  # pragma : no cover
+            raise KeyError("Nodes information is missing.")
+
         args = self._get_args()
 
         clean_args = self._clean_list(args)

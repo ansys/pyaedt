@@ -5055,23 +5055,99 @@ class FieldSummary:
 
     @pyaedt_function_handler()
     def add_calculation(
-        self, entity, geometry, geometry_name, quantity, normal="", side="Default", mesh="All", ref_temperature=""
+        self,
+        entity,
+        geometry,
+        geometry_name,
+        quantity,
+        normal="",
+        side="Default",
+        mesh="All",
+        ref_temperature="AmbientTemp",
     ):
+        """
+        Add an entry in the field summary calculation requests.
+
+        Parameters
+        ----------
+        entity : str
+            Type of entity to perform the calculation on. Options are
+             ``"Boundary"``, ``"Monitor``", and ``"Object"``.
+             (``"Monitor"`` is available in AEDT 2024 R1 and later.)
+        geometry : str
+            Location to perform the calculation on. Options are
+            ``"Surface"`` and ``"Volume"``.
+        geometry_name : str or list of str
+            Objects to perform the calculation on. If a list is provided,
+            the calculation is performed on the combination of those
+            objects.
+        quantity : str
+            Quantity to compute.
+        normal : list of floats
+            Coordinate values for direction relative to normal. The default is ``""``,
+            in which case the normal to the face is used.
+        side : str, optional
+            String containing which side of the face to use. The default is
+            ``"Default"``. Options are ``"Adjacent"``, ``"Combined"``, and
+            `"Default"``.
+        mesh : str, optional
+            Surface meshes to use. The default is ``"All"``. Options are ``"All"`` and
+            ``"Reduced"``.
+        ref_temperature : str, optional
+            Reference temperature to use in the calculation of the heat transfer
+            coefficient. The default is ``"AmbientTemp"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
                 "Quantity {} is not supported. Available quantities are:\n{}".format(
                     quantity, ", ".join(AVAILABLE_QUANTITIES)
                 )
             )
+        if isinstance(normal, list):
+            if not isinstance(normal[0], str):
+                normal = [str(i) for i in normal]
+            normal = ",".join(normal)
+        if isinstance(geometry_name, str):
+            geometry_name = [geometry_name]
         self.calculations.append(
-            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+            [entity, geometry, ",".join(geometry_name), quantity, normal, side, mesh, ref_temperature, False]
         )  # TODO : last argument not documented
+        return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(self, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+    def get_field_summary_data(self, setup_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+        """
+        Get  field summary output computation.
+
+        Parameters
+        ----------
+        setup_name : str, optional
+            Setup name to use for the computation. The
+            default is ``None``, in which case the nominal variation is used.
+        design_variation : dict, optional
+            Dictionary containing the design variation to use for the computation.
+            The default is  ``{}``, in which case nominal variation is used.
+        intrinsic_value : str, optional
+            Intrinsic values to use for the computation. The default is ``""``,
+            suitable when no frequency needs to be selected.
+        pandas_output : bool, optional
+            Whether to use pandas output. The default is ``False``, in
+            which case the dictionary output is used.
+
+        Returns
+        -------
+        dict or pandas.DataFrame
+            Output type depending on the Boolean ``pandas_output`` parameter.
+            The output consists of information exported from the field summary.
+        """
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
-            self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
+            self.export_csv(temp_file.name, setup_name, design_variation, intrinsic_value)
             with open(temp_file.name, "r") as f:
                 for _ in range(4):
                     _ = next(f)
@@ -5088,17 +5164,39 @@ class FieldSummary:
         return out_dict
 
     @pyaedt_function_handler()
-    def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
-        if not sweep_name:
-            sweep_name = self._app.nominal_sweep
+    def export_csv(self, filename, setup_name=None, design_variation={}, intrinsic_value=""):
+        """
+        Get the field summary output computation.
+
+        Parameters
+        ----------
+        filename : str
+            Path and filename to write the output file to.
+        setup_name : str, optional
+            Setup name to use for the computation. The
+            default is ``None``, in which case the nominal variation is used.
+        design_variation : dict, optional
+            Dictionary containing the design variation to use for the computation.
+            The default is  ``{}``, in which case the nominal variation is used.
+        intrinsic_value : str, optional
+            Intrinsic values to use for the computation. The default is ``""``,
+            suitable when no frequency needs to be selected.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not setup_name:
+            setup_name = self._app.nominal_sweep
         dv_string = ""
         for el in design_variation:
             dv_string += el + "='" + design_variation[el] + "' "
-        self._create_field_summary(sweep_name, dv_string)
+        self._create_field_summary(setup_name, dv_string)
         self._app.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
-                sweep_name,
+                setup_name,
                 "DesignVariationKey:=",
                 dv_string,
                 "ExportFileName:=",

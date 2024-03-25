@@ -526,15 +526,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
-
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
             for k in reclist:

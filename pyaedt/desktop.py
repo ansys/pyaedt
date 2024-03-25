@@ -2089,7 +2089,7 @@ class Desktop(object):
         >>> d.release_desktop(False,False)
         """
         command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
-        ver = self.aedt_version_id.replace(".", "R")
+
         if job_name:
             command = [command, "jobinfo", "-j", job_name]
         elif job_id:
