@@ -13,6 +13,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -1797,8 +1798,25 @@ class Circuit(FieldAnalysisCircuit, object):
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
 
         ports = []
+        center = sub.location[0]
+        left = 0
+        right = 0
+        start = 1500
         for pin in sub.pins:
-            ports.append(self.modeler.components.create_interface_port(name=pin.name, location=pin.location))
+            loc = pin.location
+            if loc[0] < center:
+                delta = unit_converter(start + left * 200, input_units="mil", output_units=self.modeler.schematic_units)
+                new_loc = [loc[0] - delta, loc[1]]
+                left += 1
+            else:
+                delta = unit_converter(
+                    start + right * 200, input_units="mil", output_units=self.modeler.schematic_units
+                )
+                new_loc = [loc[0] + delta, loc[1]]
+                right += 1
+            port = self.modeler.components.create_interface_port(name=pin.name, location=new_loc)
+            port.pins[0].connect_to_component(component_pin=pin, use_wire=True)
+            ports.append(port)
         diff_pairs = []
         comm_pairs = []
         if auto_assign_diff_pairs:
