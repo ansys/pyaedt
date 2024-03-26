@@ -2,6 +2,7 @@
 import pytest
 
 from pyaedt import Maxwell2d
+from pyaedt import Q2d
 from pyaedt.modeler.cad.polylines import Polyline
 
 
@@ -14,6 +15,12 @@ def aedtapp(add_app):
 @pytest.fixture(scope="class")
 def axisymmetrical(add_app):
     app = add_app(design_name="2D_Primitives_3", solution_type="TransientZ", application=Maxwell2d)
+    return app
+
+
+@pytest.fixture(scope="class")
+def q2d_app(add_app):
+    app = add_app(design_name="2d_extr", application=Q2d)
     return app
 
 
@@ -108,3 +115,17 @@ class TestClass:
     def test_07_assign_material(self, material="steel_stainless"):
         self.aedtapp.assign_material(["Rectangle1"], material)
         assert self.aedtapp.modeler["Rectangle1"].material_name == material
+
+    def test_08_region(self, q2d_app):
+        if q2d_app.modeler["Region"]:
+            q2d_app.modeler.delete("Region")
+        assert "Region" not in q2d_app.modeler.object_names
+        assert not q2d_app.modeler.create_region(["100%", "50%", "20%", "10%"])
+        assert q2d_app.modeler.create_region([100, 50, 20, 20])
+        q2d_app.modeler["Region"].delete()
+        assert q2d_app.modeler.create_region(100)
+        q2d_app.modeler["Region"].delete()
+        assert q2d_app.modeler.create_region("200")
+        q2d_app.modeler["Region"].delete()
+        assert q2d_app.modeler.create_region([100, "50mm", 20, 10], False)
+        q2d_app.modeler["Region"].delete()
