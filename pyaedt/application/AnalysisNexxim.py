@@ -579,15 +579,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
-
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
             if net_list and [net for net in net_list if net in i]:
@@ -666,6 +661,7 @@ class FieldAnalysisCircuit(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -679,5 +675,5 @@ class FieldAnalysisCircuit(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup

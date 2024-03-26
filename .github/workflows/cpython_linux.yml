@@ -1,6 +1,7 @@
 name: Linux_CPython_UnitTests
 
 env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   python.version: '3.10'
   python.venv: 'testvenv'
   # Following env vars when changed will "reset" the mentioned cache,

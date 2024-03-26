@@ -55,6 +55,129 @@ default_materials = {
 aedt_wait_time = 0.1
 
 
+class Objects(dict):
+    """AEDT object dictionary."""
+
+    def _parse_objs(self):
+        if self.__refreshed is False and dict.__len__(self) != len(self.__parent.object_names):
+            self.__refreshed = True
+            if self.__obj_type == "o":
+                self.__parent.logger.info("Parsing design objects. This operation can take time")
+                self.__parent.logger.reset_timer()
+                self.__parent._refresh_all_ids_from_aedt_file()
+                self.__parent.add_new_solids()
+                self.__parent.cleanup_solids()
+                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            elif self.__obj_type == "p":
+                self.__parent.logger.info("Parsing design points. This operation can take time")
+                self.__parent.logger.reset_timer()
+                self.__parent.add_new_points()
+                self.__parent.cleanup_points()
+                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            elif self.__obj_type == "u":
+                self.__parent.add_new_user_defined_component()
+
+    def __len__(self):
+        if self.__refreshed:
+            return dict.__len__(self)
+        elif self.__obj_type == "o":
+            return len(self.__parent.object_names)
+        elif self.__obj_type == "p":
+            return len(self.__parent.point_names)
+        else:
+            return len(self.__parent.user_defined_component_names)
+
+    def __contains__(self, item):
+        if self.__refreshed:
+            return True if (item in dict.keys(self) or item in self.__obj_names) else False
+        elif isinstance(item, str):
+            if self.__obj_type == "o":
+                return True if item in self.__parent.object_names else False
+            elif self.__obj_type == "p":
+                return True if item in self.__parent.point_names else False
+            else:
+                return True if item in self.__parent.user_defined_component_names else False
+        self._parse_objs()
+        return True if (item in dict.keys(self) or item in self.__obj_names) else False
+
+    def keys(self):
+        self._parse_objs()
+
+        return dict.keys(self)
+
+    def values(self):
+        self._parse_objs()
+        return dict.values(self)
+
+    def items(self):
+        self._parse_objs()
+        return dict.items(self)
+
+    def __iter__(self):
+        self._parse_objs()
+        return dict.__iter__(self)
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        self.__obj_names[value.name] = value
+        if self.__obj_type == "o":
+            self.__parent._object_names_to_ids[value.name] = key
+
+    @pyaedt_function_handler()
+    def __getitem__(self, item):
+        if item in dict.keys(self):
+            return dict.__getitem__(self, item)
+        elif item in self.__obj_names:
+            return self.__obj_names[item]
+        if self.__obj_type == "o":
+            if isinstance(item, int):
+                try:
+                    id = item
+                    name = self.__parent.oeditor.GetObjectNameByID(id)
+                    o = self.__parent._create_object(name, id)
+                    self.__setitem__(id, o)
+                    return o
+                except:
+                    raise KeyError(item)
+
+            elif isinstance(item, str):
+                try:
+                    name = item
+                    id = self.__parent.oeditor.GetObjectIDByName(name)
+                    o = self.__parent._create_object(name, id)
+                    self.__setitem__(id, o)
+                    return o
+                except:
+                    raise KeyError(item)
+
+            elif isinstance(item, (Object3d, Polyline)):
+                self.__setitem__(item.id, item)
+                return item
+            else:
+                raise TypeError(item)
+        self._parse_objs()
+        if item in dict.keys(self):
+            return dict.__getitem__(self, item)
+        elif item in self.__obj_names:
+            return self.__obj_names[item]
+        raise KeyError(item)
+
+    def __init__(self, parent, obj_type="o", props=None):
+        dict.__init__(self)
+        self.__obj_names = {}
+        self.__parent = parent
+        self.__obj_type = obj_type
+        if props:
+            for key, value in props.items():
+                dict.__setitem__(self, key, value)
+                self.__obj_names[value.name] = value
+                if self.__obj_type == "o":
+                    self.__parent._object_names_to_ids[value.name] = key
+            self.__refreshed = True
+        else:
+            self.__refreshed = False
+
+
 class GeometryModeler(Modeler):
     """Manages the main AEDT Modeler functionalities for geometry-based designs.
 
@@ -81,26 +204,20 @@ class GeometryModeler(Modeler):
             Returns ``None`` if the part ID or the object name is not found.
 
         """
-        if isinstance(partId, (int, str)) and not (
-            partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
-        ):
-            self.refresh_all_ids()
-        if isinstance(partId, int):
-            if partId in self.objects:
-                return self.objects[partId]
-        elif partId in self._object_names_to_ids:
-            return self.objects[self._object_names_to_ids[partId]]
-        elif partId in self.user_defined_components:
-            return self.user_defined_components[partId]
-        elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
+        if isinstance(partId, (Object3d, UserDefinedComponent, Point)):
             return partId
+        try:
+            return self.objects[partId]
+        except:
+            if partId in self.user_defined_components.keys():
+                return self.user_defined_components[partId]
         self.logger.error("Object '{}' not found.".format(partId))
         return None
 
     def __init__(self, app, is3d=True):
         self._app = app
+        self._model_data = {}
         Modeler.__init__(self, app)
-        # TODO Refactor this as a dictionary with names as key
         self._coordinate_systems = []
         self._user_lists = []
         self._planes = []
@@ -111,10 +228,10 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = {}
-        self.user_defined_components = {}
         self._object_names_to_ids = {}
-        self.points = {}
+        self.objects = Objects(self, "o")
+        self.user_defined_components = Objects(self, "u")
+        self.points = Objects(self, "p")
         self.refresh()
 
     class Position:
@@ -402,8 +519,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_sheets()
-        return [self[name] for name in self.sheet_names if self[name]]
+        self._refresh_sheets()
+        return [v for k, v in self.objects_by_name.items() if k in self._sheets]
 
     @property
     def line_objects(self):
@@ -414,8 +531,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_lines()
-        return [self[name] for name in self.line_names if self[name]]
+        self._refresh_lines()
+        return [v for k, v in self.objects_by_name.items() if k in self._lines]
 
     @property
     def point_objects(self):
@@ -426,8 +543,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_points()
-        return [self.points[name] for name in self.point_names]
+        self._refresh_points()
+        return [v for k, v in self.points.items() if k in self._points]
 
     @property
     def unclassified_objects(self):
@@ -438,8 +555,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_unclassified()
-        return [self[name] for name in self.unclassified_names if name is not None]
+        self._refresh_unclassified()
+        return [v for k, v in self.objects_by_name.items() if k in self._unclassified]
 
     @property
     def object_list(self):
@@ -451,7 +568,7 @@ class GeometryModeler(Modeler):
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names if name is not None and name not in self.point_names]
+        return [v for name, v in self.objects_by_name.items() if name is not None and name not in self.point_names]
 
     @property
     def solid_names(self):
@@ -542,14 +659,14 @@ class GeometryModeler(Modeler):
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
-            if self.user_defined_components:
+            if self.user_defined_components.keys():
                 existing_components = list(self.user_defined_components.keys())
                 new_obs3d = [i for i in obs3d if i]
                 for _, value in enumerate(existing_components):
                     if value not in new_obs3d:
                         new_obs3d.append(value)
 
-        except Exception as e:
+        except Exception:
             new_obs3d = []
         return new_obs3d
 
@@ -563,7 +680,7 @@ class GeometryModeler(Modeler):
             Layout component names.
         """
         lc_names = []
-        if self.user_defined_components:
+        if self.user_defined_components.keys():
             for name, value in self.user_defined_components.items():
                 if value.layout_component:
                     lc_names.append(name)
@@ -658,13 +775,13 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = {}
-        self.user_defined_components = {}
         self._object_names_to_ids = {}
-        self._currentId = 0
+        self.objects = Objects(self, "o")
+        self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
-        self._refresh_all_ids_from_aedt_file()
-        self.refresh_all_ids()
+        if not settings.objects_lazy_load:
+            self._refresh_all_ids_from_aedt_file()
+            self.refresh_all_ids()
 
     @pyaedt_function_handler()
     def _get_commands(self, name):
@@ -696,32 +813,33 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
-        if not self._design_properties or "ModelSetup" not in self._design_properties:
+
+        dp = copy.deepcopy(self._app.design_properties)
+        if not dp or "ModelSetup" not in dp:
             return False
 
         try:
-            groups = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
+            groups = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
         except KeyError:
             groups = []
         if not isinstance(groups, list):
             groups = [groups]
         try:
-            self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+            dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
         except KeyError:
             return 0
-        for el in self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-            "GeometryPart"
-        ]:
+
+        for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
                 operations = el.get("Operations", None)
             else:
-                attribs = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-                    "GeometryPart"
-                ]["Attributes"]
-                operations = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "ToplevelParts"
-                ]["GeometryPart"]["Operations"]
+                attribs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+                    "Attributes"
+                ]
+                operations = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+                    "Operations"
+                ]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
@@ -735,7 +853,12 @@ class GeometryModeler(Modeler):
                         pid = operations["Operation"][0]["ParentPartID"]
                     except:
                         pass
-                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True)
+
+                is_polyline = False
+                if operations and "PolylineParameters" in operations.get("Operation", {}):
+                    is_polyline = True
+
+                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
@@ -779,25 +902,62 @@ class GeometryModeler(Modeler):
            Dictionary of updated object IDs.
 
         """
+        self.cleanup_solids()
+        self.cleanup_points()
+
+    @pyaedt_function_handler()
+    def cleanup_solids(self):
+        """Clean up solids that no longer exist in the modeler because
+        they were removed by previous operations.
+
+        This method also updates object IDs that may have changed via
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite`
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+
+        Returns
+        -------
+        dict
+           Dictionary of updated object IDs.
+
+        """
         new_object_dict = {}
         new_object_id_dict = {}
-        new_points_dict = {}
 
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
-        for old_id, obj in self.objects.items():
-            if obj.name in all_objs:
-                # Check if ID can change in boolean operations
-                # updated_id = obj.id  # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = old_id
-                new_object_dict[old_id] = obj
+        if len(all_objs) != len(self._object_names_to_ids):
+            for old_id, obj in self.objects.items():
+                if obj.name in all_objs:
+                    # Check if ID can change in boolean operations
+                    # updated_id = obj.id  # By calling the object property we get the new id
+                    new_object_id_dict[obj.name] = old_id
+                    new_object_dict[old_id] = obj
+            self._object_names_to_ids = {}
+            self.objects = Objects(self, "o", new_object_dict)
+
+    @pyaedt_function_handler()
+    def cleanup_points(self):
+        """Clean up points that no longer exist in the modeler because
+        they were removed by previous operations.
+
+        This method also updates object IDs that may have changed via
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite`
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+
+        Returns
+        -------
+        dict
+           Dictionary of updated object IDs.
+
+        """
+        new_points_dict = {}
+
         for old_id, obj in self.points.items():
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
-        self.objects = new_object_dict
-        self._object_names_to_ids = new_object_id_dict
-        self.points = new_points_dict
+
+        self.points = Objects(self, "p", new_points_dict)
 
     @pyaedt_function_handler()
     def find_new_objects(self):
@@ -827,29 +987,59 @@ class GeometryModeler(Modeler):
             List of added objects.
 
         """
-        # TODO: Need to improve documentation for this method.
         added_objects = []
         objs_ids = {}
-        if not self._object_names_to_ids:
-            for obj in self._all_object_names:
-                try:
-                    objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
-                except:
-                    pass
+        added_objects = self.add_new_solids()
+        added_objects += self.add_new_points()
+        return added_objects
+
+    @pyaedt_function_handler()
+    def add_new_solids(self):
+        """Add objects that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added objects.
+
+        """
+        added_objects = []
+
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                try:
+                    pid = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
             if obj_name not in self._object_names_to_ids:
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                try:
+                    pid = self.oeditor.GetObjectIDByName(obj)
+                except:
+                    pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
+
+        return added_objects
+
+    @pyaedt_function_handler()
+    def add_new_points(self):
+        """Add objects that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added objects.
+
+        """
+        added_objects = []
         for obj_name in self.point_names:
             if obj_name not in self.points.keys():
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
-                self._create_object(obj_name, pid=pid, use_cached=True)
+                self._create_object(obj_name, pid=0, use_cached=True)
                 added_objects.append(obj_name)
         return added_objects
 
@@ -866,7 +1056,7 @@ class GeometryModeler(Modeler):
         """
         added_component = []
         for comp_name in self.user_defined_component_names:
-            if comp_name not in self.user_defined_components:
+            if comp_name not in self.user_defined_components.keys():
                 self._create_user_defined_component(comp_name)
             added_component.append(comp_name)
         return added_component
@@ -877,7 +1067,8 @@ class GeometryModeler(Modeler):
     def refresh_all_ids(self):
         """Refresh all IDs."""
 
-        self.add_new_objects()
+        self.add_new_solids()
+        self.add_new_points()
         self.add_new_user_defined_component()
         self.cleanup_objects()
 
@@ -936,8 +1127,9 @@ class GeometryModeler(Modeler):
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
-        if self._design_properties and "ModelSetup" in self._design_properties:
-            cs = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        dp = copy.deepcopy(self._design_properties)
+        if dp and "ModelSetup" in dp:
+            cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
@@ -959,9 +1151,9 @@ class GeometryModeler(Modeler):
                             cs_id = cs[ds]["ID"]
                             id2name[cs_id] = name
                             op_id = cs[ds]["PlaceHolderOperationID"]
-                            geometry_part = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                "ToplevelParts"
-                            ]["GeometryPart"]
+                            geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+                                "GeometryPart"
+                            ]
                             if isinstance(geometry_part, (OrderedDict, dict)):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                 if isinstance(op, (OrderedDict, dict)):
@@ -1007,9 +1199,9 @@ class GeometryModeler(Modeler):
                                 cs_id = el["ID"]
                                 id2name[cs_id] = name
                                 op_id = el["PlaceHolderOperationID"]
-                                geometry_part = self._design_properties["ModelSetup"]["GeometryCore"][
-                                    "GeometryOperations"
-                                ]["ToplevelParts"]["GeometryPart"]
+                                geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+                                    "GeometryPart"
+                                ]
                                 if isinstance(geometry_part, (OrderedDict, dict)):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, (OrderedDict, dict)):
@@ -1057,12 +1249,13 @@ class GeometryModeler(Modeler):
         [Dict with List information]
         """
         design_lists = []
-        if self._design_properties and self._design_properties.get("ModelSetup", None):
+        dp = copy.deepcopy(self._design_properties)
+        if dp and dp.get("ModelSetup", None):
             key1 = "GeometryOperations"
             key2 = "GeometryEntityLists"
             key3 = "GeometryEntityListOperation"
             try:
-                entity_list = self._design_properties["ModelSetup"]["GeometryCore"][key1][key2]
+                entity_list = dp["ModelSetup"]["GeometryCore"][key1][key2]
                 if entity_list:
                     geom_entry = copy.deepcopy(entity_list[key3])
                     if isinstance(geom_entry, (dict, OrderedDict)):
@@ -3809,7 +4002,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage)
+        return self.create_region(pad_percent=[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage=is_percentage)
 
     @pyaedt_function_handler()
     def edit_region_dimensions(self, listvalues):
@@ -4265,7 +4458,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in list(self._object_names_to_ids.keys()):
+        for object in self.solid_names + self.sheet_names + self.line_names:
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:
@@ -5775,7 +5968,7 @@ class GeometryModeler(Modeler):
         o = self._resolve_object(obj)
         name = o.name
 
-        del self.objects[self._object_names_to_ids[name]]
+        del self.objects[self.objects_by_name[name].id]
         del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
@@ -5846,92 +6039,121 @@ class GeometryModeler(Modeler):
         else:
             return False
 
-    @pyaedt_function_handler()
-    def create_region(self, pad_percent=300, is_percentage=True):
-        """Create an air region.
+    @pyaedt_function_handler
+    def create_subregion(self, padding_values, padding_types, parts, region_name=None):
+        """Create a subregion.
 
         Parameters
         ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
-        is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
+        padding_values : float, str, list of floats or list of str
+            Padding values to apply. If a list is not provided, the same
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        padding_types : str or list of str, optional
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
+        parts : list of str
+            One or more names of the parts to include in the subregion.
+        region_name : str, optional
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
 
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Region object.
+            Subregion object.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
         """
-        return self._create_region(pad_percent=pad_percent, is_percentage=is_percentage)
+        if region_name is None:
+            region_name = generate_unique_name("SubRegion")
+        is_percentage = padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(
+            padding_values, padding_types, region_name, parts, "SubRegion", is_percentage
+        )
+        self.oeditor.CreateSubregion(arg, arg2)
+        return self._create_object(region_name)
 
-    @pyaedt_function_handler()
-    def _create_region(self, pad_percent=300, is_percentage=True):
-        """Create an air region.
+    def reassign_subregion(self, region, parts):
+        """Modify parts in the subregion.
 
         Parameters
         ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
-        is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
+        region : :class:`pyaedt.modules.MeshIcepak.SubRegion`
+            Subregion to modify.
+        parts : list of str
+            One or more names of the parts to include in the subregion.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Region object.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
         """
-        if "Region" in self.object_names:
-            return None
-        if not isinstance(pad_percent, list):
-            pad_percent = [pad_percent] * 6
+        is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(
+            region.padding_values, region.padding_types, region.name, parts, "SubRegion", is_percentage
+        )
+        self.oeditor.ReassignSubregion(arg, arg2)
+        if self._create_object(region.name):
+            return True
+        return False
 
-        arg = ["NAME:RegionParameters"]
-
-        # TODO: Can the order be updated to match the UI?
-        p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
-        i = 0
-        for pval in p:
-            region_type = "Percentage Offset"
-            if not is_percentage:
-                region_type = "Absolute Offset"
+    @pyaedt_function_handler()
+    def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
+        arg = ["NAME:{}Parameters".format(region_type)]
+        p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 6
+        if not isinstance(pad_type, list):
+            pad_type = [pad_type] * 6
+        for i, pval in enumerate(p):
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
-            arg.append(region_type)
+            arg.append(pad_type[i])
             arg.append(qvalstr)
-            if isinstance(pad_percent[i], str):
-                units = decompose_variable_value(pad_percent[i])[1]
-                if not units and pad_percent[i].isnumeric():
-                    if not is_percentage:
-                        units = self.model_units
-                        pad_percent[i] += units
-                elif is_percentage:
+            if isinstance(pad_value[i], str):
+                units = decompose_variable_value(pad_value[i])[1]
+                if not units and pad_value[i].isnumeric() and not is_percentage:
+                    units = self.model_units
+                    pad_value[i] += units
+                elif units and is_percentage:
                     self.logger.error("Percentage input must not have units")
-                    return False
+                    return False, False
             elif not is_percentage:
                 units = self.model_units
-                pad_percent[i] = str(pad_percent[i])
-                pad_percent[i] += units
-            arg.append(str(pad_percent[i]))
-            i += 1
+                pad_value[i] = str(pad_value[i])
+                pad_value[i] += units
+            arg.append(str(pad_value[i]))
+        flags = "Wireframe#"
+        if region_type == "SubRegion":
+            if not isinstance(parts, list):
+                parts = [parts]
+            normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
+            submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
+            normal_parts = ",".join(normal_parts)
+            submodel_parts = ",".join(submodel_parts)
+            arg += [["NAME:SubRegionPartNames", normal_parts], ["NAME:SubRegionSubmodelNames", submodel_parts]]
+            flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",
             "Name:=",
-            "Region",
+            region_name,
             "Flags:=",
-            "Wireframe#",
+            flags,
             "Color:=",
             "(143 175 143)",
             "Transparency:=",
@@ -5953,8 +6175,78 @@ class GeometryModeler(Modeler):
             "IsLightweight:=",
             False,
         ]
-        self.oeditor.CreateRegion(arg, arg2)
-        return self._create_object("Region")
+        return arg, arg2
+
+    @pyaedt_function_handler()
+    def _create_region(
+        self, pad_value=300, pad_type="Percentage Offset", region_name="Region", parts=None, region_type="Region"
+    ):
+        if region_name in self._app.modeler.objects_by_name:
+            self._app.logger.error("{} object already exists".format(region_name))
+            return False
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 6
+        is_percentage = pad_type in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(pad_value, pad_type, region_name, parts, region_type, is_percentage)
+        if arg and arg2:
+            self.oeditor.CreateRegion(arg, arg2)
+            return self._create_object(region_name)
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def create_region(self, pad_value=300, pad_type="Percentage Offset", region_name="Region", **kwarg):
+        """Create an air region.
+
+        Parameters
+        ----------
+        pad_value : float, str, list of floats or list of str, optional
+            Padding values to apply. If a list is not provided, the same
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        pad_type : str, optional
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
+        region_name : str, optional
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Region object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
+        """
+        # backward compatibility
+        if kwarg:
+            if "is_percentage" in kwarg.keys():
+                is_percentage = kwarg["is_percentage"]
+            else:
+                is_percentage = True
+            if kwarg.get("pad_percent", False):
+                pad_percent = kwarg["pad_percent"]
+            else:
+                pad_percent = 300
+            pad_value = pad_percent
+            if isinstance(pad_value, list):
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
+
+        if isinstance(pad_type, bool):
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(pad_type)]
+            if isinstance(pad_value, list):
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+
+        return self._create_region(pad_value, pad_type, region_name, region_type="Region")
 
     @pyaedt_function_handler()
     def create_object_from_edge(self, edge, non_model=False):
@@ -6490,7 +6782,11 @@ class GeometryModeler(Modeler):
             objects = self.object_names
         objects = self._modeler.convert_to_selections(objects, return_list=True)
         for el in objects:
-            if el not in self.object_names and not list(self.oeditor.GetObjectsInGroup(el)):
+            if (
+                el not in self.object_names
+                and not list(self.oeditor.GetObjectsInGroup(el))
+                and not self.oeditor.GetObjectsInGroup("Unclassified")
+            ):
                 objects.remove(el)
         if not objects:
             self.logger.warning("No objects to delete")
@@ -6539,7 +6835,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.Delete
 
         """
-        objnames = self._object_names_to_ids
+        objnames = self.object_names
         num_del = 0
         for el in objnames:
             if case_sensitive:
@@ -6568,8 +6864,8 @@ class GeometryModeler(Modeler):
             Object ID.
 
         """
-        if objname in self._object_names_to_ids:
-            return self._object_names_to_ids[objname]
+        if objname in self.objects_by_name:
+            return self.objects_by_name[objname].id
         return None
 
     @pyaedt_function_handler()
@@ -6587,9 +6883,9 @@ class GeometryModeler(Modeler):
             3D object returned.
 
         """
-        if objname in self._object_names_to_ids:
-            object_id = self.get_obj_id(objname)
-            return self.objects[object_id]
+        if objname in self.object_names:
+            # object_id = self.get_obj_id(objname)
+            return self.objects[objname]
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, stringname, case_sensitive=True):
@@ -6889,7 +7185,7 @@ class GeometryModeler(Modeler):
 
         """
         oFaceIDs = []
-        if isinstance(partId, str) and partId in self._object_names_to_ids:
+        if isinstance(partId, str) and partId in self.objects_by_name:
             oFaceIDs = self.oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -7939,7 +8235,7 @@ class GeometryModeler(Modeler):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0, use_cached=False, **kwargs):
+    def _create_object(self, name, pid=0, use_cached=False, is_polyline=False, **kwargs):
         if use_cached:
             line_names = self._lines
         else:
@@ -7958,18 +8254,15 @@ class GeometryModeler(Modeler):
                 new_id = o.id
             o = self.get_existing_polyline(o)
             self.objects[new_id] = o
-            self._object_names_to_ids[o.name] = new_id
         else:
             o = Object3d(self, name)
-            commands = self._get_commands(name)
-            if commands and commands[0].startswith("CreatePolyline"):
+            if is_polyline:
                 o = self.get_existing_polyline(o)
             if pid:
                 new_id = pid
             else:
                 new_id = o.id
             self.objects[new_id] = o
-            self._object_names_to_ids[o.name] = new_id
 
         #  Set properties from kwargs.
         if len(kwargs) > 0:
@@ -8174,11 +8467,12 @@ class GeometryModeler(Modeler):
             if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
                 component_name = comp3d
                 break
-        if self._design_properties and self._design_properties.get("ModelSetup", None) and component_name:
+        dp = copy.deepcopy(self._app.design_properties)
+        if dp and dp.get("ModelSetup", None) and component_name:
             try:
-                native_comp_entry = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "SubModelDefinitions"
-                ]["NativeComponentDefinition"]
+                native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
+                    "NativeComponentDefinition"
+                ]
                 if native_comp_entry:
                     if isinstance(native_comp_entry, (dict, OrderedDict)):
                         native_comp_entry = [native_comp_entry]

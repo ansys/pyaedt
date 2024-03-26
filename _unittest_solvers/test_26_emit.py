@@ -28,6 +28,7 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
+@pytest.mark.skipif(sys.version_info < (3,8), reason="Emit API is only available for Python 3.8+.")
 class TestClass:
 
     @pytest.fixture(autouse=True)
@@ -1207,8 +1208,8 @@ class TestClass:
         dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
 
         license_file_path = ''
-        with os.scandir(dot_ansys_directory) as dir:
-            for file in dir:
+        with os.scandir(dot_ansys_directory) as directory:
+            for file in directory:
                 filename_pieces = file.name.split('.')
                 # Since machine names can contain periods, there may be over five splits here
                 # We only care about the first split and last three splits
@@ -1253,7 +1254,7 @@ class TestClass:
         for i in range(number_of_runs):
             do_run()
 
-            # Run with license session
+        # Run with license session
         with revision.get_license_session():
             for i in range(number_of_runs):
                 do_run()

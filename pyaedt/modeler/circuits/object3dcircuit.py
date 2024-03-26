@@ -304,10 +304,7 @@ class ComponentParameters(dict):
     """Manages component parameters."""
 
     def __setitem__(self, key, value):
-        try:
-            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-            dict.__setitem__(self, key, value)
-        except:
+        if not isinstance(value, (int, float)):
             try:
                 self._component._oeditor.ChangeProperty(
                     [
@@ -322,6 +319,27 @@ class ComponentParameters(dict):
                         ],
                     ]
                 )
+                if (
+                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
+                    != value
+                ):
+                    try:
+                        self._component._oeditor.SetPropertyValue(
+                            self._tab, self._component.composed_name, key, str(value)
+                        )
+                        dict.__setitem__(self, key, value)
+                    except:
+                        self._component._circuit_components.logger.warning(
+                            "Property %s has not been edited.Check if readonly", key
+                        )
+                dict.__setitem__(self, key, value)
+            except:
+                self._component._circuit_components.logger.warning(
+                    "Property %s has not been edited. Check if read-only.", key
+                )
+        else:
+            try:
+                self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
                 dict.__setitem__(self, key, value)
             except:
                 self._component._circuit_components.logger.warning(
@@ -451,8 +469,6 @@ class CircuitComponent(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.ModelParameters`
-        """
-        """Return the model data if the component has one.
         """
         if self._model_data:
             return self._model_data

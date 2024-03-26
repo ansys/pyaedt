@@ -148,6 +148,7 @@ class AnalysisTwinBuilder(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -161,5 +162,5 @@ class AnalysisTwinBuilder(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup

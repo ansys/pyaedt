@@ -146,7 +146,7 @@ def install_pyaedt():
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
+            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
             # run_command('"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
@@ -175,7 +175,7 @@ def install_pyaedt():
 
             run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
         else:
-            run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
+            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
 
     # if is_windows:
     #     pyaedt_setup_script = "{}/Lib/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(venv_dir)
