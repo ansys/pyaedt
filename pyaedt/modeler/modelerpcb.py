@@ -152,7 +152,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         try:
             self._desktop.RestoreWindow()
             self.oeditor.ZoomToFit()
-        except:
+        except Exception:
             self._desktop.RestoreWindow()
 
     @property
@@ -217,7 +217,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -348,7 +348,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
                     break
-            except:
+            except Exception:
                 continue
         if not comp_name:
             return False
@@ -834,7 +834,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ]
         try:
             self._odesign.SetTemperatureSettings(vargs1)
-        except:
+        except Exception:
             self.logger.error("Failed to enable the temperature dependence.")
             return False
         else:
@@ -1022,6 +1022,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             )
             self.logger.info("Geometry check succeed")
             return True
-        except:
+        except Exception:
             self.logger.error("Geometry check Failed.")
             return False

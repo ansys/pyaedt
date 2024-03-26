@@ -544,7 +544,7 @@ class Design(AedtObjects):
             file_path = check_and_download_file(local_path, self.project_file)
             try:
                 settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
-            except:
+            except Exception:
                 pass
             self._logger.info("aedt file load time {}".format(time.time() - start))
         if os.path.normpath(self.project_file) in settings._project_properties:
@@ -571,7 +571,7 @@ class Design(AedtObjects):
                 else:
                     if designs["Name"] == self.design_name:
                         return designs
-        except:
+        except Exception:
             return OrderedDict()
 
     @property
@@ -699,7 +699,7 @@ class Design(AedtObjects):
         if self.oproject:
             try:
                 return self.oproject.GetName()
-            except:
+            except Exception:
                 return None
         else:
             return None
@@ -954,7 +954,7 @@ class Design(AedtObjects):
             toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
-            except:
+            except Exception:
                 toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
         elif settings.remote_api or settings.remote_rpc_session:
             toolkit_directory = self.results_directory
@@ -1180,7 +1180,7 @@ class Design(AedtObjects):
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
-                raise Exception("Project doesn't exists. Check it and retry.")
+                raise Exception("Project doesn't exist. Check it and retry.")
             else:
                 project_list = self.odesktop.GetProjectList()
                 self._oproject = self.odesktop.NewProject()
@@ -1266,7 +1266,7 @@ class Design(AedtObjects):
             else:
                 return aedt_object.GetChildNames()
 
-        except:
+        except Exception:
             return []
 
     @pyaedt_function_handler()
@@ -1287,7 +1287,7 @@ class Design(AedtObjects):
         """
         try:
             return aedt_object.GetChildObject(object_name)
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1308,7 +1308,7 @@ class Design(AedtObjects):
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropNames()
-        except:
+        except Exception:
             return []
 
     @pyaedt_function_handler()
@@ -1329,7 +1329,7 @@ class Design(AedtObjects):
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
-        except:
+        except Exception:
             return None
 
     @pyaedt_function_handler()
@@ -1400,7 +1400,7 @@ class Design(AedtObjects):
         else:
             try:
                 self.odesign.ExportProfile(setup_name, variation_string, file_path)
-            except:
+            except Exception:
                 self.odesign.ExportProfile(setup_name, variation_string, file_path, True)
             self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path
@@ -1570,7 +1570,7 @@ class Design(AedtObjects):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -1601,7 +1601,7 @@ class Design(AedtObjects):
         try:
             self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1630,7 +1630,7 @@ class Design(AedtObjects):
                 self.odesktop.SetRegistryString(key_full_name, key_value)
                 self.logger.info("Key %s correctly changed.", key_full_name)
                 return True
-            except:
+            except Exception:
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
@@ -1638,7 +1638,7 @@ class Design(AedtObjects):
                 self.odesktop.SetRegistryInt(key_full_name, key_value)
                 self.logger.info("Key %s correctly changed.", key_full_name)
                 return True
-            except:
+            except Exception:
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
@@ -1729,7 +1729,7 @@ class Design(AedtObjects):
             try:
                 self.oproject.GetChildObject("Variables")
                 return True
-            except:
+            except Exception:
                 return False
 
     @pyaedt_function_handler()
@@ -1757,7 +1757,7 @@ class Design(AedtObjects):
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
             self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
-        except:
+        except Exception:
             self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
@@ -1798,7 +1798,7 @@ class Design(AedtObjects):
                     if design_type and config_name:
                         self.set_active_dso_config_name(design_type[1], config_name[1])
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -2235,7 +2235,7 @@ class Design(AedtObjects):
                                     self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
                                 )
                             )
-                except:
+                except Exception:
                     pass
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
             for ds in self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"]:
@@ -2253,7 +2253,7 @@ class Design(AedtObjects):
                                 ],
                             )
                         )
-                except:
+                except Exception:
                     pass
         if self.design_properties and "ModelSetup" in self.design_properties:
             if "MotionSetupList" in self.design_properties["ModelSetup"]:
@@ -2271,7 +2271,7 @@ class Design(AedtObjects):
                                     self.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
                                 )
                             )
-                    except:
+                    except Exception:
                         pass
         if self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
@@ -2350,7 +2350,7 @@ class Design(AedtObjects):
                     "Coordinates"
                 ]
                 datasets[ds] = self._get_ds_data(ds, data)
-        except:
+        except Exception:
             pass
         return datasets
 
@@ -2362,7 +2362,7 @@ class Design(AedtObjects):
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
                 data = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, data)
-        except:
+        except Exception:
             pass
         return datasets
 
@@ -3191,7 +3191,7 @@ class Design(AedtObjects):
         ):
             try:
                 self.set_active_design(fallback_design)
-            except:
+            except Exception:
                 if is_windows:
                     self._init_variables()
                 self._odesign = None
@@ -3793,7 +3793,7 @@ class Design(AedtObjects):
             try:
                 variation_string = self._odesign.GetNominalVariation()
                 val = self._odesign.GetVariationVariableValue(variation_string, variable_name)  # pragma: no cover
-            except:
+            except Exception:
                 val_units = app.GetVariableValue(variable_name)
                 val, original_units = decompose_variable_value(val_units)
                 try:
@@ -3861,7 +3861,7 @@ class Design(AedtObjects):
             # Extract the numeric value of the expression (in SI units!)
             self._variable_manager.delete_variable(variable_name)
             return eval_value
-        except:
+        except Exception:
             self.logger.warning("Invalid string expression {}".format(expression_string))
             return expression_string
 
@@ -3932,7 +3932,7 @@ class Design(AedtObjects):
             try:
                 self._odesign = self._oproject.SetActiveDesign(des_name)
                 return True
-            except:
+            except Exception:
                 return des_name
         else:
             return des_name

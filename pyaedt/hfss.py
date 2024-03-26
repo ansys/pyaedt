@@ -158,7 +158,7 @@ class Hfss(FieldAnalysis3D, object):
     #         return "HFSS {} {}. ProjectName:{} DesignName:{} ".format(
     #             self._aedt_version, self.solution_type, self.project_name, self.design_name
     #         )
-    #     except:
+    #     except Exception:
     #         return "HFSS Module"
 
     def __init__(
@@ -440,7 +440,7 @@ class Hfss(FieldAnalysis3D, object):
                     ]
                     try:
                         self.odesign.ChangeProperty(properties)
-                    except:  # pragma: no cover
+                    except Exception:  # pragma: no cover
                         self.logger.warning("Failed to change terminal impedance.")
                 if not renorm:
                     properties = [
@@ -456,7 +456,7 @@ class Hfss(FieldAnalysis3D, object):
                     ]
                     try:
                         self.odesign.ChangeProperty(properties)
-                    except:  # pragma: no cover
+                    except Exception:  # pragma: no cover
                         self.logger.warning("Failed to change normalization.")
                 if terminals_rename:
                     new_name = portname + "_T" + str(count)
@@ -471,7 +471,7 @@ class Hfss(FieldAnalysis3D, object):
                     ]
                     try:
                         self.odesign.ChangeProperty(properties)
-                    except:  # pragma: no cover
+                    except Exception:  # pragma: no cover
                         self.logger.warning("Failed to rename terminal {}.".format(terminal))
                 bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
                 self._boundaries[terminal_name] = bound
@@ -4126,7 +4126,7 @@ class Hfss(FieldAnalysis3D, object):
                         #         abs(faceoriginal[0] - fc2[0]) > tol and abs(faceoriginal[1] - fc2[1]) < tol and abs(
                         #         faceoriginal[2] - fc2[2]) < tol):
                         #     ports_ID[el] = int(f)
-                    except:
+                    except Exception:
                         pass
             if internalExtr:
                 objID2 = self.modeler.oeditor.GetFaceIDs(el)
@@ -4155,7 +4155,7 @@ class Hfss(FieldAnalysis3D, object):
                                     ],
                                 ],
                             )
-                    except:
+                    except Exception:
                         self.logger.info("done")
                         # self.modeler_oproject.ClearMessages()
         return ports_ID
@@ -5853,7 +5853,7 @@ class Hfss(FieldAnalysis3D, object):
         try:
             self.odesign.SetSolveInsideThreshold(threshold)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -5910,7 +5910,7 @@ class Hfss(FieldAnalysis3D, object):
 
             props = OrderedDict({"Name": symmetry_name, "Faces": entity_list, "IsPerfectE": is_perfect_e})
             return self._create_boundary(symmetry_name, props, "Symmetry")
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -5951,7 +5951,7 @@ class Hfss(FieldAnalysis3D, object):
                 return False
             self.oboundary.ChangeImpedanceMult(multiplier)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -6010,7 +6010,7 @@ class Hfss(FieldAnalysis3D, object):
 
         try:
             self.oboundary.SetPhaseCenterPerPort(arg)
-        except:
+        except Exception:
             return False
         return True
 
@@ -6432,7 +6432,7 @@ class Hfss(FieldAnalysis3D, object):
                     # the name of the 3d object is returned.
                     # TODO: Need to improve the way a FacePrimitive is handled.
                     oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
-                except:
+                except Exception:
                     oname = ""
             if reference:
                 reference = self.modeler.convert_to_selections(reference, True)

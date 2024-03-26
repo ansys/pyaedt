@@ -1149,7 +1149,7 @@ class PostProcessorCommon(object):
                 else:
                     self.plots.clear()
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1179,7 +1179,7 @@ class PostProcessorCommon(object):
                 if plot.plot_name == plot_name:
                     plot.plot_name = self.oreportsetup.GetChildObject(new_name).GetPropValue("Name")
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1230,7 +1230,7 @@ class PostProcessorCommon(object):
             )
             self.logger.info("Solution Data Correctly Loaded.")
             return SolutionData(data)
-        except:
+        except Exception:
             self.logger.warning("Solution Data failed to load. Check solution, context or expression.")
             return None
 
@@ -2238,7 +2238,7 @@ class PostProcessor(PostProcessorCommon, object):
                             name2refid[cs_id] = name + ":XY"
                             name2refid[cs_id + 1] = name + ":YZ"
                             name2refid[cs_id + 2] = name + ":XZ"
-                except:
+                except Exception:
                     pass
         return name2refid
 
@@ -2294,7 +2294,7 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].MinArrowSpacing = arrow_setts["MinArrowSpacing"]
                         plots[plot_name].MaxArrowSpacing = arrow_setts["MaxArrowSpacing"]
                         plots[plot_name].GridColor = surf_setts["GridColor"]
-                except:
+                except Exception:
                     pass
         return plots
 
@@ -2432,7 +2432,7 @@ class PostProcessor(PostProcessorCommon, object):
         if isvector:
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
-            except:
+            except Exception:
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
             self.ofieldsreporter.CalcOp("Smooth")
             self.ofieldsreporter.EnterScalar(0)
@@ -2441,7 +2441,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
-            except:
+            except Exception:
                 self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = object_name
@@ -2603,7 +2603,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity_name)
-        except:
+        except Exception:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         if isvector:
             self.ofieldsreporter.CalcOp("Smooth")
@@ -2772,7 +2772,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity_name)
-        except:
+        except Exception:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
 
         if not variation_dict:
@@ -2889,7 +2889,7 @@ class PostProcessor(PostProcessorCommon, object):
                 local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
                 filepath = check_and_download_file(local_path, filepath)
             return filepath
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             self.logger.error("{} file format is not supported for this plot.".format(file_format))
             return False
 
@@ -2967,7 +2967,7 @@ class PostProcessor(PostProcessorCommon, object):
         self._desktop.CloseAllWindows()
         try:
             self._app.modeler.fit_all()
-        except:
+        except Exception:
             pass
         self._desktop.TileWindows(0)
         self._oproject.SetActiveDesign(self._app.design_name)
@@ -3051,7 +3051,7 @@ class PostProcessor(PostProcessorCommon, object):
         self._desktop.CloseAllWindows()
         try:
             self._app._modeler.fit_all()
-        except:
+        except Exception:
             pass
         self._desktop.TileWindows(0)
         self._oproject.SetActiveDesign(self._app.design_name)
