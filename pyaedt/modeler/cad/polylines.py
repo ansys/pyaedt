@@ -257,6 +257,8 @@ class Polyline(Object3d):
                         )
                     self._positions = [list(i) for i in position_list[: self._segment_types[-1].num_points]]
                 else:  # AngularArc
+                    if not all(isinstance(x, list) for x in position_list):
+                        position_list = [position_list]
                     self._positions = [position_list[0]]
                     self._evaluate_arc_angle_extra_points(segment_type, start_point=position_list[0])
                     self._positions.extend(segment_type.extra_points[:])
@@ -325,7 +327,7 @@ class Polyline(Object3d):
 
             new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._primitives._create_object(self.name)
+            self._primitives._create_object(self.name, is_polyline=True)
 
     @property
     def start_point(self):
@@ -533,7 +535,7 @@ class Polyline(Object3d):
                         break
                 else:
                     current_segment = segment_types[vertex_count]
-            except Exception as e:
+            except Exception:
                 raise IndexError("Number of segments inconsistent with the number of points!")
 
             if current_segment:

@@ -4,6 +4,7 @@ from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations3DLayout
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
 
@@ -91,6 +92,10 @@ class FieldAnalysis3DLayout(Analysis):
         self._mesh = None
         self._post = None
         self._configurations = Configurations3DLayout(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
 
     @property
     def configurations(self):
@@ -112,11 +117,14 @@ class FieldAnalysis3DLayout(Analysis):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -332,7 +340,7 @@ class FieldAnalysis3DLayout(Analysis):
         return next
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -363,9 +371,9 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetAllPorts
         """
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in self.excitations if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in self.excitations if rx_prefix in i]
         for i in trlist:
             for k in reclist:
@@ -382,9 +390,12 @@ class FieldAnalysis3DLayout(Analysis):
         :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         """
         if self._modeler is None:
+            self.logger.reset_timer()
             from pyaedt.modeler.modelerpcb import Modeler3DLayout
 
             self._modeler = Modeler3DLayout(self)
+            self.logger.info_timer("Modeler class has been initialized!")
+
         return self._modeler
 
     @property
@@ -454,6 +465,7 @@ class FieldAnalysis3DLayout(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -467,7 +479,7 @@ class FieldAnalysis3DLayout(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup
 
     @pyaedt_function_handler()
@@ -490,7 +502,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
-        for setup in self.setups:
+        for setup in self._setups:
             if setupname == setup.name:
                 return setup
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)

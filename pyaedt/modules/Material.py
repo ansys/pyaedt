@@ -284,8 +284,12 @@ class MatProperty(object):
                 elif e == "IsTemperatureDependent":
                     self.is_temperature_dependent = v
                 elif e in ["BHCoordinates", "DECoordinates", "JECoordinates"]:
-                    self.value = v["Point"]
                     self._unit = v["DimUnits"]
+                    if "Point" in v:
+                        self.value = v["Point"]
+                    elif "Points" in v:
+                        pair_list = [v["Points"][i : i + 2] for i in range(0, len(v["Points"]), 2)]
+                        self.value = pair_list
                 elif e == "Temperatures":
                     self.temperatures = v
         elif val is not None and isinstance(val, OrderedDict) and "Magnitude" in val.keys():
@@ -1170,18 +1174,17 @@ class CommonMaterial(object):
         _dict2arg(props, arg)
         return arg
 
-    def _update_props(self, propname, provpavlue, update_aedt=True):
+    def _update_props(self, propname, propvalue, update_aedt=True):
         """Update properties.
 
         Parameters
         ----------
         propname : str
             Name of the property.
-        provpavlue :
+        propvalue :
             Value of the property.
         update_aedt : bool, optional
             Whether to update the property in AEDT. The default is ``True``.
-
         """
 
         try:
@@ -1190,9 +1193,9 @@ class CommonMaterial(object):
         except:
             material_props_type = None
 
-        if isinstance(provpavlue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
+        if isinstance(propvalue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
             i = 1
-            for val in provpavlue:
+            for val in propvalue:
                 if not self._props.get(propname, None) or not isinstance(self._props[propname], dict):
                     if material_props_type == "tensor":
                         self._props[propname] = OrderedDict({"property_type": "TensorProperty"})
@@ -1204,18 +1207,18 @@ class CommonMaterial(object):
                 i += 1
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, (str, float, int)):
-            self._props[propname] = str(provpavlue)
+        elif isinstance(propvalue, (str, float, int)):
+            self._props[propname] = str(propvalue)
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, OrderedDict):
-            self._props[propname] = provpavlue
+        elif isinstance(propvalue, OrderedDict):
+            self._props[propname] = propvalue
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, list) and material_props_type and material_props_type == "nonlinear":
+        elif isinstance(propvalue, list) and material_props_type and material_props_type == "nonlinear":
             if propname == "permeability":
                 bh = OrderedDict({"DimUnits": ["", ""]})
-                for point in provpavlue:
+                for point in propvalue:
                     if "Point" in bh:
                         bh["Point"].append(point)
                     else:
@@ -1232,7 +1235,7 @@ class CommonMaterial(object):
                     self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
             else:
                 bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
-                for point in provpavlue:
+                for point in propvalue:
                     if "Point" in bh:
                         bh["Point"].append(point)
                     else:
@@ -1244,9 +1247,9 @@ class CommonMaterial(object):
                 self._props[propname] = OrderedDict({"property_type": "nonlinear", pr_name: bh})
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, list) and material_props_type and material_props_type == "vector":
+        elif isinstance(propvalue, list) and material_props_type and material_props_type == "vector":
             if propname == "magnetic_coercivity":
-                return self.set_magnetic_coercivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
+                return self.set_magnetic_coercivity(propvalue[0], propvalue[1], propvalue[2], propvalue[3])
         return False
 
 
@@ -1275,6 +1278,17 @@ class Material(CommonMaterial, object):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         self._material_update = material_update
+        self._wire_type = None
+        self._wire_width = None
+        self._wire_diameter = None
+        self._wire_width_direction = None
+        self._wire_thickness_direction = None
+        self._wire_thickness = None
+        self._stacking_type = None
+        self._stacking_direction = None
+        self._stacking_factor = None
+        self._strand_number = None
+
         if "thermal_material_type" in self._props:
             self.thermal_material_type = self._props["thermal_material_type"]["Choice"]
         if "PhysicsTypes" in self._props:
@@ -1315,6 +1329,7 @@ class Material(CommonMaterial, object):
         if "wire_type" in self._props:
             self.wire_type = self._props["wire_type"]["Choice"]
 
+    def _update_material(self):
         for property in MatProperties.aedtname:
             tmods = None
             smods = None
@@ -1347,7 +1362,6 @@ class Material(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 smods = modifiers[mod]
-
             property_value = (
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )

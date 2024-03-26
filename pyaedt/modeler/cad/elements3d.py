@@ -229,7 +229,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             self._position = [float(i) for i in vertex_data]
             return self._position
-        except Exception as e:
+        except Exception:
             return None
 
     def __str__(self):

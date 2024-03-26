@@ -97,4 +97,4 @@ class TestClass(object):
         assert len(raw_file["time"])
         assert len(raw_file.get_trace(0))
         assert len(raw_file.get_wave(raw_file.trace_names[0])) == len(raw_file.get_axis())
-        assert raw_file.__len__()>0
+        assert raw_file.__len__() > 0

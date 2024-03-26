@@ -6,12 +6,15 @@ import sys
 import tempfile
 import unittest.mock
 
+from _unittest.conftest import config
 import pytest
 
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
+
+desktop_version = config["desktopVersion"]
 
 
 @pytest.fixture(scope="class")
@@ -227,7 +230,10 @@ class TestLogMessages:
         from pyaedt import Hfss
 
         app = Hfss(
-            projectname="log_project", designname="log_design", specified_version="2023.2", new_desktop_session=True
+            projectname="log_project",
+            designname="log_design",
+            specified_version=desktop_version,
+            new_desktop_session=True,
         )
         with pytest.raises(AttributeError):
             app.get_object_material_properties("MS1", "conductivity")

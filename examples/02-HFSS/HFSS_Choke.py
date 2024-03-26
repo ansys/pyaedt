@@ -14,6 +14,13 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(rootname=r"C:\Data\Support\Test", folder_name="choke", project_name="choke")
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +35,7 @@ non_graphical = False
 # Launches HFSS 2023 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.2",
+                   specified_version=aedt_version,
                    non_graphical=non_graphical,
                    new_desktop_session=True,
                    solution_type="Terminal")

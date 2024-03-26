@@ -1983,7 +1983,7 @@ class FfdSolutionData(object):
                 pointa=(0.55, 0.1),
                 pointb=(0.74, 0.1),
                 style="modern",
-                event_type="always",
+                interaction_event="always",
                 title_height=0.02,
                 color=axes_color,
             )
@@ -1995,7 +1995,7 @@ class FfdSolutionData(object):
                 pointa=(0.77, 0.1),
                 pointb=(0.98, 0.1),
                 style="modern",
-                event_type="always",
+                interaction_event="always",
                 title_height=0.02,
                 color=axes_color,
             )
@@ -3453,7 +3453,7 @@ class VRTFieldPlot:
             if isinstance(self.ray_box, int):
                 box_id = self.ray_box
             elif isinstance(self.ray_box, str):
-                box_id = self._postprocessor._primitives._object_names_to_ids[self.ray_box]
+                box_id = self._postprocessor._primitives.objects[self.ray_box].id
             else:
                 box_id = self.ray_box.id
             args.extend("FilterBoxID:=", box_id)

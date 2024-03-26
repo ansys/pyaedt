@@ -330,6 +330,7 @@ class PostProcessor(Post):
         show_bounding=False,
         show_legend=True,
         plot_as_separate_objects=True,
+        file_format="case",
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -374,9 +375,15 @@ class PostProcessor(Post):
         show_bounding : bool, optional
             Whether to display the axes bounding box or not. The default is ``False``.
         show_legend : bool, optional
-            Whether to display the legend or not. The default is ``True``.
+            Whether to display the legend. The default is ``True``.
         plot_as_separate_objects : bool, optional
-            Plot each object separately. It may require more time to export from AEDT.
+            Whether to plot each object separately, which can require
+            more time to export from AEDT. The default is ``True``.
+        file_format : str, optional
+            File format to export the plot to. The default is ``"case".
+            Options are ``"aedtplt"`` and ``"case"``.
+            If the active design is a Q3D design, the file format is automatically
+            set to ``"fldplt"``.
 
         Returns
         -------
@@ -393,8 +400,6 @@ class PostProcessor(Post):
 
         if self.field_plots[plotname].field_type == "DC R/L Fields":
             file_format = "fldplt"
-        else:
-            file_format = "case"
         file_to_add = self.export_field_plot(plotname, self._app.working_directory, file_format=file_format)
         model = self.get_model_plotter_geometries(
             generate_mesh=False,
@@ -575,7 +580,6 @@ class PostProcessor(Post):
         variation_variable="Phi",
         variation_list=["0deg"],
         view="isometric",
-        plot_label=None,
         show=True,
         scale_min=None,
         scale_max=None,
@@ -589,7 +593,7 @@ class PostProcessor(Post):
         show_grid=False,
         show_bounding=False,
         show_legend=True,
-        filter_objects=[],
+        filter_objects=None,
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -645,6 +649,7 @@ class PostProcessor(Post):
             Whether to display the legend or not. The default is ``True``.
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
+            The default is ``None`` in which case an empty list is passed.
 
         Returns
         -------
@@ -657,6 +662,8 @@ class PostProcessor(Post):
             intrinsics = {}
         if not export_path:
             export_path = self._app.working_directory
+        if not filter_objects:
+            filter_objects = []
 
         v = 0
         fields_to_add = []
@@ -677,7 +684,7 @@ class PostProcessor(Post):
                     object_list, quantity, setup_name, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format="case")
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
@@ -1113,7 +1120,7 @@ class IcepakPostProcessor(PostProcessor, object):
 
     @pyaedt_function_handler
     def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
-        content = fs.get_field_summary_data(sweep_name=setup_name, design_variation=design_variation)
+        content = fs.get_field_summary_data(setup_name=setup_name, design_variation=design_variation)
         pattern = r"\[([^]]*)\]"
         match = re.search(pattern, content["Quantity"][0])
         if match:
@@ -1170,11 +1177,15 @@ class IcepakPostProcessor(PostProcessor, object):
         """
         if design_variation is None:
             design_variation = {}
-        name = generate_unique_name(quantity_name)
-        self._app.modeler.create_face_list(faces_list, name)
+        facelist_name = generate_unique_name(quantity_name)
+        self._app.modeler.create_face_list(faces_list, facelist_name)
         fs = self.create_field_summary()
-        fs.add_calculation("Object", "Surface", name, quantity_name, side=side, ref_temperature=ref_temperature)
-        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+        fs.add_calculation(
+            "Object", "Surface", facelist_name, quantity_name, side=side, ref_temperature=ref_temperature
+        )
+        out = self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+        self._app.oeditor.Delete(["NAME:Selections", "Selections:=", facelist_name])
+        return out
 
     @pyaedt_function_handler()
     def evaluate_boundary_quantity(

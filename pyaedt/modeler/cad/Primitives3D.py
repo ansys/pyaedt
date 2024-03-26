@@ -1148,8 +1148,8 @@ class Primitives3D(GeometryModeler):
         vArg2.append(self._arg_with_dim(thread))
 
         self.oeditor.CreateHelix(vArg1, vArg2)
-        if polyline_name in self._object_names_to_ids:
-            del self.objects[self._object_names_to_ids[polyline_name]]
+        if polyline_name in self.objects_by_name:
+            del self.objects[self.objects_by_name[polyline_name].id]
         return self._create_object(polyline_name, **kwargs)
 
     @pyaedt_function_handler()

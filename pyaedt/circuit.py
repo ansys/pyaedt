@@ -1398,7 +1398,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.SaveDiffPairsToFile(tmpfile1)
         with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
-        num_diffs_before = len(lines)
+
         old_arg = []
         for line in lines:
             data = line.split(",")
@@ -1604,7 +1604,7 @@ class Circuit(FieldAnalysisCircuit, object):
         - edb_zone_dict
         -
         >>> edb = Edb(edb_file)
-        >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
+        >>> edb_zones = edb.copy_zones(r"C:\\Temp\\test")
         >>> defined_ports, project_connections = edb.cutout_multizone_layout(edb_zones, common_reference_net)
         >>> circ = Circuit()
         >>> circ.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)

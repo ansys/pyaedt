@@ -1,4 +1,5 @@
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.settings import settings
 
 
 class AnalysisMaxwellCircuit(Analysis):
@@ -70,6 +71,8 @@ class AnalysisMaxwellCircuit(Analysis):
             aedt_process_id,
         )
         self._modeler = None
+        if not settings.lazy_load:
+            self._modeler = self.modeler
 
     @property
     def modeler(self):

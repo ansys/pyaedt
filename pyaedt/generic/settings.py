@@ -25,6 +25,8 @@ class Settings(object):
         self._enable_debug_logger = False
         self._enable_error_handler = True
         self._aedt_version = None
+        self._aedt_install_dir = None
+        self._use_multi_desktop = False
         self.remote_api = False
         self._use_grpc_api = None
         self.formatter = None
@@ -67,6 +69,38 @@ class Settings(object):
         self._number_of_grpc_api_retries = 6
         self._retry_n_times_time_interval = 0.1
         self._wait_for_license = False
+        self.__lazy_load = True
+        self.__objects_lazy_load = False
+
+    @property
+    def objects_lazy_load(self):
+        """Flag for enabling and disabling the lazy load.
+        The default is ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__objects_lazy_load
+
+    @objects_lazy_load.setter
+    def objects_lazy_load(self, value):
+        self.__objects_lazy_load = value
+
+    @property
+    def lazy_load(self):
+        """Flag for enabling and disabling the lazy load.
+        The default is ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        return self.__lazy_load
+
+    @lazy_load.setter
+    def lazy_load(self, value):
+        self.__lazy_load = value
 
     @property
     def wait_for_license(self):
@@ -200,6 +234,31 @@ class Settings(object):
         self._aedt_version = value
         if self._aedt_version >= "2023.1":
             self.disable_bounding_box_sat = True
+
+    @property
+    def aedt_install_dir(self):
+        """AEDT installation path."""
+        return self._aedt_install_dir
+
+    @aedt_install_dir.setter
+    def aedt_install_dir(self, value):
+        self._aedt_install_dir = value
+
+    @property
+    def use_multi_desktop(self):
+        """Flag indicating if multiple desktop sessions are enabled in the same Python script.
+        Current limitations follow:
+
+        - Release without closing the desktop is not possible,
+        - The first desktop created must be the last to be closed.
+
+        Enabling multiple desktop sessions is a beta feature."""
+
+        return self._use_multi_desktop
+
+    @use_multi_desktop.setter
+    def use_multi_desktop(self, value):
+        self._use_multi_desktop = value
 
     @property
     def edb_dll_path(self):

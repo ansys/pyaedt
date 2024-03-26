@@ -538,8 +538,7 @@ class Setup(CommonSetup):
             ``True`` if setup is deleted. ``False`` if it failed.
         """
 
-        self.omodule.DeleteSetups([self.name])
-        self._app.setups.remove(self)
+        self._app.delete_setup(self.name)
         return True
 
     @pyaedt_function_handler()
@@ -1952,14 +1951,14 @@ class Setup3DLayout(CommonSetup):
                 if aedtapp_objs:
                     for p in aedtapp.modeler.get_bodynames_from_position(position, None, False):
                         if p in metal_object:
-                            obj_ind = aedtapp.modeler._object_names_to_ids[p]
+                            obj_ind = aedtapp.modeler.objects[p].id
                             if obj_ind not in obj_dict:
                                 obj_dict[obj_ind] = aedtapp.modeler.objects[obj_ind]
             if net in via_per_nets:
                 for via_pos in via_per_nets[net]:
                     for p in aedtapp.modeler.get_bodynames_from_position(via_pos, None, False):
                         if p in metal_object:
-                            obj_ind = aedtapp.modeler._object_names_to_ids[p]
+                            obj_ind = aedtapp.modeler.objects[p].id
                             if obj_ind not in obj_dict:
                                 obj_dict[obj_ind] = aedtapp.modeler.objects[obj_ind]
                         for lay_el in list(layers_elevation.values()):
@@ -1968,23 +1967,23 @@ class Setup3DLayout(CommonSetup):
                             pad_objs = aedtapp.modeler.get_bodynames_from_position(pad_pos, None, False)
                             for pad_obj in pad_objs:
                                 if pad_obj in metal_object:
-                                    pad_ind = aedtapp.modeler._object_names_to_ids[pad_obj]
+                                    pad_ind = aedtapp.modeler.objects[pad_obj].id
                                     if pad_ind not in obj_dict:
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
             if len(obj_list) == 1:
                 net = net.replace("-", "m")
                 net = net.replace("+", "p")
-                net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                 obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
-                obj_ind = aedtapp.modeler._object_names_to_ids[united_object]
+                obj_ind = aedtapp.modeler.objects[united_object].id
                 try:
                     net = net.replace("-", "m")
                     net = net.replace("+", "p")
-                    net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                    net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
                 except:
@@ -3272,9 +3271,9 @@ class SetupMaxwell(Setup, object):
         Notes
         -----
         By default a control program script will be called by the pre-installed Python interpreter:
-        ``<install_path>\Win64\commonfiles\CPython\37\winx64\Release\python\python.exe``.
+        ``<install_path>\\Win64\\commonfiles\\CPython\\37\\winx64\\Release\\python\\python.exe``.
         However, the user can specify a custom Python interpreter to be used by setting following environment variable:
-        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\python.exe>``
+        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\\python.exe>``
 
         References
         ----------
@@ -3627,6 +3626,10 @@ class SetupQ3D(Setup, object):
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
+        for setup in self.p_app.setups:
+            if self.name == setup.name:
+                setup.sweeps.append(sweep_n)
+                break
         return sweep_n
 
     @pyaedt_function_handler()

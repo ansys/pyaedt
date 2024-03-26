@@ -11,6 +11,13 @@ import pyaedt
 
 from pyaedt.generic.pdf import AnsysReport
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ##################################################################################
 # Launch AEDT and Maxwell 2D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,7 +26,7 @@ from pyaedt.generic.pdf import AnsysReport
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version="2023.2",
+    specified_version=aedt_version,
     new_desktop_session=True,
     close_on_exit=True,
     solution_type="DCConduction",
@@ -220,7 +227,7 @@ model_picture = m2d.post.export_model_picture()
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a PDF report with output of simulation.
 
-pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2")
+pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version=aedt_version)
 
 # Customize text font.
 

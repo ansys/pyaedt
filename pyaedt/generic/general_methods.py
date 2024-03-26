@@ -93,30 +93,49 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
-
+    header = "**************************************************************"
+    _write_mes(header)
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
-    _write_mes("{} on {}".format(message.upper(), func.__name__))
-    try:
-        _write_mes(ex_info[1].args[0])
-    except (IndexError, AttributeError):
-        pass
+
     for trace in traceback.format_stack():
-        if func.__name__ in trace:
-            for el in trace.split("\n"):
-                _write_mes(el)
+        exceptions = [
+            "_exception",
+            "pydev",
+            "traceback",
+            "user_function",
+            "__Invoke",
+            "interactiveshell",
+            "async_helpers",
+        ]
+        if any(exc in trace for exc in exceptions):
+            continue
+        # if func.__name__ in trace:
+        for el in trace.split("\n"):
+            _write_mes(el)
     for trace in tb_trace:
+        if "user_function" in trace or "async_helpers" in trace:
+            continue
         tblist = trace.split("\n")
         for el in tblist:
-            if func.__name__ in el:
-                _write_mes(el)
+            # if func.__name__ in el:
+            _write_mes(el)
+
+    _write_mes("{} on {}".format(message, func.__name__))
+    # try:
+    #     _write_mes(ex_info[1].args[0])
+    # except (IndexError, AttributeError):
+    #     pass
 
     message_to_print = ""
     messages = ""
-    try:
-        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
-    except (GrpcApiError, AttributeError, TypeError, IndexError):
-        pass
+    from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+    if len(list(_desktop_sessions.values())) == 1:
+        try:
+            messages = list(list(_desktop_sessions.values())[0].odesktop.GetMessages("", "", 2))[-1].lower()
+        except (GrpcApiError, AttributeError, TypeError, IndexError):
+            pass
     if "error" in messages:
         message_to_print = messages[messages.index("[error]") :]
     # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
@@ -144,6 +163,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 "+".join(args)
             )
         )
+    _write_mes(header)
 
 
 def normalize_path(path_in, sep=None):
@@ -190,45 +210,23 @@ def _function_handler_wrapper(user_function):
                 if settings.enable_debug_logger or settings.enable_debug_edb_logger:
                     _log_method(user_function, args, kwargs)
                 return out
-            except TypeError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
-                return False
-            except ValueError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
-                return False
-            except AttributeError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Attribute Error")
-                return False
-            except KeyError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
-                return False
-            except IndexError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
-                return False
-            except AssertionError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
-                return False
-            except NameError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Name Error")
-                return False
-            except IOError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "IO Error")
-                return False
             except MethodNotSupportedError:
-                message = "This Method is not supported in current AEDT Design Type."
+                message = "This method is not supported in current AEDT design type."
                 if settings.enable_screen_logs:
-                    print("**************************************************************")
-                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
-                    print("**************************************************************")
-                    print("")
+                    pyaedt_logger.error("**************************************************************")
+                    pyaedt_logger.error(
+                        "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
+                    )
+                    pyaedt_logger.error("**************************************************************")
+                    pyaedt_logger.error("")
                 if settings.enable_file_logs:
-                    settings.logger.error(message)
+                    settings.error(message)
                 return False
             except GrpcApiError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
-                _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
+                _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
                 return False
 
     return wrapper

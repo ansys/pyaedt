@@ -12,6 +12,13 @@ in 2D Extractor and run a simulation.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -19,14 +26,14 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktop_version = "2023.2"
+
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(specified_version=desktop_version,
+q = pyaedt.Q2d(specified_version=aedt_version,
                non_graphical=non_graphical,
                new_desktop_session=True,
                projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
@@ -122,9 +129,9 @@ q.modeler.create_rectangle(
 # Create a conformal coating.
 
 sm_obj_list = []
-ids = [1,2,3]
-if desktop_version >= "2023.1":
-    ids = [0,1,2]
+ids = [1, 2, 3]
+if aedt_version >= "2023.1":
+    ids = [0, 1, 2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
     obj = q.modeler.get_object_from_name(obj_name)
@@ -182,7 +189,7 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 # Create setup, analyze, and plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup, analyze it, and plot solution data.
- 
+
 setup = q.create_setup(setupname="new_setup")
 
 sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
