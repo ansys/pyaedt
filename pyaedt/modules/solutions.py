@@ -17,6 +17,7 @@ from pyaedt.generic.constants import db20
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import conversion_function
+from pyaedt.generic.general_methods import deprecated_alias
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
@@ -2631,6 +2632,7 @@ class FieldPlot:
 
     """
 
+    @deprecated_alias(IntrinsincList="intrinsics")
     def __init__(
         self,
         postprocessor,
@@ -2644,7 +2646,6 @@ class FieldPlot:
         seedingFaces=[],
         layers_nets=[],
         layers_plot_type="LayerNetsExtFace",
-        **kwargs,
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2657,9 +2658,6 @@ class FieldPlot:
         self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
-        if "intrinsincList" in kwargs:
-            self._postprocessor.logger.warning("``intrinsincList`` is deprecated, please use ``intrinsics`` instead.")
-            self.intrinsics = kwargs["intrinsicList"]
         self.intrinsics = intrinsics
         self.name = "Field_Plot"
         self.plotFolder = "Field_Plot"
@@ -3348,6 +3346,7 @@ class VRTFieldPlot:
 
     """
 
+    @deprecated_alias(IntrinsincList="intrinsics")
     def __init__(
         self,
         postprocessor,
@@ -3357,15 +3356,11 @@ class VRTFieldPlot:
         ray_density=2,
         bounces=5,
         intrinsics={},
-        **kwargs,
     ):
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
         self.quantity_name = quantity_name
-        if "intrinsinc_list" in kwargs:
-            self._postprocessor.logger.warning("``intrinsinc_list`` is deprecated, please use ``intrinsics`` instead.")
-            self.intrinsics = kwargs["intrinsics"]
         self.intrinsics = intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"

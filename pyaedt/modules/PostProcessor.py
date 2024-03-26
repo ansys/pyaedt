@@ -21,6 +21,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict_items_to_list_items
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_file
+from pyaedt.generic.general_methods import deprecated_alias
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -2954,7 +2955,15 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(
-        self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None, filter_boxes=[], field_type=None
+        self,
+        objlist,
+        quantityName,
+        setup_name,
+        intrinsics,
+        listtype,
+        plot_name=None,
+        filter_boxes=None,
+        field_type=None,
     ):
         if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             objlist = self._app.modeler.convert_to_selections(objlist, True)
@@ -2975,6 +2984,7 @@ class PostProcessor(PostProcessorCommon, object):
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
             plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
+        filter_boxes = [] if filter_boxes is None else filter_boxes
         if listtype == "CutPlane":
             plot = FieldPlot(
                 self, cutplanelist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsics=intrinsics
@@ -3067,15 +3077,9 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
+    @deprecated_alias(IntrinsincDict="intrinsics")
     def create_fieldplot_line(
-        self,
-        objlist,
-        quantityName,
-        setup_name=None,
-        intrinsics=None,
-        plot_name=None,
-        field_type="DC R/L Fields",
-        **kwargs,
+        self, objlist, quantityName, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of the line.
 
@@ -3107,14 +3111,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        new_args = {"intrinsincDict": intrinsics}
-        for k in kwargs:
-            if k in new_args:
-                self.logger.warning("``{}`` is deprecated, please use ``{}`` instead.".format(k, str(new_args[k])))
-                new_args[k] = kwargs[k]
-            else:
-                raise TypeError("create_fieldplot_line() got an unexpected keyword argument ``{}``".format(k))
-
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -3125,6 +3121,7 @@ class PostProcessor(PostProcessorCommon, object):
         )
 
     @pyaedt_function_handler()
+    @deprecated_alias(IntrinsincDict="intrinsics")
     def create_fieldplot_line_traces(
         self,
         seeding_faces,
@@ -3134,7 +3131,6 @@ class PostProcessor(PostProcessorCommon, object):
         intrinsics=None,
         plot_name=None,
         field_type="DC R/L Fields",
-        **kwargs,
     ):
         """
         Create a field plot of the line.
@@ -3171,9 +3167,6 @@ class PostProcessor(PostProcessorCommon, object):
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
-        if "intrinsinc_dict" in kwargs:
-            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
-            intrinsics = kwargs["intrinsinc_dict"]
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -3302,15 +3295,9 @@ class PostProcessor(PostProcessorCommon, object):
         return self._create_fieldplot(layers_nets, quantity_name, setup_name, intrinsics, plot_type, plot_name)
 
     @pyaedt_function_handler()
+    @deprecated_alias(IntrinsincDict="intrinsics")
     def create_fieldplot_surface(
-        self,
-        objlist,
-        quantityName,
-        setup_name=None,
-        intrinsics=None,
-        plot_name=None,
-        field_type="DC R/L Fields",
-        **kwargs,
+        self, objlist, quantityName, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of surfaces.
 
@@ -3342,9 +3329,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if "intrinsincDict" in kwargs:
-            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
-            intrinsics = kwargs["intrinsincDict"]
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -3363,6 +3347,7 @@ class PostProcessor(PostProcessorCommon, object):
         )
 
     @pyaedt_function_handler()
+    @deprecated_alias(IntrinsincDict="intrinsics")
     def create_fieldplot_cutplane(
         self,
         objlist,
@@ -3372,7 +3357,6 @@ class PostProcessor(PostProcessorCommon, object):
         plot_name=None,
         filter_objects=None,
         field_type="DC R/L Fields",
-        **kwargs,
     ):
         """Create a field plot of cut planes.
 
@@ -3407,9 +3391,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if "intrinsincDict" in kwargs:
-            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
-            intrinsics = kwargs["intrinsincDict"]
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -3429,15 +3410,9 @@ class PostProcessor(PostProcessorCommon, object):
         )
 
     @pyaedt_function_handler()
+    @deprecated_alias(IntrinsincDict="intrinsics")
     def create_fieldplot_volume(
-        self,
-        objlist,
-        quantityName,
-        setup_name=None,
-        intrinsics=None,
-        plot_name=None,
-        field_type="DC R/L Fields",
-        **kwargs,
+        self, objlist, quantityName, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of volumes.
 
@@ -3467,9 +3442,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if "intrinsincDict" in kwargs:
-            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
-            intrinsics = kwargs["intrinsincDict"]
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -5139,9 +5111,8 @@ class FieldSummary:
         return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(
-        self, setup_name=None, design_variation={}, intrinsics="", pandas_output=False, **kwargs
-    ):
+    @deprecated_alias(IntrinsincDict="intrinsics")
+    def get_field_summary_data(self, setup_name=None, design_variation={}, intrinsics="", pandas_output=False):
         """
         Get  field summary output computation.
 
@@ -5166,9 +5137,6 @@ class FieldSummary:
             Output type depending on the Boolean ``pandas_output`` parameter.
             The output consists of information exported from the field summary.
         """
-        if "intrinsic_value" in kwargs:
-            self._app.logger.warning("``intrinsic_value`` is deprecated, please use ``intrinsics`` instead.")
-            intrinsics = kwargs["intrinsic_value"]
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
             self.export_csv(temp_file.name, setup_name, design_variation, intrinsics)
