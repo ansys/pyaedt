@@ -925,9 +925,9 @@ class Desktop(object):
             StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
             if non_graphical or new_session:
                 self.launched_by_pyaedt = True
-                oapp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
+                return StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
             else:
-                oapp = StandalonePyScriptWrapper.CreateObject(version)
+                return StandalonePyScriptWrapper.CreateObject(version)
         else:
             base_path = settings.aedt_install_dir
             sys.path.insert(0, base_path)
