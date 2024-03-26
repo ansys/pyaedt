@@ -3107,9 +3107,14 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if "intrinsincDict" in kwargs:
-            self.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
-            intrinsics = kwargs["intrinsincDict"]
+        new_args = {"intrinsincDict": intrinsics}
+        for k in kwargs:
+            if k in new_args:
+                self.logger.warning("``{}`` is deprecated, please use ``{}`` instead.".format(k, str(new_args[k])))
+                new_args[k] = kwargs[k]
+            else:
+                raise TypeError("create_fieldplot_line() got an unexpected keyword argument ``{}``".format(k))
+
         if intrinsics is None:
             intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -5040,7 +5045,7 @@ AVAILABLE_QUANTITIES = [
     "MassFlowRate",
     "VolumeFlowRate",
     "MassFlux",
-    "ViscocityRatio",
+    "ViscosityRatio",
     "WallYPlus",
     "TKE",
     "Epsilon",
@@ -5162,7 +5167,7 @@ class FieldSummary:
             The output consists of information exported from the field summary.
         """
         if "intrinsic_value" in kwargs:
-            self._app.logger.warning("``intrinsincDict`` is deprecated, please use ``intrinsics`` instead.")
+            self._app.logger.warning("``intrinsic_value`` is deprecated, please use ``intrinsics`` instead.")
             intrinsics = kwargs["intrinsic_value"]
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()

@@ -258,7 +258,7 @@ def pyaedt_function_handler(direct_func=None):
 def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     """Check if two numeric values are equivalent to within a relative tolerance.
 
-    Paraemters
+    Parameters
     ----------
     a : int, float
         Reference value to compare to.

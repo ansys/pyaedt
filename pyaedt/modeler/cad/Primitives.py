@@ -4562,7 +4562,8 @@ class GeometryModeler(Modeler):
         create_group=True,
         separate_disjoints_lumped_object=False,
         import_free_surfaces=False,
-        point_coicidence_tolerance=1e-6,
+        point_coincidence_tolerance=1e-6,
+        **kwargs,
     ):
         """Import a CAD model.
 
@@ -4592,7 +4593,7 @@ class GeometryModeler(Modeler):
             Either to automatically separate disjoint parts. The default is ``False``.
         import_free_surfaces : bool, optional
             Either to import free surfaces parts. The default is ``False``.
-        point_coicidence_tolerance : float, optional
+        point_coincidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
 
         Returns
@@ -4605,7 +4606,9 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Import
         """
-
+        if "point_coicidence_tolerance" in kwargs:
+            self.logger.warning("point_coicidence_tolerance is deprecated, please use instead.")
+            point_coincidence_tolerance = kwargs["point_coicidence_tolerance"]
         if str(healing) in ["0", "1"]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
@@ -4621,7 +4624,7 @@ class GeometryModeler(Modeler):
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
-        vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coicidence_tolerance)
+        vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coincidence_tolerance)
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(separate_disjoints_lumped_object)

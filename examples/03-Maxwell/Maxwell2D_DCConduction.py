@@ -227,7 +227,7 @@ model_picture = m2d.post.export_model_picture()
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a PDF report with output of simulation.
 
-pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version=aedt_version)
+pdf_report = AnsysReport(version=aedt_version, design_name=m2d.design_name, project_name=m2d.project_name)
 
 # Customize text font.
 

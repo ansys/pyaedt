@@ -1267,10 +1267,7 @@ class Modeler3D(Primitives3D):
                 if not os.path.exists(parts_dict[part]["file_name"]):
                     continue
                 obj_names = [i for i in self.object_names]
-                self.import_3d_cad(
-                    parts_dict[part]["file_name"],
-                    create_lightweigth_part=create_lightweigth_part,
-                )
+                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweigth_part=create_lightweigth_part)
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2

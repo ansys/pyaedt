@@ -2,11 +2,11 @@
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
 `EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
-`Nets3DLayout`, `Objec3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`,
+`Nets3DLayout`, `Object3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`,
 `Pins3DLayout', and `VertexPrimitive`.
 
 This module provides methods and data structures for managing all properties of
-objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
+objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 
 """
 from __future__ import absolute_import  # noreorder

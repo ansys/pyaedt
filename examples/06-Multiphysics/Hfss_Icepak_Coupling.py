@@ -335,7 +335,7 @@ my_data.plot(trace_names, "db20",
 # Generate pdf report
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a pdf report with output of simultion.
-report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=aedt_version)
+report = AnsysReport(version=aedt_version, design_name=aedtapp.design_name, project_name=aedtapp.project_name)
 report.create()
 report.add_section()
 report.add_chapter("Hfss Results")

@@ -223,12 +223,12 @@ class Icepak(FieldAnalysis3D):
         air_faces,
         free_loss_coeff=True,
         free_area_ratio=0.8,
-        resistance_type=0,
         external_temp="AmbientTemp",
-        expternal_pressure="AmbientPressure",
+        external_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
         y_curve=["0", "1", "2"],
         boundary_name=None,
+        **kwargs,
     ):
         """Assign grille to a face or list of faces.
 
@@ -251,7 +251,7 @@ class Icepak(FieldAnalysis3D):
             The default is ``0`` for ``"Perforated Thin Vent"``.
         external_temp : str, optional
             External temperature. The default is ``"AmbientTemp"``.
-        expternal_pressure : str, optional
+        external_pressure : str, optional
             External pressure. The default is ``"AmbientPressure"``.
         x_curve : list, optional
             List of X curves in m_per_sec. The default is ``["0", "1", "2"]``.
@@ -271,6 +271,9 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignGrilleBoundary
         """
+        if "expternal_pressure" in kwargs:
+            self.logger.warning("``expternal_pressure`` is deprecated, please use ``external_pressure`` instead.")
+            external_pressure = kwargs["expternal_pressure"]
         if boundary_name is None:
             boundary_name = generate_unique_name("Grille")
 
@@ -283,12 +286,12 @@ class Icepak(FieldAnalysis3D):
             props["Pressure Loss Type"] = "Coeff"
             props["Free Area Ratio"] = str(free_area_ratio)
             props["External Rad. Temperature"] = external_temp
-            props["External Total Pressure"] = expternal_pressure
+            props["External Total Pressure"] = external_pressure
 
         else:
             props["Pressure Loss Type"] = "Curve"
             props["External Rad. Temperature"] = external_temp
-            props["External Total Pressure"] = expternal_pressure
+            props["External Total Pressure"] = external_pressure
 
         props["X"] = x_curve
         props["Y"] = y_curve

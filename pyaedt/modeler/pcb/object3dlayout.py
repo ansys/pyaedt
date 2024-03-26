@@ -15,7 +15,7 @@ from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Objec3DLayout(object):
+class Object3DLayout(object):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
@@ -431,11 +431,11 @@ class ModelInfoRlc(object):
             return self.rlc_model_type[6]
 
 
-class Components3DLayout(Objec3DLayout, object):
+class Components3DLayout(Object3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", edb_object=None):
-        Objec3DLayout.__init__(self, primitives, "component")
+        Object3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
 
@@ -789,11 +789,11 @@ class Nets3DLayout(object):
         return comps
 
 
-class Pins3DLayout(Objec3DLayout, object):
+class Pins3DLayout(Object3DLayout, object):
     """Contains the pins in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", component_name=None, is_pin=True):
-        Objec3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
+        Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
         self.is_pin = is_pin
@@ -847,11 +847,11 @@ class Pins3DLayout(Objec3DLayout, object):
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
 
 
-class Geometries3DLayout(Objec3DLayout, object):
+class Geometries3DLayout(Object3DLayout, object):
     """Contains geometries in HFSS 3D Layout."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
-        Objec3DLayout.__init__(self, primitives, prim_type)
+        Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
 
@@ -1655,7 +1655,7 @@ class Points3dLayout(object):
             return True
 
 
-class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
+class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     """Contains 3d Components in HFSS 3D Layout.
 
     Parameters
@@ -1668,7 +1668,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
     """
 
     def __init__(self, primitives, name=""):
-        Objec3DLayout.__init__(self, primitives, "component")
+        Object3DLayout.__init__(self, primitives, "component")
         self.name = name
 
     @property
