@@ -40,4 +40,3 @@ class TestClass(object):
     def test_03_argument_decorator(self):
         assert operation(n=2, m=3) == 5
         assert operation(t=2, m=3) == 5
-        pass
