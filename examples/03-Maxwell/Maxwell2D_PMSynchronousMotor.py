@@ -723,7 +723,7 @@ M2D.analyze_setup(setup_name, use_auto_settings=False)
 # formerly created when the section is applied.
 
 faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
-plot1 = M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', intrinsic_dict={
+plot1 = M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', intrinsics={
     "Time": M2D.variable_manager.variables["StopTime"].evaluated_value}, plot_name="Flux_Lines")
 
 ##########################################################

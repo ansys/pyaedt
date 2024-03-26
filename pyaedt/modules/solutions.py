@@ -2632,7 +2632,7 @@ class FieldPlot:
 
     """
 
-    @deprecated_alias(IntrinsincList="intrinsics")
+    @pyaedt_function_handler(IntrinsincList="intrinsics")
     def __init__(
         self,
         postprocessor,

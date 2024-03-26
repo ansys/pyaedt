@@ -1,18 +1,12 @@
 import pytest
 
 from pyaedt.generic.DataHandlers import str_to_bool
-from pyaedt.generic.general_methods import deprecated_alias
 from pyaedt.generic.general_methods import number_aware_string_key
 
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     return
-
-
-@deprecated_alias(t="n")
-def operation(n, m):
-    return n + m
 
 
 class TestClass(object):
@@ -36,7 +30,3 @@ class TestClass(object):
         assert True in list(map(str_to_bool, test_list_1))
         test_list_2 = ["Stop", "go", "run", "crawl", "False"]
         assert False in list(map(str_to_bool, test_list_2))
-
-    def test_03_argument_decorator(self):
-        assert operation(n=2, m=3) == 5
-        assert operation(t=2, m=3) == 5

@@ -3076,18 +3076,17 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             return False
 
-    @pyaedt_function_handler()
-    @deprecated_alias(IntrinsincDict="intrinsics")
+    @pyaedt_function_handler(objlist="objects", quantityName="quantity")
     def create_fieldplot_line(
-        self, objlist, quantityName, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
+        self, objects, quantity, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of the line.
 
         Parameters
         ----------
-        objlist : list
+        objects : list
             List of polyline to plot.
-        quantityName : str
+        quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
@@ -3117,7 +3116,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsics, "Line", plot_name, field_type=field_type
+            objects, quantity, setup_name, intrinsics, "Line", plot_name, field_type=field_type
         )
 
     @pyaedt_function_handler()
@@ -3346,8 +3345,7 @@ class PostProcessor(PostProcessorCommon, object):
             new_obj_list, quantityName, setup_name, intrinsics, "FacesList", plot_name, field_type=field_type
         )
 
-    @pyaedt_function_handler()
-    @deprecated_alias(IntrinsincDict="intrinsics")
+    @pyaedt_function_handler(IntrinsincDict="intrinsics")
     def create_fieldplot_cutplane(
         self,
         objlist,

@@ -49,14 +49,10 @@ class ReportSpec:
 
 
 class AnsysReport(FPDF):
-    def __init__(
-        self, version="2023R2", design_name="design1", project_name="AnsysProject", template_json_file=None, **kwargs
-    ):
+    def __init__(self, version="2023R2", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()
-        if "tempplate_json_file" in kwargs.keys():
-            template_json_file = kwargs["tempplate_json_file"]
-        self.read_template(template_json_file)
+        self.read_template(tempplate_json_file)
         self.report_specs.ansys_version = version
         self.report_specs.design_name = design_name
         self.report_specs.project_name = project_name
