@@ -1180,7 +1180,7 @@ class Design(AedtObjects):
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
-                raise Exception("Project doesn't exists. Check it and retry.")
+                raise Exception("Project doesn't exist. Check it and retry.")
             else:
                 project_list = self.odesktop.GetProjectList()
                 self._oproject = self.odesktop.NewProject()
