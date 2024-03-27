@@ -252,7 +252,7 @@ class AedtLogger(object):
                 return True
             else:
                 return False
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
 
     @_log_on_desktop.setter
@@ -590,7 +590,8 @@ class AedtLogger(object):
                 des_name = des_name[des_name.find(";") + 1 :]
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
-            except:
+
+            except Exception:  # pragma: no cover
                 pass
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
@@ -658,7 +659,7 @@ class AedtLogger(object):
             des_name = self.design_name
         try:
             self._desktop.ClearMessages(proj_name, des_name, level)
-        except:
+        except Exception:  # pragma: no cover
             pass
 
     @property

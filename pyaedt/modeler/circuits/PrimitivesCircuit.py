@@ -1210,7 +1210,7 @@ class CircuitComponents(object):
             w.id = int(wire_id)
             self.wires[w.id] = w
             return w
-        except:
+        except Exception:
             return False
 
 

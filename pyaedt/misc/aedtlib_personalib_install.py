@@ -95,7 +95,7 @@ def add_pyaedt_to_aedt(
         if pid and new_desktop_session:
             try:
                 os.kill(pid, 9)
-            except:
+            except Exception:
                 pass
 
     toolkits = ["Project"]

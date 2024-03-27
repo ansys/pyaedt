@@ -359,7 +359,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_36_activate_variable_for_optimization(self):
