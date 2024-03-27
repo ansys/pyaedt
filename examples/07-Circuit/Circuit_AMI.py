@@ -89,7 +89,7 @@ plot_type = "WaveAfterProbe"
 setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
-sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=probe_name, source_name=source_name,
+sample_waveform = cir.post.sample_ami_waveform(setup_name=setup_name, probe_name=probe_name, source_name=source_name,
                                                variation_list_w_value=cir.available_variations.nominal,
                                                unit_interval=unit_interval, ignore_bits=ignore_bits,
                                                plot_type=plot_type)

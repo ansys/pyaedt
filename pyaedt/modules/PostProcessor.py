@@ -3734,18 +3734,18 @@ class PostProcessor(PostProcessorCommon, object):
             return False
         return solution_data
 
-    @pyaedt_function_handler()
-    def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False, air_objects=False):
+    @pyaedt_function_handler(obj_list="objects")
+    def export_model_obj(self, objects=None, export_path=None, export_as_single_objects=False, air_objects=False):
         """Export the model.
 
         Parameters
         ----------
-        obj_list : list, optional
+        objects : list, optional
             List of objects to export. Export every model object except 3D ones, vacuum and air objects.
         export_path : str, optional
             Full path of the exported obj file.
         export_as_single_objects : bool, optional
-            Define if the model will be exported as single obj or list of objs for each object.
+            Define if the model will be exported as single object or list of objects for each object.
         air_objects : bool, optional
             Define if air and vacuum objects will be exported.
 
@@ -3754,19 +3754,19 @@ class PostProcessor(PostProcessorCommon, object):
         list
             Files obj path.
         """
-        if obj_list and not isinstance(obj_list, (list, tuple)):
-            obj_list = [obj_list]
+        if objects and not isinstance(objects, (list, tuple)):
+            objects = [objects]
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
             export_path = self._app.working_directory
-        if not obj_list:
+        if not objects:
             self._app.modeler.refresh_all_ids()
             non_model = self._app.modeler.non_model_objects[:]
-            obj_list = [i for i in self._app.modeler.object_names if i not in non_model]
+            objects = [i for i in self._app.modeler.object_names if i not in non_model]
             if not air_objects:
-                obj_list = [
+                objects = [
                     i
-                    for i in obj_list
+                    for i in objects
                     if not self._app.modeler[i].is3d
                     or (
                         self._app.modeler[i].material_name.lower() != "vacuum"
@@ -3775,7 +3775,7 @@ class PostProcessor(PostProcessorCommon, object):
                 ]
         if export_as_single_objects:
             files_exported = []
-            for el in obj_list:
+            for el in objects:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if settings.remote_rpc_session_temp_folder:
@@ -3793,7 +3793,7 @@ class PostProcessor(PostProcessorCommon, object):
             return files_exported
         else:
             fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
-            self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
+            self._app.modeler.oeditor.ExportModelMeshToFile(fname, objects)
             return [[fname, "aquamarine", 0.3]]
 
     @pyaedt_function_handler()
@@ -4218,6 +4218,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
+    @pyaedt_function_handler()
     def create_creeping_plane_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4267,6 +4268,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
     def create_creeping_point_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4310,6 +4312,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
     def create_sbr_plane_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4383,6 +4386,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
     def create_sbr_point_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4470,22 +4474,23 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     def __init__(self, app):
         PostProcessorCommon.__init__(self, app)
 
+    @pyaedt_function_handler(setupname="setup_name", plotname="plot_name")
     def create_ami_initial_response_plot(
         self,
-        setupname,
+        setup_name,
         ami_name,
         variation_list_w_value,
         plot_type="Rectangular Plot",
         plot_initial_response=True,
         plot_intermediate_response=False,
         plot_final_response=False,
-        plotname=None,
+        plot_name=None,
     ):
         """Create an AMI initial response plot.
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         ami_name : str
             AMI probe name to use.
@@ -4501,7 +4506,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             Set whether to plot the intermediate input response.  Default is ``False``.
         plot_final_response : bool, optional
             Set whether to plot the final input response.  Default is ``False``.
-        plotname : str, optional
+        plot_name : str, optional
             The plot name.  Default is a unique name.
 
         Returns
@@ -4509,8 +4514,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         str
             Name of the plot.
         """
-        if not plotname:
-            plotname = generate_unique_name("AMIAnalysis")
+        if not plot_name:
+            plot_name = generate_unique_name("AMIAnalysis")
         variations = ["__InitialTime:=", ["All"]]
         i = 0
         for a in variation_list_w_value:
@@ -4533,10 +4538,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         if plot_final_response:
             ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
         self.oreportsetup.CreateReport(
-            plotname,
+            plot_name,
             "Standard",
             plot_type,
-            setupname,
+            setup_name,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -4575,16 +4580,17 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__InitialTime", "Y Component:=", ycomponents],
         )
-        return plotname
+        return plot_name
 
+    @pyaedt_function_handler(setupname="setup_name", plotname="plot_name")
     def create_ami_statistical_eye_plot(
-        self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
+        self, setup_name, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plot_name=None
     ):
         """Create an AMI statistical eye plot.
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         ami_name : str
             AMI probe name to use.
@@ -4593,7 +4599,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         ami_plot_type : str, optional
             String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
             ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
-        plotname : str, optional
+        plot_name : str, optional
             The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
 
         Returns
@@ -4606,8 +4612,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateReport
         """
-        if not plotname:
-            plotname = generate_unique_name("AMYAanalysis")
+        if not plot_name:
+            plot_name = generate_unique_name("AMYAanalysis")
         variations = [
             "__UnitInterval:=",
             ["All"],
@@ -4642,10 +4648,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         elif ami_plot_type == "EyeAfterProbe":
             ami_id = "3"
         self.oreportsetup.CreateReport(
-            plotname,
+            plot_name,
             "Statistical Eye",
             "Statistical Eye Plot",
-            setupname,
+            setup_name,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -4681,20 +4687,21 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
-        return plotname
+        return plot_name
 
-    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, plotname=None):
+    @pyaedt_function_handler(setupname="setup_name", plotname="plot_name")
+    def create_statistical_eye_plot(self, setup_name, probe_names, variation_list_w_value, plot_name=None):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         probe_names : str or list
             Name of the probe to plot in the EYE diagram.
         variation_list_w_value : list
             List of variations with relative values.
-        plotname : str, optional
+        plot_name : str, optional
             The name of the plot.
 
         Returns
@@ -4707,8 +4714,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateReport
         """
-        if not plotname:
-            plotname = generate_unique_name("AMIAanalysis")
+        if not plot_name:
+            plot_name = generate_unique_name("AMIAanalysis")
         variations = [
             "__UnitInterval:=",
             ["All"],
@@ -4734,10 +4741,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ycomponents = [probe_names]
 
         self.oreportsetup.CreateReport(
-            plotname,
+            plot_name,
             "Statistical Eye",
             "Statistical Eye Plot",
-            setupname,
+            setup_name,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -4773,8 +4780,9 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
-        return plotname
+        return plot_name
 
+    @pyaedt_function_handler()
     def sample_waveform(
         self,
         waveform_data,
@@ -4813,7 +4821,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Examples
         --------
         >>> aedtapp = Circuit()
-        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+        >>> aedtapp.post.sample_ami_waveform(setup_name,probe_name,source_name,aedtapp.available_variations.nominal)
 
         """
 
@@ -4862,9 +4870,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             return pd.Series(new_voltage, index=tic_in_s)
         return outputdata
 
+    @pyaedt_function_handler(setupname="setup_name")
     def sample_ami_waveform(
         self,
-        setupname,
+        setup_name,
         probe_name,
         source_name,
         variation_list_w_value,
@@ -4877,7 +4886,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         probe_name : str
             Name of the AMI probe.
@@ -4905,7 +4914,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Examples
         --------
         >>> aedtapp = Circuit()
-        >>> aedtapp.post.sample_ami_waveform(setupname, probe_name, source_name, aedtapp.available_variations.nominal)
+        >>> aedtapp.post.sample_ami_waveform(setupname,probe_name,source_name,aedtapp.available_variations.nominal)
 
         """
         initial_solution_type = self.post_solution_type
@@ -4928,7 +4937,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         waveform_sweep_unit = []
         for exp in plot_expression:
             waveform_data = self.get_solution_data(
-                expressions=exp, setup_sweep_name=setupname, domain="Time", variations=variation_list_w_value
+                expressions=exp, setup_sweep_name=setup_name, domain="Time", variations=variation_list_w_value
             )
             samples_per_bit = 0
             for sample in waveform_data.primary_sweep_values:
@@ -4954,7 +4963,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             clock_expression = "ClockTics<" + probe_name + ".int_ami_rx>"
             clock_tic = self.get_solution_data(
                 expressions=clock_expression,
-                setup_sweep_name=setupname,
+                setup_sweep_name=setup_name,
                 domain="Clock Times",
                 variations=variation_list_w_value,
             )
@@ -5142,19 +5151,19 @@ class FieldSummary:
                 return pd.DataFrame.from_dict(out_dict)
         return out_dict
 
-    @pyaedt_function_handler()
-    def export_csv(self, filename, setup_name=None, design_variation={}, intrinsics=""):
+    @pyaedt_function_handler(filename="file_name", design_variation="variations")
+    def export_csv(self, file_name, setup_name=None, variations={}, intrinsics=""):
         """
         Get the field summary output computation.
 
         Parameters
         ----------
-        filename : str
+        file_name : str
             Path and filename to write the output file to.
         setup_name : str, optional
             Setup name to use for the computation. The
             default is ``None``, in which case the nominal variation is used.
-        design_variation : dict, optional
+        variations : dict, optional
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case the nominal variation is used.
         intrinsics : str, optional
@@ -5169,8 +5178,8 @@ class FieldSummary:
         if not setup_name:
             setup_name = self._app.nominal_sweep
         dv_string = ""
-        for el in design_variation:
-            dv_string += el + "='" + design_variation[el] + "' "
+        for el in variations:
+            dv_string += el + "='" + variations[el] + "' "
         self._create_field_summary(setup_name, dv_string)
         self._app.osolution.ExportFieldsSummary(
             [
@@ -5179,7 +5188,7 @@ class FieldSummary:
                 "DesignVariationKey:=",
                 dv_string,
                 "ExportFileName:=",
-                filename,
+                file_name,
                 "IntrinsicValue:=",
                 intrinsics,
             ]
