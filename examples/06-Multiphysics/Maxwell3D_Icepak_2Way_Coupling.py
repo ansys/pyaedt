@@ -255,10 +255,10 @@ surface_list = []
 for name in ["Coil", "Core"]:
     surface_list.extend(ipk.modeler.get_object_faces(name))
 
-surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantityName="SurfTemperature",
+surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature",
                                                      plot_name="Surface Temperature")
 
-velocity_cutplane = ipk.post.create_fieldplot_cutplane(objlist=["Global:XZ"], quantityName="Velocity Vectors",
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(objects=["Global:XZ"], quantity="Velocity Vectors",
                                                        plot_name="Velocity Vectors")
 
 surf_temperature.export_image()

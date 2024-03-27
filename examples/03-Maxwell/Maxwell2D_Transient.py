@@ -106,9 +106,8 @@ setup.props["Steps To"] = "0.002s"
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Create a rectangular plot.
 
-maxwell_2d.post.create_report(
-    "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
-)
+maxwell_2d.post.create_report("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+                              plot_name="Winding Plot 1")
 
 ###############################################################################
 # Solve model

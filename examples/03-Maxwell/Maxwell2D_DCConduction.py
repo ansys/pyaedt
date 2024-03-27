@@ -136,14 +136,9 @@ param_sweep.analyze()
 # Create R. vs. material report
 
 variations = {"MaterialIndex": ["All"], "MaterialThickness": ["Nominal"]}
-report = m2d.post.create_report(
-    expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
-    primary_sweep_variable="MaterialIndex",
-    report_category="DCConduction",
-    plot_type="Data Table",
-    variations=variations,
-    plotname="Resistance vs. Material",
-)
+report = m2d.post.create_report(expressions="1/Matrix1.G(1V,1V)/MaterialThickness", variations=variations,
+                                primary_sweep_variable="MaterialIndex", report_category="DCConduction",
+                                plot_type="Data Table", plot_name="Resistance vs. Material")
 
 ###############################################################################
 # Get solution data

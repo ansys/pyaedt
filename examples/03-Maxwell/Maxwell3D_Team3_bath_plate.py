@@ -192,14 +192,8 @@ Fields.AddNamedExpression("Bz", "Fields")
 # Plot mag(Bz) as a function of frequency for both coil positions.
 
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
-m3d.post.create_report(
-    expressions="mag(Bz)",
-    report_category="Fields",
-    context="Line_AB",
-    variations=variations,
-    primary_sweep_variable="Distance",
-    plotname="mag(Bz) Along 'Line_AB' Coil",
-)
+m3d.post.create_report(expressions="mag(Bz)", variations=variations, primary_sweep_variable="Distance",
+                       report_category="Fields", context="Line_AB", plot_name="mag(Bz) Along 'Line_AB' Coil")
 
 ###############################################################################
 # Get simulation results from a solved setup

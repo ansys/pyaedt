@@ -107,7 +107,7 @@ hfss.analyze(num_cores=6)
 # Draw Point1 at origin of the implant coordinate system
 
 hfss.sar_setup(-1, Average_SAR_method=1, TissueMass=1, MaterialDensity=1, )
-hfss.post.create_fieldplot_cutplane(objlist="implant:YZ", quantityName="Average_SAR", filter_objects=["implant_box"])
+hfss.post.create_fieldplot_cutplane(objects="implant:YZ", quantity="Average_SAR", filter_objects=["implant_box"])
 
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point([0, 0, 0], name="Point1")
@@ -212,8 +212,7 @@ mech.analyze(num_cores=6)
 # Plot Temperature on cut plane.
 # Plot Temperature on point.
 
-mech.post.create_fieldplot_cutplane("implant:YZ", "Temperature", intrinsic_dict={"Time": "10s"},
-                                    filter_objects=["implant_box"])
+mech.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"])
 mech.save_project()
 
 data = mech.post.get_solution_data("Temperature", primary_sweep_variable="Time", context="Point1",
@@ -303,8 +302,7 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # Plot Temperature on monitor point.
 
 ipk.analyze(num_cores=4,num_tasks=4)
-ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", intrinsic_dict={"Time": "0s"},
-                                   filter_objects=["implant_box"])
+ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"])
 ipk.save_project()
 
 data = ipk.post.get_solution_data("Point1.Temperature", primary_sweep_variable="Time", report_category="Monitor")

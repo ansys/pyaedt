@@ -398,14 +398,8 @@ for item in range(len(dataset)):
                 "Phase": ["0deg", "90deg"],
                 "Coil_Excitation": ["All"],
             }
-        report = m3d.post.create_report(
-            plotname=plot_name,
-            report_category="Fields",
-            context="Line_" + t[3:8],
-            primary_sweep_variable="Distance",
-            variations=variations,
-            expressions=t[0:2],
-        )
+        report = m3d.post.create_report(expressions=t[0:2], variations=variations, primary_sweep_variable="Distance",
+                                        report_category="Fields", context="Line_" + t[3:8], plot_name=plot_name)
         file_path = os.path.join(temp_dir.name, str(dataset[i]) + ".csv")
         report.import_traces(file_path, plot_name)
 

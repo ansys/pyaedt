@@ -4346,7 +4346,7 @@ class Hfss(FieldAnalysis3D, object):
             port_excited = port_names
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
         return self.post.create_report(
-            traces, sweep_name, variations=variations, report_category=solution_data, plotname=plot_name
+            traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot_name
         )
 
     @pyaedt_function_handler()

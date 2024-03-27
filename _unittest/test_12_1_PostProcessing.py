@@ -136,9 +136,7 @@ class TestClass:
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
         self.aedtapp.post.export_field_jpg(
-            os.path.join(self.local_scratch.path, "prova2.jpg"),
-            plot2.name,
-            plot2.plotFolder,
+            os.path.join(self.local_scratch.path, "prova2.jpg"), plot2.name, plot2.plotFolder
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
         assert os.path.exists(
@@ -225,7 +223,7 @@ class TestClass:
             os.path.join(self.local_scratch.path, "Efield.fld"),
             grid_stop=[5, 5, 5],
             grid_step=[0.5, 0.5, 0.5],
-            isvector=True,
+            is_vector=True,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
@@ -235,10 +233,10 @@ class TestClass:
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
-            gridtype="Spherical",
+            grid_type="Spherical",
             grid_stop=[5, 300, 300],
             grid_step=[5, 50, 50],
-            isvector=False,
+            is_vector=False,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
@@ -248,10 +246,10 @@ class TestClass:
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
-            gridtype="Cylindrical",
+            grid_type="Cylindrical",
             grid_stop=[5, 300, 5],
             grid_step=[5, 50, 5],
-            isvector=False,
+            is_vector=False,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
@@ -271,12 +269,12 @@ class TestClass:
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
-            variations={"Pass": ["All"]},
             setup_sweep_name="Setup1 : AdaptivePass",
+            variations={"Pass": ["All"]},
             primary_sweep_variable="Pass",
             report_category="Modal Solution Data",
             plot_type="Rectangular Plot",
-            plotname="Solution Convergence Plot",
+            plot_name="Solution Convergence Plot",
         )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -582,11 +580,11 @@ class TestClass:
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
-            objlist=cutlist,
-            quantityName="Mag_E",
+            objects=cutlist,
+            quantity="Mag_E",
             setup_name=self.aedtapp.nominal_adaptive,
             intrinsics={},
-            listtype="CutPlane",
+            list_type="CutPlane",
         )
         assert plot
 

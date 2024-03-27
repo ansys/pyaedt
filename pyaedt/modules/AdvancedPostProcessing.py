@@ -135,7 +135,7 @@ class PostProcessor(Post):
 
             trace_name = "rETheta"
             solnData = self.get_far_field_data(
-                setup_sweep_name=setup_sweep_name, domain=ff_setup, expression=trace_name
+                expression=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup
             )
 
             data = solnData.nominal_variation
@@ -152,7 +152,7 @@ class PostProcessor(Post):
 
             trace_name = "rEPhi"
             solnData = self.get_far_field_data(
-                setup_sweep_name=setup_sweep_name, domain=ff_setup, expression=trace_name
+                expression=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup
             )
             data = solnData.nominal_variation
 

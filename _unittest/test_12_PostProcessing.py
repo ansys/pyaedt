@@ -124,9 +124,9 @@ class TestClass:
             variations=variations,
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
+            report_category="Far Fields",
             plot_type="3D Polar Plot",
             context=context,
-            report_category="Far Fields",
         )
         assert field_test.post.create_report(
             "db(GainTotal)",
@@ -134,9 +134,9 @@ class TestClass:
             variations=variations,
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
+            report_category="Far Fields",
             plot_type="3D Polar Plot",
             context="3D",
-            report_category="Far Fields",
         )
         report = AnsysReport()
         report.create()
@@ -205,10 +205,7 @@ class TestClass:
         assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
         assert field_test.post.create_report(
-            "S(1,1)",
-            field_test.nominal_sweep,
-            variations=variations,
-            plot_type="Smith Chart",
+            "S(1,1)", field_test.nominal_sweep, variations=variations, plot_type="Smith Chart"
         )
 
     def test_09_manipulate_report_E(self, field_test):
@@ -216,10 +213,7 @@ class TestClass:
         variations2 = field_test.available_variations.nominal_w_values_dict
 
         assert field_test.setups[0].create_report(
-            "Mag_E",
-            primary_sweep_variable="Distance",
-            context="Poly1",
-            report_category="Fields",
+            "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
         )
         new_report = field_test.post.reports_by_category.fields("Mag_H", field_test.nominal_adaptive)
         new_report.variations = variations2
@@ -238,11 +232,11 @@ class TestClass:
         assert data.units_sweeps["Phase"] == "deg"
 
         assert field_test.post.get_far_field_data(
-            setup_sweep_name=field_test.nominal_adaptive, expression="RealizedGainTotal", domain="3D"
+            expression="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
         data_farfield2 = field_test.post.get_far_field_data(
-            setup_sweep_name=field_test.nominal_adaptive,
             expression="RealizedGainTotal",
+            setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
         assert data_farfield2.plot(math_formula="db20", is_polar=True)
@@ -311,7 +305,7 @@ class TestClass:
         new_report.plot_continous_spectrum = False
         assert new_report.create()
         assert circuit_test.post.create_report(
-            ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum", setup_sweep_name="Transient"
+            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
         )
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
@@ -898,7 +892,7 @@ class TestClass:
             scalar_function="Integrate",
             solution=None,
             variation_dict={"power_block": "0.25W", "power_source": "0.075W"},
-            isvector=False,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -910,7 +904,7 @@ class TestClass:
             scalar_function="Integrate",
             solution=None,
             variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -922,7 +916,7 @@ class TestClass:
             scalar_function="Integrate",
             solution=None,
             variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -934,7 +928,7 @@ class TestClass:
             scalar_function="Maximum",
             solution=None,
             variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube1",
@@ -946,7 +940,7 @@ class TestClass:
             scalar_function="Maximum",
             solution=None,
             variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -958,7 +952,7 @@ class TestClass:
             scalar_function="Value",
             solution=None,
             variation_dict=None,
-            isvector=False,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="Point1",
