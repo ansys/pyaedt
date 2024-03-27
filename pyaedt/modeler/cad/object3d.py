@@ -161,7 +161,7 @@ class Object3d(object):
                 try:
                     for i in range(1, 7):
                         bb.append(float(m.group(i)))
-                except:
+                except Exception:
                     return False
             else:
                 return False
@@ -170,7 +170,7 @@ class Object3d(object):
 
         try:
             os.remove(filename)
-        except:
+        except Exception:
             self.logger.warning("ERROR: Cannot remove temp file.")
         return bb
 
@@ -498,7 +498,7 @@ class Object3d(object):
             result = [(float(face.center[2]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -519,7 +519,7 @@ class Object3d(object):
             result = [(float(face.center[2]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -540,7 +540,7 @@ class Object3d(object):
             result = [(float(face.center[0]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -561,7 +561,7 @@ class Object3d(object):
             result = [(float(face.center[0]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -582,7 +582,7 @@ class Object3d(object):
             result = [(float(face.center[1]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -603,7 +603,7 @@ class Object3d(object):
             result = [(float(face.center[1]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -624,7 +624,7 @@ class Object3d(object):
             result = [(float(face.top_edge_z.midpoint[2]), face.top_edge_z) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -640,7 +640,7 @@ class Object3d(object):
             result = [(float(face.bottom_edge_z.midpoint[2]), face.bottom_edge_z) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -656,7 +656,7 @@ class Object3d(object):
             result = [(float(face.top_edge_x.midpoint[0]), face.top_edge_x) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -672,7 +672,7 @@ class Object3d(object):
             result = [(float(face.bottom_edge_x.midpoint[0]), face.bottom_edge_x) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -688,7 +688,7 @@ class Object3d(object):
             result = [(float(face.top_edge_y.midpoint[1]), face.top_edge_y) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -704,7 +704,7 @@ class Object3d(object):
             result = [(float(face.bottom_edge_y.midpoint[1]), face.bottom_edge_y) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -936,7 +936,7 @@ class Object3d(object):
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
             self._surface_material = mat
-        except:
+        except Exception:
             self.logger.warning("Material %s does not exist", mat)
 
     @property
@@ -957,7 +957,7 @@ class Object3d(object):
         if not self._id:
             try:
                 self._id = self._primitives.oeditor.GetObjectIDByName(self._m_name)
-            except:
+            except Exception:
                 return None
         return self._id
 
@@ -1195,7 +1195,7 @@ class Object3d(object):
             transp = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Transparent")
             try:
                 self._transparency = float(transp)
-            except:
+            except Exception:
                 self._transparency = 0.3
             return self._transparency
 
@@ -1339,7 +1339,7 @@ class Object3d(object):
             child_object = self._oeditor.GetChildObject(self.name)
             parent = BinaryTreeNode(self.name, child_object, True)
             return parent
-        except:
+        except Exception:
             return False
 
     @property
