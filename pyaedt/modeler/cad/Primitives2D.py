@@ -288,9 +288,10 @@ class Primitives2D(GeometryModeler, object):
         ----------
         pad_percent : float, str, list of floats or list of str, optional
             Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "-X", "-Y"]``.
+            If a list of floats or strings, interpret as adding ``["+X", "+Y", "-X", "-Y"]`` for XY geometry mode,
+            and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
         is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
+            Whether the region definition is a percentage or absolute value. The default is `True``.
 
         Returns
         -------
@@ -303,10 +304,18 @@ class Primitives2D(GeometryModeler, object):
         >>> oEditor.CreateRegion
         """
         if not isinstance(pad_percent, list):
-            if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
+            pad_percent = [pad_percent] * 4
+        if self._app.design_type == "2D Extractor" or (
+            self._app.design_type == "Maxwell 2D" and self._app.odesign.GetGeometryMode() == "XY"
+        ):
+            if len(pad_percent) != 4:
+                self.logger.error("Wrong padding list provided. Four values have to be provided.")
+                return False
+            pad_percent = [pad_percent[0], pad_percent[2], pad_percent[1], pad_percent[3], 0, 0]
         else:
-            if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+            if len(pad_percent) < 3:
+                self.logger.error("Wrong padding list provided. Three values have to be provided for RZ geometry.")
+                return False
+            pad_percent = [pad_percent[0], 0, 0, 0, pad_percent[1], pad_percent[2]]
 
-        return self._create_region(pad_percent, is_percentage)
+        return self._create_region(pad_percent, ["Absolute Offset", "Percentage Offset"][int(is_percentage)])

@@ -272,7 +272,7 @@ class TestClass:
         assert self.aedtapp.modeler.create_air_region(20, 20, 30, 50, 50, 100, False)
         self.aedtapp.modeler["Region"].delete()
         self.aedtapp["region_param"] = "20mm"
-        assert self.aedtapp.modeler.create_air_region("region_param", 20, "30mm", "50", 50, 100, False)
+        assert self.aedtapp.modeler.create_air_region("region_param", 20, "30", "50", 50, 100, False)
         assert self.aedtapp.modeler.edit_region_dimensions(["40mm", "30mm", 30, 50, 50, 100])
         self.aedtapp.modeler["Region"].delete()
         assert self.aedtapp.modeler.create_air_region("20", 20, 30, 50, 50, 100)
@@ -359,7 +359,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_36_activate_variable_for_optimization(self):

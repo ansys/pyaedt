@@ -54,15 +54,16 @@ def run_pyinstaller_from_c_python(oDesktop):
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT setup complete.")
 
-
     import tempfile
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
     with open(python_script, "w") as f:
         # enable in debu mode
-        #f.write("import sys\n")
-        #f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
+        # f.write("import sys\n")
+        # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         f.write("from pyaedt.misc.aedtlib_personalib_install import add_pyaedt_to_aedt\n")
-        f.write('add_pyaedt_to_aedt(aedt_version="{}", is_student_version={}, use_sys_lib=False, new_desktop_session=False, pers_dir=r"{}")\n'.format(oDesktop.GetVersion()[:6], is_student_version(oDesktop), oDesktop.GetPersonalLibDirectory()))
+        f.write(
+            'add_pyaedt_to_aedt(aedt_version="{}", is_student_version={}, use_sys_lib=False, new_desktop_session=False, pers_dir=r"{}")\n'.format(
+                oDesktop.GetVersion()[:6], is_student_version(oDesktop), oDesktop.GetPersonalLibDirectory()))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, command)
@@ -98,7 +99,6 @@ def parse_arguments_for_pyaedt_installer(args=None):
 
 
 def install_pyaedt():
-
     # This is called when run from CPython
     args = parse_arguments_for_pyaedt_installer()
     if is_windows:
@@ -116,7 +116,7 @@ def install_pyaedt():
             "{}/common/mono/Linux64/lib64".format(args.edt_root),
             "{}".format(args.edt_root),
         ]
-        if args.version<"232":
+        if args.version < "232":
             ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
@@ -138,13 +138,15 @@ def install_pyaedt():
                 # Extract all contents to a directory (you can specify a different extraction path if needed)
                 zip_ref.extractall(unzipped_path)
 
-            run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe, unzipped_path))
-            run_command('"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
+            run_command(
+                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe, unzipped_path))
+            run_command(
+                '"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
 
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
+            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
             # run_command('"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
@@ -173,7 +175,7 @@ def install_pyaedt():
 
             run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
         else:
-            run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
+            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
 
     # if is_windows:
     #     pyaedt_setup_script = "{}/Lib/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(venv_dir)

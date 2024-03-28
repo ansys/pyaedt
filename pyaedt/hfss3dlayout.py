@@ -814,8 +814,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Filename when successful, ``False`` when failed.
 
         References
         ----------
@@ -1666,12 +1666,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         try:
             os.remove(tmpfile1)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
         try:
             self.oexcitation.SetDiffPairs(arg)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -1709,7 +1709,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             try:
                 os.remove(tmpfile1)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.logger.warning("ERROR: Cannot remove temp files.")
 
         return list_output
@@ -1750,7 +1750,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             self.oexcitation.LoadDiffPairsFromFile(new_file)
             os.remove(new_file)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -2032,6 +2032,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.logger.error("Port not found.")
         return False
 
+    @pyaedt_function_handler()
     def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
@@ -2066,6 +2067,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
 
+    @pyaedt_function_handler()
     def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
         """
         Return a Touchstone data plot.
@@ -2107,6 +2109,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             s_parameters.append(TouchstoneData(solution_data=sol_data))
         return s_parameters
 
+    @pyaedt_function_handler()
     def get_dcir_element_data_loop_resistance(self, setup_name):
         """Get dcir element data loop resistance.
 
@@ -2148,6 +2151,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
+    @pyaedt_function_handler()
     def get_dcir_element_data_current_source(self, setup_name):
         """Get dcir element data current source.
 
@@ -2183,6 +2187,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
+    @pyaedt_function_handler()
     def get_dcir_element_data_via(self, setup_name):
         """Get dcir element data via.
 
@@ -2223,7 +2228,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def show_extent(self, show=True):
         """Show or hide extent in a HFSS3dLayout design.
 
@@ -2249,10 +2254,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         try:
             self.oeditor.SetHfssExtentsVisible(show)
             return True
-        except:
+        except Exception:
             return False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def change_options(self, color_by_net=True):
         """Change options for an existing layout.
 
@@ -2282,5 +2287,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             oeditor = self.odesign.SetActiveEditor("Layout")
             oeditor.ChangeOptions(options)
             return True
-        except:
+        except Exception:
             return False

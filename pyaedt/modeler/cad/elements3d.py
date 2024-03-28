@@ -229,7 +229,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             self._position = [float(i) for i in vertex_data]
             return self._position
-        except Exception as e:
+        except Exception:
             return None
 
     def __str__(self):
@@ -270,7 +270,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
         try:
             self.oeditor.GetChildNames()
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return {}
         self._object3d._primitives._app.autosave_disable()
         ll = list(self.oeditor.GetObjectsInGroup("Lines"))
@@ -363,7 +363,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
         try:
             return float(self.oeditor.GetEdgeLength(self.id))
-        except:
+        except Exception:
             return False
 
     def __str__(self):
@@ -518,7 +518,7 @@ class FacePrimitive(object):
         vertices = []
         try:
             v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
-        except:
+        except Exception:
             v = []
         if not v:
             for el in self.edges:
@@ -553,7 +553,7 @@ class FacePrimitive(object):
         """
         try:
             c = self.oeditor.GetFaceCenter(self.id)
-        except:
+        except Exception:
             self.logger.warning("Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
@@ -573,7 +573,7 @@ class FacePrimitive(object):
             self.oeditor.GetFaceCenter(self.id)
             self._is_planar = True
             return True
-        except:
+        except Exception:
             self.logger.clear_messages()
             self._is_planar = False
             return False
@@ -662,7 +662,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -678,7 +678,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -694,7 +694,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -710,7 +710,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -726,7 +726,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -742,7 +742,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @pyaedt_function_handler()
@@ -1405,7 +1405,7 @@ class BinaryTreeNode:
             for p in self.child_object.GetPropNames():
                 try:
                     self.props[p] = self.child_object.GetPropValue(p)
-                except:
+                except Exception:
                     self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
@@ -1428,7 +1428,7 @@ class BinaryTreeNode:
         try:
             self.child_object.SetPropValue(prop_name, prop_value)
             return True
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
 
     @pyaedt_function_handler

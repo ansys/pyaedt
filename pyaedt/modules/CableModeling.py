@@ -226,7 +226,7 @@ class Cable:
                         ["NAME:TwistedPairAttribs", "Name:=", self.cable_name],
                     )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable creation was unsuccessful.")
             return False
 
@@ -299,7 +299,7 @@ class Cable:
                     ]
                 )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable properties not updated.")
             return False
 
@@ -346,7 +346,7 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable shielding properties not updated.")
             return False
 
@@ -370,7 +370,7 @@ class Cable:
                 try:
                     self._omodule.RemoveCable(cable_to_remove)
                     return True
-                except:
+                except Exception:
                     self._app.logger.error("Remove cable failed.")
                     return False
 
@@ -393,7 +393,7 @@ class Cable:
                         ["NAME:CableInstAttribs", "Name:=", cable_to_add],
                     )
                     return True
-                except:
+                except Exception:
                     self._app.logger.error("Add cable to Bundle failed. Please check the provided cable names.")
                     return False
         else:
@@ -428,7 +428,7 @@ class Cable:
                 ["NAME:TDSourceAttribs", "Name:=", self.source_name],
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Clock source not created.")
             return False
 
@@ -461,7 +461,7 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Clock source not created.")
             return False
 
@@ -476,7 +476,7 @@ class Cable:
         try:
             self._omodule.RemoveTimeDomainSource(self.source_to_remove)
             return True
-        except:
+        except Exception:
             self._app.logger.error("Source could not be removed.")
             return False
 
@@ -493,7 +493,7 @@ class Cable:
                 for source in self.existing_sources_names:
                     self._omodule.RemoveTimeDomainSource(source)
             return True
-        except:
+        except Exception:
             self._app.logger.error("Source could not be removed.")
             return False
 
@@ -519,7 +519,7 @@ class Cable:
                 ["NAME:TDSourceAttribs", "Name:=", self.pwl_source_name],
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source not created.")
             return False
 
@@ -536,7 +536,7 @@ class Cable:
                 self.pwl_source_file_path, ["NAME:TDSourceAttribs", "Name:=", generate_unique_name("pwl")]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source from file not created.")
             return False
 
@@ -577,7 +577,7 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source not created.")
             return False
 
@@ -689,7 +689,7 @@ class Cable:
             )
 
             return True
-        except:
+        except Exception:
             self._app.logger.error("Couldn't create cable harness.")
             return False
 

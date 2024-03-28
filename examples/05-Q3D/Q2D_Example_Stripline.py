@@ -12,6 +12,13 @@ This example shows how you can use PyAEDT to create a differential stripline des
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +36,7 @@ project_path = pyaedt.generate_unique_project_name()
 
 q = pyaedt.Q2d(projectname=project_path,
                designname="differential_stripline",
-               specified_version="2023.2",
+               specified_version=aedt_version,
                non_graphical=non_graphical,
                new_desktop_session=True
                )

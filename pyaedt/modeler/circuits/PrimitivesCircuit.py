@@ -688,10 +688,10 @@ class CircuitComponents(object):
         inst_name=None,
         component_library="Resistors",
         component_name="RES_",
-        location=[],
+        location=None,
         angle=0,
         use_instance_id_netlist=False,
-        global_netlist_list=[],
+        global_netlist_list=None,
     ):
         """Create a component from a library.
 
@@ -705,13 +705,14 @@ class CircuitComponents(object):
             Name of component in the library. The default is ``"RES"``.
         location : list of float, optional
             Position on the X axis and Y axis.
+            The default is ``None``, in which case the component is placed in [0, 0].
         angle : optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to enable the instance ID in the net list.
             The default is ``False``.
         global_netlist_list : list, optional
-            The default is``[]``.
+            The default is ``None``, in which case an empty list is passed.
 
         Returns
         -------
@@ -722,6 +723,15 @@ class CircuitComponents(object):
         ----------
 
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+
+        >>> from pyaedt import TwinBuilder
+        >>> aedtapp = TwinBuilder()
+        >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
+        >>> cmp.set_property("ShowPin", True)
+        >>> aedtapp.release_desktop(True, True)
         """
         id = self.create_unique_id()
         if component_library:
@@ -730,7 +740,7 @@ class CircuitComponents(object):
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
-
+        angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
@@ -1200,7 +1210,7 @@ class CircuitComponents(object):
             w.id = int(wire_id)
             self.wires[w.id] = w
             return w
-        except:
+        except Exception:
             return False
 
 

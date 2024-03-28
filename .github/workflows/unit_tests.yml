@@ -1,6 +1,7 @@
 name: CI
 
 env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   python.version: '3.10'
   python.venv: 'testvenv'
   # Following env vars when changed will "reset" the mentioned cache,
@@ -30,7 +31,7 @@ jobs:
   # This workflow contains a single job called "build"
   build_solvers:
     # The type of runner that the job will run on
-    runs-on: [ windows-latest, pyaedt ]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: [ '3.10' ]
@@ -93,7 +94,7 @@ jobs:
 
   build:
     # The type of runner that the job will run on
-    runs-on: [windows-latest, pyaedt]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: ['3.10']

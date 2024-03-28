@@ -447,7 +447,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_35_netlist_data_block(self):
@@ -707,6 +707,7 @@ class TestClass:
         self.aedtapp.insert_design("CreateWireTest")
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+        myres2 = self.aedtapp.modeler.components.get_component(myres.composed_name)
         self.aedtapp.modeler.schematic.create_wire(
             [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
         )
@@ -809,3 +810,28 @@ class TestClass:
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
+        assert self.aedtapp.remove_all_unused_definitions()
+
+    def test_46_create_vpwl(self):
+
+        # default inputs
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V1")
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0s"
+        assert myres.parameters["time2"] == "0s"
+        assert myres.parameters["val1"] == "0V"
+        assert myres.parameters["val2"] == "0V"
+        # time and voltage input list
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(
+            compname="V2", time_list=[0, "1u"], voltage_list=[0, 1]
+        )
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0"
+        assert myres.parameters["time2"] == "1u"
+        assert myres.parameters["val1"] == "0"
+        assert myres.parameters["val2"] == "1"
+        # time and voltage different length
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V3", time_list=[0], voltage_list=[0, 1])
+        assert myres is False

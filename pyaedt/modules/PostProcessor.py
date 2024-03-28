@@ -13,7 +13,6 @@ from collections import defaultdict
 import csv
 import os
 import random
-import re
 import string
 import tempfile
 
@@ -1150,7 +1149,7 @@ class PostProcessorCommon(object):
                 else:
                     self.plots.clear()
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1180,7 +1179,7 @@ class PostProcessorCommon(object):
                 if plot.plot_name == plot_name:
                     plot.plot_name = self.oreportsetup.GetChildObject(new_name).GetPropValue("Name")
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1231,7 +1230,7 @@ class PostProcessorCommon(object):
             )
             self.logger.info("Solution Data Correctly Loaded.")
             return SolutionData(data)
-        except:
+        except Exception:
             self.logger.warning("Solution Data failed to load. Check solution, context or expression.")
             return None
 
@@ -2026,7 +2025,7 @@ class PostProcessorCommon(object):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        >>> aedtapp.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
         ...                                               solution_name="Setup1 : LastAdpative")
         """
         if not input_dict and not input_file:  # pragma: no cover
@@ -2239,7 +2238,7 @@ class PostProcessor(PostProcessorCommon, object):
                             name2refid[cs_id] = name + ":XY"
                             name2refid[cs_id + 1] = name + ":YZ"
                             name2refid[cs_id + 2] = name + ":XZ"
-                except:
+                except Exception:
                     pass
         return name2refid
 
@@ -2295,7 +2294,7 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].MinArrowSpacing = arrow_setts["MinArrowSpacing"]
                         plots[plot_name].MaxArrowSpacing = arrow_setts["MaxArrowSpacing"]
                         plots[plot_name].GridColor = surf_setts["GridColor"]
-                except:
+                except Exception:
                     pass
         return plots
 
@@ -2433,7 +2432,7 @@ class PostProcessor(PostProcessorCommon, object):
         if isvector:
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
-            except:
+            except Exception:
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
             self.ofieldsreporter.CalcOp("Smooth")
             self.ofieldsreporter.EnterScalar(0)
@@ -2442,7 +2441,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
-            except:
+            except Exception:
                 self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         obj_list = object_name
@@ -2457,23 +2456,30 @@ class PostProcessor(PostProcessorCommon, object):
             elif object_type == "point":
                 self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
+
         if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
-                variation_dict.append("Time:=")
-                variation_dict.append(intrinsics)
+                variation.append("Time:=")
+                variation.append(intrinsics)
             else:
-                variation_dict.append("Freq:=")
-                variation_dict.append(intrinsics)
-                variation_dict.append("Phase:=")
+                variation.append("Freq:=")
+                variation.append(intrinsics)
+                variation.append("Phase:=")
                 if phase:
-                    variation_dict.append(phase)
+                    variation.append(phase)
                 else:
-                    variation_dict.append("0deg")
+                    variation.append("0deg")
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
-        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
+        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
         value = None
         if os.path.exists(file_name) or settings.remote_rpc_session:
             with open_file(file_name, "r") as f:
@@ -2492,13 +2498,17 @@ class PostProcessor(PostProcessorCommon, object):
         variation_dict=None,
         filename=None,
         gridtype="Cartesian",
-        grid_center=[0, 0, 0],
-        grid_start=[0, 0, 0],
-        grid_stop=[0, 0, 0],
-        grid_step=[0, 0, 0],
+        grid_center=None,
+        grid_start=None,
+        grid_stop=None,
+        grid_step=None,
         isvector=False,
         intrinsics=None,
         phase=None,
+        export_with_sample_points=True,
+        reference_coordinate_system="Global",
+        export_in_si_system=True,
+        export_field_in_reference=True,
     ):
         """Use the field calculator to create a field file on a grid based on a solution and variation.
 
@@ -2536,6 +2546,18 @@ class PostProcessor(PostProcessorCommon, object):
             calculation. The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
+        export_with_sample_points : bool, optional
+            Whether to include the sample points in the file to export.
+            The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
+            The default is ``True``.
 
         Returns
         -------
@@ -2561,6 +2583,14 @@ class PostProcessor(PostProcessorCommon, object):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E", setup, var, path, 'Cartesian', [0, 0, 0],  intrinsics="8GHz")
         """
+        if grid_step is None:
+            grid_step = [0, 0, 0]
+        if grid_start is None:
+            grid_start = [0, 0, 0]
+        if grid_stop is None:
+            grid_stop = [0, 0, 0]
+        if grid_center is None:
+            grid_center = [0, 0, 0]
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -2573,7 +2603,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity_name)
-        except:
+        except Exception:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         if isvector:
             self.ofieldsreporter.CalcOp("Smooth")
@@ -2601,20 +2631,39 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             self.logger.error("Error in the type of the grid.")
             return False
+
         if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values
+            variation_dict = self._app.available_variations.nominal_w_values_dict
+
+        variation = []
+        for el, value in variation_dict.items():
+            variation.append(el + ":=")
+            variation.append(value)
+
         if intrinsics:
             if "Transient" in solution:
-                variation_dict.append("Time:=")
-                variation_dict.append(intrinsics)
+                variation.append("Time:=")
+                variation.append(intrinsics)
             else:
-                variation_dict.append("Freq:=")
-                variation_dict.append(intrinsics)
-                variation_dict.append("Phase:=")
+                variation.append("Freq:=")
+                variation.append(intrinsics)
+                variation.append("Phase:=")
                 if phase:
-                    variation_dict.append(phase)
+                    variation.append(phase)
                 else:
-                    variation_dict.append("0deg")
+                    variation.append("0deg")
+
+        export_options = [
+            "NAME:ExportOption",
+            "IncludePtInOutput:=",
+            export_with_sample_points,
+            "RefCSName:=",
+            reference_coordinate_system,
+            "PtInSI:=",
+            export_in_si_system,
+            "FieldInRefCS:=",
+            export_field_in_reference,
+        ]
 
         self.ofieldsreporter.ExportOnGrid(
             filename,
@@ -2622,8 +2671,8 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop_wu,
             grid_step_wu,
             solution,
-            variation_dict,
-            True,
+            variation,
+            export_options,
             gridtype,
             grid_center,
             False,
@@ -2646,6 +2695,9 @@ class PostProcessor(PostProcessorCommon, object):
         sample_points_file=None,
         sample_points_lists=None,
         export_with_sample_points=True,
+        reference_coordinate_system="Global",
+        export_in_si_system=True,
+        export_field_in_reference=True,
     ):
         """Use the field calculator to create a field file based on a solution and variation.
 
@@ -2679,6 +2731,15 @@ class PostProcessor(PostProcessorCommon, object):
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
             The default is ``True``.
+        reference_coordinate_system : str, optional
+            Reference coordinate system in the file to export.
+            The default is ``"Global"``.
+        export_in_si_system : bool, optional
+            Whether the provided sample points are defined in the SI system or model units.
+            The default is ``True``.
+        export_field_in_reference : bool, optional
+            Whether to export the field in reference coordinate system.
+            The default is ``True``.
 
         Returns
         -------
@@ -2711,7 +2772,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity_name)
-        except:
+        except Exception:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
 
         if not variation_dict:
@@ -2745,12 +2806,23 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.CalcOp("Value")
             self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation)
         elif sample_points_file:
+            export_options = [
+                "NAME:ExportOption",
+                "IncludePtInOutput:=",
+                export_with_sample_points,
+                "RefCSName:=",
+                reference_coordinate_system,
+                "PtInSI:=",
+                export_in_si_system,
+                "FieldInRefCS:=",
+                export_field_in_reference,
+            ]
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
                 variation,
-                export_with_sample_points,
+                export_options,
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
@@ -2758,12 +2830,23 @@ class PostProcessor(PostProcessorCommon, object):
                 f.write("Unit={}\n".format(self.model_units))
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
+            export_options = [
+                "NAME:ExportOption",
+                "IncludePtInOutput:=",
+                export_with_sample_points,
+                "RefCSName:=",
+                reference_coordinate_system,
+                "PtInSI:=",
+                export_in_si_system,
+                "FieldInRefCS:=",
+                export_field_in_reference,
+            ]
             self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
                 variation,
-                export_with_sample_points,
+                export_options,
             )
 
         if os.path.exists(filename):
@@ -2786,32 +2869,29 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the file. The default is ``""``.
 
         file_format : str, optional
-            Name of the file extension. The default is ``"aedtplt"``. Option is ``"case"``.
+            Name of the file extension. The default is ``"aedtplt"``. Options are ``"case"`` and ``"fldplt"``.
 
         Returns
         -------
         str
-            File Path when succeeded.
+            File path when successful.
 
         References
         ----------
-
         >>> oModule.ExportFieldPlot
         """
         if not filename:
             filename = plotname
-        file_path = os.path.join(filepath, filename + "." + file_format)
-        if ".case" in file_path:
-            try:
-                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-            except:  # pragma: no cover
-                self.logger.warning("case file is not supported for this plot. Switching to aedtplt")
-                file_path = os.path.join(filepath, filename + ".aedtplt")
-                self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-        else:  # pragma: no cover
-            self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
-
-        return check_and_download_file(file_path)
+        filepath = os.path.join(filepath, filename + "." + file_format)
+        try:
+            self.ofieldsreporter.ExportFieldPlot(plotname, False, filepath)
+            if settings.remote_rpc_session_temp_folder:  # pragma: no cover
+                local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
+                filepath = check_and_download_file(local_path, filepath)
+            return filepath
+        except Exception:  # pragma: no cover
+            self.logger.error("{} file format is not supported for this plot.".format(file_format))
+            return False
 
     @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -2887,7 +2967,7 @@ class PostProcessor(PostProcessorCommon, object):
         self._desktop.CloseAllWindows()
         try:
             self._app.modeler.fit_all()
-        except:
+        except Exception:
             pass
         self._desktop.TileWindows(0)
         self._oproject.SetActiveDesign(self._app.design_name)
@@ -2971,7 +3051,7 @@ class PostProcessor(PostProcessorCommon, object):
         self._desktop.CloseAllWindows()
         try:
             self._app._modeler.fit_all()
-        except:
+        except Exception:
             pass
         self._desktop.TileWindows(0)
         self._oproject.SetActiveDesign(self._app.design_name)
@@ -3818,7 +3898,7 @@ class PostProcessor(PostProcessorCommon, object):
         group_hierarchy = {}
 
         groups = self._app.oeditor.GetChildNames("Groups")
-
+        self._app.modeler.add_new_user_defined_component()
         for g in groups:
             g1 = self._app.oeditor.GetChildObject(g)
             if g1:
@@ -4105,7 +4185,7 @@ class PostProcessor(PostProcessorCommon, object):
 
                 power_dict[bc_obj.name] = power_value
 
-        for native_comps in self.modeler.user_defined_components:
+        for native_comps in self.modeler.user_defined_components.keys():
             if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
                 native_key = "NativeComponentDefinitionProvider"
                 if native_key in self.modeler.user_defined_components[native_comps].native_properties:
@@ -4974,23 +5054,99 @@ class FieldSummary:
 
     @pyaedt_function_handler()
     def add_calculation(
-        self, entity, geometry, geometry_name, quantity, normal="", side="Default", mesh="All", ref_temperature=""
+        self,
+        entity,
+        geometry,
+        geometry_name,
+        quantity,
+        normal="",
+        side="Default",
+        mesh="All",
+        ref_temperature="AmbientTemp",
     ):
+        """
+        Add an entry in the field summary calculation requests.
+
+        Parameters
+        ----------
+        entity : str
+            Type of entity to perform the calculation on. Options are
+             ``"Boundary"``, ``"Monitor``", and ``"Object"``.
+             (``"Monitor"`` is available in AEDT 2024 R1 and later.)
+        geometry : str
+            Location to perform the calculation on. Options are
+            ``"Surface"`` and ``"Volume"``.
+        geometry_name : str or list of str
+            Objects to perform the calculation on. If a list is provided,
+            the calculation is performed on the combination of those
+            objects.
+        quantity : str
+            Quantity to compute.
+        normal : list of floats
+            Coordinate values for direction relative to normal. The default is ``""``,
+            in which case the normal to the face is used.
+        side : str, optional
+            String containing which side of the face to use. The default is
+            ``"Default"``. Options are ``"Adjacent"``, ``"Combined"``, and
+            `"Default"``.
+        mesh : str, optional
+            Surface meshes to use. The default is ``"All"``. Options are ``"All"`` and
+            ``"Reduced"``.
+        ref_temperature : str, optional
+            Reference temperature to use in the calculation of the heat transfer
+            coefficient. The default is ``"AmbientTemp"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if quantity not in AVAILABLE_QUANTITIES:
             raise AttributeError(
                 "Quantity {} is not supported. Available quantities are:\n{}".format(
                     quantity, ", ".join(AVAILABLE_QUANTITIES)
                 )
             )
+        if isinstance(normal, list):
+            if not isinstance(normal[0], str):
+                normal = [str(i) for i in normal]
+            normal = ",".join(normal)
+        if isinstance(geometry_name, str):
+            geometry_name = [geometry_name]
         self.calculations.append(
-            [entity, geometry, geometry_name, quantity, normal, side, mesh, ref_temperature, False]
+            [entity, geometry, ",".join(geometry_name), quantity, normal, side, mesh, ref_temperature, False]
         )  # TODO : last argument not documented
+        return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(self, sweep_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+    def get_field_summary_data(self, setup_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+        """
+        Get  field summary output computation.
+
+        Parameters
+        ----------
+        setup_name : str, optional
+            Setup name to use for the computation. The
+            default is ``None``, in which case the nominal variation is used.
+        design_variation : dict, optional
+            Dictionary containing the design variation to use for the computation.
+            The default is  ``{}``, in which case nominal variation is used.
+        intrinsic_value : str, optional
+            Intrinsic values to use for the computation. The default is ``""``,
+            suitable when no frequency needs to be selected.
+        pandas_output : bool, optional
+            Whether to use pandas output. The default is ``False``, in
+            which case the dictionary output is used.
+
+        Returns
+        -------
+        dict or pandas.DataFrame
+            Output type depending on the Boolean ``pandas_output`` parameter.
+            The output consists of information exported from the field summary.
+        """
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
-            self.export_csv(temp_file.name, sweep_name, design_variation, intrinsic_value)
+            self.export_csv(temp_file.name, setup_name, design_variation, intrinsic_value)
             with open_file(temp_file.name, "r") as f:
                 for _ in range(4):
                     _ = next(f)
@@ -5007,17 +5163,39 @@ class FieldSummary:
         return out_dict
 
     @pyaedt_function_handler()
-    def export_csv(self, filename, sweep_name=None, design_variation={}, intrinsic_value=""):
-        if not sweep_name:
-            sweep_name = self._app.nominal_sweep
+    def export_csv(self, filename, setup_name=None, design_variation={}, intrinsic_value=""):
+        """
+        Get the field summary output computation.
+
+        Parameters
+        ----------
+        filename : str
+            Path and filename to write the output file to.
+        setup_name : str, optional
+            Setup name to use for the computation. The
+            default is ``None``, in which case the nominal variation is used.
+        design_variation : dict, optional
+            Dictionary containing the design variation to use for the computation.
+            The default is  ``{}``, in which case the nominal variation is used.
+        intrinsic_value : str, optional
+            Intrinsic values to use for the computation. The default is ``""``,
+            suitable when no frequency needs to be selected.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not setup_name:
+            setup_name = self._app.nominal_sweep
         dv_string = ""
         for el in design_variation:
             dv_string += el + "='" + design_variation[el] + "' "
-        self._create_field_summary(sweep_name, dv_string)
+        self._create_field_summary(setup_name, dv_string)
         self._app.osolution.ExportFieldsSummary(
             [
                 "SolutionName:=",
-                sweep_name,
+                setup_name,
                 "DesignVariationKey:=",
                 dv_string,
                 "ExportFileName:=",

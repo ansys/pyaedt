@@ -21,6 +21,13 @@ import os.path
 
 from pyaedt import Hfss, Mechanical, Icepak, downloads
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -38,9 +45,11 @@ non_graphical = False
 # Phantom consists of two objects: phantom and implant_box
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain #electrical and thermal properties.
+
 project_path = downloads.download_file(directory="mri")
-hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version="2023.2", non_graphical=non_graphical,
+hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), specified_version=aedt_version, non_graphical=non_graphical,
             new_desktop_session=True)
+
 ###############################################################################
 # Insert 3D component
 # ~~~~~~~~~~~~~~~~~~~
@@ -70,7 +79,6 @@ hfss.setups[0].enable_expression_cache(
     conv_criteria=2.5,
     use_cache_for_freq=False)
 hfss.setups[0].props["MaximumPasses"] = 2
-im_traces
 
 ###############################################################################
 # Edit Sources
@@ -111,6 +119,7 @@ hfss.post.plot_field(quantity="Average_SAR",
                      plot_type="CutPlane",
                      show_legend=False,
                      filter_objects=["implant_box"],
+                     show=False
                      )
 
 ###############################################################################
@@ -120,7 +129,6 @@ hfss.post.plot_field(quantity="Average_SAR",
 # Note that SAR and input power are linearly related
 # To determine required input, calculate
 # input_scale = 1/AverageSAR at Point1
-
 
 sol_data = hfss.post.get_solution_data(expressions="Average_SAR",
                                        primary_sweep_variable="Freq",
@@ -151,7 +159,7 @@ hfss.save_project()
 # Initialize a new Mechanical Transient Thermal analysis.
 # Mechanical Transient Thermal is available in AEDT from 2023 R2 as a Beta feature.
 
-mech = Mechanical(solution_type="Transient Thermal", specified_version="2023.2")
+mech = Mechanical(solution_type="Transient Thermal", specified_version=aedt_version)
 
 ###############################################################################
 # Copy geometries
@@ -206,14 +214,13 @@ mech.analyze(num_cores=6)
 # Plot Temperature on cut plane.
 # Plot Temperature on point.
 
-
 mech.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"],
                                     intrinsincDict={"Time": "10s"})
 mech.save_project()
 
 data = mech.post.get_solution_data("Temperature", primary_sweep_variable="Time", context="Point1",
                                    report_category="Fields")
-data.plot()
+#data.plot()
 
 mech.post.plot_animated_field(quantity="Temperature",
                               object_list="implant:YZ",
@@ -222,6 +229,7 @@ mech.post.plot_animated_field(quantity="Temperature",
                               variation_variable="Time",
                               variation_list=["10s", "20s", "30s", "40s", "50s", "60s"],
                               filter_objects=["implant_box"],
+                              show=False
                               )
 
 ###############################################################################
@@ -229,7 +237,7 @@ mech.post.plot_animated_field(quantity="Temperature",
 # ~~~~~~~~~~~~~~~~~~
 # Initialize a new Icepak Transient Thermal analysis.
 
-ipk = Icepak(solution_type="Transient", specified_version="2023.2")
+ipk = Icepak(solution_type="Transient", specified_version=aedt_version)
 ipk.design_solutions.problem_type = "TemperatureOnly"
 
 ###############################################################################
@@ -272,7 +280,6 @@ setup.props['Convergence Criteria - Energy'] = 1e-12
 # ~~~~~~~~~~~
 # Create a new mesh region and change accuracy level to 4.
 
-
 bound = ipk.modeler["implant_box"].bounding_box
 mesh_box = ipk.modeler.create_box(bound[:3], [bound[3] - bound[0], bound[4] - bound[1], bound[5] - bound[2]])
 mesh_box.model = False
@@ -303,6 +310,6 @@ ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=[
 ipk.save_project()
 
 data = ipk.post.get_solution_data("Point1.Temperature", primary_sweep_variable="Time", report_category="Monitor")
-data.plot()
+#data.plot()
 
-ipk.release_desktop(False)
+ipk.release_desktop(True, True)

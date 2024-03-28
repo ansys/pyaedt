@@ -508,8 +508,8 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list : list
-            List of objects.
+        object_list : list, str
+            List of objects to assign eddy effects to.
         activate_eddy_effects : bool, optional
             Whether to activate eddy effects. The default is ``True``.
         activate_displacement_current : bool, optional
@@ -653,7 +653,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        object_list : list
+        object_list : list, str
             List of objects to assign the current source to.
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.
@@ -1483,7 +1483,7 @@ class Maxwell(object):
                 self._boundaries[bound.name] = bound
                 return bound
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -1615,7 +1615,7 @@ class Maxwell(object):
                     self._boundaries[bound.name] = bound
                     return bound
                 return True
-            except:
+            except Exception:
                 self.logger.error("Couldn't assign current density to desired list of objects.")
                 return False
         else:
@@ -2303,7 +2303,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     self._boundaries[bound.name] = bound
                     return bound
                 return False
-            except:
+            except Exception:
                 return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
@@ -2356,7 +2356,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             for path in paths:
                 conduction_paths[path] = list(self.oboundary.GetConductionPathObjects(path))
             return conduction_paths
-        except:
+        except Exception:
             return conduction_paths
 
     @pyaedt_function_handler()
@@ -2479,7 +2479,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     return bound, bound2
                 else:
                     return bound, False
-        except:
+        except Exception:
             return False, False
 
     @pyaedt_function_handler

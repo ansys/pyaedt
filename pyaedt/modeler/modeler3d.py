@@ -33,9 +33,7 @@ class Modeler3D(Primitives3D):
     """
 
     def __init__(self, application):
-        application.logger.reset_timer()
         Primitives3D.__init__(self, application)
-        application.logger.info_timer("Modeler3D class has been initialized!")
 
     def __get__(self, instance, owner):
         self._app = instance
@@ -277,7 +275,7 @@ class Modeler3D(Primitives3D):
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
                 meshregions.remove("Global")
-            except:
+            except Exception:
                 pass
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
@@ -518,7 +516,7 @@ class Modeler3D(Primitives3D):
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
                 meshregions.remove("Global")
-            except:
+            except Exception:
                 pass
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
@@ -1302,7 +1300,7 @@ class Modeler3D(Primitives3D):
 
         Parameters
         ----------
-        objects_list : list
+        objects_list : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
             a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.

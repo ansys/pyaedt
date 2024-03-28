@@ -482,9 +482,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             port_info_list.extend(port_info_list_A)
             port_info_list.extend(port_info_list_B)
         if not state_space_dynamic_link_type or state_space_dynamic_link_type == "RLGC":
-            if dkp.aedt_version_id >= "2024.1":  # pragma: no cover
+            if dkp.aedt_version_id >= "2024.1":
                 state_space_dynamic_link_type = "Q3DRLGCLink"
-            else:
+            else:  # pragma: no cover
                 state_space_dynamic_link_type = "{}RLGCTBLink".format(design_type)
             q3d_model_type = 1
             ref_pin_style = 5

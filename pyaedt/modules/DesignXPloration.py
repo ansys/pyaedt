@@ -335,7 +335,7 @@ class CommonOptimetrics(PropsManager, object):
                     for f in self._app.field_setups:
                         if context == f.name:
                             report_type = "Far Fields"
-                except:
+                except Exception:
                     pass
         sweepdefinition = self._get_context(
             calculation,
@@ -356,7 +356,7 @@ class CommonOptimetrics(PropsManager, object):
             for el in list(variables):
                 try:
                     dx_variables[el] = self._app[el]
-                except:
+                except Exception:
                     pass
         for v in list(dx_variables.keys()):
             self._activate_variable(v)
@@ -1093,7 +1093,7 @@ class ParametricSetups(object):
                         and setups_data[data]["SetupType"] == "OptiParametric"
                     ):
                         self.setups.append(SetupParam(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
-            except:
+            except Exception:
                 pass
 
     @property
@@ -1301,7 +1301,7 @@ class OptimizationSetups(object):
                         "OptiStatistical",
                     ]:
                         self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
-            except:
+            except Exception:
                 pass
 
     @property
@@ -1435,7 +1435,7 @@ class OptimizationSetups(object):
                         for f in self._app.field_setups:
                             if context == f.name:
                                 report_type = "Far Fields"
-                    except:
+                    except Exception:
                         pass
             sweepdefinition = setup._get_context(
                 calculation,
@@ -1458,7 +1458,7 @@ class OptimizationSetups(object):
             for el in variables:
                 try:
                     dx_variables[el] = self._app[el]
-                except:
+                except Exception:
                     pass
         for v in list(dx_variables.keys()):
             if optim_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:

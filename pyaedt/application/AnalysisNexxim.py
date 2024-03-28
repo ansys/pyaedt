@@ -1,5 +1,6 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
@@ -64,6 +65,36 @@ class FieldAnalysisCircuit(Analysis):
         self._post = None
         self._internal_excitations = None
         self._internal_sources = None
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._post = self.post
+
+    @pyaedt_function_handler()
+    def delete_setup(self, setupname):
+        """Delete a setup.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.RemoveSimSetup
+        """
+        if setupname in self.existing_analysis_setups:
+            self.oanalysis.RemoveSimSetup([setupname])
+            for s in self.setups:
+                if s.name == setupname:
+                    self.setups.remove(s)
+            return True
+        return False
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
@@ -93,7 +124,7 @@ class FieldAnalysisCircuit(Analysis):
         try:
             self.oproject.SetActiveDesign(out_name)
             self.__init__(projectname=self.project_name, designname=out_name)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -110,7 +141,7 @@ class FieldAnalysisCircuit(Analysis):
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
             self.oproject.SetActiveDesign(parent_name)
             self.__init__(projectname=self.project_name, designname=parent_name)
-        except:
+        except Exception:
             return False
         return True
 
@@ -124,9 +155,12 @@ class FieldAnalysisCircuit(Analysis):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -162,9 +196,12 @@ class FieldAnalysisCircuit(Analysis):
     def modeler(self):
         """Modeler object."""
         if self._modeler is None:
+            self.logger.reset_timer()
             from pyaedt.modeler.schematic import ModelerNexxim
 
             self._modeler = ModelerNexxim(self)
+            self.logger.info_timer("Modeler class has been initialized!")
+
         return self._modeler
 
     @property
@@ -489,15 +526,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
-
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
             for k in reclist:
@@ -572,6 +604,7 @@ class FieldAnalysisCircuit(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -585,5 +618,5 @@ class FieldAnalysisCircuit(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup

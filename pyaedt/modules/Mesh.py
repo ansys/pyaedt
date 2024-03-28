@@ -197,7 +197,7 @@ class MeshOperation(object):
                     key_name = mesh_props[key_name]
                 mesh_obj.SetPropValue(key_name, value)
                 return True
-            except:
+            except Exception:
                 self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
 
         if self.type == "SurfApproxBased":
@@ -459,7 +459,7 @@ class Mesh(object):
         props = None
         try:
             props = self._app.design_properties["MeshSetup"]["MeshSettings"]
-        except:
+        except Exception:
             temp_name = generate_unique_name("temp_prj")
             temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
             oproject_target = self._app.odesktop.NewProject(temp_name)
@@ -478,7 +478,7 @@ class Mesh(object):
                 props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
                     "MeshSettings"
                 ]
-            except:
+            except Exception:
                 pass
             if os.path.exists(temp_proj):
                 os.remove(temp_proj)
@@ -532,7 +532,7 @@ class Mesh(object):
                                 continue
 
                 meshops.append(MeshOperation(self, ds, props, props["Type"]))
-        except:
+        except Exception:
             pass
         return meshops
 
@@ -922,7 +922,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        names : list
+        names : list, str
             List of object names or face IDs.
         isinside : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
@@ -1003,7 +1003,13 @@ class Mesh(object):
 
     @pyaedt_function_handler()
     def assign_skin_depth(
-        self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2", meshop_name=None
+        self,
+        names,
+        skindepth="0.2mm",
+        maxelements=None,
+        triangulation_max_length="0.1mm",
+        numlayers="2",
+        meshop_name=None,
     ):
         """Assign a skin depth for the mesh refinement.
 
@@ -1011,8 +1017,10 @@ class Mesh(object):
         ----------
         names : list
            List of the object names or face IDs.
-        skindepth : bool
-            Whether the length mesh is inside the selection. The default is ``True``.
+        skindepth : str, float, optional
+            Skin depth value.
+            It can be either provided as a float or as a string.
+            The default is ``"0.2mm"``.
         maxelements : int, optional
             Maximum number of elements. The default is ``None``, which means this parameter is disabled.
         triangulation_max_length : str, optional
@@ -1450,5 +1458,5 @@ class Mesh(object):
             mesh_operation.create()
             self.meshoperations.append(mesh_operation)
             return mesh_operation
-        except:
+        except Exception:
             return False

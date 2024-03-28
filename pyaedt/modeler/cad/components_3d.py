@@ -27,7 +27,7 @@ class UserDefinedComponentParameters(dict):
                 ]
             )
             dict.__setitem__(self, key, value)
-        except:
+        except Exception:
             self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
 
     def __init__(self, component, *args, **kw):
@@ -205,7 +205,7 @@ class UserDefinedComponent(object):
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
             return BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
-        except:
+        except Exception:
             return False
 
     @property
@@ -414,8 +414,8 @@ class UserDefinedComponent(object):
             component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
 
         parts_id = [
-            self._primitives._object_names_to_ids[part]
-            for part in self._primitives._object_names_to_ids
+            self._primitives.objects_by_name[part].id
+            for part in self._primitives.objects_by_name.keys()
             if part in component_parts
         ]
         parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}

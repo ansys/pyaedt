@@ -15,6 +15,13 @@ Results are printed in AEDT Message Manager.
 import pyaedt
 from pyaedt.generic.constants import AXIS
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +36,6 @@ non_graphical = False
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
 # the version. It also creates an instance of the ``Maxwell3d`` class named ``m3d``.
 
-version = "2023.2"  # AEDT version
 project_name = "Maxwell-Icepak-2way-Coupling"
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
@@ -38,7 +44,7 @@ m3d = pyaedt.Maxwell3d(
     projectname=project_name,
     designname=maxwell_design_name,
     solution_type="EddyCurrent",
-    specified_version=version,
+    specified_version=aedt_version,
     non_graphical=non_graphical,
 )
 
@@ -72,7 +78,7 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
 # Assign materials: Assign Coil to AWG40 copper, core to ferrite, and region to vacuum.
 
 no_strands = 24
-strand_diameter = 0.08 # mm
+strand_diameter = 0.08
 
 cu_litz = m3d.materials.duplicate_material("copper", "copper_litz")
 cu_litz.stacking_type = "Litz Wire"
@@ -162,7 +168,8 @@ em_loss = solution_loss.data_magnitude()[0]
 
 # Analytical calculation of the DC resistance of the coil
 cu_cond = float(cu_litz.conductivity.value)
-l_conductor = no_turns*2*0.125*3.1415 # average radius of a coil turn = 0.125m
+# average radius of a coil turn = 0.125m
+l_conductor = no_turns*2*0.125*3.1415
 # R = resistivity * length / area / no_strand
 r_analytical_DC = (1.0 / cu_cond) * l_conductor / (3.1415 * (strand_diameter / 1000 / 2) ** 2) / no_strands
 
@@ -255,7 +262,7 @@ surf_temperature = ipk.post.create_fieldplot_surface(
 )
 
 velocity_cutplane = ipk.post.create_fieldplot_cutplane(
-        objlist="Global:XZ",
+        objlist=["Global:XZ"],
         quantityName="Velocity Vectors",
         plot_name="Velocity Vectors"
     )
@@ -290,4 +297,4 @@ m3d.logger.info("*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W
 # Release desktop
 # ~~~~~~~~~~~~~~~
 
-ipk.release_desktop()
+ipk.release_desktop(True, True)

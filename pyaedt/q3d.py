@@ -706,7 +706,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except:
+            except Exception:
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
         else:
@@ -729,7 +729,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except:
+            except Exception:
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
@@ -1150,7 +1150,7 @@ class QExtractor(FieldAnalysis3D, object):
                     freq,
                 )
                 return True
-            except:
+            except Exception:
                 self.logger.error("Export of equivalent circuit was unsuccessful.")
                 return False
         else:
@@ -1188,7 +1188,7 @@ class QExtractor(FieldAnalysis3D, object):
                     freq,
                 )
                 return True
-            except:
+            except Exception:
                 self.logger.error("Export of equivalent circuit was unsuccessful.")
                 return False
 
@@ -1971,7 +1971,7 @@ class Q3d(QExtractor, object):
 
             self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -2415,7 +2415,7 @@ class Q2d(QExtractor, object):
                         )
                         exported_files.append(export_path)
                         self.logger.info("Exported W-element: %s", export_path)
-                    except:  # pragma: no cover
+                    except Exception:  # pragma: no cover
                         self.logger.warning("Export W-element failed")
                 else:
                     varCount = 0
@@ -2459,7 +2459,7 @@ class Q2d(QExtractor, object):
                             )
                             exported_files.append(export_path)
                             self.logger.info("Exported W-element: %s", export_path)
-                        except:  # pragma: no cover
+                        except Exception:  # pragma: no cover
                             self.logger.warning("Export W-element failed")
         return exported_files
 
@@ -2486,7 +2486,7 @@ class Q2d(QExtractor, object):
                     bound.type = new_type
             self.logger.info("Conductor type correctly updated")
             return True
-        except:
+        except Exception:
             self.logger.error("Error in updating conductor type")
             return False
 

@@ -12,6 +12,13 @@ Q3D Extractor and run a simulation.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -34,10 +41,11 @@ pyaedt.settings.enable_debug_internal_methods_logger = False
 ###############################################################################
 # Launch AEDT and Q3D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
+# Launch AEDT 2023 R2 in graphical mode and launch Q3D Extractor.
+# This example uses SI units.
 
 q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
-               specified_version="2023.2",
+               specified_version=aedt_version,
                non_graphical=non_graphical,
                new_desktop_session=True)
 
@@ -132,8 +140,6 @@ sw1.update()
 
 data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
 data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True, category="C")
-data_plot_self
-data_plot_mutual
 
 ###############################################################################
 # Create rectangular plot
@@ -157,8 +163,6 @@ q.save_project()
 # Get the report data into a data structure that allows you to manipulate it.
 
 a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
-a.intrinsics["Freq"]
-a.data_magnitude()
 a.plot()
 
 ###############################################################################
@@ -166,6 +170,7 @@ a.plot()
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
+
 pyaedt.settings.enable_debug_logger = False
 pyaedt.settings.enable_debug_methods_argument_logger = False
 q.release_desktop(close_projects=True, close_desktop=True)

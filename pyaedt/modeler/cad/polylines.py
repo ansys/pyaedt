@@ -257,6 +257,8 @@ class Polyline(Object3d):
                         )
                     self._positions = [list(i) for i in position_list[: self._segment_types[-1].num_points]]
                 else:  # AngularArc
+                    if not all(isinstance(x, list) for x in position_list):
+                        position_list = [position_list]
                     self._positions = [position_list[0]]
                     self._evaluate_arc_angle_extra_points(segment_type, start_point=position_list[0])
                     self._positions.extend(segment_type.extra_points[:])
@@ -325,7 +327,7 @@ class Polyline(Object3d):
 
             new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._primitives._create_object(self.name)
+            self._primitives._create_object(self.name, is_polyline=True)
 
     @property
     def start_point(self):
@@ -385,7 +387,7 @@ class Polyline(Object3d):
         try:
             history = self.history()
             h_segments = history.segments
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             history = None
             h_segments = None
         if h_segments:
@@ -533,7 +535,7 @@ class Polyline(Object3d):
                         break
                 else:
                     current_segment = segment_types[vertex_count]
-            except Exception as e:
+            except Exception:
                 raise IndexError("Number of segments inconsistent with the number of points!")
 
             if current_segment:
@@ -807,7 +809,7 @@ class Polyline(Object3d):
                     at_start,
                 ]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(seg_id, self.name))
         else:
             i_start, i_end = self._get_point_slice_from_segment_id(seg_id, at_start)
@@ -871,7 +873,7 @@ class Polyline(Object3d):
                     True,
                 ]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(segment_id, self.name))
         else:
             segment_id.reverse()

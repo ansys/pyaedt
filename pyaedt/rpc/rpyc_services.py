@@ -1096,7 +1096,7 @@ class ServiceManager(rpyc.Service):
         for edb in self._edb:
             try:
                 edb.close_edb()
-            except:
+            except Exception:
                 pass
 
     def start_service(self, port):
@@ -1130,7 +1130,7 @@ class ServiceManager(rpyc.Service):
             time.sleep(2)
             self._processes[port] = p
             return port
-        except:
+        except Exception:
             logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
             return False
 
@@ -1150,7 +1150,7 @@ class ServiceManager(rpyc.Service):
             try:
                 self._processes[port].terminate()
                 return True
-            except:
+            except Exception:
                 return False
 
         return True
