@@ -1026,7 +1026,7 @@ class PostProcessor(Post):
 
 class IcepakPostProcessor(PostProcessor, object):
     def __init__(self, app):
-        PostProcessor.__init__(self, app)
+        PostProcessorCommon.__init__(self, app)
 
     @pyaedt_function_handler()
     def create_field_summary(self):
@@ -1108,7 +1108,7 @@ class IcepakPostProcessor(PostProcessor, object):
                 timestep,
             ]
         )
-        with open(export_file, "r") as f:
+        with open_file(export_file, "r") as f:
             reader = csv.reader(f)
             for line in reader:
                 if "Fan Instances" in line:
@@ -1120,7 +1120,7 @@ class IcepakPostProcessor(PostProcessor, object):
 
     @pyaedt_function_handler
     def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
-        content = fs.get_field_summary_data(setup_name=setup_name, design_variation=design_variation)
+        content = fs.get_field_summary_data(sweep_name=setup_name, design_variation=design_variation)
         pattern = r"\[([^]]*)\]"
         match = re.search(pattern, content["Quantity"][0])
         if match:
@@ -1139,7 +1139,7 @@ class IcepakPostProcessor(PostProcessor, object):
         quantity_name,
         side="Default",
         setup_name=None,
-        design_variation=None,
+        design_variation={},
         ref_temperature="",
     ):
         """Export the field surface output.
@@ -1175,17 +1175,11 @@ class IcepakPostProcessor(PostProcessor, object):
 
         >>> oModule.ExportFieldsSummary
         """
-        if design_variation is None:
-            design_variation = {}
-        facelist_name = generate_unique_name(quantity_name)
-        self._app.modeler.create_face_list(faces_list, facelist_name)
+        name = generate_unique_name(quantity_name)
+        self._app.modeler.create_face_list(faces_list, name)
         fs = self.create_field_summary()
-        fs.add_calculation(
-            "Object", "Surface", facelist_name, quantity_name, side=side, ref_temperature=ref_temperature
-        )
-        out = self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
-        self._app.oeditor.Delete(["NAME:Selections", "Selections:=", facelist_name])
-        return out
+        fs.add_calculation("Object", "Surface", name, quantity_name, side=side, ref_temperature=ref_temperature)
+        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
 
     @pyaedt_function_handler()
     def evaluate_boundary_quantity(
@@ -1195,7 +1189,7 @@ class IcepakPostProcessor(PostProcessor, object):
         side="Default",
         volume=False,
         setup_name=None,
-        design_variation=None,
+        design_variation={},
         ref_temperature="",
     ):
         """Export the field output on a boundary.
@@ -1234,8 +1228,6 @@ class IcepakPostProcessor(PostProcessor, object):
 
         >>> oModule.ExportFieldsSummary
         """
-        if design_variation is None:
-            design_variation = {}
         fs = self.create_field_summary()
         fs.add_calculation(
             "Boundary",
@@ -1254,7 +1246,7 @@ class IcepakPostProcessor(PostProcessor, object):
         quantity_name,
         side="Default",
         setup_name=None,
-        design_variation=None,
+        design_variation={},
         ref_temperature="",
     ):
         """Export monitor field output.
@@ -1290,8 +1282,6 @@ class IcepakPostProcessor(PostProcessor, object):
 
         >>> oModule.ExportFieldsSummary
         """
-        if design_variation is None:
-            design_variation = {}
         if settings.aedt_version < "2024.1":
             raise NotImplementedError("Monitors are not supported in field summary in versions earlier than 2024 R1.")
         else:  # pragma: no cover
@@ -1315,7 +1305,7 @@ class IcepakPostProcessor(PostProcessor, object):
         side="Default",
         volume=False,
         setup_name=None,
-        design_variation=None,
+        design_variation={},
         ref_temperature="",
     ):
         """Export the field output on or in an object.
@@ -1353,8 +1343,6 @@ class IcepakPostProcessor(PostProcessor, object):
 
         >>> oModule.ExportFieldsSummary
         """
-        if design_variation is None:
-            design_variation = {}
         fs = self.create_field_summary()
         fs.add_calculation(
             "Boundary",
