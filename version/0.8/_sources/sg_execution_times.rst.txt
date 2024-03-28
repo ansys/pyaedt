@@ -1,0 +1,232 @@
+
+:orphan:
+
+.. _sphx_glr_sg_execution_times:
+
+
+Computation times
+=================
+**195:35.972** total execution time for 66 files **from all galleries**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_examples_06-Multiphysics_MRI.py` (``..\..\examples\06-Multiphysics\MRI.py``)
+     - 23:41.169
+     - 0.0
+   * - :ref:`sphx_glr_examples_04-Icepak_Sherlock_Example.py` (``..\..\examples\04-Icepak\Sherlock_Example.py``)
+     - 18:56.763
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell3D_Team3_bath_plate.py` (``..\..\examples\03-Maxwell\Maxwell3D_Team3_bath_plate.py``)
+     - 13:42.709
+     - 0.0
+   * - :ref:`sphx_glr_examples_05-Q3D_Q3D_from_EDB.py` (``..\..\examples\05-Q3D\Q3D_from_EDB.py``)
+     - 11:20.926
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-EMIT_ComputeInterferenceType.py` (``..\..\examples\07-EMIT\ComputeInterferenceType.py``)
+     - 08:45.987
+     - 0.0
+   * - :ref:`sphx_glr_examples_05-Q3D_Q3D_DC_IR.py` (``..\..\examples\05-Q3D\Q3D_DC_IR.py``)
+     - 08:15.520
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Virtual_Compliance.py` (``..\..\examples\07-Circuit\Virtual_Compliance.py``)
+     - 08:02.844
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell3DTeam7.py` (``..\..\examples\03-Maxwell\Maxwell3DTeam7.py``)
+     - 06:19.113
+     - 0.0
+   * - :ref:`sphx_glr_examples_06-Multiphysics_Maxwell3D_Icepak_2Way_Coupling.py` (``..\..\examples\06-Multiphysics\Maxwell3D_Icepak_2Way_Coupling.py``)
+     - 05:32.236
+     - 0.0
+   * - :ref:`sphx_glr_examples_06-Multiphysics_Hfss_Mechanical.py` (``..\..\examples\06-Multiphysics\Hfss_Mechanical.py``)
+     - 05:16.058
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-HFSS3DLayout_Hfss3DComponent.py` (``..\..\examples\01-HFSS3DLayout\Hfss3DComponent.py``)
+     - 04:31.735
+     - 0.0
+   * - :ref:`sphx_glr_examples_05-Q3D_Q2D_Example_Stripline.py` (``..\..\examples\05-Q3D\Q2D_Example_Stripline.py``)
+     - 04:22.027
+     - 0.0
+   * - :ref:`sphx_glr_examples_06-Multiphysics_Hfss_Icepak_Coupling.py` (``..\..\examples\06-Multiphysics\Hfss_Icepak_Coupling.py``)
+     - 03:11.104
+     - 0.0
+   * - :ref:`sphx_glr_examples_04-Icepak_Icepak_Example.py` (``..\..\examples\04-Icepak\Icepak_Example.py``)
+     - 02:53.799
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell2D_PMSynchronousMotor.py` (``..\..\examples\03-Maxwell\Maxwell2D_PMSynchronousMotor.py``)
+     - 02:52.518
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-HFSS3DLayout_Dcir_in_3DLayout.py` (``..\..\examples\01-HFSS3DLayout\Dcir_in_3DLayout.py``)
+     - 02:38.085
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_HFSS_eigenmode.py` (``..\..\examples\02-HFSS\HFSS_eigenmode.py``)
+     - 02:36.796
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-HFSS3DLayout_HFSS3DLayout_Via.py` (``..\..\examples\01-HFSS3DLayout\HFSS3DLayout_Via.py``)
+     - 02:29.063
+     - 0.0
+   * - :ref:`sphx_glr_examples_04-Icepak_Icepak_3DComponents_Example.py` (``..\..\examples\04-Icepak\Icepak_3DComponents_Example.py``)
+     - 02:26.792
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-SBR+_SBR_Time_Plot.py` (``..\..\examples\02-SBR+\SBR_Time_Plot.py``)
+     - 02:24.998
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_Waveguide_Filter.py` (``..\..\examples\02-HFSS\Waveguide_Filter.py``)
+     - 02:18.777
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-SBR+_SBR_Example.py` (``..\..\examples\02-SBR+\SBR_Example.py``)
+     - 02:15.051
+     - 0.0
+   * - :ref:`sphx_glr_examples_05-Q3D_Q3D_Example.py` (``..\..\examples\05-Q3D\Q3D_Example.py``)
+     - 02:06.407
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_HFSS_Spiral.py` (``..\..\examples\02-HFSS\HFSS_Spiral.py``)
+     - 02:06.314
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_Probe_Fed_Patch.py` (``..\..\examples\02-HFSS\Probe_Fed_Patch.py``)
+     - 02:06.142
+     - 0.0
+   * - :ref:`sphx_glr_examples_04-Icepak_Icepak_ECAD_Import.py` (``..\..\examples\04-Icepak\Icepak_ECAD_Import.py``)
+     - 01:56.673
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell2D_DCConduction.py` (``..\..\examples\03-Maxwell\Maxwell2D_DCConduction.py``)
+     - 01:48.349
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_Array.py` (``..\..\examples\02-HFSS\Array.py``)
+     - 01:42.671
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_HFSS_Dipole.py` (``..\..\examples\02-HFSS\HFSS_Dipole.py``)
+     - 01:27.597
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell3D_Segmentation.py` (``..\..\examples\03-Maxwell\Maxwell3D_Segmentation.py``)
+     - 01:24.839
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_HFSS_Choke.py` (``..\..\examples\02-HFSS\HFSS_Choke.py``)
+     - 01:23.788
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-Modeling-Setup_Configurations.py` (``..\..\examples\01-Modeling-Setup\Configurations.py``)
+     - 01:22.828
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell2D_Transient.py` (``..\..\examples\03-Maxwell\Maxwell2D_Transient.py``)
+     - 01:22.124
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-SBR+_SBR_City_Import.py` (``..\..\examples\02-SBR+\SBR_City_Import.py``)
+     - 01:20.953
+     - 0.0
+   * - :ref:`sphx_glr_examples_05-Q3D_Q2D_Example_CPWG.py` (``..\..\examples\05-Q3D\Q2D_Example_CPWG.py``)
+     - 01:18.237
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell2D_Electrostatic.py` (``..\..\examples\03-Maxwell\Maxwell2D_Electrostatic.py``)
+     - 01:18.183
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell3D_Choke.py` (``..\..\examples\03-Maxwell\Maxwell3D_Choke.py``)
+     - 01:17.928
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell_Magnet.py` (``..\..\examples\03-Maxwell\Maxwell_Magnet.py``)
+     - 01:17.859
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Circuit_AMI.py` (``..\..\examples\07-Circuit\Circuit_AMI.py``)
+     - 01:17.655
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Reports.py` (``..\..\examples\07-Circuit\Reports.py``)
+     - 01:15.128
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Circuit_Example.py` (``..\..\examples\07-Circuit\Circuit_Example.py``)
+     - 01:14.811
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-SBR+_SBR_Doppler_Example.py` (``..\..\examples\02-SBR+\SBR_Doppler_Example.py``)
+     - 01:13.220
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-TwinBuilder_03-Dynamic_ROM_Creation_And_Visualization.py` (``..\..\examples\07-TwinBuilder\03-Dynamic_ROM_Creation_And_Visualization.py``)
+     - 01:13.175
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_Flex_CPWG.py` (``..\..\examples\02-HFSS\Flex_CPWG.py``)
+     - 01:09.786
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell_Control_Program.py` (``..\..\examples\03-Maxwell\Maxwell_Control_Program.py``)
+     - 01:08.989
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Circuit_Transient.py` (``..\..\examples\07-Circuit\Circuit_Transient.py``)
+     - 01:07.962
+     - 0.0
+   * - :ref:`sphx_glr_examples_04-Icepak_Icepak_CSV_Import.py` (``..\..\examples\04-Icepak\Icepak_CSV_Import.py``)
+     - 01:04.162
+     - 0.0
+   * - :ref:`sphx_glr_examples_05-Q3D_Q2D_Armoured_Cable.py` (``..\..\examples\05-Q3D\Q2D_Armoured_Cable.py``)
+     - 01:00.488
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-HFSS3DLayout_EDB_in_3DLayout.py` (``..\..\examples\01-HFSS3DLayout\EDB_in_3DLayout.py``)
+     - 00:58.585
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_Create_3d_Component_and_use_it.py` (``..\..\examples\02-HFSS\Create_3d_Component_and_use_it.py``)
+     - 00:55.949
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-Modeling-Setup_Polyline_Primitives.py` (``..\..\examples\01-Modeling-Setup\Polyline_Primitives.py``)
+     - 00:55.793
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-Modeling-Setup_Optimetrics.py` (``..\..\examples\01-Modeling-Setup\Optimetrics.py``)
+     - 00:55.610
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Circuit_Siwave_Multizones.py` (``..\..\examples\07-Circuit\Circuit_Siwave_Multizones.py``)
+     - 00:54.642
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-TwinBuilder_02-Wiring_A_Rectifier.py` (``..\..\examples\07-TwinBuilder\02-Wiring_A_Rectifier.py``)
+     - 00:54.006
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-TwinBuilder_01-RC_Circuit_Example.py` (``..\..\examples\07-TwinBuilder\01-RC_Circuit_Example.py``)
+     - 00:53.929
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-EMIT_EMIT_HFSS_Example.py` (``..\..\examples\07-EMIT\EMIT_HFSS_Example.py``)
+     - 00:52.186
+     - 0.0
+   * - :ref:`sphx_glr_examples_02-HFSS_HFSS_FSS_unitcell.py` (``..\..\examples\02-HFSS\HFSS_FSS_unitcell.py``)
+     - 00:51.941
+     - 0.0
+   * - :ref:`sphx_glr_examples_03-Maxwell_Maxwell_Transformer_Coreloss.py` (``..\..\examples\03-Maxwell\Maxwell_Transformer_Coreloss.py``)
+     - 00:51.350
+     - 0.0
+   * - :ref:`sphx_glr_examples_01-Modeling-Setup_HFSS_CoordinateSystem.py` (``..\..\examples\01-Modeling-Setup\HFSS_CoordinateSystem.py``)
+     - 00:51.316
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-TwinBuilder_04-Static_ROM_Creation_And_Visualization.py` (``..\..\examples\07-TwinBuilder\04-Static_ROM_Creation_And_Visualization.py``)
+     - 00:46.367
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-EMIT_ComputeProtectionLevels.py` (``..\..\examples\07-EMIT\ComputeProtectionLevels.py``)
+     - 00:41.382
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Circuit_Subcircuit_Example.py` (``..\..\examples\07-Circuit\Circuit_Subcircuit_Example.py``)
+     - 00:37.795
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-EMIT_EMIT_Example.py` (``..\..\examples\07-EMIT\EMIT_Example.py``)
+     - 00:37.787
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Create_Netlist.py` (``..\..\examples\07-Circuit\Create_Netlist.py``)
+     - 00:34.352
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-EMIT_interference_gui.py` (``..\..\examples\07-EMIT\interference_gui.py``)
+     - 00:20.941
+     - 0.0
+   * - :ref:`sphx_glr_examples_07-Circuit_Touchstone_Management.py` (``..\..\examples\07-Circuit\Touchstone_Management.py``)
+     - 00:01.703
+     - 0.0
