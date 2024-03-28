@@ -30,7 +30,7 @@ aedt_version = "2024.1"
 # of AEDT or try to connect to an existing instance of it.
 
 non_graphical = False
-new_thread = False
+new_thread = True
 
 ###############################################################################
 # Download example files
@@ -54,14 +54,14 @@ d = pyaedt.Desktop(aedt_version, new_desktop_session=new_thread, non_graphical=n
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-#h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), specified_version=241)
-# h3d.remove_all_unused_definitions()
-# h3d.edit_cosim_options(simulate_missing_solution=False)
-# h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
-# h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] = 'LIN 0MHz 70GHz 0.1GHz'
-# h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
-# h3d.setups[0].sweeps[0].update()
-# h3d.analyze()
+h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), specified_version=241)
+h3d.remove_all_unused_definitions()
+h3d.edit_cosim_options(simulate_missing_solution=False)
+h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
+h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] = 'LIN 0MHz 70GHz 0.1GHz'
+h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
+h3d.setups[0].sweeps[0].update()
+h3d.analyze()
 h3d = pyaedt.Hfss3dLayout(specified_version=241)
 touchstone_path = h3d.export_touchstone()
 
@@ -78,7 +78,7 @@ status, diff_pairs, comm_pairs = cir.create_lna_schematic_from_snp(touchstone=to
                                                                    auto_assign_diff_pairs=True,
                                                                    separation=".",
                                                                    pattern=["component", "pin", "net"],
-                                                                   #analyze=True
+                                                                   analyze=True
                                                                    )
 
 insertion = cir.get_all_insertion_loss_list(trlist=diff_pairs, reclist=diff_pairs, tx_prefix="X1", rx_prefix="U1", math_formula="dB",
@@ -102,6 +102,7 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(touchstone=touchstone
                                                    design_name="TDR",
                                                    rise_time=35,
                                                    use_convolution=True,
+                                                   create_new_schematic=True,
                                                    analyze=True,
                                                    )
 
@@ -110,7 +111,7 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(touchstone=touchstone
 # ~~~~~~~~~~~~~~~~~~
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
-result, eye_curve = cir.create_ami_schematic_from_snp(touchstone=touchstone_path,
+result, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(touchstone=touchstone_path,
                                                       ibis_ami=os.path.join(projectdir, "models", "pcieg5_32gt.ibs"),
                                                       component_name="Spec_Model",
                                                       tx_buffer_name="1p",
@@ -124,8 +125,7 @@ result, eye_curve = cir.create_ami_schematic_from_snp(touchstone=touchstone_path
                                                       bit_pattern="random_bit_count=2.5e3 random_seed=1",
                                                       unit_interval="31.25ps",
                                                       use_convolution=True,
-                                                      analyze=True,
-                                                      create_new_schematic=True,
+                                                     # analyze=True,
                                                       design_name="AMI",
                                                       )
 
@@ -189,8 +189,8 @@ v.reports["return losses"].traces = return_diff
 
 v.reports["common mode return losses"].traces = return_comm
 
-v.reports["eye1"].traces = [eye_curve[0]]
-v.reports["eye3"].traces = [eye_curve[0]]
+v.reports["eye1"].traces = eye_curve_tx
+v.reports["eye3"].traces = eye_curve_tx
 v.reports["tdr from circuit"].traces = tdr_probe_name
 v.parameters["erl"].trace_pins = [
     ["X1.A5.PCIe_Gen4_RX1_P", "X1.A6.PCIe_Gen4_RX1_N", "U1.AR25.PCIe_Gen4_RX1_P", "U1.AP25.PCIe_Gen4_RX1_N"],

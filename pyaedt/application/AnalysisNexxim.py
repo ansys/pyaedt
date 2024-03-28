@@ -419,7 +419,7 @@ class FieldAnalysisCircuit(Analysis):
             excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
         for i in excitation_names:
-            if net_list and [net for net in net_list if net in i]:
+            if not net_list or (net_list and [net for net in net_list if net in i]):
                 if math_formula:
                     spar.append("{}(S({},{}))".format(math_formula, i, i))
                 else:
@@ -459,11 +459,11 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
+        if trlist is None:
             trlist = [i for i in list(self.excitations.keys())]
 
-        if reclist == None:
-            trlist = [i for i in list(self.excitations.keys())]
+        if reclist is None:
+            reclist = [i for i in list(self.excitations.keys())]
         if tx_prefix:
             trlist = [i for i in trlist if i.startswith(tx_prefix)]
         if rx_prefix:
@@ -523,7 +523,7 @@ class FieldAnalysisCircuit(Analysis):
         if not trlist:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         for i in trlist:
-            if net_list and [net for net in net_list if net in i]:
+            if not net_list or (net_list and [net for net in net_list if net in i]):
                 k = trlist.index(i) + 1
                 while k < len(trlist):
                     if math_formula:
@@ -585,7 +585,7 @@ class FieldAnalysisCircuit(Analysis):
         if reclist is None:
             reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
-            if net_list and [net for net in net_list if net in i]:
+            if not net_list or (net_list and [net for net in net_list if net in i]):
                 for k in reclist:
                     if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
                         if math_formula:

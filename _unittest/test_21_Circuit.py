@@ -19,6 +19,7 @@ else:
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
 touchstone = "SSN_ssn.s6p"
+touchstone_custom = "SSN_custom.s6p"
 touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
@@ -835,3 +836,56 @@ class TestClass:
         # time and voltage different length
         myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V3", time_list=[0], voltage_list=[0, 1])
         assert myres is False
+
+    def test_47_automatic_lna(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+
+        status, diff_pairs, comm_pairs = self.aedtapp.create_lna_schematic_from_snp(
+            touchstone=touchstone_file,
+            start_frequency=0,
+            stop_frequency=70,
+            auto_assign_diff_pairs=True,
+            separation=".",
+            pattern=["component", "pin", "net"],
+            analyze=False,
+        )
+        assert status
+
+    def test_48_automatic_tdr(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+
+        result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
+            touchstone=touchstone_file,
+            probe_p_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
+            differential=True,
+            design_name="TDR",
+            rise_time=35,
+            use_convolution=True,
+            analyze=False,
+        )
+        assert result
+
+    def test_49_automatic_ami(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+        ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
+        result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
+            touchstone=touchstone_file,
+            ibis_ami=ami_file,
+            component_name="Spec_Model",
+            tx_buffer_name="1p",
+            rx_buffer_name="2p",
+            use_ibis_buffer=False,
+            differential=True,
+            tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            tx_refs=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            rx_refs=["A-MII-RXD2_66.SQFP20X20_144.N"],
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result
