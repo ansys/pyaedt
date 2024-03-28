@@ -3345,7 +3345,6 @@ class VRTFieldPlot:
 
     """
 
-    @deprecated_alias(IntrinsincList="intrinsics")
     def __init__(
         self,
         postprocessor,
