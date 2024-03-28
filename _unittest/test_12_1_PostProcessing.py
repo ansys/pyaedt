@@ -457,7 +457,6 @@ class TestClass:
         assert new_report.limit_lines[0].set_line_properties(
             style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
         )
-        pass
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
@@ -477,7 +476,6 @@ class TestClass:
             font_size=10,
             color=(255, 0, 0),
         )
-        pass
 
     def test_10_delete_report(self):
         plots_number = len(self.aedtapp.post.plots)

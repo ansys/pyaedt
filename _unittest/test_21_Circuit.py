@@ -118,7 +118,6 @@ class TestClass:
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(self.netlist_file2)
-        pass
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
