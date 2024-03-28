@@ -98,25 +98,25 @@ class TestClass:
         phases = [str(i * 5) + "deg" for i in range(2)]
         model_gif = self.aedtapp.post.plot_animated_field(
             quantity="Mag_E",
-            object_list=cutlist,
+            objects=cutlist,
             plot_type="CutPlane",
             setup_name=self.aedtapp.nominal_adaptive,
             intrinsics={"Freq": "5GHz", "Phase": "0deg"},
-            export_path=self.local_scratch.path,
             variation_variable="Phase",
-            variation_list=phases,
+            variations=phases,
             show=False,
             export_gif=True,
+            export_path=self.local_scratch.path,
         )
         assert os.path.exists(model_gif.gif_file)
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         pl1 = self.aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Mag_E", setup_name, intrinsic)
         model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt(
-            plotname=pl1.name,
+            plot_name=pl1.name,
             plot_folder=None,
             variation_variable="Phase",
-            variation_list=phases,
+            variations=phases,
             project_path="",
             export_gif=False,
             show=False,
@@ -501,13 +501,13 @@ class TestClass:
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plotname=plot1.name,
+            plot_name=plot1.name,
             project_path=self.local_scratch.path,
-            meshplot=False,
-            imageformat="jpg",
+            mesh_plot=False,
+            image_format="jpg",
             view="xy",
-            show=False,
             plot_label=plot1.name + " label",
+            show=False,
         )
         assert os.path.exists(plot_obj.image_file)
         os.unlink(plot_obj.image_file)
@@ -526,13 +526,13 @@ class TestClass:
         assert os.path.exists(plot_obj.image_file)
 
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plotname=plot1.name,
+            plot_name=plot1.name,
             project_path=self.local_scratch.path,
-            meshplot=False,
-            imageformat="jpg",
+            mesh_plot=False,
+            image_format="jpg",
             view="xy",
-            show=False,
             plot_label=plot1.name + " label",
+            show=False,
             file_format="aedtplt",
         )
         assert os.path.exists(plot_obj.image_file)
@@ -557,11 +557,11 @@ class TestClass:
             "CutPlane",
             setup_name=setup_name,
             intrinsics=intrinsic,
-            export_path=self.local_scratch.path,
             mesh_on_fields=False,
-            imageformat="jpg",
             view="isometric",
             show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
         )
         assert os.path.exists(plot_obj.image_file)
 

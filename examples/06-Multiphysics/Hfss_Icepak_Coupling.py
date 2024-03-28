@@ -257,16 +257,8 @@ results_folder = os.path.join(aedtapp.working_directory, "Coaxial_Results_NG")
 if not os.path.exists(results_folder):
     os.mkdir(results_folder)
 
-aedtapp.post.plot_field_from_fieldplot(
-    plot1.name,
-    project_path=results_folder,
-    meshplot=False,
-    imageformat="jpg",
-    view="isometric",
-    show=False,
-    plot_cad_objs=False,
-    log_scale=False,
-)
+aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=results_folder, mesh_plot=False, image_format="jpg",
+                                       view="isometric", show=False, plot_cad_objs=False, log_scale=False)
 
 ################################################################################
 # Generate animation from field plots
@@ -279,19 +271,11 @@ start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
 
-animated = aedtapp.post.plot_animated_field(
-    quantity="Mag_E",
-    object_list=cutlist,
-    plot_type="CutPlane",
-    setup_name=aedtapp.nominal_adaptive,
-    intrinsics={"Freq": "1GHz", "Phase": "0deg"},
-    export_path=results_folder,
-    variation_variable="Phase",
-    variation_list=phases,
-    show=False,
-    export_gif=False,
-    log_scale=True,
-)
+animated = aedtapp.post.plot_animated_field(quantity="Mag_E", objects=cutlist, plot_type="CutPlane",
+                                            setup_name=aedtapp.nominal_adaptive,
+                                            intrinsics={"Freq": "1GHz", "Phase": "0deg"}, variation_variable="Phase",
+                                            variations=phases, show=False, log_scale=True, export_gif=False,
+                                            export_path=results_folder)
 animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
 # animated.camera_position = [0, 0, 300]
 # animated.focal_point = [0, 0, 0]

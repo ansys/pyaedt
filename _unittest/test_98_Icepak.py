@@ -1244,7 +1244,7 @@ class TestClass:
         assert len(list(op_dict.keys())) == 2
         app.set_active_design("get_fan_op_point1")
         app.get_fans_operating_point()
-        app.get_fans_operating_point(timestep="0")
+        app.get_fans_operating_point(time_step="0")
         app.close_project()
 
     def test_63_generate_mesh(self):

@@ -403,11 +403,7 @@ class TestClass:
         )
         assert os.path.exists(frames_list)
         sbr_test.post.plot_scene(
-            frames_list,
-            os.path.join(sbr_test.working_directory, "animation.gif"),
-            norm_index=5,
-            dy_rng=35,
-            show=False,
+            frames_list, os.path.join(sbr_test.working_directory, "animation.gif"), norm_index=5, dy_rng=35, show=False
         )
         assert os.path.exists(os.path.join(sbr_test.working_directory, "animation.gif"))
         sbr_test.post.plot_scene(

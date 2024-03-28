@@ -178,7 +178,7 @@ plot2 = m2d.post.create_fieldplot_surface(conductor_surface, "Mag_J", plot_name=
 # ~~~~~~~~~~~~~
 # Plot electric field using pyvista and saving to an image
 
-py_vista_plot = m2d.post.plot_field("Mag_E", conductor_surface, plot_cad_objs=False, show=False)
+py_vista_plot = m2d.post.plot_field("Mag_E", conductor_surface, show=False, plot_cad_objs=False)
 py_vista_plot.isometric_view = False
 py_vista_plot.camera_position = [0, 0, 7]
 py_vista_plot.focal_point = [0, 0, 0]
@@ -192,16 +192,9 @@ py_vista_plot.plot(os.path.join(results_folder, "mag_E.jpg"))
 # ~~~~~~~~~~~~~~~
 # Plot current density vs the Material index.
 
-animated = m2d.post.plot_animated_field(
-    quantity="Mag_J",
-    object_list=conductor_surface,
-    export_path=results_folder,
-    variation_variable="MaterialIndex",
-    variation_list=[0,1,2,3],
-    show=False,
-    export_gif=False,
-    log_scale=True,
-)
+animated = m2d.post.plot_animated_field(quantity="Mag_J", objects=conductor_surface, variation_variable="MaterialIndex",
+                                        variations=[0, 1, 2, 3], show=False, log_scale=True, export_gif=False,
+                                        export_path=results_folder)
 animated.isometric_view = False
 animated.camera_position = [0, 0, 7]
 animated.focal_point = [0, 0, 0]
