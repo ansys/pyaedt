@@ -784,26 +784,26 @@ class VariableManager(object):
 
     @property
     def _independent_variables(self):
-        all = {}
-        all.update(self._independent_project_variables)
-        all.update(self._independent_design_variables)
-        return all
+        all_independent = {}
+        all_independent.update(self._independent_project_variables)
+        all_independent.update(self._independent_design_variables)
+        return all_independent
 
     @property
     def _dependent_variables(self):
-        all = {}
+        all_dependent = {}
         for k, v in self._dependent_project_variables.items():
-            all[k] = v
+            all_dependent[k] = v
         for k, v in self._dependent_design_variables.items():
-            all[k] = v
-        return all
+            all_dependent[k] = v
+        return all_dependent
 
     @property
     def _all_variables(self):
-        all = {}
-        all.update(self._independent_variables)
-        all.update(self._dependent_variables)
-        return all
+        all_variables = {}
+        all_variables.update(self._independent_variables)
+        all_variables.update(self._dependent_variables)
+        return all_variables
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
