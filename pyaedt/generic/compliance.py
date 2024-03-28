@@ -491,7 +491,7 @@ class VirtualCompliance:
                 if (
                     pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None)
                 ):  # pragma: no cover
-                    _design.logger.info(f"Checking lines violations")
+                    _design.logger.info("Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                     write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
                 if self.local_config.get("delete_after_export", True):
@@ -541,18 +541,18 @@ class VirtualCompliance:
                                 sleep_time -= 1
                         if pass_fail:
                             if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
-                                _design.logger.info(f"Checking lines violations")
+                                _design.logger.info("Checking lines violations")
                                 table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                             elif report_type == "statistical eye" and local_config["eye_mask"]:
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_statistical_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )
                             elif report_type == "eye diagram" and local_config["eye_mask"]:
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
                             elif report_type == "contour eye diagram":
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_contour_eye_diagram_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )

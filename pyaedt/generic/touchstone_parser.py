@@ -148,14 +148,13 @@ class TouchstoneData(rf.Network):
         index_couples : list, optional
             List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
         show: bool
-            Whether to plot.
+            Whether to plot. Default is ``True``.
 
         Returns
         -------
         :class:`matplotlib.plt`
         """
-        temp_list = []
-        freq_idx = 0
+
         if not index_couples:
             index_couples = self.port_tuples[:]
 
