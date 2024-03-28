@@ -445,7 +445,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y, label=label)
+        ax.plot(x, y)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)

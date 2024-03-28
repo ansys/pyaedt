@@ -2252,8 +2252,8 @@ class PostProcessor(PostProcessorCommon, object):
                     if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
-                        plots[plot_name].solutionName = self._get_base_name(setup)
-                        plots[plot_name].quantityName = self.ofieldsreporter.GetFieldPlotQuantityName(
+                        plots[plot_name].solution = self._get_base_name(setup)
+                        plots[plot_name].quantity = self.ofieldsreporter.GetFieldPlotQuantityName(
                             setups_data[setup]["PlotName"]
                         )
                         plots[plot_name].intrinsics = self._get_intrinsic(setup)
@@ -2262,20 +2262,18 @@ class PostProcessor(PostProcessorCommon, object):
                             id = list_objs[0]
                             num_objects = list_objs[2]
                             if id == 64:
-                                plots[plot_name].volume_indexes = self._get_volume_objects(
-                                    list_objs[3 : num_objects + 3]
-                                )
+                                plots[plot_name].volumes = self._get_volume_objects(list_objs[3 : num_objects + 3])
                             elif id == 128:
                                 out, faces = self._get_surface_objects(list_objs[3 : num_objects + 3])
                                 if out == "CutPlane":
-                                    plots[plot_name].cutplane_indexes = faces
+                                    plots[plot_name].cutplanes = faces
                                 else:
-                                    plots[plot_name].surfaces_indexes = faces
+                                    plots[plot_name].surfaces = faces
                             elif id == 256:
-                                plots[plot_name].line_indexes = self._get_volume_objects(list_objs[3 : num_objects + 3])
+                                plots[plot_name].lines = self._get_volume_objects(list_objs[3 : num_objects + 3])
                             list_objs = list_objs[num_objects + 3 :]
                         plots[plot_name].name = setups_data[setup]["PlotName"]
-                        plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
+                        plots[plot_name].plot_folder = setups_data[setup]["PlotFolder"]
                         surf_setts = setups_data[setup]["PlotOnSurfaceSettings"]
                         plots[plot_name].Filled = surf_setts["Filled"]
                         plots[plot_name].IsoVal = surf_setts["IsoValType"]
@@ -2981,34 +2979,26 @@ class PostProcessor(PostProcessorCommon, object):
             plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
         filter_boxes = [] if filter_boxes is None else filter_boxes
         if list_type == "CutPlane":
-            plot = FieldPlot(
-                self, cutplanelist=objects, solutionName=setup_name, quantityName=quantity, intrinsics=intrinsics
-            )
+            plot = FieldPlot(self, cutplanes=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
         elif list_type == "FacesList":
-            plot = FieldPlot(
-                self, surfacelist=objects, solutionName=setup_name, quantityName=quantity, intrinsics=intrinsics
-            )
+            plot = FieldPlot(self, surfaces=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
         elif list_type == "ObjList":
-            plot = FieldPlot(
-                self, objlist=objects, solutionName=setup_name, quantityName=quantity, intrinsics=intrinsics
-            )
+            plot = FieldPlot(self, objects=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
         elif list_type == "Line":
-            plot = FieldPlot(
-                self, linelist=objects, solutionName=setup_name, quantityName=quantity, intrinsics=intrinsics
-            )
+            plot = FieldPlot(self, lines=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
         elif list_type.startswith("Layer"):
             plot = FieldPlot(
                 self,
-                solutionName=setup_name,
-                quantityName=quantity,
+                solution=setup_name,
+                quantity=quantity,
                 intrinsics=intrinsics,
-                layers_nets=objects,
-                layers_plot_type=list_type,
+                layer_nets=objects,
+                layer_plot_type=list_type,
             )
         if self._app.design_type == "Q3D Extractor":  # pragma: no cover
             plot.field_type = field_type
         plot.name = plot_name
-        plot.plotFolder = plot_name
+        plot.plot_folder = plot_name
         plot.filter_boxes = filter_boxes
         plt = plot.create()
         if "Maxwell" in self._app.design_type and "Transient" in self.post_solution_type:
@@ -3050,17 +3040,17 @@ class PostProcessor(PostProcessorCommon, object):
             plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
         plot = FieldPlot(
             self,
-            objlist=in_volume_tracing_ids,
-            surfacelist=surface_tracing_ids,
-            solutionName=setup_name,
-            quantityName=quantity,
+            objects=in_volume_tracing_ids,
+            surfaces=surface_tracing_ids,
+            solution=setup_name,
+            quantity=quantity,
             intrinsics=intrinsics,
-            seedingFaces=seeding_faces_ids,
+            seeding_faces=seeding_faces_ids,
         )
         if field_type:
             plot.field_type = field_type
         plot.name = plot_name
-        plot.plotFolder = plot_name
+        plot.plot_folder = plot_name
 
         plt = plot.create()
         if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":

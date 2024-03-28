@@ -136,7 +136,7 @@ class TestClass:
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
         self.aedtapp.post.export_field_jpg(
-            os.path.join(self.local_scratch.path, "prova2.jpg"), plot2.name, plot2.plotFolder
+            os.path.join(self.local_scratch.path, "prova2.jpg"), plot2.name, plot2.plot_folder
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
         assert os.path.exists(

@@ -309,10 +309,7 @@ trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = aedtapp.post.get_solution_data(expressions=trace_names)
-my_data.plot(trace_names, "db20",
-             xlabel="Frequency (Ghz)",
-             ylabel="SParameters(dB)",
-             title="Scattering Chart",
+my_data.plot(trace_names, "db20", x_label="Frequency (Ghz)", y_label="SParameters(dB)", title="Scattering Chart",
              snapshot_path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"))
 
 ################################################################################

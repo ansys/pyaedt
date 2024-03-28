@@ -134,7 +134,7 @@ sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_wav
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
-ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values, color='blue')
+ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values)
 ax.set_title('WaveAfterProbe')
 ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
@@ -242,7 +242,7 @@ sampled_data_zoom_array[:, 1] *= scale_data
 
 fig, ax = plt.subplots()
 ax.plot(sampled_data_zoom_array[:, 0], sampled_data_zoom_array[:, 1], "r*")
-ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1], color='blue')
+ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1])
 ax.set_title(plot_name)
 ax.set_xlabel(waveform_sweep_unit)
 ax.set_ylabel(waveform_unit)

@@ -239,7 +239,7 @@ class TestClass:
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        assert data_farfield2.plot(math_formula="db20", is_polar=True)
+        assert data_farfield2.plot(formula="db20", is_polar=True)
 
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
@@ -355,18 +355,18 @@ class TestClass:
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        data1.plot(math_formula="db20")
+        data1.plot(formula="db20")
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
         assert data1.plot("S(Diff1, Diff1)")
-        assert data1.plot(math_formula="db20")
-        assert data1.plot(math_formula="db10")
-        assert data1.plot(math_formula="mag")
-        assert data1.plot(math_formula="re")
-        assert data1.plot(math_formula="im")
-        assert data1.plot(math_formula="phasedeg")
-        assert data1.plot(math_formula="phaserad")
+        assert data1.plot(formula="db20")
+        assert data1.plot(formula="db10")
+        assert data1.plot(formula="mag")
+        assert data1.plot(formula="re")
+        assert data1.plot(formula="im")
+        assert data1.plot(formula="phasedeg")
+        assert data1.plot(formula="phaserad")
 
         assert diff_test.create_touchstone_report(
             plot_name="Diff_plot",
@@ -399,7 +399,7 @@ class TestClass:
         t_matrix = solution_data.ifft("NearE", window=True)
         assert t_matrix.any()
         frames_list = solution_data.ifft_to_file(
-            coord_system_center=[-0.15, 0, 0], db_val=True, csv_dir=os.path.join(sbr_test.working_directory, "csv")
+            coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
         )
         assert os.path.exists(frames_list)
         sbr_test.post.plot_scene(
@@ -585,13 +585,13 @@ class TestClass:
         assert ffdata.origin == [0, 0, 1]
 
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value="all", primary_sweep="Theta", export_image_path=img1)
+        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1)
         assert os.path.exists(img1)
         img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], export_image_path=img2)
+        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2)
         assert os.path.exists(img2)
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(export_image_path=img3)
+        ffdata.plot_2d_cut(image_path=img3)
         assert os.path.exists(img3)
         curve_2d = ffdata.plot_2d_cut(show=False)
         assert len(curve_2d[0]) == 3
@@ -600,20 +600,16 @@ class TestClass:
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
         ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
+            image_path=img4,
             show=False,
-            export_image_path=img4,
             background=[255, 0, 0],
             show_geometry=False,
+            convert_to_db=True,
         )
         assert os.path.exists(img4)
         data_pyvista = ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
-            show=False,
-            background=[255, 0, 0],
-            show_geometry=False,
+            quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False, convert_to_db=True
         )
         assert data_pyvista
 
@@ -625,48 +621,46 @@ class TestClass:
         ffdata.phase_offset = [0]
         assert ffdata.phase_offset != [0.0]
         assert ffdata.plot_farfield_contour(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
-            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
         ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
             show=False,
-            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
 
         try:
-            p = ffdata.polar_plot_3d_pyvista(farfield_quantity="RealizedGain", convert_to_db=True, show=False)
+            p = ffdata.polar_plot_3d_pyvista(quantity="RealizedGain", show=False, convert_to_db=True)
             assert isinstance(p, object)
         except Exception:
             assert True
@@ -676,51 +670,49 @@ class TestClass:
         ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
-            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
         ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
             show=False,
-            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
         ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
         assert ffdata1.plot_farfield_contour(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata1.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 
@@ -853,15 +845,15 @@ class TestClass:
         el_id = [obj.id for obj in m2dtest.modeler.object_list if obj.name == "Electrode"]
         plot.seeding_faces.append(el_id[0])
         assert plot.update()
-        plot.volume_indexes.append(el_id[0])
+        plot.volumes.append(el_id[0])
         plot.update()
-        plot.surfaces_indexes.append(el_id[0])
+        plot.surfaces.append(el_id[0])
         plot.update()
         plot.seeding_faces.append(8)
         assert not plot.update()
-        plot.volume_indexes.append(8)
+        plot.volumes.append(8)
         assert not plot.update()
-        plot.surfaces_indexes.append(8)
+        plot.surfaces.append(8)
         assert not plot.update()
 
     def test_98_get_variations(self, field_test):

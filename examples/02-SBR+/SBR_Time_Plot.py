@@ -64,7 +64,7 @@ t_matrix = solution_data.ifft("NearE", window=True)
 # Export IFFT to a CSV file.
 
 frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0], db_val=True,
-                                              csv_dir=os.path.join(hfss.working_directory, "csv"))
+                                              csv_path=os.path.join(hfss.working_directory, "csv"))
 
 ###############################################################################
 # Plot scene
