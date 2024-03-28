@@ -1363,7 +1363,6 @@ class Material(CommonMaterial, object):
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )
             self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
-        pass
 
     @property
     def material_appearance(self):
@@ -2704,7 +2703,6 @@ class SurfaceMaterial(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(
                     self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
                 )
-        pass
 
     @property
     def emissivity(self):

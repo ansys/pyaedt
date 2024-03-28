@@ -580,7 +580,6 @@ class TestClass:
             ambient_temp=27,
             create_project_var=True,
         )
-        pass
 
     def test_34_create_additional_setup(self):
         setup_name = "SiwaveDC"
@@ -651,7 +650,6 @@ class TestClass:
     def test_40_test_flex(self, add_app):
         flex = add_app(project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder)
         assert flex.enable_rigid_flex()
-        pass
 
     def test_41_test_create_polygon(self):
         points = [[100, 100], [100, 200], [200, 200]]

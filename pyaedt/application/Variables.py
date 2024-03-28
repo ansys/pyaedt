@@ -146,8 +146,6 @@ class CSVDataset:
                         for quantity_name in self._header:
                             self._data[quantity_name] = []
 
-        pass
-
     @pyaedt_function_handler()
     def __getitem__(self, item):
         variable_list = item.split(",")

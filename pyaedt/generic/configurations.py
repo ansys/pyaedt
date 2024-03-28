@@ -1685,7 +1685,6 @@ class ConfigurationsIcepak(Configurations):
                     }
                 dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
-        pass
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case, m_object, m_quantity, m_name):
