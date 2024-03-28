@@ -17,7 +17,6 @@ from pyaedt.generic.constants import db20
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import conversion_function
-from pyaedt.generic.general_methods import deprecated_alias
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
