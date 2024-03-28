@@ -422,17 +422,9 @@ class CommonSetup(PropsManager, object):
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
         >>> variations = aedtapp.available_variations.nominal_w_values_dict
-        >>> aedtapp.post.setups[0].create_report(
-        ...    "dB(S(1,1))",
-        ...    variations=variations,
-        ...    primary_sweep_variable="Freq",
-        ...)
+        >>> aedtapp.post.setups[0].create_report("dB(S(1,1))",variations=variations,primary_sweep_variable="Freq")
 
-        >>> aedtapp.post.create_report(
-        ...    "S(1,1)",
-        ...    variations=variations,
-        ...    plot_type="Smith Chart",
-        ...)
+        >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
         """
         if sweep_name:
             setup_sweep_name = [
@@ -443,6 +435,7 @@ class CommonSetup(PropsManager, object):
         if setup_sweep_name:
             return self._app.post.create_report(
                 expressions=expressions,
+                setup_sweep_name=setup_sweep_name[0],
                 domain=domain,
                 variations=variations,
                 primary_sweep_variable=primary_sweep_variable,
@@ -451,8 +444,7 @@ class CommonSetup(PropsManager, object):
                 plot_type=plot_type,
                 context=context,
                 polyline_points=polyline_points,
-                plotname=plotname,
-                setup_sweep_name=setup_sweep_name[0],
+                plot_name=plotname,
             )
         return None
 
@@ -1686,6 +1678,7 @@ class SetupCircuit(CommonSetup):
         """
         return self._app.post.create_report(
             expressions=expressions,
+            setup_sweep_name=self.name,
             domain=domain,
             variations=variations,
             primary_sweep_variable=primary_sweep_variable,
@@ -1693,10 +1686,9 @@ class SetupCircuit(CommonSetup):
             report_category=report_category,
             plot_type=plot_type,
             context=context,
-            polyline_points=polyline_points,
-            plotname=plotname,
             subdesign_id=subdesign_id,
-            setup_sweep_name=self.name,
+            polyline_points=polyline_points,
+            plot_name=plotname,
         )
 
 

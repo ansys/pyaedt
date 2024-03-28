@@ -99,7 +99,7 @@ E_Value = "E1.V"
 C_Value = "C1.V"
 
 x = tb.post.get_solution_data([E_Value, C_Value], "TR", "Time")
-x.plot([E_Value, C_Value], xlabel="Time", ylabel="Capacitor Voltage vs Input Pulse")
+x.plot([E_Value, C_Value], x_label="Time", y_label="Capacitor Voltage vs Input Pulse")
 
 tb.save_project()
 

@@ -1120,7 +1120,7 @@ class FieldAnalysis3D(Analysis, object):
                         output = {"Net1": net_vals}
                         return output
             return nets
-        plt_obj = self.plot(show=False, objects=self.get_all_conductors_names())
+        plt_obj = self.plot()
         import pyvista as pv
 
         nets = {}

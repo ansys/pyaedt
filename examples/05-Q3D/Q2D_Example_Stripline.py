@@ -215,7 +215,7 @@ sweep.update()
 q.analyze()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
-a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg")) # Save plot as jpg
+a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg"))  # Save plot as jpg
 
 # Add a parametric sweep and analyze.
 parametric = q.parametrics.add(sweep_var="sig_bot_w", start_point=75, end_point=100, step=5,

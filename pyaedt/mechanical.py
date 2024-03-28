@@ -184,7 +184,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
-        self.logger.info("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -282,7 +282,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
-        self.logger.info("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"

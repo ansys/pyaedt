@@ -120,7 +120,7 @@ h3d.post.create_report(traces, variations=h3d.available_variations.nominal_w_val
 traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
 
 solutions = h3d.post.get_solution_data(expressions=traces)
-solutions.plot(math_formula="db20")
+solutions.plot(formula="db20")
 
 ###############################################################################
 # Close AEDT

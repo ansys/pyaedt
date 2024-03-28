@@ -106,9 +106,8 @@ setup.props["Steps To"] = "0.002s"
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Create a rectangular plot.
 
-maxwell_2d.post.create_report(
-    "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
-)
+maxwell_2d.post.create_report("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+                              plot_name="Winding Plot 1")
 
 ###############################################################################
 # Solve model
@@ -128,16 +127,9 @@ face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
-gif = maxwell_2d.post.plot_animated_field(
-    quantity="Mag_B",
-    object_list=id_list,
-    plot_type="Surface",
-    intrinsics={"Time": "0s"},
-    variation_variable="Time",
-    variation_list=timesteps,
-    show=False,
-    export_gif=False,
-)
+gif = maxwell_2d.post.plot_animated_field(quantity="Mag_B", objects=id_list, plot_type="Surface",
+                                          intrinsics={"Time": "0s"}, variation_variable="Time", variations=timesteps,
+                                          show=False, export_gif=False)
 gif.isometric_view = False
 gif.camera_position = [15, 15, 80]
 gif.focal_point = [15, 15, 0]

@@ -120,14 +120,8 @@ variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-hfss.post.create_report(
-    "db(GainTotal)",
-    hfss.nominal_adaptive,
-    variations,
-    primary_sweep_variable="Theta",
-    context="3D",
-    report_category="Far Fields",
-)
+hfss.post.create_report("db(GainTotal)", hfss.nominal_adaptive, variations, primary_sweep_variable="Theta",
+                        report_category="Far Fields", context="3D")
 
 ###############################################################################
 # Create far fields report using report objects
@@ -204,7 +198,7 @@ solutions_custom.plot_3d()
 # Generate a 2D plot using Matplotlib where you specify whether it is a polar
 # plot or a rectangular plot.
 
-solutions.plot(math_formula="db20", is_polar=True)
+solutions.plot(formula="db20", is_polar=True)
 
 ##########################################################
 # Get far field data
@@ -222,11 +216,8 @@ ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Sphere_Custom", setup_n
 # Generate 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(primary_sweep="theta", secondary_sweep_value=0,
-                   farfield_quantity='RealizedGain',
-                   title='FarField',
-                   quantity_format="dB20",
-                   is_polar=True)
+ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="theta", secondary_sweep_value=0, title='FarField',
+                   quantity_format="dB20", is_polar=True)
 
 ###############################################################################
 # Close AEDT

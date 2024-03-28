@@ -137,16 +137,8 @@ for i in all_quantities:
     str_mag.append("mag(" + i + ")")
     str_ang.append("ang_deg(" + i + ")")
 
-hfss.post.create_report(
-    expressions=str_mag,
-    variations=variation,
-    plotname="magnitude_plot",
-)
-hfss.post.create_report(
-    expressions=str_ang,
-    variations=variation,
-    plotname="phase_plot",
-)
+hfss.post.create_report(expressions=str_mag, variations=variation, plot_name="magnitude_plot")
+hfss.post.create_report(expressions=str_ang, variations=variation, plot_name="phase_plot")
 
 ###############################################################################
 # Save and run simulation

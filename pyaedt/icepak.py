@@ -223,7 +223,6 @@ class Icepak(FieldAnalysis3D):
         air_faces,
         free_loss_coeff=True,
         free_area_ratio=0.8,
-        resistance_type=0,
         external_temp="AmbientTemp",
         expternal_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
@@ -241,14 +240,6 @@ class Icepak(FieldAnalysis3D):
             the free loss coefficient is not used.
         free_area_ratio : float, str
             Free loss coefficient value. The default is ``0.8``.
-        resistance_type : int, optional
-            Type of the resistance. Options are:
-
-            - ``0`` for ``"Perforated Thin Vent"``
-            - ``1`` for ``"Circular Metal Wire Screen"``
-            - ``2`` for ``"Two-Plane Screen Cyl. Bars"``
-
-            The default is ``0`` for ``"Perforated Thin Vent"``.
         external_temp : str, optional
             External temperature. The default is ``"AmbientTemp"``.
         expternal_pressure : str, optional

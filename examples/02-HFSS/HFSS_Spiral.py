@@ -193,7 +193,7 @@ hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 # Plot the calculated values in Matplotlib.
 
 data = hfss.post.get_solution_data([L_formula, Q_formula])
-data.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
+data.plot(curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q")
 
 ################################################################
 # Export results to csv file
