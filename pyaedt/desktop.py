@@ -255,7 +255,6 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 return True
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-                pass
         elif _desktop_sessions and len(_desktop_sessions) > 1 and not desktop_class.parent_desktop_id:
             pyaedt_logger.error("Release is not allowed when multiple desktop sessions are available.")
             pyaedt_logger.error("Closing Desktop session.")
@@ -268,7 +267,6 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 return True
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-                pass
         elif _desktop_sessions and len(_desktop_sessions) > 1:
             pyaedt_logger.error("A child desktop session is linked to this session.")
             pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
@@ -284,7 +282,6 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 warnings.warn(
                     "Something went wrong releasing AEDT. Exception in `StandalonePyScriptWrapper.Release()`."
                 )
-                pass
     elif not inside_desktop:
         if close_desktop:
             try:
@@ -302,7 +299,6 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 pyaedt_logger.warning(
                     "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
                 )
-                pass
     if not settings.remote_rpc_session and not is_ironpython and close_desktop:
         timeout = 10
         while pid in active_sessions():

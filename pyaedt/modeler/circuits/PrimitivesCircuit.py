@@ -64,7 +64,6 @@ class CircuitComponents(object):
         self.current_position = [0, 0]
         self.increment_mils = [1000, 1000]
         self.limits_mils = 20000
-        pass
 
     @property
     def o_definition_manager(self):

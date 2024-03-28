@@ -2559,7 +2559,6 @@ class Primitives3D(GeometryModeler):
         ]
 
         positions = [i for i in points[:]]
-        import math
 
         angle = -2 * teta * math.pi / 180
         for i in range(1, turns):
