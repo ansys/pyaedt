@@ -612,7 +612,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 # Launch the GUI. If you want to run the GUI, uncomment the ``window.show()`` and
 # ``app.exec_()`` method calls. 
 
-if __name__ == '__main__' and  os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if __name__ == '__main__' and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     app = QtWidgets.QApplication([])
     window = MainWindow()
     window.show()

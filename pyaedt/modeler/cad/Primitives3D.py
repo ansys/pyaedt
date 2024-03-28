@@ -552,8 +552,8 @@ class Primitives3D(GeometryModeler):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_bondwire(self,  start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
-                        diameter=0.025,  facets=6, name=None,  matname=None, cs_axis="Z", **kwargs):  # fmt: on
+    def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
+                        diameter=0.025, facets=6, name=None, matname=None, cs_axis="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.

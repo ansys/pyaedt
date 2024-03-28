@@ -83,7 +83,7 @@ setup.analyze()
 # ~~~~~~~~~~~~
 # Plot Solved Results.
 
-sols = m2d.post.get_solution_data("FluxLinkage(Winding1)",variations={"Time":["All"]},  primary_sweep_variable="Time")
+sols = m2d.post.get_solution_data("FluxLinkage(Winding1)", variations={"Time":["All"]}, primary_sweep_variable="Time")
 sols.plot()
 
 ###################################################################################
