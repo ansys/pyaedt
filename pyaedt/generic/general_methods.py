@@ -368,7 +368,8 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
         The default is ``None``, which means a platform-dependent encoding is used. You can
         specify any encoding supported by Python.
     override_existing : bool, optional
-        Whether if override existing file in case of open file in write mode on remote machine.
+        Whether to override an existing file if opening a file in write mode on a remote
+        machine. The default is ``True``.
 
     Returns
     -------
