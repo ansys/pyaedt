@@ -230,7 +230,6 @@ class TestClass:
 
     def test_11_mesh_level(self):
         assert self.aedtapp.mesh.assign_mesh_level({"USB_Shiels": 2})
-        pass
 
     def test_12a_AssignMeshOperation(self):
         self.aedtapp.oproject = test_project_name
