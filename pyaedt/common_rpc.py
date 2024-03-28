@@ -121,10 +121,10 @@ safe_attrs = {
 
 def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
     """Starts PyAEDT service manager using RPyC server on CPython and listens on a specified port.
-    This method is used as a service on the server machine to listen on a dedicated port for inbound requests
-    to launch new server connection and launch Ansys Electronics Desktop.
-
-    This method must run on a server machine.
+    
+    This method, which must run on a server machine, is used as a service on the
+    server machine to listen on a dedicated port for inbound requests to launch
+    a new server connection and launch AEDT.
 
     Parameters
     ----------
