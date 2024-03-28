@@ -6144,9 +6144,7 @@ class GeometryModeler(Modeler):
                 parts = [parts]
             normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
             submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
-            normal_parts = ",".join(normal_parts)
-            submodel_parts = ",".join(submodel_parts)
-            arg += [["NAME:SubRegionPartNames", normal_parts], ["NAME:SubRegionSubmodelNames", submodel_parts]]
+            arg += [["NAME:SubRegionPartNames"] + normal_parts, ["NAME:SubRegionSubmodelNames"] + submodel_parts]
             flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",
