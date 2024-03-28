@@ -747,7 +747,7 @@ class Primitives3DLayout(object):
                 try:
                     if p[0] == "NAME:psd":
                         props = p
-                except:
+                except Exception:
                     pass
             self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
@@ -799,7 +799,7 @@ class Primitives3DLayout(object):
                             self._padstacks[name].layers[lay_name].connectiondir = lay[16]
                             i += 1
                         pass
-                except:
+                except Exception:
                     pass
 
         return self._padstacks
@@ -863,7 +863,7 @@ class Primitives3DLayout(object):
                 args.append(nets_dictionary[key])
             self.oeditor.SetNetVisible(args)
             return True
-        except:
+        except Exception:
             self.logger.error("Couldn't change nets visibility.")
             return False
 
