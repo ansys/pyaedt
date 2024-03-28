@@ -1307,7 +1307,7 @@ class IcepakPostProcessor(PostProcessor, object):
             fs.add_calculation("Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature)
             return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(design_variation="variations")
     def evaluate_object_quantity(
         self,
         object_name,
@@ -1315,7 +1315,7 @@ class IcepakPostProcessor(PostProcessor, object):
         side="Default",
         volume=False,
         setup_name=None,
-        design_variation=None,
+        variations=None,
         ref_temperature="",
     ):
         """Export the field output on or in an object.
@@ -1334,7 +1334,7 @@ class IcepakPostProcessor(PostProcessor, object):
         setup_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
-        design_variation : dict, optional
+        variations : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
@@ -1353,8 +1353,8 @@ class IcepakPostProcessor(PostProcessor, object):
 
         >>> oModule.ExportFieldsSummary
         """
-        if design_variation is None:
-            design_variation = {}
+        if variations is None:
+            variations = {}
         fs = self.create_field_summary()
         fs.add_calculation(
             "Boundary",
@@ -1364,4 +1364,4 @@ class IcepakPostProcessor(PostProcessor, object):
             side=side,
             ref_temperature=ref_temperature,
         )
-        return self._parse_field_summary_content(fs, setup_name, design_variation, quantity_name)
+        return self._parse_field_summary_content(fs, setup_name, variations, quantity_name)
