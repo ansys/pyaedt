@@ -9,6 +9,7 @@ import warnings
 from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -330,7 +331,7 @@ class Modeler3D(Primitives3D):
                 datasets.update(self._app.design_datasets)
             if native_components is None:
                 native_components = self._app.native_components
-            with open(configfile) as f:
+            with open_file(configfile) as f:
                 config_dict = json.load(f)
             out_dict = {}
             if monitor_objects:
@@ -370,7 +371,7 @@ class Modeler3D(Primitives3D):
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
                         del out_dict["coordinatesystems"][cs]
-            with open(auxiliary_dict, "w") as outfile:
+            with open_file(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
         if not os.path.isdir(os.path.dirname(component_file)):
             self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
@@ -900,7 +901,7 @@ class Modeler3D(Primitives3D):
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
-        with open(file_path, "r") as f:
+        with open_file(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
             for lk in range(len(lines)):
@@ -1240,7 +1241,7 @@ class Modeler3D(Primitives3D):
             "parts": parts_dict,
         }
 
-        with open(json_path, "w", encoding="utf-8") as f:
+        with open_file(json_path, "w", encoding="utf-8") as f:
             json.dump(scene, f, indent=4)
 
         self.logger.info("Done...")

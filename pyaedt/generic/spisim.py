@@ -15,6 +15,7 @@ from pyaedt import is_linux
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.general_methods import env_value
+from pyaedt.generic.general_methods import open_file
 from pyaedt.misc import current_version
 from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
@@ -73,10 +74,10 @@ class SpiSim:
         my_env.update(settings.aedt_environment_variables)
         if is_linux:  # pragma: no cover
             command.append("&")
-            with open(out_processing, "w") as outfile:
+            with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
-            with open(out_processing, "w") as outfile:
+            with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         return out_processing
 
@@ -84,7 +85,7 @@ class SpiSim:
     def _get_output_parameter_from_result(self, out_file, parameter_name):
         if parameter_name == "ERL":
             try:
-                with open(out_file, "r") as infile:
+                with open_file(out_file, "r") as infile:
                     lines = infile.read()
                     parmDat = lines.split("[ParmDat]:", 1)[1]
                     for keyValu in parmDat.split(","):
@@ -100,7 +101,7 @@ class SpiSim:
                 return False
         elif parameter_name == "COM":
             try:
-                with open(out_file, "r") as infile:
+                with open_file(out_file, "r") as infile:
                     txt = infile.read()
                 i = 0
                 com_results = []
@@ -201,7 +202,7 @@ class SpiSim:
             "NCYCLES": 1000,
         }
         if config_file:
-            with open(config_file, "r") as fp:
+            with open_file(config_file, "r") as fp:
                 lines = fp.readlines()
                 for line in lines:
                     if not line.startswith("#") and "=" in line:
@@ -239,7 +240,7 @@ class SpiSim:
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
         new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
-        with open(new_cfg_file, "w") as fp:
+        with open_file(new_cfg_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write("# {}: {}\n".format(k, k))
                 fp.write("{} = {}\n".format(k, v))
@@ -371,7 +372,7 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
     """Check encoding of a file."""
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
         try:
-            with open(file_path, "r", encoding=encoding) as f:
+            with open_file(file_path, "r", encoding=encoding) as f:
                 lines = f.read()
                 f.seek(0)
         except UnicodeDecodeError:
