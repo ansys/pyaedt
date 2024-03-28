@@ -672,7 +672,7 @@ class TestClass:
         try:
             p = ffdata.polar_plot_3d_pyvista(farfield_quantity="RealizedGain", convert_to_db=True, show=False)
             assert isinstance(p, object)
-        except:
+        except Exception:
             assert True
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")

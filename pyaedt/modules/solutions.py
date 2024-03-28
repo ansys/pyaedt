@@ -74,7 +74,7 @@ class SolutionData(object):
         for intrinsic in self.intrinsics:
             try:
                 self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
-            except:
+            except Exception:
                 self.units_sweeps[intrinsic] = None
         self.init_solutions_data()
         self._ifft = None
@@ -2362,7 +2362,7 @@ class FfdSolutionData(object):
                 try:
                     str1 = port.split("[", 1)[1].split("]", 1)[0]
                     port_index[port] = [int(i) - index_offset for i in str1.split(",")]
-                except:
+                except Exception:
                     return False
             else:
                 if not port_index:
@@ -2496,7 +2496,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                             self.setup_name,
                         ]
                     )
-                except:
+                except Exception:
                     self._app.logger.error("Failed to export one element pattern.")
                     self._app.logger.error(export_path + exported_name_base + ".ffd")
 
@@ -2740,7 +2740,7 @@ class FieldPlot:
                             model_faces.append(str(index))
                         else:
                             nonmodel_faces.append(str(index))
-                    except:
+                    except Exception:
                         pass
             info.append("Surface")
             if model_faces:
@@ -3085,7 +3085,7 @@ class FieldPlot:
             else:
                 self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3140,7 +3140,7 @@ class FieldPlot:
             else:
                 self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3541,7 +3541,7 @@ class VRTFieldPlot:
             else:
                 self._ofield.CreateFieldPlot(self._create_args(), "VRT")
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3560,7 +3560,7 @@ class VRTFieldPlot:
             else:
                 self._ofield.ModifyFieldPlot(self.name, self._create_args())
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()

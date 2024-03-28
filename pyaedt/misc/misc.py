@@ -56,7 +56,7 @@ def installed_versions():
             else:
                 v_key = "20{0}.{1}".format(version, release)
             return_dict[v_key] = os.environ[version_env_var]
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             pass
     return return_dict
 

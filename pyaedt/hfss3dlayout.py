@@ -1666,12 +1666,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         try:
             os.remove(tmpfile1)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
         try:
             self.oexcitation.SetDiffPairs(arg)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -1709,7 +1709,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             try:
                 os.remove(tmpfile1)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.logger.warning("ERROR: Cannot remove temp files.")
 
         return list_output
@@ -1750,7 +1750,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             self.oexcitation.LoadDiffPairsFromFile(new_file)
             os.remove(new_file)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -2254,7 +2254,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         try:
             self.oeditor.SetHfssExtentsVisible(show)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -2287,5 +2287,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             oeditor = self.odesign.SetActiveEditor("Layout")
             oeditor.ChangeOptions(options)
             return True
-        except:
+        except Exception:
             return False
