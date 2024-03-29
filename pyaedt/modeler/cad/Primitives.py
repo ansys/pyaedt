@@ -4657,6 +4657,7 @@ class GeometryModeler(Modeler):
             if "AWP_ROOT" in variable:
                 if variable > latest_version:
                     latest_version = variable
+                    break
         if not latest_version:
             self.logger.error("SpaceClaim is not found.")
         else:
