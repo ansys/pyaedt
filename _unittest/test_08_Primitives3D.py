@@ -98,8 +98,6 @@ class TestClass:
             name = "MyBox"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        else:
-            pass
         new_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
         return new_object
 
@@ -241,8 +239,6 @@ class TestClass:
             matname="Aluminum",
         )
 
-        pass
-
     def test_05_center_and_centroid(self):
         o = self.create_copper_box()
         tol = 1e-9
@@ -334,7 +330,6 @@ class TestClass:
         assert o.is3d is True
         assert not self.aedtapp.modeler.create_cylinder(axis, [2, 2], radius, height, 8, "MyCyl", "Copper")
         assert not self.aedtapp.modeler.create_cylinder(axis, udp, -0.1, height, 8, "MyCyl", "Copper")
-        pass
 
     def test_16_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -378,7 +373,6 @@ class TestClass:
         of = self.aedtapp.modeler.create_object_from_edge([o4.edges[0], o3.edges[1], o4.edges[1]])
         assert of
         assert len(of) == 3
-        pass
 
     def test_18_create_object_from_face(self):
         o = self.create_copper_cylinder()
@@ -400,7 +394,6 @@ class TestClass:
         of = self.aedtapp.modeler.create_object_from_face([o3.faces[0], o4.faces[1], o4.faces[1], o3.faces[2]])
         assert of
         assert len(of) == 4
-        pass
 
     def test_19_create_polyline(self):
         udp1 = [0, 0, 0]
@@ -868,8 +861,6 @@ class TestClass:
 
         P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
 
-        pass
-
     def test_49_modify_crossection(self):
         P = self.aedtapp.modeler.create_polyline(
             position_list=[[34.1004, 14.1248, 0], [27.646, 16.7984, 0], [24.9725, 10.3439, 0]],
@@ -1157,7 +1148,6 @@ class TestClass:
     def test_61_get_closest_edge_to_position(self):
         my_box = self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
-        pass
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_62_import_space_claim(self):

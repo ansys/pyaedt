@@ -191,7 +191,6 @@ class TestClass:
             "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
         )
         assert test
-        pass
 
     def test_11_assign_net(self):
         box = self.aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
