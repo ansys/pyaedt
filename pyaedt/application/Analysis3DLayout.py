@@ -329,15 +329,15 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oModule.GetAllPorts
         """
-        next = []
+        next_xtalks = []
         if not trlist:
             trlist = [i for i in self.excitations if tx_prefix in i]
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
-                next.append("S({},{})".format(i, trlist[k]))
+                next_xtalks.append("S({},{})".format(i, trlist[k]))
                 k += 1
-        return next
+        return next_xtalks
 
     @pyaedt_function_handler()
     def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
