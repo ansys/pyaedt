@@ -3022,15 +3022,25 @@ class Hfss(FieldAnalysis3D, object):
     def create_boundary(
         self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
     ):
-        """Create a boundary given specific inputs.
+        """Assign a boundary condition to a sheet or surface. This method is generally
+           used by other methods in the ``Hfss`` class such as :meth:``Hfss.assign_febi``
+           or :meth:``Hfss.assign_radiation_boundary_to_faces``.
 
         Parameters
         ----------
-        boundary_type : str, optional
-            Boundary type object. Options are ``"Perfect E"``, ``"Perfect H"``, ``"Aperture"``, and
-            ``"Radiation"``. The default is ``PerfectE``.
+        boundary_type : int, optional
+            Specifies the type of boundary condition to be assigned to a sheet or surface.
+            Options are properties of :class:``Hfss.BoundaryType``. For example,
+                - ``Hfss.BoundaryType.PerfectE``
+                - ``Hfss.BoundaryType.PerfectH``
+                - ``Hfss.BoundaryType.Radiation``
+                - ``Hfss.BoundaryType.Impedance``
+                - ``Hfss.BoundaryType.LumpedRLC``
+                - ``Hfss.BoundaryType.FEBI``
+            The default is ``Hfss.BoundaryType.PerfectE``.
         sheet_name : in, str, or list, optional
-            Name of the sheet. It can be an integer (face ID), a string (sheet), or a list of integers
+            Name of the sheet or face to which the boundary condition will be assigned.
+            It can be an integer (face ID), a string (sheet), or a list of integers
             and strings. The default is ``None``.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
