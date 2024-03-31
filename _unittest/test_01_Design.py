@@ -40,7 +40,6 @@ class TestClass:
     def test_01_designname(self):
         # TODO: Remove subsequent dependence on string "myname"
         design_names = ["myname", "design2"]
-        old_name = self.aedtapp.design_name
         self.aedtapp.design_name = design_names[0]  # Change the design name.
         assert self.aedtapp.design_name == design_names[0]
         self.aedtapp.insert_design(design_names[1])  # Insert a new design
@@ -48,8 +47,6 @@ class TestClass:
         self.aedtapp.design_name = design_names[0]  # Change current design back.
         assert len(self.aedtapp.design_list) == 2  # Make sure there are still 2 designs.
         assert self.aedtapp.design_list[0] == design_names[0]  # Make sure the name is correct.
-        self.aedtapp.design_name = old_name  # Set back to the original name.
-        # assert self.aedtapp.design_name == old_name
         self.aedtapp.delete_design(design_names[1])  # Delete the 2nd design
         assert len(self.aedtapp.design_list) == 1
 
