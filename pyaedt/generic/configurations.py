@@ -696,7 +696,8 @@ class Configurations(object):
 
         pyaedt_installed_path = os.listdir(packages_path)
         if "Lib" in pyaedt_installed_path:
-            pyaedt_installed_path = os.listdir(os.path.join(packages_path, "Lib", "site-packages"))
+            packages_path = os.path.join(packages_path, "Lib", "site-packages")
+            pyaedt_installed_path = os.listdir(packages_path)
 
         schema_bytes = None
         if "pyaedt" in pyaedt_installed_path:
