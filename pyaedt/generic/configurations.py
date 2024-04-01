@@ -1,10 +1,9 @@
 from collections import OrderedDict
 import copy
 from datetime import datetime
-from importlib.util import find_spec
 import json
 import os
-import pkgutil
+import site
 import tempfile
 
 from pyaedt import Icepak
@@ -693,18 +692,23 @@ class Configurations(object):
         self.results = ImportResults()
 
         # Find pyaedt package
-        pyaedt_installed_path = find_spec("pyaedt")
-
-        if pyaedt_installed_path:
-            pyaedt_path = os.path.dirname(pyaedt_installed_path.origin)
+        packages_path = site.getsitepackages()[0]
+        pyaedt_installed_path = os.listdir(packages_path)
+        schema_bytes = None
+        if "pyaedt" in pyaedt_installed_path:
+            pyaedt_path = os.path.join(packages_path, "pyaedt")
             config_schema_path = os.path.join(pyaedt_path, "misc", "config.schema.json")
-        else:
-            import pyaedt
 
+        else:  # pragma: no cover
+            import pyaedt
             config_schema_path = os.path.join(os.path.dirname(pyaedt.__file__), "misc", "config.schema.json")
+
         if os.path.isfile(config_schema_path):
+            with open(config_schema_path, 'rb') as schema:
+                schema_bytes = schema.read()
+
+        if schema_bytes:
             # Read the default configuration schema from pyaedt
-            schema_bytes = pkgutil.get_data(__name__, config_schema_path)
             schema_string = schema_bytes.decode("utf-8")
             self._schema = json.loads(schema_string)
         else:  # pragma: no cover
