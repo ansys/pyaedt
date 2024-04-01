@@ -3,9 +3,9 @@ import copy
 from datetime import datetime
 import json
 import os
-import site
 import tempfile
 
+import pyaedt
 from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
@@ -691,23 +691,11 @@ class Configurations(object):
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
-        # Find pyaedt package
-        packages_path = site.getsitepackages()[0]
-
-        pyaedt_installed_path = os.listdir(packages_path)
-        if "Lib" in pyaedt_installed_path:
-            packages_path = os.path.join(packages_path, "Lib", "site-packages")
-            pyaedt_installed_path = os.listdir(packages_path)
+        pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
 
         schema_bytes = None
-        if "pyaedt" in pyaedt_installed_path:
-            pyaedt_path = os.path.join(packages_path, "pyaedt")
-            config_schema_path = os.path.join(pyaedt_path, "misc", "config.schema.json")
 
-        else:  # pragma: no cover
-            import pyaedt
-
-            config_schema_path = os.path.join(os.path.dirname(pyaedt.__file__), "misc", "config.schema.json")
+        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
 
         if os.path.isfile(config_schema_path):
             with open(config_schema_path, "rb") as schema:
