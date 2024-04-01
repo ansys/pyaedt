@@ -693,7 +693,11 @@ class Configurations(object):
 
         # Find pyaedt package
         packages_path = site.getsitepackages()[0]
+
         pyaedt_installed_path = os.listdir(packages_path)
+        if "Lib" in pyaedt_installed_path:
+            pyaedt_installed_path = os.listdir(os.path.join(packages_path, "Lib", "site-packages"))
+
         schema_bytes = None
         if "pyaedt" in pyaedt_installed_path:
             pyaedt_path = os.path.join(packages_path, "pyaedt")
@@ -701,10 +705,11 @@ class Configurations(object):
 
         else:  # pragma: no cover
             import pyaedt
+
             config_schema_path = os.path.join(os.path.dirname(pyaedt.__file__), "misc", "config.schema.json")
 
         if os.path.isfile(config_schema_path):
-            with open(config_schema_path, 'rb') as schema:
+            with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
         if schema_bytes:
