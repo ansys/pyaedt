@@ -3,7 +3,6 @@ import copy
 from datetime import datetime
 import json
 import os
-import pkgutil
 import tempfile
 
 import pyaedt
@@ -692,12 +691,23 @@ class Configurations(object):
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
-        # Read the default configuration schema from pyaedt
-        schema_bytes = pkgutil.get_data(
-            __name__, os.path.join(os.path.dirname(pyaedt.__file__), "misc", "config.schema.json")
-        )
-        schema_string = schema_bytes.decode("utf-8")
-        self._schema = json.loads(schema_string)
+        pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
+
+        schema_bytes = None
+
+        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+
+        if os.path.isfile(config_schema_path):
+            with open(config_schema_path, "rb") as schema:
+                schema_bytes = schema.read()
+
+        if schema_bytes:
+            # Read the default configuration schema from pyaedt
+            schema_string = schema_bytes.decode("utf-8")
+            self._schema = json.loads(schema_string)
+        else:  # pragma: no cover
+            self._app.logger.error("Failed to load configuration schema.")
+            self._schema = None
 
     @staticmethod
     @pyaedt_function_handler()
