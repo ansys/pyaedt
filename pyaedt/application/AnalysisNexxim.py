@@ -124,7 +124,7 @@ class FieldAnalysisCircuit(Analysis):
         try:
             self.oproject.SetActiveDesign(out_name)
             self.__init__(projectname=self.project_name, designname=out_name)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -141,7 +141,7 @@ class FieldAnalysisCircuit(Analysis):
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
             self.oproject.SetActiveDesign(parent_name)
             self.__init__(projectname=self.project_name, designname=parent_name)
-        except:
+        except Exception:
             return False
         return True
 
@@ -483,15 +483,15 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        next = []
+        next_xtalks = []
         if not trlist:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
-                next.append("S({},{})".format(i, trlist[k]))
+                next_xtalks.append("S({},{})".format(i, trlist[k]))
                 k += 1
-        return next
+        return next_xtalks
 
     @pyaedt_function_handler()
     def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
@@ -526,15 +526,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
-
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
             for k in reclist:
@@ -609,6 +604,7 @@ class FieldAnalysisCircuit(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -622,5 +618,5 @@ class FieldAnalysisCircuit(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup

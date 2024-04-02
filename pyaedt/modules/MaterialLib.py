@@ -209,7 +209,7 @@ class Materials(object):
                     self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
                     material_update=False,
                 )
-        except:
+        except Exception:
             pass
         return mats
 
@@ -381,14 +381,14 @@ class Materials(object):
             for mat in matlist:
                 try:
                     matprop[prop].append(float(mat.__dict__["_" + prop].value))
-                except:
+                except Exception:
                     self.logger.warning("Warning. Wrong parsed property. Reset to 0")
                     matprop[prop].append(0)
             try:
                 a = sum(matprop[prop])
                 if a < tol:
                     del matprop[prop]
-            except:
+            except Exception:
                 pass
         return matprop
 
@@ -650,7 +650,7 @@ class Materials(object):
                 if el not in list(self.material_keys.keys()):
                     try:
                         self._aedmattolibrary(el)
-                    except Exception as e:
+                    except Exception:
                         self.logger.info("aedmattolibrary failed for material %s", el)
 
     @pyaedt_function_handler()

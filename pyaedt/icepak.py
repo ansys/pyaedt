@@ -1089,7 +1089,7 @@ class Icepak(FieldAnalysis3D):
                         )
                     else:
                         total_power += float(power)
-            except:
+            except Exception:
                 pass
             i += 1
         self.logger.info("Blocks inserted with total power %sW.", total_power)
@@ -2080,7 +2080,7 @@ class Icepak(FieldAnalysis3D):
                 )
                 arg.append("Calculation:=")
                 arg.append([type, geometry_type, el, quantity, "", "Default"])
-            except Exception as e:
+            except Exception:
                 self.logger.warning("Object " + el + " not added.")
         if not output_dir:
             output_dir = self.working_directory
@@ -2768,6 +2768,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Create a bounding box to use as a mesh region in Icepak.
 
+        .. deprecated:: 0.8.3
+            Use ``create_subregion`` or ``create_region`` functions inside the modeler class.
+
         Parameters
         ----------
         scale_factor : float, optional
@@ -2787,6 +2790,12 @@ class Icepak(FieldAnalysis3D):
 
         >>> oeditor.ChangeProperty
         """
+        warnings.warn(
+            "``create_meshregion_component`` was deprecated in 0.8.3."
+            "Use ``create_subregion`` or ``create_region`` instead.",
+            DeprecationWarning,
+        )
+
         self.modeler.edit_region_dimensions([0, 0, 0, 0, 0, 0])
 
         vertex_ids = self.modeler.oeditor.GetVertexIDsFromObject("Region")
@@ -3174,7 +3183,7 @@ class Icepak(FieldAnalysis3D):
                     ],
                 ]
             )
-        except:
+        except Exception:
             self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         if mat.lower() not in self.materials.surface_material_keys:

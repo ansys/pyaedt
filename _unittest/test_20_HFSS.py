@@ -844,7 +844,6 @@ class TestClass:
         ).GetPropValue("Apply Curvilinear Elements")
         mesh.delete()
         assert len(self.aedtapp.mesh.meshoperations) == 2
-        pass
 
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)

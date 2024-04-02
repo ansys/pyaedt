@@ -85,7 +85,7 @@ if os.path.exists(local_config_file):
     try:
         with open(local_config_file) as f:
             local_config = json.load(f)
-    except:  # pragma: no cover
+    except Exception:  # pragma: no cover
         local_config = {}
     config.update(local_config)
 
@@ -94,7 +94,7 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
-
+settings.objects_lazy_load = False
 logger = pyaedt_logger
 
 

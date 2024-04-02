@@ -1190,7 +1190,7 @@ class CommonMaterial(object):
         try:
             material_props = getattr(self, propname)
             material_props_type = material_props.type
-        except:
+        except Exception:
             material_props_type = None
 
         if isinstance(propvalue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
@@ -1231,7 +1231,7 @@ class CommonMaterial(object):
                 self._props[propname]["BHCoordinates"] = bh
                 try:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
-                except:
+                except Exception:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
             else:
                 bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
@@ -1363,7 +1363,6 @@ class Material(CommonMaterial, object):
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )
             self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
-        pass
 
     @property
     def material_appearance(self):
@@ -2556,7 +2555,7 @@ class Material(CommonMaterial, object):
         try:
             if float(cond) >= threshold:
                 return True
-        except:
+        except Exception:
             return False
         return False
 
@@ -2704,7 +2703,6 @@ class SurfaceMaterial(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(
                     self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
                 )
-        pass
 
     @property
     def emissivity(self):

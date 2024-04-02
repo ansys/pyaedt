@@ -329,18 +329,18 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oModule.GetAllPorts
         """
-        next = []
+        next_xtalks = []
         if not trlist:
             trlist = [i for i in self.excitations if tx_prefix in i]
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
-                next.append("S({},{})".format(i, trlist[k]))
+                next_xtalks.append("S({},{})".format(i, trlist[k]))
                 k += 1
-        return next
+        return next_xtalks
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -371,9 +371,9 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetAllPorts
         """
         fext = []
-        if not trlist:
+        if trlist is None:
             trlist = [i for i in self.excitations if tx_prefix in i]
-        if not reclist:
+        if reclist is None:
             reclist = [i for i in self.excitations if rx_prefix in i]
         for i in trlist:
             for k in reclist:
@@ -465,6 +465,7 @@ class FieldAnalysis3DLayout(Analysis):
             setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -478,7 +479,7 @@ class FieldAnalysis3DLayout(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup
 
     @pyaedt_function_handler()
@@ -501,7 +502,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
-        for setup in self.setups:
+        for setup in self._setups:
             if setupname == setup.name:
                 return setup
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
