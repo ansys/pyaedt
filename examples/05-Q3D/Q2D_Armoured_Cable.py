@@ -199,7 +199,7 @@ arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 # Create region
 # ~~~~~~~~~~~~~
 
-region = q2d.modeler.create_region([500, 500, 500, 500, 0, 0])
+region = q2d.modeler.create_region([500, 500, 500, 500])
 region.material_name = "vacuum"
 
 ##########################################################
