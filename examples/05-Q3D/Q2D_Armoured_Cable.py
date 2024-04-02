@@ -228,12 +228,6 @@ q2d.change_design_settings(q2d_des_settings)
 
 q2d_setup = q2d.create_setup(setupname=setup_name)
 q2d_sweep = q2d_setup.add_sweep(sweepname=sweep_name)
-q2d_sweep.props["RangeType"] = "LogScale"
-q2d_sweep.props["RangeStart"] = "0Hz"
-q2d_sweep.props["RangeEnd"] = "3MHz"
-q2d_sweep.props["RangeCount"] = 10
-q2d_sweep.props["RangeSamples"] = 1
-q2d_sweep.update()
 
 ##########################################################
 # Analyze setup
