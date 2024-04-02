@@ -2598,7 +2598,7 @@ class UpdateBeamForm:
 
         self.ff.mesh = self.ff.get_far_field_mesh(self.farfield_quantity, self.quantity_format)
 
-        self.output.overwrite(self.ff.mesh)
+        self.output.copy_from(self.ff.mesh)
         return
 
     @pyaedt_function_handler()
