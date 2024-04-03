@@ -29,7 +29,7 @@ aedt_version = "2024.1"
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-non_graphical = False
+non_graphical = True
 new_thread = True
 
 ###############################################################################
@@ -113,7 +113,6 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(touchstone=touchstone
                                                    design_name="TDR",
                                                    rise_time=35,
                                                    use_convolution=True,
-                                                   create_new_schematic=True,
                                                    analyze=True,
                                                    )
 
@@ -178,13 +177,13 @@ v = VirtualCompliance(cir.desktop_class, str(template))
 #
 
 v.project_file = cir.project_file
-v.reports["insertion losses"].design_name = "Touchstone"
-v.reports["return losses"].design_name = "Touchstone"
-v.reports["common mode return losses"].design_name = "Touchstone"
+v.reports["insertion losses"].design_name = "LNA"
+v.reports["return losses"].design_name = "LNA"
+v.reports["common mode return losses"].design_name = "LNA"
 v.reports["tdr from circuit"].design_name = "TDR"
 v.reports["eye1"].design_name = "AMI"
 v.reports["eye3"].design_name = "AMI"
-v.parameters["erl"].design_name = "Touchstone"
+v.parameters["erl"].design_name = "LNA"
 v.specs_folder = os.path.join(workdir, 'readme_pictures')
 
 ###############################################################################
