@@ -226,9 +226,18 @@ class Hfss(FieldAnalysis3D, object):
     class BoundaryType(object):
         """Creates and manages boundaries."""
 
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid, FEBI) = range(
-            0, 10
-        )
+        (
+            PerfectE,
+            PerfectH,
+            Aperture,
+            Radiation,
+            Impedance,
+            LayeredImp,
+            LumpedRLC,
+            FiniteCond,
+            Hybrid,
+            FEBI,
+        ) = range(0, 10)
 
     @property
     def hybrid(self):
@@ -3633,8 +3642,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet_name : str
-            Name of the sheet to apply the boundary to.
+        sheet_name : str or list
+            Name of the sheet or list to apply the boundary to.
         sourcename : str, optional
             Name of the impedance. The default is ``None``.
         resistance : optional
@@ -3675,15 +3684,125 @@ class Hfss(FieldAnalysis3D, object):
                 sourcename = generate_unique_name("Imped")
             elif sourcename in self.modeler.get_boundaries_name():
                 sourcename = generate_unique_name(sourcename)
+
+            objects = self.modeler.convert_to_selections(sheet_name, True)
+
             props = OrderedDict(
                 {
-                    "Objects": [sheet_name],
-                    "Resistance": str(resistance),
-                    "Reactance": str(reactance),
-                    "InfGroundPlane": is_infground,
+                    "Faces": objects,
                 }
             )
+            if isinstance(objects[0], str):
+                props = OrderedDict(
+                    {
+                        "Objects": objects,
+                    }
+                )
+            props["Resistance"] = str(resistance)
+            props["Reactance"] = str(reactance)
+            props["InfGroundPlane"] = is_infground
+
             return self._create_boundary(sourcename, props, "Impedance")
+        return False
+
+    @pyaedt_function_handler()
+    def assign_impedance_to_sheet(
+        self, sheet_name, sourcename=None, resistance=50.0, reactance=0.0, is_infground=False, reference_cs="Global"
+    ):
+        """Create an impedance taking one sheet.
+
+        Parameters
+        ----------
+        sheet_name : str or list
+            Name of the sheet or list to apply the boundary to.
+        sourcename : str, optional
+            Name of the impedance. The default is ``None``.
+        resistance : float or list, optional
+            Resistance value in ohms. The default is ``50.0``.
+            If a list of four elements is passed, an anisotropic impedance is assigned with the following order,
+            [``Zxx``, ``Zxy``, ``Zyx``, ``Zyy``].
+        reactance : optional
+            Reactance value in ohms. The default is ``0.0``.
+            If a list of four elements is passed, an anisotropic impedance is assigned with the following order,
+            [``Zxx``, ``Zxy``, ``Zyx``, ``Zyy``].
+        is_infground : bool, optional
+            Whether the impedance is an infinite ground. The default is ``False``.
+        reference_cs : str, optional
+            Name of the coordinate system for the XY plane. The default is ``"Global"``.
+            This parameter is only used for anisotropic impedance assignment.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
+
+        Examples
+        --------
+
+        Create a sheet and use it to create an impedance.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
+        ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
+        ...                                        matname="Copper")
+        >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name, "ImpedanceFromSheet", 100, 50)
+
+        Create a sheet and use it to create an anisotropic impedance.
+
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
+        ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
+        ...                                        matname="Copper")
+        >>> anistropic_impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name, "ImpedanceFromSheet",
+        ...                                                                 [377, 0, 0, 377], [0, 50, 0, 0])
+
+        """
+
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            if not sourcename:
+                sourcename = generate_unique_name("Imped")
+            elif sourcename in self.modeler.get_boundaries_name():
+                sourcename = generate_unique_name(sourcename)
+
+            objects = self.modeler.convert_to_selections(sheet_name, True)
+
+            props = OrderedDict(
+                {
+                    "Faces": objects,
+                }
+            )
+            if isinstance(objects[0], str):
+                props = OrderedDict(
+                    {
+                        "Objects": objects,
+                    }
+                )
+
+            if isinstance(resistance, list) and isinstance(reactance, list):
+                if len(resistance) == 4 and len(reactance) == 4:
+                    props["UseInfiniteGroundPlane"] = is_infground
+                    props["CoordSystem"] = reference_cs
+                    props["HasExternalLink"] = False
+                    props["ZxxResistance"] = str(resistance[0])
+                    props["ZxxReactance"] = str(reactance[0])
+                    props["ZxyResistance"] = str(resistance[1])
+                    props["ZxyReactance"] = str(reactance[1])
+                    props["ZyxResistance"] = str(resistance[2])
+                    props["ZyxReactance"] = str(reactance[2])
+                    props["ZyyResistance"] = str(resistance[3])
+                    props["ZyyReactance"] = str(reactance[3])
+                else:
+                    self.logger.error("Number of elements in resistance and reactance must be four.")
+                    return False
+                return self._create_boundary(sourcename, props, "Anisotropic Impedance")
+            else:
+                props["Resistance"] = str(resistance)
+                props["Reactance"] = str(reactance)
+                props["InfGroundPlane"] = is_infground
+                return self._create_boundary(sourcename, props, "Impedance")
         return False
 
     @pyaedt_function_handler()
