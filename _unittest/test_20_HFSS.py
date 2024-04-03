@@ -667,7 +667,9 @@ class TestClass:
     def test_13_create_impedance_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "imp1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "imp2", "copper")
-        imp = self.aedtapp.create_impedance_between_objects("imp1", "imp2", self.aedtapp.AxisDir.XPos, "TL2", 50, 25)
+        imp = self.aedtapp.create_impedance_between_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.XPos, "TL1", 50, 25
+        )
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
@@ -677,14 +679,14 @@ class TestClass:
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "rlc1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "rlc2", "copper")
         imp = self.aedtapp.create_lumped_rlc_between_objects(
-            "rlc1", "rlc2", self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9
+            box1.name, box2.name, self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9
         )
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
         box3 = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "rlc3", "copper")
         lumped_rlc2 = self.aedtapp.create_lumped_rlc_between_objects(
-            "rlc2", "rlc3", self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9, Cvalue=1e-9
+            box2.name, box3.name, self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9, Cvalue=1e-9
         )
         assert lumped_rlc2.name in self.aedtapp.modeler.get_boundaries_name()
         assert lumped_rlc2.update()
@@ -710,9 +712,24 @@ class TestClass:
         rect = self.aedtapp.modeler.create_rectangle(
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="ImpBound", matname="Copper"
         )
-        imp = self.aedtapp.assign_impedance_to_sheet("imp1", "TL2", 50, 25)
-        assert imp.name in self.aedtapp.modeler.get_boundaries_name()
-        assert imp.update()
+        imp1 = self.aedtapp.assign_impedance_to_sheet(rect.name, "TL2", 50, 25)
+        assert imp1.name in self.aedtapp.modeler.get_boundaries_name()
+        assert imp1.update()
+
+        impedance_box = self.aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], "ImpedanceBox")
+        ids = self.aedtapp.modeler.get_object_faces(impedance_box.name)[:3]
+
+        imp2 = self.aedtapp.assign_impedance_to_sheet(ids, sourcename="ImpedanceToFaces", resistance=60, reactance=-20)
+        assert imp2.name in self.aedtapp.modeler.get_boundaries_name()
+
+        rect2 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="AniImpBound", matname="Copper"
+        )
+        assert not self.aedtapp.assign_impedance_to_sheet(rect2.name, "TL3", [50, 20, 0, 0], [25, 0, 5])
+        imp2 = self.aedtapp.assign_impedance_to_sheet(rect2.name, "TL3", [50, 20, 0, 0], [25, 0, 5, 0])
+        assert imp2.name in self.aedtapp.modeler.get_boundaries_name()
+        imp3 = self.aedtapp.assign_impedance_to_sheet(impedance_box.top_face_z.id, "TL4", [50, 20, 0, 0], [25, 0, 5, 0])
+        assert imp3.name in self.aedtapp.modeler.get_boundaries_name()
 
     def test_17_create_lumpedrlc_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
