@@ -1489,6 +1489,7 @@ class Primitives3DLayout(object):
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
+    @pyaedt_function_handler()
     def create_components_on_pins(
         self,
         pins,
@@ -1496,17 +1497,22 @@ class Primitives3DLayout(object):
         component_type="Other",
         ref_des="U100",
     ):
-        """
+        """Create a new component based on a pin list.
 
         Parameters
         ----------
-        pins
-        definition_name
-        component_type
-        ref_des
+        pins : list
+            Pins to include in new component.
+        definition_name : str, optional
+            Name of the component definition. If None, it will create a random name.
+        component_type : str, optional
+            Component type. Default is ``"Other"``.
+        ref_des : str, optional
+            Reference Designator. Default is ``"U100"``.
 
         Returns
         -------
+        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
 
         """
         if not definition_name:
