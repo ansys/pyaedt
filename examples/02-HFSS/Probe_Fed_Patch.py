@@ -34,7 +34,7 @@ aedt_version = "2024.1"
 # You can set ``non_graphical``  to ``True`` to view
 # HFSS while the notebook cells are executed.
 
-non_graphical = True
+non_graphical = False
 length_units = "mm"
 freq_units = "GHz"
 
@@ -84,7 +84,7 @@ patch = signal.add_patch(patch_length=9.57, patch_width=9.25,
 stackup.resize_around_element(patch)
 pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
 region = hfss.modeler.create_region(pad_length, is_percentage=False)
-hfss.assign_radiation_boundary_to_objects(region)
+hfss.assign_radiation_boundary_to_objects(region.name)
 
 patch.create_probe_port(ground, rel_x_offset=0.485)
 setup = hfss.create_setup(setupname="Setup1",

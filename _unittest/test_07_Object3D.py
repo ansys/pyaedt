@@ -226,6 +226,8 @@ class TestClass:
         assert len(new_object.faces) == 6
         assert len(new_object.edges) == 12
         assert new_object.display_wireframe == initial_object.display_wireframe
+        new_object.name = "Properties_Box"
+        assert not new_object.name == "Properties_Box"
 
     def test_08_set_model(self):
         o = self.create_copper_box()

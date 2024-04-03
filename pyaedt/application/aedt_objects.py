@@ -73,7 +73,7 @@ class AedtObjects(object):
         if self.design_type not in ["EMIT"] and self.odesign:
             try:
                 return self.odesign.GetModule(module_name)
-            except:
+            except Exception:
                 return None
         return None
 

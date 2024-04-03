@@ -120,7 +120,7 @@ class AedtObjWrapper:
             return _retry_ntimes(
                 settings.number_of_grpc_api_retries, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv
             )  # Call C function
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise GrpcApiError("Failed to execute grpc AEDT command: {}".format(funcName))
 
     def __dir__(self):
@@ -141,7 +141,7 @@ class AedtObjWrapper:
             if funcName == "ScopeID":  # backward compatible for IronPython wrapper.
                 return self.objectID
             return self.__GetObjMethod__(funcName)
-        except:
+        except Exception:
             raise GrpcApiError("Failed to get grpc API AEDT attribute {}".format(funcName))
 
     def __setattr__(self, attrName, val):

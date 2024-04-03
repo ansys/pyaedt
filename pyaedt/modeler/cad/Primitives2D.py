@@ -304,16 +304,18 @@ class Primitives2D(GeometryModeler, object):
         >>> oEditor.CreateRegion
         """
         if not isinstance(pad_percent, list):
-            if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                if self._app.odesign.GetGeometryMode() == "XY":
-                    pad_percent = [pad_percent, pad_percent, pad_percent, pad_percent, 0, 0]
-                else:
-                    pad_percent = [pad_percent, 0, 0, 0, pad_percent, pad_percent]
+            pad_percent = [pad_percent] * 4
+        if self._app.design_type == "2D Extractor" or (
+            self._app.design_type == "Maxwell 2D" and self._app.odesign.GetGeometryMode() == "XY"
+        ):
+            if len(pad_percent) != 4:
+                self.logger.error("Wrong padding list provided. Four values have to be provided.")
+                return False
+            pad_percent = [pad_percent[0], pad_percent[2], pad_percent[1], pad_percent[3], 0, 0]
         else:
-            if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
-                if self._app.odesign.GetGeometryMode() == "XY":
-                    pad_percent = [pad_percent[0], pad_percent[2], pad_percent[1], pad_percent[3], 0, 0]
-                else:
-                    pad_percent = [pad_percent[0], 0, 0, 0, pad_percent[1], pad_percent[2]]
+            if len(pad_percent) < 3:
+                self.logger.error("Wrong padding list provided. Three values have to be provided for RZ geometry.")
+                return False
+            pad_percent = [pad_percent[0], 0, 0, 0, pad_percent[1], pad_percent[2]]
 
         return self._create_region(pad_percent, ["Absolute Offset", "Percentage Offset"][int(is_percentage)])

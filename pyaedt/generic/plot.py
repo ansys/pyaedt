@@ -43,7 +43,7 @@ if not is_ironpython:
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install matplotlib\n\nRequires CPython."
         )
-    except:
+    except Exception:
         pass
 
 
@@ -1369,7 +1369,7 @@ class ModelPlotter(CommonPlotter):
                                 lines = list(dict.fromkeys(lines))
                                 # decimate = 2
                                 # del lines[decimate - 1 :: decimate]
-                        except:
+                        except Exception:
                             lines = []
                         for line in lines:
                             tmp = line.strip().split(delimiter)
@@ -1392,7 +1392,7 @@ class ModelPlotter(CommonPlotter):
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
-                        except:
+                        except Exception:
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
@@ -1453,7 +1453,7 @@ class ModelPlotter(CommonPlotter):
             def __call__(self, state):
                 try:
                     self.plot.button_widgets = [self.plot.button_widgets[0]]
-                except:
+                except Exception:
                     self.plot.button_widgets = []
                 self.id += 1
                 k = 0
@@ -1516,14 +1516,19 @@ class ModelPlotter(CommonPlotter):
             )
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None):
+    def plot(self, export_image_path=None, show=True):
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
         ----------
 
-        export_image_path : str
-            Path to image to save.
+        export_image_path : str, optional
+            Path to image to save. Default is None
+        show : bool, optional
+            Whether to display the pyvista plot.
+            When False, a :class::pyvista.Plotter object is created
+            and assigned to the pv property so that it can be
+            modified further. Default is True.
 
         Returns
         -------
@@ -1645,9 +1650,9 @@ class ModelPlotter(CommonPlotter):
         self.pv.add_key_event("s", s_callback)
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
-        elif self.is_notebook:  # pragma: no cover
+        elif show and self.is_notebook:  # pragma: no cover
             self.pv.show()  # pragma: no cover
-        else:
+        elif show:
             self.pv.show(full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path
@@ -1820,7 +1825,7 @@ class ModelPlotter(CommonPlotter):
         start = time.time()
         try:
             self.pv.update(1, force_redraw=True)
-        except:
+        except Exception:
             pass
         if self.gif_file:
             first_loop = True

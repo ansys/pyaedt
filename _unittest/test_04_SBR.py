@@ -58,6 +58,10 @@ class TestClass:
     def test_01_open_source(self, source):
         assert self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
         assert len(self.aedtapp.native_components) == 1
+        assert self.aedtapp.create_sbr_linked_antenna(
+            source, target_cs="feederPosition", fieldtype="farfield", source_name="LinkedAntenna"
+        )
+        assert len(self.aedtapp.native_components) == 2
 
     def test_02_add_antennas(self):
         self.aedtapp.insert_design("add_antennas")
