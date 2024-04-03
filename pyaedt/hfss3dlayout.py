@@ -364,6 +364,24 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @pyaedt_function_handler()
+    def dissolve_component(self, component_name):
+        """Dissolve a component and remove it from 3D Layout.
+
+        Parameters
+        ----------
+        component_name : str
+            Component Name
+
+        Returns
+        -------
+        bool
+
+
+        """
+        self.oeditor.DissolveComponents(["NAME:elements", component_name])
+        return True
+
+    @pyaedt_function_handler()
     def create_ports_on_component_by_nets(
         self,
         component_name,
@@ -406,6 +424,39 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     self._boundaries[bound.name] = bound
                     ports.append(bound)
         return ports
+
+    @pyaedt_function_handler()
+    def create_pec_on_component_by_nets(
+        self,
+        component_name,
+        nets,
+    ):
+        """Create a PEC connection on a component for a list of nets.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        nets : str, list
+            Nets to include.
+
+
+        Returns
+        -------
+        bool
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        if isinstance(nets, list):
+            pass
+        else:
+            nets = [nets]
+        net_array = ["NAME:Nets"] + nets
+        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component_name], net_array, "PEC", "0", "0", "0")
+        return True
 
     @pyaedt_function_handler()
     def create_differential_port(self, via_signal, via_reference, port_name, deembed=True):

@@ -1489,6 +1489,53 @@ class Primitives3DLayout(object):
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
+    def create_components_on_pins(
+        self,
+        pins,
+        definition_name=None,
+        component_type="Other",
+        ref_des="U100",
+    ):
+        """
+
+        Parameters
+        ----------
+        pins
+        definition_name
+        component_type
+        ref_des
+
+        Returns
+        -------
+
+        """
+        if not definition_name:
+            definition_name = generate_unique_name("COMP")
+        placement_layer = list(self.layers.signals.keys())[0]
+        for pin in self.pins.items():
+            if pin[0] == pins[0]:
+                placement_layer = pin[1].start_layer
+                break
+        comp_name = self.modeler.oeditor.CreateComponent(
+            [
+                "NAME:Contents",
+                "isRCS:=",
+                True,
+                "definition_name:=",
+                definition_name,
+                "type:=",
+                component_type,
+                "ref_des:=",
+                ref_des,
+                "placement_layer:=",
+                placement_layer,
+                "elements:=",
+                pins,
+            ]
+        )
+        comp = Components3DLayout(self, comp_name.split(";")[-1])
+        return comp
+
     def create_text(self, text, position, placement_layer="PostProcessing", angle=0, font_size=12):
         """Create a text primitive object.
 
