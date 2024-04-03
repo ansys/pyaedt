@@ -746,7 +746,7 @@ class MeshRegion(MeshRegionCommon):
         args = ["NAME:" + self.name, "Enable:=", self.enable]
         args += self.settings.parse_settings()
         args += self._parse_assignment_value()
-        args += ["UserSpecifiedSettings:=", not self.manual_settings]
+        args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
             self._app.omeshmodule.EditMeshRegion(self.name, args)
             return True
