@@ -1089,7 +1089,7 @@ class Object3d(object):
                 self._primitives.add_new_objects()
                 self._primitives.cleanup_objects()
         else:
-            pass
+            self.logger.warning("{} is already used in current design.".format(obj_name))
 
     @property
     def valid_properties(self):

@@ -131,7 +131,11 @@ class TestClass:
             pcb_mesh_region.assignment.padding_types = "Absolute Offset"
             assert pcb_mesh_region.assignment.padding_values == ["2mm"] * 6
             assert pcb_mesh_region.assignment.padding_types == ["Absolute Offset"] * 6
-            subregion = self.aedtapp.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
+            assert self.aedtapp.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
+            box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+            assert self.aedtapp.modeler.create_subregion(
+                [50, 50, 50, 50, 100, 100], "Percentage Offset", ["PCB", box.name]
+            )
         else:
             box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
             pcb_mesh_region.Objects = box.name
