@@ -239,11 +239,12 @@ def rename_kwargs(func_name, kwargs, aliases):
     for alias, new in aliases.items():
         if alias in kwargs:
             if new in kwargs:
-                raise TypeError(
-                    f"{func_name} received both {alias} and {new} as arguments!"
-                    f" {alias} is deprecated, use {new} instead."
-                )
-            pyaedt_logger.warning(f"`{alias}` is deprecated as an argument to `{func_name}`; use" f" `{new}` instead.")
+                msg = "{} received both {} and {} as arguments!\n".format(func_name, alias, new)
+                msg += "{} is deprecated, use {} instead.".format(alias, new)
+                raise TypeError(msg)
+            pyaedt_logger.warning(
+                '`{}` is deprecated as an argument to `{}`; use" f" `{}` instead.'.format(alias, func_name, new)
+            )
             kwargs[new] = kwargs.pop(alias)
 
 
