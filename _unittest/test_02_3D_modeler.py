@@ -326,7 +326,6 @@ class TestClass:
             position, self.aedtapp.AXIS.Z, wgmodel="MYMODEL", wg_length=2000, parametrize_h=True
         )
         assert not wgfail
-        pass
 
     def test_31_set_objects_unmodel(self):
         assert self.aedtapp.modeler.set_object_model_state("Second_airbox", False)
@@ -359,7 +358,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_36_activate_variable_for_optimization(self):
@@ -663,7 +662,6 @@ class TestClass:
     def test_46_section_object(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
-        pass
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]

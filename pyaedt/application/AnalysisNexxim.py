@@ -124,7 +124,7 @@ class FieldAnalysisCircuit(Analysis):
         try:
             self.oproject.SetActiveDesign(out_name)
             self.__init__(projectname=self.project_name, designname=out_name)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -141,7 +141,7 @@ class FieldAnalysisCircuit(Analysis):
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
             self.oproject.SetActiveDesign(parent_name)
             self.__init__(projectname=self.project_name, designname=parent_name)
-        except:
+        except Exception:
             return False
         return True
 
@@ -519,7 +519,7 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        next = []
+        next_xtalks = []
         if not trlist:
             trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         for i in trlist:
@@ -527,11 +527,11 @@ class FieldAnalysisCircuit(Analysis):
                 k = trlist.index(i) + 1
                 while k < len(trlist):
                     if math_formula:
-                        next.append("{}(S({},{}))".format(math_formula, i, trlist[k]))
+                        next_xtalks.append("{}(S({},{}))".format(math_formula, i, trlist[k]))
                     else:
-                        next.append("S({},{})".format(i, trlist[k]))
+                        next_xtalks.append("S({},{})".format(i, trlist[k]))
                     k += 1
-        return next
+        return next_xtalks
 
     @pyaedt_function_handler()
     def get_fext_xtalk_list(

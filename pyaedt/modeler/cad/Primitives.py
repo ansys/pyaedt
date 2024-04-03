@@ -273,28 +273,28 @@ class GeometryModeler(Modeler):
             if len(args) == 1 and type(args[0]) is list:
                 try:
                     self.X = args[0][0]
-                except:
+                except Exception:
                     self.X = 0
                 try:
                     self.Y = args[0][1]
-                except:
+                except Exception:
                     self.Y = 0
                 try:
                     self.Z = args[0][2]
-                except:
+                except Exception:
                     self.Z = 0
             else:
                 try:
                     self.X = args[0]
-                except:
+                except Exception:
                     self.X = 0
                 try:
                     self.Y = args[1]
-                except:
+                except Exception:
                     self.Y = 0
                 try:
                     self.Z = args[2]
-                except:
+                except Exception:
                     self.Z = 0
 
     class SweepOptions(object):
@@ -444,7 +444,7 @@ class GeometryModeler(Modeler):
                 return "2D"
             else:
                 return "3D"
-        except:
+        except Exception:
             if self.design_type == "2D Extractor":
                 return "2D"
             else:
@@ -655,7 +655,7 @@ class GeometryModeler(Modeler):
             if "UserDefinedModels" in self.oeditor.GetChildTypes():
                 try:
                     udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
-                except:  # pragma: no cover
+                except Exception:  # pragma: no cover
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
@@ -787,7 +787,7 @@ class GeometryModeler(Modeler):
     def _get_commands(self, name):
         try:
             return self.oeditor.GetChildObject(name).GetChildNames()
-        except:
+        except Exception:
             return []
 
     @pyaedt_function_handler()
@@ -846,12 +846,12 @@ class GeometryModeler(Modeler):
                 if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
-                    except:  # pragma: no cover
+                    except Exception:  # pragma: no cover
                         pass
                 elif operations and isinstance(operations.get("Operation", None), list):
                     try:
                         pid = operations["Operation"][0]["ParentPartID"]
-                    except:
+                    except Exception:
                         pass
 
                 is_polyline = False
@@ -876,7 +876,7 @@ class GeometryModeler(Modeler):
                 o._m_groupName = groupname
                 try:
                     o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
-                except:
+                except Exception:
                     o._color = None
                 o._surface_material = attribs.get("SurfaceMaterialValue", None)
                 if o._surface_material:
@@ -1010,7 +1010,7 @@ class GeometryModeler(Modeler):
             if obj_name not in self._object_names_to_ids:
                 try:
                     pid = self.oeditor.GetObjectIDByName(obj)
-                except:
+                except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
@@ -1018,7 +1018,7 @@ class GeometryModeler(Modeler):
             if obj_name not in self._object_names_to_ids:
                 try:
                     pid = self.oeditor.GetObjectIDByName(obj)
-                except:
+                except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
@@ -1230,13 +1230,13 @@ class GeometryModeler(Modeler):
                                                     props = iop["FaceCSParameters"]
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
-                except:
+                except Exception:
                     pass
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs._ref_cs = id2name[name2refid[cs.name]]
-                    except:
+                    except Exception:
                         pass
         coord.reverse()
         return coord
@@ -1274,7 +1274,7 @@ class GeometryModeler(Modeler):
                         else:
                             props["List"] = data["GeometryEntityListParameters"]["EntityList"]
                         design_lists.append(Lists(self, props, name))
-            except:
+            except Exception:
                 self.logger.info("Lists were not retrieved from AEDT file")
         return design_lists
 
@@ -1670,7 +1670,7 @@ class GeometryModeler(Modeler):
             raise AttributeError("Point must be in format [x, y, z].")
         try:
             point = [float(i) for i in point]
-        except:
+        except Exception:
             raise AttributeError("Point must be in format [x, y, z].")
         if isinstance(ref_cs, BaseCoordinateSystem):
             ref_cs_name = ref_cs.name
@@ -2011,7 +2011,7 @@ class GeometryModeler(Modeler):
         self.logger.info("Enabling deformation feedback")
         try:
             self._odesign.SetObjectDeformation(["EnabledObjects:=", objects])
-        except:
+        except Exception:
             self.logger.error("Failed to enable the deformation dependence")
             return False
         else:
@@ -2071,7 +2071,7 @@ class GeometryModeler(Modeler):
             vargs1.append(vargs2)
         try:
             self._odesign.SetObjectTemperature(vargs1)
-        except:
+        except Exception:
             self.logger.error("Failed to enable the temperature dependence")
             return False
         else:
@@ -2298,7 +2298,7 @@ class GeometryModeler(Modeler):
                 elif axisdir > 2 and c[axisdir - 3] > center[axisdir - 3]:
                     face = f
                     center = c
-            except:
+            except Exception:
                 pass
         return face
 
@@ -3270,7 +3270,7 @@ class GeometryModeler(Modeler):
                     if obj.name == new_obj:
                         new_objects_list.append(obj)
             return new_objects_list
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3734,7 +3734,7 @@ class GeometryModeler(Modeler):
                 if obj.name == sel
             ]
             return objects_list_after_connection
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3854,7 +3854,7 @@ class GeometryModeler(Modeler):
                 else:
                     plane = "YZ"
                 found = True
-            except:
+            except Exception:
                 i = i + 1
                 if i > 11:
                     found = True
@@ -4413,7 +4413,7 @@ class GeometryModeler(Modeler):
             # TODO Problem with GetObjectIDByName
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
-            except:
+            except Exception:
                 self.logger.warning("Line {} has an invalid ID!".format(line_object))
         return line_ids
 
@@ -4463,7 +4463,7 @@ class GeometryModeler(Modeler):
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:
                     return object
-            except:
+            except Exception:
                 return False
         return False
 
@@ -4651,16 +4651,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
-        environlist = os.environ
-        latestversion = ""
-        for l in environlist:
-            if "AWP_ROOT" in l:
-                if l > latestversion:
-                    latestversion = l
-        if not latestversion:
+        env_var = os.environ
+        latest_version = ""
+        for variable in env_var:
+            if "AWP_ROOT" in variable:
+                if variable > latest_version:
+                    latest_version = variable
+                    break
+        if not latest_version:
             self.logger.error("SpaceClaim is not found.")
         else:
-            scdm_path = os.path.join(os.environ[latestversion], "scdm")
+            scdm_path = os.path.join(os.environ[latest_version], "scdm")
         self.oeditor.CreateUserDefinedModel(
             [
                 "NAME:UserDefinedModelParameters",
@@ -5094,11 +5095,11 @@ class GeometryModeler(Modeler):
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
-            l = 10
+            thickness = 10
             while not directionfound:
                 self.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(thickness) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
                 self._odesign.Undo()
@@ -5107,7 +5108,7 @@ class GeometryModeler(Modeler):
                     directionfound = True
                 self.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(thickness) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
 
@@ -5117,7 +5118,7 @@ class GeometryModeler(Modeler):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + 10
+                    thickness = thickness + 10
         for el in inputlist:
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
@@ -5158,7 +5159,7 @@ class GeometryModeler(Modeler):
                                     ],
                                 ],
                             )
-                    except:
+                    except Exception:
                         self.logger.info("done")
                         # self.modeler_oproject.ClearMessages()
         return True
@@ -5740,7 +5741,7 @@ class GeometryModeler(Modeler):
         try:
             self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
             return True
-        except:
+        except Exception:
             self.logger.error("Simplify objects failed.")
             return False
 
@@ -6144,9 +6145,7 @@ class GeometryModeler(Modeler):
                 parts = [parts]
             normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
             submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
-            normal_parts = ",".join(normal_parts)
-            submodel_parts = ",".join(submodel_parts)
-            arg += [["NAME:SubRegionPartNames", normal_parts], ["NAME:SubRegionSubmodelNames", submodel_parts]]
+            arg += [["NAME:SubRegionPartNames"] + normal_parts, ["NAME:SubRegionSubmodelNames"] + submodel_parts]
             flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",
@@ -6800,7 +6799,7 @@ class GeometryModeler(Modeler):
             arg = ["NAME:Selections", "Selections:=", objects_str]
             try:
                 self.oeditor.Delete(arg)
-            except:
+            except Exception:
                 self.logger.warning("Failed to delete {}.".format(objects_str))
             remaining -= slice
             if remaining > 0:
@@ -7303,7 +7302,7 @@ class GeometryModeler(Modeler):
         """
         try:
             oVertexIDs = self.oeditor.GetVertexIDsFromFace(face_id)
-        except:
+        except Exception:
             oVertexIDs = []
         else:
             oVertexIDs = [int(i) for i in oVertexIDs]
@@ -7356,7 +7355,7 @@ class GeometryModeler(Modeler):
         """
         try:
             oVertexIDs = self.oeditor.GetVertexIDsFromEdge(edgeID)
-        except:
+        except Exception:
             oVertexIDs = []
         else:
             oVertexIDs = [int(i) for i in oVertexIDs]
@@ -7384,7 +7383,7 @@ class GeometryModeler(Modeler):
         """
         try:
             pos = self.oeditor.GetVertexPosition(vertex_id)
-        except:
+        except Exception:
             position = []
         else:
             position = [float(i) for i in pos]
@@ -7437,7 +7436,7 @@ class GeometryModeler(Modeler):
         """
         try:
             c = self.oeditor.GetFaceCenter(face_id)
-        except:
+        except Exception:
             self.logger.warning("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
@@ -7500,7 +7499,7 @@ class GeometryModeler(Modeler):
         else:
             try:
                 vertices = self.get_edge_vertices(partID)
-            except:
+            except Exception:
                 vertices = []
         if len(vertices) == 2:
             vertex1 = self.get_vertex_position(vertices[0])
@@ -7589,7 +7588,7 @@ class GeometryModeler(Modeler):
             try:
                 edgeID = int(self.oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
-            except:
+            except Exception:
                 pass
 
     @pyaedt_function_handler()
@@ -7666,7 +7665,7 @@ class GeometryModeler(Modeler):
             try:
                 face_id = self.oeditor.GetFaceByPosition(vArg1)
                 return face_id
-            except:
+            except Exception:
                 # Not Found, keep looking
                 pass
 
@@ -8276,7 +8275,7 @@ class GeometryModeler(Modeler):
                 if k in props:  # Only try to set valid properties.
                     try:
                         setattr(o, k, val)
-                    except:
+                    except Exception:
                         self.logger.warning("Unable to assign " + str(k) + " to object " + o.name + ".")
                 else:
                     self.logger.error("'" + str(k) + "' is not a valid property of the primitive ")
@@ -8295,7 +8294,7 @@ class GeometryModeler(Modeler):
             name = _uname()
         try:
             color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
-        except:
+        except Exception:
             color = "(132 132 193)"
         if material in ["vacuum", "air", "glass", "water_distilled", "water_fresh", "water_sea"]:
             transparency = 0.8
@@ -8388,7 +8387,7 @@ class GeometryModeler(Modeler):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -8481,7 +8480,7 @@ class GeometryModeler(Modeler):
                         if native_comp_name == component_name:
                             native_comp_properties = data
                             break
-            except:
+            except Exception:
                 return native_comp_properties
 
         return native_comp_properties

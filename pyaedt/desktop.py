@@ -58,8 +58,6 @@ pyaedtversion = __version__
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 
-python_grpc_wrapper = None
-
 
 @pyaedt_function_handler()
 def launch_aedt(full_path, non_graphical, port, student_version, first_run=True):
@@ -213,7 +211,7 @@ def _delete_objects():
     pyaedt_logger.remove_all_project_file_logger()
     try:
         del sys.modules["glob"]
-    except:
+    except Exception:
         pass
     gc.collect()
 
@@ -239,7 +237,6 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
         ``True`` when successful, ``False`` when failed.
 
     """
-    global python_grpc_wrapper
     if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
         if close_desktop and desktop_class.parent_desktop_id:
             pyaedt_logger.error("A child desktop session is linked to this session.")
@@ -253,9 +250,8 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                         if pid in v.parent_desktop_id:
                             del v.parent_desktop_id[v.parent_desktop_id.index(pid)]
                 return True
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-                pass
         elif _desktop_sessions and len(_desktop_sessions) > 1 and not desktop_class.parent_desktop_id:
             pyaedt_logger.error("Release is not allowed when multiple desktop sessions are available.")
             pyaedt_logger.error("Closing Desktop session.")
@@ -266,30 +262,27 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                         if pid in v.parent_desktop_id:
                             del v.parent_desktop_id[v.parent_desktop_id.index(pid)]
                 return True
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-                pass
         elif _desktop_sessions and len(_desktop_sessions) > 1:
             pyaedt_logger.error("A child desktop session is linked to this session.")
             pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
             return False
         else:
             try:
-                if not python_grpc_wrapper:
-                    python_grpc_wrapper = __import__("pyaedt.generic.grpc_plugin")
-                # import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+                import pyaedt.generic.grpc_plugin as python_grpc_wrapper
+
                 python_grpc_wrapper.AedtAPI.ReleaseAll()
                 return True
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 warnings.warn(
                     "Something went wrong releasing AEDT. Exception in `StandalonePyScriptWrapper.Release()`."
                 )
-                pass
     elif not inside_desktop:
         if close_desktop:
             try:
                 os.kill(pid, 9)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `os.kill(pid, 9)`.")
                 return False
         else:
@@ -298,11 +291,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 while scopeID <= 5:
                     desktop_class.COMUtil.ReleaseCOMObjectScope(desktop_class.COMUtil.PInvokeProxyAPI, scopeID)
                     scopeID += 1
-            except:
+            except Exception:
                 pyaedt_logger.warning(
                     "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
                 )
-                pass
     if not settings.remote_rpc_session and not is_ironpython and close_desktop:
         timeout = 10
         while pid in active_sessions():
@@ -312,7 +304,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 try:
                     os.kill(pid, 9)
                     return True
-                except:  # pragma: no cover
+                except Exception:  # pragma: no cover
                     warnings.warn("Something went wrong closing AEDT. Exception in `os.kill(pid, 9)` after timeout.")
                     return False
                 break
@@ -470,7 +462,7 @@ class Desktop(object):
                 pyaedt_logger.info("Returning found Desktop session with PID {}!".format(process_id))
                 cls._invoked_from_design = False
                 return _desktop_sessions[sessions[0]]
-            except:
+            except Exception:
                 del _desktop_sessions[sessions[0]]
                 pyaedt_logger.info("Initializing new Desktop session.")
                 return object.__new__(cls)
@@ -610,7 +602,7 @@ class Desktop(object):
             self.close_on_exit = False
             try:
                 self.non_graphical = self.odesktop.GetIsNonGraphical()
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.non_graphical = non_graphical
             self.is_grpc_api = False
 
@@ -722,7 +714,7 @@ class Desktop(object):
         version_key = settings.aedt_version
         try:
             return installed_versions()[version_key]
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return installed_versions()[version_key + "CL"]
 
     @property
@@ -794,7 +786,7 @@ class Desktop(object):
             try:
                 version = "Ansoft.ElectronicsDesktop." + settings.remote_rpc_session.aedt_version[0:6]
                 return settings.remote_rpc_session.student_version, settings.remote_rpc_session.aedt_version, version
-            except:
+            except Exception:
                 return False, "", ""
 
         return student_version, specified_version, version
@@ -915,7 +907,6 @@ class Desktop(object):
         version=None,
         is_grpc=True,
     ):
-        global python_grpc_wrapper
         if not is_grpc:
             from pyaedt.generic.clr_module import _clr
 
@@ -938,10 +929,8 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(settings.aedt_install_dir, "PythonFiles", "DesktopPlugin")
             launch_msg = "AEDT installation Path {}".format(base_path)
             self.logger.info(launch_msg)
-            if not python_grpc_wrapper:
-                python_grpc_wrapper = __import__("pyaedt.generic.grpc_plugin")
-                python_grpc_wrapper = python_grpc_wrapper.generic.grpc_plugin
-            # import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+            import pyaedt.generic.grpc_plugin as python_grpc_wrapper
+
             if _desktop_sessions:
                 last_session = list(_desktop_sessions.values())[-1]
                 all_desktop = [i for i in last_session.odesktop.GetRunningInstancesMgr().GetAllRunningInstances()]
@@ -970,12 +959,12 @@ class Desktop(object):
             if not self.machine:
                 try:
                     self.machine = settings.remote_rpc_session.server_name
-                except:
+                except Exception:
                     pass
             if not self.port:
                 try:
                     self.port = settings.remote_rpc_session.port
-                except:
+                except Exception:
                     pass
         if not self.machine or self.machine in [
             "localhost",
@@ -1476,7 +1465,7 @@ class Desktop(object):
             for project in projects:
                 try:
                     self.odesktop.CloseProject(project)
-                except:  # pragma: no cover
+                except Exception:  # pragma: no cover
                     self.logger.warning("Failed to close Project {}".format(project))
         result = _close_aedt_application(self, close_on_exit, self.aedt_process_id, self.is_grpc_api)
         if not result:
@@ -1560,7 +1549,7 @@ class Desktop(object):
         try:
             self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
             return True
-        except:
+        except Exception:
             return False
 
     def change_registry_key(self, key_full_name, key_value):
@@ -1583,7 +1572,7 @@ class Desktop(object):
                 self.odesktop.SetRegistryString(key_full_name, key_value)
                 self.logger.info("Key %s correctly changed.", key_full_name)
                 return True
-            except:
+            except Exception:
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         elif isinstance(key_value, int):
@@ -1591,7 +1580,7 @@ class Desktop(object):
                 self.odesktop.SetRegistryInt(key_full_name, key_value)
                 self.logger.info("Key %s correctly changed.", key_full_name)
                 return True
-            except:
+            except Exception:
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
@@ -1619,7 +1608,7 @@ class Desktop(object):
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
             self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
-        except:
+        except Exception:
             self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)
             return False
 
@@ -1654,7 +1643,7 @@ class Desktop(object):
                     if design_type and config_name:
                         self.change_registry_key(design_type[1], config_name[1])
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -2050,7 +2039,7 @@ class Desktop(object):
         try:
             id = self.odesktop.SubmitJob(destination_reg, project_file)[0]
             return id, job_name
-        except:
+        except Exception:
             self.logger.error("Failed to submit job. check parameters and credentials and retry")
             return "", ""
 
