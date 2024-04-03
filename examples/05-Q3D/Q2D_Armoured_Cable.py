@@ -199,7 +199,7 @@ arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 # Create region
 # ~~~~~~~~~~~~~
 
-region = q2d.modeler.create_region([500, 500, 500, 500, 0, 0])
+region = q2d.modeler.create_region([500, 500, 500, 500])
 region.material_name = "vacuum"
 
 ##########################################################
@@ -228,12 +228,6 @@ q2d.change_design_settings(q2d_des_settings)
 
 q2d_setup = q2d.create_setup(setupname=setup_name)
 q2d_sweep = q2d_setup.add_sweep(sweepname=sweep_name)
-q2d_sweep.props["RangeType"] = "LogScale"
-q2d_sweep.props["RangeStart"] = "0Hz"
-q2d_sweep.props["RangeEnd"] = "3MHz"
-q2d_sweep.props["RangeCount"] = 10
-q2d_sweep.props["RangeSamples"] = 1
-q2d_sweep.update()
 
 ##########################################################
 # Analyze setup
