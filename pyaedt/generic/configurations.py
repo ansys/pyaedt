@@ -697,7 +697,7 @@ class Configurations(object):
 
         config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
 
-        if os.path.isfile(config_schema_path):
+        if os.path.exists(config_schema_path):
             with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
