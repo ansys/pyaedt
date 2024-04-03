@@ -1115,6 +1115,7 @@ class Hfss(FieldAnalysis3D, object):
         thin_sources=True,
         power_fraction="0.95",
         visible=True,
+        source_name=None,
     ):
         """Create a linked antennas.
 
@@ -1140,6 +1141,9 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``"0.95"``.
         visible : bool, optional.
             Visualize source objects in target design. The default is ``True``.
+        source_name : str, optional
+            Name of the source.
+            The default is ``None`` in which case a random name is assigned.
 
         References
         ----------
@@ -1162,8 +1166,12 @@ class Hfss(FieldAnalysis3D, object):
         if self.solution_type != "SBR+":
             self.logger.error("Native components only apply to the SBR+ solution.")
             return False
-        compName = source_object.design_name
-        uniquename = generate_unique_name(compName)
+
+        if source_name is None:
+            uniquename = generate_unique_name(source_object.design_name)
+        else:
+            uniquename = generate_unique_name(source_name)
+
         if source_object.project_name == self.project_name:
             project_name = "This Project*"
         else:
