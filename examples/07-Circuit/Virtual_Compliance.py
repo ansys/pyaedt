@@ -81,10 +81,21 @@ status, diff_pairs, comm_pairs = cir.create_lna_schematic_from_snp(touchstone=to
                                                                    analyze=True
                                                                    )
 
-insertion = cir.get_all_insertion_loss_list(trlist=diff_pairs, reclist=diff_pairs, tx_prefix="X1", rx_prefix="U1", math_formula="dB",
-                                            net_list=["RX0", "RX1", "RX2", "RX3"])
-return_diff = cir.get_all_return_loss_list(diff_pairs, "X1", math_formula="dB", net_list=["RX0", "RX1", "RX2", "RX3"])
-return_comm = cir.get_all_return_loss_list(comm_pairs, "COMMON_X1", math_formula="dB",
+insertion = cir.get_all_insertion_loss_list(trlist=diff_pairs,
+                                            reclist=diff_pairs,
+                                            tx_prefix="X1",
+                                            rx_prefix="U1",
+                                            math_formula="dB",
+                                            net_list=["RX0", "RX1", "RX2", "RX3"]
+                                            )
+return_diff = cir.get_all_return_loss_list(excitation_names=diff_pairs,
+                                           excitation_name_prefix="X1",
+                                           math_formula="dB",
+                                           net_list=["RX0", "RX1", "RX2", "RX3"]
+                                           )
+return_comm = cir.get_all_return_loss_list(excitation_names=comm_pairs,
+                                           excitation_name_prefix="COMMON_X1",
+                                           math_formula="dB",
                                            net_list=["RX0", "RX1", "RX2", "RX3"])
 ###############################################################################
 # Create TDR project
@@ -125,7 +136,7 @@ result, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(touchston
                                                       bit_pattern="random_bit_count=2.5e3 random_seed=1",
                                                       unit_interval="31.25ps",
                                                       use_convolution=True,
-                                                     # analyze=True,
+                                                      analyze=True,
                                                       design_name="AMI",
                                                       )
 
