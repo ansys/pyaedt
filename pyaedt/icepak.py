@@ -4594,8 +4594,8 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         return _create_boundary(bound)
 
-    @pyaedt_function_handler()
-    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+    @pyaedt_function_handler(timestep="time_step")
+    def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, design_variation=None):
         """
         Get operating point of the fans in the design.
 
@@ -4607,7 +4607,7 @@ class Icepak(FieldAnalysis3D):
         setup_name : str, optional
             Setup name from which to determine the fans' operating point. The default is
             ``None``, in which case the first available setup is used.
-        timestep : str, optional
+        time_step : str, optional
             Time, with units, at which to determine the fans' operating point. The default
             is ``None``, in which case the first available timestep is used. This argument is
             only relevant in transient simulations.
@@ -4637,7 +4637,7 @@ class Icepak(FieldAnalysis3D):
         >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
         """
 
-        return self.post.get_fans_operating_point(export_file, setup_name, timestep, design_variation)
+        return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
     @pyaedt_function_handler()
     def assign_free_opening(
