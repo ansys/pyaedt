@@ -1712,7 +1712,7 @@ class Circuit(FieldAnalysisCircuit, object):
             Pins to attach to the probe components.
         probe_ref_pins : list, optional
             Reference pins to attach to probe components. Valid only in differentila con
-        termination_pins : list
+        termination_pins : list, optional
             Pins to be terminated.
         differential : bool, optional
             Whether the buffers are differential. The default is ``True``. If ``False``, the
