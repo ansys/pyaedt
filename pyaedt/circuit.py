@@ -1794,9 +1794,9 @@ class Circuit(FieldAnalysisCircuit, object):
             new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
             new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
             if differential:
-                tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zdiff)")
+                tdr_probe_names.append("O(A{}:zdiff)".format(new_tdr_comp.id))
             else:
-                tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zl)")
+                tdr_probe_names.append("O(A{}:zl)".format(new_tdr_comp.id))
 
         setup = self.create_setup(setupname="Transient_TDR", setuptype=self.SETUPS.NexximTransient)
         setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
