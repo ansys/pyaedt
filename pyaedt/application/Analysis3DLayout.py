@@ -349,7 +349,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @pyaedt_function_handler()
     def get_next_xtalk_list(self, trlist=[], tx_prefix="", math_formula="", net_list=None):
-        """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
+        """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
         ----------
