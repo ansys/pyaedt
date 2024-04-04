@@ -95,9 +95,7 @@ class BoundaryCommon(PropsManager):
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-        for el in self._app.boundaries[:]:
-            if el.name == self.name:
-                del self._app._boundaries[el.name]
+        self._app.boundaries
         return True
 
     def _get_boundary_data(self, ds):
@@ -4319,7 +4317,7 @@ class NetworkObject(BoundaryObject):
             self.delete()
             try:
                 self.create()
-                self._app.boundaries.append(self)
+                self._app._boundaries[self.name] = self
                 return True
             except Exception:  # pragma : no cover
                 self._app.odesign.Undo()

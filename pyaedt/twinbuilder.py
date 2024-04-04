@@ -447,7 +447,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             if not is_number(value) and not unit:
                 raise TypeError("Model depth must be provided as a string with value and unit.")
             design_type = "Q2D"
-            signal_list = [e.name for e in app.excitation_objects if e.type == "SignalLine"]
+            signal_list = [k for k, v in app.excitation_objects.items() if v.type == "SignalLine"]
             for signal in signal_list:
                 port_info_list_A.append("OnePortInfo:=")
                 port_info_list_B.append("OnePortInfo:=")

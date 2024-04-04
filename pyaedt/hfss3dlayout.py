@@ -356,8 +356,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             if len(a) > 0:
                 bound = self._update_port_info(a[0])
                 if bound:
-                    self.boundaries.append(bound)
-                    return self.boundaries[-1]
+                    self._boundaries[bound.name] = bound
+                    return bound
                 else:
                     return False
             else:
@@ -451,8 +451,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 )
             bound = self._update_port_info(port_name)
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
