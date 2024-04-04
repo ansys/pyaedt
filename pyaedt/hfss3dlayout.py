@@ -370,7 +370,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         component_name : str
-            Name of the components.
+            Name of the component.
 
         Returns
         -------
