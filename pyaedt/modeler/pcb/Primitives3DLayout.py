@@ -1497,7 +1497,7 @@ class Primitives3DLayout(object):
         component_type="Other",
         ref_des="U100",
     ):
-        """Create a new component based on a pin list.
+        """Create a component based on a pin list.
 
         Parameters
         ----------
