@@ -320,8 +320,8 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
-            List of ports.
+        dict
+            Ports dictionary.
 
         """
         props = {}
@@ -429,7 +429,7 @@ class FieldAnalysisCircuit(Analysis):
 
     @pyaedt_function_handler()
     def get_all_insertion_loss_list(
-        self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=[]
+        self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=None
     ):
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
@@ -495,13 +495,13 @@ class FieldAnalysisCircuit(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=[], tx_prefix="", math_formula="", net_list=None):
+    def get_next_xtalk_list(self, trlist=None, tx_prefix="", math_formula="", net_list=None):
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
         ----------
         trlist : list, optional
-            List of drivers. The default is ``[]``. For example,
+            List of drivers. The default is ``None``. For example,
             ``["1", "2", "3"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.

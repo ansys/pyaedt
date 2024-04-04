@@ -1781,14 +1781,14 @@ class Circuit(FieldAnalysisCircuit, object):
                         )
                     p1.pins[0].connect_to_component(pin, use_wire=True)
 
-            result, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
+            _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
                 self.modeler.move(second, [1000, 0], "mil")
             else:
                 self.modeler.move(second, [-1000, 0], "mil")
             if differential:
-                result, first, second = new_tdr_comp.pins[1].connect_to_component(n_pin)
+                _, first, second = new_tdr_comp.pins[1].connect_to_component(n_pin)
                 self.modeler.move(first, [0, -100], "mil")
                 if second.pins[0].location[0] > center_x:
                     self.modeler.move(second, [1000, 0], "mil")
@@ -1833,7 +1833,7 @@ class Circuit(FieldAnalysisCircuit, object):
         stop_frequency=30,
         auto_assign_diff_pairs=False,
         separation=".",
-        pattern=["component", "pin", "net"],
+        pattern=None,
         analyze=True,
         design_name="LNA",
     ):
@@ -1866,6 +1866,8 @@ class Circuit(FieldAnalysisCircuit, object):
             First argument is ``True`` if succeeded.
             Second and third argument are respectively names of the differential and common mode pairs.
         """
+        if pattern is None:
+            pattern = ["component", "pin", "net"]
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
             design_name = generate_unique_name(design_name)
@@ -1915,14 +1917,14 @@ class Circuit(FieldAnalysisCircuit, object):
                             self.set_differential_pair(
                                 positive_terminal=pin.name,
                                 negative_terminal=neg_pin.name,
-                                common_name=f"COMMON_{component}_{net}",
+                                common_name="COMMON_{}_{}".format(component, net),
                                 diff_name=f"{component}_{net}",
                                 common_ref_z=25,
                                 diff_ref_z=100,
                                 active=True,
                             )
-                            diff_pairs.append(f"{component}_{net}")
-                            comm_pairs.append(f"COMMON_{component}_{net}")
+                            diff_pairs.append("{}_{}".format(component, net))
+                            comm_pairs.append("COMMON_{}_{}".format(component, net))
                             break
         setup1 = self.create_setup()
         setup1.props["SweepDefinition"]["Data"] = "LINC {}GHz {}GHz 1001".format(start_frequency, stop_frequency)
@@ -2047,7 +2049,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
             tx_eye_names.append(tx.parameters["probe_name"])
             rx_eye_names.append(rx.parameters["source_name"])
-            result, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
+            _, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
             self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
                 self.modeler.move(second, [1000, 0], "mil")

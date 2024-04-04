@@ -283,7 +283,7 @@ class FieldAnalysis3DLayout(Analysis):
 
     @pyaedt_function_handler()
     def get_all_insertion_loss_list(
-        self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=[]
+        self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=None
     ):
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
@@ -315,10 +315,10 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
+        if trlist is None:
             trlist = [i for i in list(self.excitations.keys())]
 
-        if reclist == None:
+        if reclist is None:
             trlist = [i for i in list(self.excitations.keys())]
         if tx_prefix:
             trlist = [i for i in trlist if i.startswith(tx_prefix)]
@@ -349,13 +349,13 @@ class FieldAnalysis3DLayout(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=[], tx_prefix="", math_formula="", net_list=None):
+    def get_next_xtalk_list(self, trlist=None, tx_prefix="", math_formula="", net_list=None):
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
         ----------
         trlist : list, optional
-            List of drivers. The default is ``[]``. For example,
+            List of drivers. The default is ``None``. For example,
             ``["1", "2", "3"]``.
         tx_prefix : str, optional
             Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
@@ -423,7 +423,7 @@ class FieldAnalysis3DLayout(Analysis):
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
         net_list : list, optional
-            List of nets to filter the output. The defautl is ``None``, in which case all
+            List of nets to filter the output. The default is ``None``, in which case all
             parameters are returned.
 
         Returns
