@@ -239,26 +239,26 @@ class FieldAnalysis3DLayout(Analysis):
     def get_all_return_loss_list(
         self, excitation_names=None, excitation_name_prefix="", math_formula="", net_list=None
     ):
-        """Retrieve a list of all return losses for a list of exctitations.
+        """Get a list of all return losses for a list of excitations.
 
         Parameters
         ----------
         excitation_names : list, optional
             List of excitations. The default is ``None``, in which case
-            the return losses for all excitations are to be provided.
+            the return losses for all excitations are provided.
             For example ``["1", "2"]``.
         excitation_name_prefix : string, optional
              Prefix to add to the excitation names. The default is ``""``,
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
         net_list : list, optional
-            List of nets to filter the output. If None, all parameters will be returned.
+            List of nets to filter the output. The default is ``None``, in which case all parameters are returned.
 
         Returns
         -------
         list of str
             List of strings representing the return losses of the excitations.
-            For example ``["S(1, 1)", S(2, 2)]``.
+            For example, ``["S(1, 1)", S(2, 2)]``.
 
         References
         ----------
@@ -285,7 +285,7 @@ class FieldAnalysis3DLayout(Analysis):
     def get_all_insertion_loss_list(
         self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=[]
     ):
-        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
+        """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
