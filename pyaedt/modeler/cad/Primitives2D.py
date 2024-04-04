@@ -281,17 +281,26 @@ class Primitives2D(GeometryModeler, object):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_region(self, pad_percent=300, is_percentage=True):
+    def create_region(self, pad_value=300, pad_type="Percentage Offset", region_name="Region", **kwarg):
         """Create an air region.
 
         Parameters
         ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or strings, interpret as adding ``["+X", "+Y", "-X", "-Y"]`` for XY geometry mode,
-            and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
-        is_percentage : bool, optional
-            Whether the region definition is a percentage or absolute value. The default is `True``.
+        pad_value : float, str, list of floats or list of str, optional
+            Padding values to apply. If a list is not provided, the same
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        pad_type : str, optional
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
+        region_name : str, optional
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
 
         Returns
         -------
@@ -303,19 +312,35 @@ class Primitives2D(GeometryModeler, object):
 
         >>> oEditor.CreateRegion
         """
-        if not isinstance(pad_percent, list):
-            pad_percent = [pad_percent] * 4
+        # backward compatibility
+        if kwarg:
+            if "is_percentage" in kwarg.keys():
+                is_percentage = kwarg["is_percentage"]
+            else:
+                is_percentage = True
+            if kwarg.get("pad_percent", False):
+                pad_percent = kwarg["pad_percent"]
+                pad_value = pad_percent
+            if isinstance(pad_value, list) and len(pad_value) < 6:
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
+
+        if isinstance(pad_type, bool):
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(pad_type)]
+
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 4
         if self._app.design_type == "2D Extractor" or (
             self._app.design_type == "Maxwell 2D" and self._app.odesign.GetGeometryMode() == "XY"
         ):
-            if len(pad_percent) != 4:
+            if len(pad_value) != 4:
                 self.logger.error("Wrong padding list provided. Four values have to be provided.")
                 return False
-            pad_percent = [pad_percent[0], pad_percent[2], pad_percent[1], pad_percent[3], 0, 0]
+            pad_value = [pad_value[0], pad_value[2], pad_value[1], pad_value[3], 0, 0]
         else:
-            if len(pad_percent) < 3:
+            if len(pad_value) < 3:
                 self.logger.error("Wrong padding list provided. Three values have to be provided for RZ geometry.")
                 return False
-            pad_percent = [pad_percent[0], 0, 0, 0, pad_percent[1], pad_percent[2]]
+            pad_value = [pad_value[0], 0, 0, 0, pad_value[1], pad_value[2]]
 
-        return self._create_region(pad_percent, ["Absolute Offset", "Percentage Offset"][int(is_percentage)])
+        return self._create_region(pad_value, pad_type, region_name, region_type="Region")
