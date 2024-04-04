@@ -566,7 +566,8 @@ class FieldAnalysisCircuit(Analysis):
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
         net_list : list, optional
-            List of nets to filter the output. If None, all parameters will be returned.
+            List of nets to filter the output. The default is ``None``, in which case
+            all parameters are returned.
 
         Returns
         -------
