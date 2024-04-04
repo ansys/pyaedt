@@ -1834,33 +1834,34 @@ class Circuit(FieldAnalysisCircuit, object):
         analyze=True,
         design_name="LNA",
     ):
-        """Create a new schematic from a touchstone file and automatically setup an LNA analysis.
-        Optionally assigns automatically differential pairs based on name pattern.
+        """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
+        
+        This method optionally assigns differential pairs automatically based on name pattern.
 
         Parameters
         ----------
         touchstone : str
             Full path to the sNp file.
         start_frequency : int, float, optional
-            Start frequency in GHz of LNA setup. Default value is ``0``.
+            Start frequency in GHz of the LNA setup. The default is ``0``.
         stop_frequency  : int, float, optional
-            Stop frequency in GHz of LNA setup. Default value is ``30``.
+            Stop frequency in GHz of the LNA setup. The default is ``30``.
         auto_assign_diff_pairs : bool
-            Whether if automatically assign differential pairs or not.  Default value is ``False``.
+            Whether to automatically assign differential pairs. The default is ``False``.
         separation : str, optional
-            Port name separation. Default is ``"."``.
+            Character to use to separate port names. The default is ``"."``.
         pattern : list, optional
-            Port name pattern. Default is ``["component", "pin", "net"]``.
+            Port name pattern. The default is ``["component", "pin", "net"]``.
         analyze : bool
-             Whether if automatically assign differential pairs or not.  Default value is ``False``.
+             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
-            New schematic name. Default is ``"LNA"``.
+            New schematic name. The default is ``"LNA"``.
 
         Returns
         -------
         (bool, list, list)
             First argument is ``True`` if succeeded.
-            Second and third argument are respectly differential and common mode pairs name.
+            Second and third argument are respectively names of the differential and common mode pairs.
         """
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
