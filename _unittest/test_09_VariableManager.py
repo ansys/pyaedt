@@ -119,7 +119,6 @@ class TestClass:
         v = self.aedtapp.variable_manager
         for var_name in v.variable_names:
             print("{} = {}".format(var_name, self.aedtapp[var_name]))
-        pass
         tol = 1e-9
         c2pi = math.pi * 2.0
         assert abs(v["$PrjVar1"].numeric_value - c2pi) < tol

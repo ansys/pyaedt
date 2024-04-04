@@ -172,7 +172,7 @@ for a, b in zip(t, ys):
     bn = np.array(b)
     cellst = np.append(cellst, an)
     cellsv = np.append(cellsv, bn)
-plt.plot(cellst.T,  cellsv.T, zorder=0)
+plt.plot(cellst.T, cellsv.T, zorder=0)
 plt.show()
 
 ###############################################################################

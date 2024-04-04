@@ -861,11 +861,6 @@ class SetupParam(CommonOptimetrics, object):
     def delete(self):
         """Delete a defined Optimetrics Setup.
 
-        Parameters
-        ----------
-        setup_name : str
-            Name of optimetrics setup to delete.
-
         Returns
         -------
         bool

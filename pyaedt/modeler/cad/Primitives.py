@@ -4651,16 +4651,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
-        environlist = os.environ
-        latestversion = ""
-        for l in environlist:
-            if "AWP_ROOT" in l:
-                if l > latestversion:
-                    latestversion = l
-        if not latestversion:
+        env_var = os.environ
+        latest_version = ""
+        for variable in env_var:
+            if "AWP_ROOT" in variable:
+                if variable > latest_version:
+                    latest_version = variable
+                    break
+        if not latest_version:
             self.logger.error("SpaceClaim is not found.")
         else:
-            scdm_path = os.path.join(os.environ[latestversion], "scdm")
+            scdm_path = os.path.join(os.environ[latest_version], "scdm")
         self.oeditor.CreateUserDefinedModel(
             [
                 "NAME:UserDefinedModelParameters",
@@ -5094,11 +5095,11 @@ class GeometryModeler(Modeler):
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
-            l = 10
+            thickness = 10
             while not directionfound:
                 self.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(thickness) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
                 self._odesign.Undo()
@@ -5107,7 +5108,7 @@ class GeometryModeler(Modeler):
                     directionfound = True
                 self.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(thickness) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
 
@@ -5117,7 +5118,7 @@ class GeometryModeler(Modeler):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + 10
+                    thickness = thickness + 10
         for el in inputlist:
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
@@ -6144,9 +6145,7 @@ class GeometryModeler(Modeler):
                 parts = [parts]
             normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
             submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
-            normal_parts = ",".join(normal_parts)
-            submodel_parts = ",".join(submodel_parts)
-            arg += [["NAME:SubRegionPartNames", normal_parts], ["NAME:SubRegionSubmodelNames", submodel_parts]]
+            arg += [["NAME:SubRegionPartNames"] + normal_parts, ["NAME:SubRegionSubmodelNames"] + submodel_parts]
             flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",

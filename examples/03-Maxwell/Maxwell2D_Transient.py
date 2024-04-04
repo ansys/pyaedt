@@ -71,7 +71,7 @@ rect2 = maxwell_2d.modeler[added[0]]
 # ~~~~~~~~~~~~~~~~~
 # Create an air region.
 
-region = maxwell_2d.modeler.create_region([100, 100, 100, 100, 100, 100])
+region = maxwell_2d.modeler.create_region([100, 100, 100, 100])
 
 ###############################################################################
 # Assign windings and balloon
