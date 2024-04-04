@@ -855,7 +855,7 @@ class TestClass:
 
         result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
             touchstone=touchstone_file,
-            probe_p_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            probe_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
             probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
             termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
             differential=True,

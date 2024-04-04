@@ -147,8 +147,8 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        dict
-            Excitation dictionary. Excitations with multiple modes will return one
+        list
+            Excitation list. Excitations with multiple modes will return one
             excitation for each mode.
 
         References
@@ -269,7 +269,7 @@ class FieldAnalysis3DLayout(Analysis):
             excitation_names = []
 
         if not excitation_names:
-            excitation_names = list(self.excitations.keys())
+            excitation_names = list(self.excitations)
         if excitation_name_prefix:
             excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
