@@ -1953,35 +1953,39 @@ class Circuit(FieldAnalysisCircuit, object):
         touchstone : str
             Full path to the sNp file.
         ibis_ami : str
-            Full path to the ibis file.
+            Full path to the IBIS file.
         component_name : str
-            Component name in the ibis file to assign to components.
+            Component name in the IBIS file to assign to components.
         tx_buffer_name : str
             Transmission buffer name.
         rx_buffer_name : str
             Receiver buffer name
         tx_pins : list
-            Pins to assign the transmitter ibis.
+            Pins to assign the transmitter IBIS.
         tx_refs : list
-            Reference pins to assign the transmitter ibis. Only used in differential configuration.
+            Reference pins to assign the transmitter IBIS. This parameter is only used in
+            a differential configuration.
         rx_pins : list
-            Pins to assign the receiver ibis.
+            Pins to assign the receiver IBIS.
         rx_refs : list
-            Reference pins to assign the receiver ibis. Only used in differential configuration.
+            Reference pins to assign the receiver IBIS. This parameter is only used
+            in a differential configuration.
         use_ibis_buffer : bool, optional
-            Whether to use ibis buffer or pins. Default is ``True`` to use ibis buffer.
+            Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
         differential : bool, optional
-            Whether if the buffers are single ended or differential. Default is ``True`` to use differential buffer.
+            Whether the buffers are differential. The default is ``True``. If ``False``,
+            the buffers are single-ended.
         bit_pattern : str, optional
-            Ibis bit pattern.
+            IBIS bit pattern.
         unit_interval : str, optional
-            Unit interval of the bit pattern with units.
+            Unit interval of the bit pattern.
         use_convolution : bool, optional
-            Whether if use or not convolution for the touchstone file. If ``False`` default State-Space will be used.
+            Whether to use convolution for the Touchstone file. The default is
+            ``True``. If ``False``, state-space is used.
         analyze : bool
-             Whether if automatically assign differential pairs or not.  Default value is ``False``.
+             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
-            New schematic name. Default is ``"LNA"``.
+            New schematic name. The default is ``"LNA"``.
 
 
         Returns
