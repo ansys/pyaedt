@@ -135,9 +135,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -175,9 +176,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -210,9 +212,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -247,9 +250,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -284,9 +288,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -321,9 +326,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -361,9 +367,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         sphere_name : str, optional
             Name of the sphere to create the far field on.
         source_context : str, optional
@@ -404,9 +411,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         sphere_name : str, optional
             Name of the sphere on which compute antenna parameters.
 
@@ -442,9 +450,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -479,9 +488,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -515,9 +525,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -551,9 +562,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -644,9 +656,10 @@ class Reports(object):
             Expression to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         quantity_type : int, optional
             For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
             1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
@@ -704,9 +717,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -1641,9 +1655,11 @@ class PostProcessorCommon(object):
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
-            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+            The default is ``None``.
+            - For HFSS 3D Layout, options are ``"Bondwires"``, ``"Differential Pairs"``,
+              ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
+            - For Q2D or Q3D, specify the name of a reduced matrix.
+            - For a far fields plot, specify the name of an infinite sphere.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1813,9 +1829,10 @@ class PostProcessorCommon(object):
             One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
             Default is `None` which will return all traces.
         setup_sweep_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         domain : str, optional
             Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
@@ -2357,13 +2374,13 @@ class PostProcessor(PostProcessorCommon, object):
             ]
         )
 
-    @pyaedt_function_handler(isvector="is_vector")
+    @pyaedt_function_handler(quantity_name="quantity", variation_dict="variations", isvector="is_vector")
     def get_scalar_field_value(
         self,
-        quantity_name,
+        quantity,
         scalar_function="Maximum",
         solution=None,
-        variation_dict=None,
+        variations=None,
         is_vector=False,
         intrinsics=None,
         phase=None,
@@ -2375,22 +2392,22 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity_name : str
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         scalar_function : str, optional
             The name of the scalar function. For example, ``"Maximum"``, ``"Integrate"``.
             The default is ``"Maximum"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
-        variation_dict : dict, optional
+        variations : dict, optional
             Dictionary of all variation variables with their values.
             e.g. ``['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']]``
             The default is ``None``.
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency field
-            calculation. The default is ``None``.
+            This parameter is mandatory for a frequency field calculation.
+            The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
         object_name : str, optional
@@ -2419,25 +2436,25 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ClcEval
         >>> GetTopEntryValue
         """
-        self.logger.info("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.info("Exporting {} field. Be patient".format(quantity))
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
         if is_vector:
             try:
-                self.ofieldsreporter.EnterQty(quantity_name)
+                self.ofieldsreporter.EnterQty(quantity)
             except Exception:
-                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+                self.ofieldsreporter.CopyNamedExprToStack(quantity)
             self.ofieldsreporter.CalcOp("Smooth")
             self.ofieldsreporter.EnterScalar(0)
             self.ofieldsreporter.CalcOp("AtPhase")
             self.ofieldsreporter.CalcOp("Mag")
         else:
             try:
-                self.ofieldsreporter.EnterQty(quantity_name)
+                self.ofieldsreporter.EnterQty(quantity)
             except Exception:
-                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
-                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity))
+                self.ofieldsreporter.CopyNamedExprToStack(quantity)
         obj_list = object_name
         if scalar_function:
             if object_type == "volume":
@@ -2451,11 +2468,11 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
 
-        if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values_dict
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
 
         variation = []
-        for el, value in variation_dict.items():
+        for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
 
@@ -2484,13 +2501,19 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         return float(value)
 
-    @pyaedt_function_handler(gridtype="grid_type", isvector="is_vector")
+    @pyaedt_function_handler(
+        quantity_name="quantity",
+        variation_dict="variations",
+        filename="file_name",
+        gridtype="grid_type",
+        isvector="is_vector",
+    )
     def export_field_file_on_grid(
         self,
-        quantity_name,
+        quantity,
         solution=None,
-        variation_dict=None,
-        filename=None,
+        variations=None,
+        file_name=None,
         grid_type="Cartesian",
         grid_center=None,
         grid_start=None,
@@ -2508,14 +2531,14 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity_name : str
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
-        variation_dict : dict, optional
+        variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        filename : str, optional
+        file_name : str, optional
             Full path and name to save the file to.
             The default is ``None``, in which case the file is exported
             to the working directory.
@@ -2537,8 +2560,8 @@ class PostProcessor(PostProcessorCommon, object):
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency field
-            calculation. The default is ``None``.
+            This parameter is mandatory for a frequency field calculation.
+            The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
         export_with_sample_points : bool, optional
@@ -2576,7 +2599,7 @@ class PostProcessor(PostProcessorCommon, object):
         >>> var = hfss.available_variations.nominal_w_values
         >>> setup = "Setup1 : LastAdaptive"
         >>> path = "Field.fld"
-        >>> hfss.post.export_field_file_on_grid("E", setup, var, path, 'Cartesian', [0, 0, 0],  intrinsics="8GHz")
+        >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
         if grid_step is None:
             grid_step = [0, 0, 0]
@@ -2586,20 +2609,20 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop = [0, 0, 0]
         if grid_center is None:
             grid_center = [0, 0, 0]
-        self.logger.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
-        if not filename:
-            filename = os.path.join(
-                self._app.working_directory, "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_"))
+        if not file_name:
+            file_name = os.path.join(
+                self._app.working_directory, "{}_{}.fld".format(quantity, solution.replace(" : ", "_"))
             )
-        elif os.path.isdir(filename):
-            filename = os.path.join(filename, "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_")))
+        elif os.path.isdir(file_name):
+            file_name = os.path.join(file_name, "{}_{}.fld".format(quantity, solution.replace(" : ", "_")))
         self.ofieldsreporter.CalcStack("clear")
         try:
-            self.ofieldsreporter.EnterQty(quantity_name)
+            self.ofieldsreporter.EnterQty(quantity)
         except Exception:
-            self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+            self.ofieldsreporter.CopyNamedExprToStack(quantity)
         if is_vector:
             self.ofieldsreporter.CalcOp("Smooth")
             if phase:
@@ -2627,11 +2650,11 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.error("Error in the type of the grid.")
             return False
 
-        if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values_dict
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
 
         variation = []
-        for el, value in variation_dict.items():
+        for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
 
@@ -2661,7 +2684,7 @@ class PostProcessor(PostProcessorCommon, object):
         ]
 
         self.ofieldsreporter.ExportOnGrid(
-            filename,
+            file_name,
             grid_start_wu,
             grid_stop_wu,
             grid_step_wu,
@@ -2672,23 +2695,30 @@ class PostProcessor(PostProcessorCommon, object):
             grid_center,
             False,
         )
-        if os.path.exists(filename):
-            return filename
+        if os.path.exists(file_name):
+            return file_name
         return False  # pragma: no cover
 
-    @pyaedt_function_handler(obj_list="objects", obj_type="objects_type")
+    @pyaedt_function_handler(
+        quantity_name="quantity",
+        variation_dict="variations",
+        filename="file_name",
+        obj_list="objects",
+        obj_type="objects_type",
+        sample_points_lists="sample_points",
+    )
     def export_field_file(
         self,
-        quantity_name,
+        quantity,
         solution=None,
-        variation_dict=None,
-        filename=None,
+        variations=None,
+        file_name=None,
         objects="AllObjects",
         objects_type="Vol",
         intrinsics=None,
         phase=None,
         sample_points_file=None,
-        sample_points_lists=None,
+        sample_points=None,
         export_with_sample_points=True,
         reference_coordinate_system="Global",
         export_in_si_system=True,
@@ -2698,15 +2728,15 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity_name :
+        quantity :
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution: sweep"``.
             The default is ``None``.
-        variation_dict : dict, optional
+        variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        filename : str, optional
+        file_name : str, optional
             Full path and name to save the file to.
             The default is ``None`` which export file in working_directory.
         objects : str, optional
@@ -2716,13 +2746,13 @@ class PostProcessor(PostProcessorCommon, object):
             Options are ``"Surf"`` for surface and ``"Vol"`` for
             volume.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency or transient field
-            calculation. The default is ``None``.
+            This parameter is mandatory for a frequency or transient field calculation.
+            The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
-        sample_points_lists : list, optional
+        sample_points : list, optional
             List of the sample points. The default is ``None``.
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
@@ -2753,29 +2783,29 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.CalculatorWrite
         >>> oModule.ExportToFile
         """
-        self.logger.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
                 self.logger.error("There are no existing sweeps.")
                 return False
             solution = self._app.existing_analysis_sweeps[0]
-        if not filename:
+        if not file_name:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
+            file_name = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
-            filename = filename.replace("//", "/").replace("\\", "/")
+            file_name = file_name.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
         try:
-            self.ofieldsreporter.EnterQty(quantity_name)
+            self.ofieldsreporter.EnterQty(quantity)
         except Exception:
-            self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+            self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
-        if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values_dict
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
 
         variation = []
-        for el, value in variation_dict.items():
+        for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
 
@@ -2791,7 +2821,7 @@ class PostProcessor(PostProcessorCommon, object):
                     variation.append(phase)
                 else:
                     variation.append("0deg")
-        if not sample_points_file and not sample_points_lists:
+        if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(objects)
             elif objects_type == "Surf":
@@ -2800,7 +2830,7 @@ class PostProcessor(PostProcessorCommon, object):
                 self.logger.error("No correct choice.")
                 return False
             self.ofieldsreporter.CalcOp("Value")
-            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation)
+            self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
@@ -2814,7 +2844,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                filename,
+                file_name,
                 sample_points_file,
                 solution,
                 variation,
@@ -2824,7 +2854,7 @@ class PostProcessor(PostProcessorCommon, object):
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open_file(sample_points_file, "w") as f:
                 f.write("Unit={}\n".format(self.model_units))
-                for point in sample_points_lists:
+                for point in sample_points:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             export_options = [
                 "NAME:ExportOption",
@@ -2838,15 +2868,15 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                filename,
+                file_name,
                 sample_points_file,
                 solution,
                 variation,
                 export_options,
             )
 
-        if os.path.exists(filename):
-            return filename
+        if os.path.exists(file_name):
+            return file_name
         return False  # pragma: no cover
 
     @pyaedt_function_handler(plotname="plot_name", filepath="file_path", filename="file_name")
@@ -3076,14 +3106,15 @@ class PostProcessor(PostProcessorCommon, object):
         quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
         field_type : str, optional
             Field type to plot. Valid only for Q3D Field plots.
 
@@ -3132,8 +3163,8 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
         intrinsics : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
             Name of the field plot to create. The default is ``None``.
         field_type : str, optional
@@ -3214,9 +3245,9 @@ class PostProcessor(PostProcessorCommon, object):
             field_type=field_type,
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(quantity_name="quantity")
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity_name, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
+        self, layers_nets, quantity, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
     ):  # pragma: no cover
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -3228,7 +3259,7 @@ class PostProcessor(PostProcessorCommon, object):
         layers_nets : list
             List of layers and nets to plot. For example:
             ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``.
-        quantity_name : str
+        quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
@@ -3236,8 +3267,8 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_on_surface : bool, optional
             Whether the plot is to be on the surface or volume of traces.
         plot_name : str, optional
@@ -3272,12 +3303,12 @@ class PostProcessor(PostProcessorCommon, object):
                     get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup_name)
                     if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
                         lst.extend([int(i) for i in get_ids[2:]])
-            return self._create_fieldplot(lst, quantity_name, setup_name, intrinsics, "FacesList", plot_name)
+            return self._create_fieldplot(lst, quantity, setup_name, intrinsics, "FacesList", plot_name)
         if plot_on_surface:
             plot_type = "LayerNetsExtFace"
         else:
             plot_type = "LayerNets"
-        return self._create_fieldplot(layers_nets, quantity_name, setup_name, intrinsics, plot_type, plot_name)
+        return self._create_fieldplot(layers_nets, quantity, setup_name, intrinsics, plot_type, plot_name)
 
     @pyaedt_function_handler(objlist="objects", quantityName="quantity", IntrinsincDict="intrinsics")
     def create_fieldplot_surface(
@@ -3292,14 +3323,15 @@ class PostProcessor(PostProcessorCommon, object):
         quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
         field_type : str, optional
             Field type to plot. Valid only for Q3D Field plots.
 
@@ -3355,9 +3387,9 @@ class PostProcessor(PostProcessorCommon, object):
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
             Dictionary containing all intrinsic variables.
-            The default is ``{}``.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
         filter_objects : list, optional
             Objects list on which filter the plot.
             The default value is ``None``, in which case an empty list is passed.
@@ -3405,14 +3437,15 @@ class PostProcessor(PostProcessorCommon, object):
         quantity :
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
 
         Returns
         -------
@@ -3793,38 +3826,38 @@ class PostProcessor(PostProcessorCommon, object):
     @pyaedt_function_handler()
     def export_mesh_obj(self, setup_name=None, intrinsics=None):
         """Export the mesh in ``aedtplt`` format.
-                The mesh has to be available in the selected setup.
-                If a parametric model is provided user can choose the mesh to export providing a specific set of variations.
-                This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
-                and ``Mechanical`` objects. This method is calling ``create_fieldplot_surface`` to create a mesh plot and
-                ``export_field_plot`` to export it as ``aedtplt`` file.
+        The mesh has to be available in the selected setup.
+        If a parametric model is provided user can choose the mesh to export providing a specific set of variations.
+        This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
+        and ``Mechanical`` objects. This method is calling ``create_fieldplot_surface`` to create a mesh plot and
+        ``export_field_plot`` to export it as ``aedtplt`` file.
 
-                Parameters
-                ----------
-                setup_name : str, optional
-                    Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-                    Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-                    where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-                intrinsics : dict, optional.
-                    Intrinsic dictionary that is needed for the export.
-                    The default is ``{}``, which assumes that no variables are present in
-                    the dictionary or nominal values are used.
-        ```Here's your definition that should be used in other locations?!
+        Parameters
+        ----------
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional.
+            Intrinsic dictionary that is needed for the export.
+            The default is ``None``, which assumes that no variables are present in
+            the dictionary or nominal values are used.
 
-                Returns
-                -------
-                str
-                    File Generated with full path.
+        Returns
+        -------
+        str
+            File Generated with full path.
 
-                Examples
-                --------
-                >>> from pyaedt import Hfss
-                >>> hfss = Hfss()
-                >>> hfss.analyze()
-                >>> # Export report using defaults.
-                >>> hfss.post.export_mesh_obj(setup_name=None, intrinsics=None)
-                >>> # Export report using arguments.
-                >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsics={"w1":"5mm", "l1":"3mm"})
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.analyze()
+        >>> # Export report using defaults.
+        >>> hfss.post.export_mesh_obj(setup_name=None, intrinsics=None)
+        >>> # Export report using arguments.
+        >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsics={"w1":"5mm", "l1":"3mm"})
         """
         if intrinsics is None:
             intrinsics = {}
@@ -4596,10 +4629,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         ami_plot_type : str, optional
             String containing the report AMI type. The default is ``"InitialEye"``.
             Options are ``"EyeAfterChannel"``, ``"EyeAfterProbe"````"EyeAfterSource"``,
-            and ``"InitialEye"``.
-            .
+            and ``"InitialEye"``..
         plot_name : str, optional
-            The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
+            Plot name.  The default is ``None``, in which case
+            a unique name starting with ``"Plot"`` is automatically assigned.
 
         Returns
         -------
@@ -5121,7 +5154,7 @@ class FieldSummary:
             The default is  ``{}``, in which case nominal variation is used.
         intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
-            suitable when no frequency needs to be selected.
+            which is suitable when no frequency needs to be selected.
         pandas_output : bool, optional
             Whether to use pandas output. The default is ``False``, in
             which case the dictionary output is used.
@@ -5167,7 +5200,7 @@ class FieldSummary:
             The default is  ``{}``, in which case the nominal variation is used.
         intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
-            suitable when no frequency needs to be selected.
+            which is suitable when no frequency needs to be selected.
 
         Returns
         -------

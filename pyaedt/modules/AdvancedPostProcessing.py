@@ -749,8 +749,7 @@ class PostProcessor(Post):
             Path for the export. The default is ``""``, in which case the file is exported
             to the working directory.
         export_gif : bool, optional
-             The default is ``False``.
-                show=False,
+             Whether to export the GIF file. The default is ``False``.
         show : bool, optional
              Generate the animation without showing an interactive plot.  The default is ``True``.
         dark_mode : bool, optional

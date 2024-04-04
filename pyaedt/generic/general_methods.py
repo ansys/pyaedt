@@ -201,7 +201,7 @@ def _check_types(arg):
 def _function_handler_wrapper(user_function, **deprecated_kwargs):
     def wrapper(*args, **kwargs):
         if deprecated_kwargs and kwargs:
-            rename_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
+            deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
         if not settings.enable_error_handler:
             result = user_function(*args, **kwargs)
             return result
@@ -234,8 +234,8 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
     return wrapper
 
 
-def rename_kwargs(func_name, kwargs, aliases):
-    """Helper function for deprecating function arguments."""
+def deprecate_kwargs(func_name, kwargs, aliases):
+    """Use helper function for deprecating function arguments."""
     for alias, new in aliases.items():
         if alias in kwargs:
             if new in kwargs:
