@@ -6233,10 +6233,8 @@ class GeometryModeler(Modeler):
                 is_percentage = True
             if kwarg.get("pad_percent", False):
                 pad_percent = kwarg["pad_percent"]
-            else:
-                pad_percent = 300
-            pad_value = pad_percent
-            if isinstance(pad_value, list):
+                pad_value = pad_percent
+            if isinstance(pad_value, list) and len(pad_value) < 6:
                 pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
             pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
 
