@@ -316,10 +316,10 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oEditor.GetAllPorts
         """
         if trlist is None:
-            trlist = [i for i in list(self.excitations.keys())]
+            trlist = [i for i in list(self.excitations)]
 
         if reclist is None:
-            trlist = [i for i in list(self.excitations.keys())]
+            trlist = [i for i in list(self.excitations)]
         if tx_prefix:
             trlist = [i for i in trlist if i.startswith(tx_prefix)]
         if rx_prefix:
