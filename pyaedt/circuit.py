@@ -1717,13 +1717,14 @@ class Circuit(FieldAnalysisCircuit, object):
         differential : bool, optional
             Whether if the buffers are single ended or differential. Default is ``True`` to use differential buffer.
         rise_time : float, int, optional
-            Rise time of the input pulse in picoseconds. Default is ``30``.
+            Rise time of the input pulse in picoseconds. The default is ``30``.
         use_convolution : bool, optional
-            Whether if use or not convolution for the touchstone file. If ``False`` default State-Space will be used.
+            Whether to use convolution for the Touchstone file. The default is ``True``.
+            If ``False``, state-space is used.
         analyze : bool
-             Whether if automatically assign differential pairs or not.  Default value is ``False``.
+             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
-            New schematic name. Default is ``"LNA"``.
+            New schematic name. The default is ``"LNA"``.
 
         Returns
         -------
