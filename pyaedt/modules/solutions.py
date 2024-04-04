@@ -763,21 +763,26 @@ class SolutionData(object):
         Parameters
         ----------
         curves : list
-            Curves to be plotted. If None, the first curve will be plotted.
+            Curves to be plotted. The default is ``None``, in which case
+            the first curve is plotted.
         formula : str , optional
-            Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
-            `None` value will plot only real value of the data stored in solution data.
+            Mathematical formula to apply to the plot curve. The default is ``None``,
+            in which case only real value of the data stored in the solution data is plotted.
+            Options are ``"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
+            ``"phaserad"``, and ``"re"``.
+           
         size : tuple, optional
-            Image size in pixel (width, height).
+            Image size in pixels (width, height).
         show_legend : bool
-            Either to show legend or not. Flag will be ignored if number of curves to plot is greater than 15.
+            Whether to show the legend. The default is ``True``.
+            This parameter is ignored if the number of curves to plot is
+            greater than 15.
         x_label : str
             Plot X label.
         y_label : str
             Plot Y label.
         title : str
-            Plot Title label.
+            Plot title label.
         snapshot_path : str
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
@@ -850,9 +855,9 @@ class SolutionData(object):
         curve : str
             Curve to be plotted. If None, the first curve will be plotted.
         x_axis : str, optional
-            X Axis sweep. Default is `"Theta"`.
+            X-axis sweep. The default is ``"Theta"``.
         y_axis : str, optional
-            Y Axis sweep. Default is `"Phi"`.
+            Y-axis sweep. The default is ``"Phi"``.
         x_label : str
             Plot X label.
         y_label : str
@@ -860,12 +865,14 @@ class SolutionData(object):
         title : str
             Plot title label.
         formula : str , optional
-            Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+            Mathematical formula to apply to the plot curve. The default is ``None``.
+            Options are `"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
+            ``"phaserad"``, and ``"re"``.
         size : tuple, optional
-            Image size in pixel (width, height).
-        snapshot_path : str
+            Image size in pixels (width, height). The default is ``(2000, 1000)``.
+        snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
+            The default is ``None``.
 
         Returns
         -------
@@ -1008,7 +1015,7 @@ class SolutionData(object):
         csv_path=None,
         csv_file_header="res_",
     ):
-        """Save IFFT Matrix to a list of csv files (one per time step).
+        """Save IFFT matrix to a list of CSV files (one per time step).
 
         Parameters
         ----------
@@ -1019,13 +1026,13 @@ class SolutionData(object):
         coord_system_center : list, optional
             List of UV GlobalCS Center.
         db_val : bool, optional
-            Either if data has to be exported in db or not.
+            Whether data must be exported into a database. The default is ``False``.
         num_frames : int, optional
-            Number of frames to export.
-        csv_path : str
-            Output path
+            Number of frames to export. The default is ``None``.
+        csv_path : str, optional
+            Output path. The default is ``None``.
         csv_file_header : str, optional
-            csv file header.
+            CSV file header. The default is ``"res_"``.
 
         Returns
         -------
@@ -3597,7 +3604,8 @@ class VRTFieldPlot:
         Parameters
         ----------
         path : str, optional
-            Full path to output file. If ``None``, the file will be exported in working directory.
+            Full path to the output file. The default is ``None``, in which case the file is
+            exported to the working directory.
 
         Returns
         -------

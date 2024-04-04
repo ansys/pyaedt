@@ -1615,7 +1615,7 @@ class PostProcessorCommon(object):
         polyline_points=1001,
         plot_name=None,
     ):
-        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
         ----------
@@ -1647,7 +1647,7 @@ class PostProcessorCommon(object):
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
-            Number of points on which create the report for plots on polylines.
+            Number of points to create the report for plots on polylines on.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -2517,7 +2517,8 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         filename : str, optional
             Full path and name to save the file to.
-            The default is ``None`` which export file in working_directory.
+            The default is ``None``, in which case the file is exported
+            to the working directory.
         grid_type : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
@@ -2711,8 +2712,9 @@ class PostProcessor(PostProcessorCommon, object):
         objects : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         objects_type : str, optional
-            Type of objects to export. Options are ``"Vol"`` for volume and
-            ``"Surf"`` for surface. The default is ``"Vol"``.
+            Type of objects to export. The default is ``"Vol"``.
+            Options are ``"Surf"`` for surface and ``"Vol"`` for
+            volume.
         intrinsics : str, optional
             This parameter is mandatory for a frequency or transient field
             calculation. The default is ``None``.
@@ -2860,7 +2862,7 @@ class PostProcessor(PostProcessorCommon, object):
             Path for saving the file.
 
         file_name : str, optional
-            Name of the file. The default is ``""``.
+            Name of the file. The default is ``""``, in which case a name is automatically assigned.
 
         file_format : str, optional
             Name of the file extension. The default is ``"aedtplt"``. Options are ``"case"`` and ``"fldplt"``.
@@ -3358,9 +3360,9 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the fieldplot to create.
         filter_objects : list, optional
             Objects list on which filter the plot.
-            The default value is ``None`` in which case an empty list is passed.
+            The default value is ``None``, in which case an empty list is passed.
         field_type : str, optional
-            Field type to plot. Valid only for Q3D Field plots.
+            Field type to plot. This parameter is valid only for Q3D field plots.
 
         Returns
         -------
@@ -3731,18 +3733,20 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         objects : list, optional
-            List of objects to export. Export every model object except 3D ones, vacuum and air objects.
+            List of objects to export. Export every model object except 3D ones and
+            vacuum and air objects.
         export_path : str, optional
-            Full path of the exported obj file.
+            Full path of the exported OBJ file.
         export_as_single_objects : bool, optional
-            Define if the model will be exported as single object or list of objects for each object.
+           Whether to export the model as single object. The default is ``False``, in which
+           case is exported asa list of objects for each object.
         air_objects : bool, optional
             Define if air and vacuum objects will be exported.
 
         Returns
         -------
         list
-            Files obj path.
+            List of paths for OBJ files.
         """
         if objects and not isinstance(objects, (list, tuple)):
             objects = [objects]
@@ -3803,7 +3807,9 @@ class PostProcessor(PostProcessorCommon, object):
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsics : dict, optional.
             Intrinsic dictionary that is needed for the export.
-            The default is ``{}`` which assumes no variables are present in the dict or nominal values are used.
+            The default is ``{}``, which assumes that no variables are present in
+            the dictionary or nominal values are used.
+```Here's your definition that should be used in other locations?!
 
         Returns
         -------
@@ -4497,7 +4503,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         plot_final_response : bool, optional
             Set whether to plot the final input response.  Default is ``False``.
         plot_name : str, optional
-            The plot name.  Default is a unique name.
+            Plot name.  The default is ``None``, in which case
+            a unique name is automatically assigned.
 
         Returns
         -------
@@ -4587,8 +4594,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         variation_list_w_value : list
             Variations with relative values.
         ami_plot_type : str, optional
-            String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
-            ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
+            String containing the report AMI type. The default is ``"InitialEye"``.
+            Options are ``"EyeAfterChannel"``, ``"EyeAfterProbe"````"EyeAfterSource"``,
+            and ``"InitialEye"``.
+            .
         plot_name : str, optional
             The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
 
@@ -4688,11 +4697,11 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setup_name : str
             Name of the setup.
         probe_names : str or list
-            Name of the probe to plot in the EYE diagram.
+            One or more names of the probe to plot in the eye diagram.
         variation_list_w_value : list
             List of variations with relative values.
         plot_name : str, optional
-            The name of the plot.
+            Plot name. The default is ``None``, in which case a name is automatically assigned.
 
         Returns
         -------

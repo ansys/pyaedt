@@ -470,11 +470,11 @@ class PostProcessor(Post):
         Parameters
         ----------
         quantity : str
-            Quantity to plot (e.g. ``"Mag_E"``).
+            Quantity to plot. For example, ``"Mag_E"``.
         objects : str, list
-            Objects or faces to which apply the Field Plot.
+            Objects or faces to apply the field plot to.
         plot_type  : str, optional
-            Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
+            Plot type. Options are ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup_name : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
         intrinsics : dict, optional.
@@ -603,9 +603,9 @@ class PostProcessor(Post):
         quantity : str
             Quantity to plot (e.g. ``"Mag_E"``).
         objects : list, str
-            List of objects or faces to which apply the Field Plot.
+            List of objects or faces to apply the field plot to.
         plot_type  : str, optional
-            Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
+            Plot type. Options are ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup_name : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
         intrinsics : dict, optional.
@@ -746,7 +746,8 @@ class PostProcessor(Post):
             List of variation values with units. The default is
             ``["0deg"]``.
         project_path : str, optional
-            Path for the export. The default is ``""`` which export file in working_directory.
+            Path for the export. The default is ``""``, in which case the file is exported
+            to the working directory.
         export_gif : bool, optional
              The default is ``False``.
                 show=False,
@@ -852,8 +853,8 @@ class PostProcessor(Post):
         objects : list, optional
             Name of the ``folderplot`` folder.
         plot_type : str
-            Type of the plot. Options are ``"Surface"``, ``"Volume"``, and
-            ``"CutPlane"``.
+            Type of the plot. Options are ``"CutPlane"``, ``"Surface"``, and
+            ``"Volume"``.
         setup_name : str, optional
             Name of the setup (sweep) to use for the export. The default is
             ``None``.
@@ -877,11 +878,11 @@ class PostProcessor(Post):
         log_scale : bool, optional
             Whether to plot fields in log scale. The default is ``True``.
         dark_mode : bool, optional
-            Whether to plot with dark mode. The default is ``False``.
+            Whether to plot in dark mode. The default is ``False``.
         show_grid : bool, optional
-            Whether to show grid on plot. The default is ``False``.
+            Whether to show a grid on the plot. The default is ``False``.
         show_bounding : bool, optional
-            Whether to show bounding on plot. The default is ``False``.
+            Whether to show bounding on the plot. The default is ``False``.
 
         Returns
         -------
@@ -961,12 +962,12 @@ class PostProcessor(Post):
         Parameters
         ----------
         frames : list or str
-            File list containing animation frames to plot in csv format or
-            path to a txt index file containing full path to csv files.
+            File list containing animation frames to plot in CSV format or
+            path to a text index file containing the full path to CSV files.
         gif_path : str
-            Full path to output gif file.
+            Full path for outputting the GIF file.
         norm_index : int, optional
-            Pick the frame to use to normalize your images.
+            Frame to use to normalize your images.
             Data is already saved as dB : 100 for usual traffic scenes.
         dy_rng : int, optional
             Specify how many dB below you would like to specify the range_min.
@@ -1022,7 +1023,7 @@ class PostProcessor(Post):
         scene.zoom = zoom
         scene.bounding_box = False
         scene.color_bar = False
-        scene.gif_file = gif_path  # This gif may be a bit slower so we can speed it up a bit
+        scene.gif_file = gif_path  # This GIF file may be a bit slower so it can be speed it up a bit
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
         scene.animate()
