@@ -470,6 +470,7 @@ class Desktop(object):
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
+    @pyaedt_function_handler()
     def __init__(
         self,
         specified_version=None,

@@ -218,30 +218,33 @@ def _function_handler_wrapper(user_function):
             if settings.enable_file_logs:
                 settings.error(message)
             if not settings.enable_error_handler:
-                from pyaedt.generic.desktop_sessions import _desktop_sessions
+                if settings.release_on_exception:
+                    from pyaedt.generic.desktop_sessions import _desktop_sessions
 
-                for v in list(_desktop_sessions.values())[:]:
-                    v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                    for v in list(_desktop_sessions.values())[:]:
+                        v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
                 raise e
             else:
                 return False
         except GrpcApiError as e:
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
             if not settings.enable_error_handler:
-                from pyaedt.generic.desktop_sessions import _desktop_sessions
+                if settings.release_on_exception:
+                    from pyaedt.generic.desktop_sessions import _desktop_sessions
 
-                for v in list(_desktop_sessions.values())[:]:
-                    v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                    for v in list(_desktop_sessions.values())[:]:
+                        v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
                 raise e
             else:
                 return False
         except BaseException as e:
             _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
             if not settings.enable_error_handler:
-                from pyaedt.generic.desktop_sessions import _desktop_sessions
+                if settings.release_on_exception:
+                    from pyaedt.generic.desktop_sessions import _desktop_sessions
 
-                for v in list(_desktop_sessions.values())[:]:
-                    v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                    for v in list(_desktop_sessions.values())[:]:
+                        v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
                 raise e
             else:
                 return False
