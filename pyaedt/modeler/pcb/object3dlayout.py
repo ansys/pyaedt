@@ -438,6 +438,7 @@ class Components3DLayout(Object3DLayout, object):
         Object3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
+        self._pins = {}
 
     @property
     def part(self):
@@ -629,7 +630,13 @@ class Components3DLayout(Object3DLayout, object):
 
     @pyaedt_function_handler()
     def set_solderball(
-        self, solderball_type="Cyl", diameter="0.1mm", mid_diameter="0.1mm", height="0.2mm", material="solder"
+        self,
+        solderball_type="Cyl",
+        diameter="0.1mm",
+        mid_diameter="0.1mm",
+        height="0.2mm",
+        material="solder",
+        reference_offset=None,
     ):
         """Set solderball on the active component.
 
@@ -648,6 +655,8 @@ class Components3DLayout(Object3DLayout, object):
             Ball height. The default is height="0.2mm".
         material : str, optional
             Ball material. The default is ``"solder"``.
+        reference_offset : str, optional.
+            Reference offset for port creation.  The default is ``"0mm"``
 
         Returns
         -------
@@ -656,28 +665,30 @@ class Components3DLayout(Object3DLayout, object):
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
+        props = self._oeditor.GetComponentInfo(self.name)
+        model = ""
+        for p in props:
+            if "PortProp(" in p:
+                model = p
+                break
+        s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
+        m = re.search(s, model)
+        rsx = "0"
+        rsy = "0"
+        rsa = True
+        rh = "0"
+        if m:
+            rh = m.group(1)
+            rsx = m.group(3)
+            rsy = m.group(4)
+            if m.group(2) == "false":
+                rsa = False
+        if reference_offset:
+            rh = reference_offset
         if self._part_type_id == 4:
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            props = self._oeditor.GetComponentInfo(self.name)
-            model = ""
-            for p in props:
-                if "PortProp(" in p:
-                    model = p
-                    break
-            s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
-            m = re.search(s, model)
-            rh = "0"
-            rsx = "0"
-            rsy = "0"
-            rsa = True
-            if m:
-                rh = m.group(1)
-                rsx = m.group(3)
-                rsy = m.group(4)
-                if m.group(2) == "false":
-                    rsa = False
             s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
             m = re.search(s, model)
             dt = 0
@@ -739,6 +750,8 @@ class Components3DLayout(Object3DLayout, object):
                             "sbn:=",
                             material,
                         ],
+                        "PortProp:=",
+                        ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy],
                     ],
                 ],
             ]
@@ -750,9 +763,13 @@ class Components3DLayout(Object3DLayout, object):
 
         Returns
         -------
-        List of str
+        dict
+            Dictionary of pins.
         """
-        return list(self._oeditor.GetComponentPins(self.name))
+        if self._pins:
+            return self._pins
+        self._pins = {i: Pins3DLayout(self._primitives, i) for i in list(self._oeditor.GetComponentPins(self.name))}
+        return self._pins
 
     @property
     def model(self):
