@@ -399,7 +399,7 @@ class FieldAnalysis3DLayout(Analysis):
         math_formula="",
         net_list=None,
     ):
-        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
+        """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
