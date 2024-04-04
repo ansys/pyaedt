@@ -149,7 +149,7 @@ class CircuitPins(object):
             The default is ``False``, in which case a page port is used. Note
             that if wires are used but not well placed, shorts can result.
         wire_name : str, optional
-            Wire name used only when user_wire is ``True``. Default value is ``""``.
+            Wire name used only when ``user_wire=True``. The default is ``""``.
         clearance_units : int, optional
             Number of snap units (100mil each) around the object to overcome pins and wires.
         page_port_angle : int, optional
