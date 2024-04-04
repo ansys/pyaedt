@@ -1946,7 +1946,7 @@ class Circuit(FieldAnalysisCircuit, object):
         analyze=False,
         design_name="AMI",
     ):
-        """Create a new schematic from a touchstone file and automatically setup an IBIS AMI analysis.
+        """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
         Parameters
         ----------
