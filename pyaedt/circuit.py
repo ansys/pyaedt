@@ -1702,7 +1702,7 @@ class Circuit(FieldAnalysisCircuit, object):
         analyze=True,
         design_name="LNA",
     ):
-        """Create a new schematic from a touchstone file and automatically setup a TDR transient analysis.
+        """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
         Parameters
         ----------
