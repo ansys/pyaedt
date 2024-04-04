@@ -1918,7 +1918,7 @@ class Circuit(FieldAnalysisCircuit, object):
                                 positive_terminal=pin.name,
                                 negative_terminal=neg_pin.name,
                                 common_name="COMMON_{}_{}".format(component, net),
-                                diff_name=f"{component}_{net}",
+                                diff_name="{}_{}".format(component, net),
                                 common_ref_z=25,
                                 diff_ref_z=100,
                                 active=True,
