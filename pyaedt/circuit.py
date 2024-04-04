@@ -1715,7 +1715,8 @@ class Circuit(FieldAnalysisCircuit, object):
         termination_pins : list
             Pins to be terminated.
         differential : bool, optional
-            Whether if the buffers are single ended or differential. Default is ``True`` to use differential buffer.
+            Whether the buffers are differential. The default is ``True``. If ``False``, the
+            pins are single ended.
         rise_time : float, int, optional
             Rise time of the input pulse in picoseconds. The default is ``30``.
         use_convolution : bool, optional
