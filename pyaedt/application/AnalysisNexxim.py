@@ -544,7 +544,7 @@ class FieldAnalysisCircuit(Analysis):
         math_formula="",
         net_list=None,
     ):
-        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
+        """Get a list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
