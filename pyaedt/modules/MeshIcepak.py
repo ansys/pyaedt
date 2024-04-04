@@ -620,6 +620,7 @@ class GlobalMeshRegion(MeshRegionCommon):
         """
         args = ["NAME:Settings"]
         args += self.settings.parse_settings()
+        args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
