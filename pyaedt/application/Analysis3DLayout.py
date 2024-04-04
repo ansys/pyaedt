@@ -147,8 +147,8 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
+        dict
+            Excitation dictionary. Excitations with multiple modes will return one
             excitation for each mode.
 
         References
@@ -384,7 +384,7 @@ class FieldAnalysis3DLayout(Analysis):
                 k = trlist.index(i) + 1
                 while k < len(trlist):
                     if math_formula:
-                        next.append("{}(S({},{}))".format(math_formula, i, trlist[k]))
+                        next_xtalks.append("{}(S({},{}))".format(math_formula, i, trlist[k]))
                     else:
                         next_xtalks.append("S({},{})".format(i, trlist[k]))
                     k += 1

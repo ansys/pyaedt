@@ -384,7 +384,7 @@ class FieldAnalysisCircuit(Analysis):
     def get_all_return_loss_list(
         self, excitation_names=None, excitation_name_prefix="", math_formula="", net_list=None
     ):
-        """Geta list of all return losses for a list of excitations.
+        """Get a list of all return losses for a list of excitations.
 
         Parameters
         ----------
