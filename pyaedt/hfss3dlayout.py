@@ -460,7 +460,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def create_differential_port(self, via_signal, via_reference, port_name, deembed=True):
-        """Create a new differential port.
+        """Create a differential port.
 
         Parameters
         ----------
