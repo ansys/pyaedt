@@ -1026,7 +1026,7 @@ class PostProcessor(Post):
 
 class IcepakPostProcessor(PostProcessor, object):
     def __init__(self, app):
-        PostProcessorCommon.__init__(self, app)
+        PostProcessor.__init__(self, app)
 
     @pyaedt_function_handler()
     def create_field_summary(self):
