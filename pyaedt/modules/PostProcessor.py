@@ -3741,7 +3741,7 @@ class PostProcessor(PostProcessorCommon, object):
            Whether to export the model as single object. The default is ``False``, in which
            case is exported asa list of objects for each object.
         air_objects : bool, optional
-            Define if air and vacuum objects will be exported.
+            Whether to export air and vacuum objects. The default is ``False``.
 
         Returns
         -------
