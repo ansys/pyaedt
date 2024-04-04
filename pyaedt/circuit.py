@@ -1751,17 +1751,17 @@ class Circuit(FieldAnalysisCircuit, object):
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
         tdr_probe_names = []
-        for i in range(len(probe_pins)):
+        for i, probe_pin in enumerate(probe_pins):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
             new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
             try:
-                if isinstance(probe_pins[i], int):
-                    p_pin = probe_pins[i]
+                if isinstance(probe_pin, int):
+                    p_pin = probe_pin
                     if differential:
                         n_pin = probe_ref_pins[i]
                 else:
-                    p_pin = [k for k in sub.pins if k.name == probe_pins[i]][0]
+                    p_pin = [k for k in sub.pins if k.name == probe_pin][0]
                     if differential:
                         n_pin = [k for k in sub.pins if k.name == probe_ref_pins[i]][0]
             except IndexError:
@@ -2055,20 +2055,20 @@ class Circuit(FieldAnalysisCircuit, object):
                 self.modeler.move(second, [1000, 0], "mil")
             else:
                 self.modeler.move(second, [-1000, 0], "mil")
-            result, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
+            _, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
             self.modeler.move(first, [0, -100], "mil")
             if second.pins[0].location[0] > center_x:
                 self.modeler.move(second, [1000, 0], "mil")
             else:
                 self.modeler.move(second, [-1000, 0], "mil")
             if differential:
-                result, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
+                _, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
                 self.modeler.move(first, [0, -100], "mil")
                 if second.pins[0].location[0] > center_x:
                     self.modeler.move(second, [1000, 0], "mil")
                 else:
                     self.modeler.move(second, [-1000, 0], "mil")
-                result, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
+                _, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
                 self.modeler.move(first, [0, 100], "mil")
                 if second.pins[0].location[0] > center_x:
                     self.modeler.move(second, [1000, 0], "mil")
