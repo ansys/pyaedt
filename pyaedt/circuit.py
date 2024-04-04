@@ -1987,8 +1987,8 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         (bool, list, list)
-            First argument is ``True`` if succeeded.
-            Second and third argument are respectly tx and rx mode probe names.
+            First argument is ``True`` if successful.
+            Second and third arguments are respectively the names of the tx and rx mode probes.
         """
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
