@@ -105,7 +105,7 @@ class TestClass:
         with pytest.raises(ValueError):
             mat1.material_appearance = [11, 22, 0, -1]
         with pytest.raises(ValueError):
-            mat1.material_appearance = [11, 22, 100]
+            mat1.material_appearance = [11, 22]
 
     def test_03_create_modifiers(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
