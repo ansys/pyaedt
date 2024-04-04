@@ -153,7 +153,8 @@ class CircuitPins(object):
         clearance_units : int, optional
             Number of snap units (100mil each) around the object to overcome pins and wires.
         page_port_angle : int, optional
-            Page port angle on the source pin. If None, the angle is automatically computed.
+            Page port angle on the source pin. The default is ``None``, in which case
+            the angle is automatically computed.
 
         Returns
         -------
