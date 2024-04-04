@@ -254,7 +254,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
 
 def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=True):
     """
-    Connect to an existing AEDT server session and connect to it.
+    Connect to an existing AEDT server session and create a new client session from it..
 
     Parameters
     ----------
