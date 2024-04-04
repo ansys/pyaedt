@@ -319,7 +319,7 @@ class FieldAnalysis3DLayout(Analysis):
             trlist = [i for i in list(self.excitations)]
 
         if reclist is None:
-            trlist = [i for i in list(self.excitations)]
+            reclist = [i for i in list(self.excitations)]
         if tx_prefix:
             trlist = [i for i in trlist if i.startswith(tx_prefix)]
         if rx_prefix:
@@ -378,7 +378,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         next_xtalks = []
         if not trlist:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
+            trlist = [i for i in list(self.excitations) if tx_prefix in i]
         for i in trlist:
             if not net_list or (net_list and [net for net in net_list if net in i]):
                 k = trlist.index(i) + 1
@@ -444,9 +444,9 @@ class FieldAnalysis3DLayout(Analysis):
 
         fext = []
         if trlist is None:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
+            trlist = [i for i in list(self.excitations) if tx_prefix in i]
         if reclist is None:
-            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
+            reclist = [i for i in list(self.excitations) if rx_prefix in i]
         for i in trlist:
             if not net_list or (net_list and [net for net in net_list if net in i]):
                 for k in reclist:

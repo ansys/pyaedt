@@ -389,7 +389,7 @@ class TestClass:
         assert self.hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_04i_3dl_get_all_insertion_loss_list(self):
-        assert self.hfss3dl_solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+        assert self.hfss3dl_solve.get_all_insertion_loss_list(tx_prefix="Port1", rx_prefix="Port2") == ['S(Port1,Port2)']
 
     def test_04j_3dl_get_next_xtalk_list(self):
         assert self.hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
