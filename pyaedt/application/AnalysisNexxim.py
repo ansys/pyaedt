@@ -287,7 +287,7 @@ class FieldAnalysisCircuit(Analysis):
         return props
 
     @property
-    def excitation_names(self):
+    def excitations(self):
         """List of port names.
 
         Returns
@@ -304,36 +304,24 @@ class FieldAnalysisCircuit(Analysis):
         return ports
 
     @property
-    def excitation_objets(self):
+    def excitation_objects(self):
         """List of port objects.
 
         Returns
         -------
-        list
+        dict
             List of port objects.
-        """
-        return [self.excitations[name] for name in self.excitations]
-
-    @property
-    def excitations(self):
-        """Get all ports.
-
-        Returns
-        -------
-        list
-            List of ports.
-
         """
         props = {}
         if not self._internal_excitations:
-            for port in self.excitation_names:
+            for port in self.excitations:
                 props[port] = Excitations(self, port)
             self._internal_excitations = props
         else:
             props = self._internal_excitations
-            if not sorted(list(props.keys())) == sorted(self.excitation_names):
+            if not sorted(list(props.keys())) == sorted(self.excitations):
                 a = set(str(x) for x in props.keys())
-                b = set(str(x) for x in self.excitation_names)
+                b = set(str(x) for x in self.excitations)
                 if len(a) == len(b):
                     unmatched_new_name = list(b - a)[0]
                     unmatched_old_name = list(a - b)[0]
@@ -342,43 +330,14 @@ class FieldAnalysisCircuit(Analysis):
                 else:
                     if len(a) > len(b):
                         for old_port in props.keys():
-                            if old_port not in self.excitation_names:
+                            if old_port not in self.excitations:
                                 del props[old_port]
                                 return props
                     else:
-                        for new_port in self.excitation_names:
+                        for new_port in self.excitations:
                             if new_port not in props.keys():
                                 props[new_port] = Excitations(self, new_port)
         return props
-
-    @property
-    def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default value is ``[]``, in which case
-            the S parameters for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-
-        Returns
-        -------
-        list of str
-            List of strings representing the S parameters of the excitations.
-            For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
-
-        """
-        if not excitation_names:
-            excitation_names = list(self.excitations.keys())
-        spar = []
-        k = 0
-        for i in excitation_names:
-            k = excitation_names.index(i)
-            while k < len(excitation_names):
-                spar.append("S({},{})".format(i, excitation_names[k]))
-                k += 1
-        return spar
 
     @pyaedt_function_handler()
     def get_all_return_loss_list(self, excitation_names=None, excitation_name_prefix=""):
@@ -408,7 +367,7 @@ class FieldAnalysisCircuit(Analysis):
             excitation_names = []
 
         if not excitation_names:
-            excitation_names = list(self.excitations.keys())
+            excitation_names = list(self.excitations)
         if excitation_name_prefix:
             excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
@@ -450,9 +409,9 @@ class FieldAnalysisCircuit(Analysis):
 
         spar = []
         if not trlist:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
+            trlist = [i for i in list(self.excitations) if tx_prefix in i]
         if not reclist:
-            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
+            reclist = [i for i in list(self.excitations) if rx_prefix in i]
         if len(trlist) != len(reclist):
             self.logger.error("The TX and RX lists should be the same length.")
             return False
@@ -485,7 +444,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         next_xtalks = []
         if not trlist:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
+            trlist = [i for i in list(self.excitations) if tx_prefix in i]
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
@@ -528,9 +487,9 @@ class FieldAnalysisCircuit(Analysis):
         """
         fext = []
         if trlist is None:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
+            trlist = [i for i in list(self.excitations) if tx_prefix in i]
         if reclist is None:
-            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
+            reclist = [i for i in list(self.excitations) if rx_prefix in i]
         for i in trlist:
             for k in reclist:
                 if not skip_same_index_couples or reclist.index(k) != trlist.index(i):

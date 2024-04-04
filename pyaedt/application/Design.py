@@ -378,12 +378,16 @@ class Design(AedtObjects):
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
-
-        excitations = self.design_excitations
-        for exc in excitations:
-            if not self._boundaries or exc.name not in list(self._boundaries.keys()):
-                self._boundaries[exc.name] = exc
-
+        try:
+            if "GetExcitations" in self.oboundary.__dir__():
+                ee = list(self.oboundary.GetExcitations())
+                current_boundaries = [i.split(":")[0] for i in ee[::2]]
+                current_types = ee[1::2]
+                for k, v in zip(current_boundaries, current_types):
+                    if k not in self._boundaries:
+                        self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
+        except:
+            pass
         return list(self._boundaries.values())
 
     @property
@@ -403,71 +407,30 @@ class Design(AedtObjects):
         return _dict_out
 
     @property
-    def excitations_by_type(self):
-        """Design excitations by type.
-
-        Returns
-        -------
-        dict
-            Dictionary of excitations.
-        """
-        _dict_out = {}
-        for bound in self.design_excitations:
-            if bound.type in _dict_out:
-                _dict_out[bound.type].append(bound)
-            else:
-                _dict_out[bound.type] = [bound]
-        return _dict_out
-
-    @property
-    def design_excitations(self):
+    def ports(self):
         """Design excitations.
 
         Returns
         -------
         list
-            List of :class:`pyaedt.modules.Boundary.BoundaryObject`.
+            Port names.
         """
-        design_excitations = {}
+        design_excitations = []
 
         if "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
-            current_boundaries = [i.split(":")[0] for i in ee[::2]]
             current_types = ee[1::2]
             for i in set(current_types):
                 new_port = []
                 if "GetExcitationsOfType" in self.oboundary.__dir__():
                     new_port = list(self.oboundary.GetExcitationsOfType(i))
                 if new_port:
-                    current_boundaries = current_boundaries + new_port
+                    design_excitations += new_port
                     current_types = current_types + [i] * len(new_port)
-
-            for boundary, boundarytype in zip(current_boundaries, current_types):
-                design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
-                if (
-                    design_excitations[boundary].object_properties
-                    and design_excitations[boundary].object_properties.props["Type"] == "Terminal"
-                ):  # pragma: no cover
-                    props_terminal = OrderedDict()
-                    props_terminal["TerminalResistance"] = design_excitations[boundary].object_properties.props[
-                        "Terminal Renormalizing Impedance"
-                    ]
-                    props_terminal["ParentBndID"] = design_excitations[boundary].object_properties.props["Port Name"]
-                    design_excitations[boundary] = BoundaryObject(
-                        self, boundary, props=props_terminal, boundarytype="Terminal"
-                    )
+            return design_excitations
 
         elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
-            for port in self.oboundary.GetAllPortsList():
-                if port in self._boundaries:
-                    continue
-                bound = self._update_port_info(port)
-                if bound:
-                    design_excitations[port] = bound
-
-        if design_excitations:
-            return list(design_excitations.values())
-
+            return self.oboundary.GetAllPortsList()
         return []
 
     @property

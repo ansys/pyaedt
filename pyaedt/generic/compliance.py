@@ -602,7 +602,7 @@ class VirtualCompliance:
                     spisim.touchstone_file = _design.export_touchstone()
                     if not isinstance(trace_pin[0], int):
                         try:
-                            ports = list(_design.excitations.keys())
+                            ports = list(_design.excitations)
                             thrus4p = [ports.index(i) for i in trace_pin]
                             trace_pin = thrus4p
                         except IndexError:

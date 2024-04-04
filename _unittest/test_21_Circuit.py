@@ -676,22 +676,21 @@ class TestClass:
         port.reference_node = "NoNet"
         port.reference_node = "Z"
 
-        assert c.excitation_objets
+        assert c.excitation_objects
 
         setup = c.create_setup()
 
-        c.excitations["Port3"].enabled_sources = ["PowerTest"]
-        assert len(c.excitations["Port3"].enabled_sources) == 1
+        c.excitation_objects["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.excitation_objects["Port3"].enabled_sources) == 1
         setup1 = c.create_setup()
         setup2 = c.create_setup()
-        c.excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
-        assert c.excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
+        c.excitation_objects["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.excitation_objects["Port3"].enabled_analyses["PowerTest"][0] == setup.name
 
-        c.excitations["Port3"].name = "PortTest"
+        c.excitation_objects["Port3"].name = "PortTest"
         assert "PortTest" in c.excitations
-        assert "PortTest" in c.excitation_names
-        c.excitations["PortTest"].delete()
-        assert len(c.excitation_objets) == 0
+        c.excitation_objects["PortTest"].delete()
+        assert len(c.excitation_objects) == 0
         self.aedtapp.save_project()
         c = add_app(application=Circuit, design_name="sources")
         assert c.sources

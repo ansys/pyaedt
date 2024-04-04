@@ -158,35 +158,6 @@ class FieldAnalysis3DLayout(Analysis):
         """
         return list(self.oboundary.GetAllPortsList())
 
-    @property
-    def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
-            the S parameters for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-
-        Returns
-        -------
-        list
-            List of strings representing the S parameters of the excitations.
-            For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
-
-        """
-        if not excitation_names:
-            excitation_names = self.excitations
-        spar = []
-        k = 0
-        for i in excitation_names:
-            k = excitation_names.index(i)
-            while k < len(excitation_names):
-                spar.append("S({},{})".format(i, excitation_names[k]))
-                k += 1
-        return spar
-
     @pyaedt_function_handler()
     def change_design_settings(self, settings):
         """Set HFSS 3D Layout Design Settings.
