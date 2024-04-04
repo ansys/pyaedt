@@ -430,7 +430,7 @@ class FieldAnalysisCircuit(Analysis):
     def get_all_insertion_loss_list(
         self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=[]
     ):
-        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
+        """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
