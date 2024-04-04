@@ -200,33 +200,50 @@ def _check_types(arg):
 
 def _function_handler_wrapper(user_function):
     def wrapper(*args, **kwargs):
-        if not settings.enable_error_handler:
-            result = user_function(*args, **kwargs)
-            return result
-        else:
-            try:
-                settings.time_tick = time.time()
-                out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
-                    _log_method(user_function, args, kwargs)
-                return out
-            except MethodNotSupportedError:
-                message = "This method is not supported in current AEDT design type."
-                if settings.enable_screen_logs:
-                    pyaedt_logger.error("**************************************************************")
-                    pyaedt_logger.error(
-                        "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
-                    )
-                    pyaedt_logger.error("**************************************************************")
-                    pyaedt_logger.error("")
-                if settings.enable_file_logs:
-                    settings.error(message)
+        try:
+            settings.time_tick = time.time()
+            out = user_function(*args, **kwargs)
+            if settings.enable_debug_logger or settings.enable_debug_edb_logger:
+                _log_method(user_function, args, kwargs)
+            return out
+        except MethodNotSupportedError as e:
+            message = "This method is not supported in current AEDT design type."
+            if settings.enable_screen_logs:
+                pyaedt_logger.error("**************************************************************")
+                pyaedt_logger.error(
+                    "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
+                )
+                pyaedt_logger.error("**************************************************************")
+                pyaedt_logger.error("")
+            if settings.enable_file_logs:
+                settings.error(message)
+            if not settings.enable_error_handler:
+                from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+                for v in list(_desktop_sessions.values())[:]:
+                    v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                raise e
+            else:
                 return False
-            except GrpcApiError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
+        except GrpcApiError as e:
+            _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
+            if not settings.enable_error_handler:
+                from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+                for v in list(_desktop_sessions.values())[:]:
+                    v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                raise e
+            else:
                 return False
-            except BaseException:
-                _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+        except BaseException as e:
+            _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+            if not settings.enable_error_handler:
+                from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+                for v in list(_desktop_sessions.values())[:]:
+                    v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                raise e
+            else:
                 return False
 
     return wrapper

@@ -942,8 +942,6 @@ class Desktop(object):
                         self.is_grpc_api = True
                         last_session.parent_desktop_id.append(self.aedt_process_id)
                         return True
-            if new_session:
-                self.launched_by_pyaedt = new_session
             oapp = python_grpc_wrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
 
@@ -1471,7 +1469,10 @@ class Desktop(object):
         if not result:
             self.logger.error("Error releasing desktop.")
             return False
-        self.logger.info("Desktop has been released")
+        if close_on_exit:
+            self.logger.info("Desktop has been released and closed.")
+        else:
+            self.logger.info("Desktop has been released.")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
