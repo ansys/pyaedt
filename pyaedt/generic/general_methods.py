@@ -294,7 +294,7 @@ def check_and_download_file(remote_path, overwrite=True):
     remote_path : str
         Path to the remote file.
     overwrite : bool, optional
-        Whether to overwrite the file if it already exits locally.
+        Whether to overwrite the file if it already exists locally.
         The default is ``True``.
 
     Returns
@@ -338,7 +338,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     remote_path : str
         Path to the remote folder.
     overwrite : bool, optional
-        Whether to overwrite the folder if it already exits locally.
+        Whether to overwrite the folder if it already exists locally.
         The default is ``True``.
 
     Returns
