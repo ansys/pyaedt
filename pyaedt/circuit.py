@@ -1693,7 +1693,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def create_tdr_schematic_from_snp(
         self,
         touchstone,
-        probe_p_pins,
+        probe_pins,
         probe_ref_pins=None,
         termination_pins=None,
         differential=True,
@@ -1708,11 +1708,11 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         touchstone : str
             Full path to the sNp file.
-        probe_p_pins : list
+        probe_pins : list
             Pins to attach to the probe components.
         probe_ref_pins : list, optional
             Reference pins to attach to probe components. The default is ``None``.
-            This parameter is valid only in differential con
+            This parameter is valid only in differential TDR probes.
         termination_pins : list, optional
             Pins to terminate. The default is ``None``.
         differential : bool, optional
@@ -1745,23 +1745,23 @@ class Circuit(FieldAnalysisCircuit, object):
         center_x = sub.location[0]
         center_y = sub.location[1]
         left = 0
-        delta_y = -1 * sub.location[1] - 2000 - 50 * len(probe_p_pins)
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(probe_pins)
         if differential:
             tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
         tdr_probe_names = []
-        for i in range(len(probe_p_pins)):
+        for i in range(len(probe_pins)):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
             new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
             try:
-                if isinstance(probe_p_pins[i], int):
-                    p_pin = probe_p_pins[i]
+                if isinstance(probe_pins[i], int):
+                    p_pin = probe_pins[i]
                     if differential:
                         n_pin = probe_ref_pins[i]
                 else:
-                    p_pin = [k for k in sub.pins if k.name == probe_p_pins[i]][0]
+                    p_pin = [k for k in sub.pins if k.name == probe_pins[i]][0]
                     if differential:
                         n_pin = [k for k in sub.pins if k.name == probe_ref_pins[i]][0]
             except IndexError:
@@ -1838,7 +1838,7 @@ class Circuit(FieldAnalysisCircuit, object):
         design_name="LNA",
     ):
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
-        
+
         This method optionally assigns differential pairs automatically based on name pattern.
 
         Parameters

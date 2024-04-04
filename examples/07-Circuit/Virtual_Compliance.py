@@ -105,7 +105,7 @@ return_comm = cir.get_all_return_loss_list(excitation_names=comm_pairs,
 # The original circuit schematic is duplicated and modified to achieve this target.
 
 result, tdr_probe_name = cir.create_tdr_schematic_from_snp(touchstone=touchstone_path,
-                                                   probe_p_pins=["X1.A2.PCIe_Gen4_RX0_P"],
+                                                   probe_pins=["X1.A2.PCIe_Gen4_RX0_P"],
                                                    probe_ref_pins=["X1.A3.PCIe_Gen4_RX0_N"],
                                                    termination_pins=["U1.AP26.PCIe_Gen4_RX0_P",
                                                                      "U1.AN26.PCIe_Gen4_RX0_N"],
