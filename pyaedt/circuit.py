@@ -1711,7 +1711,8 @@ class Circuit(FieldAnalysisCircuit, object):
         probe_p_pins : list
             Pins to attach to the probe components.
         probe_ref_pins : list, optional
-            Reference pins to attach to probe components. Valid only in differentila con
+            Reference pins to attach to probe components. The default is ``None``.
+            This parameter is valid only in differential con
         termination_pins : list, optional
             Pins to terminate. The default is ``None``.
         differential : bool, optional
