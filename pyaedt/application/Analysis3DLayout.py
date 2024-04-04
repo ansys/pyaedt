@@ -437,10 +437,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
 
         fext = []
         if trlist is None:
