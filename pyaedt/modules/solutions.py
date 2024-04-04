@@ -770,7 +770,7 @@ class SolutionData(object):
             in which case only real value of the data stored in the solution data is plotted.
             Options are ``"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
             ``"phaserad"``, and ``"re"``.
-           
+
         size : tuple, optional
             Image size in pixels (width, height).
         show_legend : bool
