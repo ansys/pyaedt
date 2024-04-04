@@ -1301,7 +1301,7 @@ class Material(CommonMaterial, object):
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
-            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Transparency"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"].get("Transparency", 0.0))
         else:
             vals = list(CSS4_COLORS.values())
             if (materiallib._color_id) >= len(vals):
