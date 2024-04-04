@@ -1502,13 +1502,14 @@ class Primitives3DLayout(object):
         Parameters
         ----------
         pins : list
-            Pins to include in new component.
+            Pins to include in the new component.
         definition_name : str, optional
-            Name of the component definition. If None, it will create a random name.
+            Name of the component definition. If no name is provided, a
+            name is automatically assigned.
         component_type : str, optional
-            Component type. Default is ``"Other"``.
+            Component type. The default is ``"Other"``.
         ref_des : str, optional
-            Reference Designator. Default is ``"U100"``.
+            Reference designator. The default is ``"U100"``.
 
         Returns
         -------
