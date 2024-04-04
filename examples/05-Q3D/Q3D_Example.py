@@ -147,7 +147,7 @@ data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=
 # Create a rectangular plot and a data table.
 
 q.post.create_report(expressions=data_plot_self)
-q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type="Data Table")
+q.post.create_report(expressions=data_plot_mutual, plot_type="Data Table", context="Original")
 
 ###############################################################################
 # Solve setup

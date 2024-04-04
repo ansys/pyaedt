@@ -4605,7 +4605,6 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Import
         """
-
         if str(healing) in ["0", "1"]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
