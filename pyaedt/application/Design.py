@@ -361,6 +361,8 @@ class Design(AedtObjects):
         current_boundaries = bb[::2]
         current_types = bb[1::2]
         check_boundaries = current_boundaries[:] + self.ports[:] + self.excitations[:]
+        if "nets" in dir(self):
+            check_boundaries += self.nets
         for k in list(self._boundaries.keys())[:]:
             if k not in check_boundaries:
                 del self._boundaries[k]
