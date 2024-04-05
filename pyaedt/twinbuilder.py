@@ -10,6 +10,7 @@ from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -154,7 +155,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")
