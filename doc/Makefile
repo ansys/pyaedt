@@ -30,7 +30,7 @@ phtml:
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
 
 phtml-no-examples:
-    export PYAEDT_SKIP_EXAMPLE="1"
+        export PYAEDT_SKIP_EXAMPLE="1"
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
 
 # Build pdf docs.
