@@ -393,7 +393,7 @@ class Design(AedtObjects):
                 for k, v in zip(current_boundaries, current_types):
                     if k not in self._boundaries:
                         self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
-        except:
+        except Exception:
             pass
         return list(self._boundaries.values())
 
