@@ -289,8 +289,8 @@ jobs:
 
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
-        env:
-          PYTHONMALLOC: malloc
+        # env:
+        #   PYTHONMALLOC: malloc
         with:
           max_attempts: 3
           retry_on: error
@@ -298,12 +298,12 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n auto --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
-      - name: 'Unit testing'
+      - name: 'Unit testing solvers'
         uses: nick-fields/retry@v3
-        env:
-          PYTHONMALLOC: malloc
+        # env:
+        #   PYTHONMALLOC: malloc
         with:
           max_attempts: 3
           retry_on: error
