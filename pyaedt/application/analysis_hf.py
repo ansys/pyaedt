@@ -122,7 +122,7 @@ class ScatteringMethods(object):
             trlist = [i for i in list(self._app.excitations)]
 
         if reclist is None:
-            trlist = [i for i in list(self._app.excitations)]
+            reclist = [i for i in list(self._app.excitations)]
         if tx_prefix:
             trlist = [i for i in trlist if i.startswith(tx_prefix)]
         if rx_prefix:
