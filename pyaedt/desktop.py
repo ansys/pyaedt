@@ -936,13 +936,26 @@ class Desktop(object):
                 last_session = list(_desktop_sessions.values())[-1]
                 all_desktop = [i for i in last_session.odesktop.GetRunningInstancesMgr().GetAllRunningInstances()]
                 for desktop in all_desktop:
-                    if port and desktop.GetGrpcServerPort() == port:
-                        self.isoutsideDesktop = True
-                        self.odesktop = desktop
-                        self.aedt_process_id = self.odesktop.GetProcessID()
-                        self.is_grpc_api = True
-                        last_session.parent_desktop_id.append(self.aedt_process_id)
-                        return True
+                    try:
+                        if port and desktop.GetGrpcServerPort() == port:
+                            self.isoutsideDesktop = True
+                            self.odesktop = desktop
+                            self.aedt_process_id = self.odesktop.GetProcessID()
+                            self.is_grpc_api = True
+                            last_session.parent_desktop_id.append(self.aedt_process_id)
+                            return True
+                    except:
+                        messages = desktop.GetMessages("", "", 0)
+                        for message in messages:
+                            if " GRPC server running on port: " in message and str(port) in message:
+                                self.isoutsideDesktop = True
+                                self.odesktop = desktop
+                                self.aedt_process_id = self.odesktop.GetProcessID()
+                                self.is_grpc_api = True
+                                last_session.parent_desktop_id.append(self.aedt_process_id)
+                                return True
+            if new_session:
+                self.launched_by_pyaedt = new_session
             oapp = python_grpc_wrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
 

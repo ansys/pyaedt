@@ -893,7 +893,7 @@ class UserDefinedComponent(object):
             #     design_name = project.GetDesigns()[0].GetName()
             # else:
             #     design_name = project.GetActiveDesign().GetName()
-            return get_pyaedt_app(project_name, design_name)
+            return get_pyaedt_app(project_name, design_name, desktop=self._primitives._app.desktop_class)
         return False
 
 
