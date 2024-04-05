@@ -74,7 +74,7 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          sudo apt install graphviz
+          sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
       # run doc build, without creating the examples directory
       # note that we have to add the examples file here since it won't
