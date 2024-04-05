@@ -323,6 +323,8 @@ class Design(AedtObjects):
             for region in hybrid_regions:
                 bb.append(region)
                 bb.append("FE-BI")
+        if "GetExcitations" in self.oboundary.__dir__():
+            bb.extend(list(self.oboundary.GetExcitations()))
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
