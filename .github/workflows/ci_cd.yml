@@ -257,7 +257,7 @@ jobs:
 # # =================================================================================================
 
   test-solvers-linux:
-    name: Testing solvers and coverage (Linux)
+    name: Testing and coverage (Linux)
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -271,7 +271,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          architecture: 'x86'
 
       - name: Create virtual environment
         run: |
