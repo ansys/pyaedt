@@ -91,9 +91,20 @@ jobs:
         run: |
           python doc/print_errors.py
 
-#      - name: Upload Documentation
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: Documentation
-#          path: doc/_build/html
-#          retention-days: 7
+      - name: Upload Documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: Documentation
+          path: doc/_build/html
+          retention-days: 7
+
+      - name: Full Documentation Build
+        run: |
+          make -C doc pdf-no-examples
+
+      - name: Upload documentation PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-pdf
+          path: doc/_build/pdf
+          retention-days: 7
