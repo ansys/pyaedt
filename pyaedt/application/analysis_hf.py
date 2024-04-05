@@ -240,10 +240,6 @@ class ScatteringMethods(object):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
 
         fext = []
         if trlist is None:
