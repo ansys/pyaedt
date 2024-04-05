@@ -64,6 +64,7 @@ hfss = pyaedt.Hfss(projectname=proj_name,
                    solution_type="Terminal",
                    designname="patch",
                    non_graphical=non_graphical,
+                   new_desktop_session=True,
                    specified_version=aedt_version)
 
 hfss.modeler.model_units = length_units

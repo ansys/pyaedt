@@ -914,7 +914,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = self.components[component_name].pins
+        componentPins = list(self.components[component_name].pins.keys())
         componentPins.reverse()
         if not pin_map:
             pin_map = []

@@ -223,7 +223,6 @@ class Icepak(FieldAnalysis3D):
         air_faces,
         free_loss_coeff=True,
         free_area_ratio=0.8,
-        resistance_type=0,
         external_temp="AmbientTemp",
         expternal_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
@@ -241,14 +240,6 @@ class Icepak(FieldAnalysis3D):
             the free loss coefficient is not used.
         free_area_ratio : float, str
             Free loss coefficient value. The default is ``0.8``.
-        resistance_type : int, optional
-            Type of the resistance. Options are:
-
-            - ``0`` for ``"Perforated Thin Vent"``
-            - ``1`` for ``"Circular Metal Wire Screen"``
-            - ``2`` for ``"Two-Plane Screen Cyl. Bars"``
-
-            The default is ``0`` for ``"Perforated Thin Vent"``.
         external_temp : str, optional
             External temperature. The default is ``"AmbientTemp"``.
         expternal_pressure : str, optional
@@ -4603,8 +4594,8 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         return _create_boundary(bound)
 
-    @pyaedt_function_handler()
-    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+    @pyaedt_function_handler(timestep="time_step")
+    def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, design_variation=None):
         """
         Get operating point of the fans in the design.
 
@@ -4616,7 +4607,7 @@ class Icepak(FieldAnalysis3D):
         setup_name : str, optional
             Setup name from which to determine the fans' operating point. The default is
             ``None``, in which case the first available setup is used.
-        timestep : str, optional
+        time_step : str, optional
             Time, with units, at which to determine the fans' operating point. The default
             is ``None``, in which case the first available timestep is used. This argument is
             only relevant in transient simulations.
@@ -4646,7 +4637,7 @@ class Icepak(FieldAnalysis3D):
         >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
         """
 
-        return self.post.get_fans_operating_point(export_file, setup_name, timestep, design_variation)
+        return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
     @pyaedt_function_handler()
     def assign_free_opening(
