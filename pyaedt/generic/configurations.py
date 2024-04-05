@@ -16,6 +16,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
@@ -697,7 +698,7 @@ class Configurations(object):
 
         config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
 
-        if os.path.isfile(config_schema_path):
+        if os.path.exists(config_schema_path):
             with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
@@ -1232,7 +1233,7 @@ class Configurations(object):
         if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
-            with open(oo_out, "r") as f:
+            with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")

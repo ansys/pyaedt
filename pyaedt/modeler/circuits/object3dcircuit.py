@@ -132,7 +132,9 @@ class CircuitPins(object):
         return deltax, deltay
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1):
+    def connect_to_component(
+        self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1, page_port_angle=None
+    ):
         """Connect schematic components.
 
         Parameters
@@ -147,9 +149,12 @@ class CircuitPins(object):
             The default is ``False``, in which case a page port is used. Note
             that if wires are used but not well placed, shorts can result.
         wire_name : str, optional
-            Wire name used only when user_wire is ``True``. Default value is ``""``.
+            Wire name used only when ``user_wire=True``. The default is ``""``.
         clearance_units : int, optional
             Number of snap units (100mil each) around the object to overcome pins and wires.
+        page_port_angle : int, optional
+            Page port angle on the source pin. The default is ``None``, in which case
+            the angle is automatically computed.
 
         Returns
         -------
@@ -272,7 +277,9 @@ class CircuitPins(object):
             )
         except Exception:
             x_loc = float(self._circuit_comp.location[0])
-        if self.location[0] < x_loc:
+        if page_port_angle is not None:
+            angle = page_port_angle * math.pi / 180
+        elif self.location[0] < x_loc:
             angle = comp_angle
         else:
             angle = math.pi + comp_angle
@@ -295,7 +302,7 @@ class CircuitPins(object):
                 page_name, location=cmp.location, angle=angle
             )
         if ret1 and ret2:
-            return True
+            return True, ret1, ret2
         else:
             return False
 

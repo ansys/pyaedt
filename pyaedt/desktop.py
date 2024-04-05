@@ -58,8 +58,6 @@ pyaedtversion = __version__
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 
-python_grpc_wrapper = None
-
 
 @pyaedt_function_handler()
 def launch_aedt(full_path, non_graphical, port, student_version, first_run=True):
@@ -239,7 +237,6 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
         ``True`` when successful, ``False`` when failed.
 
     """
-    global python_grpc_wrapper
     if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
         if close_desktop and desktop_class.parent_desktop_id:
             pyaedt_logger.error("A child desktop session is linked to this session.")
@@ -273,9 +270,8 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
             return False
         else:
             try:
-                if not python_grpc_wrapper:
-                    python_grpc_wrapper = __import__("pyaedt.generic.grpc_plugin")
-                # import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+                import pyaedt.generic.grpc_plugin as python_grpc_wrapper
+
                 python_grpc_wrapper.AedtAPI.ReleaseAll()
                 return True
             except Exception:  # pragma: no cover
@@ -474,6 +470,7 @@ class Desktop(object):
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
+    @pyaedt_function_handler()
     def __init__(
         self,
         specified_version=None,
@@ -911,7 +908,6 @@ class Desktop(object):
         version=None,
         is_grpc=True,
     ):
-        global python_grpc_wrapper
         if not is_grpc:
             from pyaedt.generic.clr_module import _clr
 
@@ -934,21 +930,30 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(settings.aedt_install_dir, "PythonFiles", "DesktopPlugin")
             launch_msg = "AEDT installation Path {}".format(base_path)
             self.logger.info(launch_msg)
-            if not python_grpc_wrapper:
-                python_grpc_wrapper = __import__("pyaedt.generic.grpc_plugin")
-                python_grpc_wrapper = python_grpc_wrapper.generic.grpc_plugin
-            # import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+            import pyaedt.generic.grpc_plugin as python_grpc_wrapper
+
             if _desktop_sessions:
                 last_session = list(_desktop_sessions.values())[-1]
                 all_desktop = [i for i in last_session.odesktop.GetRunningInstancesMgr().GetAllRunningInstances()]
                 for desktop in all_desktop:
-                    if port and desktop.GetGrpcServerPort() == port:
-                        self.isoutsideDesktop = True
-                        self.odesktop = desktop
-                        self.aedt_process_id = self.odesktop.GetProcessID()
-                        self.is_grpc_api = True
-                        last_session.parent_desktop_id.append(self.aedt_process_id)
-                        return True
+                    try:
+                        if port and desktop.GetGrpcServerPort() == port:
+                            self.isoutsideDesktop = True
+                            self.odesktop = desktop
+                            self.aedt_process_id = self.odesktop.GetProcessID()
+                            self.is_grpc_api = True
+                            last_session.parent_desktop_id.append(self.aedt_process_id)
+                            return True
+                    except:
+                        messages = desktop.GetMessages("", "", 0)
+                        for message in messages:
+                            if " GRPC server running on port: " in message and str(port) in message:
+                                self.isoutsideDesktop = True
+                                self.odesktop = desktop
+                                self.aedt_process_id = self.odesktop.GetProcessID()
+                                self.is_grpc_api = True
+                                last_session.parent_desktop_id.append(self.aedt_process_id)
+                                return True
             if new_session:
                 self.launched_by_pyaedt = new_session
             oapp = python_grpc_wrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
@@ -1478,7 +1483,10 @@ class Desktop(object):
         if not result:
             self.logger.error("Error releasing desktop.")
             return False
-        self.logger.info("Desktop has been released")
+        if close_on_exit:
+            self.logger.info("Desktop has been released and closed.")
+        else:
+            self.logger.info("Desktop has been released.")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
@@ -1639,7 +1647,7 @@ class Desktop(object):
         try:
             self.odesktop.SetRegistryFromFile(registry_file)
             if make_active:
-                with open(registry_file, "r") as f:
+                with open_file(registry_file, "r") as f:
                     for line in f:
                         stripped_line = line.strip()
                         if "ConfigName" in stripped_line:
@@ -1787,8 +1795,8 @@ class Desktop(object):
             dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
             if not os.path.isfile(src):
                 raise FileNotFoundError("File not found: {}".format(src))
-            with open(src, "r") as build_file:
-                with open(dst, "w") as out_file:
+            with open_file(src, "r") as build_file:
+                with open_file(dst, "w") as out_file:
                     self.logger.info("Building to " + dst)
                     build_file_data = build_file.read()
                     build_file_data = (
@@ -2091,10 +2099,10 @@ class Desktop(object):
         elif job_id:
             command = [command, "jobinfo", "-i", job_id]
         cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("job_info"))
-        with open(cloud_info, "w") as outfile:
+        with open_file(cloud_info, "w") as outfile:
             subprocess.Popen(" ".join(command), stdout=outfile).wait()
         out = {}
-        with open(cloud_info, "r") as infile:
+        with open_file(cloud_info, "r") as infile:
             lines = infile.readlines()
             for i in lines:
                 if ":" in i.strip():
@@ -2197,11 +2205,11 @@ class Desktop(object):
         ver = self.aedt_version_id.replace(".", "R")
         command = [command, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
         cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("cloud_info"))
-        with open(cloud_info, "w") as outfile:
+        with open_file(cloud_info, "w") as outfile:
             subprocess.Popen(" ".join(command), stdout=outfile).wait()
 
         dict_out = {}
-        with open(cloud_info, "r") as infile:
+        with open_file(cloud_info, "r") as infile:
             lines = infile.readlines()
             for i in range(len(lines)):
                 line = lines[i].strip()
