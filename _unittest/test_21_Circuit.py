@@ -250,9 +250,9 @@ class TestClass:
                 "b_input_15",
                 ami_design.available_variations.nominal,
                 plot_type="Rectangular Stacked Plot",
-                plot_final_response=True,
                 plot_intermediate_response=True,
-                plotname=report_name,
+                plot_final_response=True,
+                plot_name=report_name,
             )
             == report_name
         )
@@ -262,7 +262,7 @@ class TestClass:
         assert ami_design.create_setup(setup_name, "NexximQuickEye")
         assert (
             ami_design.post.create_ami_statistical_eye_plot(
-                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
+                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plot_name="MyReport1"
             )
             == "MyReport1"
         )
@@ -271,7 +271,7 @@ class TestClass:
                 "Dom_Quick",
                 "b_input_15.int_ami_rx.eye_probe",
                 ami_design.available_variations.nominal,
-                plotname="MyReportQ",
+                plot_name="MyReportQ",
             )
             == "MyReportQ"
         )
@@ -283,7 +283,7 @@ class TestClass:
                 "Dom_Verify",
                 "b_input_15.int_ami_rx.eye_probe",
                 self.aedtapp.available_variations.nominal,
-                plotname="MyReportV",
+                plot_name="MyReportV",
             )
             == "MyReportV"
         )

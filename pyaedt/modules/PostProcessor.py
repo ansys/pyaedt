@@ -135,9 +135,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -175,9 +176,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -210,9 +212,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -247,9 +250,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -284,9 +288,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -321,9 +326,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -361,9 +367,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         sphere_name : str, optional
             Name of the sphere to create the far field on.
         source_context : str, optional
@@ -404,9 +411,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         sphere_name : str, optional
             Name of the sphere on which compute antenna parameters.
 
@@ -442,9 +450,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -479,9 +488,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -515,9 +525,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -551,9 +562,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -644,9 +656,10 @@ class Reports(object):
             Expression to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         quantity_type : int, optional
             For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
             1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
@@ -704,9 +717,10 @@ class Reports(object):
             Expression List to add into the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -1093,13 +1107,13 @@ class PostProcessorCommon(object):
         """
         return list(self.oreportsetup.GetAllReportNames())
 
-    @pyaedt_function_handler()
-    def copy_report_data(self, PlotName):
+    @pyaedt_function_handler(PlotName="plot_name")
+    def copy_report_data(self, plot_name):
         """Copy report data as static data.
 
         Parameters
         ----------
-        PlotName : str
+        plot_name : str
             Name of the report.
 
         Returns
@@ -1113,7 +1127,7 @@ class PostProcessorCommon(object):
         >>> oModule.CopyReportsData
         >>> oModule.PasteReports
         """
-        self.oreportsetup.CopyReportsData([PlotName])
+        self.oreportsetup.CopyReportsData([plot_name])
         self.oreportsetup.PasteReports()
         return True
 
@@ -1182,27 +1196,27 @@ class PostProcessorCommon(object):
         except Exception:
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(soltype="solution_type", ctxt="context", expression="expressions")
     def get_solution_data_per_variation(
-        self, soltype="Far Fields", setup_sweep_name="", ctxt=None, sweeps=None, expression=""
+        self, solution_type="Far Fields", setup_sweep_name="", context=None, sweeps=None, expressions=""
     ):
         """Retrieve solution data for each variation.
 
         Parameters
         ----------
-        soltype : str, optional
+        solution_type : str, optional
             Type of the solution. For example, ``"Far Fields"`` or ``"Modal Solution Data"``. The default
             is ``"Far Fields"``.
         setup_sweep_name : str, optional
             Name of the setup for computing the report. The default is ``""``,
             in which case ``"nominal adaptive"`` is used.
-        ctxt : list, optional
+        context : list, optional
             List of context variables. The default is ``None``.
         sweeps : dict, optional
             Dictionary of variables and values. The default is ``None``,
             in which case this list is used:
             ``{'Theta': 'All', 'Phi': 'All', 'Freq': 'All'}``.
-        expression : str or list, optional
+        expressions : str or list, optional
             One or more traces to include. The default is ``""``.
 
         Returns
@@ -1217,16 +1231,18 @@ class PostProcessorCommon(object):
         """
         if sweeps is None:
             sweeps = {"Theta": "All", "Phi": "All", "Freq": "All"}
-        if not ctxt:
-            ctxt = []
-        if not isinstance(expression, list):
-            expression = [expression]
+        if not context:
+            context = []
+        if not isinstance(expressions, list):
+            expressions = [expressions]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
         sweep_list = _convert_dict_to_report_sel(sweeps)
         try:
             data = list(
-                self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+                self.oreportsetup.GetSolutionDataPerVariation(
+                    solution_type, setup_sweep_name, context, sweep_list, expressions
+                )
             )
             self.logger.info("Solution Data Correctly Loaded.")
             return SolutionData(data)
@@ -1438,7 +1454,7 @@ class PostProcessorCommon(object):
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(plotname="plot_name")
     def _get_report_inputs(
         self,
         expressions,
@@ -1452,7 +1468,7 @@ class PostProcessorCommon(object):
         context=None,
         subdesign_id=None,
         polyline_points=0,
-        plotname=None,
+        plot_name=None,
         only_get_method=False,
     ):
         ctxt = []
@@ -1563,8 +1579,8 @@ class PostProcessorCommon(object):
             modal_data = self._app.design_solutions.report_type
         else:
             modal_data = report_category
-        if not plotname:
-            plotname = generate_unique_name("Plot")
+        if not plot_name:
+            plot_name = generate_unique_name("Plot")
 
         arg = ["X Component:=", primary_sweep_variable, "Y Component:=", expressions]
         if plot_type in ["3D Polar Plot", "3D Spherical Plot"]:
@@ -1595,9 +1611,9 @@ class PostProcessorCommon(object):
                 "Z Component:=",
                 expressions,
             ]
-        return [plotname, modal_data, plot_type, setup_sweep_name, ctxt, families_input, arg]
+        return [plot_name, modal_data, plot_type, setup_sweep_name, ctxt, families_input, arg]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(plotname="plot_name")
     def create_report(
         self,
         expressions=None,
@@ -1611,9 +1627,9 @@ class PostProcessorCommon(object):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
-        plotname=None,
+        plot_name=None,
     ):
-        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
         ----------
@@ -1639,13 +1655,15 @@ class PostProcessorCommon(object):
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
-            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
-        plotname : str, optional
+            The default is ``None``.
+            - For HFSS 3D Layout, options are ``"Bondwires"``, ``"Differential Pairs"``,
+              ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
+            - For Q2D or Q3D, specify the name of a reduced matrix.
+            - For a far fields plot, specify the name of an infinite sphere.
+        plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
-            Number of points on which create the report for plots on polylines.
+            Number of points to create the report for plots on polylines on.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -1672,29 +1690,23 @@ class PostProcessorCommon(object):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> aedtapp.post.create_report(
-        ...    "db(GainTotal)",
-        ...    aedtapp.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    plot_type="3D Polar Plot",
-        ...    context="3D",
-        ...    report_category="Far Fields",
-        ...)
+        >>> aedtapp.post.create_report(expressions="db(GainTotal)",
+        ...                            setup_sweep_name=aedtapp.nominal_adaptive,
+        ...                            variations=variations,
+        ...                            primary_sweep_variable="Phi",
+        ...                            secondary_sweep_variable="Theta",
+        ...                            report_category="Far Fields",
+        ...                            plot_type="3D Polar Plot",
+        ...                            context="3D")
 
-        >>> aedtapp.post.create_report(
-        ...    "S(1,1)",
-        ...    aedtapp.nominal_sweep,
-        ...    variations=variations,
-        ...    plot_type="Smith Chart",
-        ...)
+        >>> aedtapp.post.create_report("S(1,1)",aedtapp.nominal_sweep,variations=variations,plot_type="Smith Chart")
 
         >>> from pyaedt import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.post.create_report(
-        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
-        ... )
+        >>> maxwell_2d.post.create_report(expressions="InputCurrent(PHA)",
+        ...                               domain="Time",
+        ...                               primary_sweep_variable="Time",
+        ...                               plot_name="Winding Plot 1")
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -1787,7 +1799,7 @@ class PostProcessorCommon(object):
             if context in self.modeler.line_names or context in self.modeler.point_names:
                 report.polyline = context
 
-        result = report.create(plotname)
+        result = report.create(plot_name)
         if result:
             return report
         return False
@@ -1817,9 +1829,10 @@ class PostProcessorCommon(object):
             One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
             Default is `None` which will return all traces.
         setup_sweep_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         domain : str, optional
             Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
@@ -2193,21 +2206,21 @@ class PostProcessor(PostProcessorCommon, object):
                     intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
         return intr_dict
 
-    @pyaedt_function_handler()
-    def _get_volume_objects(self, list_objs):
+    @pyaedt_function_handler(list_objs="objects")
+    def _get_volume_objects(self, objects):
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
             editor = self._app._odesign.SetActiveEditor("3D Modeler")
-            for obj in list_objs:
+            for obj in objects:
                 obj_list.append(editor.GetObjectNameByID(int(obj)))
         if obj_list:
             return obj_list
         else:
-            return list_objs
+            return objects
 
-    @pyaedt_function_handler()
-    def _get_surface_objects(self, list_objs):
-        faces = [int(i) for i in list_objs]
+    @pyaedt_function_handler(list_objs="objects")
+    def _get_surface_objects(self, objects):
+        faces = [int(i) for i in objects]
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             planes = self._get_cs_plane_ids()
             objs = []
@@ -2256,30 +2269,28 @@ class PostProcessor(PostProcessorCommon, object):
                     if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
-                        plots[plot_name].solutionName = self._get_base_name(setup)
-                        plots[plot_name].quantityName = self.ofieldsreporter.GetFieldPlotQuantityName(
+                        plots[plot_name].solution = self._get_base_name(setup)
+                        plots[plot_name].quantity = self.ofieldsreporter.GetFieldPlotQuantityName(
                             setups_data[setup]["PlotName"]
                         )
-                        plots[plot_name].intrinsincList = self._get_intrinsic(setup)
+                        plots[plot_name].intrinsics = self._get_intrinsic(setup)
                         list_objs = setups_data[setup]["FieldPlotGeometry"][1:]
                         while list_objs:
                             id = list_objs[0]
                             num_objects = list_objs[2]
                             if id == 64:
-                                plots[plot_name].volume_indexes = self._get_volume_objects(
-                                    list_objs[3 : num_objects + 3]
-                                )
+                                plots[plot_name].volumes = self._get_volume_objects(list_objs[3 : num_objects + 3])
                             elif id == 128:
                                 out, faces = self._get_surface_objects(list_objs[3 : num_objects + 3])
                                 if out == "CutPlane":
-                                    plots[plot_name].cutplane_indexes = faces
+                                    plots[plot_name].cutplanes = faces
                                 else:
-                                    plots[plot_name].surfaces_indexes = faces
+                                    plots[plot_name].surfaces = faces
                             elif id == 256:
-                                plots[plot_name].line_indexes = self._get_volume_objects(list_objs[3 : num_objects + 3])
+                                plots[plot_name].lines = self._get_volume_objects(list_objs[3 : num_objects + 3])
                             list_objs = list_objs[num_objects + 3 :]
                         plots[plot_name].name = setups_data[setup]["PlotName"]
-                        plots[plot_name].plotFolder = setups_data[setup]["PlotFolder"]
+                        plots[plot_name].plot_folder = setups_data[setup]["PlotFolder"]
                         surf_setts = setups_data[setup]["PlotOnSurfaceSettings"]
                         plots[plot_name].Filled = surf_setts["Filled"]
                         plots[plot_name].IsoVal = surf_setts["IsoValType"]
@@ -2329,17 +2340,17 @@ class PostProcessor(PostProcessorCommon, object):
         oModule.AddNamedExpression(name, "Fields")
         return name
 
-    @pyaedt_function_handler()
-    def change_field_property(self, plotname, propertyname, propertyval):
+    @pyaedt_function_handler(plotname="plot_name", propertyname="property_name", propertyval="property_value")
+    def change_field_property(self, plot_name, property_name, property_value):
         """Modify a field plot property.
 
         Parameters
         ----------
-        plotname : str
+        plot_name : str
             Name of the field plot.
-        propertyname : str
+        property_name : str
             Name of the property.
-        propertyval :
+        property_value :
             Value for the property.
 
         Returns
@@ -2357,20 +2368,20 @@ class PostProcessor(PostProcessorCommon, object):
                 "NAME:AllTabs",
                 [
                     "NAME:FieldsPostProcessorTab",
-                    ["NAME:PropServers", "FieldsReporter:" + plotname],
-                    ["NAME:ChangedProps", ["NAME:" + propertyname, "Value:=", propertyval]],
+                    ["NAME:PropServers", "FieldsReporter:" + plot_name],
+                    ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
                 ],
             ]
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(quantity_name="quantity", variation_dict="variations", isvector="is_vector")
     def get_scalar_field_value(
         self,
-        quantity_name,
+        quantity,
         scalar_function="Maximum",
         solution=None,
-        variation_dict=None,
-        isvector=False,
+        variations=None,
+        is_vector=False,
         intrinsics=None,
         phase=None,
         object_name="AllObjects",
@@ -2381,22 +2392,22 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity_name : str
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         scalar_function : str, optional
             The name of the scalar function. For example, ``"Maximum"``, ``"Integrate"``.
             The default is ``"Maximum"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
-        variation_dict : dict, optional
+        variations : dict, optional
             Dictionary of all variation variables with their values.
             e.g. ``['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']]``
             The default is ``None``.
-        isvector : bool, optional
+        is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency field
-            calculation. The default is ``None``.
+            This parameter is mandatory for a frequency field calculation.
+            The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
         object_name : str, optional
@@ -2425,25 +2436,25 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ClcEval
         >>> GetTopEntryValue
         """
-        self.logger.info("Exporting {} field. Be patient".format(quantity_name))
+        self.logger.info("Exporting {} field. Be patient".format(quantity))
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
-        if isvector:
+        if is_vector:
             try:
-                self.ofieldsreporter.EnterQty(quantity_name)
+                self.ofieldsreporter.EnterQty(quantity)
             except Exception:
-                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+                self.ofieldsreporter.CopyNamedExprToStack(quantity)
             self.ofieldsreporter.CalcOp("Smooth")
             self.ofieldsreporter.EnterScalar(0)
             self.ofieldsreporter.CalcOp("AtPhase")
             self.ofieldsreporter.CalcOp("Mag")
         else:
             try:
-                self.ofieldsreporter.EnterQty(quantity_name)
+                self.ofieldsreporter.EnterQty(quantity)
             except Exception:
-                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
-                self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+                self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity))
+                self.ofieldsreporter.CopyNamedExprToStack(quantity)
         obj_list = object_name
         if scalar_function:
             if object_type == "volume":
@@ -2457,11 +2468,11 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
 
-        if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values_dict
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
 
         variation = []
-        for el, value in variation_dict.items():
+        for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
 
@@ -2490,19 +2501,25 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         return float(value)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        quantity_name="quantity",
+        variation_dict="variations",
+        filename="file_name",
+        gridtype="grid_type",
+        isvector="is_vector",
+    )
     def export_field_file_on_grid(
         self,
-        quantity_name,
+        quantity,
         solution=None,
-        variation_dict=None,
-        filename=None,
-        gridtype="Cartesian",
+        variations=None,
+        file_name=None,
+        grid_type="Cartesian",
         grid_center=None,
         grid_start=None,
         grid_stop=None,
         grid_step=None,
-        isvector=False,
+        is_vector=False,
         intrinsics=None,
         phase=None,
         export_with_sample_points=True,
@@ -2514,17 +2531,18 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity_name : str
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
-        variation_dict : dict, optional
+        variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        filename : str, optional
+        file_name : str, optional
             Full path and name to save the file to.
-            The default is ``None`` which export file in working_directory.
-        gridtype : str, optional
+            The default is ``None``, in which case the file is exported
+            to the working directory.
+        grid_type : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
             The ``[x, y, z]`` coordinates for the center of the grid.
@@ -2539,11 +2557,11 @@ class PostProcessor(PostProcessorCommon, object):
         grid_step : list, optional
             The ``[x, y, z]`` coordinates for the step size of the grid.
             The default is ``[0, 0, 0]``.
-        isvector : bool, optional
+        is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency field
-            calculation. The default is ``None``.
+            This parameter is mandatory for a frequency field calculation.
+            The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
         export_with_sample_points : bool, optional
@@ -2581,7 +2599,7 @@ class PostProcessor(PostProcessorCommon, object):
         >>> var = hfss.available_variations.nominal_w_values
         >>> setup = "Setup1 : LastAdaptive"
         >>> path = "Field.fld"
-        >>> hfss.post.export_field_file_on_grid("E", setup, var, path, 'Cartesian', [0, 0, 0],  intrinsics="8GHz")
+        >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
         if grid_step is None:
             grid_step = [0, 0, 0]
@@ -2591,21 +2609,21 @@ class PostProcessor(PostProcessorCommon, object):
             grid_stop = [0, 0, 0]
         if grid_center is None:
             grid_center = [0, 0, 0]
-        self.logger.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
-        if not filename:
-            filename = os.path.join(
-                self._app.working_directory, "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_"))
+        if not file_name:
+            file_name = os.path.join(
+                self._app.working_directory, "{}_{}.fld".format(quantity, solution.replace(" : ", "_"))
             )
-        elif os.path.isdir(filename):
-            filename = os.path.join(filename, "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_")))
+        elif os.path.isdir(file_name):
+            file_name = os.path.join(file_name, "{}_{}.fld".format(quantity, solution.replace(" : ", "_")))
         self.ofieldsreporter.CalcStack("clear")
         try:
-            self.ofieldsreporter.EnterQty(quantity_name)
+            self.ofieldsreporter.EnterQty(quantity)
         except Exception:
-            self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
-        if isvector:
+            self.ofieldsreporter.CopyNamedExprToStack(quantity)
+        if is_vector:
             self.ofieldsreporter.CalcOp("Smooth")
             if phase:
                 self.ofieldsreporter.EnterScalar(0)
@@ -2613,17 +2631,17 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.CalcOp("Mag")
         units = self.modeler.model_units
         ang_units = "deg"
-        if gridtype == "Cartesian":
+        if grid_type == "Cartesian":
             grid_center = ["0mm", "0mm", "0mm"]
             grid_start_wu = [str(i) + units for i in grid_start]
             grid_stop_wu = [str(i) + units for i in grid_stop]
             grid_step_wu = [str(i) + units for i in grid_step]
-        elif gridtype == "Cylindrical":
+        elif grid_type == "Cylindrical":
             grid_center = [str(i) + units for i in grid_center]
             grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + units]
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + units]
             grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + units]
-        elif gridtype == "Spherical":
+        elif grid_type == "Spherical":
             grid_center = [str(i) + units for i in grid_center]
             grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + ang_units]
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
@@ -2632,11 +2650,11 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.error("Error in the type of the grid.")
             return False
 
-        if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values_dict
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
 
         variation = []
-        for el, value in variation_dict.items():
+        for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
 
@@ -2666,34 +2684,41 @@ class PostProcessor(PostProcessorCommon, object):
         ]
 
         self.ofieldsreporter.ExportOnGrid(
-            filename,
+            file_name,
             grid_start_wu,
             grid_stop_wu,
             grid_step_wu,
             solution,
             variation,
             export_options,
-            gridtype,
+            grid_type,
             grid_center,
             False,
         )
-        if os.path.exists(filename):
-            return filename
+        if os.path.exists(file_name):
+            return file_name
         return False  # pragma: no cover
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        quantity_name="quantity",
+        variation_dict="variations",
+        filename="file_name",
+        obj_list="objects",
+        obj_type="objects_type",
+        sample_points_lists="sample_points",
+    )
     def export_field_file(
         self,
-        quantity_name,
+        quantity,
         solution=None,
-        variation_dict=None,
-        filename=None,
-        obj_list="AllObjects",
-        obj_type="Vol",
+        variations=None,
+        file_name=None,
+        objects="AllObjects",
+        objects_type="Vol",
         intrinsics=None,
         phase=None,
         sample_points_file=None,
-        sample_points_lists=None,
+        sample_points=None,
         export_with_sample_points=True,
         reference_coordinate_system="Global",
         export_in_si_system=True,
@@ -2703,30 +2728,31 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity_name :
+        quantity :
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution: sweep"``.
             The default is ``None``.
-        variation_dict : dict, optional
+        variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        filename : str, optional
+        file_name : str, optional
             Full path and name to save the file to.
             The default is ``None`` which export file in working_directory.
-        obj_list : str, optional
+        objects : str, optional
             List of objects to export. The default is ``"AllObjects"``.
-        obj_type : str, optional
-            Type of objects to export. Options are ``"Vol"`` for volume and
-            ``"Surf"`` for surface. The default is ``"Vol"``.
+        objects_type : str, optional
+            Type of objects to export. The default is ``"Vol"``.
+            Options are ``"Surf"`` for surface and ``"Vol"`` for
+            volume.
         intrinsics : str, optional
-            This parameter is mandatory for a frequency or transient field
-            calculation. The default is ``None``.
+            This parameter is mandatory for a frequency or transient field calculation.
+            The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
-        sample_points_lists : list, optional
+        sample_points : list, optional
             List of the sample points. The default is ``None``.
         export_with_sample_points : bool, optional
             Whether to include the sample points in the file to export.
@@ -2757,29 +2783,29 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.CalculatorWrite
         >>> oModule.ExportToFile
         """
-        self.logger.info("Exporting %s field. Be patient", quantity_name)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
                 self.logger.error("There are no existing sweeps.")
                 return False
             solution = self._app.existing_analysis_sweeps[0]
-        if not filename:
+        if not file_name:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
+            file_name = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
-            filename = filename.replace("//", "/").replace("\\", "/")
+            file_name = file_name.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
         try:
-            self.ofieldsreporter.EnterQty(quantity_name)
+            self.ofieldsreporter.EnterQty(quantity)
         except Exception:
-            self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
+            self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
-        if not variation_dict:
-            variation_dict = self._app.available_variations.nominal_w_values_dict
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
 
         variation = []
-        for el, value in variation_dict.items():
+        for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
 
@@ -2795,16 +2821,16 @@ class PostProcessor(PostProcessorCommon, object):
                     variation.append(phase)
                 else:
                     variation.append("0deg")
-        if not sample_points_file and not sample_points_lists:
-            if obj_type == "Vol":
-                self.ofieldsreporter.EnterVol(obj_list)
-            elif obj_type == "Surf":
-                self.ofieldsreporter.EnterSurf(obj_list)
+        if not sample_points_file and not sample_points:
+            if objects_type == "Vol":
+                self.ofieldsreporter.EnterVol(objects)
+            elif objects_type == "Surf":
+                self.ofieldsreporter.EnterSurf(objects)
             else:
                 self.logger.error("No correct choice.")
                 return False
             self.ofieldsreporter.CalcOp("Value")
-            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation)
+            self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
@@ -2818,7 +2844,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                filename,
+                file_name,
                 sample_points_file,
                 solution,
                 variation,
@@ -2828,7 +2854,7 @@ class PostProcessor(PostProcessorCommon, object):
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
             with open_file(sample_points_file, "w") as f:
                 f.write("Unit={}\n".format(self.model_units))
-                for point in sample_points_lists:
+                for point in sample_points:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             export_options = [
                 "NAME:ExportOption",
@@ -2842,31 +2868,31 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                filename,
+                file_name,
                 sample_points_file,
                 solution,
                 variation,
                 export_options,
             )
 
-        if os.path.exists(filename):
-            return filename
+        if os.path.exists(file_name):
+            return file_name
         return False  # pragma: no cover
 
-    @pyaedt_function_handler()
-    def export_field_plot(self, plotname, filepath, filename="", file_format="aedtplt"):
+    @pyaedt_function_handler(plotname="plot_name", filepath="file_path", filename="file_name")
+    def export_field_plot(self, plot_name, file_path, file_name="", file_format="aedtplt"):
         """Export a field plot.
 
         Parameters
         ----------
-        plotname : str
+        plot_name : str
             Name of the plot.
 
-        filepath : str
+        file_path : str
             Path for saving the file.
 
-        filename : str, optional
-            Name of the file. The default is ``""``.
+        file_name : str, optional
+            Name of the file. The default is ``""``, in which case a name is automatically assigned.
 
         file_format : str, optional
             Name of the file extension. The default is ``"aedtplt"``. Options are ``"case"`` and ``"fldplt"``.
@@ -2880,15 +2906,15 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
         >>> oModule.ExportFieldPlot
         """
-        if not filename:
-            filename = plotname
-        filepath = os.path.join(filepath, filename + "." + file_format)
+        if not file_name:
+            file_name = plot_name
+        file_path = os.path.join(file_path, file_name + "." + file_format)
         try:
-            self.ofieldsreporter.ExportFieldPlot(plotname, False, filepath)
+            self.ofieldsreporter.ExportFieldPlot(plot_name, False, file_path)
             if settings.remote_rpc_session_temp_folder:  # pragma: no cover
-                local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
-                filepath = check_and_download_file(local_path, filepath)
-            return filepath
+                local_path = os.path.join(settings.remote_rpc_session_temp_folder, file_name + "." + file_format)
+                file_path = check_and_download_file(local_path, file_path)
+            return file_path
         except Exception:  # pragma: no cover
             self.logger.error("{} file format is not supported for this plot.".format(file_format))
             return False
@@ -2952,12 +2978,20 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objlist="objects", quantityName="quantity", listtype="list_type")
     def _create_fieldplot(
-        self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None, filter_boxes=[], field_type=None
+        self,
+        objects,
+        quantity,
+        setup_name,
+        intrinsics,
+        list_type,
+        plot_name=None,
+        filter_boxes=None,
+        field_type=None,
     ):
-        if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
-            objlist = self._app.modeler.convert_to_selections(objlist, True)
+        if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
+            objects = self._app.modeler.convert_to_selections(objects, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
@@ -2974,52 +3008,29 @@ class PostProcessor(PostProcessorCommon, object):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
-        if listtype == "CutPlane":
+            plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
+        filter_boxes = [] if filter_boxes is None else filter_boxes
+        if list_type == "CutPlane":
+            plot = FieldPlot(self, cutplanes=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
+        elif list_type == "FacesList":
+            plot = FieldPlot(self, surfaces=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
+        elif list_type == "ObjList":
+            plot = FieldPlot(self, objects=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
+        elif list_type == "Line":
+            plot = FieldPlot(self, lines=objects, solution=setup_name, quantity=quantity, intrinsics=intrinsics)
+        elif list_type.startswith("Layer"):
             plot = FieldPlot(
                 self,
-                cutplanelist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
-            )
-        elif listtype == "FacesList":
-            plot = FieldPlot(
-                self,
-                surfacelist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
-            )
-        elif listtype == "ObjList":
-            plot = FieldPlot(
-                self,
-                objlist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
-            )
-        elif listtype == "Line":
-            plot = FieldPlot(
-                self,
-                linelist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
-            )
-        elif listtype.startswith("Layer"):
-            plot = FieldPlot(
-                self,
-                layers_nets=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsics,
-                layers_plot_type=listtype,
+                solution=setup_name,
+                quantity=quantity,
+                intrinsics=intrinsics,
+                layer_nets=objects,
+                layer_plot_type=list_type,
             )
         if self._app.design_type == "Q3D Extractor":  # pragma: no cover
             plot.field_type = field_type
         plot.name = plot_name
-        plot.plotFolder = plot_name
+        plot.plot_folder = plot_name
         plot.filter_boxes = filter_boxes
         plt = plot.create()
         if "Maxwell" in self._app.design_type and "Transient" in self.post_solution_type:
@@ -3030,13 +3041,13 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(quantityName="quantity")
     def _create_fieldplot_line_traces(
         self,
         seeding_faces_ids,
         in_volume_tracing_ids,
         surface_tracing_ids,
-        quantityName,
+        quantity,
         setup_name,
         intrinsics,
         plot_name=None,
@@ -3058,20 +3069,20 @@ class PostProcessor(PostProcessorCommon, object):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
+            plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
         plot = FieldPlot(
             self,
-            objlist=in_volume_tracing_ids,
-            surfacelist=surface_tracing_ids,
-            solutionName=setup_name,
-            quantityName=quantityName,
-            intrinsincList=intrinsics,
-            seedingFaces=seeding_faces_ids,
+            objects=in_volume_tracing_ids,
+            surfaces=surface_tracing_ids,
+            solution=setup_name,
+            quantity=quantity,
+            intrinsics=intrinsics,
+            seeding_faces=seeding_faces_ids,
         )
         if field_type:
             plot.field_type = field_type
         plot.name = plot_name
-        plot.plotFolder = plot_name
+        plot.plot_folder = plot_name
 
         plt = plot.create()
         if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
@@ -3082,27 +3093,28 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objlist="objects", quantityName="quantity")
     def create_fieldplot_line(
-        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, field_type="DC R/L Fields"
+        self, objects, quantity, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of the line.
 
         Parameters
         ----------
-        objlist : list
+        objects : list
             List of polyline to plot.
-        quantityName : str
+        quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
         field_type : str, optional
             Field type to plot. Valid only for Q3D Field plots.
 
@@ -3116,23 +3128,23 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name, field_type=field_type
+            objects, quantity, setup_name, intrinsics, "Line", plot_name, field_type=field_type
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(IntrinsincDict="intrinsics")
     def create_fieldplot_line_traces(
         self,
         seeding_faces,
         in_volume_tracing_objs=None,
         surface_tracing_objs=None,
         setup_name=None,
-        intrinsinc_dict=None,
+        intrinsics=None,
         plot_name=None,
         field_type="DC R/L Fields",
     ):
@@ -3150,9 +3162,9 @@ class PostProcessor(PostProcessorCommon, object):
         setup_name : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsinc_dict : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
             Name of the field plot to create. The default is ``None``.
         field_type : str, optional
@@ -3171,8 +3183,8 @@ class PostProcessor(PostProcessorCommon, object):
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
-        if intrinsinc_dict is None:
-            intrinsinc_dict = {}
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3228,14 +3240,14 @@ class PostProcessor(PostProcessorCommon, object):
             surface_tracing_ids,
             "FieldLineTrace",
             setup_name,
-            intrinsinc_dict,
+            intrinsics,
             plot_name,
             field_type=field_type,
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(quantity_name="quantity")
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity_name, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
+        self, layers_nets, quantity, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
     ):  # pragma: no cover
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -3247,7 +3259,7 @@ class PostProcessor(PostProcessorCommon, object):
         layers_nets : list
             List of layers and nets to plot. For example:
             ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``.
-        quantity_name : str
+        quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
@@ -3255,8 +3267,8 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_on_surface : bool, optional
             Whether the plot is to be on the surface or volume of traces.
         plot_name : str, optional
@@ -3291,34 +3303,35 @@ class PostProcessor(PostProcessorCommon, object):
                     get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup_name)
                     if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
                         lst.extend([int(i) for i in get_ids[2:]])
-            return self._create_fieldplot(lst, quantity_name, setup_name, intrinsics, "FacesList", plot_name)
+            return self._create_fieldplot(lst, quantity, setup_name, intrinsics, "FacesList", plot_name)
         if plot_on_surface:
             plot_type = "LayerNetsExtFace"
         else:
             plot_type = "LayerNets"
-        return self._create_fieldplot(layers_nets, quantity_name, setup_name, intrinsics, plot_type, plot_name)
+        return self._create_fieldplot(layers_nets, quantity, setup_name, intrinsics, plot_type, plot_name)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objlist="objects", quantityName="quantity", IntrinsincDict="intrinsics")
     def create_fieldplot_surface(
-        self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None, field_type="DC R/L Fields"
+        self, objects, quantity, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of surfaces.
 
         Parameters
         ----------
-        objlist : list
+        objects : list
             List of surfaces to plot.
-        quantityName : str
+        quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
         field_type : str, optional
             Field type to plot. Valid only for Q3D Field plots.
 
@@ -3332,55 +3345,56 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        if not isinstance(objlist, (list, tuple)):
-            objlist = [objlist]
+        if not isinstance(objects, (list, tuple)):
+            objects = [objects]
         new_obj_list = []
-        for obj in objlist:
+        for obj in objects:
             if isinstance(obj, (int, FacePrimitive)):
                 new_obj_list.append(obj)
             elif self._app.modeler[obj]:
                 new_obj_list.extend([face for face in self._app.modeler[obj].faces if face.id not in new_obj_list])
         return self._create_fieldplot(
-            new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name, field_type=field_type
+            new_obj_list, quantity, setup_name, intrinsics, "FacesList", plot_name, field_type=field_type
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objlist="objects", quantityName="quantity", IntrinsincDict="intrinsics")
     def create_fieldplot_cutplane(
         self,
-        objlist,
-        quantityName,
+        objects,
+        quantity,
         setup_name=None,
-        intrinsincDict=None,
+        intrinsics=None,
         plot_name=None,
-        filter_objects=[],
+        filter_objects=None,
         field_type="DC R/L Fields",
     ):
         """Create a field plot of cut planes.
 
         Parameters
         ----------
-        objlist : list
+        objects : list
             List of cut planes to plot.
-        quantityName : str
+        quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
             Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
             where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
+        intrinsics : dict, optional
             Dictionary containing all intrinsic variables.
-            The default is ``{}``.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
         filter_objects : list, optional
             Objects list on which filter the plot.
+            The default value is ``None``, in which case an empty list is passed.
         field_type : str, optional
-            Field type to plot. Valid only for Q3D Field plots.
+            Field type to plot. This parameter is valid only for Q3D field plots.
 
         Returns
         -------
@@ -3392,51 +3406,46 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         if filter_objects:
             filter_objects = self._app.modeler.convert_to_selections(filter_objects, True)
         return self._create_fieldplot(
-            objlist,
-            quantityName,
+            objects,
+            quantity,
             setup_name,
-            intrinsincDict,
+            intrinsics,
             "CutPlane",
             plot_name,
             filter_boxes=filter_objects,
             field_type=field_type,
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objlist="objects", quantityName="quantity", IntrinsincDict="intrinsics")
     def create_fieldplot_volume(
-        self,
-        objlist,
-        quantityName,
-        setup_name=None,
-        intrinsincDict=None,
-        plot_name=None,
-        field_type="DC R/L Fields",
+        self, objects, quantity, setup_name=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
         """Create a field plot of volumes.
 
         Parameters
         ----------
-        objlist : list
+        objects : list
             List of volumes to plot.
-        quantityName :
+        quantity :
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsincDict : dict, optional
-            Dictionary containing all intrinsic variables. The default
-            is ``{}``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
 
         Returns
         -------
@@ -3448,21 +3457,21 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if intrinsics is None:
+            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(
-            objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name, field_type=field_type
+            objects, quantity, setup_name, intrinsics, "ObjList", plot_name, field_type=field_type
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(fileName="file_name", plotName="plot_name", foldername="folder_name")
     def export_field_jpg(
         self,
-        fileName,
-        plotName,
-        foldername,
+        file_name,
+        plot_name,
+        folder_name,
         orientation="isometric",
         width=1920,
         height=1080,
@@ -3477,11 +3486,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        fileName : str
+        file_name : str
             Full path and name to save the JPG file to.
-        plotName : str
+        plot_name : str
             Name of the plot.
-        foldername : str
+        folder_name : str
             Name of the folder plot.
         orientation : str, optional
             Name of the orientation to apply. The default is ``"isometric"``.
@@ -3535,15 +3544,15 @@ class PostProcessor(PostProcessorCommon, object):
                 ]
                 view = orientation_to_view.get(orientation, "iso")
                 cs = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
-                self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
+                self.ofieldsreporter.ExportPlotImageToFile(file_name, folder_name, plot_name, cs.name)
                 cs.delete()
             else:
                 self.export_model_picture(
-                    full_name=fileName,
+                    full_name=file_name,
                     width=width,
                     height=height,
                     orientation=orientation,
-                    field_selections=plotName,
+                    field_selections=plot_name,
                     selections=selections,
                     show_axis=show_axis,
                     show_grid=show_grid,
@@ -3555,7 +3564,7 @@ class PostProcessor(PostProcessorCommon, object):
                 self._primitives[solid].display_wireframe = False
         else:
             self.ofieldsreporter.ExportPlotImageWithViewToFile(
-                fileName, foldername, plotName, width, height, orientation
+                file_name, folder_name, plot_name, width, height, orientation
             )
         return True
 
@@ -3702,10 +3711,8 @@ class PostProcessor(PostProcessorCommon, object):
             self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
         return full_name
 
-    @pyaedt_function_handler()
-    def get_far_field_data(
-        self, expression="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", families_dict=None
-    ):
+    @pyaedt_function_handler(families_dict="sweeps")
+    def get_far_field_data(self, expression="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", sweeps=None):
         """Generate far field data using ``GetSolutionDataPerVariation``.
 
         This method returns the data ``solData``, ``ThetaVals``,
@@ -3721,7 +3728,7 @@ class PostProcessor(PostProcessorCommon, object):
             in which case the nominal sweep is used.
         domain : str, dict, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
-        families_dict : dict, optional
+        sweeps : dict, optional
             Dictionary of variables and values. The default is ``{"Freq": ["All"]}``.
 
         Returns
@@ -3737,54 +3744,56 @@ class PostProcessor(PostProcessorCommon, object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
-        if families_dict is None:
-            families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
+        if sweeps is None:
+            sweeps = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
         context = ["Context:=", domain]
         if isinstance(domain, dict):
             if "Context" in domain.keys() and "SourceContext" in domain.keys():
                 context = ["Context:=", domain["Context"], "Context:=", domain["SourceContext"]]
 
         solution_data = self.get_solution_data_per_variation(
-            "Far Fields", setup_sweep_name, context, families_dict, expression
+            "Far Fields", setup_sweep_name, context, sweeps, expression
         )
         if not solution_data:
             print("No Data Available. Check inputs")
             return False
         return solution_data
 
-    @pyaedt_function_handler()
-    def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False, air_objects=False):
+    @pyaedt_function_handler(obj_list="objects")
+    def export_model_obj(self, objects=None, export_path=None, export_as_single_objects=False, air_objects=False):
         """Export the model.
 
         Parameters
         ----------
-        obj_list : list, optional
-            List of objects to export. Export every model object except 3D ones, vacuum and air objects.
+        objects : list, optional
+            List of objects to export. Export every model object except 3D ones and
+            vacuum and air objects.
         export_path : str, optional
-            Full path of the exported obj file.
+            Full path of the exported OBJ file.
         export_as_single_objects : bool, optional
-            Define if the model will be exported as single obj or list of objs for each object.
+           Whether to export the model as single object. The default is ``False``, in which
+           case is exported asa list of objects for each object.
         air_objects : bool, optional
-            Define if air and vacuum objects will be exported.
+            Whether to export air and vacuum objects. The default is ``False``.
 
         Returns
         -------
         list
-            Files obj path.
+            List of paths for OBJ files.
         """
-        if obj_list and not isinstance(obj_list, (list, tuple)):
-            obj_list = [obj_list]
+        if objects and not isinstance(objects, (list, tuple)):
+            objects = [objects]
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
             export_path = self._app.working_directory
-        if not obj_list:
+        if not objects:
             self._app.modeler.refresh_all_ids()
             non_model = self._app.modeler.non_model_objects[:]
-            obj_list = [i for i in self._app.modeler.object_names if i not in non_model]
+            objects = [i for i in self._app.modeler.object_names if i not in non_model]
             if not air_objects:
-                obj_list = [
+                objects = [
                     i
-                    for i in obj_list
+                    for i in objects
                     if not self._app.modeler[i].is3d
                     or (
                         self._app.modeler[i].material_name.lower() != "vacuum"
@@ -3793,7 +3802,7 @@ class PostProcessor(PostProcessorCommon, object):
                 ]
         if export_as_single_objects:
             files_exported = []
-            for el in obj_list:
+            for el in objects:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if settings.remote_rpc_session_temp_folder:
@@ -3811,11 +3820,11 @@ class PostProcessor(PostProcessorCommon, object):
             return files_exported
         else:
             fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
-            self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
+            self._app.modeler.oeditor.ExportModelMeshToFile(fname, objects)
             return [[fname, "aquamarine", 0.3]]
 
     @pyaedt_function_handler()
-    def export_mesh_obj(self, setup_name=None, intrinsic_dict=None):
+    def export_mesh_obj(self, setup_name=None, intrinsics=None):
         """Export the mesh in ``aedtplt`` format.
         The mesh has to be available in the selected setup.
         If a parametric model is provided user can choose the mesh to export providing a specific set of variations.
@@ -3826,12 +3835,14 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
-        intrinsic_dict : dict, optional.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional.
             Intrinsic dictionary that is needed for the export.
-            The default is ``{}`` which assumes no variables are present in the dict or nominal values are used.
+            The default is ``None``, which assumes that no variables are present in
+            the dictionary or nominal values are used.
 
         Returns
         -------
@@ -3844,12 +3855,12 @@ class PostProcessor(PostProcessorCommon, object):
         >>> hfss = Hfss()
         >>> hfss.analyze()
         >>> # Export report using defaults.
-        >>> hfss.post.export_mesh_obj(setup_name=None, intrinsic_dict=None)
+        >>> hfss.post.export_mesh_obj(setup_name=None, intrinsics=None)
         >>> # Export report using arguments.
-        >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsic_dict={"w1":"5mm", "l1":"3mm"})
+        >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsics={"w1":"5mm", "l1":"3mm"})
         """
-        if intrinsic_dict is None:
-            intrinsic_dict = {}
+        if intrinsics is None:
+            intrinsics = {}
         project_path = self._app.working_directory
 
         if not setup_name:
@@ -3860,7 +3871,7 @@ class PostProcessor(PostProcessorCommon, object):
             object3d = self._app.modeler[el]
             if not object3d.is3d or object3d.material_name not in ["vacuum", "air"]:
                 face_lists += [i.id for i in object3d.faces]
-        plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
+        plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsics)
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)
             plot.delete()
@@ -4236,6 +4247,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
+    @pyaedt_function_handler()
     def create_creeping_plane_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4285,6 +4297,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
     def create_creeping_point_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4317,10 +4330,7 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if custom_location is None:
             custom_location = [0, 0, 0]
-        vrt = VRTFieldPlot(
-            self,
-            is_creeping_wave=True,
-        )
+        vrt = VRTFieldPlot(self, is_creeping_wave=True)
         vrt.max_frequency = max_frequency
         vrt.sample_density = sample_density
         vrt.ray_density = ray_density
@@ -4331,6 +4341,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
     def create_sbr_plane_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4404,6 +4415,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
     def create_sbr_point_visual_ray_tracing(
         self,
         max_frequency="1GHz",
@@ -4491,22 +4503,23 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     def __init__(self, app):
         PostProcessorCommon.__init__(self, app)
 
+    @pyaedt_function_handler(setupname="setup_name", plotname="plot_name")
     def create_ami_initial_response_plot(
         self,
-        setupname,
+        setup_name,
         ami_name,
         variation_list_w_value,
         plot_type="Rectangular Plot",
         plot_initial_response=True,
         plot_intermediate_response=False,
         plot_final_response=False,
-        plotname=None,
+        plot_name=None,
     ):
         """Create an AMI initial response plot.
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         ami_name : str
             AMI probe name to use.
@@ -4522,16 +4535,17 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             Set whether to plot the intermediate input response.  Default is ``False``.
         plot_final_response : bool, optional
             Set whether to plot the final input response.  Default is ``False``.
-        plotname : str, optional
-            The plot name.  Default is a unique name.
+        plot_name : str, optional
+            Plot name.  The default is ``None``, in which case
+            a unique name is automatically assigned.
 
         Returns
         -------
         str
             Name of the plot.
         """
-        if not plotname:
-            plotname = generate_unique_name("AMIAnalysis")
+        if not plot_name:
+            plot_name = generate_unique_name("AMIAnalysis")
         variations = ["__InitialTime:=", ["All"]]
         i = 0
         for a in variation_list_w_value:
@@ -4554,10 +4568,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         if plot_final_response:
             ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
         self.oreportsetup.CreateReport(
-            plotname,
+            plot_name,
             "Standard",
             plot_type,
-            setupname,
+            setup_name,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -4596,26 +4610,29 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__InitialTime", "Y Component:=", ycomponents],
         )
-        return plotname
+        return plot_name
 
+    @pyaedt_function_handler(setupname="setup_name", plotname="plot_name")
     def create_ami_statistical_eye_plot(
-        self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
+        self, setup_name, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plot_name=None
     ):
         """Create an AMI statistical eye plot.
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         ami_name : str
             AMI probe name to use.
         variation_list_w_value : list
             Variations with relative values.
         ami_plot_type : str, optional
-            String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
-            ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
-        plotname : str, optional
-            The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
+            String containing the report AMI type. The default is ``"InitialEye"``.
+            Options are ``"EyeAfterChannel"``, ``"EyeAfterProbe"````"EyeAfterSource"``,
+            and ``"InitialEye"``..
+        plot_name : str, optional
+            Plot name.  The default is ``None``, in which case
+            a unique name starting with ``"Plot"`` is automatically assigned.
 
         Returns
         -------
@@ -4627,8 +4644,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateReport
         """
-        if not plotname:
-            plotname = generate_unique_name("AMYAanalysis")
+        if not plot_name:
+            plot_name = generate_unique_name("AMYAanalysis")
         variations = [
             "__UnitInterval:=",
             ["All"],
@@ -4663,10 +4680,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         elif ami_plot_type == "EyeAfterProbe":
             ami_id = "3"
         self.oreportsetup.CreateReport(
-            plotname,
+            plot_name,
             "Statistical Eye",
             "Statistical Eye Plot",
-            setupname,
+            setup_name,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -4702,21 +4719,22 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
-        return plotname
+        return plot_name
 
-    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, plotname=None):
+    @pyaedt_function_handler(setupname="setup_name", plotname="plot_name")
+    def create_statistical_eye_plot(self, setup_name, probe_names, variation_list_w_value, plot_name=None):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         probe_names : str or list
-            Name of the probe to plot in the EYE diagram.
+            One or more names of the probe to plot in the eye diagram.
         variation_list_w_value : list
             List of variations with relative values.
-        plotname : str, optional
-            The name of the plot.
+        plot_name : str, optional
+            Plot name. The default is ``None``, in which case a name is automatically assigned.
 
         Returns
         -------
@@ -4728,8 +4746,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateReport
         """
-        if not plotname:
-            plotname = generate_unique_name("AMIAanalysis")
+        if not plot_name:
+            plot_name = generate_unique_name("AMIAanalysis")
         variations = [
             "__UnitInterval:=",
             ["All"],
@@ -4755,10 +4773,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ycomponents = [probe_names]
 
         self.oreportsetup.CreateReport(
-            plotname,
+            plot_name,
             "Statistical Eye",
             "Statistical Eye Plot",
-            setupname,
+            setup_name,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -4794,8 +4812,9 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
-        return plotname
+        return plot_name
 
+    @pyaedt_function_handler()
     def sample_waveform(
         self,
         waveform_data,
@@ -4834,7 +4853,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Examples
         --------
         >>> aedtapp = Circuit()
-        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+        >>> aedtapp.post.sample_ami_waveform(setup_name,probe_name,source_name,aedtapp.available_variations.nominal)
 
         """
 
@@ -4883,9 +4902,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             return pd.Series(new_voltage, index=tic_in_s)
         return outputdata
 
+    @pyaedt_function_handler(setupname="setup_name")
     def sample_ami_waveform(
         self,
-        setupname,
+        setup_name,
         probe_name,
         source_name,
         variation_list_w_value,
@@ -4898,7 +4918,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         probe_name : str
             Name of the AMI probe.
@@ -4926,7 +4946,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Examples
         --------
         >>> aedtapp = Circuit()
-        >>> aedtapp.post.sample_ami_waveform(setupname, probe_name, source_name, aedtapp.available_variations.nominal)
+        >>> aedtapp.post.sample_ami_waveform(setupname,probe_name,source_name,aedtapp.available_variations.nominal)
 
         """
         initial_solution_type = self.post_solution_type
@@ -4949,7 +4969,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         waveform_sweep_unit = []
         for exp in plot_expression:
             waveform_data = self.get_solution_data(
-                expressions=exp, setup_sweep_name=setupname, domain="Time", variations=variation_list_w_value
+                expressions=exp, setup_sweep_name=setup_name, domain="Time", variations=variation_list_w_value
             )
             samples_per_bit = 0
             for sample in waveform_data.primary_sweep_values:
@@ -4975,7 +4995,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             clock_expression = "ClockTics<" + probe_name + ".int_ami_rx>"
             clock_tic = self.get_solution_data(
                 expressions=clock_expression,
-                setup_sweep_name=setupname,
+                setup_sweep_name=setup_name,
                 domain="Clock Times",
                 variations=variation_list_w_value,
             )
@@ -5026,7 +5046,7 @@ AVAILABLE_QUANTITIES = [
     "MassFlowRate",
     "VolumeFlowRate",
     "MassFlux",
-    "ViscocityRatio",
+    "ViscosityRatio",
     "WallYPlus",
     "TKE",
     "Epsilon",
@@ -5119,8 +5139,8 @@ class FieldSummary:
         )  # TODO : last argument not documented
         return True
 
-    @pyaedt_function_handler()
-    def get_field_summary_data(self, setup_name=None, design_variation={}, intrinsic_value="", pandas_output=False):
+    @pyaedt_function_handler(IntrinsincDict="intrinsics")
+    def get_field_summary_data(self, setup_name=None, design_variation={}, intrinsics="", pandas_output=False):
         """
         Get  field summary output computation.
 
@@ -5132,9 +5152,9 @@ class FieldSummary:
         design_variation : dict, optional
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case nominal variation is used.
-        intrinsic_value : str, optional
+        intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
-            suitable when no frequency needs to be selected.
+            which is suitable when no frequency needs to be selected.
         pandas_output : bool, optional
             Whether to use pandas output. The default is ``False``, in
             which case the dictionary output is used.
@@ -5147,7 +5167,7 @@ class FieldSummary:
         """
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
-            self.export_csv(temp_file.name, setup_name, design_variation, intrinsic_value)
+            self.export_csv(temp_file.name, setup_name, design_variation, intrinsics)
             with open(temp_file.name, "r") as f:
                 for _ in range(4):
                     _ = next(f)
@@ -5163,24 +5183,24 @@ class FieldSummary:
                 return pd.DataFrame.from_dict(out_dict)
         return out_dict
 
-    @pyaedt_function_handler()
-    def export_csv(self, filename, setup_name=None, design_variation={}, intrinsic_value=""):
+    @pyaedt_function_handler(filename="file_name", design_variation="variations")
+    def export_csv(self, file_name, setup_name=None, variations={}, intrinsics=""):
         """
         Get the field summary output computation.
 
         Parameters
         ----------
-        filename : str
+        file_name : str
             Path and filename to write the output file to.
         setup_name : str, optional
             Setup name to use for the computation. The
             default is ``None``, in which case the nominal variation is used.
-        design_variation : dict, optional
+        variations : dict, optional
             Dictionary containing the design variation to use for the computation.
             The default is  ``{}``, in which case the nominal variation is used.
-        intrinsic_value : str, optional
+        intrinsics : str, optional
             Intrinsic values to use for the computation. The default is ``""``,
-            suitable when no frequency needs to be selected.
+            which is suitable when no frequency needs to be selected.
 
         Returns
         -------
@@ -5190,8 +5210,8 @@ class FieldSummary:
         if not setup_name:
             setup_name = self._app.nominal_sweep
         dv_string = ""
-        for el in design_variation:
-            dv_string += el + "='" + design_variation[el] + "' "
+        for el in variations:
+            dv_string += el + "='" + variations[el] + "' "
         self._create_field_summary(setup_name, dv_string)
         self._app.osolution.ExportFieldsSummary(
             [
@@ -5200,9 +5220,9 @@ class FieldSummary:
                 "DesignVariationKey:=",
                 dv_string,
                 "ExportFileName:=",
-                filename,
+                file_name,
                 "IntrinsicValue:=",
-                intrinsic_value,
+                intrinsics,
             ]
         )
         return True
