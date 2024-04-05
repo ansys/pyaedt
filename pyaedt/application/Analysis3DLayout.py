@@ -148,7 +148,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         list
-            Excitation list. Excitations with multiple modes will return one
+            Excitation list. Excitations with multiple modes return one
             excitation for each mode.
 
         References
