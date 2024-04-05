@@ -287,6 +287,13 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          source .venv/bin/activate
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
         # env:
