@@ -83,19 +83,6 @@ class QExtractor(FieldAnalysis3D, object):
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
 
-    @property
-    def excitations(self):
-        """Get all excitation names.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        """
-        return self.matrices[0].sources(False)
-
     @pyaedt_function_handler()
     def insert_reduced_matrix(
         self,
