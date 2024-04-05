@@ -323,8 +323,13 @@ class Design(AedtObjects):
             for region in hybrid_regions:
                 bb.append(region)
                 bb.append("FE-BI")
+        current_excitations = []
+        current_excitation_types = []
         if "GetExcitations" in self.oboundary.__dir__():
-            bb.extend(list(self.oboundary.GetExcitations()))
+            ee = list(self.oboundary.GetExcitations())
+            current_excitations = [i.split(":")[0] for i in ee[::2]]
+            current_excitation_types = ee[1::2]
+            bb.extend(current_excitations)
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
@@ -386,13 +391,9 @@ class Design(AedtObjects):
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
         try:
-            if "GetExcitations" in self.oboundary.__dir__():
-                ee = list(self.oboundary.GetExcitations())
-                current_boundaries = [i.split(":")[0] for i in ee[::2]]
-                current_types = ee[1::2]
-                for k, v in zip(current_boundaries, current_types):
-                    if k not in self._boundaries:
-                        self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
+            for k, v in zip(current_excitations, current_excitation_types):
+                if k not in self._boundaries:
+                    self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
         except Exception:
             pass
         return list(self._boundaries.values())
