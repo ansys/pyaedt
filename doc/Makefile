@@ -40,7 +40,7 @@ pdf:
 	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
 
 pdf-no-examples:
-    export PYAEDT_SKIP_EXAMPLE="1"
+        export PYAEDT_SKIP_EXAMPLE="1"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
