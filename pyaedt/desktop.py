@@ -470,6 +470,7 @@ class Desktop(object):
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
+    @pyaedt_function_handler()
     def __init__(
         self,
         specified_version=None,
@@ -1482,7 +1483,10 @@ class Desktop(object):
         if not result:
             self.logger.error("Error releasing desktop.")
             return False
-        self.logger.info("Desktop has been released")
+        if close_on_exit:
+            self.logger.info("Desktop has been released and closed.")
+        else:
+            self.logger.info("Desktop has been released.")
         del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
