@@ -1416,8 +1416,7 @@ class Primitives3D(GeometryModeler):
                 if "IsEncrypted" in line:
                     line_list = line.split("=")
                     if line_list[1] in ["true", "True", True] and password == "":
-                        self.logger.error("Password can't be an empty string.")
-                        return False
+                        self.logger.warning("Encrypted model.")
             aedt_fh.close()
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
