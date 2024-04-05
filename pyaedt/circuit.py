@@ -14,6 +14,7 @@ from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -1618,3 +1619,414 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save_project=False)
         return hfss_3d_layout_model
+
+    @pyaedt_function_handler()
+    def create_tdr_schematic_from_snp(
+        self,
+        touchstone,
+        probe_pins,
+        probe_ref_pins=None,
+        termination_pins=None,
+        differential=True,
+        rise_time=30,
+        use_convolution=True,
+        analyze=True,
+        design_name="LNA",
+    ):
+        """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
+
+        Parameters
+        ----------
+        touchstone : str
+            Full path to the sNp file.
+        probe_pins : list
+            Pins to attach to the probe components.
+        probe_ref_pins : list, optional
+            Reference pins to attach to probe components. The default is ``None``.
+            This parameter is valid only in differential TDR probes.
+        termination_pins : list, optional
+            Pins to terminate. The default is ``None``.
+        differential : bool, optional
+            Whether the buffers are differential. The default is ``True``. If ``False``, the
+            pins are single ended.
+        rise_time : float, int, optional
+            Rise time of the input pulse in picoseconds. The default is ``30``.
+        use_convolution : bool, optional
+            Whether to use convolution for the Touchstone file. The default is ``True``.
+            If ``False``, state-space is used.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"LNA"``.
+
+        Returns
+        -------
+
+        """
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(touchstone, type(Hfss3dLayout)):
+            touchstone_path = touchstone.export_touchstone()
+        else:
+            touchstone_path = touchstone
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+        center_x = sub.location[0]
+        center_y = sub.location[1]
+        left = 0
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(probe_pins)
+        if differential:
+            tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
+        else:
+            tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
+        tdr_probe_names = []
+        for i, probe_pin in enumerate(probe_pins):
+            pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
+            left += 1
+            new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
+            try:
+                if isinstance(probe_pin, int):
+                    p_pin = probe_pin
+                    if differential:
+                        n_pin = probe_ref_pins[i]
+                else:
+                    p_pin = [k for k in sub.pins if k.name == probe_pin][0]
+                    if differential:
+                        n_pin = [k for k in sub.pins if k.name == probe_ref_pins[i]][0]
+            except IndexError:
+                self.logger.error("Failed to retrieve the pins.")
+                return False
+            for pin in sub.pins:
+                if not termination_pins or (pin.name in termination_pins):
+                    loc = pin.location
+                    loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
+                    if loc[0] < center_x:
+                        p1 = self.modeler.components.create_interface_port(
+                            name=pin.name, location=[loc[0] - loc1, loc[1]]
+                        )
+                    else:
+                        p1 = self.modeler.components.create_interface_port(
+                            name=pin.name, location=[loc[0] + loc1, loc[1]]
+                        )
+                    p1.pins[0].connect_to_component(pin, use_wire=True)
+
+            _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
+            self.modeler.move(first, [0, 100], "mil")
+            if second.pins[0].location[0] > center_x:
+                self.modeler.move(second, [1000, 0], "mil")
+            else:
+                self.modeler.move(second, [-1000, 0], "mil")
+            if differential:
+                _, first, second = new_tdr_comp.pins[1].connect_to_component(n_pin)
+                self.modeler.move(first, [0, -100], "mil")
+                if second.pins[0].location[0] > center_x:
+                    self.modeler.move(second, [1000, 0], "mil")
+                else:
+                    self.modeler.move(second, [-1000, 0], "mil")
+            new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
+            new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
+            if differential:
+                tdr_probe_names.append("O(A{}:zdiff)".format(new_tdr_comp.id))
+            else:
+                tdr_probe_names.append("O(A{}:zl)".format(new_tdr_comp.id))
+
+        setup = self.create_setup(setupname="Transient_TDR", setuptype=self.SETUPS.NexximTransient)
+        setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
+        if use_convolution:
+            self.oanalysis.AddAnalysisOptions(
+                [
+                    "NAME:DataBlock",
+                    "DataBlockID:=",
+                    8,
+                    "Name:=",
+                    "Nexxim Options",
+                    [
+                        "NAME:ModifiedOptions",
+                        "ts_convolution:=",
+                        True,
+                    ],
+                ]
+            )
+            setup.props["OptionName"] = "Nexxim Options"
+        if analyze:
+            self.analyze()
+            for trace in tdr_probe_names:
+                self.post.create_report(trace)
+        return True, tdr_probe_names
+
+    @pyaedt_function_handler()
+    def create_lna_schematic_from_snp(
+        self,
+        touchstone,
+        start_frequency=0,
+        stop_frequency=30,
+        auto_assign_diff_pairs=False,
+        separation=".",
+        pattern=None,
+        analyze=True,
+        design_name="LNA",
+    ):
+        """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
+
+        This method optionally assigns differential pairs automatically based on name pattern.
+
+        Parameters
+        ----------
+        touchstone : str
+            Full path to the sNp file.
+        start_frequency : int, float, optional
+            Start frequency in GHz of the LNA setup. The default is ``0``.
+        stop_frequency  : int, float, optional
+            Stop frequency in GHz of the LNA setup. The default is ``30``.
+        auto_assign_diff_pairs : bool
+            Whether to automatically assign differential pairs. The default is ``False``.
+        separation : str, optional
+            Character to use to separate port names. The default is ``"."``.
+        pattern : list, optional
+            Port name pattern. The default is ``["component", "pin", "net"]``.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"LNA"``.
+
+        Returns
+        -------
+        (bool, list, list)
+            First argument is ``True`` if succeeded.
+            Second and third argument are respectively names of the differential and common mode pairs.
+        """
+        if pattern is None:
+            pattern = ["component", "pin", "net"]
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(touchstone, type(Hfss3dLayout)):
+            touchstone_path = touchstone.export_touchstone()
+        else:
+            touchstone_path = touchstone
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+
+        ports = []
+        center = sub.location[0]
+        left = 0
+        right = 0
+        start = 1500
+        for pin in sub.pins:
+            loc = pin.location
+            if loc[0] < center:
+                delta = unit_converter(start + left * 200, input_units="mil", output_units=self.modeler.schematic_units)
+                new_loc = [loc[0] - delta, loc[1]]
+                left += 1
+            else:
+                delta = unit_converter(
+                    start + right * 200, input_units="mil", output_units=self.modeler.schematic_units
+                )
+                new_loc = [loc[0] + delta, loc[1]]
+                right += 1
+            port = self.modeler.components.create_interface_port(name=pin.name, location=new_loc)
+            port.pins[0].connect_to_component(component_pin=pin, use_wire=True)
+            ports.append(port)
+        diff_pairs = []
+        comm_pairs = []
+        if auto_assign_diff_pairs:
+            for pin in ports:
+                pin_name = pin.name.split(separation)
+                if pin_name[-1][-1] == "P":
+                    component = pin_name[pattern.index("component")]
+                    net = pin_name[pattern.index("net")]
+                    for neg_pin in ports:
+                        neg_pin_name = neg_pin.name.split(separation)
+                        component_neg = neg_pin_name[pattern.index("component")]
+
+                        net_neg = neg_pin_name[pattern.index("net")]
+
+                        if component_neg == component and net_neg != net and net_neg[:-1] == net[:-1]:
+                            self.set_differential_pair(
+                                positive_terminal=pin.name,
+                                negative_terminal=neg_pin.name,
+                                common_name="COMMON_{}_{}".format(component, net),
+                                diff_name="{}_{}".format(component, net),
+                                common_ref_z=25,
+                                diff_ref_z=100,
+                                active=True,
+                            )
+                            diff_pairs.append("{}_{}".format(component, net))
+                            comm_pairs.append("COMMON_{}_{}".format(component, net))
+                            break
+        setup1 = self.create_setup()
+        setup1.props["SweepDefinition"]["Data"] = "LINC {}GHz {}GHz 1001".format(start_frequency, stop_frequency)
+        if analyze:
+            self.analyze()
+        return True, diff_pairs, comm_pairs
+
+    @pyaedt_function_handler()
+    def create_ami_schematic_from_snp(
+        self,
+        touchstone,
+        ibis_ami,
+        component_name,
+        tx_buffer_name,
+        rx_buffer_name,
+        tx_pins,
+        tx_refs,
+        rx_pins,
+        rx_refs,
+        use_ibis_buffer=True,
+        differential=True,
+        bit_pattern=None,
+        unit_interval=None,
+        use_convolution=True,
+        analyze=False,
+        design_name="AMI",
+    ):
+        """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
+
+        Parameters
+        ----------
+        touchstone : str
+            Full path to the sNp file.
+        ibis_ami : str
+            Full path to the IBIS file.
+        component_name : str
+            Component name in the IBIS file to assign to components.
+        tx_buffer_name : str
+            Transmission buffer name.
+        rx_buffer_name : str
+            Receiver buffer name
+        tx_pins : list
+            Pins to assign the transmitter IBIS.
+        tx_refs : list
+            Reference pins to assign the transmitter IBIS. This parameter is only used in
+            a differential configuration.
+        rx_pins : list
+            Pins to assign the receiver IBIS.
+        rx_refs : list
+            Reference pins to assign the receiver IBIS. This parameter is only used
+            in a differential configuration.
+        use_ibis_buffer : bool, optional
+            Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
+        differential : bool, optional
+            Whether the buffers are differential. The default is ``True``. If ``False``,
+            the buffers are single-ended.
+        bit_pattern : str, optional
+            IBIS bit pattern.
+        unit_interval : str, optional
+            Unit interval of the bit pattern.
+        use_convolution : bool, optional
+            Whether to use convolution for the Touchstone file. The default is
+            ``True``. If ``False``, state-space is used.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"LNA"``.
+
+
+        Returns
+        -------
+        (bool, list, list)
+            First argument is ``True`` if successful.
+            Second and third arguments are respectively the names of the tx and rx mode probes.
+        """
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(touchstone, type(Hfss3dLayout)):
+            touchstone_path = touchstone.export_touchstone()
+        else:
+            touchstone_path = touchstone
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+        center_x = sub.location[0]
+        center_y = sub.location[1]
+        left = 0
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_pins)
+        ibis = self.get_ibis_model_from_file(ibis_ami, is_ami=True)
+        tx_eye_names = []
+        rx_eye_names = []
+        for j in range(len(tx_pins)):
+            pos_x = unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
+            pos_y = unit_converter(delta_y - left * 800, input_units="mil", output_units=self.modeler.schematic_units)
+            left += 1
+
+            p_pin1 = [i for i in sub.pins if i.name == tx_pins[j]][0]
+            p_pin2 = [i for i in sub.pins if i.name == rx_pins[j]][0]
+            if differential:
+                n_pin1 = [i for i in sub.pins if i.name == tx_refs[j]][0]
+                n_pin2 = [i for i in sub.pins if i.name == rx_refs[j]][0]
+
+            if use_ibis_buffer:
+                buf = [k for k in ibis.components[component_name].buffer.keys() if k.startswith(tx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                tx = ibis.components[component_name].buffer[buf[0]].insert(center_x - pos_x, center_y + pos_y)
+                buf = [k for k in ibis.components[component_name].buffer.keys() if k.startswith(rx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                rx = ibis.components[component_name].buffer[buf[0]].insert(center_x + pos_x, center_y + pos_y, 180)
+            else:
+                buf = [k for k in ibis.components[component_name].pins.keys() if k.startswith(tx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                tx = ibis.components[component_name].pins[buf[0]].insert(center_x - pos_x, center_y + pos_y)
+                buf = [k for k in ibis.components[component_name].pins.keys() if k.startswith(rx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                rx = ibis.components[component_name].pins[buf[0]].insert(center_x + pos_x, center_y + pos_y, 180)
+
+            tx_eye_names.append(tx.parameters["probe_name"])
+            rx_eye_names.append(rx.parameters["source_name"])
+            _, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
+            self.modeler.move(first, [0, 100], "mil")
+            if second.pins[0].location[0] > center_x:
+                self.modeler.move(second, [1000, 0], "mil")
+            else:
+                self.modeler.move(second, [-1000, 0], "mil")
+            _, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
+            self.modeler.move(first, [0, -100], "mil")
+            if second.pins[0].location[0] > center_x:
+                self.modeler.move(second, [1000, 0], "mil")
+            else:
+                self.modeler.move(second, [-1000, 0], "mil")
+            if differential:
+                _, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
+                self.modeler.move(first, [0, -100], "mil")
+                if second.pins[0].location[0] > center_x:
+                    self.modeler.move(second, [1000, 0], "mil")
+                else:
+                    self.modeler.move(second, [-1000, 0], "mil")
+                _, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
+                self.modeler.move(first, [0, 100], "mil")
+                if second.pins[0].location[0] > center_x:
+                    self.modeler.move(second, [1000, 0], "mil")
+                else:
+                    self.modeler.move(second, [-1000, 0], "mil")
+            if unit_interval:
+                tx.parameters["UIorBPSValue"] = unit_interval
+            if bit_pattern:
+                tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
+
+        setup_ami = self.create_setup("AMI", "NexximAMI")
+        if use_convolution:
+            self.oanalysis.AddAnalysisOptions(
+                [
+                    "NAME:DataBlock",
+                    "DataBlockID:=",
+                    8,
+                    "Name:=",
+                    "Nexxim Options",
+                    [
+                        "NAME:ModifiedOptions",
+                        "ts_convolution:=",
+                        True,
+                    ],
+                ]
+            )
+            setup_ami.props["OptionName"] = "Nexxim Options"
+        if analyze:
+            setup_ami.analyze()
+        return True, tx_eye_names, rx_eye_names
