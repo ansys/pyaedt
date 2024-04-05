@@ -216,6 +216,10 @@ exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_St
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
 inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
 
+# Ignore certain URLs
+linkcheck_ignore = [
+    r"https://www.ansys.com/.*",
+]
 
 # -- Options for HTML output -------------------------------------------------
 
