@@ -82,7 +82,7 @@ doc = [
     "pypandoc>=1.10.0,<1.14",
     #"pytest-sphinx",
     "pyvista>=0.38.0,<0.44",
-    #"recommonmark",
+    "recommonmark",
     #"scikit-learn",
     "scikit-rf>=0.30.0,<0.33",
     "Sphinx==5.3.0; python_version == '3.7'",
