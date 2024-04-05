@@ -198,8 +198,10 @@ def _check_types(arg):
     return ""
 
 
-def _function_handler_wrapper(user_function):
+def _function_handler_wrapper(user_function, **deprecated_kwargs):
     def wrapper(*args, **kwargs):
+        if deprecated_kwargs and kwargs:
+            deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
         if not settings.enable_error_handler:
             result = user_function(*args, **kwargs)
             return result
@@ -232,7 +234,21 @@ def _function_handler_wrapper(user_function):
     return wrapper
 
 
-def pyaedt_function_handler(direct_func=None):
+def deprecate_kwargs(func_name, kwargs, aliases):
+    """Use helper function for deprecating function arguments."""
+    for alias, new in aliases.items():
+        if alias in kwargs:
+            if new in kwargs:
+                msg = "{} received both {} and {} as arguments!\n".format(func_name, alias, new)
+                msg += "{} is deprecated, use {} instead.".format(alias, new)
+                raise TypeError(msg)
+            pyaedt_logger.warning(
+                '`{}` is deprecated as an argument to `{}`; use" f" `{}` instead.'.format(alias, func_name, new)
+            )
+            kwargs[new] = kwargs.pop(alias)
+
+
+def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
     """Provides an exception handler, logging mechanism, and argument converter for client-server
     communications.
 
@@ -242,13 +258,13 @@ def pyaedt_function_handler(direct_func=None):
     """
     if callable(direct_func):
         user_function = direct_func
-        wrapper = _function_handler_wrapper(user_function)
+        wrapper = _function_handler_wrapper(user_function, **deprecated_kwargs)
         return update_wrapper(wrapper, user_function)
     elif direct_func is not None:
         raise TypeError("Expected first argument to be a callable, or None")
 
     def decorating_function(user_function):
-        wrapper = _function_handler_wrapper(user_function)
+        wrapper = _function_handler_wrapper(user_function, **deprecated_kwargs)
         return update_wrapper(wrapper, user_function)
 
     return decorating_function
@@ -258,7 +274,7 @@ def pyaedt_function_handler(direct_func=None):
 def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     """Check if two numeric values are equivalent to within a relative tolerance.
 
-    Paraemters
+    Parameters
     ----------
     a : int, float
         Reference value to compare to.

@@ -692,9 +692,9 @@ post_params_multiplot = {  # reports
 
 for k, v in post_params.items():
     M2D.post.create_report(expressions=k, setup_sweep_name="", domain="Sweep", variations=None,
-                           primary_sweep_variable="Time", secondary_sweep_variable=None,
-                           report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
-                           polyline_points=1001, plotname=v)
+                           primary_sweep_variable="Time", secondary_sweep_variable=None, report_category=None,
+                           plot_type="Rectangular Plot", context=None, subdesign_id=None, polyline_points=1001,
+                           plot_name=v)
 
 ##########################################################
 # Create multiplot report
@@ -723,11 +723,8 @@ M2D.analyze_setup(setup_name, use_auto_settings=False)
 # formerly created when the section is applied.
 
 faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
-plot1 = M2D.post.create_fieldplot_surface(objlist=faces_reg,
-                                          quantityName='Flux_Lines',
-                                          intrinsincDict={
-                                              "Time": M2D.variable_manager.variables["StopTime"].evaluated_value},
-                                          plot_name="Flux_Lines")
+plot1 = M2D.post.create_fieldplot_surface(objects=faces_reg, quantity='Flux_Lines', intrinsics={
+    "Time": M2D.variable_manager.variables["StopTime"].evaluated_value}, plot_name="Flux_Lines")
 
 ##########################################################
 # Export a field plot to an image file
