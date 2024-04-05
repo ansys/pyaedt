@@ -329,7 +329,8 @@ class Design(AedtObjects):
             ee = list(self.oboundary.GetExcitations())
             current_excitations = [i.split(":")[0] for i in ee[::2]]
             current_excitation_types = ee[1::2]
-            bb.extend(ee)
+            ff = [i.split(":")[0] for i in ee]
+            bb.extend(ff)
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
