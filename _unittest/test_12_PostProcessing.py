@@ -355,18 +355,18 @@ class TestClass:
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        data1.plot(formula="db20")
+        data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp1.jpg"))
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        assert data1.plot("S(Diff1, Diff1)")
-        assert data1.plot(formula="db20")
-        assert data1.plot(formula="db10")
-        assert data1.plot(formula="mag")
-        assert data1.plot(formula="re")
-        assert data1.plot(formula="im")
-        assert data1.plot(formula="phasedeg")
-        assert data1.plot(formula="phaserad")
+        assert data1.plot("S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "temp2.jpg"))
+        assert data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp3.jpg"))
+        assert data1.plot(formula="db10", snapshot_path=os.path.join(self.local_scratch.path, "temp4.jpg"))
+        assert data1.plot(formula="mag", snapshot_path=os.path.join(self.local_scratch.path, "temp5.jpg"))
+        assert data1.plot(formula="re", snapshot_path=os.path.join(self.local_scratch.path, "temp6.jpg"))
+        assert data1.plot(formula="im", snapshot_path=os.path.join(self.local_scratch.path, "temp7.jpg"))
+        assert data1.plot(formula="phasedeg", snapshot_path=os.path.join(self.local_scratch.path, "temp8.jpg"))
+        assert data1.plot(formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"))
 
         assert diff_test.create_touchstone_report(
             plot_name="Diff_plot",

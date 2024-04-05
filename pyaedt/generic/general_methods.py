@@ -198,38 +198,48 @@ def _check_types(arg):
     return ""
 
 
+def raise_exception(e):
+    if not settings.enable_error_handler:
+        if settings.release_on_exception:
+            from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+            for v in list(_desktop_sessions.values())[:]:
+                v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+        raise e
+    else:
+        return False
+
+
 def _function_handler_wrapper(user_function, **deprecated_kwargs):
+
     def wrapper(*args, **kwargs):
+
         if deprecated_kwargs and kwargs:
             deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
-        if not settings.enable_error_handler:
-            result = user_function(*args, **kwargs)
-            return result
-        else:
-            try:
-                settings.time_tick = time.time()
-                out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
-                    _log_method(user_function, args, kwargs)
-                return out
-            except MethodNotSupportedError:
-                message = "This method is not supported in current AEDT design type."
-                if settings.enable_screen_logs:
-                    pyaedt_logger.error("**************************************************************")
-                    pyaedt_logger.error(
-                        "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
-                    )
-                    pyaedt_logger.error("**************************************************************")
-                    pyaedt_logger.error("")
-                if settings.enable_file_logs:
-                    settings.error(message)
-                return False
-            except GrpcApiError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
-                return False
-            except BaseException:
-                _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
-                return False
+        try:
+            settings.time_tick = time.time()
+            out = user_function(*args, **kwargs)
+            if settings.enable_debug_logger or settings.enable_debug_edb_logger:
+                _log_method(user_function, args, kwargs)
+            return out
+        except MethodNotSupportedError as e:
+            message = "This method is not supported in current AEDT design type."
+            if settings.enable_screen_logs:
+                pyaedt_logger.error("**************************************************************")
+                pyaedt_logger.error(
+                    "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
+                )
+                pyaedt_logger.error("**************************************************************")
+                pyaedt_logger.error("")
+            if settings.enable_file_logs:
+                settings.error(message)
+            raise_exception(e)
+        except GrpcApiError as e:
+            _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
+            raise_exception(e)
+        except BaseException as e:
+            _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+            raise_exception(e)
 
     return wrapper
 
