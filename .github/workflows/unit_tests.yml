@@ -132,7 +132,7 @@ jobs:
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
         with:
-          max_attempts: 3
+          max_attempts: 2
           retry_on: error
           timeout_minutes: 50
           command: |
