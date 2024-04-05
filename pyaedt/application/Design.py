@@ -512,8 +512,7 @@ class Design(AedtObjects):
             and settings.remote_rpc_session
             and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
         ):
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self.project_file)[-1])
-            file_path = check_and_download_file(local_path, self.project_file)
+            file_path = check_and_download_file(self.project_file)
             try:
                 settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
             except Exception:
