@@ -3049,7 +3049,7 @@ class Hfss(FieldAnalysis3D, object):
             Type of boundary condition to assign to a sheet or surface. The
             default is ``Hfss.BoundaryType.PerfectE``. Options are the properties of the
             :class:``Hfss.BoundaryType`` class. For example:
-            
+
                 - ``Hfss.BoundaryType.PerfectE``
                 - ``Hfss.BoundaryType.PerfectH``
                 - ``Hfss.BoundaryType.Radiation``
