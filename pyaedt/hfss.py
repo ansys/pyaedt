@@ -3040,25 +3040,27 @@ class Hfss(FieldAnalysis3D, object):
         self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
     ):
         """Assign a boundary condition to a sheet or surface. This method is generally
-           used by other methods in the ``Hfss`` class such as :meth:``Hfss.assign_febi``
-           or :meth:``Hfss.assign_radiation_boundary_to_faces``.
+           used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
+           or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
 
         Parameters
         ----------
         boundary_type : int, optional
-            Specifies the type of boundary condition to be assigned to a sheet or surface.
-            Options are properties of :class:``Hfss.BoundaryType``. For example,
+            Type of boundary condition to assign to a sheet or surface. The
+            default is ``Hfss.BoundaryType.PerfectE``. Options are the properties of the
+            :class:``Hfss.BoundaryType`` class. For example:
+            
                 - ``Hfss.BoundaryType.PerfectE``
                 - ``Hfss.BoundaryType.PerfectH``
                 - ``Hfss.BoundaryType.Radiation``
                 - ``Hfss.BoundaryType.Impedance``
                 - ``Hfss.BoundaryType.LumpedRLC``
                 - ``Hfss.BoundaryType.FEBI``
-            The default is ``Hfss.BoundaryType.PerfectE``.
-        sheet_name : in, str, or list, optional
-            Name of the sheet or face to which the boundary condition will be assigned.
-            It can be an integer (face ID), a string (sheet), or a list of integers
-            and strings. The default is ``None``.
+
+        sheet_name : int, str, or list, optional
+            Name of the sheet or face to assign the boundary condition to. The
+            default is ``None``. You can provide an integer (face ID), a string (sheet),
+            or a list of integers and strings.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         is_infinite_gnd : bool, optional
