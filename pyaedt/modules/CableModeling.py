@@ -5,6 +5,7 @@ import os
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import read_configuration_file
 
 
@@ -1409,6 +1410,6 @@ class Cable:
         omodule.ExportCableLibrary(file_path_export)
         file_path_export_as_json = os.path.join(working_dir, "export_cable_library_as_json_test.json")
         data = load_entire_aedt_file(file_path_export)
-        with open(file_path_export_as_json, "w") as f:
+        with open_file(file_path_export_as_json, "w") as f:
             json.dump(data, f)
         return data

@@ -469,6 +469,7 @@ class TestClass:
         rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
 
         m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+        m3d.assign_voltage("Sheet1", amplitude=1, name="Voltage5")
         m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
         m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
         m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")

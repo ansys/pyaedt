@@ -3,7 +3,6 @@ import copy
 from datetime import datetime
 import json
 import os
-import pkgutil
 import tempfile
 
 import pyaedt
@@ -17,6 +16,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
@@ -692,12 +692,23 @@ class Configurations(object):
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
-        # Read the default configuration schema from pyaedt
-        schema_bytes = pkgutil.get_data(
-            __name__, os.path.join(os.path.dirname(pyaedt.__file__), "misc", "config.schema.json")
-        )
-        schema_string = schema_bytes.decode("utf-8")
-        self._schema = json.loads(schema_string)
+        pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
+
+        schema_bytes = None
+
+        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+
+        if os.path.exists(config_schema_path):
+            with open(config_schema_path, "rb") as schema:
+                schema_bytes = schema.read()
+
+        if schema_bytes:
+            # Read the default configuration schema from pyaedt
+            schema_string = schema_bytes.decode("utf-8")
+            self._schema = json.loads(schema_string)
+        else:  # pragma: no cover
+            self._app.logger.error("Failed to load configuration schema.")
+            self._schema = None
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1222,7 +1233,7 @@ class Configurations(object):
         if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
-            with open(oo_out, "r") as f:
+            with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")

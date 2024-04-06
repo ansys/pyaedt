@@ -712,7 +712,7 @@ class GeometryOperators(object):
         Returns
         -------
         bool
-            ``True`` when the projected segment is inside the other segmennt, ``False`` otherwise.
+            ``True`` when the projected segment is inside the other segment, ``False`` otherwise.
 
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):

@@ -24,6 +24,7 @@ class Settings(object):
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
         self._enable_error_handler = True
+        self._release_on_exception = True
         self._aedt_version = None
         self._aedt_install_dir = None
         self._use_multi_desktop = False
@@ -71,6 +72,20 @@ class Settings(object):
         self._wait_for_license = False
         self.__lazy_load = True
         self.__objects_lazy_load = False
+
+    @property
+    def release_on_exception(self):
+        """
+
+        Returns
+        -------
+
+        """
+        return self._release_on_exception
+
+    @release_on_exception.setter
+    def release_on_exception(self, value):
+        self._release_on_exception = value
 
     @property
     def objects_lazy_load(self):
