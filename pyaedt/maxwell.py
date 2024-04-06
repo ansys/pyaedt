@@ -11,6 +11,7 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
@@ -460,9 +461,9 @@ class Maxwell(object):
             source_dir = self.pyaedt_dir
 
         if os.path.exists(ctl_file_path) and keep_modifications:
-            with open(ctl_file_path, "r") as fi:
+            with open_file(ctl_file_path, "r") as fi:
                 existing_data = fi.readlines()
-            with open(ctl_file_path, "w") as fo:
+            with open_file(ctl_file_path, "w") as fo:
                 first_line = True
                 for line in existing_data:
                     if first_line:
@@ -966,7 +967,13 @@ class Maxwell(object):
         if self.design_type == "Maxwell 2D":
             props = OrderedDict({"Objects": face_list, "Value": amplitude})
         else:
-            props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
+            if len(face_list) == 1:
+                if isinstance(face_list[0], str) and face_list[0] in self.modeler.object_names:
+                    props = OrderedDict({"Objects": face_list, "Voltage": amplitude})
+                else:
+                    props = OrderedDict({"Faces": face_list, "Value": amplitude})
+            else:
+                props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
             self._boundaries[bound.name] = bound

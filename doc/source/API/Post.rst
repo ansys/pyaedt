@@ -37,7 +37,7 @@ plots in AEDT. They are accessible through the ``post`` property.
     post = app.post
 
     # This call returns a FieldPlot object
-    plotf = post.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
+    plotf = post.create_fieldplot_volume(objects, quantity_name, setup_name, intrinsics)
 
     # This call returns a SolutionData object
     my_data = post.get_solution_data(expressions=trace_names)

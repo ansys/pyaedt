@@ -445,7 +445,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y, label=label)
+        ax.plot(x, y)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -1516,14 +1516,19 @@ class ModelPlotter(CommonPlotter):
             )
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None):
+    def plot(self, export_image_path=None, show=True):
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
         ----------
 
-        export_image_path : str
-            Path to image to save.
+        export_image_path : str, optional
+            Path to image to save. Default is None
+        show : bool, optional
+            Whether to display the pyvista plot.
+            When False, a :class::pyvista.Plotter object is created
+            and assigned to the pv property so that it can be
+            modified further. Default is True.
 
         Returns
         -------
@@ -1645,9 +1650,9 @@ class ModelPlotter(CommonPlotter):
         self.pv.add_key_event("s", s_callback)
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
-        elif self.is_notebook:  # pragma: no cover
+        elif show and self.is_notebook:  # pragma: no cover
             self.pv.show()  # pragma: no cover
-        else:
+        elif show:
             self.pv.show(full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path

@@ -119,9 +119,11 @@ safe_attrs = {
 
 
 def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
-    """Starts an RPyC server on CPython and listens on a specified port.
+    """Starts the PyAEDT service manager using RPyC server on CPython.
 
-    This method must run on a server machine.
+    This method, which must run on a server machine, is used as a service on the
+    server machine to listen on a dedicated port for inbound requests to launch
+    a new server connection and launch AEDT.
 
     Parameters
     ----------
@@ -252,7 +254,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
 
 def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=True):
     """
-    Connect to an existing AEDT server session.
+    Connect to an existing AEDT server session and create a new client session from it.
 
     Parameters
     ----------
@@ -266,9 +268,10 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         Aedt Grpc port on server.
     non_graphical : bool, optional
         Aedt Non Graphical Flag.
+
     Returns
     -------
-    RPyC object.
+    RPyC client object.
     """
     try:
         client = rpyc.connect(
@@ -314,7 +317,7 @@ def connect(server_name, aedt_client_port):
 
     Returns
     -------
-    RPyC object.
+    RPyC client object.
     """
     try:
         client = rpyc.connect(
