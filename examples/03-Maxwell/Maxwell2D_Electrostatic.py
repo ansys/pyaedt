@@ -144,7 +144,7 @@ M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(setup_name=setup_name)
+setup = M2D.create_setup(name=setup_name)
 setup.props['PercentError'] = 0.5
 setup.update()
 M2D.validate_simple()

@@ -49,12 +49,12 @@ class TestClass:
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
     def test_04_create_winding(self):
-        bounds = self.aedtapp.assign_winding(faces=["Coil"], current_value=20e-3)
+        bounds = self.aedtapp.assign_winding(faces=["Coil"], current=20e-3)
         assert bounds
         o = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", matname="copper")
-        bounds = self.aedtapp.assign_winding(faces=o.id, current_value=20e-3)
+        bounds = self.aedtapp.assign_winding(faces=o.id, current=20e-3)
         assert bounds
-        bounds = self.aedtapp.assign_winding(faces=["Coil"], current_value="20e-3A")
+        bounds = self.aedtapp.assign_winding(faces=["Coil"], current="20e-3A")
         assert bounds
         bounds = self.aedtapp.assign_winding(faces=["Coil"], resistance="1ohm")
         assert bounds
@@ -297,10 +297,10 @@ class TestClass:
 
     def test_22_eddycurrent(self):
         self.aedtapp.set_active_design("Basis_Model_For_Test")
-        assert self.aedtapp.eddy_effects_on(["Coil_1"], eddy_effects=True)
+        assert self.aedtapp.eddy_effects_on(["Coil_1"], enable_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
         assert oModule.GetEddyEffect("Coil_1")
-        self.aedtapp.eddy_effects_on(["Coil_1"], eddy_effects=False)
+        self.aedtapp.eddy_effects_on(["Coil_1"], enable_eddy_effects=False)
         assert not oModule.GetEddyEffect("Coil_1")
 
     def test_23_read_motion_boundary(self):
@@ -337,7 +337,7 @@ class TestClass:
         self.aedtapp.assign_matrix(sources=["PM_I1_1_I0", "PM_I1_I0"], matrix_name="Test1")
         self.aedtapp.assign_matrix(sources=["Phase_A", "Phase_B", "Phase_C"], matrix_name="Test2")
         setup_name = "setupTestMatrixRL"
-        setup = self.aedtapp.create_setup(setup_name=setup_name)
+        setup = self.aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("Test1", export_path_1)
@@ -482,7 +482,7 @@ class TestClass:
 
         example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
         assert os.path.exists(example_project_copy)
-        self.aedtapp.create_setup(setup_name="test_setup")
+        self.aedtapp.create_setup(name="test_setup")
         assert self.aedtapp.setups[2].start_continue_from_previous_setup(
             design_name="design_for_test", solution_name="Setup1 : Transient", project_name=example_project_copy
         )

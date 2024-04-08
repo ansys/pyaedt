@@ -1387,7 +1387,7 @@ class Analysis(Design, object):
 
         >>> import pyaedt
         >>> hfss = pyaedt.Hfss()
-        >>> setup1 = hfss.create_setup(setup_name='Setup1')
+        >>> setup1 = hfss.create_setup(name='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
         PyAEDT INFO: Sweep was deleted correctly.

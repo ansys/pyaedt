@@ -503,10 +503,10 @@ class Maxwell(object):
 
     @pyaedt_function_handler(
         object_list="objects",
-        activate_eddy_effects="eddy_effects",
-        activate_displacement_current="displacement_current",
+        activate_eddy_effects="enable_eddy_effects",
+        activate_displacement_current="enable_displacement_current",
     )
-    def eddy_effects_on(self, objects, eddy_effects=True, displacement_current=True):
+    def eddy_effects_on(self, objects, enable_eddy_effects=True, enable_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
         For Eddy Current solvers only, you must specify the displacement current on the model objects.
@@ -515,9 +515,9 @@ class Maxwell(object):
         ----------
         objects : list, str
             List of objects to assign eddy effects to.
-        eddy_effects : bool, optional
+        enable_eddy_effects : bool, optional
             Whether to activate eddy effects. The default is ``True``.
-        displacement_current : bool, optional
+        enable_displacement_current : bool, optional
             Whether to activate the displacement current. The default is ``True``.
             Valid only for Eddy Current solvers.
 
@@ -535,8 +535,8 @@ class Maxwell(object):
 
         EddyVector = ["NAME:EddyEffectVector"]
         if self.modeler._is3d:
-            if not eddy_effects:
-                displacement_current = False
+            if not enable_eddy_effects:
+                enable_displacement_current = False
             for obj in solid_objects_names:
                 if self.solution_type == "EddyCurrent":
                     if obj in objects:
@@ -546,9 +546,9 @@ class Maxwell(object):
                                 "Object Name:=",
                                 obj,
                                 "Eddy Effect:=",
-                                eddy_effects,
+                                enable_eddy_effects,
                                 "Displacement Current:=",
-                                displacement_current,
+                                enable_displacement_current,
                             ]
                         )
                     else:
@@ -571,7 +571,7 @@ class Maxwell(object):
                                 "Object Name:=",
                                 obj,
                                 "Eddy Effect:=",
-                                eddy_effects,
+                                enable_eddy_effects,
                             ]
                         )
                     else:
@@ -593,7 +593,7 @@ class Maxwell(object):
                             "Object Name:=",
                             obj,
                             "Eddy Effect:=",
-                            eddy_effects,
+                            enable_eddy_effects,
                         ]
                     )
                 else:
@@ -1029,13 +1029,13 @@ class Maxwell(object):
             return bound
         return False
 
-    @pyaedt_function_handler(coil_terminals="faces", res="resistance", ind="inductance")
+    @pyaedt_function_handler(coil_terminals="faces", current_value="current", res="resistance", ind="inductance")
     def assign_winding(
         self,
         faces=None,
         winding_type="Current",
         is_solid=True,
-        current_value=1,
+        current=1,
         resistance=0,
         inductance=0,
         voltage=0,
@@ -1056,7 +1056,7 @@ class Maxwell(object):
         is_solid : bool, optional
             Whether the winding is the solid type. The default is ``True``. If ``False``,
             the winding is the stranded type.
-        current_value : float, optional
+        current : float, optional
             Value of the current in amperes. The default is ``1``.
         resistance : float, optional
             Resistance in ohms. The default is ``0``.
@@ -1090,7 +1090,7 @@ class Maxwell(object):
             {
                 "Type": winding_type,
                 "IsSolid": is_solid,
-                "Current": self.modeler._arg_with_dim(current_value, "A"),
+                "Current": self.modeler._arg_with_dim(current, "A"),
                 "Resistance": self.modeler._arg_with_dim(resistance, "ohm"),
                 "Inductance": self.modeler._arg_with_dim(inductance, "H"),
                 "Voltage": self.modeler._arg_with_dim(voltage, "V"),
@@ -1144,15 +1144,15 @@ class Maxwell(object):
             self.oboundary.AddWindingCoils(winding, coils)
         return True
 
-    @pyaedt_function_handler(input_object="objects", conductor_number="conductors")
-    def assign_coil(self, objects, conductors=1, polarity="Positive", name=None):
+    @pyaedt_function_handler(input_object="objects", conductor_number="conductors_number")
+    def assign_coil(self, objects, conductors_number=1, polarity="Positive", name=None):
         """Assign coils to a list of objects or face IDs.
 
         Parameters
         ----------
         objects : list
             List of objects or face IDs.
-        conductors : int, optional
+        conductors_number : int, optional
             Number of conductors. The default is ``1``.
         polarity : str, optional
             Type of the polarity. The default is ``"Positive"``.
@@ -1183,14 +1183,14 @@ class Maxwell(object):
         if type(objects[0]) is str:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {"Objects": objects, "Conductor number": str(conductors), "Point out of terminal": point}
+                    {"Objects": objects, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
             else:
                 props2 = OrderedDict(
                     {
                         "Objects": objects,
-                        "Conductor number": str(conductors),
+                        "Conductor number": str(conductors_number),
                         "PolarityType": polarity.lower(),
                     }
                 )
@@ -1198,7 +1198,7 @@ class Maxwell(object):
         else:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {"Faces": objects, "Conductor number": str(conductors), "Point out of terminal": point}
+                    {"Faces": objects, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
@@ -1866,11 +1866,11 @@ class Maxwell(object):
         self.odesign.EnableHarmonicForceCalculation(args)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup")
     def export_element_based_harmonic_force(
         self,
         output_directory=None,
-        setup_name=None,
+        setup=None,
         start_frequency=None,
         stop_frequency=None,
         number_of_frequency=None,
@@ -1881,7 +1881,7 @@ class Maxwell(object):
         ----------
         output_directory : str, optional
             The path for the output directory. If ``None`` pyaedt working dir will be used.
-        setup_name : str, optional
+        setup : str, optional
             Name of the solution setup. If ``None``, the nominal setup is used.
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
@@ -1900,8 +1900,8 @@ class Maxwell(object):
             return False
         if not output_directory:
             output_directory = self.working_directory
-        if not setup_name:
-            setup_name = self.setups[0].name
+        if not setup:
+            setup = self.setups[0].name
         freq_option = 1
         f1 = -1
         f2 = -1
@@ -1912,7 +1912,7 @@ class Maxwell(object):
         elif number_of_frequency:
             freq_option = 3
             f1 = number_of_frequency
-        self.odesign.ExportElementBasedHarmonicForce(output_directory, setup_name, freq_option, f1, f2)
+        self.odesign.ExportElementBasedHarmonicForce(output_directory, setup, freq_option, f1, f2)
         return output_directory
 
     @pyaedt_function_handler
@@ -1962,8 +1962,8 @@ class Maxwell(object):
         self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
         return True
 
-    @pyaedt_function_handler(setupname="setup_name", setuptype="setup_type")
-    def create_setup(self, setup_name="MySetupAuto", setup_type=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
 
         Optional arguments are passed along with ``setuptype`` and ``setupname``.
@@ -1977,7 +1977,7 @@ class Maxwell(object):
             ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
             ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
             and ``Transient"``.
-        setup_name : str, optional
+        name : str, optional
             Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
@@ -1996,7 +1996,7 @@ class Maxwell(object):
         --------
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> app.create_setup(setup_name="My_Setup",setup_type="EddyCurrent",MaximumPasses=10,PercentError=2)
+        >>> m3d.create_setup(name="My_Setup",setup_type="EddyCurrent",MaximumPasses=10,PercentError=2)
         >>> m3d.release_desktop(True, True)
         """
         if setup_type is None:
@@ -2004,9 +2004,9 @@ class Maxwell(object):
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setup_name, setuptype=setup_type, props=kwargs["props"])
+            return self._create_setup(setupname=name, setuptype=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setup_name, setuptype=setup_type)
+            setup = self._create_setup(setupname=name, setuptype=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
@@ -2024,12 +2024,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     Parameters
     ----------
-    project_name : str, optional
+    projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    design_name : str, optional
+    designname : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
@@ -2086,7 +2086,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Create an instance of Maxwell 3D using the 2024 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> m3d = Maxwell3d(specified_version="2024.1", project_name="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(specified_version="2024.1", projectname="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """
@@ -2096,11 +2096,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """Dimensions."""
         return "3D"
 
-    @pyaedt_function_handler(projectname="project_name", designname="design_name")
     def __init__(
         self,
-        project_name=None,
-        design_name=None,
+        projectname=None,
+        designname=None,
         solution_type=None,
         setup_name=None,
         specified_version=None,
@@ -2119,8 +2118,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         FieldAnalysis3D.__init__(
             self,
             "Maxwell 3D",
-            project_name,
-            design_name,
+            projectname,
+            designname,
             solution_type,
             setup_name,
             specified_version,
@@ -2777,12 +2776,12 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
     Parameters
     ----------
-    project_name : str, optional
+    projectname : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    design_name : str, optional
+    designname : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
@@ -2835,15 +2834,15 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     >>> m2d = Maxwell2d()
 
     Create an instance of Maxwell 2D and link to a project named
-    ``project_name``. If this project does not exist, create one with
+    ``projectname``. If this project does not exist, create one with
     this name.
 
-    >>> m2d = Maxwell2d(project_name)
+    >>> m2d = Maxwell2d(projectname)
 
     Create an instance of Maxwell 2D and link to a design named
-    ``design_name`` in a project named ``project_name``.
+    ``designname`` in a project named ``projectname``.
 
-    >>> m2d = Maxwell2d(project_name,design_name)
+    >>> m2d = Maxwell2d(projectname,designname)
 
     """
 
@@ -2862,11 +2861,10 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         >>> oDesign.GetGeometryMode"""
         return self.odesign.GetGeometryMode()
 
-    @pyaedt_function_handler(projectname="project_name", designname="design_name")
     def __init__(
         self,
-        project_name=None,
-        design_name=None,
+        projectname=None,
+        designname=None,
         solution_type=None,
         setup_name=None,
         specified_version=None,
@@ -2882,8 +2880,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         FieldAnalysis3D.__init__(
             self,
             "Maxwell 2D",
-            project_name,
-            design_name,
+            projectname,
+            designname,
             solution_type,
             setup_name,
             specified_version,

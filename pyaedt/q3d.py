@@ -1790,7 +1790,7 @@ class Q3d(QExtractor, object):
             -------
             >>> from pyaedt import Q3d
             >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(setup_name="Setup1")
+            >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
             >>> q3d.release_desktop(True, True)
 
@@ -1861,7 +1861,7 @@ class Q3d(QExtractor, object):
             -------
             >>> from pyaedt import Q3d
             >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(setup_name="Setup1")
+            >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
             ...                                        freqstart=0.5,
             ...                                        freqstop=1.5,
@@ -2007,7 +2007,7 @@ class Q3d(QExtractor, object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(setup_name="Setup1",DC__MinPass=2)
+        >>> app.create_setup(name="Setup1",DC__MinPass=2)
 
         """
         setuptype = self.design_solutions.default_setup
@@ -2527,7 +2527,7 @@ class Q2d(QExtractor, object):
 
         >>> from pyaedt import Q2d
         >>> app = Q2d()
-        >>> app.create_setup(setup_name="Setup1",RLDataBlock__MinPass=2)
+        >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup

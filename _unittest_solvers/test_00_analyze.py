@@ -172,7 +172,7 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(setup_name="test")
+        setup = hfss_app.create_setup(name="test")
         setup.props["Frequency"] = "1GHz"
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
@@ -412,9 +412,8 @@ class TestClass:
         )
         m3dtransient.save_project()
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
-        assert m3dtransient.export_element_based_harmonic_force(
-            start_frequency=1, stop_frequency=100, number_of_frequency=None
-        )
+        assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
+                                                                number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
@@ -433,7 +432,7 @@ class TestClass:
         assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, file_name=fld_file_4,
                                                        objects="Coil_A2")
 
-        new_setup = m3dtransient.create_setup(setup_name=setup.name, setup_type=setup.setuptype)
+        new_setup = m3dtransient.create_setup(name=setup.name, setup_type=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
 

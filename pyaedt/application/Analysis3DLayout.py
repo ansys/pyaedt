@@ -282,7 +282,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> from pyaedt import Hfss3dLayout
         >>> app = Hfss3dLayout()
-        >>> app.create_setup(setup_name="Setup1",MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+        >>> app.create_setup(name="Setup1",MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
@@ -359,7 +359,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> import pyaedt
         >>> hfss3dlayout = pyaedt.Hfss3dLayout()
-        >>> setup1 = hfss3dlayout.create_setup(setup_name='Setup1')
+        >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
         >>> hfss3dlayout.delete_setup(setupname='Setup1')
         ...
         PyAEDT INFO: Sweep was deleted correctly.

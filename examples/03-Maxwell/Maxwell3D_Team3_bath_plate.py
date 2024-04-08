@@ -141,7 +141,7 @@ m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_
 # ~~~~~~~~~~~~~~~~~~~~
 # Add a Maxwell 3D setup with frequency points at 50 Hz and 200 Hz.
 
-setup = m3d.create_setup(setup_name="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
@@ -152,8 +152,8 @@ setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=1
 # Adjust eddy effects for the ladder plate and the search coil. The setting for
 # eddy effect is ignored for the stranded conductor type used in the search coil.
 
-m3d.eddy_effects_on(objects=["LadderPlate"], eddy_effects=True, displacement_current=True)
-m3d.eddy_effects_on(objects=["SearchCoil"], eddy_effects=False, displacement_current=True)
+m3d.eddy_effects_on(objects=["LadderPlate"], enable_eddy_effects=True, enable_displacement_current=True)
+m3d.eddy_effects_on(objects=["SearchCoil"], enable_eddy_effects=False, enable_displacement_current=True)
 
 ################################################################################
 # Add linear parametric sweep

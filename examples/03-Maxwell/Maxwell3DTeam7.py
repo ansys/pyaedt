@@ -70,7 +70,7 @@ m3d.modeler.model_units = "mm"
 dc_freq = 0.1
 stop_freq = 50
 
-setup = m3d.create_setup(setup_name="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
@@ -192,8 +192,8 @@ m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # used in the coil.
 
 m3d.eddy_effects_on(objects="Plate")
-m3d.eddy_effects_on(objects=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], eddy_effects=False,
-                    displacement_current=False)
+m3d.eddy_effects_on(objects=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], enable_eddy_effects=False,
+                    enable_displacement_current=False)
 
 ################################################################################
 # Create expression for Z component of B in Gauss

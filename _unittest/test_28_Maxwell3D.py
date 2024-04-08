@@ -167,9 +167,9 @@ class TestClass:
     def test_05_winding(self):
         face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
         assert self.aedtapp.assign_winding(face_id)
-        bounds = self.aedtapp.assign_winding(faces=face_id, current_value=20e-3)
+        bounds = self.aedtapp.assign_winding(faces=face_id, current=20e-3)
         assert bounds
-        bounds = self.aedtapp.assign_winding(faces=face_id, current_value="20e-3A")
+        bounds = self.aedtapp.assign_winding(faces=face_id, current="20e-3A")
         assert bounds
         bounds = self.aedtapp.assign_winding(faces=face_id, resistance="1ohm")
         assert bounds
@@ -199,11 +199,11 @@ class TestClass:
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
-        assert self.aedtapp.eddy_effects_on(["Plate"], eddy_effects=True)
+        assert self.aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
         assert oModule.GetEddyEffect("Plate")
         assert oModule.GetDisplacementCurrent("Plate")
-        self.aedtapp.eddy_effects_on(["Plate"], eddy_effects=False)
+        self.aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=False)
         assert not oModule.GetEddyEffect("Plate")
         assert not oModule.GetDisplacementCurrent("Plate")
 
@@ -521,7 +521,7 @@ class TestClass:
         L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
         setup_name = "setupTestMatrixRL"
-        setup = self.aedtapp.create_setup(setup_name=setup_name)
+        setup = self.aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
@@ -689,7 +689,7 @@ class TestClass:
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
     def test_43_eddy_effect_transient(self, m3dtransient):
-        assert m3dtransient.eddy_effects_on(["Rotor"], eddy_effects=True)
+        assert m3dtransient.eddy_effects_on(["Rotor"], enable_eddy_effects=True)
 
     def test_44_assign_master_slave(self, m3dtransient):
         faces = [
