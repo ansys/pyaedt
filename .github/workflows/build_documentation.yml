@@ -30,7 +30,8 @@ jobs:
           vale-version: "2.29.6"
 
   docs_build:
-    runs-on: ubuntu-20.04
+    # runs-on: ubuntu-20.04
+    runs-on: [ self-hosted, Linux, pyaedt ]
 
     steps:
       - uses: actions/checkout@v4
@@ -74,6 +75,7 @@ jobs:
 
       - name: Install doc build requirements
         run: |
+          sudo apt update
           sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
       # run doc build, without creating the examples directory
