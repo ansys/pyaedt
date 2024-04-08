@@ -1176,13 +1176,13 @@ class IcepakMesh(object):
         self.global_mesh_region.update()
         return True
 
-    @pyaedt_function_handler(stairStep="enable_stair_step")
-    def automatic_mesh_3D(self, accuracy2, enable_stair_step=True):
+    @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
+    def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
         """Create a generic custom mesh for a custom 3D object.
 
         Parameters
         ----------
-        accuracy2 : int
+        accuracy : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively
             a coarse, standard, or very accurate mesh.
         enable_stair_step : bool, optional
@@ -1198,9 +1198,9 @@ class IcepakMesh(object):
 
         >>> oModule.EditMeshOperation
         """
-        xsize = self.boundingdimension[0] / (10 * accuracy2 * accuracy2)
-        ysize = self.boundingdimension[1] / (10 * accuracy2 * accuracy2)
-        zsize = self.boundingdimension[2] / (10 * accuracy2)
+        xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
+        ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
+        zsize = self.boundingdimension[2] / (10 * accuracy)
         self.global_mesh_region.MaxElementSizeX = xsize
         self.global_mesh_region.MaxElementSizeY = ysize
         self.global_mesh_region.MaxElementSizeZ = zsize

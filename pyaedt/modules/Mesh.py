@@ -323,9 +323,9 @@ class Mesh(object):
     Basic usage demonstrated with an HFSS design:
 
     >>> from pyaedt import Hfss
-    >>> aedtapp = Hfss()
-    >>> cylinder = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-    >>> model_resolution = aedtapp.mesh.assign_model_resolution(cylinder,1e-4,"ModelRes1")
+    >>> hfss = Hfss()
+    >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+    >>> model_resolution = hfss.mesh.assign_model_resolution(cylinder,1e-4,"ModelRes1")
     """
 
     def __init__(self, app):
@@ -358,10 +358,10 @@ class Mesh(object):
         Basic usage demonstrated with an HFSS design:
 
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> cylinder = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> mr1 = aedtapp.mesh.assign_model_resolution(cylinder,1e-4,"ModelRes1")
-        >>> mr2 = aedtapp.mesh[mr1.name]
+        >>> hfss = Hfss()
+        >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = hfss.mesh.assign_model_resolution(cylinder,1e-4,"ModelRes1")
+        >>> mr2 = hfss.mesh[mr1.name]
         """
 
         if part_id in self.meshoperation_names:
@@ -384,10 +384,10 @@ class Mesh(object):
         Basic usage demonstrated with an HFSS design:
 
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> mr1 = aedtapp.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
-        >>> mesh_operations_list = aedtapp.mesh.meshoperations
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
+        >>> mesh_operations_list = hfss.mesh.meshoperations
         """
         if self._meshoperations is None:
             self._meshoperations = self._get_design_mesh_operations()
@@ -414,11 +414,11 @@ class Mesh(object):
         Basic usage demonstrated with an HFSS design:
 
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> mr1 = aedtapp.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
-        >>> mr2 = aedtapp.mesh.assign_model_resolution(o,1e-2,"ModelRes2")
-        >>> mesh_operations_names = aedtapp.mesh.meshoperation_names
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
+        >>> mr2 = hfss.mesh.assign_model_resolution(o,1e-2,"ModelRes2")
+        >>> mesh_operations_names = hfss.mesh.meshoperation_names
         """
         if self._app._is_object_oriented_enabled():
             return list(self._app.odesign.GetChildObject("Mesh").GetChildNames())
@@ -564,9 +564,9 @@ class Mesh(object):
         Basic usage demonstrated with an HFSS design:
 
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = aedtapp.mesh.assign_surface_mesh(o.id,3,"Surface")
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh(o.id,3,"Surface")
         """
         objects = self.modeler.convert_to_selections(objects, True)
         if name:
@@ -595,15 +595,17 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="objects", meshop_name="name")
-    def assign_surface_mesh_manual(self, objects, surf_dev=None, normal_dev=None, aspect_ratio=None, name=None):
+    @pyaedt_function_handler(names="objects", surf_dev="surface_deviation", meshop_name="name")
+    def assign_surface_mesh_manual(
+        self, objects, surface_deviation=None, normal_dev=None, aspect_ratio=None, name=None
+    ):
         """Assign a surface mesh to a list of faces.
 
         Parameters
         ----------
         objects : list or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
             List of faces to apply the surface mesh to.
-        surf_dev : float or str, optional
+        surface_deviation : float or str, optional
             Surface deviation. The default is ``None``. Allowed values are float, number with units or `"inf"`.
         normal_dev : float or str, optional
             Normal deviation. The default is ``None``.
@@ -627,9 +629,9 @@ class Mesh(object):
         Basic usage demonstrated with an HFSS design:
 
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = aedtapp.mesh.assign_surface_mesh_manual(o.id,1e-6,aspect_ratio=3,name="Surface_Manual")
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id,1e-6,aspect_ratio=3,name="Surface_Manual")
         """
         objects = self.modeler.convert_to_selections(objects, True)
         if name:
@@ -643,10 +645,10 @@ class Mesh(object):
         normal_dev_enable = 2
         aspect_ratio_enable = 2
 
-        if not surf_dev:
+        if not surface_deviation:
             surf_dev_enable = 0
-            surf_dev = "0.0001mm"
-        elif surf_dev == "inf":
+            surface_deviation = "0.0001mm"
+        elif surface_deviation == "inf":
             surf_dev_enable = 1
         if not normal_dev:
             normal_dev_enable = 1
@@ -662,7 +664,7 @@ class Mesh(object):
                 "Objects": objects,
                 "CurvedSurfaceApproxChoice": "ManualSettings",
                 "SurfDevChoice": surf_dev_enable,
-                "SurfDev": surf_dev,
+                "SurfDev": surface_deviation,
                 "NormalDevChoice": normal_dev_enable,
                 "NormalDev": normal_dev,
                 "AspectRatioChoice": aspect_ratio_enable,
@@ -704,9 +706,9 @@ class Mesh(object):
         Basic usage demonstrated with an HFSS design:
 
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-        >>> surface = aedtapp.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
+        >>> hfss = Hfss()
+        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         """
         objects = self.modeler.convert_to_selections(objects, True)
         if name:

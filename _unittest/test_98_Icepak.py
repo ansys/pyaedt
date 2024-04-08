@@ -397,7 +397,7 @@ class TestClass:
 
     def test_32_automatic_mesh_3d(self):
         self.aedtapp.set_active_design("IcepakDesign1")
-        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
+        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy=1)
 
     def test_33_create_source(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
