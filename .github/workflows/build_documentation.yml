@@ -30,8 +30,7 @@ jobs:
           vale-version: "2.29.6"
 
   docs_build:
-    # runs-on: ubuntu-20.04
-    runs-on: [ self-hosted, Linux, pyaedt ]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
