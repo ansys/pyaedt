@@ -95,9 +95,7 @@ class BoundaryCommon(PropsManager):
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-        for el in self._app.boundaries[:]:
-            if el.name == self.name:
-                del self._app._boundaries[el.name]
+        self._app.boundaries
         return True
 
     def _get_boundary_data(self, ds):
@@ -1940,14 +1938,14 @@ class Sources(object):
                 original_name = self._name
                 self._name = source_name
                 for port in self._app.excitations:
-                    if original_name in self._app.excitations[port].props["EnabledPorts"]:
-                        self._app.excitations[port].props["EnabledPorts"] = [
+                    if original_name in self._app.excitation_objects[port].props["EnabledPorts"]:
+                        self._app.excitation_objects[port].props["EnabledPorts"] = [
                             w.replace(original_name, source_name)
-                            for w in self._app.excitations[port].props["EnabledPorts"]
+                            for w in self._app.excitation_objects[port].props["EnabledPorts"]
                         ]
-                    if original_name in self._app.excitations[port].props["EnabledAnalyses"]:
-                        self._app.excitations[port].props["EnabledAnalyses"][source_name] = (
-                            self._app.excitations[port].props["EnabledAnalyses"].pop(original_name)
+                    if original_name in self._app.excitation_objects[port].props["EnabledAnalyses"]:
+                        self._app.excitation_objects[port].props["EnabledAnalyses"][source_name] = (
+                            self._app.excitation_objects[port].props["EnabledAnalyses"].pop(original_name)
                         )
                 self.update(original_name)
         else:
@@ -2124,7 +2122,7 @@ class Sources(object):
         for source_name in self._app.sources:
             excitation_source = []
             for port in self._app.excitations:
-                if source_name in self._app.excitations[port]._props["EnabledPorts"]:
+                if source_name in self._app.excitation_objects[port]._props["EnabledPorts"]:
                     excitation_source.append(port)
             arg3.append(source_name + ":=")
             arg3.append(excitation_source)
@@ -2146,9 +2144,9 @@ class Sources(object):
         for source_name in self._app.sources:
             arg6 = ["NAME:" + source_name]
             for port in self._app.excitations:
-                if source_name in self._app.excitations[port]._props["EnabledAnalyses"]:
+                if source_name in self._app.excitation_objects[port]._props["EnabledAnalyses"]:
                     arg6.append(port + ":=")
-                    arg6.append(self._app.excitations[port]._props["EnabledAnalyses"][source_name])
+                    arg6.append(self._app.excitation_objects[port]._props["EnabledAnalyses"][source_name])
                 else:
                     arg6.append(port + ":=")
                     arg6.append([])
@@ -2179,10 +2177,10 @@ class Sources(object):
         """
         self._app.modeler._odesign.DeleteSource(self.name)
         for port in self._app.excitations:
-            if self.name in self._app.excitations[port].props["EnabledPorts"]:
-                self._app.excitations[port].props["EnabledPorts"].remove(self.name)
-            if self.name in self._app.excitations[port].props["EnabledAnalyses"]:
-                del self._app.excitations[port].props["EnabledAnalyses"][self.name]
+            if self.name in self._app.excitation_objects[port].props["EnabledPorts"]:
+                self._app.excitation_objects[port].props["EnabledPorts"].remove(self.name)
+            if self.name in self._app.excitation_objects[port].props["EnabledAnalyses"]:
+                del self._app.excitation_objects[port].props["EnabledAnalyses"][self.name]
         return True
 
     @pyaedt_function_handler()
@@ -3205,7 +3203,7 @@ class Excitations(object):
 
     @name.setter
     def name(self, port_name):
-        if port_name not in self._app.excitation_names:
+        if port_name not in self._app.excitations:
             if port_name != self._name:
                 # Take previous properties
                 self._app.odesign.RenamePort(self._name, port_name)
@@ -4319,7 +4317,7 @@ class NetworkObject(BoundaryObject):
             self.delete()
             try:
                 self.create()
-                self._app.boundaries.append(self)
+                self._app._boundaries[self.name] = self
                 return True
             except Exception:  # pragma : no cover
                 self._app.odesign.Undo()

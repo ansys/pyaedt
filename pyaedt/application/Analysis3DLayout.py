@@ -148,7 +148,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         list
-            List of excitation names. Excitations with multiple modes will return one
+            Excitation list. Excitations with multiple modes return one
             excitation for each mode.
 
         References
@@ -157,35 +157,6 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetExcitations
         """
         return list(self.oboundary.GetAllPortsList())
-
-    @property
-    def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
-            the S parameters for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-
-        Returns
-        -------
-        list
-            List of strings representing the S parameters of the excitations.
-            For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
-
-        """
-        if not excitation_names:
-            excitation_names = self.excitations
-        spar = []
-        k = 0
-        for i in excitation_names:
-            k = excitation_names.index(i)
-            while k < len(excitation_names):
-                spar.append("S({},{})".format(i, excitation_names[k]))
-                k += 1
-        return spar
 
     @pyaedt_function_handler()
     def change_design_settings(self, settings):
@@ -234,152 +205,6 @@ class FieldAnalysis3DLayout(Analysis):
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
         self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
         return mesh_path
-
-    @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
-        """Retrieve a list of all return losses for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
-            the return losses for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-        excitation_name_prefix : string, optional
-             Prefix to add to the excitation names. The default is ``""``.
-
-        Returns
-        -------
-        list
-            List of strings representing the return losses of the excitations.
-            For example, ``["S(1, 1)", "S(2, 2)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        if not excitation_names:
-            excitation_names = self.excitations
-        if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
-        spar = []
-        for i in excitation_names:
-            spar.append("S({},{})".format(i, i))
-        return spar
-
-    @pyaedt_function_handler()
-    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
-        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1"]``.
-        reclist : list, optional
-            List of receivers. The default is ``[]``. The number of drivers equals
-            the number of receivers. For example, ``["2"]``.
-        tx_prefix : str, optional
-            Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
-        rx_prefix : str, optional
-            Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
-
-        Returns
-        -------
-        list
-            List of strings representing insertion losses of the excitations.
-            For example, ``["S(1, 2)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        spar = []
-        if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
-        if not reclist:
-            reclist = [i for i in self.excitations if rx_prefix in i]
-        if len(trlist) != len(reclist):
-            self.logger.error("The TX and RX lists should be same length.")
-            return False
-        for i, j in zip(trlist, reclist):
-            spar.append("S({},{})".format(i, j))
-        return spar
-
-    @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1", "2", "3"]``.
-        tx_prefix : str, optional
-            Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
-
-        Returns
-        -------
-        list
-            List of strings representing near end XTalks of the excitations.
-            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        next_xtalks = []
-        if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
-        for i in trlist:
-            k = trlist.index(i) + 1
-            while k < len(trlist):
-                next_xtalks.append("S({},{})".format(i, trlist[k]))
-                k += 1
-        return next_xtalks
-
-    @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
-        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1", "2"]``.
-        reclist : list, optional
-            List of receivers. The default is ``[]``. For example, ``["3", "4"]``.
-        tx_prefix : str, optional
-            Prefix to add to the driver names. For example, ``"DIE"``.  The default is ``""``.
-        rx_prefix : str, optional
-            Prefix to add to the receiver names. For examples, ``"BGA"``. The default is ``""``.
-        skip_same_index_couples : bool, optional
-            Whether to skip driver and receiver couples with the same index position.
-            The default is ``True``, in which case the drivers and receivers
-            with the same index position are considered insertion losses and
-            excluded from the list.
-
-        Returns
-        -------
-        list
-            List of strings representing the far end XTalks of the excitations.
-            For example, ``["S(1, 4)", "S(2, 3)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        fext = []
-        if trlist is None:
-            trlist = [i for i in self.excitations if tx_prefix in i]
-        if reclist is None:
-            reclist = [i for i in self.excitations if rx_prefix in i]
-        for i in trlist:
-            for k in reclist:
-                if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
-                    fext.append("S({},{})".format(i, k))
-        return fext
 
     @property
     def modeler(self):

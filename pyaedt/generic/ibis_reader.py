@@ -7,7 +7,7 @@ import pyaedt
 from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_if_path_exists
-from pyaedt.generic.settings import settings
+from pyaedt.generic.general_methods import open_file
 
 
 class Component:
@@ -799,11 +799,8 @@ class IbisReader(object):
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
-            file_to_open = check_and_download_file(local_path, self._filename)
-        else:
-            file_to_open = self._filename
+
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -1222,11 +1219,7 @@ class AMIReader(IbisReader):
 
         ami_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
-            file_to_open = check_and_download_file(local_path, self._filename)
-        else:
-            file_to_open = self._filename
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -1342,10 +1335,10 @@ def ibis_parsing(file):
     """
     ibis = {}
     # OPEN AND READ IBIS FILE
-    with open(file, "r") as fp:
+    with open_file(file, "r") as fp:
         ibis_data = list(enumerate(fp))
 
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
+    with open_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
         ibis_ref = json.load(f)
     ibis_ref = lowercase_json(ibis_ref)
 

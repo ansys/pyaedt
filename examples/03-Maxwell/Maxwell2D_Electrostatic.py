@@ -177,8 +177,7 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # and as ``In surface objects`` only the region.
 
 plot = M2D.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
-                                             in_volume_tracing_objs="Region",
-                                             plot_name="LineTracesTest")
+                                             in_volume_tracing_objs="Region", plot_name="LineTracesTest")
 
 ###################################################################################
 # Update Field Line Traces Plot
@@ -197,7 +196,7 @@ plot.update()
 # Export field line traces plot.
 # For field lint traces plot, the export file format is ``.fldplt``.
 
-M2D.post.export_field_plot(plotname="LineTracesTest", filepath=M2D.toolkit_directory, file_format="fldplt")
+M2D.post.export_field_plot(plot_name="LineTracesTest", file_path=M2D.toolkit_directory, file_format="fldplt")
 
 ##########################################################
 # Export a field plot to an image file
