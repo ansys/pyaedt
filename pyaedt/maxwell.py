@@ -186,8 +186,8 @@ class Maxwell(object):
             props.update(arg_slice_table)
             return self.change_design_settings(props)
 
-    @pyaedt_function_handler()
-    def set_core_losses(self, objects, value=False):
+    @pyaedt_function_handler(value="core_loss_on_field")
+    def set_core_losses(self, objects, core_loss_on_field=False):
         """Whether to enable core losses for a set of objects.
 
         For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
@@ -198,7 +198,7 @@ class Maxwell(object):
         ----------
         objects : list, str
             List of object to apply core losses to.
-        value : bool, optional
+        core_loss_on_field : bool, optional
             Whether to enable ``Consider core loss effect on field`` for the given list. The default is
             ``False``.
 
@@ -217,13 +217,13 @@ class Maxwell(object):
         Set core losses in Maxwell 3D.
 
         >>> from pyaedt import Maxwell3d
-        >>> maxwell_3d = Maxwell3d()
-        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], True)
-
+        >>> m3d = Maxwell3d()
+        >>> m3d.set_core_losses(objects=["PQ_Core_Bottom", "PQ_Core_Top"],core_loss_on_field=True)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type in ["EddyCurrent", "Transient"]:
             objects = self.modeler.convert_to_selections(objects, True)
-            self.oboundary.SetCoreLoss(objects, value)
+            self.oboundary.SetCoreLoss(objects, core_loss_on_field)
             return True
         else:
             raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
@@ -277,15 +277,16 @@ class Maxwell(object):
         --------
         Set matrix in a Maxwell magnetostatic analysis.
 
+        >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="MagnetostaticXY",specified_version="2022.1",close_on_exit=True)
         >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
         >>> coil2 = m2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
         >>> coil3 = m2d.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
         >>> coil4 = m2d.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
-        >>> current1 = m2d.assign_current("Coil_1",amplitude=1,swap_direction=False,name="Current1")
-        >>> current2 = m2d.assign_current("Coil_2",amplitude=1,swap_direction=True,name="Current2")
-        >>> current3 = m2d.assign_current("Coil_3",amplitude=1,swap_direction=True,name="Current3")
-        >>> current4 = m2d.assign_current("Coil_4",amplitude=1,swap_direction=True,name="Current4")
+        >>> current1 = m2d.assign_current(objects="Coil_1",amplitude=1,swap_direction=False,name="Current1")
+        >>> current2 = m2d.assign_current(objects="Coil_2",amplitude=1,swap_direction=True,name="Current2")
+        >>> current3 = m2d.assign_current(objects="Coil_3",amplitude=1,swap_direction=True,name="Current3")
+        >>> current4 = m2d.assign_current(objects="Coil_4",amplitude=1,swap_direction=True,name="Current4")
         >>> group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
         >>> selection = ['Current1', 'Current2', 'Current3', 'Current4']
         >>> turns = [5, 1, 2, 3]
@@ -295,7 +296,7 @@ class Maxwell(object):
         >>> m2d.assign_voltage(["Port1"],amplitude=1,name="1V")
         >>> m2d.assign_voltage(["Port2"],amplitude=0,name="0V")
         >>> m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
-
+        >>> m2d.release_desktop(True, True)
         """
 
         sources = self.modeler.convert_to_selections(sources, True)
@@ -634,9 +635,10 @@ class Maxwell(object):
         This creates one ``YConnection`` group containing these three phases.
 
         >>> from pyaedt import Maxwell2d
-        >>> aedtapp = Maxwell2d("Motor_EM_R2019R3.aedt")
-        >>> aedtapp.set_active_design("Basis_Model_For_Test")
-        >>> aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        >>> m2d = Maxwell2d("Motor_EM_R2019R3.aedt")
+        >>> m2d.set_active_design("Basis_Model_For_Test")
+        >>> m2d.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        >>> m2d.release_desktop(True, True)
         """
 
         if self.solution_type not in ["Transient"]:
@@ -689,9 +691,10 @@ class Maxwell(object):
         --------
 
         >>> from pyaedt import Maxwell3d
-        >>> app = pyaedt.Maxwell3d(solution_type="ElectroDCConduction")
-        >>> cylinder= app.modeler.create_cylinder("X", [0,0,0],10, 100, 250)
-        >>> current = app.assign_current(cylinder.top_face_x.id,amplitude="2mA")
+        >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
+        >>> cylinder= m3d.modeler.create_cylinder("X", [0,0,0],10, 100, 250)
+        >>> current = m3d.assign_current(cylinder.top_face_x.id,amplitude="2mA")
+        >>> m3d.release_desktop(True, True)
         """
 
         if isinstance(amplitude, (int, float)):
@@ -1244,6 +1247,8 @@ class Maxwell(object):
 
         Assign virtual force to a magnetic object:
 
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
         >>> iron_object = m3d.modeler.create_box([0, 0, 0], [2, 10, 10], name="iron")
         >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
         >>> m3d.assign_material(iron_object, "iron")
@@ -1257,6 +1262,7 @@ class Maxwell(object):
         >>> m3d.assign_material(conductor1, "copper")
         >>> m3d.assign_material(conductor2, "copper")
         >>> m3d.assign_force("conductor1",is_virtual=False,force_name="force_copper") # conductor, use Lorentz force
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
             objects = self.modeler.convert_to_selections(objects, True)
@@ -1989,9 +1995,9 @@ class Maxwell(object):
         Examples
         --------
         >>> from pyaedt import Maxwell3d
-        >>> app = Maxwell3d()
+        >>> m3d = Maxwell3d()
         >>> app.create_setup(setup_name="My_Setup",setup_type="EddyCurrent",MaximumPasses=10,PercentError=2)
-
+        >>> m3d.release_desktop(True, True)
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
@@ -2074,13 +2080,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     project, which is named ``mymaxwell.aedt``.
 
     >>> from pyaedt import Maxwell3d
-    >>> aedtapp = Maxwell3d("mymaxwell.aedt")
+    >>> m3d = Maxwell3d("mymaxwell.aedt")
     PyAEDT INFO: Added design ...
 
-    Create an instance of Maxwell 3D using the 2023 R2 release and open
+    Create an instance of Maxwell 3D using the 2024 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> aedtapp = Maxwell3d(specified_version="2023.2", projectname="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(specified_version="2024.1", project_name="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """
@@ -2832,18 +2838,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     not exist.
 
     >>> from pyaedt import Maxwell2d
-    >>> aedtapp = Maxwell2d()
+    >>> m2d = Maxwell2d()
 
     Create an instance of Maxwell 2D and link to a project named
-    ``projectname``. If this project does not exist, create one with
+    ``project_name``. If this project does not exist, create one with
     this name.
 
-    >>> aedtapp = Maxwell2d(projectname)
+    >>> m2d = Maxwell2d(project_name)
 
     Create an instance of Maxwell 2D and link to a design named
-    ``designname`` in a project named ``projectname``.
+    ``design_name`` in a project named ``project_name``.
 
-    >>> aedtapp = Maxwell2d(projectname,designame)
+    >>> m2d = Maxwell2d(project_name,design_name)
 
     """
 
