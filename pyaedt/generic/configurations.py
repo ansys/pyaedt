@@ -907,7 +907,7 @@ class Configurations(object):
             bound.props["Modes"] = BoundaryProps(bound, modes)
             bound.auto_update = True
         if bound.create():
-            self._app.boundaries.append(bound)
+            self._app._boundaries[bound.name] = bound
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
                 winding_name = ""
                 for b in self._app.boundaries:

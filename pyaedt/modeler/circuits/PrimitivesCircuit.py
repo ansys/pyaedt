@@ -255,7 +255,7 @@ class CircuitComponents(object):
 
         >>> oEditor.CreateIPort
         """
-        if name in self._app.excitation_names:
+        if name in self._app.excitations:
             self.logger.warning("Port name already assigned.")
             return False
 
@@ -270,7 +270,7 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
-                return self._app.excitations[name]
+                return self._app.excitation_objects[name]
         return False
 
     @pyaedt_function_handler()
