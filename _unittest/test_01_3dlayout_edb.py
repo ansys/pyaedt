@@ -392,7 +392,7 @@ class TestClass:
         comp = self.aedtapp.modeler.components["D1"]
         pins = {name: pin for name, pin in comp.pins.items() if name in ["D1-1", "D1-2", "D1-7"]}
         self.aedtapp.dissolve_component("D1")
-        comp = self.aedtapp.modeler.create_components_on_pins(list(pins.keys()))
+        comp = self.aedtapp.modeler.create_component_on_pins(list(pins.keys()))
         nets = [
             list(pins.values())[0].net_name,
             list(pins.values())[1].net_name,
