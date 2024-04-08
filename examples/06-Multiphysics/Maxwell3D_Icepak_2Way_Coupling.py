@@ -113,12 +113,8 @@ m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
 # Mesh operations are not necessary in eddy current solver because of auto-adaptive meshing.
 # However, with appropriate mesh operations, less adaptive passes are needed.
 
-m3d.mesh.assign_length_mesh(
-    ["Core"], maxlength=15, meshop_name="Inside_Core", maxel=None
-)
-m3d.mesh.assign_length_mesh(
-    ["Coil"], maxlength=30, meshop_name="Inside_Coil", maxel=None
-)
+m3d.mesh.assign_length_mesh(["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core")
+m3d.mesh.assign_length_mesh(["Coil"], maximum_length=30, maximum_elements=None, name="Inside_Coil")
 
 ###############################################################################
 # Set conductivity temperature coefficient

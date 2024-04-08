@@ -1050,8 +1050,8 @@ class IcepakMesh(object):
 
         return meshops
 
-    @pyaedt_function_handler()
-    def assign_mesh_level(self, mesh_order, meshop_name=None):
+    @pyaedt_function_handler(meshop_name="name")
+    def assign_mesh_level(self, mesh_order, name=None):
         """Assign a mesh level to objects.
 
         Parameters
@@ -1059,7 +1059,7 @@ class IcepakMesh(object):
         mesh_order : dict
             Dictionary where the key is the object name and the value is
             the mesh level.
-        meshop_name :  str, optional
+        name :  str, optional
             Name of the mesh operation. The default is ``None``.
 
         Returns
@@ -1079,28 +1079,28 @@ class IcepakMesh(object):
             level_order[mesh_order[obj]].append(obj)
         list_meshops = []
         for level in level_order:
-            if meshop_name:
-                meshop_name = generate_unique_name(meshop_name, "L_" + str(level))
+            if name:
+                name = generate_unique_name(name, "L_" + str(level))
             else:
-                meshop_name = generate_unique_name("Icepak", "L_" + str(level))
+                name = generate_unique_name("Icepak", "L_" + str(level))
             props = OrderedDict({"Enable": True, "Level": str(level), "Objects": level_order[level]})
-            mop = MeshOperation(self, meshop_name, props, "Icepak")
+            mop = MeshOperation(self, name, props, "Icepak")
             mop.create()
             self.meshoperations.append(mop)
-            list_meshops.append(meshop_name)
+            list_meshops.append(name)
         return list_meshops
 
-    @pyaedt_function_handler()
-    def assign_mesh_from_file(self, objects, filename, meshop_name=None):
+    @pyaedt_function_handler(filename="file_name", meshop_name="name")
+    def assign_mesh_from_file(self, objects, file_name, name=None):
         """Assign a mesh from file to objects.
 
         Parameters
         ----------
         objects : list
             List of objects to which apply the mesh file.
-        filename :  str
+        file_name :  str
             Full path to .msh file.
-        meshop_name :  str, optional
+        name :  str, optional
             Name of the mesh operations. Default is ``None``.
 
         Returns
@@ -1114,21 +1114,21 @@ class IcepakMesh(object):
         >>> oModule.AssignMeshOperation
         """
         objs = self._app.modeler.convert_to_selections(objects, True)
-        if meshop_name:
-            meshop_name = generate_unique_name("MeshFile")
+        if name:
+            name = generate_unique_name("MeshFile")
         else:
-            meshop_name = generate_unique_name("MeshFile")
+            name = generate_unique_name("MeshFile")
         props = OrderedDict({"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs})
         props["Local Mesh Parameters Enabled"] = False
         props["Mesh Reuse Enabled"] = True
-        props["Mesh Reuse File"] = filename
+        props["Mesh Reuse File"] = file_name
         props["Local Mesh Parameters Type"] = "3DPolygon Local Mesh Parameters"
         props["Height count"] = "0"
         props["Top height"] = "0mm"
         props["Top ratio"] = "0"
         props["Bottom height"] = "0mm"
         props["Bottom ratio"] = "0"
-        mop = MeshOperation(self, meshop_name, props, "Icepak")
+        mop = MeshOperation(self, name, props, "Icepak")
         if mop.create():
             self.meshoperations.append(mop)
             return mop
@@ -1175,8 +1175,8 @@ class IcepakMesh(object):
         self.global_mesh_region.update()
         return True
 
-    @pyaedt_function_handler()
-    def automatic_mesh_3D(self, accuracy2, stairStep=True):
+    @pyaedt_function_handler(stairStep="enable_stair_step")
+    def automatic_mesh_3D(self, accuracy2, enable_stair_step=True):
         """Create a generic custom mesh for a custom 3D object.
 
         Parameters
@@ -1184,7 +1184,7 @@ class IcepakMesh(object):
         accuracy2 : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively
             a coarse, standard, or very accurate mesh.
-        stairStep : bool, optional
+        enable_stair_step : bool, optional
             Whether to enable a stair step. The default is ``True``.
 
         Returns
@@ -1207,12 +1207,12 @@ class IcepakMesh(object):
         self.global_mesh_region.MinGapX = str(xsize / 100)
         self.global_mesh_region.MinGapY = str(ysize / 100)
         self.global_mesh_region.MinGapZ = str(zsize / 100)
-        self.global_mesh_region.StairStepMeshing = stairStep
+        self.global_mesh_region.StairStepMeshing = enable_stair_step
         self.global_mesh_region.update()
         return True
 
-    @pyaedt_function_handler()
-    def add_priority(self, entity_type, obj_list=None, comp_name=None, priority=3):
+    @pyaedt_function_handler(obj_list="objects", comp_name="component")
+    def add_priority(self, entity_type, objects=None, component=None, priority=3):
         """Add priority to objects.
 
         Parameters
@@ -1220,10 +1220,10 @@ class IcepakMesh(object):
         entity_type : int
             Type of the entity. Options are ``1`` and ``2``, which represent respectively
             an object and a component.
-        obj_list : list
+        objects : list
             List of 3D objects, which can include conductors and dielectrics.
             If the user pass a non 3D object, it will be excluded.
-        comp_name : str, optional
+        component : str, optional
             Name of the component. The default is ``None``.
         priority : int, optional
             Level of priority. The default is ``3``.
@@ -1243,8 +1243,8 @@ class IcepakMesh(object):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1, obj_list=app.modeler.object_names, priority=3)
-        >>> app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[0], priority=2)
+        >>> app.mesh.add_priority(entity_type=1,objects=app.modeler.object_names,priority=3)
+        >>> app.mesh.add_priority(entity_type=2,component=app.modeler.user_defined_component_names[0],priority=2)
         """
         i = priority
 
@@ -1252,7 +1252,7 @@ class IcepakMesh(object):
         if entity_type == 1:
             non_user_defined_component_parts = self._app.modeler.oeditor.GetChildNames()
             new_obj_list = []
-            for comp in obj_list:
+            for comp in objects:
                 if comp != "Region" and comp in non_user_defined_component_parts:
                     new_obj_list.append(comp)
             objects = ", ".join(new_obj_list)
@@ -1272,7 +1272,7 @@ class IcepakMesh(object):
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
-            o = self.modeler.user_defined_components[comp_name]
+            o = self.modeler.user_defined_components[component]
             if (all(part.is3d for part in o.parts.values()) is False) and (
                 any(part.is3d for part in o.parts.values()) is True
             ):
@@ -1281,7 +1281,7 @@ class IcepakMesh(object):
                     "EntityType:=",
                     "Component",
                     "EntityList:=",
-                    comp_name,
+                    component,
                     "PriorityNumber:=",
                     i,
                     "PriorityListType:=",
@@ -1292,7 +1292,7 @@ class IcepakMesh(object):
                     "EntityType:=",
                     "Component",
                     "EntityList:=",
-                    comp_name,
+                    component,
                     "PriorityNumber:=",
                     i,
                     "PriorityListType:=",
@@ -1306,7 +1306,7 @@ class IcepakMesh(object):
                     "EntityType:=",
                     "Component",
                     "EntityList:=",
-                    comp_name,
+                    component,
                     "PriorityNumber:=",
                     i,
                     "PriorityListType:=",
@@ -1319,7 +1319,7 @@ class IcepakMesh(object):
                     "EntityType:=",
                     "Component",
                     "EntityList:=",
-                    comp_name,
+                    component,
                     "PriorityNumber:=",
                     i,
                     "PriorityListType:=",
@@ -1332,13 +1332,13 @@ class IcepakMesh(object):
         self.modeler.oeditor.UpdatePriorityList(args)
         return True
 
-    @pyaedt_function_handler()
-    def assign_mesh_region(self, objectlist=None, level=5, name=None, **kwargs):
+    @pyaedt_function_handler(objectlist="objects")
+    def assign_mesh_region(self, objects=None, level=5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
         ----------
-        objectlist : list, optional
+        objects : list, optional
             List of objects to apply the mesh region to. The default
             is ``None``, in which case all objects are selected.
         level : int, optional
@@ -1358,9 +1358,9 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        if objectlist is None:
-            objectlist = [i for i in self.modeler.object_names]
-        meshregion = MeshRegion(self._app, objectlist, name)
+        if objects is None:
+            objects = [i for i in self.modeler.object_names]
+        meshregion = MeshRegion(self._app, objects, name)
         meshregion.manual_settings = False
         meshregion.Level = level
         all_objs = [i for i in self.modeler.object_names]
@@ -1370,7 +1370,7 @@ class IcepakMesh(object):
                 objectlist2 = self.modeler.object_names
                 added_obj = [i for i in objectlist2 if i not in all_objs]
                 if not added_obj:
-                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objects]
                 meshregion.Objects = added_obj
                 meshregion.SubModels = None
                 meshregion.update()
@@ -1401,14 +1401,19 @@ class IcepakMesh(object):
             name = []
         return self._odesign.GenerateMesh(name) == 0
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        groupName="group_name",
+        localMeshParamEn="enable_local_mesh_parameters",
+        localMeshParameters="local_mesh_parameters",
+        meshop_name="name",
+    )
     def assign_mesh_level_to_group(
         self,
         mesh_level,
-        groupName,
-        localMeshParamEn=False,
-        localMeshParameters="No local mesh parameters",
-        meshop_name=None,
+        group_name,
+        enable_local_mesh_parameters=False,
+        local_mesh_parameters="No local mesh parameters",
+        name=None,
     ):
         """Assign a mesh level to a group.
 
@@ -1416,13 +1421,13 @@ class IcepakMesh(object):
         ----------
         mesh_level : int
             Level of mesh to assign. Options are ``1`` through ``5``.
-        groupName : str
+        group_name : str
             Name of the group.
-        localMeshParamEn : bool, optional
+        enable_local_mesh_parameters : bool, optional
             The default is ``False``.
-        localMeshParameters : str, optional
+        local_mesh_parameters : str, optional
             The default is ``"No Local Mesh Parameters"``.
-        meshop_name : str, optional
+        name : str, optional
             Name of the mesh operation. The default is ``None``.
 
         Returns
@@ -1434,22 +1439,22 @@ class IcepakMesh(object):
 
         >>> oModule.AssignMeshOperation
         """
-        if meshop_name:
+        if name:
             for el in self.meshoperations:
-                if el.name == meshop_name:
-                    meshop_name = generate_unique_name(meshop_name)
+                if el.name == name:
+                    name = generate_unique_name(name)
         else:
-            meshop_name = generate_unique_name("MeshLevel")
+            name = generate_unique_name("MeshLevel")
         props = OrderedDict(
             {
                 "Enable": True,
                 "Level": mesh_level,
-                "Local Mesh Parameters Enabled": localMeshParamEn,
-                "Groups": [str(groupName)],
-                "Local Mesh Parameters Type": localMeshParameters,
+                "Local Mesh Parameters Enabled": enable_local_mesh_parameters,
+                "Groups": [str(group_name)],
+                "Local Mesh Parameters Type": local_mesh_parameters,
             }
         )
-        mop = MeshOperation(self, meshop_name, props, "Icepak")
+        mop = MeshOperation(self, name, props, "Icepak")
         mop.create()
         self.meshoperations.append(mop)
         return mop
