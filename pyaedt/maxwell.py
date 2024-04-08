@@ -2228,11 +2228,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         impedance : str, optional
             Name of the impedance. The default is ``None`` in which case a unique name is chosen.
 
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object if successful, ``False`` otherwise.
-
         References
         ----------
 
@@ -2252,9 +2247,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
-
         """
 
         if self.solution_type in [

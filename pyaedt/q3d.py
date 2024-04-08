@@ -2496,42 +2496,38 @@ class Q2d(QExtractor, object):
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
 
-                Optional arguments are passed along with the ``setuptype`` and ``setupname``
-                parameters.  Keyword names correspond to the ``setuptype``
-                corresponding to the native AEDT API.  The list of
-                keywords here is not exhaustive.
+        Optional arguments are passed along with the ``setuptype`` and ``setupname``
+        parameters.  Keyword names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
 
+        Parameters
+        ----------
+        setuptype : int, str, optional
+            Type of the setup. Options are "IcepakSteadyState"
+            and "IcepakTransient". The default is "IcepakSteadyState".
+        setupname : str, optional
+            Name of the setup. The default is "Setup1".
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesQ3D`.
 
-                Parameters
-                ----------
-                setuptype : int, str, optional
-                    Type of the setup. Options are "IcepakSteadyState"
-                    and "IcepakTransient". The default is "IcepakSteadyState".
-                setupname : str, optional
-                    Name of the setup. The default is "Setup1".
-                **kwargs : dict, optional
-                    Available keys depend on the setup chosen.
-                    For more information, see :doc:`../SetupTemplatesQ3D`.
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            Solver Setup object.
 
+        References
+        ----------
 
-                Returns
-                -------
-                :class:`pyaedt.modules.SolveSetup.SetupHFSS`
-                    Solver Setup object.
+        >>> oModule.InsertSetup
 
-                References
-                ----------
+        Examples
+        --------
 
-                >>> oModule.InsertSetup
-
-                Examples
-                --------
-
-                >>> from pyaedt import Q2d
-                >>> app = Q2d()
-                >>> app.create_setup(setup_name="Setup1",RLDataBlock__MinPass=2)
-        )
-
+        >>> from pyaedt import Q2d
+        >>> app = Q2d()
+        >>> app.create_setup(setup_name="Setup1",RLDataBlock__MinPass=2)
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
