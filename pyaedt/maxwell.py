@@ -2228,6 +2228,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         impedance : str, optional
             Name of the impedance. The default is ``None`` in which case a unique name is chosen.
 
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
         References
         ----------
 
@@ -2244,11 +2249,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> shield_faces = m3d.modeler.select_allfaces_fromobjects(["shield"])
         >>> impedance_assignment = m3d.assign_impedance(objects=shield_faces, impedance="ShieldImpedance")
         >>> m3d.release_desktop(True, True)
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object if successful, ``False`` otherwise.
         """
 
         if self.solution_type in [
