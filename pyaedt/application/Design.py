@@ -603,16 +603,21 @@ class Design(AedtObjects):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
 
-        self.odesign.RenameDesignInstance(self.design_name, new_name)
-        timeout = 5.0
-        timestep = 0.1
-        while new_name not in [
-            i.GetName() if ";" not in i.GetName() else i.GetName().split(";")[1]
-            for i in list(self._oproject.GetDesigns())
-        ]:
-            time.sleep(timestep)
-            timeout -= timestep
-            assert timeout >= 0
+        # If new_name is the name of an existing design, set the current
+        # design to this design.
+        if new_name in self.design_list:
+            self.set_active_design(new_name)
+        else:  # Otherwise rename the current design.
+            self.odesign.RenameDesignInstance(self.design_name, new_name)
+            timeout = 5.0
+            timestep = 0.1
+            while new_name not in [
+                i.GetName() if ";" not in i.GetName() else i.GetName().split(";")[1]
+                for i in list(self._oproject.GetDesigns())
+            ]:
+                time.sleep(timestep)
+                timeout -= timestep
+                assert timeout >= 0
 
     @property
     def design_list(self):
