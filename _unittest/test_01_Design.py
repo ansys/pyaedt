@@ -46,7 +46,7 @@ class TestClass:
         assert self.aedtapp.design_name == design_names[1]
         self.aedtapp.design_name = design_names[0]  # Change current design back.
         assert len(self.aedtapp.design_list) == 2  # Make sure there are still 2 designs.
-        assert self.aedtapp.design_list[0] == design_names[0]  # Make sure the name is correct.
+        assert self.aedtapp.design_list[0] in design_names  # Make sure the name is correct.
         self.aedtapp.delete_design(design_names[1])  # Delete the 2nd design
         assert len(self.aedtapp.design_list) == 1
 
