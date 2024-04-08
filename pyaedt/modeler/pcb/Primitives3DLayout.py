@@ -1490,7 +1490,7 @@ class Primitives3DLayout(object):
         return comp  #
 
     @pyaedt_function_handler()
-    def create_components_on_pins(
+    def create_component_on_pins(
         self,
         pins,
         definition_name=None,
