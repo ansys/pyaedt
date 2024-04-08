@@ -823,7 +823,7 @@ class TestClass:
         m2dtest.assign_voltage(rect.name, amplitude=0, name="Ground")
         m2dtest.assign_voltage(circle.name, amplitude=50e6, name="50kV")
         setup_name = "test"
-        m2dtest.create_setup(setupname=setup_name)
+        m2dtest.create_setup(setup_name=setup_name)
         m2dtest.analyze_setup(setup_name)
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
         assert plot

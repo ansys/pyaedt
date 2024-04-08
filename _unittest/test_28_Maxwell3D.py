@@ -167,43 +167,43 @@ class TestClass:
     def test_05_winding(self):
         face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
         assert self.aedtapp.assign_winding(face_id)
-        bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=face_id)
+        bounds = self.aedtapp.assign_winding(faces=face_id, current_value=20e-3)
         assert bounds
-        bounds = self.aedtapp.assign_winding(current_value="20e-3A", coil_terminals=face_id)
+        bounds = self.aedtapp.assign_winding(faces=face_id, current_value="20e-3A")
         assert bounds
-        bounds = self.aedtapp.assign_winding(res="1ohm", coil_terminals=face_id)
+        bounds = self.aedtapp.assign_winding(faces=face_id, resistance="1ohm")
         assert bounds
-        bounds = self.aedtapp.assign_winding(ind="1H", coil_terminals=face_id)
+        bounds = self.aedtapp.assign_winding(faces=face_id, inductance="1H")
         assert bounds
-        bounds = self.aedtapp.assign_winding(voltage="10V", coil_terminals=face_id)
+        bounds = self.aedtapp.assign_winding(faces=face_id, voltage="10V")
         assert bounds
         bounds_name = generate_unique_name("Winding")
-        bounds = self.aedtapp.assign_winding(coil_terminals=face_id, name=bounds_name)
+        bounds = self.aedtapp.assign_winding(faces=face_id, name=bounds_name)
         assert bounds_name == bounds.name
 
     def test_05a_assign_coil(self):
         face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
-        bound = self.aedtapp.assign_coil(input_object=face_id)
+        bound = self.aedtapp.assign_coil(objects=face_id)
         assert bound
         polarity = "Positive"
-        bound = self.aedtapp.assign_coil(input_object=face_id, polarity=polarity)
+        bound = self.aedtapp.assign_coil(objects=face_id, polarity=polarity)
         assert not bound.props["Point out of terminal"]
         polarity = "Negative"
-        bound = self.aedtapp.assign_coil(input_object=face_id, polarity=polarity)
+        bound = self.aedtapp.assign_coil(objects=face_id, polarity=polarity)
         assert bound.props["Point out of terminal"]
         bound_name = generate_unique_name("Coil")
-        bound = self.aedtapp.assign_coil(input_object=face_id, name=bound_name)
+        bound = self.aedtapp.assign_coil(objects=face_id, name=bound_name)
         assert bound_name == bound.name
 
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
-        assert self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=True)
+        assert self.aedtapp.eddy_effects_on(["Plate"], eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
         assert oModule.GetEddyEffect("Plate")
         assert oModule.GetDisplacementCurrent("Plate")
-        self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=False)
+        self.aedtapp.eddy_effects_on(["Plate"], eddy_effects=False)
         assert not oModule.GetEddyEffect("Plate")
         assert not oModule.GetDisplacementCurrent("Plate")
 
@@ -425,7 +425,7 @@ class TestClass:
         assert T.props["Coordinate System"] == "Global"
         assert T.props["Axis"] == "Z"
         assert T.delete()
-        T = self.aedtapp.assign_torque(input_object="Coil", is_positive=False, torque_name="Torque_Test")
+        T = self.aedtapp.assign_torque(objects="Coil", is_positive=False, torque_name="Torque_Test")
         assert not T.props["Is Positive"]
         assert T.name == "Torque_Test"
 
@@ -436,7 +436,7 @@ class TestClass:
         assert F.props["Reference CS"] == "Global"
         assert F.props["Is Virtual"]
         assert F.delete()
-        F = self.aedtapp.assign_force(input_object="Coil", is_virtual=False, force_name="Force_Test")
+        F = self.aedtapp.assign_force(objects="Coil", is_virtual=False, force_name="Force_Test")
         assert F.name == "Force_Test"
         assert not F.props["Is Virtual"]
 
@@ -521,7 +521,7 @@ class TestClass:
         L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
         setup_name = "setupTestMatrixRL"
-        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup = self.aedtapp.create_setup(setup_name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
@@ -599,9 +599,7 @@ class TestClass:
             "current_box", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
         )
         assert self.aedtapp.assign_current_density(["current_box", "current_box2"], "CurrentDensity_3")
-        assert not self.aedtapp.assign_current_density(
-            "current_box", "CurrentDensity_4", coordinate_system_cartesian="test"
-        )
+        assert not self.aedtapp.assign_current_density("current_box", "CurrentDensity_4", coordinate_system_type="test")
         assert not self.aedtapp.assign_current_density("current_box", "CurrentDensity_5", phase="5ang")
         for bound in self.aedtapp.boundaries:
             if bound.type == "CurrentDensity":
@@ -649,10 +647,7 @@ class TestClass:
         assert self.aedtapp.assign_impedance(impedance_faces, "copper")
         assert self.aedtapp.assign_impedance(impedance_box, "copper")
         impedance_assignment = self.aedtapp.assign_impedance(
-            impedance_box.name,
-            permeability=1.3,
-            conductivity=42000000,
-            impedance_name="ImpedanceExample",
+            impedance_box.name, permeability=1.3, conductivity=42000000, impedance="ImpedanceExample"
         )
         assert impedance_assignment.name == "ImpedanceExample"
         impedance_assignment.name = "ImpedanceExampleModified"
@@ -663,9 +658,7 @@ class TestClass:
             [-50, -300, -50], [294, 294, 19], name="impedance_box_copper"
         )
         impedance_assignment_copper = self.aedtapp.assign_impedance(
-            impedance_box_copper.name,
-            material_name="copper",
-            impedance_name="ImpedanceExampleCopper",
+            impedance_box_copper.name, material_name="copper", impedance="ImpedanceExampleCopper"
         )
         assert impedance_assignment_copper.name == "ImpedanceExampleCopper"
         impedance_assignment_copper.name = "ImpedanceExampleCopperModified"
@@ -679,9 +672,9 @@ class TestClass:
         impedance_assignment_copper = self.aedtapp.assign_impedance(
             impedance_box_copper.name,
             material_name="copper",
-            non_linear_permeability=True,
             conductivity=47000000,
-            impedance_name="ImpedanceExampleCopperNonLinear",
+            non_linear_permeability=True,
+            impedance="ImpedanceExampleCopperNonLinear",
         )
         assert impedance_assignment_copper.name == "ImpedanceExampleCopperNonLinear"
         impedance_assignment_copper.name = "ImpedanceExampleCopperNonLinearModified"
@@ -696,7 +689,7 @@ class TestClass:
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
     def test_43_eddy_effect_transient(self, m3dtransient):
-        assert m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
+        assert m3dtransient.eddy_effects_on(["Rotor"], eddy_effects=True)
 
     def test_44_assign_master_slave(self, m3dtransient):
         faces = [
@@ -915,20 +908,12 @@ class TestClass:
     def test_55_tangential_h_field(self, add_app):
         m3d = add_app(application=Maxwell3d, solution_type="EddyCurrent")
         box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert m3d.assign_tangential_h_field(
-            box.bottom_face_x,
-            1,
-            0,
-            2,
-            0,
-        )
+        assert m3d.assign_tangential_h_field(box.bottom_face_x, 1, 0, 2, 0)
 
     def test_56_zero_tangential_h_field(self, add_app):
         m3d = add_app(application=Maxwell3d, solution_type="EddyCurrent")
         box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert m3d.assign_zero_tangential_h_field(
-            box.top_face_z,
-        )
+        assert m3d.assign_zero_tangential_h_field(box.top_face_z)
 
     def test_57_radiation(self):
         self.aedtapp.insert_design("Radiation")
@@ -948,38 +933,38 @@ class TestClass:
 
     def test_58_solution_types_setup(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="test_setups")
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.DCConduction
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroDCConduction
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectricTransient
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
         m3d.solution_type = SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-        setup = m3d.create_setup(setuptype=m3d.solution_type)
+        setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()

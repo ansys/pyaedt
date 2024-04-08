@@ -107,7 +107,7 @@ m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlen
 # Create simulation setup with minimum 4 adaptive passes to ensure convergence.
 # Enable expression cache to observe the convergence.
 
-setup1 = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
+setup1 = m2d.create_setup(setup_name="Setup1", MinimumPasses=4)
 setup1.enable_expression_cache( # doesn't work?
     report_type="DCConduction",
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",

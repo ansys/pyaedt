@@ -718,8 +718,8 @@ def Maxwell2d(
     from pyaedt.maxwell import Maxwell2d as app
 
     return app(
-        projectname=projectname,
-        designname=designname,
+        project_name=projectname,
+        design_name=designname,
         solution_type=solution_type,
         setup_name=setup_name,
         specified_version=specified_version,
@@ -823,8 +823,8 @@ def Maxwell3d(
     from pyaedt.maxwell import Maxwell3d as app
 
     return app(
-        projectname=projectname,
-        designname=designname,
+        project_name=projectname,
+        design_name=designname,
         solution_type=solution_type,
         setup_name=setup_name,
         specified_version=specified_version,

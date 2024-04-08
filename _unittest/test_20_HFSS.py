@@ -269,14 +269,14 @@ class TestClass:
             )
         self.aedtapp["der_var"] = "1mm"
         self.aedtapp["der_var2"] = "2mm"
-        setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
+        setup2 = self.aedtapp.create_setup("MySetup_2", setup_type=0)
         assert setup2.add_derivatives("der_var")
         assert "der_var" in setup2.get_derivative_variables()
         assert setup2.add_derivatives("der_var2")
         assert "der_var2" in setup2.get_derivative_variables()
         assert "der_var" in setup2.get_derivative_variables()
         setup2.delete()
-        setup3 = self.aedtapp.create_setup("MySetup_3", setuptype=0)
+        setup3 = self.aedtapp.create_setup("MySetup_3", setup_type=0)
         assert setup3.add_derivatives("der_var")
         assert "der_var" in setup3.get_derivative_variables()
         assert setup3.add_derivatives("der_var2")
@@ -368,7 +368,7 @@ class TestClass:
 
     def test_06e_delete_setup(self):
         setup_name = "SetupToDelete"
-        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        setuptd = self.aedtapp.create_setup(setup_name=setup_name)
         assert setuptd.name in self.aedtapp.existing_analysis_setups
         assert self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
@@ -386,7 +386,7 @@ class TestClass:
             name="WaveForSweep",
             renormalize=False,
         )
-        setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        setup = self.aedtapp.create_setup(setup_name="MySetupForSweep")
         assert not setup.get_sweep()
         sweep = setup.add_sweep()
         sweep1 = setup.get_sweep(sweep.name)
@@ -413,7 +413,7 @@ class TestClass:
             renormalize=False,
         )
 
-        setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
+        setup = self.aedtapp.create_setup(setup_name="MySetupClearSweep")
         sweep = setup.add_sweep()
         assert sweep.add_subrange("LinearCount", 1.1, 3.6, 10, "GHz", clear=True)
         assert sweep.props["RangeType"] == "LinearCount"

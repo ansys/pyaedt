@@ -398,7 +398,7 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> from pyaedt import Circuit
         >>> app = Circuit()
-        >>> app.create_setup(setupname="Setup1", setuptype=app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
+        >>> app.create_setup(setup_name="Setup1",setup_type=app.SETUPS.NexximLNA,Data="LINC 0GHz 4GHz 501")
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup

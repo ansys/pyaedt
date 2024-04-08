@@ -781,7 +781,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(setup_name="Setup1",setup_type="HFSSDriven",Frequency="10GHz")
 
         """
         if setuptype is None:

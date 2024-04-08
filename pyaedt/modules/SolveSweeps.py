@@ -225,7 +225,7 @@ class SweepHFSS(object):
         --------
         Create a setup in an HFSS design and add multiple sweep ranges.
 
-        >>> setup = hfss.create_setup(setupname="MySetup")
+        >>> setup = hfss.create_setup(setup_name="MySetup")
         >>> sweep = setup.add_sweep()
         >>> sweep.change_type("Interpolating")
         >>> sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")

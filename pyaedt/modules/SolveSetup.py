@@ -2708,7 +2708,7 @@ class SetupHFSS(Setup, object):
 
         >>> import pyaedt
         >>> hfss = pyaedt.Hfss()
-        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1 = hfss.create_setup(setup_name='Setup1')
         >>> setup1.create_frequency_sweep(
             "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
         )

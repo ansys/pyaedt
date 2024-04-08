@@ -172,7 +172,7 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(setupname="test")
+        setup = hfss_app.create_setup(setup_name="test")
         setup.props["Frequency"] = "1GHz"
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
@@ -398,7 +398,7 @@ class TestClass:
 
     def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
-        setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
+        setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):
@@ -433,7 +433,7 @@ class TestClass:
         assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, file_name=fld_file_4,
                                                        objects="Coil_A2")
 
-        new_setup = m3dtransient.create_setup(setupname=setup.name, setuptype=setup.setuptype)
+        new_setup = m3dtransient.create_setup(setup_name=setup.name, setup_type=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
 
