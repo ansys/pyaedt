@@ -311,12 +311,7 @@ class TestClass:
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.edit_source_from_file(
-            port_wave.name,
-            time_domain,
-            is_time_domain=True,
-            data_format="Voltage",
-            x_scale=1e-6,
-            y_scale=1e-3,
+            port_wave.name, time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
         )
 
     def test_14a_create_coaxial_port(self):
@@ -377,32 +372,27 @@ class TestClass:
         setup_name = "RF_create_linear_count"
         self.aedtapp.create_setup(setupname=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
-            setupname=setup_name,
-            unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            setup=setup_name,
+            units="GHz",
+            start_frequency=1,
+            stop_frequency=10,
             num_of_freq_points=1001,
-            sweepname="RFBoardSweep1",
-            sweep_type="Interpolating",
-            interpolation_tol_percent=0.2,
-            interpolation_max_solutions=111,
+            name="RFBoardSweep1",
             save_fields=False,
-            use_q3d_for_dc=False,
+            sweep_type="Interpolating",
+            interpolation_max_solutions=111,
         )
         assert sweep1.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 1001"
         sweep2 = self.aedtapp.create_linear_count_sweep(
-            setupname=setup_name,
-            unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            setup=setup_name,
+            units="GHz",
+            start_frequency=1,
+            stop_frequency=10,
             num_of_freq_points=12,
-            sweepname="RFBoardSweep2",
-            sweep_type="Discrete",
-            interpolation_tol_percent=0.4,
-            interpolation_max_solutions=255,
+            name="RFBoardSweep2",
             save_fields=True,
-            save_rad_fields_only=True,
-            use_q3d_for_dc=True,
+            sweep_type="Discrete",
+            interpolation_max_solutions=255,
         )
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
@@ -700,8 +690,8 @@ class TestClass:
     def test_90_set_differential_pairs(self, hfss3dl):
         assert not self.aedtapp.get_differential_pairs()
         assert hfss3dl.set_differential_pair(
-            positive_terminal="Port3",
-            negative_terminal="Port4",
+            assignment="Port3",
+            reference="Port4",
             common_name=None,
             diff_name=None,
             common_ref_z=34,
@@ -709,7 +699,7 @@ class TestClass:
             active=True,
             matched=False,
         )
-        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.set_differential_pair(assignment="Port3", reference="Port5")
         assert hfss3dl.get_differential_pairs()
         assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 

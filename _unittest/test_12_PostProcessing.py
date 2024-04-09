@@ -615,7 +615,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
-        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
         ffdata.phase_offset = [0, 90]
         assert ffdata.phase_offset == [0, 90]
         ffdata.phase_offset = [0]
@@ -667,7 +667,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_72_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
             quantity="RealizedGain",
@@ -707,7 +707,7 @@ class TestClass:
             convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
+        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D", overwrite=False)
         assert ffdata1.plot_farfield_contour(
             quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata1.frequency),

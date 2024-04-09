@@ -281,7 +281,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
-        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
+        >>> hfss.edit_sources(sources_cg,sources_acrl,sources_dcrl)
         """
         setting_AC = []
         setting_CG = []

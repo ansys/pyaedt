@@ -107,10 +107,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
-        assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
+        assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
         sbr_platform.analyze(num_cores=6)
-        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
-        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
+        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
 
         ffdata.plot_2d_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
                            title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10",

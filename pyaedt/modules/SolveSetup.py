@@ -2364,10 +2364,10 @@ class SetupHFSS(Setup, object):
         named ``"LinearCountSweep"``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(setupname="LinearCountSetup",
-        ...                                                     sweepname="LinearCountSweep",
-        ...                                                     unit="MHz", freqstart=1.1e3,
-        ...                                                     freqstop=1200.1, num_of_freq_points=1658)
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(setup="LinearCountSetup",
+        >>>                                                     units="MHz",start_frequency=1.1e3,
+        >>>                                                     stop_frequency=1200.1,num_of_freq_points=1658,
+        >>>                                                     name="LinearCountSweep")
         >>> type(linear_count_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 

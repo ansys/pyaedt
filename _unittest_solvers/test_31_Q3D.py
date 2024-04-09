@@ -292,7 +292,7 @@ class TestClass:
         assert q3d.edit_sources(sources_cg, sources_ac)
 
         sources_dc = {"Box1:Source1": "20"}
-        assert q3d.edit_sources(dcrl=sources_dc)
+        assert q3d.edit_sources()
 
         sources_cg = {"Box2": "2V"}
         assert not q3d.edit_sources(sources_cg)
