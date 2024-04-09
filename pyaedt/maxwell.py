@@ -617,7 +617,7 @@ class Maxwell(object):
         ----------
         assignment : list, optional
             List of windings. For example, ``["PhaseA", "PhaseB", "PhaseC"]``.
-            The default value is ``None``, in which case the design has no Y connection.
+            The default is ``None``, in which case the design has no Y connection.
 
         Returns
         -------
@@ -942,7 +942,7 @@ class Maxwell(object):
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage(self, assignment, amplitude=1, name=None):
-        """Assign a voltage source to a list of faces in Maxwell 3D or a list of Objects in Maxwell 2D.
+        """Assign a voltage source to a list of faces in Maxwell 3D or a list of objects in Maxwell 2D.
 
         Parameters
         ----------
@@ -1717,7 +1717,7 @@ class Maxwell(object):
         assignment : list
             List of object names for force calculations.
         force_type : int, optional
-            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
+            Force type. Options are ``0`` for objects, ``1`` for surface, and ``2`` for volumetric.
         window_function : str, optional
             Windowing function. Default is ``"Rectangular"``.
             Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
@@ -1791,9 +1791,9 @@ class Maxwell(object):
         Parameters
         ----------
         assignment : str
-            Name of layout component to apply harmonic forces.
+            Name of layout component to apply harmonic forces to.
         nets : dict
-            Dictionary containing nets and layers on which enable harmonic forces.
+            Dictionary containing nets and layers to enable harmonic forces on.
         force_type : int, optional
             Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
         window_function : str, optional
@@ -2218,7 +2218,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         assignment : str
             Faces or objects to apply the impedance boundary to.
         material_name : str, optional
-            If it is different from ``None``, then material properties values will be extracted from
+            Material name. The default is ``None``. If other than ``None``, material properties values are extracted from
             the named material in the list of materials available. The default value is ``None``.
         permeability : float, optional
             Permeability of the material.The default value is ``0.0``.
