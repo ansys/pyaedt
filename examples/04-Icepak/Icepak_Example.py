@@ -72,7 +72,7 @@ ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 # ~~~~~~~~~~~~~~~~~~~
 # Assign a mesh region to the heat sink and CPU.
 
-mesh_region = ipk.mesh.assign_mesh_region(entities=["HEAT_SINK", "CPU"])
+mesh_region = ipk.mesh.assign_mesh_region(assignment=["HEAT_SINK", "CPU"])
 mesh_region.UserSpecifiedSettings = True
 mesh_region.MaxElementSizeX = "3.35mm"
 mesh_region.MaxElementSizeY = "1.75mm"
