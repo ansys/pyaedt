@@ -1100,7 +1100,7 @@ class IcepakMesh(object):
         assignment : list
             List of objects to apply the mesh file to.
         file_name :  str
-            Full path to .msh file.
+            Full path to the mesh (MSH) file.
         name :  str, optional
             Name of the mesh operations. Default is ``None``.
 
