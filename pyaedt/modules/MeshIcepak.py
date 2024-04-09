@@ -1223,7 +1223,7 @@ class IcepakMesh(object):
             an object and a component.
         assignment : list
             List of 3D objects, which can include conductors and dielectrics.
-            If the user pass a non 3D object, it will be excluded.
+            If a non-3D object is passed, it is excluded.
         component : str, optional
             Name of the component. The default is ``None``.
         priority : int, optional
