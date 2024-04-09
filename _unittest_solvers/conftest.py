@@ -35,7 +35,7 @@ settings.retry_n_times_time_interval = 0.5
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
-
+settings.release_on_exception = False
 
 from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
