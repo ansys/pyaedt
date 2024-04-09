@@ -397,7 +397,7 @@ class TestClass:
 
     def test_32_automatic_mesh_3d(self):
         self.aedtapp.set_active_design("IcepakDesign1")
-        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
+        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy=1)
 
     def test_33_create_source(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
@@ -1039,9 +1039,9 @@ class TestClass:
             custom_x_resolution=400,
             custom_y_resolution=500,
         )
-        assert self.aedtapp.mesh.add_priority(entity_type=1, obj_list=self.aedtapp.modeler.object_names, priority=2)
+        assert self.aedtapp.mesh.add_priority(entity_type=1, objects=self.aedtapp.modeler.object_names, priority=2)
         assert self.aedtapp.mesh.add_priority(
-            entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
+            entity_type=2, component=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
 
     def test_57_update_source(self):
@@ -1354,11 +1354,11 @@ class TestClass:
             design_name="IcepakDesign1",
             subfolder=test_subfolder,
         )
-        assert app.mesh.add_priority(entity_type=2, comp_name="IcepakDesign1_1", priority=3)
+        assert app.mesh.add_priority(entity_type=2, component="IcepakDesign1_1", priority=3)
 
-        assert app.mesh.add_priority(entity_type=2, comp_name="all_2d_objects1", priority=2)
+        assert app.mesh.add_priority(entity_type=2, component="all_2d_objects1", priority=2)
 
-        assert app.mesh.add_priority(entity_type=2, comp_name="all_3d_objects1", priority=2)
+        assert app.mesh.add_priority(entity_type=2, component="all_3d_objects1", priority=2)
 
         app.close_project(name="3d_comp_mesh_prio_test", save_project=False)
 

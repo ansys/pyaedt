@@ -122,6 +122,7 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
         )
+        self._excitation_objects = {}
         self._setup = None
         if setup_name:
             self.active_setup = setup_name
@@ -476,6 +477,46 @@ class Analysis(Design, object):
             return list_names
         except Exception:
             return []
+
+    @property
+    def excitations_by_type(self):
+        """Design excitations by type.
+
+        Returns
+        -------
+        dict
+            Dictionary of excitations.
+        """
+        _dict_out = {}
+        for bound in self.excitation_objects.values():
+            if bound.type in _dict_out:
+                _dict_out[bound.type].append(bound)
+            else:
+                _dict_out[bound.type] = [bound]
+        return _dict_out
+
+    @property
+    def excitation_objects(self):
+        """Get all excitation.
+
+        Returns
+        -------
+        dict
+            List of excitation boundaries. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+
+        >>> oModule.GetExcitations
+        """
+        exc_names = self.excitations[::]
+
+        for el in self.boundaries:
+            if el.name in exc_names:
+                self._excitation_objects[el.name] = el
+
+        return self._excitation_objects
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -2050,7 +2091,7 @@ class Analysis(Design, object):
         if machine == "localhost":
             while not os.path.exists(queue_file):
                 time.sleep(0.5)
-            with open(queue_file, "r") as f:
+            with open_file(queue_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "JobID" in line:

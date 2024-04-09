@@ -11,6 +11,7 @@ import shutil
 
 from pyaedt import Hfss3dLayout
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.constants import unit_converter
@@ -28,7 +29,7 @@ from pyaedt.modules.Boundary import VoltageSinSource
 from pyaedt.modules.CircuitTemplates import SourceKeys
 
 
-class Circuit(FieldAnalysisCircuit, object):
+class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     """Provides the Circuit application interface.
 
     Parameters
@@ -149,7 +150,7 @@ class Circuit(FieldAnalysisCircuit, object):
             port,
             aedt_process_id,
         )
-
+        ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
@@ -806,46 +807,6 @@ class Circuit(FieldAnalysisCircuit, object):
         return portnames
 
     @pyaedt_function_handler()
-    def export_touchstone(
-        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
-    ):
-        """Export the Touchstone file to a local folder.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup that has been solved.
-        sweep_name : str, optional
-            Name of the sweep that has been solved.
-        file_name : str, optional
-            Full path and name for the Touchstone file.
-            The default is ``None``, in which case the file is exported to the working directory.
-        variations : list, optional
-            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``None``.
-        variations_value : list, optional
-            List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``None``.
-
-        Returns
-        -------
-        str
-            File name when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.ExportNetworkData
-        """
-        return self._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
-            variations=variations,
-            variations_value=variations_value,
-        )
-
-    @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
         designname=None,
@@ -1029,41 +990,6 @@ class Circuit(FieldAnalysisCircuit, object):
         )
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, setup_name=None, variation_dict=None):
-        """
-        Return a Touchstone data plot.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the solution. The default value is ``None``.
-        variation_dict : dict, optional
-            Dictionary of variation names. The default value is ``None``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
-           Class containing all requested data.
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-        """
-        from pyaedt.generic.touchstone_parser import TouchstoneData
-
-        if not setup_name:
-            setup_name = self.existing_analysis_sweeps[0]
-
-        s_parameters = []
-        expression = self.get_traces_for_plot(category="S")
-        sol_data = self.post.get_solution_data(expression, setup_name, variations=variation_dict)
-        for i in range(sol_data.number_of_variations):
-            sol_data.set_active_variation(i)
-            s_parameters.append(TouchstoneData(solution_data=sol_data))
-        return s_parameters
-
-    @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations for a linear frequency setup.
 
@@ -1243,8 +1169,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_v.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_v.name)
+            self.excitation_objects[port].update()
         return source_v
 
     @pyaedt_function_handler()
@@ -1268,8 +1194,8 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         source_i = self.create_source(source_type="CurrentSin")
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_i.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_i.name)
+            self.excitation_objects[port].update()
         return source_i
 
     @pyaedt_function_handler()
@@ -1293,8 +1219,8 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         source_p = self.create_source(source_type="PowerSin")
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_p.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_p.name)
+            self.excitation_objects[port].update()
         return source_p
 
     @pyaedt_function_handler()
@@ -1322,15 +1248,15 @@ class Circuit(FieldAnalysisCircuit, object):
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
-        if not all(elem in self.excitation_names for elem in ports):
+        if not all(elem in self.excitations for elem in ports):
             self.logger.error("Defined ports do not exist")
             return False
 
         source_freq = self.create_source(source_type="VoltageFrequencyDependent")
         source_freq.fds_filename = filepath
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_freq.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_freq.name)
+            self.excitation_objects[port].update()
         return source_freq
 
     @pyaedt_function_handler()

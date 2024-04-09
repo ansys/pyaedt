@@ -1112,7 +1112,7 @@ class IcepakPostProcessor(PostProcessor, object):
                 time_step,
             ]
         )
-        with open(export_file, "r") as f:
+        with open_file(export_file, "r") as f:
             reader = csv.reader(f)
             for line in reader:
                 if "Fan Instances" in line:

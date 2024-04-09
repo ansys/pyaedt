@@ -15,6 +15,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import conversion_function
 from pyaedt.generic.general_methods import open_file
@@ -1170,7 +1171,7 @@ class FfdSolutionData(object):
         for eep in eep_files:
             metadata_file = os.path.join(os.path.dirname(eep), "eep.json")
             if os.path.exists(metadata_file):
-                with open(metadata_file) as f:
+                with open_file(metadata_file) as f:
                     # Load JSON data from file
                     metadata = json.load(f)
                 self.model_info.append(metadata["model_info"])
@@ -2129,7 +2130,7 @@ class FfdSolutionData(object):
         valid_ffd = True
 
         if os.path.exists(eep_file_info[all_ports[0]][0]):
-            with open(eep_file_info[all_ports[0]][0], "r") as reader:
+            with open_file(eep_file_info[all_ports[0]][0], "r") as reader:
                 theta = [int(i) for i in reader.readline().split()]
                 phi = [int(i) for i in reader.readline().split()]
             reader.close()
@@ -2223,7 +2224,7 @@ class FfdSolutionData(object):
         """
         self._eep_file_info_list.append({})
         if os.path.exists(eep_path):
-            with open(eep_path, "r") as reader:
+            with open_file(eep_path, "r") as reader:
                 lines = [line.split(None) for line in reader]
             lines = lines[1:]  # remove header
             for pattern in lines:
@@ -2550,7 +2551,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                     ]
                     items["lattice_vector"] = component_array.lattice_vector()
 
-                with open(metadata_file_name, "w") as f:
+                with open_file(metadata_file_name, "w") as f:
                     json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
         self._app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
@@ -3294,6 +3295,7 @@ class FieldPlot:
             height=height,
             display_wireframe=display_wireframe,
         )
+        full_path = check_and_download_file(full_path)
         if status:
             return full_path
         else:
