@@ -61,7 +61,7 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(20, 20, 0)
         coax_dimension = 200
         o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual")
-        surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
+        surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] == 1e-6
         surface.props["SurfDev"] = 1e-05
@@ -123,7 +123,7 @@ class TestClass:
     def test_07_maxwell_mesh(self, add_app):
         m3d = add_app(application=Maxwell3d)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
-        rot = m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
+        rot = m3d.mesh.assign_rotational_layer(o.name, total_thickness="5mm", name="Rotational")
         assert rot.props["Number of Layers"] == "3"
         rot.props["Number of Layers"] = 1
         assert str(rot.props["Number of Layers"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
@@ -135,14 +135,14 @@ class TestClass:
             rot.name
         ).GetPropValue("Total Layer Thickness")
 
-        edge_cut = m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")
+        edge_cut = m3d.mesh.assign_edge_cut(o.name, name="Edge")
         assert edge_cut.props["Layer Thickness"] == "1mm"
         edge_cut.props["Layer Thickness"] = "2mm"
         assert edge_cut.props["Layer Thickness"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             edge_cut.name
         ).GetPropValue("Layer Thickness")
 
-        dens = m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
+        dens = m3d.mesh.assign_density_control(o.name, maximum_element_length=10000, name="Density")
         assert dens.props["RestrictMaxElemLength"]
 
         assert dens.props["MaxElemLength"] == 10000

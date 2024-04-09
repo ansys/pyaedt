@@ -97,7 +97,7 @@ m3d.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_origina
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a mesh refinement to the ladder plate.
 
-m3d.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name="Ladder_Mesh")
+m3d.mesh.assign_length_mesh("LadderPlate", maximum_length=3, maximum_elements=None, name="Ladder_Mesh")
 
 ################################################################################
 # Draw search coil and assign excitation

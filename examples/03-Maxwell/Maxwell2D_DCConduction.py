@@ -99,7 +99,7 @@ m2d.assign_matrix(assignment=['1V'], matrix_name="Matrix1", group_sources=['0V']
 # ~~~~~~~~~~~~~~~~~~~~~
 # 3mm on the conductor
 
-m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlength=3, maxel=None)
+m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], maximum_length=3, maximum_elements=None, name="conductor")
 
 ##################################################################################
 # Create simulation setup and enable expression cache

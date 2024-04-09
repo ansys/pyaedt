@@ -267,7 +267,7 @@ class TestClass:
         assert self.aedtapp.mesh.assign_edge_cut(["Coil"])
 
     def test_24_density_control(self):
-        assert self.aedtapp.mesh.assign_density_control(["Coil"], maxelementlength="2mm", layerNum="3")
+        assert self.aedtapp.mesh.assign_density_control(["Coil"], maximum_element_length="2mm", layers_number="3")
 
     def test_24_density_control(self):
         assert self.aedtapp.mesh.assign_rotational_layer(["Coil"])
@@ -776,7 +776,7 @@ class TestClass:
             for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert cyl_gap.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test")
         assert not cyl_gap.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
         assert not cyl_gap.mesh.assign_cylindrical_gap("Band")
         [
@@ -784,15 +784,13 @@ class TestClass:
             for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert cyl_gap.mesh.assign_cylindrical_gap(
-            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=1
-        )
+        assert cyl_gap.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=1, clone_mesh=True)
         [
             x.delete()
             for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
+        assert cyl_gap.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", clone_mesh=False)
         [
             x.delete()
             for x in cyl_gap.mesh.meshoperations[:]
@@ -800,13 +798,13 @@ class TestClass:
         ]
         assert cyl_gap.mesh.assign_cylindrical_gap("Band")
         assert not cyl_gap.mesh.assign_cylindrical_gap(
-            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=7
+            "Band", name="cyl_gap_test", band_mapping_angle=7, clone_mesh=True
         )
         assert not cyl_gap.mesh.assign_cylindrical_gap(
-            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, moving_side_layers=0
+            "Band", name="cyl_gap_test", band_mapping_angle=2, clone_mesh=True, moving_side_layers=0
         )
         assert not cyl_gap.mesh.assign_cylindrical_gap(
-            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
+            "Band", name="cyl_gap_test", band_mapping_angle=2, clone_mesh=True, static_side_layers=0
         )
 
     def test_50_objects_segmentation(self, cyl_gap):

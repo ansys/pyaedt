@@ -535,9 +535,9 @@ for item in PM_list:
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the mesh operations.
 
-M2D.mesh.assign_length_mesh(id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils")
-M2D.mesh.assign_length_mesh(stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator")
-M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor")
+M2D.mesh.assign_length_mesh(id_coils, inside_selection=True, maximum_length=3, maximum_elements=None, name="coils")
+M2D.mesh.assign_length_mesh(stator_id, inside_selection=True, maximum_length=3, maximum_elements=None, name="stator")
+M2D.mesh.assign_length_mesh(rotor_id, inside_selection=True, maximum_length=3, maximum_elements=None, name="rotor")
 
 ##########################################################
 # Turn on eddy effects

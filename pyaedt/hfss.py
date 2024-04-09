@@ -2848,6 +2848,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         self.omodelsetup.CreateOpenRegion(vars)
         self.logger.info("Open Region correctly created.")
+        self.save_project()
         return True
 
     @pyaedt_function_handler()
