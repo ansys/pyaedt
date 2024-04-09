@@ -172,7 +172,7 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(name="test")
+        setup = hfss_app.create_setup(setupname="test")
         setup.props["Frequency"] = "1GHz"
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
