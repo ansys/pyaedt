@@ -58,6 +58,12 @@ repos:
   -   id: blacken-docs
       additional_dependencies: [black==24.3.0]
 
+# this validates our pre-commit.ci configuration
+- repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+  rev: v1.6.1
+  hooks:
+  -   id: check-pre-commit-ci-config
+
 
 # - repo: https://github.com/numpy/numpydoc
 #   rev: v1.6.0
