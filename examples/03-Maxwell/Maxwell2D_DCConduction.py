@@ -92,7 +92,7 @@ m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 1V is the source, 0V ground
 
-m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
+m2d.assign_matrix(assignment=['1V'], matrix_name="Matrix1", group_sources=['0V'])
 
 ##################################################################################
 # Assign mesh operation

@@ -155,7 +155,7 @@ m3d.modeler.delete("Coil_Section1_Separate1")
 
 Coil_Excitation = 2742
 m3d["Coil_Excitation"] = str(Coil_Excitation) + "A"
-m3d.assign_current(objects="Coil_Section1", amplitude="Coil_Excitation", solid=False)
+m3d.assign_current(assignment="Coil_Section1", amplitude="Coil_Excitation", solid=False)
 m3d.modeler.set_working_coordinate_system("Global")
 
 ###########################################################################################
@@ -191,8 +191,8 @@ m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # for all parts. The setting for eddy effect is ignored for the stranded conductor type
 # used in the coil.
 
-m3d.eddy_effects_on(objects="Plate")
-m3d.eddy_effects_on(objects=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], enable_eddy_effects=False,
+m3d.eddy_effects_on(assignment="Plate")
+m3d.eddy_effects_on(assignment=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], enable_eddy_effects=False,
                     enable_displacement_current=False)
 
 ################################################################################

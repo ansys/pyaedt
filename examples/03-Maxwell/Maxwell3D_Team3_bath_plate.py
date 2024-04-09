@@ -115,7 +115,7 @@ m3d.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
 m3d.modeler.section("SearchCoil", "YZ")
 m3d.modeler.separate_bodies("SearchCoil_Section1")
 m3d.modeler.delete("SearchCoil_Section1_Separate1")
-m3d.assign_current(objects=["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
+m3d.assign_current(assignment=["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
 
 ################################################################################
 # Draw a line for plotting Bz
@@ -152,8 +152,8 @@ setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=1
 # Adjust eddy effects for the ladder plate and the search coil. The setting for
 # eddy effect is ignored for the stranded conductor type used in the search coil.
 
-m3d.eddy_effects_on(objects=["LadderPlate"], enable_eddy_effects=True, enable_displacement_current=True)
-m3d.eddy_effects_on(objects=["SearchCoil"], enable_eddy_effects=False, enable_displacement_current=True)
+m3d.eddy_effects_on(assignment=["LadderPlate"], enable_eddy_effects=True, enable_displacement_current=True)
+m3d.eddy_effects_on(assignment=["SearchCoil"], enable_eddy_effects=False, enable_displacement_current=True)
 
 ################################################################################
 # Add linear parametric sweep

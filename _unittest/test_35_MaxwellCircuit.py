@@ -71,6 +71,6 @@ class TestClass:
         m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         m2d.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
         m2d.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
-        m2d.assign_coil(objects=["Circle_inner"])
-        m2d.assign_winding(faces=["Circle_inner"], winding_type="External", name="Ext_Wdg")
+        m2d.assign_coil(assignment=["Circle_inner"])
+        m2d.assign_winding(assignment=["Circle_inner"], winding_type="External", name="Ext_Wdg")
         assert m2d.edit_external_circuit(netlist_file, self.aedtapp.design_name)

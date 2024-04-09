@@ -402,14 +402,9 @@ class TestClass:
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):
-        assert m3dtransient.enable_harmonic_force(
-            ["Stator"],
-            force_type=2,
-            window_function="Rectangular",
-            use_number_of_last_cycles=True,
-            last_cycles_number=3,
-            calculate_force="Harmonic",
-        )
+        assert m3dtransient.enable_harmonic_force(["Stator"], force_type=2, window_function="Rectangular",
+                                                  use_number_of_last_cycles=True, last_cycles_number=3,
+                                                  calculate_force="Harmonic")
         m3dtransient.save_project()
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
         assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,

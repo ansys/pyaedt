@@ -167,32 +167,32 @@ class TestClass:
     def test_05_winding(self):
         face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
         assert self.aedtapp.assign_winding(face_id)
-        bounds = self.aedtapp.assign_winding(faces=face_id, current=20e-3)
+        bounds = self.aedtapp.assign_winding(assignment=face_id, current=20e-3)
         assert bounds
-        bounds = self.aedtapp.assign_winding(faces=face_id, current="20e-3A")
+        bounds = self.aedtapp.assign_winding(assignment=face_id, current="20e-3A")
         assert bounds
-        bounds = self.aedtapp.assign_winding(faces=face_id, resistance="1ohm")
+        bounds = self.aedtapp.assign_winding(assignment=face_id, resistance="1ohm")
         assert bounds
-        bounds = self.aedtapp.assign_winding(faces=face_id, inductance="1H")
+        bounds = self.aedtapp.assign_winding(assignment=face_id, inductance="1H")
         assert bounds
-        bounds = self.aedtapp.assign_winding(faces=face_id, voltage="10V")
+        bounds = self.aedtapp.assign_winding(assignment=face_id, voltage="10V")
         assert bounds
         bounds_name = generate_unique_name("Winding")
-        bounds = self.aedtapp.assign_winding(faces=face_id, name=bounds_name)
+        bounds = self.aedtapp.assign_winding(assignment=face_id, name=bounds_name)
         assert bounds_name == bounds.name
 
     def test_05a_assign_coil(self):
         face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
-        bound = self.aedtapp.assign_coil(objects=face_id)
+        bound = self.aedtapp.assign_coil(assignment=face_id)
         assert bound
         polarity = "Positive"
-        bound = self.aedtapp.assign_coil(objects=face_id, polarity=polarity)
+        bound = self.aedtapp.assign_coil(assignment=face_id, polarity=polarity)
         assert not bound.props["Point out of terminal"]
         polarity = "Negative"
-        bound = self.aedtapp.assign_coil(objects=face_id, polarity=polarity)
+        bound = self.aedtapp.assign_coil(assignment=face_id, polarity=polarity)
         assert bound.props["Point out of terminal"]
         bound_name = generate_unique_name("Coil")
-        bound = self.aedtapp.assign_coil(objects=face_id, name=bound_name)
+        bound = self.aedtapp.assign_coil(assignment=face_id, name=bound_name)
         assert bound_name == bound.name
 
     def test_05_draw_region(self):
@@ -425,7 +425,7 @@ class TestClass:
         assert T.props["Coordinate System"] == "Global"
         assert T.props["Axis"] == "Z"
         assert T.delete()
-        T = self.aedtapp.assign_torque(objects="Coil", is_positive=False, torque_name="Torque_Test")
+        T = self.aedtapp.assign_torque(assignment="Coil", is_positive=False, torque_name="Torque_Test")
         assert not T.props["Is Positive"]
         assert T.name == "Torque_Test"
 
@@ -436,7 +436,7 @@ class TestClass:
         assert F.props["Reference CS"] == "Global"
         assert F.props["Is Virtual"]
         assert F.delete()
-        F = self.aedtapp.assign_force(objects="Coil", is_virtual=False, force_name="Force_Test")
+        F = self.aedtapp.assign_force(assignment="Coil", is_virtual=False, force_name="Force_Test")
         assert F.name == "Force_Test"
         assert not F.props["Is Virtual"]
 
@@ -445,7 +445,7 @@ class TestClass:
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Transient
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
         self.aedtapp.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
-        bound = self.aedtapp.assign_translate_motion("Outer_Box", mechanical_transient=True, velocity=1)
+        bound = self.aedtapp.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
         assert bound
         assert bound.props["Velocity"] == "1m_per_sec"
 
@@ -474,18 +474,18 @@ class TestClass:
         m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
         m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
 
-        L = m3d.assign_matrix(sources="Voltage1")
+        L = m3d.assign_matrix(assignment="Voltage1")
         assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
         assert L.delete()
         group_sources = "Voltage2"
-        L = m3d.assign_matrix(sources=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources=group_sources)
+        L = m3d.assign_matrix(assignment=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources=group_sources)
         assert L.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
         m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
         winding1 = m3d.assign_winding("Sheet1", name="Current1")
         winding2 = m3d.assign_winding("Sheet2", name="Current2")
         winding3 = m3d.assign_winding("Sheet3", name="Current3")
         winding4 = m3d.assign_winding("Sheet4", name="Current4")
-        L = m3d.assign_matrix(sources="Current1")
+        L = m3d.assign_matrix(assignment="Current1")
         assert not L
 
     def test_32B_matrix(self, add_app):
@@ -506,7 +506,7 @@ class TestClass:
         m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
         m3d.assign_current(rectangle4.faces[0], amplitude=1, name="Cur4")
 
-        L = m3d.assign_matrix(sources=["Cur1", "Cur2", "Cur3"])
+        L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"])
         out = L.join_series(["Cur1", "Cur2"])
         assert isinstance(out[0], str)
         assert isinstance(out[1], str)
@@ -518,7 +518,7 @@ class TestClass:
 
     def test_32a_export_rl_matrix(self):
         self.aedtapp.set_active_design("Matrix2")
-        L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
+        L = self.aedtapp.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
         setup_name = "setupTestMatrixRL"
         setup = self.aedtapp.create_setup(name=setup_name)

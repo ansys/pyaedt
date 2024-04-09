@@ -388,7 +388,7 @@ bandOUT_id = mod2D.create_circle(position=[0, 0, 0], radius='(DiaGap - (0.5 * Ai
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
 
-M2D.assign_rotate_motion(band_object='Band', coordinate_system="Global", axis="Z", positive_movement=True,
+M2D.assign_rotate_motion(assignment='Band', coordinate_system="Global", axis="Z", positive_movement=True,
                          start_position="InitialPositionMD", angular_velocity="MachineRPM")
 
 ##########################################################
@@ -465,7 +465,7 @@ id_bc_1 = mod2D.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name='Regio
 id_bc_2 = mod2D.get_edgeid_from_position(
     position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
     obj_name='Region')
-M2D.assign_master_slave(master_edge=id_bc_1, slave_edge=id_bc_2, reverse_master=False, reverse_slave=True,
+M2D.assign_master_slave(independent=id_bc_1, dependent=id_bc_2, reverse_master=False, reverse_slave=True,
                         same_as_master=False, boundary="Matching")
 
 ##########################################################
@@ -493,33 +493,33 @@ PhC_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define windings in phase A.
 
-M2D.assign_coil(objects=["Coil"], conductors_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go")
-M2D.assign_coil(objects=["Coil_5"], conductors_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret")
-M2D.assign_winding(faces=None, winding_type="Current", is_solid=False, current=PhA_current, parallel_branches=1,
+M2D.assign_coil(assignment=["Coil"], conductors_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go")
+M2D.assign_coil(assignment=["Coil_5"], conductors_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret")
+M2D.assign_winding(assignment=None, winding_type="Current", is_solid=False, current=PhA_current, parallel_branches=1,
                    name="Phase_A")
-M2D.add_winding_coils(winding="Phase_A", coils=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
+M2D.add_winding_coils(assignment="Phase_A", coils=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
 
 ##########################################################
 # Define windings in phase B
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define windings in phase B.
 
-M2D.assign_coil(objects="Coil_3", conductors_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go")
-M2D.assign_coil(objects="Coil_4", conductors_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go")
-M2D.assign_winding(faces=None, winding_type="Current", is_solid=False, current=PhB_current, parallel_branches=1,
+M2D.assign_coil(assignment="Coil_3", conductors_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go")
+M2D.assign_coil(assignment="Coil_4", conductors_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go")
+M2D.assign_winding(assignment=None, winding_type="Current", is_solid=False, current=PhB_current, parallel_branches=1,
                    name="Phase_B")
-M2D.add_winding_coils(winding="Phase_B", coils=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
+M2D.add_winding_coils(assignment="Phase_B", coils=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
 
 ##########################################################
 # Define windings in phase C
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define windings in phase C.
 
-M2D.assign_coil(objects="Coil_1", conductors_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret")
-M2D.assign_coil(objects="Coil_2", conductors_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret")
-M2D.assign_winding(faces=None, winding_type="Current", is_solid=False, current=PhC_current, parallel_branches=1,
+M2D.assign_coil(assignment="Coil_1", conductors_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret")
+M2D.assign_coil(assignment="Coil_2", conductors_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret")
+M2D.assign_winding(assignment=None, winding_type="Current", is_solid=False, current=PhC_current, parallel_branches=1,
                    name="Phase_C")
-M2D.add_winding_coils(winding="Phase_C", coils=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
+M2D.add_winding_coils(assignment="Phase_C", coils=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
 
 ##########################################################
 # Assign total current on PMs
