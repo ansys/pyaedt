@@ -1039,7 +1039,7 @@ class TestClass:
             custom_x_resolution=400,
             custom_y_resolution=500,
         )
-        assert self.aedtapp.mesh.add_priority(entity_type=1, objects=self.aedtapp.modeler.object_names, priority=2)
+        assert self.aedtapp.mesh.add_priority(entity_type=1, entities=self.aedtapp.modeler.object_names, priority=2)
         assert self.aedtapp.mesh.add_priority(
             entity_type=2, component=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
