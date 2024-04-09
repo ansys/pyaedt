@@ -190,7 +190,7 @@ class Maxwell(object):
     def set_core_losses(self, objects, core_loss_on_field=False):
         """Whether to enable core losses for a set of objects.
 
-        For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
+        For ``EddyCurrent`` and ``Transient`` solver designs, core losses calculations
         may be included in the simulation on any object that has a corresponding
         core loss definition (with core loss coefficient settings) in the material library.
 
@@ -611,7 +611,7 @@ class Maxwell(object):
 
     @pyaedt_function_handler(windings_name="windings")
     def setup_y_connection(self, windings=None):
-        """Setup the Y connection.
+        """Set up the Y connection.
 
         Parameters
         ----------
@@ -1061,7 +1061,7 @@ class Maxwell(object):
         resistance : float, optional
             Resistance in ohms. The default is ``0``.
         inductance : float, optional
-            Inductnace in Henry (H). The default is ``0``.
+            Inductance in Henry (H). The default is ``0``.
         voltage : float, optional
             Voltage value. The default is ``0``.
         parallel_branches : int, optional
@@ -1291,7 +1291,7 @@ class Maxwell(object):
                 self._boundaries[bound.name] = bound
                 return bound
         else:
-            self.logger.error("Solution Type has not Matrix Parameter")
+            self.logger.error("Solution type has no 'Matrix' parameter.")
             return False
 
     @pyaedt_function_handler(input_object="objects", reference_cs="coordinate_system")
@@ -1880,7 +1880,7 @@ class Maxwell(object):
         Parameters
         ----------
         output_directory : str, optional
-            The path for the output directory. If ``None`` pyaedt working dir will be used.
+            Path for the output directory. If ``None`` pyaedt working dir will be used.
         setup : str, optional
             Name of the solution setup. If ``None``, the nominal setup is used.
         start_frequency : float, optional
@@ -1966,7 +1966,8 @@ class Maxwell(object):
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
 
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.
+        Optional arguments are passed using the ``setup_type`` and ``name``
+        parameters.
         Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
         The list of keywords here is not exhaustive.
 
@@ -2148,7 +2149,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         objects : str or int
             Objects or faces to apply the insulating boundary to.
         insulation : str, optional
-            Name of the insulation. The default is ``None`` in which case a unique name is chosen.
+            Name of the insulation. The default is ``None``, in which case a unique name is assigned.
 
         Returns
         -------
@@ -2225,7 +2226,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             If the option ``material_name`` is activated, the permeability can either be linear or not.
             The default value is ``False``.
         impedance : str, optional
-            Name of the impedance. The default is ``None`` in which case a unique name is chosen.
+            Name of the impedance. The default is ``None``, in which case a unique name is assigned.
 
         Returns
         -------
@@ -2567,13 +2568,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Parameters
         ----------
         net_layers : dict
-            Each <layer, net> pair represents the object(s) in the intersection of corresponding layer and net.
-            Net name is dictionary's key, layers name is the list of layer names.
+            Each <layer, net> pair represents the objects in the intersection of the corresponding layer and net.
+            The layer name is from the list of layer names. The net name is the dictionary's key.
         component_name : str
-            Name of the 3d component to assign the layout force to.
+            Name of the 3D component to assign the layout force to.
         coordinate_system : str, optional
             Reference coordinate system.
-            If not provided the global one will be set.
+            If not provided, the global one is used.
         force_name : str, optional
             Name of the layout force.
             If not provided a random name will be generated.
@@ -2926,7 +2927,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler(linefilter="line_filter", objectfilter="object_filter")
     def generate_design_data(self, line_filter=None, object_filter=None):
-        """Generate a generic set of design data and store it in the extension directory as ``design_data.json``.
+        """Generate a generic set of design data and store it in the extension directory in a ``design_data.json`` file.
 
         Parameters
         ----------
