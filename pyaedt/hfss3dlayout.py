@@ -10,6 +10,7 @@ import re
 
 from pyaedt import is_ironpython
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
@@ -20,7 +21,7 @@ from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
-class Hfss3dLayout(FieldAnalysis3DLayout):
+class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     """Provides the HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
@@ -144,6 +145,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port,
             aedt_process_id,
         )
+        ScatteringMethods.__init__(self, self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -354,8 +356,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             if len(a) > 0:
                 bound = self._update_port_info(a[0])
                 if bound:
-                    self.boundaries.append(bound)
-                    return self.boundaries[-1]
+                    self._boundaries[bound.name] = bound
+                    return bound
                 else:
                     return False
             else:
@@ -502,8 +504,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(port_name)
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -823,67 +825,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
         return self.post.create_report(
             traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot_name
-        )
-
-    @pyaedt_function_handler()
-    def export_touchstone(
-        self,
-        setup_name=None,
-        sweep_name=None,
-        file_name=None,
-        variations=None,
-        variations_value=None,
-        renormalization=False,
-        impedance=None,
-        gamma_impedance_comments=False,
-    ):
-        """Export a Touchstone file.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup that has been solved.
-        sweep_name : str, optional
-            Name of the sweep that has been solved.
-        file_name : str, optional
-            Full path and name for the Touchstone file.
-            The default is ``None``, in which case the Touchstone file is exported to
-            the working directory.
-        variations : list, optional
-            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``None``.
-        variations_value : list, optional
-            List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``None``.
-        renormalization : bool, optional
-            Perform renormalization before export.
-            The default is ``False``.
-        impedance : float, optional
-            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
-            The default is ``None``.
-        gamma_impedance_comments : bool, optional
-            Include Gamma and Impedance values in comments.
-            The default is ``False``.
-
-        Returns
-        -------
-        str
-            Filename when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.ExportNetworkData
-        """
-        return self._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
-            variations=variations,
-            variations_value=variations_value,
-            renormalization=renormalization,
-            impedance=impedance,
-            comments=gamma_impedance_comments,
         )
 
     @pyaedt_function_handler()
@@ -2119,48 +2060,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
 
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
-
-    @pyaedt_function_handler()
-    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
-        """
-        Return a Touchstone data plot.
-
-        Parameters
-        ----------
-        setup_name : list
-            Name of the setup.
-        sweep_name : str, optional
-            Name of the sweep. The default value is ``None``.
-        variations : dict, optional
-            Dictionary of variation names. The default value is ``None``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
-           Class containing all requested data.
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-        """
-        from pyaedt.generic.touchstone_parser import TouchstoneData
-
-        if not setup_name:
-            setup_name = self.setups[0].name
-
-        if not sweep_name:
-            for setup in self.setups:
-                if setup.name == setup_name:
-                    sweep_name = setup.sweeps[0].name
-        s_parameters = []
-        solution = "{} : {}".format(setup_name, sweep_name)
-        expression = self.get_traces_for_plot(category="S")
-        sol_data = self.post.get_solution_data(expression, solution, variations=variations)
-        for i in range(sol_data.number_of_variations):
-            sol_data.set_active_variation(i)
-            s_parameters.append(TouchstoneData(solution_data=sol_data))
-        return s_parameters
 
     @pyaedt_function_handler()
     def get_dcir_element_data_loop_resistance(self, setup_name):

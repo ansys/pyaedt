@@ -83,18 +83,22 @@ class QExtractor(FieldAnalysis3D, object):
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
 
-    @property
-    def excitations(self):
-        """Get all excitation names.
+    @pyaedt_function_handler()
+    def sources(self, matrix_index=0, is_gc_sources=True):
+        """List of matrix sources.
+
+        Parameters
+        ----------
+        matrix_index : int, optional
+            Matrix index in matrices list. Default is ``0`` to use main matrix with no reduction.
+        is_gc_sources : bool,
+            In Q3d, define if to return GC sources or RL sources. Default `True`.
 
         Returns
         -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
+        List
         """
-        return self.matrices[0].sources(False)
+        return self.matrices[matrix_index].sources(is_gc_sources=is_gc_sources)
 
     @pyaedt_function_handler()
     def insert_reduced_matrix(
@@ -160,7 +164,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         >>> oModule.GetAllSources
         """
-        return self.excitations
+        return self.sources(0, False)
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -284,10 +288,8 @@ class QExtractor(FieldAnalysis3D, object):
         setting_DC = []
         if cg:
             net_list = ["NAME:Source Names"]
-            if self.default_solution_type == "Q3D Extractor":
-                excitation = self.nets
-            else:
-                excitation = self.excitations
+
+            excitation = self.excitations
 
             for key, value in cg.items():
                 if key not in excitation:
@@ -322,8 +324,8 @@ class QExtractor(FieldAnalysis3D, object):
         if acrl:
             source_list = ["NAME:Source Names"]
             unit = "V"
+            excitation = self.sources(0, False)
             for key, value in acrl.items():
-                excitation = self.excitations
                 if key not in excitation:
                     self.logger.error("Not existing excitation " + key)
                     return False
@@ -362,8 +364,8 @@ class QExtractor(FieldAnalysis3D, object):
         if dcrl and self.default_solution_type == "Q3D Extractor":
             unit = "V"
             source_list = ["NAME:Source Names"]
+            excitation = self.sources(0, False)
             for key, value in dcrl.items():
-                excitation = self.excitations
                 if key not in excitation:
                     self.logger.error("Not existing excitation " + key)
                     return False

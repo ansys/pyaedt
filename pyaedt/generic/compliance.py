@@ -602,7 +602,7 @@ class VirtualCompliance:
                     spisim.touchstone_file = _design.export_touchstone()
                     if not isinstance(trace_pin[0], int):
                         try:
-                            ports = list(_design.excitations.keys())
+                            ports = list(_design.excitations)
                             thrus4p = [ports.index(i) for i in trace_pin]
                             trace_pin = thrus4p
                         except IndexError:
@@ -691,6 +691,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return
         mag_data = {i: k for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0}
+        # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
@@ -711,13 +712,14 @@ class VirtualCompliance:
         if result_value == "FAIL":
             result_value = f"FAIL on {num_failed} points."
         pass_fail_table.append([mystr, result_value])
-
+        result_value = "PASS"
         if local_config["eye_mask"]["enable_limits"]:
             mystr = "Upper/Lower Mask Violation:"
             for point in mag_data:
+                # checking if amplitude is overcoming limits.
                 if (
-                    point[1] > local_config["eye_mask"]["upper_limit"]
-                    or point[1] < local_config["eye_mask"]["lower_limit"]
+                    point[0] > local_config["eye_mask"]["upper_limit"]
+                    or point[0] < local_config["eye_mask"]["lower_limit"]
                 ):
                     result_value = "FAIL"
                     break

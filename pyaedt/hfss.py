@@ -10,6 +10,7 @@ import tempfile
 import warnings
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import str_to_bool
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
@@ -30,7 +31,7 @@ from pyaedt.modules.Boundary import NearFieldSetup
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 
-class Hfss(FieldAnalysis3D, object):
+class Hfss(FieldAnalysis3D, ScatteringMethods):
     """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HFSS and
@@ -192,6 +193,7 @@ class Hfss(FieldAnalysis3D, object):
             port,
             aedt_process_id,
         )
+        ScatteringMethods.__init__(self, self)
         self._field_setups = []
         self.component_array = {}
         self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
@@ -3040,16 +3042,28 @@ class Hfss(FieldAnalysis3D, object):
     def create_boundary(
         self, boundary_type=BoundaryType.PerfectE, sheet_name=None, boundary_name="", is_infinite_gnd=False
     ):
-        """Create a boundary given specific inputs.
+        """Assign a boundary condition to a sheet or surface. This method is generally
+           used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
+           or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
 
         Parameters
         ----------
-        boundary_type : str, optional
-            Boundary type object. Options are ``"Perfect E"``, ``"Perfect H"``, ``"Aperture"``, and
-            ``"Radiation"``. The default is ``PerfectE``.
-        sheet_name : in, str, or list, optional
-            Name of the sheet. It can be an integer (face ID), a string (sheet), or a list of integers
-            and strings. The default is ``None``.
+        boundary_type : int, optional
+            Type of boundary condition to assign to a sheet or surface. The
+            default is ``Hfss.BoundaryType.PerfectE``. Options are the properties of the
+            :class:``Hfss.BoundaryType`` class. For example:
+
+                - ``Hfss.BoundaryType.PerfectE``
+                - ``Hfss.BoundaryType.PerfectH``
+                - ``Hfss.BoundaryType.Radiation``
+                - ``Hfss.BoundaryType.Impedance``
+                - ``Hfss.BoundaryType.LumpedRLC``
+                - ``Hfss.BoundaryType.FEBI``
+
+        sheet_name : int, str, or list, optional
+            Name of the sheet or face to assign the boundary condition to. The
+            default is ``None``. You can provide an integer (face ID), a string (sheet),
+            or a list of integers and strings.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
         is_infinite_gnd : bool, optional
@@ -4515,61 +4529,6 @@ class Hfss(FieldAnalysis3D, object):
             plotname, "Eigenmode Parameters", "Rectangular Plot", setupname + " : LastAdaptive", [], args, args2, []
         )
         return True
-
-    @pyaedt_function_handler()
-    def export_touchstone(
-        self,
-        setup_name=None,
-        sweep_name=None,
-        file_name=None,
-        variations=None,
-        variations_value=None,
-        renormalization=False,
-        impedance=None,
-        comments=False,
-    ):
-        """Export the Touchstone file to a local folder.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup that has been solved.
-        sweep_name : str, optional
-            Name of the sweep that has been solved.
-        file_name : str, optional
-            Full path and name for the Touchstone file.
-            The default is ``None``, in which case the file is exported to the working directory.
-        variations : list, optional
-            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``None``.
-        variations_value : list, optional
-            List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``None``.
-        renormalization : bool, optional
-            Perform renormalization before export.
-            The default is ``False``.
-        impedance : float, optional
-            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
-            The default is ``None``.
-        comments : bool, optional
-            Include Gamma and Impedance values in comments.
-            The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        return self._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
-            variations=variations,
-            variations_value=variations_value,
-            renormalization=renormalization,
-            impedance=impedance,
-            comments=comments,
-        )
 
     @pyaedt_function_handler()
     def set_export_touchstone(self, activate, export_dir=""):
@@ -6116,9 +6075,9 @@ class Hfss(FieldAnalysis3D, object):
             self.logger.warning("Set phase center is not supported by AEDT COM API. Set phase center manually.")
             return False
 
-        port_names = []
-        for exc in self.design_excitations:
-            port_names.append(exc.name)
+        port_names = self.ports[::]
+        # for exc in self.design_excitations:
+        #     port_names.append(exc.name)
 
         if not port_names:  # pragma: no cover
             return False
@@ -6141,48 +6100,6 @@ class Hfss(FieldAnalysis3D, object):
         except Exception:
             return False
         return True
-
-    @pyaedt_function_handler()
-    def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
-        """
-        Return a Touchstone data plot.
-
-        Parameters
-        ----------
-        setup_name : list
-            List of the curves to plot.
-        sweep_name : str, optional
-            Name of the solution. The default value is ``None``.
-        variation_dict : dict, optional
-            Dictionary of variation names. The default value is ``None``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
-           Class containing all requested data.
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-        """
-        from pyaedt.generic.touchstone_parser import TouchstoneData
-
-        if not setup_name:
-            setup_name = self.setups[0].name
-
-        if not sweep_name:
-            for setup in self.setups:
-                if setup.name == setup_name:
-                    sweep_name = setup.sweeps[0].name
-        s_parameters = []
-        solution = "{} : {}".format(setup_name, sweep_name)
-        expression = self.get_traces_for_plot(category="S")
-        sol_data = self.post.get_solution_data(expression, solution, variations=variation_dict)
-        for i in range(sol_data.number_of_variations):
-            sol_data.set_active_variation(i)
-            s_parameters.append(TouchstoneData(solution_data=sol_data))
-        return s_parameters
 
     @pyaedt_function_handler()
     def parse_hdm_file(self, filename):

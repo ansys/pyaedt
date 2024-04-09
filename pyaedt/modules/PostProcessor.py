@@ -3805,9 +3805,8 @@ class PostProcessor(PostProcessorCommon, object):
             for el in objects:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
-                if settings.remote_rpc_session_temp_folder:
-                    local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
-                    fname = check_and_download_file(local_path, fname)
+
+                fname = check_and_download_file(fname)
 
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
@@ -5168,7 +5167,7 @@ class FieldSummary:
         with tempfile.NamedTemporaryFile(mode="w+", delete=False) as temp_file:
             temp_file.close()
             self.export_csv(temp_file.name, setup_name, design_variation, intrinsics)
-            with open(temp_file.name, "r") as f:
+            with open_file(temp_file.name, "r") as f:
                 for _ in range(4):
                     _ = next(f)
                 reader = csv.DictReader(f)
