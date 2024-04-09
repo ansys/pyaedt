@@ -420,7 +420,7 @@ class TestClass:
             for x in self.aedtapp.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test")
         assert not self.aedtapp.mesh.assign_cylindrical_gap(["Band", "Region"])
         assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
         [
@@ -428,7 +428,7 @@ class TestClass:
             for x in self.aedtapp.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", band_mapping_angle=2)
+        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
 
     def test_32_control_program(self):
         user_ctl_path = "user.ctl"

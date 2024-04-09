@@ -186,13 +186,24 @@ class TestClass:
 
     def test_04_add_mesh_operations(self):
         self.aedtapp.create_setup("HFSS")
-        setup1 = self.aedtapp.mesh.assign_length_mesh("HFSS", "PWR", "GND")
-        setup2 = self.aedtapp.mesh.assign_skin_depth("HFSS", "PWR", "GND")
+        setup1 = self.aedtapp.mesh.assign_length_mesh(
+            "HFSS",
+            "PWR",
+            "GND",
+        )
+        setup2 = self.aedtapp.mesh.assign_skin_depth(
+            "HFSS",
+            "PWR",
+            "GND",
+        )
         assert setup1
         assert setup2
         setup1.props["RestrictElem"] = False
         assert setup1.update()
-        assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
+        assert self.aedtapp.mesh.delete_mesh_operations(
+            "HFSS",
+            setup1.name,
+        )
 
     def test_05_change_property(self):
         ports = self.aedtapp.create_ports_on_component_by_nets(
