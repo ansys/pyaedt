@@ -830,6 +830,7 @@ class TestClass:
 
     def test_21_create_open_region(self):
         assert self.aedtapp.create_open_region("1GHz")
+        assert len(self.aedtapp.field_setups) == 3
         assert self.aedtapp.create_open_region("1GHz", "FEBI")
         assert self.aedtapp.create_open_region("1GHz", "PML", True, "-z")
 
