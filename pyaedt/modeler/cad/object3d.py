@@ -693,7 +693,7 @@ class Object3d(object):
 
     @property
     def bottom_edge_y(self):
-        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+        """Bottom edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
