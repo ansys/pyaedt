@@ -606,7 +606,7 @@ class Mesh(object):
         objects : list or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
             List of faces to apply the surface mesh to.
         surface_deviation : float or str, optional
-            Surface deviation. The default is ``None``. Allowed values are float, number with units or `"inf"`.
+            Surface deviation. The default is ``None``. You can specify a float value, a number with units, or `"inf"`.
         normal_dev : float or str, optional
             Normal deviation. The default is ``None``.
         aspect_ratio : int, optional
