@@ -691,7 +691,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return
         mag_data = {i: k for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0}
-        # mag_data is a dictionary with key a tuple of (__AMPLITUDE, __UI) and value is the eye value.
+        # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
