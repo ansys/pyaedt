@@ -1098,7 +1098,7 @@ class IcepakMesh(object):
         Parameters
         ----------
         assignment : list
-            List of objects to which apply the mesh file.
+            List of objects to apply the mesh file to.
         file_name :  str
             Full path to .msh file.
         name :  str, optional
