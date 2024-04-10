@@ -380,10 +380,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
+
         >>> oComponentManager.AddDynamicNPortData
 
         Examples
         --------
+
         Create an instance of Twin Builder.
 
         >>> from pyaedt import TwinBuilder

@@ -3251,10 +3251,16 @@ class Trace(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
+            port = self.application.lumped_port(
+                signal=port.name, name=port_name, integration_line=axisdir, create_port_sheet=False
+            )
         elif self.application.solution_type == "Terminal":
-            port = self.application.create_lumped_port_to_sheet(
-                port.name, portname=port_name, reference_object_list=[reference_layer.name]
+            port = self.application.lumped_port(
+                signal=port.name,
+                name=port_name,
+                integration_line=axisdir,
+                create_port_sheet=False,
+                reference=[reference_layer.name],
             )
         return port
 

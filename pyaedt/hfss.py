@@ -1841,6 +1841,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to create the source on the plane orthogonal to
             ``AxisDir``. The default is ``True``.
 
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -1862,7 +1863,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                "BoxVolt2", "copper")
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1","BoxVolt2",hfss.AxisDir.XNeg,"VoltageSource")
         PyAEDT INFO: Connection Correctly created
-
         """
 
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
@@ -1898,6 +1898,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         source_on_plane : bool, optional
             Whether to create the source on the plane orthogonal to ``start_direction``. The default is ``True``.
 
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -1919,7 +1920,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                "BoxCurrent2", "copper")
         >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1","BoxCurrent2",hfss.AxisDir.XPos,"CurrentSource")
         PyAEDT INFO: Connection created 'CurrentSource' correctly.
-
         """
 
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):

@@ -1805,7 +1805,7 @@ class Icepak(FieldAnalysis3D):
         #
         if not assignment:
             assignment = self.modeler.object_names
-            if "Region" in all_objects:
+            if "Region" in assignment:
                 assignment.remove("Region")
         else:
             assignment = assignment[:]
@@ -1829,7 +1829,7 @@ class Icepak(FieldAnalysis3D):
 
         props = OrderedDict(
             {
-                "Objects": all_objects,
+                "Objects": assignment,
                 "Project": project_name,
                 "Product": "ElectronicsDesktop",
                 "Design": design,

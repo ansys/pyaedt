@@ -348,14 +348,14 @@ class TestClass:
 
     def test_27_set_differential_pairs(self):
         assert self.circuitprj.set_differential_pair(
-            assignment="Port3",
-            reference="Port4",
-            differential_mode=None,
-            common_reference=34,
-            differential_reference=123,
-            active=True,
+            positive_terminal="Port3",
+            negative_terminal="Port4",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
         )
-        assert self.circuitprj.set_differential_pair(assignment="Port3", reference="Port5")
+        assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
     def test_28_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")

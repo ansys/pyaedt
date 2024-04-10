@@ -632,8 +632,8 @@ class QExtractor(FieldAnalysis3D, object):
             if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
                 freq = go.parse_dim_arg("{}{}".format(freq, freq_unit), self.odesktop.GetDefaultUnit("Frequency"))
 
-        if export_AC_DC_res is None:
-            export_AC_DC_res = False
+        if export_ac_dc_res is None:
+            export_ac_dc_res = False
 
         if precision is None:
             precision = 15
@@ -701,7 +701,7 @@ class QExtractor(FieldAnalysis3D, object):
                     length_setting,
                     length,
                     matrix_type,
-                    export_AC_DC_res,
+                    export_ac_dc_res,
                     precision,
                     field_width,
                     use_sci_notation,
@@ -724,7 +724,7 @@ class QExtractor(FieldAnalysis3D, object):
                     g_unit,
                     freq,
                     matrix_type,
-                    export_AC_DC_res,
+                    export_ac_dc_res,
                     precision,
                     field_width,
                     use_sci_notation,
@@ -2494,39 +2494,38 @@ class Q2d(QExtractor, object):
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
 
-                Optional arguments are passed along with the ``setup_type`` and ``name``
-                parameters.  Keyword names correspond to the ``setup_type``
-                corresponding to the native AEDT API.  The list of
-                keywords here is not exhaustive.
+        Optional arguments are passed along with the ``setup_type`` and ``name``
+        parameters.  Keyword names correspond to the ``setup_type``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
 
-                Parameters
-                ----------
-                name : str, optional
-                    Name of the setup. The default is "Setup1".
-                setup_type : int, str, optional
-                    Type of the setup. Options are "IcepakSteadyState"
-                    and "IcepakTransient". The default is "IcepakSteadyState".
-                **kwargs : dict, optional
-                    Available keys depend on the setup chosen.
-                    For more information, see :doc:`../SetupTemplatesQ3D`.
+        Parameters
+        ----------
+        name : str, optional
+            Name of the setup. The default is "Setup1".
+        setup_type : int, str, optional
+            Type of the setup. Options are "IcepakSteadyState"
+            and "IcepakTransient". The default is "IcepakSteadyState".
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesQ3D`.
 
-                Returns
-                -------
-                :class:`pyaedt.modules.SolveSetup.SetupHFSS`
-                    Solver Setup object.
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            Solver Setup object.
 
-                References
-                ----------
+        References
+        ----------
 
-                >>> oModule.InsertSetup
+        >>> oModule.InsertSetup
 
-                Examples
-                --------
+        Examples
+        --------
 
-                >>> from pyaedt import Q2d
-                >>> app = Q2d()
-                >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
-        )
+        >>> from pyaedt import Q2d
+        >>> app = Q2d()
+        >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
 
         """
         if setup_type is None:

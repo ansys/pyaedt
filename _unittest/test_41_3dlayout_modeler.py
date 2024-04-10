@@ -373,7 +373,7 @@ class TestClass:
         self.aedtapp.create_setup(name=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
             setup=setup_name,
-            units="GHz",
+            unit="GHz",
             start_frequency=1,
             stop_frequency=10,
             num_of_freq_points=1001,
@@ -385,7 +385,7 @@ class TestClass:
         assert sweep1.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 1001"
         sweep2 = self.aedtapp.create_linear_count_sweep(
             setup=setup_name,
-            units="GHz",
+            unit="GHz",
             start_frequency=1,
             stop_frequency=10,
             num_of_freq_points=12,
@@ -400,12 +400,12 @@ class TestClass:
         setup_name = "RF_create_linear_step"
         self.aedtapp.create_setup(name=setup_name)
         sweep3 = self.aedtapp.create_linear_step_sweep(
-            setup_name=setup_name,
+            setup=setup_name,
             unit="GHz",
             start_frequency=1,
             stop_frequency=10,
             step_size=0.2,
-            sweep_name="RFBoardSweep3",
+            sweep="RFBoardSweep3",
             sweep_type="Interpolating",
             interpolation_tol_percent=0.4,
             interpolation_max_solutions=255,
@@ -416,12 +416,12 @@ class TestClass:
         assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
         assert sweep3.props["FreqSweepType"] == "kInterpolating"
         sweep4 = self.aedtapp.create_linear_step_sweep(
-            setup_name=setup_name,
+            setup=setup_name,
             unit="GHz",
             start_frequency=1,
             stop_frequency=10,
             step_size=0.12,
-            sweep_name="RFBoardSweep4",
+            sweep="RFBoardSweep4",
             sweep_type="Discrete",
             save_fields=True,
         )
@@ -690,15 +690,14 @@ class TestClass:
     def test_90_set_differential_pairs(self, hfss3dl):
         assert not self.aedtapp.get_differential_pairs()
         assert hfss3dl.set_differential_pair(
-            assignment="Port3",
-            reference="Port4",
-            differential_mode=None,
-            common_reference=34,
-            differential_reference=123,
-            active=True,
-            matched=False,
+            positive_terminal="Port3",
+            negative_terminal="Port4",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
         )
-        assert hfss3dl.set_differential_pair(assignment="Port3", reference="Port5")
+        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
         assert hfss3dl.get_differential_pairs()
         assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 

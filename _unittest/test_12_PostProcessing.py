@@ -269,7 +269,7 @@ class TestClass:
         data1 = circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
         assert data1.primary_sweep == "Freq"
         assert circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
-        data11 = circuit_test.post.get_solution_data(sweep="dB")
+        data11 = circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
         assert data11.primary_sweep == "Freq"
         assert "dB(S(Port2,Port1))" in data11.expressions
         assert circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")

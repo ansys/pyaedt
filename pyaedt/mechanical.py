@@ -222,7 +222,7 @@ class Mechanical(FieldAnalysis3D, object):
                 "allObjects": False,
                 "Project": projname,
                 "projname": "ElectronicsDesktop",
-                "Design": designname,
+                "Design": design,
                 "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
@@ -312,7 +312,7 @@ class Mechanical(FieldAnalysis3D, object):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        for el in paramlist:
+        for el in parameters:
             argparam[el] = el
 
         props = OrderedDict(
