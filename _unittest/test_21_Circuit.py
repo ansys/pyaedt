@@ -50,6 +50,7 @@ def examples(local_scratch):
     return netlist_file1, netlist_file2, touchstone_file, touchstone_file2
 
 
+@pytest.mark.skipif(is_linux, reason="Multiple tests are not running in Linux with AEDT 2024R1")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, circuitprj, local_scratch, examples):
