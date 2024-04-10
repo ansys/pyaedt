@@ -69,7 +69,7 @@ class FieldAnalysisCircuit(Analysis):
             self._modeler = self.modeler
             self._post = self.post
 
-    @pyaedt_function_handler(setupname=name)
+    @pyaedt_function_handler(setupname="name")
     def delete_setup(self, name):
         """Delete a setup.
 
