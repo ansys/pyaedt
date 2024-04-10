@@ -521,7 +521,7 @@ class TestClass:
         L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
         setup_name = "setupTestMatrixRL"
-        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup = self.aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)

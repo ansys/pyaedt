@@ -1734,27 +1734,31 @@ class Icepak(FieldAnalysis3D):
         )
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(designname="design_name",
+                             setupname="setup_name",
+                             sweepname="sweep_name",
+                             paramlist="parameters",
+                             object_list="assignment")
     def assign_em_losses(
             self,
-            designname="HFSSDesign1",
-            setupname="Setup1",
-            sweepname="LastAdaptive",
+            design_name="HFSSDesign1",
+            setup_name="Setup1",
+            sweep_name="LastAdaptive",
             map_frequency=None,
             surface_objects=None,
             source_project_name=None,
-            paramlist=None,
-            object_list=None,
+            parameters=None,
+            assignment=None,
     ):
         """Map EM losses to an Icepak design.
 
         Parameters
         ----------
-        designname : string, optional
+        design_name : string, optional
             Name of the design with the source mapping. The default is ``"HFSSDesign1"``.
-        setupname : str, optional
+        setup_name : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweepname : str, optional
+        sweep_name : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
@@ -1764,14 +1768,14 @@ class Icepak(FieldAnalysis3D):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist : list, dict, optional
+        parameters : list, dict, optional
             List of all parameters to map from source and Icepak design. The default is ``None``.
             If ``None`` the variables are set to their values (no mapping).
             If it is a list, the specified variables in the icepak design are mapped to variables
             in the source design having the same name.
             If it is a dictionary, it is possible to map variables to the source design having a different name.
             The dictionary structure is {"source_design_variable": "icepak_variable"}.
-        object_list : list, optional
+        assignment : list, optional
             List of objects. The default is ``None``.
 
         Returns
@@ -1786,8 +1790,8 @@ class Icepak(FieldAnalysis3D):
         """
         if surface_objects is None:
             surface_objects = []
-        if object_list is None:
-            object_list = []
+        if assignment is None:
+            assignment = []
 
         self.logger.info("Mapping EM losses.")
 
@@ -1798,12 +1802,12 @@ class Icepak(FieldAnalysis3D):
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
         #
-        if not object_list:
-            all_objects = self.modeler.object_names
+        if not assignment:
+            assignment = self.modeler.object_names
             if "Region" in all_objects:
-                all_objects.remove("Region")
+                assignment.remove("Region")
         else:
-            all_objects = object_list[:]
+            assignment = assignment[:]
 
         surfaces = surface_objects
         if map_frequency:
@@ -1815,20 +1819,20 @@ class Icepak(FieldAnalysis3D):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        if paramlist and isinstance(paramlist, list):
-            for el in paramlist:
+        if parameters and isinstance(parameters, list):
+            for el in parameters:
                 argparam[el] = el
-        elif paramlist and isinstance(paramlist, dict):
-            for el in paramlist:
-                argparam[el] = paramlist[el]
+        elif parameters and isinstance(parameters, dict):
+            for el in parameters:
+                argparam[el] = parameters[el]
 
         props = OrderedDict(
             {
                 "Objects": all_objects,
                 "Project": project_name,
                 "Product": "ElectronicsDesktop",
-                "Design": designname,
-                "Soln": setupname + " : " + sweepname,
+                "Design": design_name,
+                "Soln": setup_name + " : " + sweep_name,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -1842,7 +1846,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design: %s.", designname)
+            self.logger.info("EM losses mapped from design: %s.", design_name)
             return bound
         return False
 

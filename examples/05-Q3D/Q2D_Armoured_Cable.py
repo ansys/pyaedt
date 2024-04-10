@@ -226,8 +226,8 @@ q2d.change_design_settings(q2d_des_settings)
 # Insert setup and frequency sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-q2d_setup = q2d.create_setup(setupname=setup_name)
-q2d_sweep = q2d_setup.add_sweep(sweepname=sweep_name)
+q2d_setup = q2d.create_setup(name=setup_name)
+q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 
 ##########################################################
 # Analyze setup

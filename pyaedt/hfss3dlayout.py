@@ -897,15 +897,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self.odesign.DesignOptions(settings, 0)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup_name", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep_name"
+    )
     def create_linear_count_sweep(
         self,
-        setupname,
+        setup_name,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         num_of_freq_points,
-        sweepname=None,
+        sweep_name=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -917,17 +919,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
-        sweepname : str, optional
+        sweep_name : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
@@ -962,8 +964,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if sweep_name is None:
+            sweep_name = generate_unique_name("Sweep")
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -976,18 +978,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup_name:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep = setupdata.add_sweep(sweepname=sweep_name)
                 if not sweep:
                     return False
-                sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
+                sweep.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweep.props["FastSweep"] = interpolation
@@ -996,19 +998,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info("Linear count sweep %s has been correctly created.", sweepname)
+                self.logger.info("Linear count sweep %s has been correctly created.", sweep_name)
                 return sweep
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup_name", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep_name"
+    )
     def create_linear_step_sweep(
         self,
-        setupname,
+        setup_name,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         step_size,
-        sweepname=None,
+        sweep_name=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -1020,17 +1024,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweepname : str, optional
+        sweep_name : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
@@ -1065,8 +1069,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if sweep_name is None:
+            sweep_name = generate_unique_name("Sweep")
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -1079,18 +1083,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup_name:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname, sweeptype=sweep_type)
+                sweep = setupdata.add_sweep(sweep_name=sweep_name, sweep_type=sweep_type)
                 if not sweep:
                     return False
-                sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
+                sweep.change_range("LinearStep", start_frequency, stop_frequency, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweep.props["FastSweep"] = interpolation
@@ -1099,17 +1103,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info("Linear step sweep %s has been correctly created.", sweepname)
+                self.logger.info("Linear step sweep %s has been correctly created.", sweep_name)
                 return sweep
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setupname="setup_name", sweepname="sweep_name")
     def create_single_point_sweep(
         self,
-        setupname,
+        setup_name,
         unit,
         freq,
-        sweepname=None,
+        sweep_name=None,
         save_fields=False,
         save_rad_fields_only=False,
     ):
@@ -1117,13 +1121,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweepname : str, optional
+        sweep_name : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields for all points and subranges defined in the sweep. The default is ``False``.
@@ -1140,8 +1144,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         >>> oModule.AddSweep
         """
-        if sweepname is None:
-            sweepname = generate_unique_name("SinglePoint")
+        if sweep_name is None:
+            sweep_name = generate_unique_name("SinglePoint")
 
         add_subranges = False
         if isinstance(freq, list):
@@ -1153,18 +1157,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         else:
             freq0 = freq
 
-        if setupname not in self.setup_names:
+        if setup_name not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup_name:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata = setupdata.add_sweep(sweep_name, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
                 sweepdata.props["SaveRadFieldsOnly"] = save_rad_fields_only
@@ -1172,7 +1176,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 if add_subranges:
                     for f in freq:
                         sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.logger.info("Single point sweep %s has been correctly created.", sweepname)
+                self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
                 return sweepdata
         return False
 

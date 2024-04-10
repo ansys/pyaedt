@@ -141,7 +141,7 @@ m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_
 # ~~~~~~~~~~~~~~~~~~~~
 # Add a Maxwell 3D setup with frequency points at 50 Hz and 200 Hz.
 
-setup = m3d.create_setup(setupname="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)

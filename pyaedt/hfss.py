@@ -362,15 +362,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         return result
 
-    @pyaedt_function_handler()
-    def _create_lumped_driven(self, objectname, int_line_start, int_line_stop, impedance, portname, renorm, deemb):
+    @pyaedt_function_handler(objectname="assignment", portname="port_name")
+    def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
+        assignment = self.modeler.convert_to_selections(assignment, True)
         start = [str(i) + self.modeler.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.model_units for i in int_line_stop]
         props = OrderedDict({})
-        if isinstance(objectname, str):
-            props["Objects"] = [objectname]
+        if isinstance(assignment[0], str):
+            props["Objects"] = assignment
         else:
-            props["Faces"] = [objectname]
+            props["Faces"] = assignment
         props["DoDeembed"] = deemb
         props["RenormalizeAllTerminals"] = renorm
         if renorm:
@@ -405,12 +406,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = [True]
         props["Impedance"] = str(impedance) + "ohm"
-        return self._create_boundary(portname, props, "Lumped Port")
+        return self._create_boundary(port_name, props, "Lumped Port")
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_port_terminal(
         self,
-        objectname,
+        assignment,
         int_line_stop,
         portname,
         renorm=True,
@@ -421,12 +422,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict()
-        props["Faces"] = int(objectname)
+        props["Faces"] = int(assignment)
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
         props["RenormalizeModes"] = True
         ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
-        boundary = self._create_boundary(portname, props, "AutoIdentify")
+        boundary = self._create_boundary(port_name, props, "AutoIdentify")
         if boundary:
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
@@ -513,9 +514,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         return boundary
 
-    @pyaedt_function_handler()
-    def _create_circuit_port(self, edgelist, impedance, name, renorm, deemb, renorm_impedance=""):
-        edgelist = self.modeler.convert_to_selections(edgelist, True)
+    @pyaedt_function_handler(edgelist="assignment")
+    def _create_circuit_port(self, assignment, impedance, name, renorm, deemb, renorm_impedance=""):
+        edgelist = self.modeler.convert_to_selections(assignment, True)
         props = OrderedDict(
             {
                 "Edges": edgelist,
@@ -538,14 +539,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             props["TerminalIDList"] = []
         return self._create_boundary(name, props, "Circuit Port")
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_waveport_driven(
         self,
-        objectname,
+        assignment,
         int_line_start=None,
         int_line_stop=None,
         impedance=50,
-        portname="",
+        port_name="",
         renorm=True,
         nummodes=1,
         deemb_distance=0,
@@ -560,12 +561,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             useintline = False
 
         props = OrderedDict({})  # Used to create the argument to pass to native api: oModule.AssignWavePort()
-        if isinstance(objectname, int):  # Assumes a Face ID is passed in objectname
+        if isinstance(assignment, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [objectname]
-        elif isinstance(objectname, list):  # Assume [x, y, z] point is passed in objectname
-            props["Faces"] = self.modeler.get_faceid_from_position(objectname)
+        elif isinstance(assignment, list):  # Assume [x, y, z] point is passed in objectname
+            props["Faces"] = self.modeler.get_faceid_from_position(assignment)
         else:
-            props["Objects"] = [objectname]
+            props["Objects"] = [assignment]
         props["NumModes"] = nummodes
         props["UseLineModeAlignment"] = False
 
@@ -576,8 +577,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             props["DoDeembed"] = False
         props["RenormalizeAllTerminals"] = renorm
         modes = OrderedDict({})
-        arg2 = []
-        arg2.append("NAME:Modes")
         i = 1
         report_filter = []
         while i <= nummodes:
@@ -608,7 +607,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = report_filter
         props["UseAnalyticAlignment"] = False
-        return self._create_boundary(portname, props, "Wave Port")
+        return self._create_boundary(port_name, props, "Wave Port")
 
     @pyaedt_function_handler(
         obj="assignment",
@@ -667,11 +666,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         is_shell_element : bool, optional
             The default is ``False``.
         use_huray : bool, optional
-            Whether to use an Huray coefficient. The default is ``False``.
+            Whether to use a Huray coefficient. The default is ``False``.
         radius : str, optional
             Radius value if ``usehuray=True``. The default is ``"0.5um"``.
         ratio : str, optional
             Ratio value if ``usehuray=True``. The default is ``"2.9"``.
+        name : str
+            Name of the boundary.
 
         Returns
         -------
@@ -688,6 +689,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
         outer face.
+
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
@@ -697,7 +699,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> outer = hfss.modeler.create_cylinder(
         ...     hfss.PLANE.XY, origin, 4, 200, 0, "outer"
         ... )
-        >>> coat = hfss.assign_coating(["inner", outer.faces[2].id],"copper",use_thickness=True,thickness="0.2mm")
+        >>> coat = hfss.assign_coating(["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm")
 
         """
 
@@ -752,31 +754,29 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             name = "Coating_" + listobjname[1:]
         return self._create_boundary(name, props, "Finite Conductivity")
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for HFSS.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+        Optional arguments are passed along with ``setup_type`` and ``setup_name``. Keyword
+        names correspond to the ``setup_type`` corresponding to the native AEDT API.
+        The list of keywords here is not exhaustive.
 
         .. note::
            This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
-        setuptype : str, optional
+        name : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        setup_type : str, optional
             Type of the setup. Based on the solution type, options are
             ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
             and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Extra arguments to set up the circuit.
             Available keys depend on the setup chosen.
             For more information, see
             :doc:`../SetupTemplatesHFSS`.
-
 
         Returns
         -------
@@ -793,14 +793,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
+        setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
@@ -936,15 +936,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 return sweepdata
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup_name", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep_name"
+    )
     def create_linear_step_sweep(
         self,
-        setupname,
+        setup_name,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         step_size,
-        sweepname=None,
+        sweep_name=None,
         save_fields=True,
         save_rad_fields=False,
         sweep_type="Discrete",
@@ -953,17 +955,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweepname : str, optional
+        sweep_name : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields. The default is ``True``.
@@ -990,10 +992,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
-        ...                                                   sweepname="LinearStepSweep",
-        ...                                                   unit="MHz", freqstart=1.1e3,
-        ...                                                   freqstop=1200.1, step_size=153.8)
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(setup_name="LinearStepSetup",
+        ...                                                   sweep_name="LinearStepSweep",
+        ...                                                   unit="MHz", start_frequency=1.1e3,
+        ...                                                   stop_frequency=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
@@ -1002,32 +1004,32 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if sweep_name is None:
+            sweep_name = generate_unique_name("Sweep")
 
-        if setupname not in self.setup_names:
+        if setup_name not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup_name:
                 return s.create_linear_step_sweep(
                     unit=unit,
-                    freqstart=freqstart,
-                    freqstop=freqstop,
+                    start_frequency=start_frequency,
+                    stop_frequency=stop_frequency,
                     step_size=step_size,
-                    sweepname=sweepname,
+                    name=sweep_name,
                     save_fields=save_fields,
                     save_rad_fields=save_rad_fields,
                     sweep_type=sweep_type,
                 )
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setupname="setup_name", sweepname="sweep_name")
     def create_single_point_sweep(
         self,
-        setupname,
+        setup_name,
         unit,
         freq,
-        sweepname=None,
+        sweep_name=None,
         save_single_field=True,
         save_fields=False,
         save_rad_fields=False,
@@ -1036,13 +1038,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        setupname : str
+        setup_name : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweepname : str, optional
+        sweep_name : str, optional
             Name of the sweep. The default is ``None``.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
@@ -1070,15 +1072,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"SinglePointSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> single_point_sweep = hfss.create_single_point_sweep(setupname="LinearStepSetup",
-        ...                                                   sweepname="SinglePointSweep",
+        >>> single_point_sweep = hfss.create_single_point_sweep(setup_name="LinearStepSetup",
+        ...                                                   sweep_name="SinglePointSweep",
         ...                                                   unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweepname is None:
-            sweepname = generate_unique_name("SinglePoint")
+        if sweep_name is None:
+            sweep_name = generate_unique_name("SinglePoint")
 
         if isinstance(save_single_field, list):
             if not isinstance(freq, list) or len(save_single_field) != len(freq):
@@ -1088,27 +1090,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if isinstance(freq, list):
             if not freq:
                 raise AttributeError("Frequency list is empty. Specify at least one frequency point.")
-            freq0 = freq.pop(0)
+            _ = freq.pop(0)
             if freq:
                 add_subranges = True
-        else:
-            freq0 = freq
 
         if isinstance(save_single_field, list):
-            save0 = save_single_field.pop(0)
+            _ = save_single_field.pop(0)
         else:
             save0 = save_single_field
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setupname not in self.setup_names:
+        if setup_name not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup_name:
                 return s.create_single_point_sweep(
                     unit=unit,
                     freq=freq,
-                    sweepname=sweepname,
+                    name=sweep_name,
                     save_single_field=save_single_field,
                     save_fields=save_fields,
                     save_rad_fields=save_rad_fields,
@@ -4849,14 +4849,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         setup1.auto_update = True
         return setup1
 
-    @pyaedt_function_handler()
-    def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep, parametric_name):
+    @pyaedt_function_handler(setupname="setup_name")
+    def _create_sbr_doppler_sweep(self, setup_name, time_var, tstart, tstop, tsweep, parametric_name):
         time_start = self.modeler._arg_with_dim(tstart, "s")
         time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.parametrics.add(
-            time_var, tstart, time_stop, tsweep, "LinearStep", setupname, parametricname=parametric_name
+            time_var, tstart, time_stop, tsweep, "LinearStep", setup_name, parametricname=parametric_name
         )
 
     @pyaedt_function_handler(time_var="time_variable", setup_name="setup")

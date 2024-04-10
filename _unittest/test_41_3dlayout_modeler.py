@@ -321,13 +321,13 @@ class TestClass:
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
-        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup = self.aedtapp.create_setup(name=setup_name)
         assert setup.name == self.aedtapp.existing_analysis_setups[0]
         assert setup.solver_type == "HFSS"
 
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
-        setup2 = self.aedtapp.create_setup(setupname=setup_name)
+        setup2 = self.aedtapp.create_setup(name=setup_name)
         assert not setup2.get_sweep()
 
         sweep = setup2.add_sweep()
@@ -345,7 +345,7 @@ class TestClass:
 
     def test_16_disable_enable_setup(self):
         setup_name = "RFBoardSetup3"
-        setup3 = self.aedtapp.create_setup(setupname=setup_name)
+        setup3 = self.aedtapp.create_setup(name=setup_name)
         setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
         assert setup3.update()
         assert setup3.disable()
@@ -370,7 +370,7 @@ class TestClass:
 
     def test_18a_create_linear_count_sweep(self):
         setup_name = "RF_create_linear_count"
-        self.aedtapp.create_setup(setupname=setup_name)
+        self.aedtapp.create_setup(name=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
             setup=setup_name,
             units="GHz",
@@ -398,14 +398,14 @@ class TestClass:
 
     def test_18b_create_linear_step_sweep(self):
         setup_name = "RF_create_linear_step"
-        self.aedtapp.create_setup(setupname=setup_name)
+        self.aedtapp.create_setup(name=setup_name)
         sweep3 = self.aedtapp.create_linear_step_sweep(
-            setupname=setup_name,
+            setup_name=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             step_size=0.2,
-            sweepname="RFBoardSweep3",
+            sweep_name="RFBoardSweep3",
             sweep_type="Interpolating",
             interpolation_tol_percent=0.4,
             interpolation_max_solutions=255,
@@ -416,24 +416,24 @@ class TestClass:
         assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
         assert sweep3.props["FreqSweepType"] == "kInterpolating"
         sweep4 = self.aedtapp.create_linear_step_sweep(
-            setupname=setup_name,
+            setup_name=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             step_size=0.12,
-            sweepname="RFBoardSweep4",
+            sweep_name="RFBoardSweep4",
             sweep_type="Discrete",
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
         assert sweep4.props["FreqSweepType"] == "kDiscrete"
         sweep5 = self.aedtapp.create_linear_step_sweep(
-            setupname=setup_name,
+            setup_name=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             step_size=0.12,
-            sweepname="RFBoardSweep4",
+            sweep_name="RFBoardSweep4",
             sweep_type="Fast",
             save_fields=True,
         )
@@ -443,12 +443,12 @@ class TestClass:
         # Create a linear step sweep with the incorrect sweep type.
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_step_sweep(
-                setupname=setup_name,
+                setup_name=setup_name,
                 unit="GHz",
-                freqstart=1,
-                freqstop=10,
+                start_frequency=1,
+                stop_frequency=10,
                 step_size=0.12,
-                sweepname="RFBoardSweep4",
+                sweep_name="RFBoardSweep4",
                 sweep_type="Incorrect",
                 save_fields=True,
             )
@@ -459,37 +459,37 @@ class TestClass:
 
     def test_18c_create_single_point_sweep(self):
         setup_name = "RF_create_single_point"
-        self.aedtapp.create_setup(setupname=setup_name)
+        self.aedtapp.create_setup(name=setup_name)
         sweep5 = self.aedtapp.create_single_point_sweep(
-            setupname=setup_name,
+            setup_name=setup_name,
             unit="MHz",
             freq=1.23,
-            sweepname="RFBoardSingle",
+            sweep_name="RFBoardSingle",
             save_fields=True,
         )
         assert sweep5.props["Sweeps"]["Data"] == "1.23MHz"
         sweep6 = self.aedtapp.create_single_point_sweep(
-            setupname=setup_name,
+            setup_name=setup_name,
             unit="GHz",
             freq=[1, 2, 3, 4],
-            sweepname="RFBoardSingle",
+            sweep_name="RFBoardSingle",
             save_fields=False,
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_single_point_sweep(
-                setupname=setup_name,
+                setup_name=setup_name,
                 unit="GHz",
                 freq=[],
-                sweepname="RFBoardSingle",
+                sweep_name="RFBoardSingle",
                 save_fields=False,
             )
             assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
 
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
-        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        setuptd = self.aedtapp.create_setup(name=setup_name)
         assert setuptd.name in self.aedtapp.existing_analysis_setups
         self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
@@ -573,13 +573,13 @@ class TestClass:
 
     def test_34_create_additional_setup(self):
         setup_name = "SiwaveDC"
-        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="SiwaveDC3DLayout")
+        setup = self.aedtapp.create_setup(name=setup_name, setup_type="SiwaveDC3DLayout")
         assert setup_name == setup.name
         setup_name = "SiwaveAC"
-        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="SiwaveAC3DLayout")
+        setup = self.aedtapp.create_setup(name=setup_name, setup_type="SiwaveAC3DLayout")
         assert setup_name == setup.name
         setup_name = "LNA"
-        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
+        setup = self.aedtapp.create_setup(name=setup_name, setup_type="LNA3DLayout")
         assert setup_name == setup.name
 
     def test_35a_export_layout(self):

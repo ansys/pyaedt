@@ -87,9 +87,9 @@ capacitor.pins[1].connect_to_component(component_pin=gnd.pins[0], use_wire=True)
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient setup.
 
-setup2 = aedt_app.create_setup(setupname="MyTransient", setuptype=aedt_app.SETUPS.NexximTransient)
+setup2 = aedt_app.create_setup(name="MyTransient", setup_type=aedt_app.SETUPS.NexximTransient)
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
-setup3 = aedt_app.create_setup(setupname="MyDC", setuptype=aedt_app.SETUPS.NexximDC)
+setup3 = aedt_app.create_setup(name="MyDC", setup_type=aedt_app.SETUPS.NexximDC)
 
 ###############################################################################
 # Solve transient setup

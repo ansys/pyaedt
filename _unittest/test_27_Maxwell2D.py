@@ -338,7 +338,7 @@ class TestClass:
         self.aedtapp.assign_matrix(sources=["PM_I1_1_I0", "PM_I1_I0"], matrix_name="Test1")
         self.aedtapp.assign_matrix(sources=["Phase_A", "Phase_B", "Phase_C"], matrix_name="Test2")
         setup_name = "setupTestMatrixRL"
-        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup = self.aedtapp.create_setup(name=setup_name)
         setup.props["MaximumPasses"] = 2
         export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
         assert not self.aedtapp.export_rl_matrix("Test1", export_path_1)
@@ -483,7 +483,7 @@ class TestClass:
 
         example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
         assert os.path.exists(example_project_copy)
-        self.aedtapp.create_setup(setupname="test_setup")
+        self.aedtapp.create_setup(name="test_setup")
         assert self.aedtapp.setups[2].start_continue_from_previous_setup(
             design_name="design_for_test", solution_name="Setup1 : Transient", project_name=example_project_copy
         )

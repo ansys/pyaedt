@@ -585,7 +585,7 @@ M2D.change_symmetry_multiplier("SymmetryFactor")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup and validate it.
 
-setup = M2D.create_setup(setupname=setup_name)
+setup = M2D.create_setup(name=setup_name)
 setup.props["StopTime"] = "StopTime"
 setup.props["TimeStep"] = "TimeStep"
 setup.props["SaveFieldsType"] = "None"

@@ -291,10 +291,10 @@ class TestClass:
         freq_stop = 1200.1
         units = "MHz"
         sweep = self.aedtapp.create_linear_step_sweep(
-            setupname="MySetup",
-            sweepname=None,
+            setup_name="MySetup",
+            sweep_name=None,
             unit=units,
-            freqstart=freq_start,
+            freq=freq_start,
             freqstop=freq_stop,
             step_size=step_size,
         )
@@ -308,11 +308,11 @@ class TestClass:
         freq_stop = 1305.1
         units = "MHz"
         sweep = self.aedtapp.create_linear_step_sweep(
-            setupname="MySetup",
-            sweepname="StepFast",
+            setup_name="MySetup",
+            sweep_name="StepFast",
             unit=units,
-            freqstart=freq_start,
-            freqstop=freq_stop,
+            start_frequency=freq_start,
+            stop_frequency=freq_stop,
             step_size=step_size,
             sweep_type="Fast",
         )
@@ -324,11 +324,11 @@ class TestClass:
         # Create a linear step sweep with the incorrect sweep type.
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_step_sweep(
-                setupname="MySetup",
-                sweepname="StepFast",
+                setup_name="MySetup",
+                sweep_name="StepFast",
                 unit=units,
-                freqstart=freq_start,
-                freqstop=freq_stop,
+                start_frequency=freq_start,
+                stop_frequency=freq_stop,
                 step_size=step_size,
                 sweep_type="Incorrect",
             )
@@ -339,7 +339,7 @@ class TestClass:
 
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
-            setupname="MySetup",
+            nam="MySetup",
             unit="MHz",
             freq=1.2e3,
         )
@@ -350,22 +350,22 @@ class TestClass:
             save_single_field=False,
         )
         assert self.aedtapp.create_single_point_sweep(
-            setupname="MySetup",
+            setup_name="MySetup",
             unit="GHz",
             freq=[1.1, 1.2, 1.3],
         )
         assert self.aedtapp.create_single_point_sweep(
-            setupname="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
+            setup_name="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
         )
         settings.enable_error_handler = True
         assert not self.aedtapp.create_single_point_sweep(
-            setupname="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+            setup_name="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
         )
         settings.enable_error_handler = False
 
     def test_06e_delete_setup(self):
         setup_name = "SetupToDelete"
-        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        setuptd = self.aedtapp.create_setup(name=setup_name)
         assert setuptd.name in self.aedtapp.existing_analysis_setups
         assert self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
@@ -383,7 +383,7 @@ class TestClass:
             name="WaveForSweep",
             renormalize=False,
         )
-        setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        setup = self.aedtapp.create_setup(name="MySetupForSweep")
         assert not setup.get_sweep()
         sweep = setup.add_sweep()
         sweep1 = setup.get_sweep(sweep.name)
@@ -410,7 +410,7 @@ class TestClass:
             renormalize=False,
         )
 
-        setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
+        setup = self.aedtapp.create_setup(name="MySetupClearSweep")
         sweep = setup.add_sweep()
         assert sweep.add_subrange("LinearCount", 1.1, 3.6, 10, "GHz", clear=True)
         assert sweep.props["RangeType"] == "LinearCount"

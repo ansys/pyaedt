@@ -144,7 +144,7 @@ m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Simulation frequency 150kHz.
 
-setup = m3d.create_setup(setupname="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
 m3d.analyze_setup("Setup1")
 
@@ -194,10 +194,10 @@ ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim
 # Map ohmic losses from Maxwell to the Icepak design.
 
 ipk.assign_em_losses(
-    designname="1 Maxwell",
-    setupname=m3d.setups[0].name,
-    sweepname="LastAdaptive",
-    object_list=["Coil"],
+    design_name="1 Maxwell",
+    setup_name=m3d.setups[0].name,
+    sweep_name="LastAdaptive",
+    assignment=["Coil"],
 )
 
 ###############################################################################

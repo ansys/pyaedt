@@ -191,9 +191,9 @@ setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
 
 setup.create_frequency_sweep(
     unit="GHz",
-    sweepname="Sweep1",
-    freqstart=9.5,
-    freqstop=10.5,
+    name="Sweep1",
+    start_frequency=9.5,
+    stop_frequency=10.5,
     sweep_type="Interpolating",
 )
 

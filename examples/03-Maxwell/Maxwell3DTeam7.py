@@ -70,7 +70,7 @@ m3d.modeler.model_units = "mm"
 dc_freq = 0.1
 stop_freq = 50
 
-setup = m3d.create_setup(setupname="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)

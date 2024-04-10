@@ -96,7 +96,7 @@ source.phase = phase
 # Create a setup.
 
 setup_name = "MySetup"
-LNA_setup = circuit.create_setup(setupname=setup_name)
+LNA_setup = circuit.create_setup(name=setup_name)
 bw_start = 4.3
 bw_stop = 4.4
 n_points = 1001
@@ -129,9 +129,9 @@ mech.change_material_override(True)
 # Get losses from HFSS and assign the convection to Mechanical.
 
 mech.assign_em_losses(
-    designname=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
+    design_name=hfss.design_name,
+    setup_name=hfss.setups[0].name,
+    sweep_name="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=hfss.get_all_conductors_names(),
 )

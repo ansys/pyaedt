@@ -168,9 +168,9 @@ mech.copy_solid_bodies_from(hfss)
 # Assign external convection.
 
 exc = mech.assign_em_losses(
-    designname=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
+    design_name=hfss.design_name,
+    setup_name=hfss.setups[0].name,
+    sweep_name="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=mech.get_all_conductors_names(),
 )
@@ -242,9 +242,9 @@ ipk.copy_solid_bodies_from(hfss)
 # Assign external convection.
 
 exc = ipk.assign_em_losses(
-    designname=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
+    design_name=hfss.design_name,
+    setup_name=hfss.setups[0].name,
+    sweep_name="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=ipk.get_all_conductors_names(),
 )

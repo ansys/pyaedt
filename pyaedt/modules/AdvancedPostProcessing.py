@@ -436,11 +436,11 @@ class PostProcessor(Post):
             model.plot()
         return model
 
-    @pyaedt_function_handler(object_list="objects", imageformat="image_format")
+    @pyaedt_function_handler(object_list="assignment", imageformat="image_format")
     def plot_field(
         self,
         quantity,
-        objects,
+        assignment,
         plot_type="Surface",
         setup_name=None,
         intrinsics=None,
@@ -471,7 +471,7 @@ class PostProcessor(Post):
         ----------
         quantity : str
             Quantity to plot. For example, ``"Mag_E"``.
-        objects : str, list
+        assignment : str, list
             Objects or faces to apply the field plot to.
         plot_type  : str, optional
             Plot type. Options are ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
@@ -534,12 +534,12 @@ class PostProcessor(Post):
 
         # file_to_add = []
         if plot_type == "Surface":
-            plotf = self.create_fieldplot_surface(objects, quantity, setup_name, intrinsics)
+            plotf = self.create_fieldplot_surface(assignment, quantity, setup_name, intrinsics)
         elif plot_type == "Volume":
-            plotf = self.create_fieldplot_volume(objects, quantity, setup_name, intrinsics)
+            plotf = self.create_fieldplot_volume(assignment, quantity, setup_name, intrinsics)
         else:
             plotf = self.create_fieldplot_cutplane(
-                objects, quantity, setup_name, intrinsics, filter_objects=filter_objects
+                assignment, quantity, setup_name, intrinsics, filter_objects=filter_objects
             )
         # if plotf:
         #     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)
@@ -567,11 +567,11 @@ class PostProcessor(Post):
             plotf.delete()
         return model
 
-    @pyaedt_function_handler(object_list="objects", variation_list="variations")
+    @pyaedt_function_handler(object_list="assignment", variation_list="variations")
     def plot_animated_field(
         self,
         quantity,
-        objects,
+        assignment,
         plot_type="Surface",
         setup_name=None,
         intrinsics=None,
@@ -602,7 +602,7 @@ class PostProcessor(Post):
         ----------
         quantity : str
             Quantity to plot (e.g. ``"Mag_E"``).
-        objects : list, str
+        assignment : list, str
             List of objects or faces to apply the field plot to.
         plot_type  : str, optional
             Plot type. Options are ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
@@ -674,12 +674,12 @@ class PostProcessor(Post):
             else:
                 self._app[variation_variable] = el
             if plot_type == "Surface":
-                plotf = self.create_fieldplot_surface(objects, quantity, setup_name, intrinsics)
+                plotf = self.create_fieldplot_surface(assignment, quantity, setup_name, intrinsics)
             elif plot_type == "Volume":
-                plotf = self.create_fieldplot_volume(objects, quantity, setup_name, intrinsics)
+                plotf = self.create_fieldplot_volume(assignment, quantity, setup_name, intrinsics)
             else:
                 plotf = self.create_fieldplot_cutplane(
-                    objects, quantity, setup_name, intrinsics, filter_objects=filter_objects
+                    assignment, quantity, setup_name, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
                 file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))

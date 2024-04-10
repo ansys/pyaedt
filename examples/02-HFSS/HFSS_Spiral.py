@@ -165,7 +165,7 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # ~~~~~~~~~~~~
 # Create the setup and define a frequency sweep to solve the project.
 
-setup1 = hfss.create_setup(setupname="setup1")
+setup1 = hfss.create_setup(name="setup1")
 setup1.props["Frequency"] = "10GHz"
 hfss.create_linear_count_sweep(setup="setup1", units="GHz", start_frequency=1e-3, stop_frequency=50,
                                num_of_freq_points=451, sweep_type="Interpolating")
