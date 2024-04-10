@@ -176,8 +176,8 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 # Create the mesh operation.
 
 mesh = m3d.mesh
-mesh.assign_skin_depth(objects=[first_winding_list[0], second_winding_list[0], third_winding_list[0]], skin_depth=0.20,
-                       triangulation_max_length="10mm", name="skin_depth")
+mesh.assign_skin_depth(assignment=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+                       skin_depth=0.20, triangulation_max_length="10mm", name="skin_depth")
 mesh.assign_surface_mesh_manual([first_winding_list[0], second_winding_list[0], third_winding_list[0]],
                                 surface_deviation=None, normal_dev="30deg", name="surface_approx")
 

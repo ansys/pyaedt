@@ -536,13 +536,13 @@ class Mesh(object):
             pass
         return meshops
 
-    @pyaedt_function_handler(names="objects", meshop_name="name")
-    def assign_surface_mesh(self, objects, level, name=None):
+    @pyaedt_function_handler(names="assignment", meshop_name="name")
+    def assign_surface_mesh(self, assignment, level, name=None):
         """Assign a surface mesh level to one or more objects.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             One or more names of the objects.
         level : int
             Level of the surface mesh. Options are ``1`` through ``10``
@@ -568,17 +568,17 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.id,3,"Surface")
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("SurfApprox")
-        self.logger.info("Assigning Mesh Level " + str(level) + " to " + str(objects))
-        objects = self._app.modeler.convert_to_selections(objects, True)
+        self.logger.info("Assigning Mesh Level " + str(level) + " to " + str(assignment))
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
-        if isinstance(objects[0], int):
+        if isinstance(assignment[0], int):
             seltype = "Faces"
         else:
             seltype = "Objects"
@@ -586,7 +586,7 @@ class Mesh(object):
             {
                 "Type": "SurfApproxBased",
                 "CurvedSurfaceApproxChoice": "UseSlider",
-                seltype: objects,
+                seltype: assignment,
                 "SliderMeshSettings": level,
             }
         )
@@ -595,15 +595,15 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="objects", surf_dev="surface_deviation", meshop_name="name")
+    @pyaedt_function_handler(names="assignment", surf_dev="surface_deviation", meshop_name="name")
     def assign_surface_mesh_manual(
-        self, objects, surface_deviation=None, normal_dev=None, aspect_ratio=None, name=None
+        self, assignment, surface_deviation=None, normal_dev=None, aspect_ratio=None, name=None
     ):
         """Assign a surface mesh to a list of faces.
 
         Parameters
         ----------
-        objects : list or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        assignment : list or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
             List of faces to apply the surface mesh to.
         surface_deviation : float or str, optional
             Surface deviation. The default is ``None``. You can specify a float value, a number with units, or `"inf"`.
@@ -633,7 +633,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id,1e-6,aspect_ratio=3,name="Surface_Manual")
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -661,7 +661,7 @@ class Mesh(object):
         props = OrderedDict(
             {
                 "Type": "SurfApproxBased",
-                "Objects": objects,
+                "Objects": assignment,
                 "CurvedSurfaceApproxChoice": "ManualSettings",
                 "SurfDevChoice": surf_dev_enable,
                 "SurfDev": surface_deviation,
@@ -677,13 +677,13 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="objects", meshop_name="name")
-    def assign_model_resolution(self, objects, defeature_length=None, name=None):
+    @pyaedt_function_handler(names="assignment", meshop_name="name")
+    def assign_model_resolution(self, assignment, defeature_length=None, name=None):
         """Assign the model resolution.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects to defeature.
         defeature_length : float, optional
             Defeaturing length in millimeters. The default is ``None``, in which case
@@ -710,24 +710,24 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
         >>> surface = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("ModelResolution")
-        for name in objects:
+        for name in assignment:
             if isinstance(name, int):
                 self.logger.error("Mesh Operation Applies to Objects only")
                 return False
         if defeature_length is None:
-            props = OrderedDict({"Objects": objects, "UseAutoLength": True})
+            props = OrderedDict({"Objects": assignment, "UseAutoLength": True})
         else:
             props = OrderedDict(
                 {
                     "Type": "DefeatureBased",
-                    "Objects": objects,
+                    "Objects": assignment,
                     "UseAutoLength": False,
                     "DefeatureLength": str(defeature_length) + "mm",
                 }
@@ -830,13 +830,13 @@ class Mesh(object):
         self.omeshmodule.InitialMeshSettings(args)
         return True
 
-    @pyaedt_function_handler(object_lists="objects", surfpriority="surface_priority")
-    def assign_surf_priority_for_tau(self, objects, surface_priority=0):
+    @pyaedt_function_handler(object_lists="assignment", surfpriority="surface_priority")
+    def assign_surf_priority_for_tau(self, assignment, surface_priority=0):
         """Assign a surface representation priority for the TAU mesh.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects to apply a surface representation
             priority to.
         surface_priority : int, optional
@@ -853,7 +853,9 @@ class Mesh(object):
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
-        props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": objects, "SurfaceRepPriority": surface_priority})
+        props = OrderedDict(
+            {"Type": "SurfaceRepPriority", "Objects": assignment, "SurfaceRepPriority": surface_priority}
+        )
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
         self.meshoperations.append(mop)
@@ -918,18 +920,18 @@ class Mesh(object):
         return True
 
     @pyaedt_function_handler(
-        names="objects",
+        names="assignment",
         isinside="inside_selection",
         maxlength="maximum_length",
         maxel="maximum_elements",
         meshop_name="name",
     )
-    def assign_length_mesh(self, objects, inside_selection=True, maximum_length=1, maximum_elements=1000, name=None):
+    def assign_length_mesh(self, assignment, inside_selection=True, maximum_length=1, maximum_elements=1000, name=None):
         """Assign a length for the model resolution.
 
         Parameters
         ----------
-        objects : list, str
+        assignment : list, str
             List of object names or face IDs.
         inside_selection : bool, optional
             Whether the length mesh is inside the selection. The default is ``True``.
@@ -952,7 +954,7 @@ class Mesh(object):
 
         >>> oModule.AssignLengthOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -975,11 +977,11 @@ class Mesh(object):
         if maximum_length is None and maximum_elements is None:
             self.logger.error("mesh not assigned due to incorrect settings")
             return
-        objects = self._app.modeler.convert_to_selections(objects, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
-        if isinstance(objects[0], int) and not inside_selection:
+        if isinstance(assignment[0], int) and not inside_selection:
             seltype = "Faces"
-        elif isinstance(objects[0], str):
+        elif isinstance(assignment[0], str):
             seltype = "Objects"
         else:
             seltype = None
@@ -991,7 +993,7 @@ class Mesh(object):
                 "Type": "LengthBased",
                 "RefineInside": inside_selection,
                 "Enabled": True,
-                seltype: objects,
+                seltype: assignment,
                 "RestrictElem": restrictel,
                 "NumMaxElem": numel,
                 "RestrictLength": restrictlength,
@@ -1009,7 +1011,7 @@ class Mesh(object):
         return mop
 
     @pyaedt_function_handler(
-        names="objects",
+        names="assignment",
         skindepth="skin_depth",
         maxelements="maximum_elements",
         triangulation_max_length="0.1mm",
@@ -1018,7 +1020,7 @@ class Mesh(object):
     )
     def assign_skin_depth(
         self,
-        objects,
+        assignment,
         skin_depth="0.2mm",
         maximum_elements=None,
         triangulation_max_length="0.1mm",
@@ -1029,7 +1031,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        objects : list
+        assignment : list
            List of the object names or face IDs.
         skin_depth : str, float, optional
             Skin depth value.
@@ -1054,7 +1056,7 @@ class Mesh(object):
 
         >>> oModule.AssignSkinDepthOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "HFSS" and self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1070,11 +1072,11 @@ class Mesh(object):
             maximum_elements = "1000"
         else:
             restrictlength = True
-        objects = self._app.modeler.convert_to_selections(objects, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
-        if isinstance(objects[0], int):
+        if isinstance(assignment[0], int):
             seltype = "Faces"
-        elif isinstance(objects[0], str):
+        elif isinstance(assignment[0], str):
             seltype = "Objects"
         else:
             seltype = None
@@ -1086,7 +1088,7 @@ class Mesh(object):
             {
                 "Type": "SkinDepthBased",
                 "Enabled": True,
-                seltype: objects,
+                seltype: assignment,
                 "RestrictElem": restrictlength,
                 "NumMaxElem": str(maximum_elements),
                 "SkinDepth": skin_depth,
@@ -1100,13 +1102,13 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="objects", meshop_name="name")
-    def assign_curvilinear_elements(self, objects, enable=True, name=None):
+    @pyaedt_function_handler(names="assignment", meshop_name="name")
+    def assign_curvilinear_elements(self, assignment, enable=True, name=None):
         """Assign curvilinear elements.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects or faces.
         enable : bool, optional
             Whether to apply curvilinear elements. The default is ``True``.
@@ -1123,7 +1125,7 @@ class Mesh(object):
 
         >>> oModule.AssignApplyCurvlinearElementsOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "HFSS" and self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1133,32 +1135,32 @@ class Mesh(object):
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("CurvilinearElements")
-        objects = self._app.modeler.convert_to_selections(objects, True)
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
-        if isinstance(objects[0], int):
+        if isinstance(assignment[0], int):
             seltype = "Faces"
-        elif isinstance(objects[0], str):
+        elif isinstance(assignment[0], str):
             seltype = "Objects"
         else:
             seltype = None
         if seltype is None:
             self.logger.error("Error in Assignment")
             return
-        props = OrderedDict({"Type": "Curvilinear", seltype: objects, "Apply": enable})
+        props = OrderedDict({"Type": "Curvilinear", seltype: assignment, "Apply": enable})
         mop = MeshOperation(self, name, props, "Curvilinear")
         mop.create()
         self.meshoperations.append(mop)
         return mop
 
     @pyaedt_function_handler(
-        names="objects", disable_for_faceted_surf="disabled_for_faceted", meshoperation_names="name"
+        names="assignment", disable_for_faceted_surf="disabled_for_faceted", meshoperation_names="name"
     )
-    def assign_curvature_extraction(self, objects, disabled_for_faceted=True, name=None):
+    def assign_curvature_extraction(self, assignment, disabled_for_faceted=True, name=None):
         """Assign curvature extraction.
 
          Parameters
          ----------
-         objects : list
+         assignment : list
             List of objects or faces.
          disabled_for_faceted : bool, optional
             Whether curvature extraction is enabled for faceted surfaces.
@@ -1176,7 +1178,7 @@ class Mesh(object):
 
         >>> oModule.AssignCurvatureExtractionOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self._app.solution_type != "SBR+":
             raise MethodNotSupportedError
@@ -1186,10 +1188,10 @@ class Mesh(object):
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("CurvilinearElements")
-        objects = self._app.modeler.convert_to_selections(objects, True)
-        if isinstance(objects[0], int):
+        assignment = self._app.modeler.convert_to_selections(assignment, True)
+        if isinstance(assignment[0], int):
             seltype = "Faces"
-        elif isinstance(objects[0], str):
+        elif isinstance(assignment[0], str):
             seltype = "Objects"
         else:
             seltype = None
@@ -1197,20 +1199,20 @@ class Mesh(object):
             self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
-            {"Type": "CurvatureExtraction", seltype: objects, "DisableForFacetedSurfaces": disabled_for_faceted}
+            {"Type": "CurvatureExtraction", seltype: assignment, "DisableForFacetedSurfaces": disabled_for_faceted}
         )
         mop = MeshOperation(self, name, props, "CurvatureExtraction")
         mop.create()
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="objects", num_layers="layers_number", meshop_name="name")
-    def assign_rotational_layer(self, objects, layers_number=3, total_thickness="1mm", name=None):
+    @pyaedt_function_handler(names="assignment", num_layers="layers_number", meshop_name="name")
+    def assign_rotational_layer(self, assignment, layers_number=3, total_thickness="1mm", name=None):
         """Assign a rotational layer mesh.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects.
         layers_number : int, optional
             Number of layers to create in the radial direction, starting from
@@ -1230,7 +1232,7 @@ class Mesh(object):
 
         >>> oModule.AssignRotationalLayerOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1244,7 +1246,7 @@ class Mesh(object):
         props = OrderedDict(
             {
                 "Type": "RotationalLayerMesh",
-                seltype: objects,
+                seltype: assignment,
                 "Number of Layers": str(layers_number),
                 "Total Layer Thickness": total_thickness,
             }
@@ -1256,13 +1258,13 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(names="objects", meshop_name="name")
-    def assign_edge_cut(self, objects, layer_thickness="1mm", name=None):
+    @pyaedt_function_handler(names="assignment", meshop_name="name")
+    def assign_edge_cut(self, assignment, layer_thickness="1mm", name=None):
         """Assign an edge cut layer mesh.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects.
         layer_thickness :
             Thickness of the layer with units. The default is ``"1mm"``.
@@ -1279,7 +1281,7 @@ class Mesh(object):
 
         >>> oModule.AssignRotationalLayerOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1290,7 +1292,7 @@ class Mesh(object):
         else:
             name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict({"Type": "EdgeCutLayerMesh", seltype: objects, "Layer Thickness": layer_thickness})
+        props = OrderedDict({"Type": "EdgeCutLayerMesh", seltype: assignment, "Layer Thickness": layer_thickness})
 
         mop = MeshOperation(self, name, props, "EdgeCutLayerMesh")
         mop.create()
@@ -1299,16 +1301,16 @@ class Mesh(object):
         return mop
 
     @pyaedt_function_handler(
-        names="objects", maxelementlength="maximum_element_length", layerNum="layers_number", meshop_name="name"
+        names="assignment", maxelementlength="maximum_element_length", layerNum="layers_number", meshop_name="name"
     )
     def assign_density_control(
-        self, objects, refine_inside=True, maximum_element_length=None, layers_number=None, name=None
+        self, assignment, refine_inside=True, maximum_element_length=None, layers_number=None, name=None
     ):
         """Assign density control.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects.
         refine_inside : bool, optional
             Whether to refine inside objects. The default is ``True``.
@@ -1331,7 +1333,7 @@ class Mesh(object):
 
         >>> oModule.AssignDensityControlOp
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1358,7 +1360,7 @@ class Mesh(object):
             {
                 "Type": "DensityControlBased",
                 "RefineInside": refine_inside,
-                seltype: objects,
+                seltype: assignment,
                 "RestrictMaxElemLength": restr,
                 "MaxElemLength": restrval,
                 "RestrictLayersNum": restrlay,
@@ -1370,10 +1372,10 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(obj="objects", meshop_name="name")
+    @pyaedt_function_handler(obj="entity", meshop_name="name")
     def assign_cylindrical_gap(
         self,
-        objects,
+        entity,
         name=None,
         band_mapping_angle=None,
         clone_mesh=False,
@@ -1384,7 +1386,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        objects : int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        entity : int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to assign cylindrical gap to.
         name : str, optional
             Name of the mesh. The default is ``None``, in which
@@ -1428,8 +1430,8 @@ class Mesh(object):
             if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
                 raise MethodNotSupportedError
 
-            objects = self.modeler.convert_to_selections(objects, True)
-            if len(objects) > 1:
+            entity = self.modeler.convert_to_selections(entity, True)
+            if len(entity) > 1:
                 self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
                 raise ValueError
             if [x for x in self.meshoperations if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"]:
@@ -1453,7 +1455,7 @@ class Mesh(object):
                 props = OrderedDict(
                     {
                         "Name": name,
-                        "Objects": objects,
+                        "Objects": entity,
                         "CloneMesh": clone_mesh,
                         "BandMappingAngle": str(band_mapping_angle) + "deg",
                         "MovingSideLayers": moving_side_layers,
@@ -1469,7 +1471,7 @@ class Mesh(object):
                 props = OrderedDict(
                     {
                         "Name": name,
-                        "Objects": objects,
+                        "Objects": entity,
                         "UseBandMappingAngle": use_band_mapping_angle,
                         "BandMappingAngle": str(band_mapping_angle) + "deg",
                     }
