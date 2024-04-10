@@ -89,19 +89,10 @@ h3d.create_edge_port("microstrip", 2)
 # Create a setup and a sweep.
 
 setup = h3d.create_setup()
-h3d.create_linear_count_sweep(
-    setup_name=setup.name,
-    unit="GHz",
-    start_frequency=3,
-    stop_frequency=7,
-    num_of_freq_points=1001,
-    sweep_name="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol_percent=1,
-    interpolation_max_solutions=255,
-    save_fields=False,
-    use_q3d_for_dc=False,
-)
+h3d.create_linear_count_sweep(setup=setup.name, unit="GHz", start_frequency=3, stop_frequency=7,
+                              num_of_freq_points=1001, sweep_name="sweep1", save_fields=False,
+                              sweep_type="Interpolating", interpolation_tol_percent=1, interpolation_max_solutions=255,
+                              use_q3d_for_dc=False)
 
 ###############################################################################
 # Solve and plot results

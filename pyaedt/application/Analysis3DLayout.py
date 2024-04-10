@@ -307,15 +307,15 @@ class FieldAnalysis3DLayout(Analysis):
         self._setups = tmp_setups + [setup]
         return setup
 
-    @pyaedt_function_handler()
-    def get_setup(self, setupname, setuptype=None):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def get_setup(self, name, setup_type=None):
         """Retrieve a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
-        setuptype : SETUPS, optional
+        setup_type : SETUPS, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
 
@@ -325,22 +325,22 @@ class FieldAnalysis3DLayout(Analysis):
             Setup object.
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
         for setup in self._setups:
-            if setupname == setup.name:
+            if name == setup.name:
                 return setup
-        setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
-        self.active_setup = setupname
+        setup = Setup3DLayout(self, setuptype, name, isnewsetup=False)
+        self.active_setup = name
         return setup
 
-    @pyaedt_function_handler()
-    def delete_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def delete_setup(self, name):
         """Delete a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -360,14 +360,14 @@ class FieldAnalysis3DLayout(Analysis):
         >>> import pyaedt
         >>> hfss3dlayout = pyaedt.Hfss3dLayout()
         >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
-        >>> hfss3dlayout.delete_setup(name='Setup1')
+        >>> hfss3dlayout.delete_setup()
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if setupname in self.existing_analysis_setups:
-            self.osolution.Delete(setupname)
+        if name in self.existing_analysis_setups:
+            self.osolution.Delete(name)
             for s in self.setups:
-                if s.name == setupname:
+                if s.name == name:
                     self.setups.remove(s)
             return True
         return False

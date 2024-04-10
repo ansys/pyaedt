@@ -237,13 +237,9 @@ ipk.copy_solid_bodies_from(hfss)
 # Link sources to the EM losses.
 # Assign external convection.
 
-exc = ipk.assign_em_losses(
-    design_name=hfss.design_name,
-    setup_name=hfss.setups[0].name,
-    sweep_name="LastAdaptive",
-    map_frequency=hfss.setups[0].props["Frequency"],
-    surface_objects=ipk.get_all_conductors_names(),
-)
+exc = ipk.assign_em_losses(design=hfss.design_name, setup=hfss.setups[0].name, sweep="LastAdaptive",
+                           map_frequency=hfss.setups[0].props["Frequency"],
+                           surface_objects=ipk.get_all_conductors_names())
 
 ################################################################################
 # Create Setup

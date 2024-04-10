@@ -886,9 +886,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"LinearCountSweep"``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(setup="LinearCountSetup",units="MHz",
-        >>>                                                     start_frequency=1.1e3,stop_frequency=1200.1,
-        >>>                                                     num_of_freq_points=1658,name="LinearCountSweep")
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(,,
         >>> type(linear_count_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
@@ -937,16 +935,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(
-        setupname="setup_name", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep_name"
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep"
     )
     def create_linear_step_sweep(
         self,
-        setup_name,
+        setup,
         unit,
         start_frequency,
         stop_frequency,
         step_size,
-        sweep_name=None,
+        sweep=None,
         save_fields=True,
         save_rad_fields=False,
         sweep_type="Discrete",
@@ -955,7 +953,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
@@ -965,7 +963,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields. The default is ``True``.
@@ -992,10 +990,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = hfss.create_linear_step_sweep(setup_name="LinearStepSetup",
-        ...                                                   sweep_name="LinearStepSweep",
-        ...                                                   unit="MHz", start_frequency=1.1e3,
-        ...                                                   stop_frequency=1200.1, step_size=153.8)
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(setup="LinearStepSetup",unit="MHz",
+        ...                                             start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
@@ -1004,13 +1000,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweep_name is None:
+        if sweep is None:
             sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = sweep
 
-        if setup_name not in self.setup_names:
+        if setup not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setup_name:
+            if s.name == setup:
                 return s.create_linear_step_sweep(
                     unit=unit,
                     start_frequency=start_frequency,
@@ -4324,14 +4322,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         setup1.auto_update = True
         return setup1
 
-    @pyaedt_function_handler(setupname="setup_name")
-    def _create_sbr_doppler_sweep(self, setup_name, time_var, tstart, tstop, tsweep, parametric_name):
+    @pyaedt_function_handler(setupname="setup")
+    def _create_sbr_doppler_sweep(self, setup, time_var, tstart, tstop, tsweep, parametric_name):
         time_start = self.modeler._arg_with_dim(tstart, "s")
         time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.parametrics.add(
-            time_var, tstart, time_stop, tsweep, "LinearStep", setup_name, parametricname=parametric_name
+            time_var, tstart, time_stop, tsweep, "LinearStep", setup, parametricname=parametric_name
         )
 
     @pyaedt_function_handler(time_var="time_variable", setup_name="setup")

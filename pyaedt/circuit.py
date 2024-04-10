@@ -806,11 +806,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
-    @pyaedt_function_handler(designname="design_name", setupname="setup_name")
+    @pyaedt_function_handler(designname="design", setupname="setup")
     def export_fullwave_spice(
         self,
-        design_name=None,
-        setup_name=None,
+        design=None,
+        setup=None,
         is_solution_file=False,
         filename=None,
         passivity=False,
@@ -828,10 +828,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        design_name : str, optional
+        design : str, optional
             Name of the design or the full path to the solution file if it is an imported file.
             The default is ``None``.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
@@ -862,20 +862,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         >>> oDesign.ExportFullWaveSpice
         """
-        if not design_name:
-            design_name = self.design_name
+        if not design:
+            design = self.design_name
         if not filename:
             filename = os.path.join(self.working_directory, self.design_name + ".sp")
         if is_solution_file:
-            setup_name = design_name
-            design_name = ""
+            setup = design
+            design = ""
         else:
-            if not setup_name:
-                setup_name = self.nominal_sweep
+            if not setup:
+                setup = self.nominal_sweep
         self.onetwork_data_explorer.ExportFullWaveSpice(
-            design_name,
+            design,
             is_solution_file,
-            setup_name,
+            setup,
             "",
             [],
             [

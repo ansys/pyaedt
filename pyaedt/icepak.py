@@ -1734,16 +1734,16 @@ class Icepak(FieldAnalysis3D):
         )
         return True
 
-    @pyaedt_function_handler(designname="design_name",
-                             setupname="setup_name",
-                             sweepname="sweep_name",
+    @pyaedt_function_handler(designname="design",
+                             setupname="setup",
+                             sweepname="sweep",
                              paramlist="parameters",
                              object_list="assignment")
     def assign_em_losses(
             self,
-            design_name="HFSSDesign1",
-            setup_name="Setup1",
-            sweep_name="LastAdaptive",
+            design="HFSSDesign1",
+            setup="Setup1",
+            sweep="LastAdaptive",
             map_frequency=None,
             surface_objects=None,
             source_project_name=None,
@@ -1754,11 +1754,11 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        design_name : string, optional
+        design : string, optional
             Name of the design with the source mapping. The default is ``"HFSSDesign1"``.
-        setup_name : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
@@ -1831,8 +1831,8 @@ class Icepak(FieldAnalysis3D):
                 "Objects": all_objects,
                 "Project": project_name,
                 "Product": "ElectronicsDesktop",
-                "Design": design_name,
-                "Soln": setup_name + " : " + sweep_name,
+                "Design": design,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -1846,7 +1846,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design: %s.", design_name)
+            self.logger.info("EM losses mapped from design: %s.", design)
             return bound
         return False
 

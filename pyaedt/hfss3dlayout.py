@@ -42,7 +42,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
@@ -119,7 +119,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         projectname=None,
         designname=None,
         solution_type=None,
-        setup_name=None,
+        setup=None,
         specified_version=None,
         non_graphical=False,
         new_desktop_session=False,
@@ -135,7 +135,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             projectname,
             designname,
             solution_type,
-            setup_name,
+            setup,
             specified_version,
             non_graphical,
             new_desktop_session,
@@ -898,16 +898,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return True
 
     @pyaedt_function_handler(
-        setupname="setup_name", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep_name"
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep"
     )
     def create_linear_count_sweep(
         self,
-        setup_name,
+        setup,
         unit,
         start_frequency,
         stop_frequency,
         num_of_freq_points,
-        sweep_name=None,
+        sweep=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -919,7 +919,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
@@ -929,7 +929,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
@@ -964,8 +964,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweep_name is None:
+        if sweep is None:
             sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = sweep
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -978,7 +980,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setup_name:
+            if s.name == setup:
                 setupdata = s
                 if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweep_name
@@ -1003,16 +1005,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(
-        setupname="setup_name", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep_name"
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep"
     )
     def create_linear_step_sweep(
         self,
-        setup_name,
+        setup,
         unit,
         start_frequency,
         stop_frequency,
         step_size,
-        sweep_name=None,
+        sweep=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -1024,7 +1026,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
@@ -1034,7 +1036,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
@@ -1069,8 +1071,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweep_name is None:
+        if sweep is None:
             sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = sweep
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -1083,7 +1087,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setup_name:
+            if s.name == setup:
                 setupdata = s
                 if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweep_name

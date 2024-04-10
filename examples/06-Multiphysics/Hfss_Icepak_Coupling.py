@@ -174,8 +174,8 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # Link sources to the EM losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(design_name=aedtapp.design_name, setup_name="MySetup", sweep_name="LastAdaptive",
-                        map_frequency="1GHz", surface_objects=surfaceobj, parameters=["$coax_dimension", "inner"])
+ipkapp.assign_em_losses(design=aedtapp.design_name, setup="MySetup", sweep="LastAdaptive", map_frequency="1GHz",
+                        surface_objects=surfaceobj, parameters=["$coax_dimension", "inner"])
 
 #################################################################################
 # Edit gravity setting
