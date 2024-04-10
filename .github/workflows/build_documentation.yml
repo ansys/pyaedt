@@ -103,6 +103,12 @@ jobs:
         run: |
           make -C doc pdf-no-examples
 
+      - name: Add assets to HTML docs
+        run: |
+          zip -r documentation-html.zip ./doc/_build/html
+          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
+          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/documentation.pdf
+
       - name: Upload documentation PDF artifact
         uses: actions/upload-artifact@v4
         with:
