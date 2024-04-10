@@ -1445,15 +1445,15 @@ class Analysis(Design, object):
 
         if self.solution_type == "SBR+":
             setuptype = 4
-            setup = SetupSBR(self, setuptype, name, isnewsetup=False)
+            setup = SetupSBR(self, setuptype, name, is_new_setup=False)
         elif self.design_type in ["Q3D Extractor", "2D Extractor", "HFSS"]:
-            setup = SetupHFSS(self, setuptype, name, isnewsetup=False)
+            setup = SetupHFSS(self, setuptype, name, is_new_setup=False)
             if setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
-                setup = SetupHFSSAuto(self, 0, name, isnewsetup=False)
+                setup = SetupHFSSAuto(self, 0, name, is_new_setup=False)
         elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
-            setup = SetupMaxwell(self, setuptype, name, isnewsetup=False)
+            setup = SetupMaxwell(self, setuptype, name, is_new_setup=False)
         else:
-            setup = Setup(self, setuptype, name, isnewsetup=False)
+            setup = Setup(self, setuptype, name, is_new_setup=False)
         if setup.props:
             self.active_setup = name
         return setup
@@ -1555,9 +1555,9 @@ class Analysis(Design, object):
         """
         if assignment:
             if not isinstance(assignment, list):
-                object_list = [assignment]
+                assignment = [assignment]
         else:
-            object_list = self.modeler.object_names
+            assignment = self.modeler.object_names
 
         if prop_names:
             if not isinstance(prop_names, list):

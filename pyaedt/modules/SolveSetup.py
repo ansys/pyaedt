@@ -454,7 +454,7 @@ class Setup(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -2247,20 +2247,20 @@ class SetupHFSS(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis.Analysis`
         Inherited app object.
-    solutiontype : int, str
+    solution_type : int, str
         Type of the setup.
-    setupname : str, optional
+    setup_name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     @pyaedt_function_handler()
     def get_derivative_variables(self):
@@ -2842,20 +2842,20 @@ class SetupHFSSAuto(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis.Analysis`
         Inherited app object.
-    solutiontype : int, str
+    solution_type : int, str
         Type of the setup.
-    setupname : str, optional
+    setup_name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     @pyaedt_function_handler()
     def get_derivative_variables(self):
@@ -3076,20 +3076,20 @@ class SetupSBR(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis.Analysis`
         Inherited app object.
-    solutiontype : int, str
+    solution_type : int, str
         Type of the setup.
-    setupname : str, optional
+    setup_name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
@@ -3155,20 +3155,20 @@ class SetupMaxwell(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`pyaedt.application.Analysis.Analysis`
         Inherited app object.
-    solutiontype : int, str
+    solution_type : int, str
         Type of the setup.
-    setupname : str, optional
+    setup_name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     @pyaedt_function_handler()
     def add_eddy_current_sweep(

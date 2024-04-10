@@ -294,8 +294,8 @@ class TestClass:
             setup_name="MySetup",
             sweep_name=None,
             unit=units,
-            freq=freq_start,
-            freqstop=freq_stop,
+            start_frequency=freq_start,
+            stop_frequency=freq_stop,
             step_size=step_size,
         )
         assert sweep.props["RangeStep"] == str(step_size) + units
@@ -339,7 +339,7 @@ class TestClass:
 
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
-            nam="MySetup",
+            setup_name="MySetup",
             unit="MHz",
             freq=1.2e3,
         )
@@ -1420,8 +1420,17 @@ class TestClass:
         box1.material_name = "Copper"
         box2 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
         box2.material_name = "Copper"
-        port = self.aedtapp.create_lumped_port_between_objects(
-            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
+
+        _ = self.aedtapp.lumped_port(
+            signal=box1.name,
+            reference=box2.name,
+            create_port_sheet=True,
+            port_on_plane=True,
+            integration_line=self.aedtapp.AxisDir.XNeg,
+            impedance=50,
+            name="Lump1xx",
+            renormalize=True,
+            deembed=False,
         )
 
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]

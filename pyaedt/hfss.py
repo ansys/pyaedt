@@ -413,7 +413,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self,
         assignment,
         int_line_stop,
-        portname,
+        port_name,
         renorm=True,
         deembed=None,
         iswaveport=False,
@@ -471,7 +471,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     except Exception:  # pragma: no cover
                         self.logger.warning("Failed to change normalization.")
                 if terminals_rename:
-                    new_name = portname + "_T" + str(count)
+                    new_name = port_name + "_T" + str(count)
                     terminal_name = new_name
                     properties = [
                         "NAME:AllTabs",
@@ -492,7 +492,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 boundary.type = "Wave Port"
             else:
                 boundary.type = "Lumped Port"
-            props["Faces"] = [objectname]
+            props["Faces"] = [assignment]
             if iswaveport:
                 props["NumModes"] = 1
                 props["UseLineModeAlignment"] = 1
@@ -562,7 +562,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         props = OrderedDict({})  # Used to create the argument to pass to native api: oModule.AssignWavePort()
         if isinstance(assignment, int):  # Assumes a Face ID is passed in objectname
-            props["Faces"] = [objectname]
+            props["Faces"] = [assignment]
         elif isinstance(assignment, list):  # Assume [x, y, z] point is passed in objectname
             props["Faces"] = self.modeler.get_faceid_from_position(assignment)
         else:
@@ -1635,144 +1635,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             id_ += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
-    @pyaedt_function_handler()
-    def create_circuit_port_between_objects(
-        self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, renorm_impedance=50, deemb=False
-    ):
-        """Create a circuit port taking the closest edges of two objects.
-
-        .. deprecated:: 0.6.70
-        Use :func:`circuit_port` method instead.
-
-        Parameters
-        ----------
-        startobj :
-            Starting object for the integration line.
-        endobject :
-            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        portname : str, optional
-            Name of the port. The default is ``None``.
-        renorm : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        renorm_impedance : float or str, optional
-            Renormalize impedance. The default is ``50``.
-        deemb : bool, optional
-            Whether to deembed the port. The default is ``False``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignCircuitPort
-
-        Examples
-        --------
-
-        Create two boxes for creating a circuit port named ``'CircuitExample'``.
-
-        >>> box1 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5],
-        ...                                "BoxCircuit1", "copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 100], [10, 10, 5],
-        ...                                "BoxCircuit2", "copper")
-        >>> hfss.create_circuit_port_between_objects("BoxCircuit1", "BoxCircuit2",
-        ...                                          hfss.AxisDir.XNeg, 50,
-        ...                                          "CircuitExample", True, 50, False)
-        'CircuitExample'
-
-        """
-        warnings.warn("Use :func:`circuit_port` method instead.", DeprecationWarning)
-        return self.circuit_port(
-            assignment=startobj,
-            reference=endobject,
-            port_location=axisdir,
-            impedance=impedance,
-            name=portname,
-            renormalize=renorm,
-            renorm_impedance=renorm_impedance,
-            deembed=deemb,
-        )
-
-    @pyaedt_function_handler()
-    def create_lumped_port_between_objects(
-        self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, port_on_plane=True
-    ):
-        """Create a lumped port taking the closest edges of two objects.
-
-        .. deprecated:: 0.6.70
-        Use :func:`lumped_port` method instead.
-
-        Parameters
-        ----------
-        startobj :
-            Starting object for the integration line.
-        endobject :
-            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        portname : str, optional
-            Name of the port. The default is ``None``.
-        renorm : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        deemb : bool, optional
-            Whether to deembed the port. The default is ``False``.
-        port_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``AxisDir``.
-            The default is ``True``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignLumpedPort
-
-        Examples
-        --------
-
-        Create two boxes that will be used to create a lumped port
-        named ``'LumpedPort'``.
-
-        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
-        ...                                "BoxLumped1","copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
-        ...                                "BoxLumped2", "copper")
-        >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
-        ...                                         hfss.AxisDir.XNeg, 50,
-        ...                                         "LumpedPort", True, False)
-        PyAEDT INFO: Connection Correctly created
-        'LumpedPort'
-
-        """
-        warnings.warn("Use :func:`lumped_port` method instead.", DeprecationWarning)
-        return self.lumped_port(
-            assignment=startobj,
-            reference=endobject,
-            create_port_sheet=True,
-            port_on_plane=port_on_plane,
-            integration_line=axisdir,
-            impedance=impedance,
-            name=portname,
-            renormalize=renorm,
-            deembed=deemb,
-        )
-
     @pyaedt_function_handler(start_object="assignment", end_object="reference", port_width="width")
     def create_spiral_lumped_port(self, assignment, reference, width=None, name=None):
         """Create a spiral lumped port between two adjacent objects.
@@ -1956,21 +1818,23 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         return port
 
-    @pyaedt_function_handler(startobj="assignment", endobject="reference", sourcename="name")
-    def create_voltage_source_from_objects(self, assignment, reference, axisdir=0, name=None, source_on_plane=True):
+    @pyaedt_function_handler(startobj="assignment", endobject="reference", sourcename="name", axisdir="start_direction")
+    def create_voltage_source_from_objects(
+        self, assignment, reference, start_direction=0, name=None, source_on_plane=True
+    ):
         """Create a voltage source taking the closest edges of two objects.
 
         Parameters
         ----------
-        assignment :
-            Starting object for the integration line.
-        reference :
-            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for
-            ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
-            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
-            is ``Application.AxisDir.XNeg``.
+        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            First solid connected to the voltage source.
+        reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Second object connected to the voltage source.
+        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Start direction for the port location.
+            It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+             The default is ``Application.AxisDir.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
@@ -2006,30 +1870,33 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                assignment, reference, axisdir, source_on_plane
+                assignment, reference, start_direction, source_on_plane
             )
             name = self._get_unique_source_name(name, "Voltage")
             return self.create_source_excitation(sheet_name, point0, point1, name, source_type="Voltage")
         return False  # pragma: no cover
 
-    @pyaedt_function_handler(startobj="assignment", endobject="reference", sourcename="name")
-    def create_current_source_from_objects(self, assignment, reference, axisdir=0, name=None, source_on_plane=True):
+    @pyaedt_function_handler(startobj="assignment", endobject="reference", sourcename="name", axisdir="start_direction")
+    def create_current_source_from_objects(
+        self, assignment, reference, start_direction=0, name=None, source_on_plane=True
+    ):
         """Create a current source taking the closest edges of two objects.
 
         Parameters
         ----------
-        assignment :
-            Starting object for the integration line.
-        reference :
-            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            First solid connected to the current source.
+        reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Second object connected to the current source.
+        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Start direction for the port location.
+            It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+             The default is ``Application.AxisDir.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``axisdir``. The default is ``True``.
+            Whether to create the source on the plane orthogonal to ``start_direction``. The default is ``True``.
 
         Returns
         -------
@@ -2060,7 +1927,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                assignment, reference, axisdir, source_on_plane
+                assignment, reference, start_direction, source_on_plane
             )
             name = self._get_unique_source_name(name, "Current")
             return self.create_source_excitation(sheet_name, point0, point1, name, source_type="Current")
@@ -2098,96 +1965,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props = OrderedDict({"Objects": [assignment], "Direction": OrderedDict({"Start": point1, "End": point2})})
         return self._create_boundary(name, props, source_type)
 
-    @pyaedt_function_handler()
-    def create_wave_port_between_objects(
-        self,
-        startobj,
-        endobject,
-        axisdir=0,
-        impedance=50,
-        nummodes=1,
-        portname=None,
-        renorm=True,
-        deembed_dist=0,
-        port_on_plane=True,
-        add_pec_cap=False,
-    ):
-        """Create a waveport taking the closest edges of two objects.
-
-        .. deprecated:: 0.6.62
-           Use :func:`wave_port` metho instead.
-
-        Parameters
-        ----------
-        startobj :
-            Starting object for the integration line.
-        endobject :
-            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        nummodes : int, optional
-            Number of modes. The default is ``1``.
-        portname : str, optional
-            Name of the port. The default is ``None``.
-        renorm : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
-        port_on_plane : bool, optional
-            Whether to create the port on the plane orthogonal to ``AxisDir``. The default is ``True``.
-        add_pec_cap : bool, optional
-             The default is ``False``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignWavePort
-
-        Examples
-        --------
-
-        Create two boxes that will be used to create a wave port
-        named ``'Wave Port'``.
-
-        >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
-        ...                                           "BoxWave1", "copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 10], [10, 10, 5],
-        ...                                           "BoxWave2", "copper")
-        >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
-        ...                                                   hfss.AxisDir.XNeg, 50, 1,
-        ...                                                   "Wave Port", False)
-        PyAEDT INFO: Connection Correctly created
-
-        """
-        warnings.warn(
-            "`create_wave_port_between_objects` is deprecated. Use `wave_port` property instead.", DeprecationWarning
-        )
-        return self.wave_port(
-            assignment=startobj,
-            reference=endobject,
-            create_port_sheet=True,
-            integration_line=axisdir,
-            port_on_plane=port_on_plane,
-            modes=nummodes,
-            impedance=impedance,
-            name=portname,
-            renormalize=renorm,
-            deembed=deembed_dist,
-        )
-
-    @pyaedt_function_handler(
-        face="assignment", nummodes="modes", portname="name", renorm="renormalize", deembed_distance="deembed_distance"
-    )
+    @pyaedt_function_handler(face="assignment", nummodes="modes", portname="name", renorm="renormalize")
     def create_floquet_port(
         self,
         assignment,
@@ -2573,106 +2351,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         out_obj.material_name = "pec"
         return True
 
-    @pyaedt_function_handler()
-    def create_wave_port_microstrip_between_objects(
-        self,
-        startobj,
-        endobject,
-        axisdir=0,
-        impedance=50,
-        nummodes=1,
-        portname=None,
-        renorm=True,
-        deembed_dist=0,
-        vfactor=3,
-        hfactor=5,
-    ):
-        """Create a waveport taking the closest edges of two objects.
-
-        .. deprecated:: 0.6.62
-            `create_wave_port_microstrip_between_objects` is deprecated. Use `wave_port` property instead.
-
-        Parameters
-        ----------
-        startobj :
-            Starting object for the integration line. This is typically the reference plane.
-        endobject :
-            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        nummodes : int, optional
-            Number of modes. The default is ``1``.
-        portname : str, optional
-            Name of the port. The default is ``None``.
-        renorm : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        deembed_dist : float, optional
-            Deembed distance in millimeters. The default is ``0``,
-            in which case deembed is disabled.
-        vfactor : int, optional
-            Port vertical factor. The default is ``3``.
-        hfactor : int, optional
-            Port horizontal factor. The default is ``5``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Port object.
-
-        References
-        ----------
-
-        >>> oModule.AssignWavePort
-
-        Examples
-        --------
-
-        Create a wave port supported by a microstrip line.
-
-        >>> ms = hfss.modeler.create_box([4, 5, 0], [1, 100, 0.2],
-        ...                               name="MS1", matname="copper")
-        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2],
-        ...                               name="SUB1", matname="FR4_epoxy")
-        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2],
-        ...                               name="GND1", matname="FR4_epoxy")
-        >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
-        ...                                                         portname="MS1",
-        ...                                                         axisdir=1)
-        PyAEDT INFO: Connection correctly created.
-
-        """
-        warnings.warn(
-            "`create_wave_port_microstrip_between_objects` is deprecated. Use `wave_port` property instead.",
-            DeprecationWarning,
-        )
-        return self.wave_port(
-            assignment=startobj,
-            reference=endobject,
-            create_port_sheet=True,
-            integration_line=axisdir,
-            modes=nummodes,
-            impedance=impedance,
-            name=portname,
-            renormalize=renorm,
-            deembed=deembed_dist,
-            is_microstrip=True,
-            vfactor=vfactor,
-            hfactor=hfactor,
-        )
-
     @pyaedt_function_handler(
         startobj="assignment",
         endobj="reference",
         sourcename="name",
         is_infinite_gnd="is_infinite_ground",
         bound_on_plane="is_boundary_on_plane",
+        axisdir="start_direction",
     )
     def create_perfecte_from_objects(
-        self, assignment, reference, axisdir=0, name=None, is_infinite_ground=False, is_boundary_on_plane=True
+        self, assignment, reference, start_direction=0, name=None, is_infinite_ground=False, is_boundary_on_plane=True
     ):
         """Create a Perfect E taking the closest edges of two objects.
 
@@ -2682,8 +2370,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference :  str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
            Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for
+        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location. It should be one of the values for
             ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
             is ``Application.AxisDir.XNeg``.
@@ -2726,7 +2414,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                assignment, reference, axisdir, is_boundary_on_plane
+                assignment, reference, start_direction, is_boundary_on_plane
             )
 
             if not name:
@@ -2737,9 +2425,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(
-        startobj="assignment", endobject="reference", sourcename="name", bound_on_plane="is_boundary_on_plane"
+        startobj="assignment",
+        endobject="reference",
+        sourcename="name",
+        bound_on_plane="is_boundary_on_plane",
+        axisdir="start_direction",
     )
-    def create_perfecth_from_objects(self, assignment, reference, axisdir=0, name=None, is_boundary_on_plane=True):
+    def create_perfecth_from_objects(
+        self, assignment, reference, start_direction=0, name=None, is_boundary_on_plane=True
+    ):
         """Create a Perfect H taking the closest edges of two objects.
 
         Parameters
@@ -2748,8 +2442,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
         name : str, optional
@@ -2788,7 +2482,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                assignment, reference, axisdir, is_boundary_on_plane
+                assignment, reference, start_direction, is_boundary_on_plane
             )
 
             if not name:
@@ -2888,12 +2582,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Lvalue="inductance",
         Cvalue="capacitance",
         bound_on_plane="is_boundary_on_plane",
+        axisdir="start_direction",
     )
     def create_lumped_rlc_between_objects(
         self,
         assignment,
         reference,
-        axisdir=0,
+        start_direction=0,
         name=None,
         rlc_type="Parallel",
         resistance=None,
@@ -2909,8 +2604,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference :
             Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location.. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
         name : str, optional
@@ -2950,8 +2645,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                           "rlc1", "copper")
         >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
         ...                                           "rlc2", "copper")
-        >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1","rlc2",hfss.AxisDir.XPos,"Lumped RLC",
-        >>>                                              resistance=50,inductance=1e-9,capacitance=1e-6)
+        >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1","rlc2",hfss.AxisDir.XPos,"Lumped RLC",resistance=50,
+        ...                                              inductance=1e-9, capacitance=1e-6)
         PyAEDT INFO: Connection Correctly created
 
         """
@@ -2963,7 +2658,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             resistance or inductance or capacitance
         ):
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                assignment, reference, axisdir, is_boundary_on_plane
+                assignment, reference, start_direction, is_boundary_on_plane
             )
 
             if not name:
@@ -2990,31 +2685,37 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return self._create_boundary(name, props, "Lumped RLC")
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        startobj="start_assignment",
+        endobject="end_assignment",
+        axisdir="start_direction",
+        sourcename="source_name",
+        is_infground="is_infinite_ground",
+    )
     def create_impedance_between_objects(
         self,
-        startobj,
-        endobject,
-        axisdir=0,
-        sourcename=None,
+        start_assignment,
+        end_assignment,
+        start_direction=0,
+        source_name=None,
         resistance=50,
         reactance=0,
-        is_infground=False,
+        is_infinite_ground=False,
         bound_on_plane=True,
     ):
         """Create an impedance taking the closest edges of two objects.
 
         Parameters
         ----------
-        startobj : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        start_assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Starting object for the integration line.
-        endobject : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        end_assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
-        sourcename : str, optional
+        source_name : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float, optional
             Resistance value in ohms. The default is ``50``. If ``None``,
@@ -3022,7 +2723,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         reactance : optional
             Reactance value in ohms. The default is ``0``. If ``None``,
             this parameter is disabled.
-        is_infground : bool, optional
+        is_infinite_ground : bool, optional
             Whether the impendance is an infinite ground. The default is ``False``.
         bound_on_plane : bool, optional
             Whether to create the impedance on the plane orthogonal to ``AxisDir``.
@@ -3053,27 +2754,27 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         """
 
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
+        if not self.modeler.does_object_exists(start_assignment) or not self.modeler.does_object_exists(end_assignment):
             self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                startobj, endobject, axisdir, bound_on_plane
+                start_assignment, end_assignment, start_direction, bound_on_plane
             )
 
-            if not sourcename:
-                sourcename = generate_unique_name("Imped")
-            elif sourcename in self.modeler.get_boundaries_name():
-                sourcename = generate_unique_name(sourcename)
+            if not source_name:
+                source_name = generate_unique_name("Imped")
+            elif source_name in self.modeler.get_boundaries_name():
+                source_name = generate_unique_name(source_name)
             props = OrderedDict(
                 {
                     "Objects": [sheet_name],
                     "Resistance": str(resistance),
                     "Reactance": str(reactance),
-                    "InfGroundPlane": is_infground,
+                    "InfGroundPlane": is_infinite_ground,
                 }
             )
-            return self._create_boundary(sourcename, props, "Impedance")
+            return self._create_boundary(source_name, props, "Impedance")
         return False
 
     @pyaedt_function_handler(sheet_name="assignment", boundary_name="name", is_inifinite_gnd="is_inifinite_ground")
@@ -3181,246 +2882,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             int_stop = max_point
         return refid, int_start, int_stop
 
-    @pyaedt_function_handler(
-        sheet="assignment", deemb="deembed", nummodes="modes", portname="name", renorm="renormalize"
-    )
-    def create_wave_port_from_sheet(
-        self,
-        assignment,
-        deembed=0,
-        axisdir=None,
-        impedance=50,
-        modes=1,
-        name=None,
-        renormalize=True,
-        terminal_references=None,
-    ):
-        """Create a waveport on sheet objects created starting from sheets.
-
-        .. deprecated:: 0.6.62
-            `create_wave_port_from_sheet` is deprecated. Use `wave_port` property instead.
-
-        Parameters
-        ----------
-        assignment : str or int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Name of the sheet.
-        deembed : float, optional
-            Deembedding value distance in model units. The default is ``0``.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It is used to auto evaluate the integration line.
-            If set to ``None`` the integration line is not defined.
-            It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``None`` and no integration line is defined.
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        modes : int, optional
-            Number of modes. The default is ``1``.
-        name : str, optional
-            Name of the port. The default is ``None``.
-        renormalize : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        terminal_references : list, optional
-            For a driven-terminal simulation, list of conductors for port terminal definitions.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignWavePort
-
-        Examples
-        --------
-
-        Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
-
-        >>> origin_position = hfss.modeler.Position(0, 0, 0)
-        >>> circle = hfss.modeler.create_circle(hfss.PLANE.YZ,
-        ...                                                origin_position, 10, name="WaveCircle")
-        >>> hfss.solution_type = "Modal"
-        >>> port = hfss.create_wave_port_from_sheet(circle,5,hfss.AxisDir.XNeg,40,2,"WavePortFromSheet",True)
-        >>> port[0].name
-        'WavePortFromSheet'
-
-        """
-        warnings.warn(
-            "`create_wave_port_from_sheet` is deprecated. Use `wave_port` property instead.", DeprecationWarning
-        )
-        return self.wave_port(
-            assignment=assignment,
-            reference=terminal_references,
-            create_port_sheet=False,
-            integration_line=axisdir,
-            modes=modes,
-            impedance=impedance,
-            name=name,
-            renormalize=renormalize,
-            deembed=deembed,
-        )
-
-    @pyaedt_function_handler()
-    def create_wave_port(
-        self,
-        port_item,  # Item to use for wave port creation
-        int_start,
-        int_stop,
-        deemb=0,
-        axisdir=None,
-        impedance=50,
-        nummodes=1,
-        portname=None,
-        renorm=True,
-        terminal_references=None,
-    ):
-        """Assign a wave port to a face given a point on the face.
-
-        .. deprecated:: 0.6.62
-            `create_wave_port` is deprecated. Use `wave_port` property instead.
-
-        Parameters
-        ----------
-        port_item : list, int
-            Item for defining where to create the port.
-            If a list is passed, then Cartesian [x,y,z] coordinates of a point on the face are
-            expected. If an integer is passed, it is assumed to be a face ID.
-        deemb : float, optional
-            Deembedding value distance in model units. The default is ``0``.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. This parameter is used to automatically evaluate
-            the integration line. The default is ``None``, in which case no integration
-            line is defined. This parameter should be set to one of the values
-            for ``Application.AxisDir``,  which are: ``XNeg``, ``YNeg``, ``ZNeg``,
-            ``XPos``, ``YPos``, and ``ZPos``.
-
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        nummodes : int, optional
-            Number of modes. The default is ``1``.
-        portname : str, optional
-            Name of the port. The default is ``None``.
-        renorm : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        terminal_references : list, optional
-            For a driven-terminal simulation, list of conductors for port terminal definitions.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignWavePort
-
-        Examples
-        --------
-
-        Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
-
-        >>> hfss.modeler.model_units("in")
-        >>> hfss.modeler.create_box([-0.2, -0.45, -1], [0.4, 0.9, 2], name="Xband_WG", matname="vacuum")
-        >>> setup = hfss.create_setup("Setup1")
-        >>> setup["Frequency"] = "10GHz"
-        >>> ports = [ hfss.create_wave_port([0, "a/2", "-wg_len/2"], portname="Port1", deembed=False),
-        >>>  ...      hfss.create_wave_port([0, "a/2", "wg_len/2"], portname="Port2", deembed=False) ]
-        >>> [print(name) for p.name in ports]
-
-        """
-        warnings.warn("`create_wave_port` is deprecated. Use `wave_port` property instead.", DeprecationWarning)
-        return self.wave_port(
-            assignment=port_item,
-            reference=terminal_references,
-            create_port_sheet=True,
-            integration_line=[int_start, int_stop],
-            modes=nummodes,
-            impedance=impedance,
-            name=portname,
-            renormalize=renorm,
-            deembed=deemb,
-        )
-
-    @pyaedt_function_handler()
-    def create_lumped_port_to_sheet(
-        self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
-    ):
-        """Create a lumped port taking one sheet.
-
-        .. deprecated:: 0.6.62
-            `create_lumped_port_to_sheet` is deprecated. Use `lumped` property instead.
-
-        Parameters
-        ----------
-        sheet_name : str
-            Name of the sheet.
-        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
-            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
-            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]].
-            The default is ``Application.AxisDir.XNeg``.
-        impedance : float, optional
-            Port impedance. The default is ``50``.
-        portname : str, optional
-            Name of the port. The default is ``None``.
-        renorm : bool, optional
-            Whether to renormalize the mode. The default is ``True``.
-        deemb : bool, optional
-            Whether to deembed the port. The default is ``False``.
-        reference_object_list : list, optional
-            For a driven terminal solution only, a list of reference conductors. The default is ``[]``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignLumpedPort
-
-        Examples
-        --------
-
-        Create a rectangle sheet for creating a lumped port named ``'LumpedPortFromSheet'``.
-
-        >>> rectangle = hfss.modeler.create_rectangle(hfss.PLANE.XY,
-        ...                                                      [0, 0, 0], [10, 2], name="lump_port",
-        ...                                                      matname="copper")
-        >>> h1 = hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
-        ...                                  "LumpedPortFromSheet", True, False)
-        >>> h2 = hfss.create_lumped_port_to_sheet(rectangle.name, [rectangle.bottom_edge_x.midpoint,
-        ...                                     rectangle.bottom_edge_y.midpoint], 50, "LumpedPortFromSheet", True,
-        ...                                     False)
-
-        """
-        warnings.warn(
-            "`create_lumped_port_to_sheet` is deprecated. Use `lumped_port` property instead.", DeprecationWarning
-        )
-        return self.lumped_port(
-            assignment=sheet_name,
-            reference=reference_object_list,
-            create_port_sheet=False,
-            integration_line=axisdir,
-            impedance=impedance,
-            name=portname,
-            renormalize=renorm,
-            deembed=deemb,
-        )
-
-    @pyaedt_function_handler(sheet_name="assignment", sourcename="name")
-    def assign_voltage_source_to_sheet(self, assignment, axisdir=0, name=None):
+    @pyaedt_function_handler(sheet_name="assignment", sourcename="name", axisdir="start_direction")
+    def assign_voltage_source_to_sheet(self, assignment, start_direction=0, name=None):
         """Create a voltage source taking one sheet.
 
         Parameters
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -3453,27 +2923,27 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            if isinstance(axisdir, list):
-                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+            if isinstance(start_direction, list):
+                if len(start_direction) != 2 or len(start_direction[0]) != len(start_direction[1]):
                     self.logger.error("List of coordinates is not set correctly")
                     return False
-                point0 = axisdir[0]
-                point1 = axisdir[1]
+                point0 = start_direction[0]
+                point1 = start_direction[1]
             else:
-                point0, point1 = self.modeler.get_mid_points_on_dir(assignment, axisdir)
+                point0, point1 = self.modeler.get_mid_points_on_dir(assignment, start_direction)
             name = self._get_unique_source_name(name, "Voltage")
             return self.create_source_excitation(assignment, point0, point1, name, source_type="Voltage")
         return False
 
-    @pyaedt_function_handler(sheet_name="assignment", sourcename="name")
-    def assign_current_source_to_sheet(self, assignment, axisdir=0, name=None):
+    @pyaedt_function_handler(sheet_name="assignment", sourcename="name", axisdir="start_direction")
+    def assign_current_source_to_sheet(self, assignment, start_direction=0, name=None):
         """Create a current source taking one sheet.
 
         Parameters
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -3506,14 +2976,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            if isinstance(axisdir, list):
-                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+            if isinstance(start_direction, list):
+                if len(start_direction) != 2 or len(start_direction[0]) != len(start_direction[1]):
                     self.logger.error("List of coordinates is not set correctly")
                     return False
-                point0 = axisdir[0]
-                point1 = axisdir[1]
+                point0 = start_direction[0]
+                point1 = start_direction[1]
             else:
-                point0, point1 = self.modeler.get_mid_points_on_dir(assignment, axisdir)
+                point0, point1 = self.modeler.get_mid_points_on_dir(assignment, start_direction)
             name = self._get_unique_source_name(name, "Current")
             return self.create_source_excitation(assignment, point0, point1, name, source_type="Current")
         return False
@@ -3611,9 +3081,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Rvalue="resistance",
         Lvalue="inductance",
         Cvalue="capacitance",
+        axisdir="start_direction",
     )
     def assign_lumped_rlc_to_sheet(
-        self, assignment, axisdir=0, name=None, rlc_type="Parallel", resistance=None, inductance=None, capacitance=None
+        self,
+        assignment,
+        start_direction=0,
+        name=None,
+        rlc_type="Parallel",
+        resistance=None,
+        inductance=None,
+        capacitance=None,
     ):
         """Create a lumped RLC taking one sheet.
 
@@ -3621,7 +3099,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -3658,30 +3136,27 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                       [0, 0, -90], [10, 2], name="RLCSheet",
         ...                                        matname="Copper")
-        >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name,
-        ...                                                       hfss.AxisDir.XPos,
-        ...                                                       resistance=50,
-        ...                                                       inductance=1e-9,
-        ...                                                       capacitance=1e-6)
+        >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name,hfss.AxisDir.XPos,resistance=50,
+        ...                                                       inductance=1e-9,capacitance=1e-6)
         >>> type(lumped_rlc_to_sheet)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
         >>> h2 = hfss.assign_lumped_rlc_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
-        ...                                      sheet.bottom_edge_y.midpoint],
-        ...                                      resistance=50,inductance=1e-9,capacitance=1e-6)
+        ...                                      sheet.bottom_edge_y.midpoint],resistance=50,inductance=1e-9,
+        ...                                      capacitance=1e-6)
 
         """
 
         if self.solution_type in ["Eigenmode", "Modal", "Terminal", "Transient Network", "SBR+"] and (
             resistance or inductance or capacitance
         ):
-            if isinstance(axisdir, list):
-                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+            if isinstance(start_direction, list):
+                if len(start_direction) != 2 or len(start_direction[0]) != len(start_direction[1]):
                     self.logger.error("List of coordinates is not set correctly")
                     return False
-                point0 = axisdir[0]
-                point1 = axisdir[1]
+                point0 = start_direction[0]
+                point1 = start_direction[1]
             else:
-                point0, point1 = self.modeler.get_mid_points_on_dir(assignment, axisdir)
+                point0, point1 = self.modeler.get_mid_points_on_dir(assignment, start_direction)
 
             if not name:
                 name = generate_unique_name("Lump")

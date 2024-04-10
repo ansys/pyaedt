@@ -98,7 +98,7 @@ class TestClass:
         phases = [str(i * 5) + "deg" for i in range(2)]
         model_gif = self.aedtapp.post.plot_animated_field(
             quantity="Mag_E",
-            objects=cutlist,
+            assignment=cutlist,
             plot_type="CutPlane",
             setup_name=self.aedtapp.nominal_adaptive,
             intrinsics={"Freq": "5GHz", "Phase": "0deg"},

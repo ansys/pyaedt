@@ -862,7 +862,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         >>> oDesign.ExportFullWaveSpice
         """
-        if not desig_nname:
+        if not design_name:
             design_name = self.design_name
         if not filename:
             filename = os.path.join(self.working_directory, self.design_name + ".sp")

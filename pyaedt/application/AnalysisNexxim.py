@@ -354,7 +354,7 @@ class FieldAnalysisCircuit(Analysis):
             Setup object.
 
         """
-        setup = SetupCircuit(self, self.solution_type, setupname, isnewsetup=False)
+        setup = SetupCircuit(self, self.solution_type, setupname, is_new_setup=False)
         if setup.props:
             self.active_setup = setupname
         return setup
