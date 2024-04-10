@@ -1790,7 +1790,7 @@ class Q3d(QExtractor, object):
             -------
             >>> from pyaedt import Q3d
             >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
             >>> q3d.release_desktop(True, True)
 
@@ -1861,7 +1861,7 @@ class Q3d(QExtractor, object):
             -------
             >>> from pyaedt import Q3d
             >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
             ...                                        freqstart=0.5,
             ...                                        freqstop=1.5,
@@ -2006,7 +2006,7 @@ class Q3d(QExtractor, object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(name="Setup1", DC__MinPass=2)
+        >>> app.create_setup(name="Setup1",DC__MinPass=2)
 
         """
         setup_type = self.design_solutions.default_setup
@@ -2491,54 +2491,53 @@ class Q2d(QExtractor, object):
             self.logger.error("Error in updating conductor type")
             return False
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setup_name="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
 
-        Optional arguments are passed along with the ``setuptype`` and ``setupname``
-        parameters.  Keyword names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+                Optional arguments are passed along with the ``setup_type`` and ``name``
+                parameters.  Keyword names correspond to the ``setup_type``
+                corresponding to the native AEDT API.  The list of
+                keywords here is not exhaustive.
 
+                Parameters
+                ----------
+                name : str, optional
+                    Name of the setup. The default is "Setup1".
+                setup_type : int, str, optional
+                    Type of the setup. Options are "IcepakSteadyState"
+                    and "IcepakTransient". The default is "IcepakSteadyState".
+                **kwargs : dict, optional
+                    Available keys depend on the setup chosen.
+                    For more information, see :doc:`../SetupTemplatesQ3D`.
 
-        Parameters
-        ----------
-        setuptype : int, str, optional
-            Type of the setup. Options are "IcepakSteadyState"
-            and "IcepakTransient". The default is "IcepakSteadyState".
-        setupname : str, optional
-            Name of the setup. The default is "Setup1".
-        **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesQ3D`.
+                Returns
+                -------
+                :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+                    Solver Setup object.
 
+                References
+                ----------
 
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
-            Solver Setup object.
+                >>> oModule.InsertSetup
 
-        References
-        ----------
+                Examples
+                --------
 
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-
-        >>> from pyaedt import Q2d
-        >>> app = Q2d()
-        >>> app.create_setup(setupname="Setup1", RLDataBlock__MinPass=2))
+                >>> from pyaedt import Q2d
+                >>> app = Q2d()
+                >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
+        )
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

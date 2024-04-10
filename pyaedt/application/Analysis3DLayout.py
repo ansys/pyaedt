@@ -282,7 +282,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> from pyaedt import Hfss3dLayout
         >>> app = Hfss3dLayout()
-        >>> app.create_setup(name="Setup1", MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+        >>> app.create_setup(name="Setup1",MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup

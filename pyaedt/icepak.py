@@ -4090,7 +4090,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(name="Setup1", setuptype="TransientTemperatureOnly", MaxIterations=20)
+        >>> app.create_setup(setup_type="TransientTemperatureOnly",name="Setup1",MaxIterations=20)
 
         """
         if setup_type is None:

@@ -284,7 +284,7 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1",setup_type="HFSSDriven",Frequency="10GHz")
 
         """
         if setup_type is None:

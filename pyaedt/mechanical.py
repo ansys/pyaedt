@@ -648,39 +648,40 @@ class Mechanical(FieldAnalysis3D, object):
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Mechanical.
 
-        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keywords here is not exhaustive.
+                Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
+                names correspond to the ``setuptype``
+                corresponding to the native AEDT API.  The list of
+                keywords here is not exhaustive.
 
 
-        Parameters
-        ----------
-        name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
-        setup_type : int, str, optional
-            Type of the setup. Options are  ``"IcepakSteadyState"`` and
-            ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
-        **kwargs : dict, optional
-            Available keys depend on the setup chosen.
-            For more information, see :doc:`../SetupTemplatesMechanical`.
+                Parameters
+                ----------
+                name : str, optional
+                    Name of the setup. The default is ``"Setup1"``.
+                setup_type : int, str, optional
+                    Type of the setup. Options are  ``"IcepakSteadyState"`` and
+                    ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+                **kwargs : dict, optional
+                    Available keys depend on the setup chosen.
+                    For more information, see :doc:`../SetupTemplatesMechanical`.
 
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
-            Solver Setup object.
+                Returns
+                -------
+                :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+                    Solver Setup object.
 
-        References
-        ----------
+                References
+                ----------
 
-        >>> oModule.InsertSetup
+                >>> oModule.InsertSetup
 
-        Examples
-        --------
+                Examples
+                --------
 
-        >>> from pyaedt import Mechanical
-        >>> app = Mechanical()
-        >>> app.create_setup(name="Setup1", MaxModes=6))
+                >>> from pyaedt import Mechanical
+                >>> app = Mechanical()
+                >>> app.create_setup(name="Setup1",MaxModes=6)
+        )
 
         """
         if setup_type is None:
