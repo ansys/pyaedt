@@ -213,13 +213,13 @@ class QExtractor(FieldAnalysis3D, object):
             category=category,
         )
 
-    @pyaedt_function_handler()
-    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None, setup_type="CG"):
+    @pyaedt_function_handler(setup_name="setup")
+    def export_mesh_stats(self, setup, variation_string="", mesh_path=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
@@ -241,7 +241,7 @@ class QExtractor(FieldAnalysis3D, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup_name, variation_string, setup_type, mesh_path)
+        self.odesign.ExportMeshStats(setup, variation_string, setup_type, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
@@ -395,12 +395,13 @@ class QExtractor(FieldAnalysis3D, object):
 
         return True
 
+    @pyaedt_function_handler(setup_name="setup")
     def export_matrix_data(
         self,
         file_name,
         problem_type=None,
         variations=None,
-        setup_name=None,
+        setup=None,
         sweep=None,
         reduce_matrix=None,
         r_unit="ohm",
@@ -410,7 +411,7 @@ class QExtractor(FieldAnalysis3D, object):
         freq=None,
         freq_unit=None,
         matrix_type=None,
-        export_AC_DC_res=False,
+        export_ac_dc_res=False,
         precision=None,
         field_width=None,
         use_sci_notation=True,
@@ -431,7 +432,7 @@ class QExtractor(FieldAnalysis3D, object):
         variations : str, optional
             Design variation. The default is ``None``, in which case the
             current nominal variation is used.
-        setup_name : str, optional
+        setup : str, optional
             Setup name. The default value is ``None``, in which case the first
             analysis setup is used.
         sweep : str, optional
@@ -462,7 +463,7 @@ class QExtractor(FieldAnalysis3D, object):
             Matrix Type.
             Possible Values are "Maxwell", "Spice" and "Couple".
             The default value is ``None``.
-        export_AC_DC_res : bool, optional
+        export_ac_dc_res : bool, optional
             Whether to add the AC and DC res.
             The default value is ``False``.
         precision : int, optional
@@ -560,10 +561,10 @@ class QExtractor(FieldAnalysis3D, object):
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
-        if setup_name is None:
-            setup_name = self.active_setup
-        elif setup_name != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
+        if setup is None:
+            setup = self.active_setup
+        elif setup != self.active_setup:
+            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
             return False
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
@@ -572,7 +573,7 @@ class QExtractor(FieldAnalysis3D, object):
             if sweep.replace(" ", "") not in sweep_array:
                 self.logger.error("Sweep is invalid. Provide a valid sweep.")
                 return False
-        analysis_setup = setup_name + " : " + sweep.replace(" ", "")
+        analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if reduce_matrix is None:
             reduce_matrix = "Original"
@@ -623,9 +624,7 @@ class QExtractor(FieldAnalysis3D, object):
             freq = (
                 re.compile(r"(\d+)\s*(\w+)")
                 .match(
-                    self.modeler._odesign.GetChildObject("Analysis")
-                    .GetChildObject(setup_name)
-                    .GetPropValue("Adaptive Freq")
+                    self.modeler._odesign.GetChildObject("Analysis").GetChildObject(setup).GetPropValue("Adaptive Freq")
                 )
                 .groups()[0]
             )

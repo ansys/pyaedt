@@ -1222,13 +1222,13 @@ class Analysis(Design, object):
         sweeps = self.oanalysis.GetSweeps(name)
         return list(sweeps)
 
-    @pyaedt_function_handler()
-    def export_parametric_results(self, sweepname, filename, exportunits=True):
+    @pyaedt_function_handler(sweepname="sweep")
+    def export_parametric_results(self, sweep, filename, exportunits=True):
         """Export a list of all parametric variations solved for a sweep to a CSV file.
 
         Parameters
         ----------
-        sweepname : str
+        sweep : str
             Name of the optimetrics sweep.
         filename : str
             Full path and name for the CSV file.
@@ -1247,7 +1247,7 @@ class Analysis(Design, object):
         >>> oModule.ExportParametricResults
         """
 
-        self.ooptimetrics.ExportParametricResults(sweepname, filename, exportunits)
+        self.ooptimetrics.ExportParametricResults(sweep, filename, exportunits)
         return True
 
     @pyaedt_function_handler()

@@ -988,7 +988,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweep_name)
+                sweep = setupdata.add_sweep(name=sweep_name)
                 if not sweep:
                     return False
                 sweep.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
@@ -1111,13 +1111,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 return sweep
         return False
 
-    @pyaedt_function_handler(setupname="setup_name", sweepname="sweep_name")
+    @pyaedt_function_handler(setupname="setup", sweepname="sweep")
     def create_single_point_sweep(
         self,
-        setup_name,
+        setup,
         unit,
         freq,
-        sweep_name=None,
+        sweep=None,
         save_fields=False,
         save_rad_fields_only=False,
     ):
@@ -1125,13 +1125,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields for all points and subranges defined in the sweep. The default is ``False``.
@@ -1148,8 +1148,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         >>> oModule.AddSweep
         """
-        if sweep_name is None:
+        if sweep is None:
             sweep_name = generate_unique_name("SinglePoint")
+        else:
+            sweep_name = sweep
 
         add_subranges = False
         if isinstance(freq, list):
@@ -1161,10 +1163,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         else:
             freq0 = freq
 
-        if setup_name not in self.setup_names:
+        if setup not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setup_name:
+            if s.name == setup:
                 setupdata = s
                 if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweep_name
@@ -2034,8 +2036,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self.logger.error("Port not found.")
         return False
 
-    @pyaedt_function_handler()
-    def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
@@ -2045,7 +2047,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         show : str, optional
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
@@ -2067,15 +2069,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             context=show, is_siwave_dc=True, quantities_category=category
         )
 
-        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
+        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
-    @pyaedt_function_handler()
-    def get_dcir_element_data_loop_resistance(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_loop_resistance(self, setup):
         """Get dcir element data loop resistance.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2086,7 +2088,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
         import pandas as pd
 
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
+        solution_data = self.get_dcir_solution_data(setup=setup, show="RL", category="Loop Resistance")
 
         terms = []
         pattern = r"LoopRes\((.*?)\)"
@@ -2111,13 +2113,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         df.index = terms
         return df
 
-    @pyaedt_function_handler()
-    def get_dcir_element_data_current_source(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_current_source(self, setup):
         """Get dcir element data current source.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2128,7 +2130,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
         import pandas as pd
 
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        solution_data = self.get_dcir_solution_data(setup=setup, show="Sources", category="Voltage")
         terms = []
         pattern = r"^V\((.*?)\)"
         for t_name in solution_data.expressions:
@@ -2147,13 +2149,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         df.index = terms
         return df
 
-    @pyaedt_function_handler()
-    def get_dcir_element_data_via(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_via(self, setup):
         """Get dcir element data via.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2168,7 +2170,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         df = None
         for cat in cates:
             data = {cat: []}
-            solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
+            solution_data = self.get_dcir_solution_data(setup=setup, show="Vias", category=cat)
             tmp_via_names = []
             pattern = r"\((.*?)\)"
             for t_name in solution_data.expressions:

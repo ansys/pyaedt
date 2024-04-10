@@ -472,9 +472,10 @@ class PostProcessor(Post):
         quantity : str
             Quantity to plot. For example, ``"Mag_E"``.
         assignment : str, list
-            Objects or faces to apply the field plot to.
+            One or more objects or faces to apply the field plot to.
         plot_type  : str, optional
-            Plot type. Options are ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
+            Plot type. The default is ``Surface``. Options are
+            ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup_name : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
         intrinsics : dict, optional.
@@ -601,11 +602,12 @@ class PostProcessor(Post):
         Parameters
         ----------
         quantity : str
-            Quantity to plot (e.g. ``"Mag_E"``).
+            Quantity to plot (for example, ``"Mag_E"``).
         assignment : list, str
-            List of objects or faces to apply the field plot to.
+            One or more objects or faces to apply the field plot to.
         plot_type  : str, optional
-            Plot type. Options are ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
+            Plot type. The default is ``Surface``. Options are
+            ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup_name : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
         intrinsics : dict, optional.

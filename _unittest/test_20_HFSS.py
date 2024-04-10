@@ -291,8 +291,8 @@ class TestClass:
         freq_stop = 1200.1
         units = "MHz"
         sweep = self.aedtapp.create_linear_step_sweep(
-            setup_name="MySetup",
-            sweep_name=None,
+            setup="MySetup",
+            sweep=None,
             unit=units,
             start_frequency=freq_start,
             stop_frequency=freq_stop,
@@ -339,7 +339,7 @@ class TestClass:
 
     def test_06d_create_single_point_sweep(self):
         assert self.aedtapp.create_single_point_sweep(
-            setup_name="MySetup",
+            setup="MySetup",
             unit="MHz",
             freq=1.2e3,
         )
@@ -350,16 +350,16 @@ class TestClass:
             save_single_field=False,
         )
         assert self.aedtapp.create_single_point_sweep(
-            setup_name="MySetup",
+            setup="MySetup",
             unit="GHz",
             freq=[1.1, 1.2, 1.3],
         )
         assert self.aedtapp.create_single_point_sweep(
-            setup_name="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
+            setup="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
         )
         settings.enable_error_handler = True
         assert not self.aedtapp.create_single_point_sweep(
-            setup_name="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+            setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
         )
         settings.enable_error_handler = False
 
@@ -1222,10 +1222,9 @@ class TestClass:
         assert hfss1.set_differential_pair(
             assignment="P2_T1",
             reference="P2_T2",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
             active=True,
             matched=False,
         )
@@ -1234,10 +1233,9 @@ class TestClass:
         assert hfss2.set_differential_pair(
             assignment="P2_T1",
             reference="P2_T2",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
             active=True,
             matched=False,
         )

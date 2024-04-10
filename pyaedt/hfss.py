@@ -769,7 +769,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         name : str, optional
             Name of the setup. The default is ``"Setup1"``.
         setup_type : str, optional
-            Type of the setup. Based on the solution type, options are
+            Type of the setup, which is based on the solution type. Options are
             ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
             and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
         **kwargs : dict, optional
@@ -1021,13 +1021,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 )
         return False
 
-    @pyaedt_function_handler(setupname="setup_name", sweepname="sweep_name")
+    @pyaedt_function_handler(setupname="setup", sweepname="sweep")
     def create_single_point_sweep(
         self,
-        setup_name,
+        setup,
         unit,
         freq,
-        sweep_name=None,
+        sweep=None,
         save_single_field=True,
         save_fields=False,
         save_rad_fields=False,
@@ -1036,13 +1036,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep. The default is ``None``.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
@@ -1070,15 +1070,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"SinglePointSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> single_point_sweep = hfss.create_single_point_sweep(setup_name="LinearStepSetup",
-        ...                                                   sweep_name="SinglePointSweep",
-        ...                                                   unit="MHz", freq=1.1e3)
+        >>> single_point_sweep = hfss.create_single_point_sweep(setup="LinearStepSetup",unit="MHz",freq=1.1e3,
+        ...                                                     sweep_name="SinglePointSweep")
         >>> type(single_point_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_name is None:
+        if sweep is None:
             sweep_name = generate_unique_name("SinglePoint")
+        else:
+            sweep_name = sweep
 
         if isinstance(save_single_field, list):
             if not isinstance(freq, list) or len(save_single_field) != len(freq):
@@ -1102,7 +1103,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if setup_name not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setup_name:
+            if s.name == setup:
                 return s.create_single_point_sweep(
                     unit=unit,
                     freq=freq,
@@ -1137,24 +1138,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
         setup : optional
-            The default is ``None``.
+            Name of the setup. The default is ``None``.
         field_type : str, optional
+            Field type. The options are ``"nearfield"`` and ``"farfield"``.
             The default is ``"nearfield"``.
         use_composite_ports : bool, optional
             Whether to use composite ports. The default is ``False``.
         use_global_current : bool, optional
             Whether to use the global current. The default is ``True``.
-        current_conformance, str optional
+        current_conformance: str, optional
             The default is ``"Disable"``.
         thin_sources : bool, optional
              The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
         visible : bool, optional.
-            Visualize source objects in target design. The default is ``True``.
+            Whether to make source objects in the target design visible. The default is ``True``.
         name : str, optional
             Name of the source.
-            The default is ``None`` in which case a random name is assigned.
+            The default is ``None`` in which case a name is automatically assigned.
 
         References
         ----------
@@ -1451,10 +1453,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         use_current_source_representation : bool, optional
             Whether to use the current source representation. The default is ``False``.
         is_array : bool, optional
-            The default is ``False``.
+            Whether to define an array. The default is ``False``.
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
-            name is auto-generated based on the antennas type.
+            name is auto-generated based on the antenna type.
 
         Returns
         -------
@@ -1545,7 +1547,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         units=None,
         name=None,
     ):
-        """Create a linked antennas.
+        """Create a linked antenna.
 
         Parameters
         ----------
@@ -1566,7 +1568,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             ``None``, in which case the active modeler units are applied.
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case
-            the name is auto-generated based on the antennas type.
+            the name is auto-generated based on the antenna type.
 
         Returns
         -------
@@ -1649,7 +1651,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Second object connected to the spiral port.
         width : float, optional
             Width of the spiral port.
-            If not specified the width will be calculated based on the object dimensions.
+            If a width is not specified, it is calculated based on the object dimensions.
             The default is ``None``.
         name : str, optional
             Port name.  The default is ``None``.
@@ -1717,13 +1719,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             for i in range(3):
                 for v in closest_faces[0].vertices:
                     face_bb[i] = min(face_bb[i], v.position[i])
-                    face_bb[i+3] = max(face_bb[i+3], v.position[i])
+                    face_bb[i + 3] = max(face_bb[i + 3], v.position[i])
             # get the ratio in 2D
-            bb_dim = [abs(face_bb[i]-face_bb[i+3]) for i in range(3) if abs(face_bb[i]-face_bb[i+3]) > 1e-12]
-            bb_ratio = max(bb_dim)/min(bb_dim)
+            bb_dim = [abs(face_bb[i] - face_bb[i + 3]) for i in range(3) if abs(face_bb[i] - face_bb[i + 3]) > 1e-12]
+            bb_ratio = max(bb_dim) / min(bb_dim)
             if bb_ratio > 2:
                 spiral_width = min(bb_dim) / 12
-                filling = -0.2828*bb_ratio**2 + 3.4141*bb_ratio - 4.197
+                filling = -0.2828 * bb_ratio ** 2 + 3.4141 * bb_ratio - 4.197
                 print(filling)
             else:
                 vertex_coordinates = []
@@ -2502,14 +2504,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : int, optional
-           The default is ``-1`` to not specify the object.
+           Object ID. The default is ``-1`` to not specify the object.
         tissue_mass : float, optional
-            The default is ``1``.
+            Mass of tissue in grams. The default is ``1``.
         material_density : optional
-            The default is ``1``.
+            Density of material in gram/cm^3. The default is ``1``.
         voxel_size : optional
-            The default is ``1``.
+            Size of a voxel in millimeters. The default is ``1``.
         average_sar_method : optional
+            SAR method. There are two options, ``0`` for IEEE std 1528 and ``1`` for classical Ansys method.
             The default is ``0``.
 
         Returns
@@ -2523,7 +2526,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> oDesign.SARSetup
         """
         self.odesign.SARSetup(tissue_mass, material_density, assignment, voxel_size, average_sar_method)
-        self.logger.info("SAR Settings correctly applied.")
+        self.logger.info("SAR settings are correctly applied.")
         return True
 
     @pyaedt_function_handler(
@@ -2541,7 +2544,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         apply_infinite_ground : bool, optional
             Whether to apply an infinite ground plane. The default is ``False``.
         gp_axis : str, optional
-            The default is ``"-z"``.
+            Open region direction. The default is ``"-z"``.
 
         Returns
         -------
@@ -2993,7 +2996,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : str or list
-            Name of the sheet or list to apply the boundary to.
+            One or more names of the sheets to apply the boundary to.
         name : str, optional
             Name of the Perfect E source. The default is ``None``.
         is_infinite_ground : bool, optional
@@ -3185,7 +3188,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : str or list
-            Name of the sheet or list to apply the boundary to.
+            One or more names of the sheets to apply the boundary to.
         name : str, optional
             Name of the impedance. The default is ``None``.
         resistance : optional
@@ -3264,7 +3267,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : str or list
-            Name of the sheet or list to apply the boundary to.
+            One or more names of the sheets to apply the boundary to.
         name : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float or list, optional
@@ -3692,9 +3695,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         value :
             Value in millimeters for thickening the faces.
         extrude_internally : bool, optional
-            Whether to extrude the sheets internally (vgoing into the model).
+            Whether to extrude the sheets internally (going into the model).
             The default is ``True``.
-        internal_extrusion : optional
+        internal_extrusion : int, optional
             Value in millimeters for thickening the sheets internally if ``internalExtr=True``.
             The default is ``1``.
 
@@ -3986,10 +3989,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
              Name of the sweep. The default is ``None``.
         ports : list, optional
              List of port names. The first index, i, in S[i,j].
-             The default is ``None``. (include only self-terms)
+             The default is ``None``.
         ports_excited : list or str, optional
              List of port names. The seconds index, j in S[i,j].
-             The default is ``None``. (include only self-terms)
+             The default is ``None``.
         variations : str, optional
              The default is ``None``.
 
@@ -4006,7 +4009,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Examples
         --------
 
-        Create ad S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
+        Create an S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
         plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
         >>> hfss.create_scattering(ports=["P1", "P2", "P3"],ports_excited=["P1", "P1", "P1"])
@@ -4349,7 +4352,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         doppler_ad_sampling_rate=20,
         setup=None,
     ):
-        """Create an SBR+ Chirp I Setup.
+        """Create an SBR+ Chirp I setup.
 
         Parameters
         ----------
@@ -4454,7 +4457,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         doppler_ad_sampling_rate=20,
         setup=None,
     ):
-        """Create an SBR+ Chirp IQ Setup.
+        """Create an SBR+ Chirp IQ setup.
 
         Parameters
         ----------
@@ -4636,9 +4639,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(radar_name="name")
     def create_sbr_radar_from_json(
-        self, radar_file, name, offset=[0, 0, 0], speed=0.0, use_relative_cs=False, relative_cs_name=None
+        self, radar_file, name, offset=None, speed=0.0, use_relative_cs=False, relative_cs_name=None
     ):
-        """Create an SBR+ radar from a JSON file.
+        """Create an SBR+ radar setup from a JSON file.
 
         Example of input JSON file:
 
@@ -4703,6 +4706,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
         """
+        if offset is None:
+            offset = [0, 0, 0]
         from pyaedt.modeler.advanced_cad.actors import Radar
 
         self.modeler._initialize_multipart()
@@ -5135,15 +5140,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self.logger.info("SBR+ current source options correctly applied.")
         return True
 
-    @pyaedt_function_handler(positive_terminal="assignment", negative_terminal="reference")
+    @pyaedt_function_handler(
+        positive_terminal="assignment",
+        negative_terminal="reference",
+        common_name="common_mode",
+        diff_name="differential_mode",
+        common_ref="common_reference",
+        diff_ref_z="differential_reference",
+    )
     def set_differential_pair(
         self,
         assignment,
         reference,
-        common_name=None,
-        diff_name=None,
-        common_ref_z=25,
-        diff_ref_z=100,
+        common_mode=None,
+        differential_mode=None,
+        common_reference=25,
+        differential_reference=100,
         active=True,
         matched=False,
     ):
@@ -5161,11 +5173,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Name of the terminal to use as the negative terminal.
         common_name : str, optional
             Name for the common mode. The default is ``None``, in which case a unique name is assigned.
-        diff_name : str, optional
+        differential_mode : str, optional
             Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
-        common_ref_z : float, optional
+        common_reference : float, optional
             Reference impedance for the common mode in ohms. The default is ``25``.
-        diff_ref_z : float, optional
+        differential_reference : float, optional
             Reference impedance for the differential mode in ohms. The default is ``100``.
         active : bool, optional
             Whether the differential pair is active. The default is ``True``.
@@ -5191,11 +5203,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not common_name:
             common_name = generate_unique_name("Comm")
         props["CommonName"] = common_name
-        props["CommonRefZ"] = str(common_ref_z) + "ohm"
-        if not diff_name:
-            diff_name = generate_unique_name("Diff")
-        props["DiffName"] = diff_name
-        props["DiffRefZ"] = str(diff_ref_z) + "ohm"
+        props["CommonRefZ"] = str(common_reference) + "ohm"
+        if not differential_mode:
+            differential_mode = generate_unique_name("Diff")
+        props["DiffName"] = differential_mode
+        props["DiffRefZ"] = str(differential_reference) + "ohm"
         props["IsActive"] = active
         props["UseMatched"] = matched
         arg = ["NAME:" + generate_unique_name("Pair")]
@@ -5219,17 +5231,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             return False
 
-    @pyaedt_function_handler(array_name="name")
-    def add_3d_component_array_from_json(self, json_file, name=None):
-        """Add or edit a new 3D component array from a JSON file or TOML file.
+    @pyaedt_function_handler(array_name="name", json_file="input_data")
+    def add_3d_component_array_from_json(self, input_data, name=None):
+        """Add or edit a 3D component array from a JSON file or TOML file.
         The 3D component is placed in the layout if it is not present.
 
         Parameters
         ----------
-        json_file : str, dict
+        input_data : str, dict
             Full path to either the JSON file or dictionary containing the array information.
         name : str, optional
-            Name of the boundary to create or edit.
+             Name of the boundary to add or edit.
 
         Returns
         -------
@@ -5274,10 +5286,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
         self.hybrid = True
-        if isinstance(json_file, dict):
-            json_dict = json_file
+        if isinstance(input_data, dict):
+            json_dict = input_data
         else:
-            json_dict = read_configuration_file(json_file)
+            json_dict = read_configuration_file(input_data)
         if not name and self.omodelsetup.IsArrayDefined():
             name = self.omodelsetup.GetArrayNames()[0]
         elif not name:
@@ -5490,7 +5502,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             List of IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
         name : str, optional
             Name of the boundary.
-            If not provided it's automatically generated.
+            If a name is not provided, one is automatically generated.
         is_perfect_e : bool, optional
             Type of symmetry plane the boundary represents: Perfect E or Perfect H.
             The default value is ``True`` (Perfect E).
@@ -5645,7 +5657,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         file_name : str
-            File to parse.
+            Name of the file to parse.
 
         Returns
         -------
@@ -5660,7 +5672,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(filename="file_name")
     def get_hdm_plotter(self, file_name=None):
-        """Get the ``HDMPlotter``.
+        """Get the  HDM plotter``.
 
         Parameters
         ----------
@@ -5851,7 +5863,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 if len(objs) == 1:
                     assignment = objs[0]
                 elif len(objs) > 1:
-                    self.logger.warning("More than 1 face found. Getting first.")
+                    self.logger.warning("More than one face was found. Getting the first one.")
                     assignment = objs[0]
                 else:
                     self.logger.error("No Faces found on given location.")
@@ -5934,7 +5946,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         modes : int, optional
             Number of modes. The default is ``1``.
         name : str, optional
-            name of the port. The default is ``None``.
+            Name of the port. The default is ``None``.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed : float, optional
@@ -5997,10 +6009,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 if len(objs) == 1:
                     assignment = objs[0]
                 elif len(objs) > 1:
-                    self.logger.warning("More than 1 face found. Getting first.")
+                    self.logger.warning("More than one face found. Getting first.")
                     assignment = objs[0]
                 else:
-                    self.logger.error("No Faces found on given location.")
+                    self.logger.error("No faces were found on given location.")
                     return False
             sheet_name = self.modeler.convert_to_selections(assignment, True)[0]
             if isinstance(sheet_name, int):
@@ -6099,7 +6111,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def set_mesh_fusion_settings(self, assignment=None, volume_padding=None, priority=None):
         # type: (list|str, list, list) -> bool
 
-        """Set mesh fusion settings in Hfss.
+        """Set mesh fusion settings in HFSS.
 
         component : list, optional
             List of active 3D Components.

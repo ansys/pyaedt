@@ -249,7 +249,7 @@ class Rmxprt(FieldAnalysisRMxprt):
     def design_type(self, value):
         self.design_solutions.design_type = value
 
-    @pyaedt_function_handler(name="setup_name", setuptype="setup_type")
+    @pyaedt_function_handler(name="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for RmXport.
 

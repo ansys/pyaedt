@@ -337,15 +337,15 @@ class Icepak(FieldAnalysis3D):
             return bound
         return None
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup")
     def assign_2way_coupling(
-        self, setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
+        self, setup=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
     ):
         """Assign two-way coupling to a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup. The default is ``None``, in which case the active setup is used.
         number_of_iterations : int, optional
             Number of iterations. The default is ``2``.
@@ -367,18 +367,18 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
+        >>> icepak.assign_2way_coupling("Setup1",1,True,10)
         True
 
         """
-        if not setup_name:
+        if not setup:
             if self.setups:
-                setup_name = self.setups[0].name
+                setup = self.setups[0].name
             else:
                 self.logger.error("No setup is defined.")
                 return False
         self.oanalysis.AddTwoWayCoupling(
-            setup_name,
+            setup,
             [
                 "NAME:Options",
                 "NumCouplingIters:=",
@@ -1769,11 +1769,12 @@ class Icepak(FieldAnalysis3D):
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
         parameters : list, dict, optional
-            List of all parameters to map from source and Icepak design. The default is ``None``.
+            List of all parameters to map from source and Icepak design.
+            The default is ``None``, in which case the variables are set to their values (no mapping).
             If ``None`` the variables are set to their values (no mapping).
-            If it is a list, the specified variables in the icepak design are mapped to variables
+            If a list is provided, the specified variables in the Icepak design are mapped to variables
             in the source design having the same name.
-            If it is a dictionary, it is possible to map variables to the source design having a different name.
+            If a dictionary is provided, it is possible to map variables to the source design having a different name.
             The dictionary structure is {"source_design_variable": "icepak_variable"}.
         assignment : list, optional
             List of objects. The default is ``None``.
@@ -4052,11 +4053,11 @@ class Icepak(FieldAnalysis3D):
                 shell_conduction=shell_conduction,
             )
 
-    @pyaedt_function_handler(setupname="setup_name", setuptype="setup_type")
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
-        names correspond to the ``setuptype``
+        names correspond to the ``setup_type``
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
 
@@ -4096,7 +4097,7 @@ class Icepak(FieldAnalysis3D):
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
         elif setup_type in SetupKeys.SetupNames:
-            setup_type = SetupKeys.SetupNames.index(setuptype)
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
             return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:

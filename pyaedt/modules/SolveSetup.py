@@ -177,7 +177,7 @@ class CommonSetup(PropsManager, object):
         Returns
         -------
         bool
-            `True` if solutions are available.
+            ``True`` if solutions are available, ``False`` otherwise.
         """
         if self.p_app.design_solutions.default_adaptive:
             expressions = [
@@ -2143,7 +2143,8 @@ class Setup3DLayout(CommonSetup):
         Parameters
         ----------
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
             ``"Interpolating"``, and ``"Discrete"``.
@@ -2326,7 +2327,8 @@ class SetupHFSS(Setup, object):
             a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
             type of ``"Discrete"``.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -2371,7 +2373,7 @@ class SetupHFSS(Setup, object):
         elif sweep_type == "Discrete":
             num_of_freq_points = num_of_freq_points or 5
         else:  # pragma: no cover
-            raise ValueError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+            raise ValueError("Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'")
 
         if name is None:
             name = generate_unique_name("Sweep")
@@ -2425,7 +2427,8 @@ class SetupHFSS(Setup, object):
         step_size : float, optional
             Frequency size of the step. The default is ``0.05``.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -2506,7 +2509,8 @@ class SetupHFSS(Setup, object):
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
             If a list is specified, the length must be the same as freq length.
@@ -2587,7 +2591,8 @@ class SetupHFSS(Setup, object):
         Parameters
         ----------
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         sweep_type : str, optional
             Type of the sweep. The default is ``"Interpolating"``.
 
@@ -2611,7 +2616,7 @@ class SetupHFSS(Setup, object):
         elif self.setuptype in [14, 30, 31]:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
         else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
+            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
@@ -2624,7 +2629,8 @@ class SetupHFSS(Setup, object):
         Parameters
         ----------
         name : str, optional
-            Name of the sweep. the default is ``None`` which returns the first sweep.
+            Name of the sweep. The default is ``None``, in which case the
+            first sweep is used.
 
         Returns
         -------
@@ -3322,7 +3328,7 @@ class SetupQ3D(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Frequency units. The default is ``None`` which takes the default desktop units.
+            Frequency units. The default is ``None``, in which case the default desktop units are used.
         start_frequency : float, str, optional
             Starting frequency of the sweep. The default is ``0.0``.
             If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
@@ -3334,7 +3340,8 @@ class SetupQ3D(Setup, object):
             a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
             type of ``"Discrete"``.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         sweep_type : str, optional
@@ -3378,7 +3385,7 @@ class SetupQ3D(Setup, object):
         if name in [sweep.name for sweep in self.sweeps]:
             oldname = name
             name = generate_unique_name(oldname)
-            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, name)
         sweepdata = self.add_sweep(name, sweep_type)
         if not sweepdata:
             return False
@@ -3409,7 +3416,7 @@ class SetupQ3D(Setup, object):
         save_fields=True,
         sweep_type="Discrete",
     ):
-        """Create a Sweep with a specified frequency step.
+        """Create a sweep with a specified frequency step.
 
         Parameters
         ----------
@@ -3422,7 +3429,8 @@ class SetupQ3D(Setup, object):
         step_size : float, optional
             Frequency size of the step. The default is ``0.05``.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         sweep_type : str, optional
@@ -3446,7 +3454,7 @@ class SetupQ3D(Setup, object):
         >>> from pyaedt import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = setup.create_linear_step_sweep(sweepname="LinearStepSweep",
+        >>> linear_step_sweep = setup.create_linear_step_sweep(name="LinearStepSweep",
         ...                                                   unit="MHz", start_frequency=1.1e3,
         ...                                                   stop_frequency=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
@@ -3458,9 +3466,9 @@ class SetupQ3D(Setup, object):
             name = generate_unique_name("Sweep")
 
         if name in [sweep.name for sweep in self.sweeps]:
-            oldname = sweepname
+            oldname = name
             name = generate_unique_name(oldname)
-            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, name)
         sweepdata = self.add_sweep(name, sweep_type)
         if not sweepdata:
             return False
@@ -3490,7 +3498,7 @@ class SetupQ3D(Setup, object):
         save_single_field=True,
         save_fields=False,
     ):
-        """Create a Sweep with a single frequency point.
+        """Create a sweep with a single frequency point.
 
         Parameters
         ----------
@@ -3500,7 +3508,8 @@ class SetupQ3D(Setup, object):
             Frequency of the single point or list of frequencies to create distinct single points.
             The default is ``1.0``.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
             If a list is specified, the length must be the same as freq length.
@@ -3523,7 +3532,7 @@ class SetupQ3D(Setup, object):
         >>> from pyaedt import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("SinglePointSetup")
-        >>> single_point_sweep = setup.create_single_point_sweep(setupname="SinglePointSetup",
+        >>> single_point_sweep = setup.create_single_point_sweep(
         ...                                                   name="SinglePointSweep",
         ...                                                   unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
@@ -3556,7 +3565,7 @@ class SetupQ3D(Setup, object):
         if name in [sweep.name for sweep in self.sweeps]:
             oldname = name
             name = generate_unique_name(oldname)
-            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, name)
         sweepdata = self.add_sweep(name, "Discrete")
         sweepdata.props["RangeType"] = "SinglePoints"
         sweepdata.props["RangeStart"] = str(freq0) + unit
@@ -3579,7 +3588,8 @@ class SetupQ3D(Setup, object):
         Parameters
         ----------
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         sweep_type : str, optional
             Type of the sweep. The default is ``"Interpolating"``.
 
@@ -3603,7 +3613,7 @@ class SetupQ3D(Setup, object):
         elif self.setuptype in [14, 30, 31]:
             sweep_n = SweepMatrix(self, name=name, sweep_type=sweep_type)
         else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
+            self._app.logger.warning("This method only applies to HFSS, Q2D, and Q3D.")
             return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
@@ -3615,7 +3625,7 @@ class SetupQ3D(Setup, object):
 
     @pyaedt_function_handler(sweepname="name")
     def get_sweep(self, name=None):
-        """Return frequency sweep object of a given sweep.
+        """Get the frequency sweep object of a given sweep.
 
         Parameters
         ----------

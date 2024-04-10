@@ -198,7 +198,7 @@ class SweepHFSS(object):
         save_single_fields : bool, optional
             Whether to save the fields of the single point. The default is ``False``.
             This parameter is sed only for ``range_type="SinglePoints"``.
-        clear : boolean, optional
+        clear : bool, optional
             Whether to suppress all other subranges except the current one under creation.
             The default value is ``False``.
 
