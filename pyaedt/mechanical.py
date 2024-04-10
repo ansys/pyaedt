@@ -686,9 +686,9 @@ class Mechanical(FieldAnalysis3D, object):
         elif setup_type in SetupKeys.SetupNames:
             setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(name=name, setuptype=setup_type, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(name=name, setuptype=setup_type)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

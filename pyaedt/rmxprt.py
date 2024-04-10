@@ -4,6 +4,7 @@ from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class RMXprtModule(object):

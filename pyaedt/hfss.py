@@ -1146,7 +1146,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to use composite ports. The default is ``False``.
         use_global_current : bool, optional
             Whether to use the global current. The default is ``True``.
-        current_conformance: str, optional
+        current_conformance : str, optional
             The default is ``"Disable"``.
         thin_sources : bool, optional
              The default is ``True``.
