@@ -53,12 +53,7 @@ class TestClass:
         setup = hfss.create_setup()
         freq = "1GHz"
         setup.props["Frequency"] = freq
-        assert self.aedtapp.assign_em_losses(
-            hfss.design_name,
-            hfss.setups[0].name,
-            "LastAdaptive",
-            freq,
-        )
+        assert self.aedtapp.assign_em_losses(hfss.design_name, hfss.setups[0].name, "LastAdaptive", freq)
 
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()

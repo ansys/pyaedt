@@ -167,13 +167,9 @@ mech.copy_solid_bodies_from(hfss)
 # Link sources to the EM losses.
 # Assign external convection.
 
-exc = mech.assign_em_losses(
-    design_name=hfss.design_name,
-    setup_name=hfss.setups[0].name,
-    sweep_name="LastAdaptive",
-    map_frequency=hfss.setups[0].props["Frequency"],
-    surface_objects=mech.get_all_conductors_names(),
-)
+exc = mech.assign_em_losses(design=hfss.design_name, setup=hfss.setups[0].name, sweep="LastAdaptive",
+                            map_frequency=hfss.setups[0].props["Frequency"],
+                            surface_objects=mech.get_all_conductors_names())
 mech.assign_uniform_convection(mech.modeler["Region"].faces, convection_value=1)
 
 ################################################################################

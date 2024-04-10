@@ -132,17 +132,17 @@ class Mechanical(FieldAnalysis3D, object):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler(
-        designname="design_name",
-        setupname="setup_name",
-        sweepname="sweep_name",
+        designname="design",
+        setupname="setup",
+        sweepname="sweep",
         paramlist="parameters",
         object_list="assignment",
     )
     def assign_em_losses(
         self,
-        design_name="HFSSDesign1",
-        setup_name="Setup1",
-        sweep_name="LastAdaptive",
+        design="HFSSDesign1",
+        setup="Setup1",
+        sweep="LastAdaptive",
         map_frequency=None,
         surface_objects=None,
         source_project_name=None,
@@ -153,11 +153,11 @@ class Mechanical(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        design_name : str, optional
+        design : str, optional
             Name of the design of the source mapping. The default is ``"HFSSDesign1"``.
-        setup_name : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             Frequency to map. The default is ``None``. The value must be ``None`` for
@@ -223,7 +223,7 @@ class Mechanical(FieldAnalysis3D, object):
                 "Project": projname,
                 "projname": "ElectronicsDesktop",
                 "Design": designname,
-                "Soln": setup_name + " : " + sweep_name,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -238,23 +238,23 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design %s.", design_name)
+            self.logger.info("EM losses mapped from design %s.", design)
             return bound
         return False
 
     @pyaedt_function_handler(
-        designname="design_name",
-        setupname="setup_name",
-        sweepname="sweep_name",
+        designname="design",
+        setupname="setup",
+        sweepname="sweep",
         paramlist="parameters",
         object_list="assignment",
     )
     def assign_thermal_map(
         self,
         object_list,
-        design_name="IcepakDesign1",
-        setup_name="Setup1",
-        sweep_name="SteadyState",
+        design="IcepakDesign1",
+        setup="Setup1",
+        sweep="SteadyState",
         source_project_name=None,
         parameters=None,
     ):
@@ -267,11 +267,11 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         object_list : list
 
-        design_name : str, optional
+        design : str, optional
             Name of the design with the source mapping. The default is ``"IcepakDesign1"``.
-        setup_name : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
@@ -321,8 +321,8 @@ class Mechanical(FieldAnalysis3D, object):
                 "Uniform": False,
                 "Project": projname,
                 "Product": "ElectronicsDesktop",
-                "Design": design_name,
-                "Soln": setup_name + " : " + sweep_name,
+                "Design": design,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -334,7 +334,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("Thermal conditions are mapped from design %s.", design_name)
+            self.logger.info("Thermal conditions are mapped from design %s.", design)
             return bound
 
         return True
