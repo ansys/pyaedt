@@ -24,6 +24,17 @@ concurrency:
 
 jobs:
 
+  pr-title:
+    if: github.event_name == 'pull_request'
+    name: Check the title of the pull request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commit name
+        uses: ansys/actions/commit-style@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          use-upper-case: true
+
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
