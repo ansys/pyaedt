@@ -15,6 +15,7 @@ from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt import is_linux
 
 test = sys.modules.keys()
 
@@ -1155,6 +1156,7 @@ class TestClass:
         assert self.aedtapp.modeler.import_spaceclaim_document(self.scdoc_file)
         assert len(self.aedtapp.modeler.objects) == 1
 
+    @pytest.mark.skipif(is_linux, reason="Import step not possible in AEDT 2024R1")
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
