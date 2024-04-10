@@ -2218,8 +2218,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         assignment : str
             Faces or objects to apply the impedance boundary to.
         material_name : str, optional
-            Material name. The default is ``None``. If other than ``None``, material properties values are extracted from
-            the named material in the list of materials available. The default value is ``None``.
+            Material name. The default is ``None``. If other than ``None``, material properties values are extracted
+            from the named material in the list of materials available. The default value is ``None``.
         permeability : float, optional
             Permeability of the material.The default value is ``0.0``.
         conductivity : float, optional
