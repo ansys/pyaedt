@@ -359,8 +359,8 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> import pyaedt
         >>> hfss3dlayout = pyaedt.Hfss3dLayout()
-        >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
-        >>> hfss3dlayout.delete_setup(setupname='Setup1')
+        >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
+        >>> hfss3dlayout.delete_setup(name='Setup1')
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """

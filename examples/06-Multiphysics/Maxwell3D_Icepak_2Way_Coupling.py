@@ -98,14 +98,10 @@ m3d.assign_material(core.name, "ferrite")
 
 no_turns = 20
 coil_current = 10
-m3d.assign_coil(["Coil_terminal"], conductor_number=no_turns, name="Coil_terminal")
-m3d.assign_winding(
-    is_solid=False,
-    current_value=coil_current,
-    name="Winding1",
-)
+m3d.assign_coil(["Coil_terminal"], conductors_number=no_turns, name="Coil_terminal")
+m3d.assign_winding(is_solid=False, current=coil_current, name="Winding1")
 
-m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
+m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 
 ###############################################################################
 # Assign mesh operations
