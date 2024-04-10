@@ -69,13 +69,13 @@ class FieldAnalysisCircuit(Analysis):
             self._modeler = self.modeler
             self._post = self.post
 
-    @pyaedt_function_handler()
-    def delete_setup(self, setupname):
+    @pyaedt_function_handler(setupname=name)
+    def delete_setup(self, name):
         """Delete a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -88,10 +88,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oModule.RemoveSimSetup
         """
-        if setupname in self.existing_analysis_setups:
-            self.oanalysis.RemoveSimSetup([setupname])
+        if name in self.existing_analysis_setups:
+            self.oanalysis.RemoveSimSetup([name])
             for s in self.setups:
-                if s.name == setupname:
+                if s.name == name:
                     self.setups.remove(s)
             return True
         return False

@@ -31,7 +31,7 @@ from pyaedt.modules.SolveSweeps import identify_setup
 
 
 class CommonSetup(PropsManager, object):
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+    def __init__(self, app, solutiontype, setup_name="MySetupAuto", isnewsetup=True):
         self.auto_update = False
         self._app = None
         self.p_app = app
@@ -43,7 +43,7 @@ class CommonSetup(PropsManager, object):
             self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
-        self._setupname = setupname
+        self._setup_name = setup_name
         self.props = {}
         self.sweeps = []
         self._init_props(isnewsetup)
@@ -214,11 +214,11 @@ class CommonSetup(PropsManager, object):
     @property
     def name(self):
         """Name."""
-        return self._setupname
+        return self._setup_name
 
     @name.setter
     def name(self, name):
-        self._setupname = name
+        self._setup_name = name
         self.props["Name"] = name
 
     @pyaedt_function_handler()
@@ -456,18 +456,18 @@ class Setup(CommonSetup):
     ----------
     app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
         Inherited app object.
-    solutiontype : int, str
+    solution_type : int, str
         Type of the setup.
-    setupname : str, optional
+    setup_name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        CommonSetup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
+        CommonSetup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     @pyaedt_function_handler()
     def create(self):
@@ -784,8 +784,8 @@ class Setup(CommonSetup):
         design_name : str
             Name of the design.
         solution_name : str, optional
-            Name of the solution in the format ``"setupname : solutionname"``.
-            If ``None`` the default value is ``setupname : LastAdaptive``.
+            Name of the solution in the format ``"setup_name : solution_name"``.
+            If ``None`` the default value is ``setup_name : LastAdaptive``.
         parameters_dict : dict, optional
             Dictionary of the parameters.
             If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
@@ -898,7 +898,7 @@ class Setup(CommonSetup):
         design_name : str
             Name of the design.
         solution_name : str, optional
-            Name of the solution in the format ``"setupname : solutionname"``.
+            Name of the solution in the format ``"setup_name : solution_name"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
         map_variables_by_name : bool, optional
             Whether variables are mapped by name from the source design. The default is
@@ -1009,18 +1009,18 @@ class SetupCircuit(CommonSetup):
     ----------
     app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
         Inherited app object.
-    solutiontype : str, int
+    solution_type : str, int
         Type of the setup.
-    setupname : str, optional
+    setup_name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
       Whether to create the setup from a template. The default is ``True.``
       If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        CommonSetup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
+        CommonSetup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):

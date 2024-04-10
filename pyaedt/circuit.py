@@ -806,11 +806,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(designname="design_name", setupname="setup_name")
     def export_fullwave_spice(
         self,
-        designname=None,
-        setupname=None,
+        design_name=None,
+        setup_name=None,
         is_solution_file=False,
         filename=None,
         passivity=False,
@@ -828,10 +828,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        designname : str, optional
+        design_name : str, optional
             Name of the design or the full path to the solution file if it is an imported file.
             The default is ``None``.
-        setupname : str, optional
+        setup_name : str, optional
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
@@ -862,20 +862,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         >>> oDesign.ExportFullWaveSpice
         """
-        if not designname:
-            designname = self.design_name
+        if not desig_nname:
+            design_name = self.design_name
         if not filename:
             filename = os.path.join(self.working_directory, self.design_name + ".sp")
         if is_solution_file:
-            setupname = designname
-            designname = ""
+            setup_name = design_name
+            design_name = ""
         else:
-            if not setupname:
-                setupname = self.nominal_sweep
+            if not setup_name:
+                setup_name = self.nominal_sweep
         self.onetwork_data_explorer.ExportFullWaveSpice(
-            designname,
+            design_name,
             is_solution_file,
-            setupname,
+            setup_name,
             "",
             [],
             [
@@ -1732,7 +1732,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             else:
                 tdr_probe_names.append("O(A{}:zl)".format(new_tdr_comp.id))
 
-        setup = self.create_setup(setupname="Transient_TDR", setuptype=self.SETUPS.NexximTransient)
+        setup = self.create_setup(name="Transient_TDR", setup_type=self.SETUPS.NexximTransient)
         setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
         if use_convolution:
             self.oanalysis.AddAnalysisOptions(

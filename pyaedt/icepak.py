@@ -4052,10 +4052,10 @@ class Icepak(FieldAnalysis3D):
                 shell_conduction=shell_conduction,
             )
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="setup_name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setuptype``
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
@@ -4065,11 +4065,11 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        setup_type : int, str, optional
             Type of the setup. Options are ``"IcepakSteadyState"``
             and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on setup chosen.
             For more information, see
@@ -4090,17 +4090,17 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setupname="Setup1", setuptype="TransientTemperatureOnly", MaxIterations=20)
+        >>> app.create_setup(name="Setup1", setuptype="TransientTemperatureOnly", MaxIterations=20)
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setuptype)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

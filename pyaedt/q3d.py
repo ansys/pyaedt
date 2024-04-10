@@ -1976,17 +1976,16 @@ class Q3d(QExtractor, object):
         except Exception:
             return False
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", **kwargs):
+    @pyaedt_function_handler(setupname="name")
+    def create_setup(self, name="MySetupAuto", **kwargs):
         """Create an analysis setup for Q3D Extractor.
 
-        Optional arguments are passed along with the ``setupname`` parameter.
-
+        Optional arguments are passed along with the ``name`` parameter.
 
         Parameters
         ----------
 
-        setupname : str, optional
+        name : str, optional
             Name of the setup. The default is "Setup1".
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
@@ -2007,15 +2006,15 @@ class Q3d(QExtractor, object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(setupname="Setup1", DC__MinPass=2)
+        >>> app.create_setup(name="Setup1", DC__MinPass=2)
 
         """
-        setuptype = self.design_solutions.default_setup
+        setup_type = self.design_solutions.default_setup
 
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

@@ -1947,23 +1947,23 @@ class Maxwell(object):
         self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
         return True
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
 
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.
+        Optional arguments are passed along with ``setup_type`` and ``name``.
         Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
         The list of keywords here is not exhaustive.
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        setup_type : int, str, optional
             Type of the setup. Depending on the solution type, options are
             ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
             ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
             and ``Transient"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesMaxwell`.
@@ -1981,17 +1981,17 @@ class Maxwell(object):
         --------
         >>> from pyaedt import Maxwell3d
         >>> app = Maxwell3d()
-        >>> app.create_setup(setupname="My_Setup", setuptype="EddyCurrent", MaximumPasses=10, PercentError=2 )
+        >>> app.create_setup(name="My_Setup", setup_type="EddyCurrent", MaximumPasses=10, PercentError=2)
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setuptype)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self.setup_type(name=name, setuptype=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(setup_type=setup_type, setuptype=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
