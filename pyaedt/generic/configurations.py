@@ -951,7 +951,7 @@ class Configurations(object):
         if self._app.design_type == "Q3D Extractor":
             setup = self._app.create_setup(name, props=props)
         else:
-            setup = self._app.create_setup(name, setuptype=props["SetupType"], props=props)
+            setup = self._app.create_setup(name, setup_type=props["SetupType"], props=props)
         if setup:
             self._app.logger.info("Setup {} added.".format(name))
             return True
