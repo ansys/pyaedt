@@ -1100,7 +1100,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setup_name not in self.setup_names:
+        if setup not in self.setup_names:
             return False
         for s in self.setups:
             if s.name == setup:
