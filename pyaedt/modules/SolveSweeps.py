@@ -114,7 +114,7 @@ class SweepHFSS(object):
         bool
             `True` if solutions are available.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
@@ -129,7 +129,7 @@ class SweepHFSS(object):
         list of float
             Frequency points.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return soldata.intrinsics["Freq"]
@@ -380,9 +380,7 @@ class SweepHFSS3DLayout(object):
             `True` if solutions are available.
         """
         expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.combined_name)]
-        sol = self._app._app.post.reports_by_category.standard(
-            setup_name=self.combined_name, expressions=expressions[0]
-        )
+        sol = self._app._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.combined_name)
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
@@ -631,7 +629,7 @@ class SweepMatrix(object):
         bool
             `True` if solutions are available.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
         return True if sol.get_solution_data() else False
 
     @property
@@ -644,7 +642,7 @@ class SweepMatrix(object):
         list of float
             Frequency points.
         """
-        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setup_name, self.name))
+        sol = self._app.p_app.post.reports_by_category.standard(setup="{} : {}".format(self.setup_name, self.name))
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
             return soldata.intrinsics["Freq"]

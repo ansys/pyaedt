@@ -1124,7 +1124,7 @@ class IcepakPostProcessor(PostProcessor, object):
 
     @pyaedt_function_handler
     def _parse_field_summary_content(self, fs, setup_name, design_variation, quantity_name):
-        content = fs.get_field_summary_data(setup_name=setup_name, design_variation=design_variation)
+        content = fs.get_field_summary_data(setup=setup_name, variation=design_variation)
         pattern = r"\[([^]]*)\]"
         match = re.search(pattern, content["Quantity"][0])
         if match:

@@ -137,14 +137,14 @@ M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
-M2D.mesh.assign_surface_mesh_manual(assignment=['Ground'], surface_deviation=0.001)
+M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
 
 ##################################################################################
 # Create, validate and analyze the setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(name=setup_name)
+setup = M2D.create_setup(setup=setup_name)
 setup.props['PercentError'] = 0.5
 setup.update()
 M2D.validate_simple()
@@ -196,7 +196,7 @@ plot.update()
 # Export field line traces plot.
 # For field lint traces plot, the export file format is ``.fldplt``.
 
-M2D.post.export_field_plot(plot_name="LineTracesTest", file_path=M2D.toolkit_directory, file_format="fldplt")
+M2D.post.export_field_plot(plotname="LineTracesTest", filepath=M2D.toolkit_directory, file_format="fldplt")
 
 ##########################################################
 # Export a field plot to an image file

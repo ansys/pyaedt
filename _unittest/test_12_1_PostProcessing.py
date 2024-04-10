@@ -578,11 +578,7 @@ class TestClass:
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
-            objects=cutlist,
-            quantity="Mag_E",
-            setup_name=self.aedtapp.nominal_adaptive,
-            intrinsics={},
-            list_type="CutPlane",
+            objects=cutlist, quantity="Mag_E", setup=self.aedtapp.nominal_adaptive, intrinsics={}, list_type="CutPlane"
         )
         assert plot
 
