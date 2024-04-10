@@ -1091,16 +1091,16 @@ class IcepakMesh(object):
             list_meshops.append(name)
         return list_meshops
 
-    @pyaedt_function_handler(filename="file_name", meshop_name="name")
-    def assign_mesh_from_file(self, objects, file_name, name=None):
-        """Assign a mesh from file to objects.
+    @pyaedt_function_handler(objects="assignment", filename="file_name", meshop_name="name")
+    def assign_mesh_from_file(self, assignment, file_name, name=None):
+        """Assign a mesh from a file to objects.
 
         Parameters
         ----------
-        objects : list
-            List of objects to which apply the mesh file.
+        assignment : list
+            List of objects to apply the mesh file to.
         file_name :  str
-            Full path to .msh file.
+            Full path to the mesh (MSH) file.
         name :  str, optional
             Name of the mesh operations. Default is ``None``.
 
@@ -1114,7 +1114,7 @@ class IcepakMesh(object):
 
         >>> oModule.AssignMeshOperation
         """
-        objs = self._app.modeler.convert_to_selections(objects, True)
+        objs = self._app.modeler.convert_to_selections(assignment, True)
         if name:
             name = generate_unique_name("MeshFile")
         else:
@@ -1212,8 +1212,8 @@ class IcepakMesh(object):
         self.global_mesh_region.update()
         return True
 
-    @pyaedt_function_handler(obj_list="objects", comp_name="component")
-    def add_priority(self, entity_type, objects=None, component=None, priority=3):
+    @pyaedt_function_handler(obj_list="assignment", comp_name="component")
+    def add_priority(self, entity_type, assignment=None, component=None, priority=3):
         """Add priority to objects.
 
         Parameters
@@ -1221,9 +1221,9 @@ class IcepakMesh(object):
         entity_type : int
             Type of the entity. Options are ``1`` and ``2``, which represent respectively
             an object and a component.
-        objects : list
+        assignment : list
             List of 3D objects, which can include conductors and dielectrics.
-            If the user pass a non 3D object, it will be excluded.
+            If a non-3D object is passed, it is excluded.
         component : str, optional
             Name of the component. The default is ``None``.
         priority : int, optional
@@ -1244,7 +1244,7 @@ class IcepakMesh(object):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1,objects=app.modeler.object_names,priority=3)
+        >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)
         >>> app.mesh.add_priority(entity_type=2,component=app.modeler.user_defined_component_names[0],priority=2)
         """
         i = priority
@@ -1253,10 +1253,10 @@ class IcepakMesh(object):
         if entity_type == 1:
             non_user_defined_component_parts = self._app.modeler.oeditor.GetChildNames()
             new_obj_list = []
-            for comp in objects:
+            for comp in assignment:
                 if comp != "Region" and comp in non_user_defined_component_parts:
                     new_obj_list.append(comp)
-            objects = ", ".join(new_obj_list)
+            assignment = ", ".join(new_obj_list)
             if not new_obj_list:
                 return False
             prio = [
@@ -1264,7 +1264,7 @@ class IcepakMesh(object):
                 "EntityType:=",
                 "Object",
                 "EntityList:=",
-                objects,
+                assignment,
                 "PriorityNumber:=",
                 i,
                 "PriorityListType:=",
@@ -1333,13 +1333,13 @@ class IcepakMesh(object):
         self.modeler.oeditor.UpdatePriorityList(args)
         return True
 
-    @pyaedt_function_handler(objectlist="objects")
-    def assign_mesh_region(self, objects=None, level=5, name=None, **kwargs):
+    @pyaedt_function_handler(objectlist="assignment")
+    def assign_mesh_region(self, assignment=None, level=5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
         ----------
-        objects : list, optional
+        assignment : list, optional
             List of objects to apply the mesh region to. The default
             is ``None``, in which case all objects are selected.
         level : int, optional
@@ -1359,9 +1359,9 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        if objects is None:
-            objects = [i for i in self.modeler.object_names]
-        meshregion = MeshRegion(self._app, objects, name)
+        if assignment is None:
+            assignment = [i for i in self.modeler.object_names]
+        meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False
         meshregion.Level = level
         all_objs = [i for i in self.modeler.object_names]
@@ -1371,7 +1371,7 @@ class IcepakMesh(object):
                 objectlist2 = self.modeler.object_names
                 added_obj = [i for i in objectlist2 if i not in all_objs]
                 if not added_obj:
-                    added_obj = [i for i in objectlist2 if i not in all_objs or i in objects]
+                    added_obj = [i for i in objectlist2 if i not in all_objs or i in assignment]
                 meshregion.Objects = added_obj
                 meshregion.SubModels = None
                 meshregion.update()

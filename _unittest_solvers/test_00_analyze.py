@@ -398,23 +398,17 @@ class TestClass:
 
     def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
-        setup = circuit_app.create_setup(setup_name, setuptype="NexximTransient")
+        setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):
-        assert m3dtransient.enable_harmonic_force(
-            ["Stator"],
-            force_type=2,
-            window_function="Rectangular",
-            use_number_of_last_cycles=True,
-            last_cycles_number=3,
-            calculate_force="Harmonic",
-        )
+        assert m3dtransient.enable_harmonic_force(["Stator"], force_type=2, window_function="Rectangular",
+                                                  use_number_of_last_cycles=True, last_cycles_number=3,
+                                                  calculate_force="Harmonic")
         m3dtransient.save_project()
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
-        assert m3dtransient.export_element_based_harmonic_force(
-            start_frequency=1, stop_frequency=100, number_of_frequency=None
-        )
+        assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
+                                                                number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
@@ -433,7 +427,7 @@ class TestClass:
         assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, file_name=fld_file_4,
                                                        objects="Coil_A2")
 
-        new_setup = m3dtransient.create_setup(setupname=setup.name, setuptype=setup.setuptype)
+        new_setup = m3dtransient.create_setup(name=setup.name, setup_type=setup.setuptype)
         new_setup.props = setup.props
         new_setup.update()
 

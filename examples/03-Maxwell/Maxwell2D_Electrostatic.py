@@ -137,14 +137,14 @@ M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
-M2D.mesh.assign_surface_mesh_manual(objects=['Ground'], surface_deviation=0.001)
+M2D.mesh.assign_surface_mesh_manual(assignment=['Ground'], surface_deviation=0.001)
 
 ##################################################################################
 # Create, validate and analyze the setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(setupname=setup_name)
+setup = M2D.create_setup(name=setup_name)
 setup.props['PercentError'] = 0.5
 setup.update()
 M2D.validate_simple()
