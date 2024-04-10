@@ -1422,7 +1422,7 @@ class Analysis(Design, object):
         """
 
         setuptype = self.design_solutions.default_setup
-        setup = Setup(self, setuptype, name, isnewsetup=False)
+        setup = Setup(self, setuptype, name)
         setup.update(properties)
         self.active_setup = name
         return setup

@@ -797,7 +797,7 @@ class PostProcessorCommon(object):
     --------
     >>> from pyaedt import Q3d
     >>> q3d = Q3d()
-    >>> q3d = q.post.get_solution_data(expression="C(Bar1,Bar1)", domain="Original")
+    >>> q3d = q.post.get_solution_data(domain="Original")
     """
 
     def __init__(self, app):
@@ -1698,23 +1698,14 @@ class PostProcessorCommon(object):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> aedtapp.post.create_report(expressions="db(GainTotal)",
-        ...                            setup_sweep_name=aedtapp.nominal_adaptive,
-        ...                            variations=variations,
-        ...                            primary_sweep_variable="Phi",
-        ...                            secondary_sweep_variable="Theta",
-        ...                            report_category="Far Fields",
-        ...                            plot_type="3D Polar Plot",
-        ...                            context="3D")
-
+        >>> aedtapp.post.create_report(expressions="db(GainTotal)",variations=variations,primary_sweep_variable="Phi",
+        ...                            secondary_sweep_variable="Theta", report_category="Far Fields",
+        ...                            plot_type="3D Polar Plot",context="3D")
         >>> aedtapp.post.create_report("S(1,1)",aedtapp.nominal_sweep,variations=variations,plot_type="Smith Chart")
 
         >>> from pyaedt import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.post.create_report(expressions="InputCurrent(PHA)",
-        ...                               domain="Time",
-        ...                               primary_sweep_variable="Time",
-        ...                               plot_name="Winding Plot 1")
+        >>> maxwell_2d.post.create_report(expressions="InputCurrent(PHA)",domain="Time",primary_sweep_variable="Time")
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -1900,37 +1891,23 @@ class PostProcessorCommon(object):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> data1 = aedtapp.post.get_solution_data(
-        ...    "GainTotal",
-        ...    aedtapp.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    context="3D",
-        ...    report_category="Far Fields",
-        ...)
+        >>> data1 = aedtapp.post.get_solution_data("GainTotal",aedtapp.nominal_adaptive,variations=variations,
+        ...                                        primary_sweep_variable="Phi", report_category="Far Fields",
+        ...                                        context="3D")
 
-        >>> data2 =aedtapp.post.get_solution_data(
-        ...    "S(1,1)",
-        ...    aedtapp.nominal_sweep,
-        ...    variations=variations,
-        ...)
+        >>> data2 =aedtapp.post.get_solution_data("S(1,1)",aedtapp.nominal_sweep,variations=variations)
         >>> data2.plot()
 
         >>> from pyaedt import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> data3 = maxwell_2d.post.get_solution_data(
-        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
-        ... )
+        >>> data3 = maxwell_2d.post.get_solution_data("InputCurrent(PHA)",domain="Time",primary_sweep_variable="Time")
         >>> data3.plot("InputCurrent(PHA)")
 
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
-        >>> spectralPlotData = circuit.post.get_solution_data(
-        ...     expressions="V(Vprobe1)", primary_sweep_variable="Spectrum", domain="Spectral",
-        ...     context=context
-        ...)
+        >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
+        ...                                                   primary_sweep_variable="Spectrum", context=context)
         """
         expressions = [expressions] if isinstance(expressions, str) else expressions
         if not setup_sweep_name:

@@ -330,7 +330,7 @@ class FieldAnalysis3DLayout(Analysis):
         for setup in self._setups:
             if name == setup.name:
                 return setup
-        setup = Setup3DLayout(self, setuptype, name, isnewsetup=False)
+        setup = Setup3DLayout(self, setup_type, name, is_new_setup=False)
         self.active_setup = name
         return setup
 

@@ -740,29 +740,26 @@ class TestClass:
     def test_45_add_mesh_link(self, m3dtransient):
         m3dtransient.duplicate_design(m3dtransient.design_name)
         m3dtransient.set_active_design(m3dtransient.design_list[1])
-        assert m3dtransient.setups[0].add_mesh_link(design_name=m3dtransient.design_list[0])
+        assert m3dtransient.setups[0].add_mesh_link(design=m3dtransient.design_list[0])
         meshlink_props = m3dtransient.setups[0].props["MeshLink"]
         assert meshlink_props["Project"] == "This Project*"
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
         assert meshlink_props["Design"] == m3dtransient.design_list[0]
         assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
-        assert not m3dtransient.setups[0].add_mesh_link(design_name="")
+        assert not m3dtransient.setups[0].add_mesh_link(design="")
         assert m3dtransient.setups[0].add_mesh_link(
-            design_name=m3dtransient.design_list[0], solution_name="Setup1 : LastAdaptive"
+            design=m3dtransient.design_list[0], solution="Setup1 : LastAdaptive"
         )
         assert not m3dtransient.setups[0].add_mesh_link(
-            design_name=m3dtransient.design_list[0], solution_name="Setup_Test : LastAdaptive"
+            design=m3dtransient.design_list[0], solution="Setup_Test : LastAdaptive"
         )
         assert m3dtransient.setups[0].add_mesh_link(
-            design_name=m3dtransient.design_list[0],
-            parameters_dict=m3dtransient.available_variations.nominal_w_values_dict,
+            design=m3dtransient.design_list[0], parameters=m3dtransient.available_variations.nominal_w_values_dict
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, transient + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, transient + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
-        assert m3dtransient.setups[0].add_mesh_link(
-            design_name=m3dtransient.design_list[0], project_name=example_project_copy
-        )
+        assert m3dtransient.setups[0].add_mesh_link(design=m3dtransient.design_list[0], project=example_project_copy)
 
     def test_46_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

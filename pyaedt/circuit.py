@@ -981,12 +981,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if differential_pairs:
             dif = "Differential Pairs"
         return self.post.create_report(
-            curvenames,
-            solution_name,
-            variations=variations,
-            context=dif,
-            subdesign_id=subdesign_id,
-            plot_name=plot_name,
+            curvenames, solution_name, variations=variations, context=dif, subdesign_id=subdesign_id
         )
 
     @pyaedt_function_handler()

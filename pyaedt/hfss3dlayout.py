@@ -42,7 +42,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup : str, optional
+    setup_name : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
@@ -119,7 +119,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         projectname=None,
         designname=None,
         solution_type=None,
-        setup=None,
+        setup_name=None,
         specified_version=None,
         non_graphical=False,
         new_desktop_session=False,
@@ -135,7 +135,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             projectname,
             designname,
             solution_type,
-            setup,
+            setup_name,
             specified_version,
             non_graphical,
             new_desktop_session,
@@ -1181,7 +1181,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 sweepdata.update()
                 if add_subranges:
                     for f in freq:
-                        sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
+                        sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
                 self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
                 return sweepdata
         return False

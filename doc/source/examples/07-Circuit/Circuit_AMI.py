@@ -64,8 +64,7 @@ cir.analyze()
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
 cir.solution_type = "NexximAMI"
-original_data = cir.post.get_solution_data(expressions=plot_name,
-                                           setup_sweep_name="AMIAnalysis", domain="Time",
+original_data = cir.post.get_solution_data(expressions=plot_name, domain="Time",
                                            variations=cir.available_variations.nominal)
 original_data_value = original_data.full_matrix_real_imag[0]
 original_data_sweep = original_data.primary_sweep_values
@@ -171,8 +170,7 @@ plt.show()
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 cir.solution_type = "NexximTransient"
-original_data = cir.post.get_solution_data(expressions=plot_name,
-                                           setup_sweep_name="NexximTransient", domain="Time",
+original_data = cir.post.get_solution_data(expressions=plot_name, domain="Time",
                                            variations=cir.available_variations.nominal)
 
 ###############################################################################

@@ -31,22 +31,22 @@ from pyaedt.modules.SolveSweeps import identify_setup
 
 
 class CommonSetup(PropsManager, object):
-    def __init__(self, app, solutiontype, setup_name="MySetupAuto", isnewsetup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = None
         self.p_app = app
-        if solutiontype is None:
+        if solution_type is None:
             self.setuptype = self.p_app.design_solutions.default_setup
-        elif isinstance(solutiontype, int):
-            self.setuptype = solutiontype
-        elif solutiontype in SetupKeys.SetupNames:
-            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
+        elif isinstance(solution_type, int):
+            self.setuptype = solution_type
+        elif solution_type in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solution_type)
         else:
-            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
-        self._setup_name = setup_name
+            self.setuptype = self.p_app.design_solutions._solution_options[solution_type]["default_setup"]
+        self._name = name
         self.props = {}
         self.sweeps = []
-        self._init_props(isnewsetup)
+        self._init_props(is_new_setup)
         self.auto_update = True
 
     @property
@@ -138,8 +138,8 @@ class CommonSetup(PropsManager, object):
         )
 
     @pyaedt_function_handler()
-    def _init_props(self, isnewsetup=False):
-        if isnewsetup:
+    def _init_props(self, is_new_setup=False):
+        if is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
@@ -214,14 +214,14 @@ class CommonSetup(PropsManager, object):
     @property
     def name(self):
         """Name."""
-        return self._setup_name
+        return self._name
 
     @name.setter
     def name(self, name):
-        self._setup_name = name
+        self._name = name
         self.props["Name"] = name
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
         self,
         expressions=None,
@@ -232,7 +232,7 @@ class CommonSetup(PropsManager, object):
         context=None,
         polyline_points=1001,
         math_formula=None,
-        sweep_name=None,
+        sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -275,7 +275,7 @@ class CommonSetup(PropsManager, object):
             This parameter is valid for ``Fields`` plot only.
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
 
         Returns
@@ -298,41 +298,27 @@ class CommonSetup(PropsManager, object):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> data1 = aedtapp.post.get_solution_data(
-        ...    "GainTotal",
-        ...    aedtapp.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    context="3D",
-        ...    report_category="Far Fields",
-        ...)
+        >>> data1 = aedtapp.post.get_solution_data("GainTotal", aedtapp.nominal_adaptive,
+        ...                                        variations=variations, primary_sweep_variable="Phi",
+        ...                                        report_category="Far Fields", context="3D")
 
-        >>> data2 =aedtapp.post.get_solution_data(
-        ...    "S(1,1)",
-        ...    aedtapp.nominal_sweep,
-        ...    variations=variations,
-        ...)
+        >>> data2 =aedtapp.post.get_solution_data("S(1,1)",aedtapp.nominal_sweep,variations=variations)
         >>> data2.plot()
 
         >>> from pyaedt import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> data3 = maxwell_2d.post.get_solution_data(
-        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
-        ... )
+        >>> data3 = maxwell_2d.post.get_solution_data("InputCurrent(PHA)",domain="Time",primary_sweep_variable="Time")
         >>> data3.plot("InputCurrent(PHA)")
 
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
-        >>> spectralPlotData = circuit.post.get_solution_data(
-        ...     expressions="V(Vprobe1)", primary_sweep_variable="Spectrum", domain="Spectral",
-        ...     context=context
-        ...)
+        >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
+        ...                                                   primary_sweep_variable="Spectrum", context=context)
         """
-        if sweep_name:
+        if sweep:
             setup_sweep_name = [
-                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep_name in i
+                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep in i
             ]
         else:
             setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
@@ -346,11 +332,11 @@ class CommonSetup(PropsManager, object):
                 context=context,
                 polyline_points=polyline_points,
                 math_formula=math_formula,
-                setup_sweep_name=setup_sweep_name[0],
+                sweep=sweep,
             )
         return None
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(sweep_name="sweep", plotname="name")
     def create_report(
         self,
         expressions=None,
@@ -363,8 +349,8 @@ class CommonSetup(PropsManager, object):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
-        plotname=None,
-        sweep_name=None,
+        name=None,
+        sweep=None,
     ):
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
@@ -393,7 +379,7 @@ class CommonSetup(PropsManager, object):
             The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
             `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
-        plotname : str, optional
+        name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
@@ -401,7 +387,7 @@ class CommonSetup(PropsManager, object):
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
         context : str, optional
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
 
         Returns
@@ -426,16 +412,15 @@ class CommonSetup(PropsManager, object):
 
         >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
         """
-        if sweep_name:
+        if sweep:
             setup_sweep_name = [
-                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep_name in i
+                i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0] and sweep in i
             ]
         else:
             setup_sweep_name = [i for i in self._app.existing_analysis_sweeps if self.name == i.split(" : ")[0]]
         if setup_sweep_name:
             return self._app.post.create_report(
                 expressions=expressions,
-                setup_sweep_name=setup_sweep_name[0],
                 domain=domain,
                 variations=variations,
                 primary_sweep_variable=primary_sweep_variable,
@@ -444,7 +429,6 @@ class CommonSetup(PropsManager, object):
                 plot_type=plot_type,
                 context=context,
                 polyline_points=polyline_points,
-                plot_name=plotname,
             )
         return None
 
@@ -458,7 +442,7 @@ class Setup(CommonSetup):
         Inherited app object.
     solution_type : int, str
         Type of the setup.
-    setup_name : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
@@ -466,8 +450,8 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
-        CommonSetup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
     def create(self):
@@ -715,13 +699,13 @@ class Setup(CommonSetup):
         self.omodule.EditSetup(self.name, arg)
         return True
 
-    @pyaedt_function_handler()
-    def enable(self, setup_name=None):
+    @pyaedt_function_handler(setup_name="name")
+    def enable(self, name=None):
         """Enable a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        name : str, optional
             Name of the setup. The default is ``None``.
 
         Returns
@@ -734,19 +718,19 @@ class Setup(CommonSetup):
 
         >>> oModule.EditSetup
         """
-        if not setup_name:
-            setup_name = self.name
+        if not name:
+            name = self.name
 
-        self.omodule.EditSetup(setup_name, ["NAME:" + setup_name, "IsEnabled:=", True])
+        self.omodule.EditSetup(name, ["NAME:" + name, "IsEnabled:=", True])
         return True
 
-    @pyaedt_function_handler()
-    def disable(self, setup_name=None):
+    @pyaedt_function_handler(setup_name="name")
+    def disable(self, name=None):
         """Disable a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        name : str, optional
             Name of the setup. The default is ``None``.
 
         Returns
@@ -759,19 +743,21 @@ class Setup(CommonSetup):
 
         >>> oModule.EditSetup
         """
-        if not setup_name:
-            setup_name = self.name
+        if not name:
+            name = self.name
 
-        self.omodule.EditSetup(setup_name, ["NAME:" + setup_name, "IsEnabled:", False])
+        self.omodule.EditSetup(name, ["NAME:" + name, "IsEnabled:", False])
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        design_name="design", solution_name="solution", parameters_dict="parameters", project_name="project"
+    )
     def add_mesh_link(
         self,
-        design_name,
-        solution_name=None,
-        parameters_dict=None,
-        project_name="This Project*",
+        design,
+        solution=None,
+        parameters=None,
+        project="This Project*",
         force_source_to_solve=True,
         preserve_partner_solution=True,
         apply_mesh_operations=True,
@@ -781,15 +767,15 @@ class Setup(CommonSetup):
 
         Parameters
         ----------
-        design_name : str
+        design : str
             Name of the design.
-        solution_name : str, optional
+        solution : str, optional
             Name of the solution in the format ``"setup_name : solution_name"``.
             If ``None`` the default value is ``setup_name : LastAdaptive``.
-        parameters_dict : dict, optional
+        parameters : dict, optional
             Dictionary of the parameters.
             If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
-        project_name : str, optional
+        project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
         force_source_to_solve : bool, optional
@@ -826,48 +812,47 @@ class Setup(CommonSetup):
                 design_type = self.p_app.design_type
             meshlinks["Product"] = design_type
             # design name
-            if not design_name or design_name is None:
+            if not design or design is None:
                 raise ValueError("Provide design name to add mesh link to.")
-            elif design_name not in self.p_app.design_list:
+            elif design not in self.p_app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
-                meshlinks["Design"] = design_name
+                meshlinks["Design"] = design
             # project name
-            if project_name != "This Project*":
-                if os.path.exists(project_name):
-                    meshlinks["Project"] = project_name
+            if project != "This Project*":
+                if os.path.exists(project):
+                    meshlinks["Project"] = project
                     meshlinks["PathRelativeTo"] = "SourceProduct"
                 else:
                     raise ValueError("Project file path provided does not exist.")
             else:
-                meshlinks["Project"] = project_name
+                meshlinks["Project"] = project
                 meshlinks["PathRelativeTo"] = "TargetProject"
             # if self.p_app.solution_type == "SBR+":
             meshlinks["ImportMesh"] = True
             # solution name
-            if solution_name is None:
+            if solution is None:
                 meshlinks["Soln"] = "{} : LastAdaptive".format(
-                    self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()[0]
+                    self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()[0]
                 )
             elif (
-                solution_name.split()[0]
-                in self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()
+                solution.split()[0] in self.p_app.oproject.GetDesign(design).GetChildObject("Analysis").GetChildNames()
             ):
-                meshlinks["Soln"] = "{} : LastAdaptive".format(solution_name.split()[0])
+                meshlinks["Soln"] = "{} : LastAdaptive".format(solution.split()[0])
             else:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
             meshlinks["Params"] = OrderedDict({})
-            if parameters_dict is None:
-                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
-                for el in parameters_dict:
+            if parameters is None:
+                parameters = self.p_app.available_variations.nominal_w_values_dict
+                for el in parameters:
                     meshlinks["Params"][el] = el
             else:
-                for el in parameters_dict:
+                for el in parameters:
                     if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
                         meshlinks["Params"][el] = el
                     else:
-                        meshlinks["Params"][el] = parameters_dict[el]
+                        meshlinks["Params"][el] = parameters[el]
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
@@ -880,14 +865,16 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        design_name="design", solution_name="solution", parameters_dict="parameters", project_name="project"
+    )
     def start_continue_from_previous_setup(
         self,
-        design_name,
-        solution_name,
+        design,
+        solution,
         map_variables_by_name=True,
-        parameters_dict=None,
-        project_name="This Project*",
+        parameters=None,
+        project="This Project*",
         force_source_to_solve=True,
         preserve_partner_solution=True,
     ):
@@ -895,19 +882,19 @@ class Setup(CommonSetup):
 
         Parameters
         ----------
-        design_name : str
+        design : str
             Name of the design.
-        solution_name : str, optional
+        solution : str, optional
             Name of the solution in the format ``"setup_name : solution_name"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
         map_variables_by_name : bool, optional
             Whether variables are mapped by name from the source design. The default is
             ``True``.
-        parameters_dict : dict, optional
+        parameters : dict, optional
             Dictionary of the parameters. This parameter is not considered if
             ``map_variables_by_name = True``. If ``None``, the default value is
             ``appname.available_variations.nominal_w_values_dict``.
-        project_name : str, optional
+        project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
         force_source_to_solve : bool, optional
@@ -929,7 +916,7 @@ class Setup(CommonSetup):
         --------
         >>> m2d = pyaedt.Maxwell2d()
         >>> setup = m2d.get_setup("Setup1")
-        >>> setup.start_continue_from_previous_setup(design_name="IM", solution_name="Setup1 : Transient")
+        >>> setup.start_continue_from_previous_setup(design="IM",solution="Setup1 : Transient")
 
         """
 
@@ -940,44 +927,44 @@ class Setup(CommonSetup):
             # parameters
             params = OrderedDict({})
             if map_variables_by_name:
-                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
-                for k, v in parameters_dict.items():
+                parameters = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters.items():
                     params[k] = k
-            elif parameters_dict is None:
-                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
-                for k, v in parameters_dict.items():
+            elif parameters is None:
+                parameters = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters.items():
                     params[k] = v
             else:
-                for k, v in parameters_dict.items():
+                for k, v in parameters.items():
                     if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
                         params[k] = v
                     else:
-                        params[k] = parameters_dict[v]
+                        params[k] = parameters[v]
 
             prev_solution = OrderedDict({})
 
             # project name
-            if project_name != "This Project*":
-                if os.path.exists(project_name):
-                    prev_solution["Project"] = project_name
+            if project != "This Project*":
+                if os.path.exists(project):
+                    prev_solution["Project"] = project
                     self.props["PathRelativeTo"] = "SourceProduct"
                 else:
                     raise ValueError("Project file path provided does not exist.")
             else:
-                prev_solution["Project"] = project_name
+                prev_solution["Project"] = project
                 self.props["PathRelativeTo"] = "TargetProject"
 
             # design name
-            if not design_name or design_name is None:
+            if not design or design is None:
                 raise ValueError("Provide design name to add mesh link to.")
-            elif design_name not in self.p_app.design_list:
+            elif design not in self.p_app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
-                prev_solution["Design"] = design_name
+                prev_solution["Design"] = design
 
             # solution name
-            if solution_name:
-                prev_solution["Soln"] = solution_name
+            if solution:
+                prev_solution["Soln"] = solution
             else:
                 raise ValueError("Provide a valid solution name.")
 
@@ -1011,7 +998,7 @@ class SetupCircuit(CommonSetup):
         Inherited app object.
     solution_type : str, int
         Type of the setup.
-    setup_name : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     is_new_setup : bool, optional
       Whether to create the setup from a template. The default is ``True.``
@@ -1019,13 +1006,13 @@ class SetupCircuit(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
-        CommonSetup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler()
-    def _init_props(self, isnewsetup=False):
+    @pyaedt_function_handler(isnewsetup="is_new_setup")
+    def _init_props(self, is_new_setup=False):
         props = {}
-        if isnewsetup:
+        if is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
@@ -1481,13 +1468,13 @@ class SetupCircuit(CommonSetup):
         self.omodule.EditSetup(self.name, arg)
         return True
 
-    @pyaedt_function_handler()
-    def enable(self, setup_name=None):
+    @pyaedt_function_handler(setup_name="name")
+    def enable(self, name=None):
         """Enable a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        name : str, optional
             Name of the setup. The default is ``None``.
 
         Returns
@@ -1500,18 +1487,18 @@ class SetupCircuit(CommonSetup):
 
         >>> oModule.EditSetup
         """
-        if not setup_name:
-            setup_name = self.name
-        self._odesign.EnableSolutionSetup(setup_name, True)
+        if not name:
+            name = self.name
+        self._odesign.EnableSolutionSetup(name, True)
         return True
 
-    @pyaedt_function_handler()
-    def disable(self, setup_name=None):
+    @pyaedt_function_handler(setup_name="name")
+    def disable(self, name=None):
         """Disable a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        name : str, optional
             Name of the setup. The default is ``None``.
 
         Returns
@@ -1524,9 +1511,9 @@ class SetupCircuit(CommonSetup):
 
         >>> oModule.EditSetup
         """
-        if not setup_name:
-            setup_name = self.name
-        self._odesign.EnableSolutionSetup(setup_name, False)
+        if not name:
+            name = self.name
+        self._odesign.EnableSolutionSetup(name, False)
         return True
 
     @pyaedt_function_handler()
@@ -1538,9 +1525,9 @@ class SetupCircuit(CommonSetup):
         primary_sweep_variable=None,
         report_category=None,
         context=None,
-        subdesign_id=None,
         polyline_points=1001,
         math_formula=None,
+        sweep=None,
     ):
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1580,14 +1567,12 @@ class SetupCircuit(CommonSetup):
             3. Reduce Matrix Name for Q2d/Q3d solution
             4. Infinite Sphere name for Far Fields Plot.
             5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
-        subdesign_id : int, optional
-            Subdesign ID for exporting a Touchstone file of this subdesign.
-            This parameter is valid for ``Circuit`` only.
-            The default value is ``None``.
+        math_formula : str, optional
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
         polyline_points : int, optional
             Number of points on which to create the report for plots on polylines.
             This parameter is valid for ``Fields`` plot only.
-        math_formula : str, optional
+        sweep : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
 
 
@@ -1608,10 +1593,9 @@ class SetupCircuit(CommonSetup):
             primary_sweep_variable=primary_sweep_variable,
             report_category=report_category,
             context=context,
-            subdesign_id=subdesign_id,
             polyline_points=polyline_points,
             math_formula=math_formula,
-            setup_sweep_name=self.name,
+            sweep=sweep,
         )
 
     @pyaedt_function_handler()
@@ -1627,7 +1611,7 @@ class SetupCircuit(CommonSetup):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
-        plotname=None,
+        name=None,
     ):
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
@@ -1656,7 +1640,7 @@ class SetupCircuit(CommonSetup):
             The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
             `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
-        plotname : str, optional
+        name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
@@ -1678,7 +1662,6 @@ class SetupCircuit(CommonSetup):
         """
         return self._app.post.create_report(
             expressions=expressions,
-            setup_sweep_name=self.name,
             domain=domain,
             variations=variations,
             primary_sweep_variable=primary_sweep_variable,
@@ -1688,7 +1671,6 @@ class SetupCircuit(CommonSetup):
             context=context,
             subdesign_id=subdesign_id,
             polyline_points=polyline_points,
-            plot_name=plotname,
         )
 
 
@@ -1699,22 +1681,22 @@ class Setup3DLayout(CommonSetup):
     ----------
     app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
         Inherited app object.
-    solutiontype : int or str
+    solution_type : int or str
         Type of the setup.
-    setupname : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True.``
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        CommonSetup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler()
-    def _init_props(self, isnewsetup=False):
-        if isnewsetup:
+    @pyaedt_function_handler(isnewsetup="is_new_setup")
+    def _init_props(self, is_new_setup=False):
+        if is_new_setup:
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
@@ -2186,8 +2168,8 @@ class Setup3DLayout(CommonSetup):
         >>> h3d = Hfss3dLayout()
         >>> setup = h3d.get_setup('Pyaedt_setup')
         >>> sweep = setup.get_sweep('Sweep1')
-        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
-        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
+        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
         """
         if name:
             for sweep in self.sweeps:
@@ -2246,7 +2228,7 @@ class SetupHFSS(Setup, object):
         Inherited app object.
     solution_type : int, str
         Type of the setup.
-    setup_name : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
@@ -2254,8 +2236,8 @@ class SetupHFSS(Setup, object):
 
     """
 
-    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
-        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
     def get_derivative_variables(self):
@@ -2641,8 +2623,8 @@ class SetupHFSS(Setup, object):
         >>> hfss = Hfss()
         >>> setup = hfss.get_setup('Pyaedt_setup')
         >>> sweep = setup.get_sweep('Sweep1')
-        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
-        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
+        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
         """
         if name:
             for sweep in self.sweeps:
@@ -2843,7 +2825,7 @@ class SetupHFSSAuto(Setup, object):
         Inherited app object.
     solution_type : int, str
         Type of the setup.
-    setup_name : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
@@ -2851,8 +2833,8 @@ class SetupHFSSAuto(Setup, object):
 
     """
 
-    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
-        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
     def get_derivative_variables(self):
@@ -2893,13 +2875,13 @@ class SetupHFSSAuto(Setup, object):
         self.auto_update = True
         return self.update()
 
-    @pyaedt_function_handler()
-    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
+    @pyaedt_function_handler(rangetype="range_type")
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
         ----------
-        rangetype : str
+        range_type : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
@@ -2920,27 +2902,27 @@ class SetupHFSSAuto(Setup, object):
 
         """
         if clear:
-            self.props["Sweeps"]["Sweep"]["RangeType"] = rangetype
+            self.props["Sweeps"]["Sweep"]["RangeType"] = range_type
             self.props["Sweeps"]["Sweep"]["RangeStart"] = str(start) + unit
-            if rangetype == "LinearCount":
+            if range_type == "LinearCount":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeCount"] = count
-            elif rangetype == "LinearStep":
+            elif range_type == "LinearStep":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeStep"] = str(count) + unit
-            elif rangetype == "LogScale":
+            elif range_type == "LogScale":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeSamples"] = count
             self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
             return self.update()
-        sweep_range = {"RangeType": rangetype, "RangeStart": str(start) + unit}
-        if rangetype == "LinearCount":
+        sweep_range = {"RangeType": range_type, "RangeStart": str(start) + unit}
+        if range_type == "LinearCount":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = count
-        elif rangetype == "LinearStep":
+        elif range_type == "LinearStep":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeStep"] = str(count) + unit
-        elif rangetype == "LogScale":
+        elif range_type == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
@@ -2951,13 +2933,13 @@ class SetupHFSSAuto(Setup, object):
         self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
         return self.update()
 
-    @pyaedt_function_handler()
-    def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
+    @pyaedt_function_handler(freq="frequency")
+    def enable_adaptive_setup_single(self, frequency=None, max_passes=None, max_delta_s=None):
         """Enable HFSS single frequency setup.
 
         Parameters
         ----------
-        freq : float, str, optional
+        frequency : float, str, optional
             Frequency at which to set the adaptive convergence.
             The default is ``None`` which will not update the value in setup.
             You can enter a float value in (GHz) or a string.
@@ -2976,10 +2958,10 @@ class SetupHFSSAuto(Setup, object):
             return False
         self.auto_update = False
         self.props["SolveType"] = "Single"
-        if isinstance(freq, (int, float)):
-            freq = "{}GHz".format(freq)
-        if freq:
-            self.props["Frequency"] = freq
+        if isinstance(frequency, (int, float)):
+            frequency = "{}GHz".format(frequency)
+        if frequency:
+            self.props["Frequency"] = frequency
         if max_passes:
             self.props["MaximumPasses"] = max_passes
         if max_delta_s:
@@ -2987,8 +2969,8 @@ class SetupHFSSAuto(Setup, object):
         self.auto_update = True
         return self.update()
 
-    @pyaedt_function_handler()
-    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
+    @pyaedt_function_handler(high_frquency="high_frequency")
+    def enable_adaptive_setup_broadband(self, low_frequency, high_frequency, max_passes=6, max_delta_s=0.02):
         """Enable HFSS broadband setup.
 
         Parameters
@@ -2996,7 +2978,7 @@ class SetupHFSSAuto(Setup, object):
         low_frequency : float, str
             Lower Frequency at which set the adaptive convergence.
             It can be float (GHz) or str.
-        high_frquency : float, str
+        high_frequency : float, str
             Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
         max_passes : int, optional
             Maximum number of adaptive passes. The default is ``6``.
@@ -3017,10 +2999,10 @@ class SetupHFSSAuto(Setup, object):
             del self.props["MultipleAdaptiveFreqsSetup"][el]
         if isinstance(low_frequency, (int, float)):
             low_frequency = "{}GHz".format(low_frequency)
-        if isinstance(high_frquency, (int, float)):
-            high_frquency = "{}GHz".format(high_frquency)
+        if isinstance(high_frequency, (int, float)):
+            high_frequency = "{}GHz".format(high_frequency)
         self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
-        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
+        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frequency
         self.props["MaximumPasses"] = max_passes
         self.props["MaxDeltaS"] = max_delta_s
         self.auto_update = True
@@ -3077,7 +3059,7 @@ class SetupSBR(Setup, object):
         Inherited app object.
     solution_type : int, str
         Type of the setup.
-    setup_name : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
@@ -3085,16 +3067,16 @@ class SetupSBR(Setup, object):
 
     """
 
-    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
-        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler()
-    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
+    @pyaedt_function_handler(rangetype="range_type")
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
         ----------
-        rangetype : str
+        range_type : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
@@ -3115,27 +3097,27 @@ class SetupSBR(Setup, object):
 
         """
         if clear:
-            self.props["Sweeps"]["Sweep"]["RangeType"] = rangetype
+            self.props["Sweeps"]["Sweep"]["RangeType"] = range_type
             self.props["Sweeps"]["Sweep"]["RangeStart"] = str(start) + unit
-            if rangetype == "LinearCount":
+            if range_type == "LinearCount":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeCount"] = count
-            elif rangetype == "LinearStep":
+            elif range_type == "LinearStep":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeStep"] = str(count) + unit
-            elif rangetype == "LogScale":
+            elif range_type == "LogScale":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeSamples"] = count
             self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
             return self.update()
-        sweep_range = {"RangeType": rangetype, "RangeStart": str(start) + unit}
-        if rangetype == "LinearCount":
+        sweep_range = {"RangeType": range_type, "RangeStart": str(start) + unit}
+        if range_type == "LinearCount":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = count
-        elif rangetype == "LinearStep":
+        elif range_type == "LinearStep":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeStep"] = str(count) + unit
-        elif rangetype == "LogScale":
+        elif range_type == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
@@ -3156,7 +3138,7 @@ class SetupMaxwell(Setup, object):
         Inherited app object.
     solution_type : int, str
         Type of the setup.
-    setup_name : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
     is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
@@ -3164,8 +3146,8 @@ class SetupMaxwell(Setup, object):
 
     """
 
-    def __init__(self, app, solution_type, setup_name="MySetupAuto", is_new_setup=True):
-        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
     def add_eddy_current_sweep(
@@ -3181,9 +3163,9 @@ class SetupMaxwell(Setup, object):
         start : float
             Starting frequency.
         end : float, optional
-            Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+            Stopping frequency. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
         count : int or float, optional
-            Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+            Frequency count or frequency step. Required for ``range_type="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
         clear : bool, optional
@@ -3294,18 +3276,18 @@ class SetupQ3D(Setup, object):
     ----------
     app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
         Inherited app object.
-    solutiontype : int, str
+    solution_type : int, str
         Type of the setup.
-    setupname : str, optional
+    name : str, optional
         Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
+    is_new_setup : bool, optional
         Whether to create the setup from a template. The default is ``True``.
         If ``False``, access is to the existing setup.
 
     """
 
-    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+        Setup.__init__(self, app, solution_type, name, is_new_setup)
         self._dc_enabled = True
         self._ac_rl_enbled = True
         self._capacitance_enabled = True
@@ -3642,8 +3624,8 @@ class SetupQ3D(Setup, object):
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup()
         >>> sweep = setup.create_frequency_sweep(name="Sweep1")
-        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
-        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
+        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
         >>> sweep = setup.get_sweep("Sweep1")
         >>> q3d.release_desktop(True, True)
         """

@@ -738,8 +738,7 @@ M2D.post.plot_field_from_fieldplot(plot1.name, show=False)
 # Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 # Plot the desired expression by using Matplotlib plot().
 
-solutions = M2D.post.get_solution_data(expressions="Moving1.Torque",
-                                       primary_sweep_variable="Time")
+solutions = M2D.post.get_solution_data(expressions="Moving1.Torque", primary_sweep_variable="Time")
 #solutions.plot()
 
 ###############################################
