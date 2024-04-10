@@ -2716,8 +2716,8 @@ class PostProcessor(PostProcessorCommon, object):
     @pyaedt_function_handler(
         quantity_name="quantity",
         variation_dict="variations",
-        filename="file_name",
-        obj_list="objects",
+        filename="output_dir",
+        obj_list="assignment",
         obj_type="objects_type",
         sample_points_lists="sample_points",
     )
@@ -2726,8 +2726,8 @@ class PostProcessor(PostProcessorCommon, object):
         quantity,
         solution=None,
         variations=None,
-        file_name=None,
-        objects="AllObjects",
+        output_dir=None,
+        assignment="AllObjects",
         objects_type="Vol",
         intrinsics=None,
         phase=None,
@@ -2750,10 +2750,10 @@ class PostProcessor(PostProcessorCommon, object):
         variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        file_name : str, optional
+        output_dir : str, optional
             Full path and name to save the file to.
             The default is ``None`` which export file in working_directory.
-        objects : str, optional
+        assignment : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         objects_type : str, optional
             Type of objects to export. The default is ``"Vol"``.
@@ -2803,12 +2803,12 @@ class PostProcessor(PostProcessorCommon, object):
                 self.logger.error("There are no existing sweeps.")
                 return False
             solution = self._app.existing_analysis_sweeps[0]
-        if not file_name:
+        if not output_dir:
             appendix = ""
             ext = ".fld"
-            file_name = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
+            output_dir = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
-            file_name = file_name.replace("//", "/").replace("\\", "/")
+            output_dir = output_dir.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -2837,14 +2837,14 @@ class PostProcessor(PostProcessorCommon, object):
                     variation.append("0deg")
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
-                self.ofieldsreporter.EnterVol(objects)
+                self.ofieldsreporter.EnterVol(assignment)
             elif objects_type == "Surf":
-                self.ofieldsreporter.EnterSurf(objects)
+                self.ofieldsreporter.EnterSurf(assignment)
             else:
                 self.logger.error("No correct choice.")
                 return False
             self.ofieldsreporter.CalcOp("Value")
-            self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
+            self.ofieldsreporter.CalculatorWrite(output_dir, ["Solution:=", solution], variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
@@ -2858,7 +2858,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                file_name,
+                output_dir,
                 sample_points_file,
                 solution,
                 variation,
@@ -2882,32 +2882,29 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                file_name,
+                output_dir,
                 sample_points_file,
                 solution,
                 variation,
                 export_options,
             )
 
-        if os.path.exists(file_name):
-            return file_name
+        if os.path.exists(output_dir):
+            return output_dir
         return False  # pragma: no cover
 
-    @pyaedt_function_handler(plotname="plot_name", filepath="file_path", filename="file_name")
-    def export_field_plot(self, plot_name, file_path, file_name="", file_format="aedtplt"):
+    @pyaedt_function_handler(plotname="plot_name", filepath="output_dir", filename="file_name")
+    def export_field_plot(self, plot_name, output_dir, file_name="", file_format="aedtplt"):
         """Export a field plot.
 
         Parameters
         ----------
         plot_name : str
             Name of the plot.
-
-        file_path : str
+        output_dir : str
             Path for saving the file.
-
         file_name : str, optional
             Name of the file. The default is ``""``, in which case a name is automatically assigned.
-
         file_format : str, optional
             Name of the file extension. The default is ``"aedtplt"``. Options are ``"case"`` and ``"fldplt"``.
 
@@ -2922,13 +2919,13 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if not file_name:
             file_name = plot_name
-        file_path = os.path.join(file_path, file_name + "." + file_format)
+        output_dir = os.path.join(output_dir, file_name + "." + file_format)
         try:
-            self.ofieldsreporter.ExportFieldPlot(plot_name, False, file_path)
+            self.ofieldsreporter.ExportFieldPlot(plot_name, False, output_dir)
             if settings.remote_rpc_session_temp_folder:  # pragma: no cover
                 local_path = os.path.join(settings.remote_rpc_session_temp_folder, file_name + "." + file_format)
-                file_path = check_and_download_file(local_path, file_path)
-            return file_path
+                output_dir = check_and_download_file(local_path, output_dir)
+            return output_dir
         except Exception:  # pragma: no cover
             self.logger.error("{} file format is not supported for this plot.".format(file_format))
             return False
