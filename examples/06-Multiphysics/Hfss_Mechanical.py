@@ -158,7 +158,7 @@ mech.analyze()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(objects=surfaces, quantity="Temperature")
+mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
 ###############################################################################
 # Release AEDT
