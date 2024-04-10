@@ -5171,7 +5171,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Name of the terminal to use as the positive terminal.
         reference : str
             Name of the terminal to use as the negative terminal.
-        common_name : str, optional
+        common_mode : str, optional
             Name for the common mode. The default is ``None``, in which case a unique name is assigned.
         differential_mode : str, optional
             Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
@@ -5200,8 +5200,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props = OrderedDict()
         props["PosBoundary"] = assignment
         props["NegBoundary"] = reference
-        if not common_name:
+        if not common_mode:
             common_name = generate_unique_name("Comm")
+        else:
+            common_name = common_mode
         props["CommonName"] = common_name
         props["CommonRefZ"] = str(common_reference) + "ohm"
         if not differential_mode:
