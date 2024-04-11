@@ -247,7 +247,6 @@ class MeshOperation(object):
             if not isinstance(faces, list):
                 faces = [faces]
             for f in faces:
-
                 if isinstance(f, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
                     faces_out.append(f.id)
                 else:
