@@ -207,29 +207,26 @@ class TestClass:
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
         assert self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            units="MHz",
+            unit="GHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
-            name="MySweep",
             sweep_type="Interpolating",
         )
         assert self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            units="MHz",
+            unit="MHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
-            name="MySweep",
             sweep_type="Interpolating",
         )
         assert self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            units="MHz",
+            unit="MHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
-            name="MySweepFast",
             sweep_type="Fast",
         )
         num_points = 1752
@@ -238,11 +235,10 @@ class TestClass:
         units = "MHz"
         sweep = self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            units=units,
+            unit="MHz",
             start_frequency=freq_start,
             stop_frequency=freq_stop,
             num_of_freq_points=num_points,
-            name=None,
         )
         assert sweep.props["RangeCount"] == num_points
         assert sweep.props["RangeStart"] == str(freq_start) + units
@@ -253,11 +249,10 @@ class TestClass:
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_count_sweep(
                 setup="MySetup",
-                units="MHz",
+                unit="MHz",
                 start_frequency=1.1e3,
                 stop_frequency=1200.1,
                 num_of_freq_points=1234,
-                name="IncorrectStep",
                 sweep_type="Incorrect",
             )
             assert (

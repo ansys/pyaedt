@@ -332,7 +332,7 @@ class CommonSetup(PropsManager, object):
                 context=context,
                 polyline_points=polyline_points,
                 math_formula=math_formula,
-                sweep=sweep,
+                setup_sweep_name=sweep,
             )
         return None
 
@@ -2342,7 +2342,7 @@ class SetupHFSS(Setup, object):
         named ``"LinearCountSweep"``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = setup.create_linear_count_sweep(,
+        >>> linear_count_sweep = setup.create_linear_count_sweep(,,
         >>> type(linear_count_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 

@@ -13,7 +13,6 @@ import re
 import shutil
 import tempfile
 import time
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import is_linux
@@ -290,30 +289,6 @@ class Analysis(Design, object):
             self._setup = setup_name
         else:
             raise AttributeError("No setup defined")
-
-    @property
-    def analysis_setup(self):
-        """Analysis setup.
-
-        .. deprecated:: 0.6.53
-           Use :func:`active_setup` property instead.
-
-        Returns
-        -------
-        str
-            Name of the active or first analysis setup.
-
-        References
-        ----------
-
-        >>> oModule.GetAllSolutionSetups()
-        """
-        warnings.warn("`analysis_setup` is deprecated. Use `active_setup` property instead.", DeprecationWarning)
-        return self.active_setup
-
-    @analysis_setup.setter
-    def analysis_setup(self, setup_name):
-        self.active_setup = setup_name
 
     @property
     def existing_analysis_sweeps(self):

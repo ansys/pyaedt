@@ -377,7 +377,6 @@ class TestClass:
             start_frequency=1,
             stop_frequency=10,
             num_of_freq_points=1001,
-            name="RFBoardSweep1",
             save_fields=False,
             sweep_type="Interpolating",
             interpolation_max_solutions=111,
@@ -389,7 +388,6 @@ class TestClass:
             start_frequency=1,
             stop_frequency=10,
             num_of_freq_points=12,
-            name="RFBoardSweep2",
             save_fields=True,
             sweep_type="Discrete",
             interpolation_max_solutions=255,
@@ -405,7 +403,7 @@ class TestClass:
             start_frequency=1,
             stop_frequency=10,
             step_size=0.2,
-            sweep="RFBoardSweep3",
+            name="RFBoardSweep3",
             sweep_type="Interpolating",
             interpolation_tol_percent=0.4,
             interpolation_max_solutions=255,
@@ -421,19 +419,19 @@ class TestClass:
             start_frequency=1,
             stop_frequency=10,
             step_size=0.12,
-            sweep="RFBoardSweep4",
+            name="RFBoardSweep4",
             sweep_type="Discrete",
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
         assert sweep4.props["FreqSweepType"] == "kDiscrete"
         sweep5 = self.aedtapp.create_linear_step_sweep(
-            setup_name=setup_name,
+            setup=setup_name,
             unit="GHz",
             start_frequency=1,
             stop_frequency=10,
             step_size=0.12,
-            sweep_name="RFBoardSweep4",
+            name="RFBoardSweep4",
             sweep_type="Fast",
             save_fields=True,
         )
@@ -443,12 +441,12 @@ class TestClass:
         # Create a linear step sweep with the incorrect sweep type.
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_step_sweep(
-                setup_name=setup_name,
+                setup=setup_name,
                 unit="GHz",
                 start_frequency=1,
                 stop_frequency=10,
                 step_size=0.12,
-                sweep_name="RFBoardSweep4",
+                name="RFBoardSweep4",
                 sweep_type="Incorrect",
                 save_fields=True,
             )
@@ -461,28 +459,28 @@ class TestClass:
         setup_name = "RF_create_single_point"
         self.aedtapp.create_setup(name=setup_name)
         sweep5 = self.aedtapp.create_single_point_sweep(
-            setup_name=setup_name,
+            setup=setup_name,
             unit="MHz",
             freq=1.23,
-            sweep_name="RFBoardSingle",
+            name="RFBoardSingle",
             save_fields=True,
         )
         assert sweep5.props["Sweeps"]["Data"] == "1.23MHz"
         sweep6 = self.aedtapp.create_single_point_sweep(
-            setup_name=setup_name,
+            setup=setup_name,
             unit="GHz",
             freq=[1, 2, 3, 4],
-            sweep_name="RFBoardSingle",
+            name="RFBoardSingle",
             save_fields=False,
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_single_point_sweep(
-                setup_name=setup_name,
+                setup=setup_name,
                 unit="GHz",
                 freq=[],
-                sweep_name="RFBoardSingle",
+                name="RFBoardSingle",
                 save_fields=False,
             )
             assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."

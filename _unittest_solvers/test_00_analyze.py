@@ -277,8 +277,7 @@ class TestClass:
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value()
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value(
-            setup=self.icepak_app.existing_analysis_sweeps[0]
-        )
+            setup=self.icepak_app.existing_analysis_sweeps[0])
         assert self.icepak_app.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
     def test_03d_icepak_eval_tempc(self):

@@ -757,7 +757,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for HFSS.
-        Optional arguments are passed along with ``setup_type`` and ``setup_name``. Keyword
+        Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
         names correspond to the ``setup_type`` corresponding to the native AEDT API.
         The list of keywords here is not exhaustive.
 
@@ -886,7 +886,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"LinearCountSweep"``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(,,
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(,,,
         >>> type(linear_count_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
@@ -935,7 +935,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(
-        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="sweep"
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
     )
     def create_linear_step_sweep(
         self,
@@ -944,7 +944,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         start_frequency,
         stop_frequency,
         step_size,
-        sweep=None,
+        name=None,
         save_fields=True,
         save_rad_fields=False,
         sweep_type="Discrete",
@@ -963,7 +963,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweep : str, optional
+        name : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save fields. The default is ``True``.
@@ -990,8 +990,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = hfss.create_linear_step_sweep(setup="LinearStepSetup",unit="MHz",
-        ...                                             start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8)
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(setup="LinearStepSetup", unit="MHz",
+        ...                                                   start_frequency=1.1e3, stop_frequency=1200.1,
+        ...                                                   step_size=153.8)
         >>> type(linear_step_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
@@ -1000,10 +1001,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweep is None:
+        if name is None:
             sweep_name = generate_unique_name("Sweep")
         else:
-            sweep_name = sweep
+            sweep_name = name
 
         if setup not in self.setup_names:
             return False
@@ -1021,13 +1022,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 )
         return False
 
-    @pyaedt_function_handler(setupname="setup", sweepname="sweep")
+    @pyaedt_function_handler(setupname="setup", sweepname="name")
     def create_single_point_sweep(
         self,
         setup,
         unit,
         freq,
-        sweep=None,
+        name=None,
         save_single_field=True,
         save_fields=False,
         save_rad_fields=False,
@@ -1042,7 +1043,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweep : str, optional
+        name : str, optional
             Name of the sweep. The default is ``None``.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
@@ -1070,16 +1071,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"SinglePointSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> single_point_sweep = hfss.create_single_point_sweep(setup="LinearStepSetup",unit="MHz",freq=1.1e3,
-        ...                                                     sweep_name="SinglePointSweep")
+        >>> single_point_sweep = hfss.create_single_point_sweep(setup="LinearStepSetup",unit="MHz",freq=1.1e3)
         >>> type(single_point_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep is None:
+        if name is None:
             sweep_name = generate_unique_name("SinglePoint")
         else:
-            sweep_name = sweep
+            sweep_name = name
 
         if isinstance(save_single_field, list):
             if not isinstance(freq, list) or len(save_single_field) != len(freq):
