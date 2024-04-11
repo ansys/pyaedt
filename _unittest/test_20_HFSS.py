@@ -304,7 +304,7 @@ class TestClass:
         units = "MHz"
         sweep = self.aedtapp.create_linear_step_sweep(
             setup="MySetup",
-            sweep="StepFast",
+            name="StepFast",
             unit=units,
             start_frequency=freq_start,
             stop_frequency=freq_stop,
@@ -320,7 +320,7 @@ class TestClass:
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_step_sweep(
                 setup="MySetup",
-                sweep="StepFast",
+                name="StepFast",
                 unit=units,
                 start_frequency=freq_start,
                 stop_frequency=freq_stop,
