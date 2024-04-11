@@ -107,7 +107,7 @@ hfss.analyze(num_cores=6)
 # Draw Point1 at origin of the implant coordinate system
 
 hfss.sar_setup(-1, Average_SAR_method=1, TissueMass=1, MaterialDensity=1, )
-hfss.post.create_fieldplot_cutplane(objects="implant:YZ", quantity="Average_SAR", filter_objects=["implant_box"])
+hfss.post.create_fieldplot_cutplane(assignment="implant:YZ", quantity="Average_SAR", filter_objects=["implant_box"])
 
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point([0, 0, 0], name="Point1")
