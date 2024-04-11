@@ -781,7 +781,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1",setup_type="HFSSDriven",Frequency="10GHz")
 
         """
         if setuptype is None:
@@ -2848,6 +2848,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         self.omodelsetup.CreateOpenRegion(vars)
         self.logger.info("Open Region correctly created.")
+        self.save_project()
         return True
 
     @pyaedt_function_handler()

@@ -192,7 +192,10 @@ class TestClass:
         assert setup2
         setup1.props["RestrictElem"] = False
         assert setup1.update()
-        assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
+        assert self.aedtapp.mesh.delete_mesh_operations(
+            "HFSS",
+            setup1.name,
+        )
 
     def test_05_change_property(self):
         ports = self.aedtapp.create_ports_on_component_by_nets(

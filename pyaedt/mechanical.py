@@ -668,8 +668,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> from pyaedt import Mechanical
         >>> app = Mechanical()
-        >>> app.create_setup(setupname="Setup1", MaxModes=6))
-
+        >>> app.create_setup(name="Setup1",MaxModes=6)
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
