@@ -244,10 +244,10 @@ class MeshOperation(object):
         if "Faces" in self.props:
             faces = self.props["Faces"]
             faces_out = []
-            if type(faces) is not list:
+            if not isinstance(faces, list):
                 faces = [faces]
             for f in faces:
-                if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
+                if isinstance(f, EdgePrimitive) or isinstance(f, FacePrimitive) or isinstance(f, VertexPrimitive):
                     faces_out.append(f.id)
                 else:
                     faces_out.append(f)

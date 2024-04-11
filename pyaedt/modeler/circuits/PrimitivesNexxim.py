@@ -54,7 +54,7 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
-        if type(partname) is int:
+        if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
             if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:

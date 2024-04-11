@@ -74,7 +74,7 @@ class GeometryOperators(object):
         >>> 2.0
 
         """
-        if type(string) is not str:
+        if not isinstance(string, str):
             try:
                 return float(string)
             except ValueError:  # pragma: no cover
@@ -1351,7 +1351,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def get_numeric(s):
         """Convert a string to a numeric value. Discard the suffix."""
-        if type(s) == str:
+        if isinstance(s, str):
             if s == "Global":
                 return 0.0
             else:

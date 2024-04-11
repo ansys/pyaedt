@@ -752,7 +752,7 @@ class Primitives3DLayout(object):
             self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
             for prop in props:
-                if type(prop) is str:
+                if isinstance(prop, str):
                     if prop == "mat:=":
                         self._padstacks[name].mat = props[props.index(prop) + 1]
                     elif prop == "plt:=":

@@ -1150,7 +1150,7 @@ class EmitComponentPropNode(object):
         prop_list = ["NAME:properties"]
         for prop_name, value in props.items():
             prop_list.append("{}:=".format(prop_name))
-            if type(value) is not str:
+            if not isinstance(value, str):
                 raise TypeError("Value for key {} is not a string.".format(prop_name))
             prop_list.append(value)
         properties_to_set = [

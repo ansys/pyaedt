@@ -50,7 +50,7 @@ def _dict2arg(d, arg_out):
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif type(v) is list and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
             for el in v:
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
@@ -58,7 +58,7 @@ def _dict2arg(d, arg_out):
 
         else:
             arg_out.append(k + ":=")
-            if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
+            if isinstance(v, EdgePrimitive) or isinstance(v, FacePrimitive) or isinstance(v, VertexPrimitive):
                 arg_out.append(v.id)
             else:
                 arg_out.append(v)

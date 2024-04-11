@@ -446,7 +446,7 @@ class ModelerCircuit(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.schematic_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
