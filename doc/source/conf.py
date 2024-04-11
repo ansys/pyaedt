@@ -344,6 +344,7 @@ html_theme_options = {
         },
         {
             "name": "Download documentation in PDF",
+            # NOTE: Changes to this URL must be reflected in CICD documentation build
             "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
             # noqa: E501
             "icon": "fa fa-file-pdf fa-fw",
