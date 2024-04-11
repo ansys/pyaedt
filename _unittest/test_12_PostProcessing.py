@@ -228,10 +228,10 @@ class TestClass:
         assert data.units_sweeps["Phase"] == "deg"
 
         assert field_test.post.get_far_field_data(
-            expression="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
+            expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
         data_farfield2 = field_test.post.get_far_field_data(
-            expression="RealizedGainTotal",
+            expressions="RealizedGainTotal",
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )

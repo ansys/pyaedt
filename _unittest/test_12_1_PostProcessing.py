@@ -576,7 +576,11 @@ class TestClass:
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
-            objects=cutlist, quantity="Mag_E", setup=self.aedtapp.nominal_adaptive, intrinsics={}, list_type="CutPlane"
+            assignment=cutlist,
+            quantity="Mag_E",
+            setup=self.aedtapp.nominal_adaptive,
+            intrinsics={},
+            list_type="CutPlane",
         )
         assert plot
 
@@ -620,7 +624,7 @@ class TestClass:
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
-        assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
+        assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
