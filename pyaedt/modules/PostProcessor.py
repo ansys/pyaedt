@@ -218,7 +218,7 @@ class Reports(object):
             use in the export or ``LastAdaptive``.
         polyline : str, optional
             Name of the polyline to plot the field on.
-            If polyline name is not provided the report might be incorrect.
+            If a name is not provided, the report might be incorrect.
             The default value is ``None``.
 
         Returns
@@ -260,7 +260,7 @@ class Reports(object):
             use in the export or ``LastAdaptive``.
         polyline : str, optional
             Name of the polyline to plot the field on.
-            If polyline name is not provided the report might be incorrect.
+            If a name is not provided, the report might be incorrect.
             The default value is ``None``.
 
         Returns
@@ -302,7 +302,7 @@ class Reports(object):
             use in the export or ``LastAdaptive``.
         polyline : str, optional
             Name of the polyline to plot the field on.
-            If polyline name is not provided the report might be incorrect.
+            If a name is not provided, the report might be incorrect.
             The default value is ``None``.
 
         Returns
@@ -344,7 +344,7 @@ class Reports(object):
             use in the export or ``LastAdaptive``.
         polyline : str, optional
             Name of the polyline to plot the field on.
-            If polyline name is not provided the report might be incorrect.
+            If a name is not provided, the report might be incorrect.
             The default value is ``None``.
 
         Returns
@@ -3724,7 +3724,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler(expression="expressions", families_dict="sweeps")
     def get_far_field_data(self, expressions="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", sweeps=None):
-        """Generate far field data using ``GetSolutionDataPerVariation``.
+        """Generate far field data using the ``GetSolutionDataPerVariation()`` method.
 
         This method returns the data ``solData``, ``ThetaVals``,
         ``PhiVals``, ``ScanPhiVals``, ``ScanThetaVals``, and
