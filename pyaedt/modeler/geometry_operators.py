@@ -1389,14 +1389,14 @@ class GeometryOperators(object):
         cs_in : List of str or str
             ``["x", "y", "z"]`` or "Global".
         """
-        if type(cs_in) is str:
+        if isinstance(cs_in, str):
             if cs_in == "Global":
                 return [0.0, 0.0, 0.0]
             else:
                 return None
-        elif type(cs_in) is list:
+        elif isinstance(cs_in, list):
             if len(cs_in) == 3:
-                return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
+                return [GeometryOperators.get_numeric(s) if isinstance(s, str) else s for s in cs_in]
             else:
                 return [0, 0, 0]
 

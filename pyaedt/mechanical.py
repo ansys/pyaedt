@@ -416,8 +416,8 @@ class Mechanical(FieldAnalysis3D, object):
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
 
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
+        if isinstance(objects_list, list):
+            if isinstance(objects_list[0], str):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
