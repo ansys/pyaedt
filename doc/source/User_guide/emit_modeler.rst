@@ -1,5 +1,5 @@
-EMIT modeling
-==============
+EMIT Modeler
+============
 The ``EMIT Modeling`` module includes several classes to enable
 modeling in EMIT:
 
