@@ -192,7 +192,10 @@ class TestClass:
         assert setup2
         setup1.props["RestrictElem"] = False
         assert setup1.update()
-        assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
+        assert self.aedtapp.mesh.delete_mesh_operations(
+            "HFSS",
+            setup1.name,
+        )
 
     def test_05_change_property(self):
         ports = self.aedtapp.create_ports_on_component_by_nets(
@@ -381,7 +384,7 @@ class TestClass:
         comp = self.aedtapp.modeler.components["D1"]
         pins = {name: pin for name, pin in comp.pins.items() if name in ["D1-1", "D1-2", "D1-7"]}
         self.aedtapp.dissolve_component("D1")
-        comp = self.aedtapp.modeler.create_components_on_pins(list(pins.keys()))
+        comp = self.aedtapp.modeler.create_component_on_pins(list(pins.keys()))
         nets = [
             list(pins.values())[0].net_name,
             list(pins.values())[1].net_name,

@@ -118,8 +118,8 @@ aedtapp.modeler.subtract(o2, o1, True)
 # edit or review parameter values.
 
 aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
-aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
-aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
+aedtapp.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)
+aedtapp.mesh.assign_length_mesh(assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000)
 
 ###############################################################################
 # Create excitations

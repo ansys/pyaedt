@@ -61,7 +61,14 @@ html: .install-deps
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
-# Build PDF pages
+pdf-noexamples: .install-deps
+	@echo "Building PDF pages without running examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="0"
+	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
+	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
+	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
+
 pdf: .install-deps
 	@echo "Building PDF pages."
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

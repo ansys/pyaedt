@@ -81,10 +81,13 @@ echo "Build finished. The HTML pages are in %BUILDDIR%."
 goto end
 
 :pdf
+set PYAEDT_SKIP_EXAMPLE=1
+
+
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
-pdflatex "%%f" --interaction=nonstopmode)
+xelatex "%%f" --interaction=nonstopmode)
 echo "Build finished. The PDF pages are in %BUILDDIR%."
 goto end
 
