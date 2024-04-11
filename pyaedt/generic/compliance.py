@@ -559,7 +559,7 @@ class VirtualCompliance:
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
 
                         if report_type in ["eye diagram", "statistical eye"]:
-                            _design.logger.info(f"Adding eye measurements")
+                            _design.logger.info("Adding eye measurements.")
                             table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
                         if self.local_config.get("delete_after_export", True):

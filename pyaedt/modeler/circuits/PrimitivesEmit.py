@@ -1133,7 +1133,7 @@ class EmitComponentPropNode(object):
         self._set_prop_value(sampling_props)
 
     @pyaedt_function_handler()
-    def _set_prop_value(self, props={}):
+    def _set_prop_value(self, props=None):
         """Sets the property values for this node.
 
         Parameters
@@ -1146,6 +1146,8 @@ class EmitComponentPropNode(object):
         -------
         None
         """
+        if props is None:
+            props = {}
         comp_name = self.parent_component.name
         prop_list = ["NAME:properties"]
         for prop_name, value in props.items():

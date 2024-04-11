@@ -335,7 +335,7 @@ class ComponentParameters(dict):
                             self._tab, self._component.composed_name, key, str(value)
                         )
                         dict.__setitem__(self, key, value)
-                    except:
+                    except Exception:
                         self._component._circuit_components.logger.warning(
                             "Property %s has not been edited.Check if readonly", key
                         )
