@@ -2040,7 +2040,8 @@ class PostProcessorCommon(object):
             Path to the JSON or TOML file containing report settings.
         report_settings : dict, optional
             Dictionary containing report settings.
-        solution_name : setup name to use.
+        solution_name : str, optional
+            Setup name to use.
 
         Returns
         -------
@@ -3113,7 +3114,7 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         assignment : list
-            List of polyline to plot.
+            List of polylines to plot.
         quantity : str
             Name of the quantity to plot.
         setup_name : str, optional
