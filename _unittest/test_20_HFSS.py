@@ -287,7 +287,7 @@ class TestClass:
         units = "MHz"
         sweep = self.aedtapp.create_linear_step_sweep(
             setup="MySetup",
-            sweep=None,
+            name=None,
             unit=units,
             start_frequency=freq_start,
             stop_frequency=freq_stop,

@@ -399,7 +399,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         """
         dkp = self.desktop_class
         is_loaded = False
-        app = None
         if os.path.isfile(source_project):
             project_path = source_project
             project_name = os.path.splitext(os.path.basename(source_project))[0]
@@ -416,13 +415,14 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid project name or path provided.")
         if app is None:  # pragma: no cover
             raise ValueError("Invalid project or design name.")
-        setup = [s for s in app.setups if s.name == setup]
+        setup_name = setup
+        setup = [s for s in app.setups if s.name == setup_name]
         if not setup:
             raise ValueError("Invalid setup in selected design.")
         else:
-            sweeps = [s for s in app.get_sweeps(setup) if s == sweep]
+            sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep]
             if sweeps:  # pragma: no cover
-                coupling_solution_name = "{} : {}".format(setup, sweep)
+                coupling_solution_name = "{} : {}".format(setup_name, sweep)
             else:  # pragma: no cover
                 raise ValueError("Invalid sweep name.")
         if not [m for m in app.matrices if m.name == coupling_matrix_name]:
