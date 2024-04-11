@@ -2451,7 +2451,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetObjectsInGroup
         >>> oEditor.GetModelBoundingBox
         """
-        if isinstance(group, str):
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
