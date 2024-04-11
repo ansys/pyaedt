@@ -453,7 +453,7 @@ class VirtualCompliance:
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                 _design.logger.info(f"Creating report {name}")
                 aedt_report = _design.post.create_report_from_configuration(
-                    input_dict=local_config, solution_name=sw_name
+                    report_settings=local_config, solution_name=sw_name
                 )
                 if not aedt_report:  # pragma: no cover
                     _design.logger.error(f"Failed to create report {name}")
@@ -504,7 +504,7 @@ class VirtualCompliance:
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                     _design.logger.info(f"Creating report {name} for trace {trace}")
                     aedt_report = _design.post.create_report_from_configuration(
-                        input_dict=local_config, solution_name=sw_name
+                        report_settings=local_config, solution_name=sw_name
                     )
                     if report_type != "contour eye diagram":
                         aedt_report.hide_legend()

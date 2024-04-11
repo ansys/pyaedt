@@ -61,6 +61,13 @@ For additional practical demonstrations, see
 
             How to generate reports, images, and PDF files.
 
+   .. grid-item-card:: EMIT Modeler
+            :link: emit_modeler
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to create and analyze EMIT designs.
+
 .. toctree::
    :hidden:
    :maxdepth: 2
@@ -72,3 +79,4 @@ For additional practical demonstrations, see
    variables
    files
    postprocessing
+   emit_modeler
