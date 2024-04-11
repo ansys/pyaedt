@@ -245,12 +245,8 @@ tb = pyaedt.TwinBuilder(designname=tb_design_name)
 # Add a Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tb.add_q3d_dynamic_component(project_name,
-                             q2d_design_name,
-                             setup_name,
-                             sweep_name,
-                             model_depth=lumped_length,
-                             coupling_matrix_name="Original")
+tb.add_q3d_dynamic_component(project_name, q2d_design_name, setup_name, sweep_name, coupling_matrix_name="Original",
+                             model_depth=lumped_length)
 
 ##########################################################
 # Save project and release desktop

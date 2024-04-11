@@ -112,8 +112,8 @@ hfss.post.create_fieldplot_cutplane(objects="implant:YZ", quantity="Average_SAR"
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point([0, 0, 0], name="Point1")
 
-hfss.post.plot_field(quantity="Average_SAR", objects="implant:YZ", plot_type="CutPlane", show=False, show_legend=False,
-                     filter_objects=["implant_box"])
+hfss.post.plot_field(quantity="Average_SAR", assignment="implant:YZ", plot_type="CutPlane", show=False,
+                     show_legend=False, filter_objects=["implant_box"])
 
 ###############################################################################
 # Adjust Input Power to MRI Coil
@@ -210,10 +210,10 @@ data = mech.post.get_solution_data("Temperature", primary_sweep_variable="Time",
                                    report_category="Fields")
 #data.plot()
 
-mech.post.plot_animated_field(quantity="Temperature", objects="implant:YZ", plot_type="CutPlane",
+mech.post.plot_animated_field(quantity="Temperature", assignment="implant:YZ", plot_type="CutPlane",
                               intrinsics={"Time": "10s"}, variation_variable="Time",
-                              variations=["10s", "20s", "30s", "40s", "50s", "60s"], show=False,
-                              filter_objects=["implant_box"])
+                              variations=["10s", "20s", "30s", "40s", "50s", "60s"],
+                              show=False, filter_objects=["implant_box"])
 
 ###############################################################################
 # Thermal Simulation

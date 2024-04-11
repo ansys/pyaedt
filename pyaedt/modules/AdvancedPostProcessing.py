@@ -436,13 +436,13 @@ class PostProcessor(Post):
             model.plot()
         return model
 
-    @pyaedt_function_handler(object_list="assignment", imageformat="image_format")
+    @pyaedt_function_handler(object_list="assignment", imageformat="image_format", setup_name="setup")
     def plot_field(
         self,
         quantity,
         assignment,
         plot_type="Surface",
-        setup_name=None,
+        setup=None,
         intrinsics=None,
         mesh_on_fields=False,
         view="isometric",
@@ -459,7 +459,7 @@ class PostProcessor(Post):
         show_bounding=False,
         show_grid=False,
         show_legend=True,
-        filter_objects=[],
+        filter_objects=None,
         plot_as_separate_objects=True,
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
@@ -476,7 +476,7 @@ class PostProcessor(Post):
         plot_type  : str, optional
             Plot type. The default is ``Surface``. Options are
             ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
-        setup_name : str, optional
+        setup : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
         intrinsics : dict, optional.
             Intrinsic dictionary that is needed for the export.
@@ -524,23 +524,25 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if filter_objects is None:
+            filter_objects = []
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             show = False
-        if not setup_name:
-            setup_name = self._app.existing_analysis_sweeps[0]
+        if not setup:
+            setup = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
             for i in self._app.setups:
-                if i.name == setup_name.split(" : ")[0]:
+                if i.name == setup.split(" : ")[0]:
                     intrinsics = i.default_intrinsics
 
         # file_to_add = []
         if plot_type == "Surface":
-            plotf = self.create_fieldplot_surface(assignment, quantity, setup_name, intrinsics)
+            plotf = self.create_fieldplot_surface(assignment, quantity, setup, intrinsics)
         elif plot_type == "Volume":
-            plotf = self.create_fieldplot_volume(assignment, quantity, setup_name, intrinsics)
+            plotf = self.create_fieldplot_volume(assignment, quantity, setup, intrinsics)
         else:
             plotf = self.create_fieldplot_cutplane(
-                assignment, quantity, setup_name, intrinsics, filter_objects=filter_objects
+                assignment, quantity, setup, intrinsics, filter_objects=filter_objects
             )
         # if plotf:
         #     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)
@@ -568,16 +570,16 @@ class PostProcessor(Post):
             plotf.delete()
         return model
 
-    @pyaedt_function_handler(object_list="assignment", variation_list="variations")
+    @pyaedt_function_handler(object_list="assignment", variation_list="variations", setup_name="setup")
     def plot_animated_field(
         self,
         quantity,
         assignment,
         plot_type="Surface",
-        setup_name=None,
+        setup=None,
         intrinsics=None,
         variation_variable="Phi",
-        variations=["0deg"],
+        variations=None,
         view="isometric",
         show=True,
         scale_min=None,
@@ -608,7 +610,7 @@ class PostProcessor(Post):
         plot_type  : str, optional
             Plot type. The default is ``Surface``. Options are
             ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
-        setup_name : str, optional
+        setup : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
         intrinsics : dict, optional.
             Intrinsic dictionary that is needed for the export.
@@ -616,8 +618,7 @@ class PostProcessor(Post):
         variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variations : list, optional
-            List of variation values with units. The default is
-            ``["0deg"]``.
+            List of variation values with units. The default is ``["0deg"]``.
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         show : bool, optional
@@ -656,6 +657,8 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if variations is None:
+            variations = ["0deg"]
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             show = False
         if intrinsics is None:
@@ -676,12 +679,12 @@ class PostProcessor(Post):
             else:
                 self._app[variation_variable] = el
             if plot_type == "Surface":
-                plotf = self.create_fieldplot_surface(assignment, quantity, setup_name, intrinsics)
+                plotf = self.create_fieldplot_surface(assignment, quantity, setup, intrinsics)
             elif plot_type == "Volume":
-                plotf = self.create_fieldplot_volume(assignment, quantity, setup_name, intrinsics)
+                plotf = self.create_fieldplot_volume(assignment, quantity, setup, intrinsics)
             else:
                 plotf = self.create_fieldplot_cutplane(
-                    assignment, quantity, setup_name, intrinsics, filter_objects=filter_objects
+                    assignment, quantity, setup, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
                 file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
@@ -809,109 +812,6 @@ class PostProcessor(Post):
         if show or export_gif:
             model.animate()
         return model
-
-    @pyaedt_function_handler(
-        quantityname="quantity",
-        object_list="objects",
-        plottype="plot_type",
-        intrinsic_dict="intrinsics",
-        variation_list="variations",
-    )
-    def animate_fields_from_aedtplt_2(
-        self,
-        quantity,
-        objects,
-        plot_type,
-        setup_name=None,
-        intrinsics={},
-        variation_variable="Phi",
-        variations=["0deg"],
-        project_path="",
-        export_gif=False,
-        show=True,
-        zoom=None,
-        log_scale=False,
-        dark_mode=False,
-        show_grid=False,
-        show_bounding=False,
-    ):
-        """Generate a field plot to an animated gif file using PyVista.
-
-        .. deprecated:: 0.6.83
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
-
-        .. note::
-            The PyVista module rebuilds the mesh and the overlap fields on the mesh.
-
-        This method creates the plot and exports it.
-        It is an alternative to the method :func:`animate_fields_from_aedtplt`,
-        which uses an existing plot.
-
-        Parameters
-        ----------
-        quantity : str
-            Name of the plot or the name of the object.
-        objects : list, optional
-            Name of the ``folderplot`` folder.
-        plot_type : str
-            Type of the plot. Options are ``"CutPlane"``, ``"Surface"``, and
-            ``"Volume"``.
-        setup_name : str, optional
-            Name of the setup (sweep) to use for the export. The default is
-            ``None``.
-        intrinsics : dict, optional
-            Intrinsic dictionary that is needed for the export.
-            The default is ``{}``.
-        variation_variable : str, optional
-            Variable to vary. The default is ``"Phi"``.
-        variations : list, option
-            List of variation values with units. The default is
-            ``["0deg"]``.
-        project_path : str, optional
-            Path for the export. The default is ``""`` which export file in working_directory.
-        export_gif : bool, optional
-            Whether to export to a GIF file. The default is ``False``,
-            in which case the plot is exported to a JPG file.
-        show : bool, optional
-            Generate the animation without showing an interactive plot.  The default is ``True``.
-        zoom : float, optional
-            Zoom factor.
-        log_scale : bool, optional
-            Whether to plot fields in log scale. The default is ``True``.
-        dark_mode : bool, optional
-            Whether to plot in dark mode. The default is ``False``.
-        show_grid : bool, optional
-            Whether to show a grid on the plot. The default is ``False``.
-        show_bounding : bool, optional
-            Whether to show bounding on the plot. The default is ``False``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
-            Model Object.
-        """
-        warnings.warn(
-            "`animate_fields_from_aedtplt_2` is deprecated. Use `plot_animated_field` property instead.",
-            DeprecationWarning,
-        )
-
-        return self.plot_animated_field(
-            quantity=quantity,
-            objects=objects,
-            plot_type=plot_type,
-            setup_name=setup_name,
-            intrinsics=intrinsics,
-            variation_variable=variation_variable,
-            variations=variations,
-            show=show,
-            log_scale=log_scale,
-            zoom=zoom,
-            export_gif=export_gif,
-            export_path=project_path,
-            dark_mode=dark_mode,
-            show_grid=show_grid,
-            show_bounding=show_bounding,
-        )
 
     @pyaedt_function_handler()
     def create_3d_plot(
