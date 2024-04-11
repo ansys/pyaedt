@@ -58,7 +58,7 @@ def _dict2arg(d, arg_out):
 
         else:
             arg_out.append(k + ":=")
-            if isinstance(v, EdgePrimitive) or isinstance(v, FacePrimitive) or isinstance(v, VertexPrimitive):
+            if isinstance(v, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
                 arg_out.append(v.id)
             else:
                 arg_out.append(v)
