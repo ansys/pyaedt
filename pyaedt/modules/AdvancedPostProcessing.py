@@ -129,10 +129,6 @@ class PostProcessor(Post):
                 )
             self.post_osolution.EditSources(edit_sources_ctxt)
 
-            ctxt = ["Context:=", ff_setup]
-
-            sweeps = ["Theta:=", ["All"], "Phi:=", ["All"], "Freq:=", [freq]]
-
             trace_name = "rETheta"
             solnData = self.get_far_field_data(
                 expressions=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup

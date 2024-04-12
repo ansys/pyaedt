@@ -2821,7 +2821,7 @@ class FieldPlot:
             List or dictionary of the variables for the field plot.
         """
         var = ""
-        if type(self.intrinsics) is list:
+        if isinstance(self.intrinsics, list):
             l = 0
             while l < len(self.intrinsics):
                 val = self.intrinsics[l + 1]

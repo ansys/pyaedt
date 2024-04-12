@@ -307,11 +307,11 @@ class TestClass:
     def test_15_export_matrix_data(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        q3d.matrices[1].name == "JointTest"
+        assert q3d.matrices[1].name == "JointTest"
         q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
-        q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].name == "JointTest2"
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
-        q3d.matrices[3].name == "JointTest3"
+        assert q3d.matrices[3].name == "JointTest3"
         sweep = q3d.setups[0].add_sweep()
         q3d.analyze_setup(q3d.active_setup, num_cores=6)
         assert len(sweep.frequencies) > 0

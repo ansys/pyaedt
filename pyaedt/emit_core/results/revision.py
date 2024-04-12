@@ -437,7 +437,6 @@ class Revision:
         # Get project results and radios
         modeRx = TxRxMode.RX
         modeTx = TxRxMode.TX
-        mode_power = ResultType.POWER_AT_RX
         tx_interferer = InterfererType().TRANSMITTERS
         rx_radios = self.get_receiver_names()
         tx_radios = self.get_interferer_names(tx_interferer)

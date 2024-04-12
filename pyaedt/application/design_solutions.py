@@ -10,7 +10,7 @@ solutions_defaults = {
     "Maxwell Circuit": "",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "HFSS Modal Network",
+    "HFSS": "HFSS Terminal Network",
     "Icepak": "SteadyState",
     "RMxprtSolution": "GRM",
     "ModelCreation": "GRM",

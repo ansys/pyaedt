@@ -778,7 +778,7 @@ def _convert_dict_to_report_sel(sweeps):
     sweep_list = []
     for el in sweeps:
         sweep_list.append(el + ":=")
-        if type(sweeps[el]) is list:
+        if isinstance(sweeps[el], list):
             sweep_list.append(sweeps[el])
         else:
             sweep_list.append([sweeps[el]])
@@ -2257,7 +2257,7 @@ class PostProcessor(PostProcessorCommon, object):
                         name2refid[cs_id] = name + ":XY"
                         name2refid[cs_id + 1] = name + ":YZ"
                         name2refid[cs_id + 2] = name + ":XZ"
-                    elif type(cs[ds]) is list:
+                    elif isinstance(cs[ds], list):
                         for el in cs[ds]:
                             cs_id = el["XYPlaneID"]
                             name = el["Attributes"]["Name"]
@@ -3754,7 +3754,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.GetSolutionDataPerVariation
         """
-        if type(expressions) is not list:
+        if not isinstance(expressions, list):
             expressions = [expressions]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive

@@ -1305,7 +1305,7 @@ class TestClass:
         aedtapp.close_project(save_project=False)
 
     def test_54_assign_symmetry(self, add_app):
-        aedtapp = add_app(project_name="test_54")
+        aedtapp = add_app(project_name="test_54", solution_type="Modal")
         aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
         assert aedtapp.assign_symmetry(ids)

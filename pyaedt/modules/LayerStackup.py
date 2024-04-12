@@ -908,7 +908,7 @@ class Layer(object):
         """
         if units is None:
             units = self.LengthUnit
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)

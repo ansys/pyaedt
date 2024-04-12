@@ -96,7 +96,7 @@ def ami_test(add_app, q3dtest):
 
 @pytest.fixture(scope="class")
 def array_test(add_app, q3dtest):
-    app = add_app(project_name=array, subfolder=test_subfolder)
+    app = add_app(project_name=array, subfolder=test_subfolder, solution_type="Modal")
     return app
 
 
@@ -846,11 +846,11 @@ class TestClass:
         vars = field_test.available_variations.get_variation_strings()
         assert vars
         variations = field_test.available_variations.variations()
-        assert type(variations) is list
-        assert type(variations[0]) is list
+        assert isinstance(variations, list)
+        assert isinstance(variations[0], list)
         vars_dict = field_test.available_variations.variations(output_as_dict=True)
-        assert type(vars_dict) is list
-        assert type(vars_dict[0]) is dict
+        assert isinstance(vars_dict, list)
+        assert isinstance(vars_dict[0], dict)
 
     def test_z99_delete_variations(self, q3dtest):
         assert q3dtest.cleanup_solution()

@@ -578,7 +578,7 @@ class Setup(CommonSetup):
                     isconvergence = isconvergence_list[i]
                 else:
                     isconvergence = isconvergence_list
-                if type(intrinsics_list) is list:
+                if isinstance(intrinsics_list, list):
                     intrinsics = intrinsics_list[i]
                 else:
                     intrinsics = intrinsics_list
@@ -1019,7 +1019,7 @@ class SetupCircuit(CommonSetup):
             self.props = SetupProps(self, OrderedDict())
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
-                if type(setups_data) is not list:
+                if not isinstance(setups_data, list):
                     setups_data = [setups_data]
                 for setup in setups_data:
                     if self.name == setup["Name"]:
