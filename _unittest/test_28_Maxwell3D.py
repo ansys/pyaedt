@@ -527,7 +527,7 @@ class TestClass:
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
         self.aedtapp.validate_simple()
-        self.aedtapp.analyze_setup(setup_name)
+        self.aedtapp.analyze_setup(setup_name, num_cores=1)
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
         assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
