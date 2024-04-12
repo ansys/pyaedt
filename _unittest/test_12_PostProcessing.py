@@ -96,7 +96,7 @@ def ami_test(add_app, q3dtest):
 
 @pytest.fixture(scope="class")
 def array_test(add_app, q3dtest):
-    app = add_app(project_name=array, subfolder=test_subfolder)
+    app = add_app(project_name=array, subfolder=test_subfolder, solution_type="Modal")
     return app
 
 
