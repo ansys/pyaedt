@@ -280,7 +280,7 @@ class TestClass:
         assert isinstance(f.area, float) and f.area > 0
         assert o.faces[0].move_with_offset(0.1)
         assert o.faces[0].move_with_vector([0, 0, 0.01])
-        assert type(f.normal) is list
+        assert isinstance(f.normal, list)
 
     def test_11d_check_object_edges(self):
         o = self.create_copper_box(name="MyBox")
@@ -296,7 +296,7 @@ class TestClass:
 
     def test_12_get_objects_in_group(self):
         objs = self.aedtapp.modeler.get_objects_in_group("Solids")
-        assert type(objs) is list
+        assert isinstance(objs, list)
 
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)

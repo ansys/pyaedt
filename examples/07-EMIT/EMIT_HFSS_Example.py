@@ -117,7 +117,7 @@ for link in aedtapp.couplings.coupling_names:
 ###############################################################################
 # Run EMIT simulation
 # ~~~~~~~~~~~~~~~~~~~
-# Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
+# Run the EMIT simulation.
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
 

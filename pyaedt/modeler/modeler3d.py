@@ -764,7 +764,7 @@ class Modeler3D(Primitives3D):
             if wg_direction_axis == self._app.AXIS.Z:
                 airbox = self.create_box(origin, [w, h, wg_length])
 
-                if type(wg_thickness) is str:
+                if isinstance(wg_thickness, str):
                     origin[0] = str(origin[0]) + "-" + wg_thickness
                     origin[1] = str(origin[1]) + "-" + wg_thickness
                 else:
@@ -774,7 +774,7 @@ class Modeler3D(Primitives3D):
             elif wg_direction_axis == self._app.AXIS.Y:
                 airbox = self.create_box(origin, [w, wg_length, h])
 
-                if type(wg_thickness) is str:
+                if isinstance(wg_thickness, str):
                     origin[0] = str(origin[0]) + "-" + wg_thickness
                     origin[2] = str(origin[2]) + "-" + wg_thickness
                 else:
@@ -783,7 +783,7 @@ class Modeler3D(Primitives3D):
             else:
                 airbox = self.create_box(origin, [wg_length, w, h])
 
-                if type(wg_thickness) is str:
+                if isinstance(wg_thickness, str):
                     origin[2] = str(origin[2]) + "-" + wg_thickness
                     origin[1] = str(origin[1]) + "-" + wg_thickness
                 else:
@@ -1090,7 +1090,7 @@ class Modeler3D(Primitives3D):
         if import_solids and nas_to_dict["Solids"]:
             self.logger.reset_timer()
             self.logger.info("Loading solids")
-            for solid_pid in nas_to_dict["Solids"].keys():
+            for solid_pid in nas_to_dict["Solids"]:
                 for solid in nas_to_dict["Solids"][solid_pid]:
                     points = [nas_to_dict["Points"][id] for id in solid[1:]]
                     if solid[0] == "CPENTA":

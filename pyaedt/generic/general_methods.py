@@ -865,7 +865,7 @@ def is_array(a):
     except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
-        if type(v) is list:
+        if isinstance(v, list):
             return True
         else:
             return False

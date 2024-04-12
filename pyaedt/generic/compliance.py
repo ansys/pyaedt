@@ -453,7 +453,7 @@ class VirtualCompliance:
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                 _design.logger.info(f"Creating report {name}")
                 aedt_report = _design.post.create_report_from_configuration(
-                    input_dict=local_config, solution_name=sw_name
+                    report_settings=local_config, solution_name=sw_name
                 )
                 if not aedt_report:  # pragma: no cover
                     _design.logger.error(f"Failed to create report {name}")
@@ -504,7 +504,7 @@ class VirtualCompliance:
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                     _design.logger.info(f"Creating report {name} for trace {trace}")
                     aedt_report = _design.post.create_report_from_configuration(
-                        input_dict=local_config, solution_name=sw_name
+                        report_settings=local_config, solution_name=sw_name
                     )
                     if report_type != "contour eye diagram":
                         aedt_report.hide_legend()
@@ -559,7 +559,7 @@ class VirtualCompliance:
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
 
                         if report_type in ["eye diagram", "statistical eye"]:
-                            _design.logger.info(f"Adding eye measurements")
+                            _design.logger.info("Adding eye measurements.")
                             table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
                         if self.local_config.get("delete_after_export", True):

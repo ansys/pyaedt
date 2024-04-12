@@ -1542,7 +1542,7 @@ class Design(AedtObjects):
         """
         if units is None:
             units = self.modeler.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
@@ -3283,6 +3283,8 @@ class Design(AedtObjects):
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
+            elif design_type == "HFSS" and self._aedt_version < "2024.1":
+                new_design = self._oproject.InsertDesign(design_type, unique_design_name, "HFSS Modal Network", "")
             else:
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""

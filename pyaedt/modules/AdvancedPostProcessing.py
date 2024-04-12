@@ -129,13 +129,9 @@ class PostProcessor(Post):
                 )
             self.post_osolution.EditSources(edit_sources_ctxt)
 
-            ctxt = ["Context:=", ff_setup]
-
-            sweeps = ["Theta:=", ["All"], "Phi:=", ["All"], "Freq:=", [freq]]
-
             trace_name = "rETheta"
             solnData = self.get_far_field_data(
-                expression=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup
+                expressions=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup
             )
 
             data = solnData.nominal_variation
@@ -152,7 +148,7 @@ class PostProcessor(Post):
 
             trace_name = "rEPhi"
             solnData = self.get_far_field_data(
-                expression=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup
+                expressions=trace_name, setup_sweep_name=setup_sweep_name, domain=ff_setup
             )
             data = solnData.nominal_variation
 
@@ -208,7 +204,7 @@ class PostProcessor(Post):
         files = []
         if get_objects_from_aedt and self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             files = self.export_model_obj(
-                objects=objects, export_as_single_objects=plot_as_separate_objects, air_objects=plot_air_objects
+                assignment=objects, export_as_single_objects=plot_as_separate_objects, air_objects=plot_air_objects
             )
 
         model = ModelPlotter()

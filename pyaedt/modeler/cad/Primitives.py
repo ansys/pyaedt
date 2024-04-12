@@ -2423,7 +2423,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetObjectsInGroup
         """
-        if type(group) is not str:
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
@@ -2451,7 +2451,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetObjectsInGroup
         >>> oEditor.GetModelBoundingBox
         """
-        if type(group) is not str:
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
@@ -4965,7 +4965,7 @@ class GeometryModeler(Modeler):
 
         sel = []
         objs = []
-        if type(mats) is str:
+        if isinstance(mats, str):
             mats = [mats]
         for mat in mats:
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
@@ -8380,7 +8380,7 @@ class GeometryModeler(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)

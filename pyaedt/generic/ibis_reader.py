@@ -896,13 +896,10 @@ class IbisReader(object):
                     elif is_started_with(model_spec.lower(), "enable ", True):
                         model.enable = model_spec.split()[-1].strip()
 
-            model_info_lower = {key.lower(): value for key, value in model_info.items()}
-
             if "gnd clamp" in [key.lower() for key in model_info.keys()]:
                 model.clamp = True
             if "algorithmic model" in [key.lower() for key in model_info.keys()]:
                 matching_key = next((key for key in model_info.keys() if "algorithmic model" in key.lower()), None)
-                ami_info = model_info[matching_key][matching_key].split()
                 model.ami = model_info[matching_key][matching_key].split()
                 ibis.AMI = True
             else:

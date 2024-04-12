@@ -37,7 +37,7 @@ class TestClass:
         List_str.Add("two")
         List_str.Add("three")
         ls = go.List2list(List_str)
-        assert type(ls) is list
+        assert isinstance(ls, list)
         assert len(ls) == 3
         List_float = List[Double]()
         List_float.Add(1.0)

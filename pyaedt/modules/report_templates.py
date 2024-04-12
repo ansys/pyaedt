@@ -1058,7 +1058,7 @@ class CommonReport(object):
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
             sweep_list.append(el + ":=")
-            if type(sweeps[el]) is list:
+            if isinstance(sweeps[el], list):
                 sweep_list.append(sweeps[el])
             else:
                 sweep_list.append([sweeps[el]])
