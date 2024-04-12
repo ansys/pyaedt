@@ -638,7 +638,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -665,6 +665,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Inductors",
@@ -809,7 +811,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
+    def create_current_pulse(
+        self, compname=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a current pulse.
 
         Parameters
@@ -836,6 +840,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if value_lists is None:
+            value_lists = []
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -863,7 +871,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_voltage_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_pulse(
+        self, compname=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a voltage pulse.
 
         Parameters
@@ -890,6 +900,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if value_lists is None:
+            value_lists = []
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -972,7 +986,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
+    def create_current_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
         Parameters
@@ -999,6 +1013,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -1062,7 +1078,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -1089,6 +1105,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Diodes",
@@ -1144,7 +1162,7 @@ class NexximComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -1171,6 +1189,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="BJTs",
