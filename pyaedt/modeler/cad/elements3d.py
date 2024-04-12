@@ -905,10 +905,8 @@ class FacePrimitive(object):
             n = GeometryOperators.v_cross(cv1, cv2)
         normal = GeometryOperators.normalize_vector(n)
 
-        """
-        Try to move the face center twice, the first with the normal vector, and the second with its inverse.
-        Measures which is closer to the center point of the bounding box.
-        """
+        # Try to move the face center twice, the first with the normal vector, and the second with its inverse.
+        # Measures which is closer to the center point of the bounding box.
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
@@ -929,7 +927,7 @@ class FacePrimitive(object):
         :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         non_model : bool, optional
-            Either if create the new object as model or non-model. Default is `False`.
+            Either to create the new object as model or non-model. Default is ``False``.
 
         References
         ----------

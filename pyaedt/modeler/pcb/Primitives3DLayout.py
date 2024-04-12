@@ -1381,14 +1381,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-
-        """
-        """
-
-        :param component_path:
-        :param number_of_terminals:
-        :param placement_layer:
-        :return:
+            :class:`pyaedt.modeler.pcb.object3dlayout.ComponentsSubCircuit3DLayout`
         """
         if not component_name:
             component_name = os.path.basename(component_path).split(".")[0]

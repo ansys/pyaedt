@@ -287,7 +287,6 @@ class Primitives3D(GeometryModeler):
         ...                                             start_position=[0,5,0], height=0.5,
         ...                                              num_sides=8, name="mybox", matname="copper")
         """
-        test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
         if len(center_position) != 3:
             self.logger.error("The ``center_position`` argument must be a valid three-element list.")

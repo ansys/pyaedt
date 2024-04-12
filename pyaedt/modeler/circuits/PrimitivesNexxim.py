@@ -601,7 +601,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler()
-    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -628,6 +628,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
         )
@@ -1100,7 +1102,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_npn(self, compname=None, value=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, value=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -1127,6 +1129,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="BJTs",

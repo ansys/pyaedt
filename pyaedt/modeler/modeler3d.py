@@ -1090,7 +1090,7 @@ class Modeler3D(Primitives3D):
         if import_solids and nas_to_dict["Solids"]:
             self.logger.reset_timer()
             self.logger.info("Loading solids")
-            for solid_pid in nas_to_dict["Solids"].keys():
+            for solid_pid in nas_to_dict["Solids"]:
                 for solid in nas_to_dict["Solids"][solid_pid]:
                     points = [nas_to_dict["Points"][id] for id in solid[1:]]
                     if solid[0] == "CPENTA":
