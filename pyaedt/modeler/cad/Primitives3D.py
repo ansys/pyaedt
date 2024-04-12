@@ -2473,7 +2473,7 @@ class Primitives3D(GeometryModeler):
             )
             self.logger.info("Creating single winding")
         list_duplicated_object = []
-        if type(list_object[0]) == list:
+        if isinstance(list_object[0], list):
             for i in range(len(list_object)):
                 success = list_object[i][0].set_crosssection_properties(
                     type=section, width=w_dia, num_seg=segment_number
@@ -2488,7 +2488,7 @@ class Primitives3D(GeometryModeler):
                 number_duplication = int(key)
         if number_duplication >= 2:
             if values["Mode"]["Common"] and number_duplication == 2:
-                if type(list_object[0]) == list:
+                if isinstance(list_object[0], list):
                     for i in range(len(list_object)):
                         duplication = self.create_polyline(
                             position_list=list_object[i][1], name=name_wind, matname=material_wind
@@ -2509,7 +2509,7 @@ class Primitives3D(GeometryModeler):
                     success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
-                if type(list_object[0]) == list:
+                if isinstance(list_object[0], list):
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
                             duplication = self.create_polyline(
@@ -2936,7 +2936,7 @@ class Primitives3D(GeometryModeler):
                 or f_key == "Wire Section"
             ):
                 for s_key in values[f_key].keys():
-                    if type(values[f_key][s_key]) == bool:
+                    if isinstance(values[f_key][s_key],  bool):
                         if count_true:
                             values[f_key][s_key] = False
                         if values[f_key][s_key]:

@@ -71,7 +71,7 @@ class CommonOptimetrics(PropsManager, object):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
                     try:
-                        if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                        if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
                             for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                                 if setup["I"] == el:
                                     setups[setups.index(el)] = setup["I"]

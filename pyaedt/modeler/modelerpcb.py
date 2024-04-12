@@ -213,7 +213,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)

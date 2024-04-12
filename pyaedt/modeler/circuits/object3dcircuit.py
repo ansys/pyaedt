@@ -788,7 +788,7 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if type(property_name) is list:
+        if isinstance(property_name, list):
             for p, v in zip(property_name, property_value):
                 v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)
