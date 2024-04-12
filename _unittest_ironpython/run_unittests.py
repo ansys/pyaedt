@@ -121,7 +121,7 @@ class TestIronPython(unittest.TestCase):
     def test_run_desktop_hfss(self):
         aedtapp = Hfss()
         self.assertTrue(aedtapp.design_type == "HFSS")
-        self.assertTrue("Modal" in aedtapp.solution_type)
+        self.assertTrue("Terminal" in aedtapp.solution_type)
         self.assertTrue(aedtapp.modeler)
         self.assertTrue(aedtapp.post)
         self.assertTrue(aedtapp.materials)

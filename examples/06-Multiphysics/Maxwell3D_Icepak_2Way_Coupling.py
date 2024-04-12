@@ -250,7 +250,7 @@ for name in ["Coil", "Core"]:
 surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature",
                                                      plot_name="Surface Temperature")
 
-velocity_cutplane = ipk.post.create_fieldplot_cutplane(objects=["Global:XZ"], quantity="Velocity Vectors",
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(assignment=["Global:XZ"], quantity="Velocity Vectors",
                                                        plot_name="Velocity Vectors")
 
 surf_temperature.export_image()

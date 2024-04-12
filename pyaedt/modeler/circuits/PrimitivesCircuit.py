@@ -309,7 +309,7 @@ class CircuitComponents(object):
         return self.components[id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=[], angle=0):
+    def create_gnd(self, location=None, angle=0):
         """Create a ground.
 
         Parameters
@@ -328,6 +328,9 @@ class CircuitComponents(object):
         ----------
         >>> oEditor.CreateGround
         """
+        if location is None:
+            location = []
+
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
 

@@ -185,11 +185,12 @@ class TestClass:
         assert len(exported_files) > 0
 
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
-        assert hfss_app.post.export_field_file(quantity="Mag_E", file_name=fld_file1, objects="Box1", intrinsics="1GHz",
-                                               phase="5deg")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_dir=fld_file1, assignment="Box1",
+                                               intrinsics="1GHz", phase="5deg")
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
-        assert hfss_app.post.export_field_file(quantity="Mag_E", file_name=fld_file2, objects="Box1", intrinsics="1GHz")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_dir=fld_file2, assignment="Box1",
+                                               intrinsics="1GHz")
         assert os.path.exists(fld_file2)
 
     def test_03a_icepak_analyze_and_export_summary(self):
@@ -291,26 +292,26 @@ class TestClass:
     def test_03e_icepak_ExportFLDFil(self):
         fld_file = os.path.join(self.local_scratch.path, "test_fld.fld")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep, variations={},
-                                               file_name=fld_file, objects="box")
+                                               output_dir=fld_file, assignment="box")
         assert os.path.exists(fld_file)
         fld_file_1 = os.path.join(self.local_scratch.path, "test_fld_1.fld")
         sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep,
                                                variations=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               file_name=fld_file_1, objects="box",
+                                               output_dir=fld_file_1, assignment="box",
                                                sample_points_file=sample_points_file)
         assert os.path.exists(fld_file_1)
         fld_file_2 = os.path.join(self.local_scratch.path, "test_fld_2.fld")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep,
                                                variations=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               file_name=fld_file_2, objects="box",
+                                               output_dir=fld_file_2, assignment="box",
                                                sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]])
         assert os.path.exists(fld_file_2)
         cs = self.icepak_app.modeler.create_coordinate_system()
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep,
                                                variations=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               file_name=fld_file_3, objects="box",
+                                               output_dir=fld_file_3, assignment="box",
                                                sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
                                                reference_coordinate_system=cs.name, export_in_si_system=False,
                                                export_field_in_reference=False)
@@ -415,17 +416,18 @@ class TestClass:
         m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep, variations={},
-                                                   file_name=fld_file_3, objects="Coil_A2", objects_type="Surf",
+                                                   output_dir=fld_file_3, assignment="Coil_A2", objects_type="Surf",
                                                    intrinsics="10ms")
         assert os.path.exists(fld_file_3)
         fld_file_4 = os.path.join(self.local_scratch.path, "test_fld_4.fld")
         assert not m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep,
                                                        variations=m3dtransient.available_variations.nominal_w_values_dict,
-                                                       file_name=fld_file_4, objects="Coil_A2", objects_type="invalid")
+                                                       output_dir=fld_file_4, assignment="Coil_A2",
+                                                       objects_type="invalid")
         setup = m3dtransient.setups[0]
         m3dtransient.setups[0].delete()
-        assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, file_name=fld_file_4,
-                                                       objects="Coil_A2")
+        assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, output_dir=fld_file_4,
+                                                       assignment="Coil_A2")
 
         new_setup = m3dtransient.create_setup(name=setup.name, setup_type=setup.setuptype)
         new_setup.props = setup.props
