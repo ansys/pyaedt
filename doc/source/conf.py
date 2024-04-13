@@ -261,7 +261,7 @@ pygments_style = "sphinx"
 if run_examples:
     import pyvista
 
-    # # PyVista settings
+    # PyVista settings
 
     # Ensure that offscreen rendering is used for docs generation
     pyvista.OFF_SCREEN = True
