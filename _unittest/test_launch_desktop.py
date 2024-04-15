@@ -64,7 +64,7 @@ class TestClass:
     def test_run_desktop_hfss(self):
         aedtapp = Hfss()
         assert aedtapp.design_type == "HFSS"
-        assert "Modal" in aedtapp.solution_type
+        assert "Terminal" in aedtapp.solution_type
 
     def test_run_desktop_maxwell3d(self):
         aedtapp = Maxwell3d()

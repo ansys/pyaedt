@@ -287,7 +287,6 @@ class Primitives3D(GeometryModeler):
         ...                                             start_position=[0,5,0], height=0.5,
         ...                                              num_sides=8, name="mybox", matname="copper")
         """
-        test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
         if len(center_position) != 3:
             self.logger.error("The ``center_position`` argument must be a valid three-element list.")
@@ -1416,8 +1415,7 @@ class Primitives3D(GeometryModeler):
                 if "IsEncrypted" in line:
                     line_list = line.split("=")
                     if line_list[1] in ["true", "True", True] and password == "":
-                        self.logger.error("Password can't be an empty string.")
-                        return False
+                        self.logger.warning("Encrypted model.")
             aedt_fh.close()
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
@@ -1517,7 +1515,7 @@ class Primitives3D(GeometryModeler):
                 self._app.configurations.options.import_native_components = True
                 self._app.configurations.options.import_monitor = True
                 temp_dict_file = os.path.join(self._app.toolkit_directory, generate_unique_name("tempdict_"))
-                with open(temp_dict_file, "w") as f:
+                with open_file(temp_dict_file, "w") as f:
                     json.dump(temp_dict, f)
                 exclude_set = set([obj.name for _, obj in self._app.modeler.objects.items()])
                 old_udm = set(list(self._app.modeler.user_defined_components))
@@ -2474,7 +2472,7 @@ class Primitives3D(GeometryModeler):
             )
             self.logger.info("Creating single winding")
         list_duplicated_object = []
-        if type(list_object[0]) == list:
+        if isinstance(list_object[0], list):
             for i in range(len(list_object)):
                 success = list_object[i][0].set_crosssection_properties(
                     type=section, width=w_dia, num_seg=segment_number
@@ -2489,7 +2487,7 @@ class Primitives3D(GeometryModeler):
                 number_duplication = int(key)
         if number_duplication >= 2:
             if values["Mode"]["Common"] and number_duplication == 2:
-                if type(list_object[0]) == list:
+                if isinstance(list_object[0], list):
                     for i in range(len(list_object)):
                         duplication = self.create_polyline(
                             position_list=list_object[i][1], name=name_wind, matname=material_wind
@@ -2510,7 +2508,7 @@ class Primitives3D(GeometryModeler):
                     success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
-                if type(list_object[0]) == list:
+                if isinstance(list_object[0], list):
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
                             duplication = self.create_polyline(
@@ -2937,7 +2935,7 @@ class Primitives3D(GeometryModeler):
                 or f_key == "Wire Section"
             ):
                 for s_key in values[f_key].keys():
-                    if type(values[f_key][s_key]) == bool:
+                    if isinstance(values[f_key][s_key],  bool):
                         if count_true:
                             values[f_key][s_key] = False
                         if values[f_key][s_key]:

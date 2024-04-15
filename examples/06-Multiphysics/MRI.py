@@ -107,20 +107,13 @@ hfss.analyze(num_cores=6)
 # Draw Point1 at origin of the implant coordinate system
 
 hfss.sar_setup(-1, Average_SAR_method=1, TissueMass=1, MaterialDensity=1, )
-hfss.post.create_fieldplot_cutplane(objlist="implant:YZ",
-                                    quantityName="Average_SAR",
-                                    filter_objects=["implant_box"])
+hfss.post.create_fieldplot_cutplane(assignment="implant:YZ", quantity="Average_SAR", filter_objects=["implant_box"])
 
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point([0, 0, 0], name="Point1")
 
-hfss.post.plot_field(quantity="Average_SAR",
-                     object_list="implant:YZ",
-                     plot_type="CutPlane",
-                     show_legend=False,
-                     filter_objects=["implant_box"],
-                     show=False
-                     )
+hfss.post.plot_field(quantity="Average_SAR", objects="implant:YZ", plot_type="CutPlane", show=False, show_legend=False,
+                     filter_objects=["implant_box"])
 
 ###############################################################################
 # Adjust Input Power to MRI Coil
@@ -214,23 +207,17 @@ mech.analyze(num_cores=6)
 # Plot Temperature on cut plane.
 # Plot Temperature on point.
 
-mech.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"],
-                                    intrinsincDict={"Time": "10s"})
+mech.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"])
 mech.save_project()
 
 data = mech.post.get_solution_data("Temperature", primary_sweep_variable="Time", context="Point1",
                                    report_category="Fields")
 #data.plot()
 
-mech.post.plot_animated_field(quantity="Temperature",
-                              object_list="implant:YZ",
-                              plot_type="CutPlane",
-                              intrinsics={"Time": "10s"},
-                              variation_variable="Time",
-                              variation_list=["10s", "20s", "30s", "40s", "50s", "60s"],
-                              filter_objects=["implant_box"],
-                              show=False
-                              )
+mech.post.plot_animated_field(quantity="Temperature", objects="implant:YZ", plot_type="CutPlane",
+                              intrinsics={"Time": "10s"}, variation_variable="Time",
+                              variations=["10s", "20s", "30s", "40s", "50s", "60s"], show=False,
+                              filter_objects=["implant_box"])
 
 ###############################################################################
 # Thermal Simulation
@@ -305,8 +292,7 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # Plot Temperature on monitor point.
 
 ipk.analyze(num_cores=4,num_tasks=4)
-ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"],
-                                   intrinsincDict={"Time": "0s"})
+ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"])
 ipk.save_project()
 
 data = ipk.post.get_solution_data("Point1.Temperature", primary_sweep_variable="Time", report_category="Monitor")

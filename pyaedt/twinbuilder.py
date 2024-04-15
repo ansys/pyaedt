@@ -10,6 +10,7 @@ from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -154,7 +155,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")
@@ -447,7 +448,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             if not is_number(value) and not unit:
                 raise TypeError("Model depth must be provided as a string with value and unit.")
             design_type = "Q2D"
-            signal_list = [e.name for e in app.design_excitations if e.type == "SignalLine"]
+            signal_list = [k for k, v in app.excitation_objects.items() if v.type == "SignalLine"]
             for signal in signal_list:
                 port_info_list_A.append("OnePortInfo:=")
                 port_info_list_B.append("OnePortInfo:=")

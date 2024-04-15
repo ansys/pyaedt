@@ -6,6 +6,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.OptimetricsTemplates import defaultdoeSetup
 from pyaedt.modules.OptimetricsTemplates import defaultdxSetup
@@ -70,7 +71,7 @@ class CommonOptimetrics(PropsManager, object):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
                     try:
-                        if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                        if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
                             for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                                 if setup["I"] == el:
                                     setups[setups.index(el)] = setup["I"]
@@ -1213,7 +1214,7 @@ class ParametricSetups(object):
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
-        with open(filename, "r") as csvfile:
+        with open_file(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
             setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}

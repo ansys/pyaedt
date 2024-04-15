@@ -100,6 +100,7 @@ project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
+switcher_version = get_version_match(__version__)
 
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
@@ -134,6 +135,7 @@ extensions = [
     "sphinx.ext.inheritance_diagram",
     "numpydoc",
     "ansys_sphinx_theme.extension.linkcode",
+    "recommonmark",
 ]
 
 # Intersphinx mapping
@@ -266,7 +268,7 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
-    if config["run_examples"]:
+    if config["run_examples"] and not os.environ.get("PYAEDT_SKIP_EXAMPLE", False):
         extensions.append("sphinx_gallery.gen_gallery")
 
         sphinx_gallery_conf = {
@@ -339,6 +341,13 @@ html_theme_options = {
             "name": "Support",
             "url": "https://github.com/ansys/pyaedt/discussions",
             "icon": "fa fa-comment fa-fw",
+        },
+        {
+            "name": "Download documentation in PDF",
+            # NOTE: Changes to this URL must be reflected in CICD documentation build
+            "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
+            # noqa: E501
+            "icon": "fa fa-file-pdf fa-fw",
         },
     ],
     "switcher": {

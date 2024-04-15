@@ -83,18 +83,22 @@ class QExtractor(FieldAnalysis3D, object):
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
 
-    @property
-    def excitations(self):
-        """Get all excitation names.
+    @pyaedt_function_handler()
+    def sources(self, matrix_index=0, is_gc_sources=True):
+        """List of matrix sources.
+
+        Parameters
+        ----------
+        matrix_index : int, optional
+            Matrix index in matrices list. Default is ``0`` to use main matrix with no reduction.
+        is_gc_sources : bool,
+            In Q3d, define if to return GC sources or RL sources. Default `True`.
 
         Returns
         -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
+        List
         """
-        return self.matrices[0].sources(False)
+        return self.matrices[matrix_index].sources(is_gc_sources=is_gc_sources)
 
     @pyaedt_function_handler()
     def insert_reduced_matrix(
@@ -160,7 +164,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         >>> oModule.GetAllSources
         """
-        return self.excitations
+        return self.sources(0, False)
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -284,10 +288,8 @@ class QExtractor(FieldAnalysis3D, object):
         setting_DC = []
         if cg:
             net_list = ["NAME:Source Names"]
-            if self.default_solution_type == "Q3D Extractor":
-                excitation = self.nets
-            else:
-                excitation = self.excitations
+
+            excitation = self.excitations
 
             for key, value in cg.items():
                 if key not in excitation:
@@ -322,8 +324,8 @@ class QExtractor(FieldAnalysis3D, object):
         if acrl:
             source_list = ["NAME:Source Names"]
             unit = "V"
+            excitation = self.sources(0, False)
             for key, value in acrl.items():
-                excitation = self.excitations
                 if key not in excitation:
                     self.logger.error("Not existing excitation " + key)
                     return False
@@ -362,8 +364,8 @@ class QExtractor(FieldAnalysis3D, object):
         if dcrl and self.default_solution_type == "Q3D Extractor":
             unit = "V"
             source_list = ["NAME:Source Names"]
+            excitation = self.sources(0, False)
             for key, value in dcrl.items():
-                excitation = self.excitations
                 if key not in excitation:
                     self.logger.error("Not existing excitation " + key)
                     return False
@@ -1788,7 +1790,7 @@ class Q3d(QExtractor, object):
             -------
             >>> from pyaedt import Q3d
             >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
             >>> q3d.release_desktop(True, True)
 
@@ -1859,7 +1861,7 @@ class Q3d(QExtractor, object):
             -------
             >>> from pyaedt import Q3d
             >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(setupname="Setup1")
+            >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
             ...                                        freqstart=0.5,
             ...                                        freqstop=1.5,
@@ -2005,7 +2007,7 @@ class Q3d(QExtractor, object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(setupname="Setup1", DC__MinPass=2)
+        >>> app.create_setup(name="Setup1",DC__MinPass=2)
 
         """
         setuptype = self.design_solutions.default_setup
@@ -2499,7 +2501,6 @@ class Q2d(QExtractor, object):
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
 
-
         Parameters
         ----------
         setuptype : int, str, optional
@@ -2510,7 +2511,6 @@ class Q2d(QExtractor, object):
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesQ3D`.
-
 
         Returns
         -------
@@ -2527,8 +2527,7 @@ class Q2d(QExtractor, object):
 
         >>> from pyaedt import Q2d
         >>> app = Q2d()
-        >>> app.create_setup(setupname="Setup1", RLDataBlock__MinPass=2))
-
+        >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup

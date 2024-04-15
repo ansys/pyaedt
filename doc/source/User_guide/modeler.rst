@@ -57,9 +57,3 @@ All objects support executing any modeler operation, such as union or subtractio
      cyl = hfss.modeler["mycyl"]
      box.unite(cyl)
      box.subract(cyl)
-
-
-.. image:: ../Resources/objects_operations.gif
-  :width: 800
-  :alt: Object Modeler Operations
-

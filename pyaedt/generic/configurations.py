@@ -16,6 +16,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
@@ -906,7 +907,7 @@ class Configurations(object):
             bound.props["Modes"] = BoundaryProps(bound, modes)
             bound.auto_update = True
         if bound.create():
-            self._app.boundaries.append(bound)
+            self._app._boundaries[bound.name] = bound
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
                 winding_name = ""
                 for b in self._app.boundaries:
@@ -950,7 +951,7 @@ class Configurations(object):
         if self._app.design_type == "Q3D Extractor":
             setup = self._app.create_setup(name, props=props)
         else:
-            setup = self._app.create_setup(name, setuptype=props["SetupType"], props=props)
+            setup = self._app.create_setup(name, setup_type=props["SetupType"], props=props)
         if setup:
             self._app.logger.info("Setup {} added.".format(name))
             return True
@@ -1232,7 +1233,7 @@ class Configurations(object):
         if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
-            with open(oo_out, "r") as f:
+            with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")

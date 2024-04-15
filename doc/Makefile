@@ -29,11 +29,21 @@ clean:
 phtml:
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
 
+phtml-no-examples:
+	export PYAEDT_SKIP_EXAMPLE="1"
+	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
+
 # Build pdf docs.
 pdf:
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
-	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
+	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
+
+pdf-no-examples:
+	export PYAEDT_SKIP_EXAMPLE="1"
+	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
+	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
 
 # build docs like the CI build
 cibuild:

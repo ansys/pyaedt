@@ -323,6 +323,14 @@ class Design(AedtObjects):
             for region in hybrid_regions:
                 bb.append(region)
                 bb.append("FE-BI")
+        current_excitations = []
+        current_excitation_types = []
+        if "GetExcitations" in self.oboundary.__dir__():
+            ee = list(self.oboundary.GetExcitations())
+            current_excitations = [i.split(":")[0] for i in ee[::2]]
+            current_excitation_types = ee[1::2]
+            ff = [i.split(":")[0] for i in ee]
+            bb.extend(ff)
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
@@ -360,7 +368,12 @@ class Design(AedtObjects):
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
-
+        check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
+        if "nets" in dir(self):
+            check_boundaries += self.nets
+        for k in list(self._boundaries.keys())[:]:
+            if k not in check_boundaries:
+                del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
                 continue
@@ -378,12 +391,12 @@ class Design(AedtObjects):
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
-
-        excitations = self.design_excitations
-        for exc in excitations:
-            if not self._boundaries or exc.name not in list(self._boundaries.keys()):
-                self._boundaries[exc.name] = exc
-
+        try:
+            for k, v in zip(current_excitations, current_excitation_types):
+                if k not in self._boundaries:
+                    self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
+        except Exception:
+            pass
         return list(self._boundaries.values())
 
     @property
@@ -403,71 +416,30 @@ class Design(AedtObjects):
         return _dict_out
 
     @property
-    def excitations_by_type(self):
-        """Design excitations by type.
-
-        Returns
-        -------
-        dict
-            Dictionary of excitations.
-        """
-        _dict_out = {}
-        for bound in self.design_excitations:
-            if bound.type in _dict_out:
-                _dict_out[bound.type].append(bound)
-            else:
-                _dict_out[bound.type] = [bound]
-        return _dict_out
-
-    @property
-    def design_excitations(self):
+    def ports(self):
         """Design excitations.
 
         Returns
         -------
         list
-            List of :class:`pyaedt.modules.Boundary.BoundaryObject`.
+            Port names.
         """
-        design_excitations = {}
+        design_excitations = []
 
         if "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
-            current_boundaries = [i.split(":")[0] for i in ee[::2]]
             current_types = ee[1::2]
             for i in set(current_types):
                 new_port = []
                 if "GetExcitationsOfType" in self.oboundary.__dir__():
                     new_port = list(self.oboundary.GetExcitationsOfType(i))
                 if new_port:
-                    current_boundaries = current_boundaries + new_port
+                    design_excitations += new_port
                     current_types = current_types + [i] * len(new_port)
-
-            for boundary, boundarytype in zip(current_boundaries, current_types):
-                design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
-                if (
-                    design_excitations[boundary].object_properties
-                    and design_excitations[boundary].object_properties.props["Type"] == "Terminal"
-                ):  # pragma: no cover
-                    props_terminal = OrderedDict()
-                    props_terminal["TerminalResistance"] = design_excitations[boundary].object_properties.props[
-                        "Terminal Renormalizing Impedance"
-                    ]
-                    props_terminal["ParentBndID"] = design_excitations[boundary].object_properties.props["Port Name"]
-                    design_excitations[boundary] = BoundaryObject(
-                        self, boundary, props=props_terminal, boundarytype="Terminal"
-                    )
+            return design_excitations
 
         elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
-            for port in self.oboundary.GetAllPortsList():
-                if port in self._boundaries:
-                    continue
-                bound = self._update_port_info(port)
-                if bound:
-                    design_excitations[port] = bound
-
-        if design_excitations:
-            return list(design_excitations.values())
-
+            return self.oboundary.GetAllPortsList()
         return []
 
     @property
@@ -540,8 +512,7 @@ class Design(AedtObjects):
             and settings.remote_rpc_session
             and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
         ):
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self.project_file)[-1])
-            file_path = check_and_download_file(local_path, self.project_file)
+            file_path = check_and_download_file(self.project_file)
             try:
                 settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
             except Exception:
@@ -632,16 +603,21 @@ class Design(AedtObjects):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
 
-        self.odesign.RenameDesignInstance(self.design_name, new_name)
-        timeout = 5.0
-        timestep = 0.1
-        while new_name not in [
-            i.GetName() if ";" not in i.GetName() else i.GetName().split(";")[1]
-            for i in list(self._oproject.GetDesigns())
-        ]:
-            time.sleep(timestep)
-            timeout -= timestep
-            assert timeout >= 0
+        # If new_name is the name of an existing design, set the current
+        # design to this design.
+        if new_name in self.design_list:
+            self.set_active_design(new_name)
+        else:  # Otherwise rename the current design.
+            self.odesign.RenameDesignInstance(self.design_name, new_name)
+            timeout = 5.0
+            timestep = 0.1
+            while new_name not in [
+                i.GetName() if ";" not in i.GetName() else i.GetName().split(";")[1]
+                for i in list(self._oproject.GetDesigns())
+            ]:
+                time.sleep(timestep)
+                timeout -= timestep
+                assert timeout >= 0
 
     @property
     def design_list(self):
@@ -1566,7 +1542,7 @@ class Design(AedtObjects):
         """
         if units is None:
             units = self.modeler.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
@@ -3307,6 +3283,8 @@ class Design(AedtObjects):
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
+            elif design_type == "HFSS" and self._aedt_version < "2024.1":
+                new_design = self._oproject.InsertDesign(design_type, unique_design_name, "HFSS Modal Network", "")
             else:
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""

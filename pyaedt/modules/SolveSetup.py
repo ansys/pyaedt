@@ -422,17 +422,9 @@ class CommonSetup(PropsManager, object):
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
         >>> variations = aedtapp.available_variations.nominal_w_values_dict
-        >>> aedtapp.post.setups[0].create_report(
-        ...    "dB(S(1,1))",
-        ...    variations=variations,
-        ...    primary_sweep_variable="Freq",
-        ...)
+        >>> aedtapp.post.setups[0].create_report("dB(S(1,1))",variations=variations,primary_sweep_variable="Freq")
 
-        >>> aedtapp.post.create_report(
-        ...    "S(1,1)",
-        ...    variations=variations,
-        ...    plot_type="Smith Chart",
-        ...)
+        >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
         """
         if sweep_name:
             setup_sweep_name = [
@@ -443,6 +435,7 @@ class CommonSetup(PropsManager, object):
         if setup_sweep_name:
             return self._app.post.create_report(
                 expressions=expressions,
+                setup_sweep_name=setup_sweep_name[0],
                 domain=domain,
                 variations=variations,
                 primary_sweep_variable=primary_sweep_variable,
@@ -451,8 +444,7 @@ class CommonSetup(PropsManager, object):
                 plot_type=plot_type,
                 context=context,
                 polyline_points=polyline_points,
-                plotname=plotname,
-                setup_sweep_name=setup_sweep_name[0],
+                plot_name=plotname,
             )
         return None
 
@@ -602,7 +594,7 @@ class Setup(CommonSetup):
                     isconvergence = isconvergence_list[i]
                 else:
                     isconvergence = isconvergence_list
-                if type(intrinsics_list) is list:
+                if isinstance(intrinsics_list, list):
                     intrinsics = intrinsics_list[i]
                 else:
                     intrinsics = intrinsics_list
@@ -1040,7 +1032,7 @@ class SetupCircuit(CommonSetup):
             self.props = SetupProps(self, OrderedDict())
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
-                if type(setups_data) is not list:
+                if not isinstance(setups_data, list):
                     setups_data = [setups_data]
                 for setup in setups_data:
                     if self.name == setup["Name"]:
@@ -1686,6 +1678,7 @@ class SetupCircuit(CommonSetup):
         """
         return self._app.post.create_report(
             expressions=expressions,
+            setup_sweep_name=self.name,
             domain=domain,
             variations=variations,
             primary_sweep_variable=primary_sweep_variable,
@@ -1693,10 +1686,9 @@ class SetupCircuit(CommonSetup):
             report_category=report_category,
             plot_type=plot_type,
             context=context,
-            polyline_points=polyline_points,
-            plotname=plotname,
             subdesign_id=subdesign_id,
-            setup_sweep_name=self.name,
+            polyline_points=polyline_points,
+            plot_name=plotname,
         )
 
 
@@ -2716,7 +2708,7 @@ class SetupHFSS(Setup, object):
 
         >>> import pyaedt
         >>> hfss = pyaedt.Hfss()
-        >>> setup1 = hfss.create_setup(setupname='Setup1')
+        >>> setup1 = hfss.create_setup(name='Setup1')
         >>> setup1.create_frequency_sweep(
             "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
         )

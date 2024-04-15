@@ -2423,7 +2423,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetObjectsInGroup
         """
-        if type(group) is not str:
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
@@ -2451,7 +2451,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetObjectsInGroup
         >>> oEditor.GetModelBoundingBox
         """
-        if type(group) is not str:
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
@@ -4605,7 +4605,6 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Import
         """
-
         if str(healing) in ["0", "1"]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
@@ -4966,7 +4965,7 @@ class GeometryModeler(Modeler):
 
         sel = []
         objs = []
-        if type(mats) is str:
+        if isinstance(mats, str):
             mats = [mats]
         for mat in mats:
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
@@ -6233,10 +6232,8 @@ class GeometryModeler(Modeler):
                 is_percentage = True
             if kwarg.get("pad_percent", False):
                 pad_percent = kwarg["pad_percent"]
-            else:
-                pad_percent = 300
-            pad_value = pad_percent
-            if isinstance(pad_value, list):
+                pad_value = pad_percent
+            if isinstance(pad_value, list) and len(pad_value) < 6:
                 pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
             pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
 
@@ -8383,7 +8380,7 @@ class GeometryModeler(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)

@@ -12,7 +12,7 @@ import json
 import os
 import pyaedt
 
-project_name = pyaedt.generate_unique_project_name(project_name="choke")
+project_name = pyaedt.generate_unique_project_name(rootname=r"C:\Data\Support\Test", folder_name="choke", project_name="choke")
 
 ##########################################################
 # Set AEDT version
@@ -180,7 +180,7 @@ cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
     "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
 )
-hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
+hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maximum_length=15, maximum_elements=None, name="choke_mesh")
 
 
 ###############################################################################

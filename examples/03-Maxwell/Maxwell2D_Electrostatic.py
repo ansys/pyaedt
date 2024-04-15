@@ -137,14 +137,14 @@ M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
-M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
+M2D.mesh.assign_surface_mesh_manual(assignment=['Ground'], surface_deviation=0.001)
 
 ##################################################################################
 # Create, validate and analyze the setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(setupname=setup_name)
+setup = M2D.create_setup(name=setup_name)
 setup.props['PercentError'] = 0.5
 setup.update()
 M2D.validate_simple()
@@ -177,8 +177,7 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # and as ``In surface objects`` only the region.
 
 plot = M2D.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
-                                             in_volume_tracing_objs="Region",
-                                             plot_name="LineTracesTest")
+                                             in_volume_tracing_objs="Region", plot_name="LineTracesTest")
 
 ###################################################################################
 # Update Field Line Traces Plot
@@ -197,7 +196,7 @@ plot.update()
 # Export field line traces plot.
 # For field lint traces plot, the export file format is ``.fldplt``.
 
-M2D.post.export_field_plot(plotname="LineTracesTest", filepath=M2D.toolkit_directory, file_format="fldplt")
+M2D.post.export_field_plot(plot_name="LineTracesTest", output_dir=M2D.toolkit_directory, file_format="fldplt")
 
 ##########################################################
 # Export a field plot to an image file

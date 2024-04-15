@@ -9,6 +9,7 @@ import pytest
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import generate_unique_name
+from pyaedt import is_linux
 from pyaedt.generic.constants import AXIS
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
@@ -279,7 +280,7 @@ class TestClass:
         assert isinstance(f.area, float) and f.area > 0
         assert o.faces[0].move_with_offset(0.1)
         assert o.faces[0].move_with_vector([0, 0, 0.01])
-        assert type(f.normal) is list
+        assert isinstance(f.normal, list)
 
     def test_11d_check_object_edges(self):
         o = self.create_copper_box(name="MyBox")
@@ -295,7 +296,7 @@ class TestClass:
 
     def test_12_get_objects_in_group(self):
         objs = self.aedtapp.modeler.get_objects_in_group("Solids")
-        assert type(objs) is list
+        assert isinstance(objs, list)
 
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -1149,18 +1150,22 @@ class TestClass:
         my_box = self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] or is_linux, reason="Not running in non-graphical mode or in Linux")
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(self.scdoc_file)
         assert len(self.aedtapp.modeler.objects) == 1
 
+    @pytest.mark.skipif(is_linux, reason="Not running in Linux with AEDT 2024R1")
     def test_63_import_step(self):
         self.aedtapp.insert_design("StepImport")
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
         assert len(self.aedtapp.modeler.object_names) == 1
 
     def test_64_create_3dcomponent(self):
+        if is_linux:
+            self.aedtapp.insert_design("StepImport")
+            self.create_copper_box("Solid")
         self.aedtapp.solution_type = "Modal"
         for i in list(self.aedtapp.modeler.objects.keys()):
             self.aedtapp.modeler.objects[i].material_name = "copper"

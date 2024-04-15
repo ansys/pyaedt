@@ -92,14 +92,14 @@ m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 1V is the source, 0V ground
 
-m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
+m2d.assign_matrix(assignment=['1V'], matrix_name="Matrix1", group_sources=['0V'])
 
 ##################################################################################
 # Assign mesh operation
 # ~~~~~~~~~~~~~~~~~~~~~
 # 3mm on the conductor
 
-m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlength=3, maxel=None)
+m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], maximum_length=3, maximum_elements=None, name="conductor")
 
 ##################################################################################
 # Create simulation setup and enable expression cache
@@ -107,7 +107,7 @@ m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlen
 # Create simulation setup with minimum 4 adaptive passes to ensure convergence.
 # Enable expression cache to observe the convergence.
 
-setup1 = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
+setup1 = m2d.create_setup(name="Setup1", MinimumPasses=4)
 setup1.enable_expression_cache( # doesn't work?
     report_type="DCConduction",
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
@@ -136,14 +136,9 @@ param_sweep.analyze()
 # Create R. vs. material report
 
 variations = {"MaterialIndex": ["All"], "MaterialThickness": ["Nominal"]}
-report = m2d.post.create_report(
-    expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
-    primary_sweep_variable="MaterialIndex",
-    report_category="DCConduction",
-    plot_type="Data Table",
-    variations=variations,
-    plotname="Resistance vs. Material",
-)
+report = m2d.post.create_report(expressions="1/Matrix1.G(1V,1V)/MaterialThickness", variations=variations,
+                                primary_sweep_variable="MaterialIndex", report_category="DCConduction",
+                                plot_type="Data Table", plot_name="Resistance vs. Material")
 
 ###############################################################################
 # Get solution data
@@ -183,7 +178,7 @@ plot2 = m2d.post.create_fieldplot_surface(conductor_surface, "Mag_J", plot_name=
 # ~~~~~~~~~~~~~
 # Plot electric field using pyvista and saving to an image
 
-py_vista_plot = m2d.post.plot_field("Mag_E", conductor_surface, plot_cad_objs=False, show=False)
+py_vista_plot = m2d.post.plot_field("Mag_E", conductor_surface, show=False, plot_cad_objs=False)
 py_vista_plot.isometric_view = False
 py_vista_plot.camera_position = [0, 0, 7]
 py_vista_plot.focal_point = [0, 0, 0]
@@ -197,16 +192,9 @@ py_vista_plot.plot(os.path.join(results_folder, "mag_E.jpg"))
 # ~~~~~~~~~~~~~~~
 # Plot current density vs the Material index.
 
-animated = m2d.post.plot_animated_field(
-    quantity="Mag_J",
-    object_list=conductor_surface,
-    export_path=results_folder,
-    variation_variable="MaterialIndex",
-    variation_list=[0,1,2,3],
-    show=False,
-    export_gif=False,
-    log_scale=True,
-)
+animated = m2d.post.plot_animated_field(quantity="Mag_J", objects=conductor_surface, variation_variable="MaterialIndex",
+                                        variations=[0, 1, 2, 3], show=False, log_scale=True, export_gif=False,
+                                        export_path=results_folder)
 animated.isometric_view = False
 animated.camera_position = [0, 0, 7]
 animated.focal_point = [0, 0, 0]
@@ -227,7 +215,7 @@ model_picture = m2d.post.export_model_picture()
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a PDF report with output of simulation.
 
-pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version=aedt_version)
+pdf_report = AnsysReport(version=aedt_version, design_name=m2d.design_name, project_name=m2d.project_name)
 
 # Customize text font.
 

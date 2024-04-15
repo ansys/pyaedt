@@ -142,7 +142,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -168,6 +168,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="Passive Elements",
@@ -222,7 +224,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_winding(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_winding(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -246,6 +248,8 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="Dedicated Elements",

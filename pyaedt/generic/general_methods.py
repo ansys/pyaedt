@@ -198,41 +198,67 @@ def _check_types(arg):
     return ""
 
 
-def _function_handler_wrapper(user_function):
+def raise_exception(e):
+    if not settings.enable_error_handler:
+        if settings.release_on_exception:
+            from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+            for v in list(_desktop_sessions.values())[:]:
+                v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+        raise e
+    else:
+        return False
+
+
+def _function_handler_wrapper(user_function, **deprecated_kwargs):
+
     def wrapper(*args, **kwargs):
-        if not settings.enable_error_handler:
-            result = user_function(*args, **kwargs)
-            return result
-        else:
-            try:
-                settings.time_tick = time.time()
-                out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
-                    _log_method(user_function, args, kwargs)
-                return out
-            except MethodNotSupportedError:
-                message = "This method is not supported in current AEDT design type."
-                if settings.enable_screen_logs:
-                    pyaedt_logger.error("**************************************************************")
-                    pyaedt_logger.error(
-                        "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
-                    )
-                    pyaedt_logger.error("**************************************************************")
-                    pyaedt_logger.error("")
-                if settings.enable_file_logs:
-                    settings.error(message)
-                return False
-            except GrpcApiError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
-                return False
-            except BaseException:
-                _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
-                return False
+
+        if deprecated_kwargs and kwargs:
+            deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
+        try:
+            settings.time_tick = time.time()
+            out = user_function(*args, **kwargs)
+            if settings.enable_debug_logger or settings.enable_debug_edb_logger:
+                _log_method(user_function, args, kwargs)
+            return out
+        except MethodNotSupportedError as e:
+            message = "This method is not supported in current AEDT design type."
+            if settings.enable_screen_logs:
+                pyaedt_logger.error("**************************************************************")
+                pyaedt_logger.error(
+                    "PyAEDT error on method {}:  {}. Check again".format(user_function.__name__, message)
+                )
+                pyaedt_logger.error("**************************************************************")
+                pyaedt_logger.error("")
+            if settings.enable_file_logs:
+                settings.error(message)
+            raise_exception(e)
+        except GrpcApiError as e:
+            _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
+            raise_exception(e)
+        except BaseException as e:
+            _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+            raise_exception(e)
 
     return wrapper
 
 
-def pyaedt_function_handler(direct_func=None):
+def deprecate_kwargs(func_name, kwargs, aliases):
+    """Use helper function for deprecating function arguments."""
+    for alias, new in aliases.items():
+        if alias in kwargs:
+            if new in kwargs:
+                msg = "{} received both {} and {} as arguments!\n".format(func_name, alias, new)
+                msg += "{} is deprecated, use {} instead.".format(alias, new)
+                raise TypeError(msg)
+            pyaedt_logger.warning(
+                '`{}` is deprecated as an argument to `{}`; use" f" `{}` instead.'.format(alias, func_name, new)
+            )
+            kwargs[new] = kwargs.pop(alias)
+
+
+def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
     """Provides an exception handler, logging mechanism, and argument converter for client-server
     communications.
 
@@ -242,13 +268,13 @@ def pyaedt_function_handler(direct_func=None):
     """
     if callable(direct_func):
         user_function = direct_func
-        wrapper = _function_handler_wrapper(user_function)
+        wrapper = _function_handler_wrapper(user_function, **deprecated_kwargs)
         return update_wrapper(wrapper, user_function)
     elif direct_func is not None:
         raise TypeError("Expected first argument to be a callable, or None")
 
     def decorating_function(user_function):
-        wrapper = _function_handler_wrapper(user_function)
+        wrapper = _function_handler_wrapper(user_function, **deprecated_kwargs)
         return update_wrapper(wrapper, user_function)
 
     return decorating_function
@@ -258,7 +284,7 @@ def pyaedt_function_handler(direct_func=None):
 def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     """Check if two numeric values are equivalent to within a relative tolerance.
 
-    Paraemters
+    Parameters
     ----------
     a : int, float
         Reference value to compare to.
@@ -281,17 +307,20 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
 
 
 @pyaedt_function_handler()
-def check_and_download_file(local_path, remote_path, overwrite=True):
+def _check_path(path_to_check):
+    return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
+
+
+@pyaedt_function_handler()
+def check_and_download_file(remote_path, overwrite=True):
     """Check if a file is remote and either download it or return the path.
 
     Parameters
     ----------
-    local_path : str
-        Local path to save the file to.
     remote_path : str
         Path to the remote file.
     overwrite : bool, optional
-        Whether to overwrite the file if it already exits locally.
+        Whether to overwrite the file if it already exists locally.
         The default is ``True``.
 
     Returns
@@ -299,9 +328,11 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     str
     """
     if settings.remote_rpc_session:
-        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
-        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
-        return local_path
+        remote_path = _check_path(remote_path)
+        local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(remote_path)[-1])
+        if settings.remote_rpc_session.filemanager.pathexists(remote_path):
+            settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+            return local_path
     return remote_path
 
 
@@ -333,7 +364,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     remote_path : str
         Path to the remote folder.
     overwrite : bool, optional
-        Whether to overwrite the folder if it already exits locally.
+        Whether to overwrite the folder if it already exists locally.
         The default is ``True``.
 
     Returns
@@ -347,7 +378,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-def open_file(file_path, file_options="r"):
+def open_file(file_path, file_options="r", encoding=None, override_existing=True):
     """Open a file and return the object.
 
     Parameters
@@ -356,27 +387,41 @@ def open_file(file_path, file_options="r"):
         Full absolute path to the file (either local or remote).
     file_options : str, optional
         Options for opening the file.
+    encoding : str, optional
+        Name of the encoding used to decode or encode the file.
+        The default is ``None``, which means a platform-dependent encoding is used. You can
+        specify any encoding supported by Python.
+    override_existing : bool, optional
+        Whether to override an existing file if opening a file in write mode on a remote
+        machine. The default is ``True``.
 
     Returns
     -------
     object
         Opened file.
     """
+    file_path = str(file_path)
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+
     dir_name = os.path.dirname(file_path)
     if "r" in file_options:
         if os.path.exists(file_path):
-            return open(file_path, file_options)
+            return open(file_path, file_options, encoding=encoding)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
             file_path
         ):  # pragma: no cover
             local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
             settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
-            return open(local_file, file_options)
+            return open(local_file, file_options, encoding=encoding)
     elif os.path.exists(dir_name):
-        return open(file_path, file_options)
+        return open(file_path, file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(dir_name):
-        return settings.remote_rpc_session.open_file(file_path, file_options)
+        if "w" in file_options:
+            return settings.remote_rpc_session.create_file(
+                file_path, file_options, encoding=encoding, override=override_existing
+            )
+        else:
+            return settings.remote_rpc_session.open_file(file_path, file_options, encoding=encoding)
     else:
         settings.logger.error("The file or folder %s does not exist", dir_name)
 
@@ -421,7 +466,7 @@ def read_json(fn):
     dict
     """
     json_data = {}
-    with open(fn) as json_file:
+    with open_file(fn) as json_file:
         try:
             json_data = json.load(json_file)
         except json.JSONDecodeError as e:  # pragma: no cover
@@ -820,7 +865,7 @@ def is_array(a):
     except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
-        if type(v) is list:
+        if isinstance(v, list):
             return True
         else:
             return False
@@ -839,6 +884,11 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
+    if settings.remote_rpc_session:
+        if settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
+            return True
+        else:
+            return False
     return check_if_path_exists(project_path + ".lock")
 
 
@@ -859,6 +909,9 @@ def remove_project_lock(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
+    if settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(project_path + ".lock"):
+        settings.remote_rpc_session.filemanager.unlink(project_path + ".lock")
+        return True
     if os.path.exists(project_path + ".lock"):
         os.remove(project_path + ".lock")
     return True
@@ -880,6 +933,7 @@ def read_csv(filename, encoding="utf-8"):
     list
 
     """
+    filename = check_and_download_file(filename)
 
     lines = []
     with codecs.open(filename, "rb", encoding) as csvfile:
@@ -905,6 +959,7 @@ def read_csv_pandas(filename, encoding="utf-8"):
     :class:`pandas.DataFrame`
 
     """
+    filename = check_and_download_file(filename)
     try:
         import pandas as pd
 
@@ -947,6 +1002,7 @@ def read_xlsx(filename):
     list
 
     """
+    filename = check_and_download_file(filename)
     try:
         import pandas as pd
 
@@ -1111,17 +1167,17 @@ def _create_json_file(json_dict, full_json_path):
     if not os.path.exists(os.path.dirname(full_json_path)):
         os.makedirs(os.path.dirname(full_json_path))
     if not is_ironpython:
-        with open(full_json_path, "w") as fp:
+        with open_file(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
     else:
         temp_path = full_json_path.replace(".json", "_temp.json")
-        with open(temp_path, "w") as fp:
+        with open_file(temp_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
-        with open(temp_path, "r") as file:
+        with open_file(temp_path, "r") as file:
             filedata = file.read()
         filedata = filedata.replace("True", "true")
         filedata = filedata.replace("False", "false")
-        with open(full_json_path, "w") as file:
+        with open_file(full_json_path, "w") as file:
             file.write(filedata)
         os.remove(temp_path)
     return True
@@ -1609,7 +1665,7 @@ def tech_to_control_file(tech_path, unit="nm", control_path=None):
         Out xml file.
     """
     result = []
-    with open(tech_path) as f:
+    with open_file(tech_path) as f:
         vals = list(CSS4_COLORS.values())
         id_layer = 0
         for line in f:
@@ -1630,7 +1686,7 @@ def tech_to_control_file(tech_path, unit="nm", control_path=None):
                 unit = line_split[1]
     if not control_path:
         control_path = os.path.splitext(tech_path)[0] + ".xml"
-    with open(control_path, "w") as f:
+    with open_file(control_path, "w") as f:
         f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
         f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
         f.write("\n")
@@ -1937,7 +1993,7 @@ def _check_installed_version(install_path, long_version):
     product_list_path = os.path.join(install_path, "config", "ProductList.txt")
     if os.path.isfile(product_list_path):
         try:
-            with open(product_list_path, "r") as f:
+            with open_file(product_list_path, "r") as f:
                 install_version = f.readline().strip()[-6:]
                 if install_version == long_version:
                     return True

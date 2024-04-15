@@ -74,7 +74,7 @@ class GeometryOperators(object):
         >>> 2.0
 
         """
-        if type(string) is not str:
+        if not isinstance(string, str):
             try:
                 return float(string)
             except ValueError:  # pragma: no cover
@@ -712,7 +712,7 @@ class GeometryOperators(object):
         Returns
         -------
         bool
-            ``True`` when the projected segment is inside the other segmennt, ``False`` otherwise.
+            ``True`` when the projected segment is inside the other segment, ``False`` otherwise.
 
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):
@@ -1351,7 +1351,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def get_numeric(s):
         """Convert a string to a numeric value. Discard the suffix."""
-        if type(s) == str:
+        if isinstance(s, str):
             if s == "Global":
                 return 0.0
             else:
@@ -1389,14 +1389,14 @@ class GeometryOperators(object):
         cs_in : List of str or str
             ``["x", "y", "z"]`` or "Global".
         """
-        if type(cs_in) is str:
+        if isinstance(cs_in, str):
             if cs_in == "Global":
                 return [0.0, 0.0, 0.0]
             else:
                 return None
-        elif type(cs_in) is list:
+        elif isinstance(cs_in, list):
             if len(cs_in) == 3:
-                return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
+                return [GeometryOperators.get_numeric(s) if isinstance(s, str) else s for s in cs_in]
             else:
                 return [0, 0, 0]
 

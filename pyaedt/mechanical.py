@@ -184,7 +184,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
-        self.logger.info("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -282,7 +282,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
-        self.logger.info("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -367,8 +367,8 @@ class Mechanical(FieldAnalysis3D, object):
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
 
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
+        if isinstance(objects_list, list):
+            if isinstance(objects_list[0], str):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
@@ -416,8 +416,8 @@ class Mechanical(FieldAnalysis3D, object):
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
 
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
+        if isinstance(objects_list, list):
+            if isinstance(objects_list[0], str):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
@@ -668,8 +668,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> from pyaedt import Mechanical
         >>> app = Mechanical()
-        >>> app.create_setup(setupname="Setup1", MaxModes=6))
-
+        >>> app.create_setup(name="Setup1",MaxModes=6)
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
