@@ -173,7 +173,7 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
+            One or more expressions to add to the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
@@ -209,7 +209,7 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
+            One or more expressions to add to the report. The expression can be any of the available formula
             you can enter into the Electronics Desktop Report Editor.
         setup : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
@@ -246,7 +246,7 @@ class Reports(object):
 
     @pyaedt_function_handler(setup_name="setup")
     def cg_fields(self, expressions=None, setup=None, polyline=None):
-        """Create a CG Field Report object in Q3d and Q2D.
+        """Create a CG Field Report object in Q3D and Q2D.
 
         Parameters
         ----------
@@ -288,7 +288,7 @@ class Reports(object):
 
     @pyaedt_function_handler(setup_name="setup")
     def dc_fields(self, expressions=None, setup=None, polyline=None):
-        """Create a DC Field Report object in Q3d.
+        """Create a DC Field Report object in Q3D.
 
         Parameters
         ----------
@@ -330,7 +330,7 @@ class Reports(object):
 
     @pyaedt_function_handler(setup_name="setup")
     def rl_fields(self, expressions=None, setup=None, polyline=None):
-        """Create an AC RL Field Report object in Q3d and Q2D.
+        """Create an AC RL Field Report object in Q3D and Q2D.
 
         Parameters
         ----------
@@ -432,7 +432,7 @@ class Reports(object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         infinite_sphere : str, optional
-            Name of the sphere on which compute antenna parameters.
+            Name of the sphere to compute antenna parameters on.
 
         Returns
         -------
@@ -3394,9 +3394,9 @@ class PostProcessor(PostProcessorCommon, object):
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive`` setup
+            is used. Be sure to build a setup string in the form of ``"SetupName : SetupSweep"``,
+            where ``SetupSweep`` is the sweep name to use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
             Dictionary containing all intrinsic variables.
             The default is ``None``.
@@ -3838,9 +3838,9 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler(setup_name="setup")
     def export_mesh_obj(self, setup=None, intrinsics=None):
-        """Export the mesh in ``aedtplt`` format.
+        """Export the mesh in AEDTPLT format.
         The mesh has to be available in the selected setup.
-        If a parametric model is provided user can choose the mesh to export providing a specific set of variations.
+        If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
         This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
         and ``Mechanical`` objects. This method is calling ``create_fieldplot_surface`` to create a mesh plot and
         ``export_field_plot`` to export it as ``aedtplt`` file.
