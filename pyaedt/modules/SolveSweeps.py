@@ -197,7 +197,7 @@ class SweepHFSS(object):
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         save_single_fields : bool, optional
             Whether to save the fields of the single point. The default is ``False``.
-            This parameter is sed only for ``range_type="SinglePoints"``.
+            This parameter is used only for ``range_type="SinglePoints"``.
         clear : bool, optional
             Whether to suppress all other subranges except the current one under creation.
             The default value is ``False``.
