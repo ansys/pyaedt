@@ -192,8 +192,9 @@ py_vista_plot.plot(os.path.join(results_folder, "mag_E.jpg"))
 # ~~~~~~~~~~~~~~~
 # Plot current density vs the Material index.
 
-animated = m2d.post.plot_animated_field(quantity="Mag_J", objects=conductor_surface, variation_variable="MaterialIndex",
-                                        variations=[0, 1, 2, 3], show=False, log_scale=True, export_gif=False,
+animated = m2d.post.plot_animated_field(quantity="Mag_J", assignment=conductor_surface,
+                                        variation_variable="MaterialIndex", variations=[0, 1, 2, 3],
+                                        show=False, log_scale=True, export_gif=False,
                                         export_path=results_folder)
 animated.isometric_view = False
 animated.camera_position = [0, 0, 7]

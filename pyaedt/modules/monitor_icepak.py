@@ -747,8 +747,8 @@ class ObjectMonitor:
         """
         return self._type
 
-    @pyaedt_function_handler
-    def value(self, quantity=None, setup_name=None, design_variation_dict=None, si_out=True):
+    @pyaedt_function_handler(setup_name="setup")
+    def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
         """
         Get a list of values obtained from the monitor object. If the simulation is steady state,
         the list will contain just one element.
@@ -760,10 +760,10 @@ class ObjectMonitor:
             all monitored quantity will be considered.
         design_variation_dict : dict, optional
             Dictionary containing the project and design variables and values. If this parameter
-            is not provided, all variations will be considered.
-        setup_name : str, optional
-            String that specifies the name of the setup from which to extract the monitor value.
-            If this parameter is not provided, the first one of the design will be selected.
+            is not provided, all variations are considered.
+        setup : str, optional
+            Name of the setup to extract the monitor value from.
+            If this parameter is not provided, the first setup of the design is used.
         si_out : bool, optional
             Whether to return the values of th monitor object in SI units. Default is ``True``.
 
@@ -773,8 +773,8 @@ class ObjectMonitor:
             Dictionary containing the variables names and values and the monitor values for each
             variation.
         """
-        if not setup_name:
-            setup_name = self._app.existing_analysis_sweeps[0]
+        if not setup:
+            setup = self._app.existing_analysis_sweeps[0]
         design_variation = []
         if not design_variation_dict:
             design_variation_dict = {k: ["All"] for k in self._app.variable_manager.variables.keys()}
@@ -787,7 +787,7 @@ class ObjectMonitor:
         for q in quantity:
             for i, monitor_result_obj in enumerate(
                 self._app.oreportsetup.GetSolutionDataPerVariation(
-                    "Monitor", setup_name, [], design_variation, "{}.{}".format(self.name, q)
+                    "Monitor", setup, [], design_variation, "{}.{}".format(self.name, q)
                 )
             ):
                 variation_a = {

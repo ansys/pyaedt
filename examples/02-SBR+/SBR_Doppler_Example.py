@@ -120,13 +120,8 @@ bird2 = app.modeler.add_bird(
 # Place radar on the car. The radar is created relative to the car's coordinate
 # system.
 
-radar1 = app.create_sbr_radar_from_json(
-    radar_file=radar_lib,
-    radar_name="Example_1Tx_1Rx",
-    offset=[2.57, 0, 0.54],
-    use_relative_cs=True,
-    relative_cs_name=car1.cs_name,
-)
+radar1 = app.create_sbr_radar_from_json(radar_file=radar_lib, name="Example_1Tx_1Rx", offset=[2.57, 0, 0.54],
+                                        use_relative_cs=True, relative_cs_name=car1.cs_name)
 
 ###############################################################################
 # Create setup

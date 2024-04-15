@@ -155,12 +155,12 @@ class TestClass:
             os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="RL", matrix_type="Maxwell, Couple"
         )
         assert q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", setup_name="Setup1", sweep="Sweep1"
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", setup="Setup1", sweep="Sweep1"
         )
         assert q2d.export_matrix_data(
             os.path.join(self.local_scratch.path, "test_2d.txt"),
             problem_type="CG",
-            setup_name="Setup1",
+            setup="Setup1",
             sweep="LastAdaptive",
         )
         assert q2d.export_matrix_data(

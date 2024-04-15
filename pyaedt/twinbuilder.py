@@ -314,13 +314,13 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         )
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
     def add_q3d_dynamic_component(
         self,
         source_project,
         source_design_name,
-        setup_name,
-        sweep_name,
+        setup,
+        sweep,
         coupling_matrix_name,
         model_depth="1meter",
         maximum_order=10000,
@@ -337,11 +337,11 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         source_project : str
             Source project name or project path.
         source_design_name : str
-            Source Design name in specified project.
-        setup_name : str
+            Source design name.
+        setup : str
             Setup name.
-        sweep_name : str
-            Sweep name
+        sweep : str
+            Sweep name.
         coupling_matrix_name : str
             Coupling matrix name.
         model_depth : str, optional
@@ -380,10 +380,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
+
         >>> oComponentManager.AddDynamicNPortData
 
         Examples
         --------
+
         Create an instance of Twin Builder.
 
         >>> from pyaedt import TwinBuilder
@@ -391,17 +393,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Add a Q2D dynamic link component.
 
-        >>> tb.add_q3d_dynamic_component("Q2D_ArmouredCableExample",
-        ...                             "2D_Extractor_Cable",
-        ...                             "MySetupAuto",
-        ...                             "sweep1",
-        ...                             "Original",
-        ...                             "100mm")
+        >>> tb.add_q3d_dynamic_component("Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1",
+        ...                              "Original","100mm")
         >>> tb.release_desktop()
         """
         dkp = self.desktop_class
         is_loaded = False
-        app = None
         if os.path.isfile(source_project):
             project_path = source_project
             project_name = os.path.splitext(os.path.basename(source_project))[0]
@@ -418,13 +415,14 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid project name or path provided.")
         if app is None:  # pragma: no cover
             raise ValueError("Invalid project or design name.")
+        setup_name = setup
         setup = [s for s in app.setups if s.name == setup_name]
         if not setup:
             raise ValueError("Invalid setup in selected design.")
         else:
-            sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep_name]
+            sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep]
             if sweeps:  # pragma: no cover
-                coupling_solution_name = "{} : {}".format(setup_name, sweep_name)
+                coupling_solution_name = "{} : {}".format(setup_name, sweep)
             else:  # pragma: no cover
                 raise ValueError("Invalid sweep name.")
         if not [m for m in app.matrices if m.name == coupling_matrix_name]:

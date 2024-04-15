@@ -210,7 +210,7 @@ M2D.post.plot_field_from_fieldplot(plot.name, show=False)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export the mesh in ``aedtplt`` format.
 
-M2D.post.export_mesh_obj(setup_name=M2D.nominal_adaptive)
+M2D.post.export_mesh_obj(setup=M2D.nominal_adaptive)
 
 ###################################################################################
 # Save project and close AEDT

@@ -105,7 +105,7 @@ p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
                    dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
                    name="port1"
                    )
-hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create port 2
@@ -116,7 +116,7 @@ create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 p.create_rectangle(pyaedt.constants.PLANE.YZ, [x1 - 5, y1 - width / 2, -thickness / 2],
                    [width, "-Tsub"],
                    name="port2")
-hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port2", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create silicon substrate and ground plane
@@ -165,10 +165,10 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # ~~~~~~~~~~~~
 # Create the setup and define a frequency sweep to solve the project.
 
-setup1 = hfss.create_setup(setupname="setup1")
+setup1 = hfss.create_setup(name="setup1")
 setup1.props["Frequency"] = "10GHz"
-hfss.create_linear_count_sweep(setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451,
-                               sweep_type="Interpolating")
+hfss.create_linear_count_sweep(setup="setup1", units="GHz", start_frequency=1e-3, stop_frequency=50,
+                               num_of_freq_points=451, sweep_type="Interpolating")
 hfss.save_project()
 hfss.analyze()
 

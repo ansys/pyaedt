@@ -120,15 +120,15 @@ class AnalysisTwinBuilder(Analysis):
 
         return self._post
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
         ----------
-        setupname : str, optional
+        name : str, optional
             Name of the setup. The default is ``"MySetupAuto"``.
-        setuptype : str
+        setup_type : str
             Type of the setup. The default is ``None``, in which case the default
             type is applied.
         **kwargs : dict, optional
@@ -142,12 +142,12 @@ class AnalysisTwinBuilder(Analysis):
         :class:`pyaedt.modules.SolveSetup.SetupCircuit`
             Setup object.
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        name = self.generate_unique_setup_name(setupname)
-        setup = SetupCircuit(self, setuptype, name)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
+        name = self.generate_unique_setup_name(name)
+        setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
         setup.auto_update = False

@@ -178,13 +178,13 @@ class FieldAnalysis3DLayout(Analysis):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler()
-    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup")
+    def export_mesh_stats(self, setup, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Setup name.
         variation_string : str, optional
             Variation List.
@@ -203,7 +203,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        self.odesign.ExportMeshStats(setup, variation_string, mesh_path)
         return mesh_path
 
     @property
@@ -252,15 +252,15 @@ class FieldAnalysis3DLayout(Analysis):
             return list(setups)
         return []
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
         ----------
-        setupname : str, optional
+        name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setuptype : str, optional
+        setup_type : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -284,12 +284,12 @@ class FieldAnalysis3DLayout(Analysis):
         >>> app = Hfss3dLayout()
         >>> app.create_setup(name="Setup1",MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        name = self.generate_unique_setup_name(setupname)
-        setup = Setup3DLayout(self, setuptype, name)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
+        name = self.generate_unique_setup_name(name)
+        setup = Setup3DLayout(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
@@ -307,15 +307,15 @@ class FieldAnalysis3DLayout(Analysis):
         self._setups = tmp_setups + [setup]
         return setup
 
-    @pyaedt_function_handler()
-    def get_setup(self, setupname, setuptype=None):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def get_setup(self, name, setup_type=None):
         """Retrieve a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
-        setuptype : SETUPS, optional
+        setup_type : SETUPS, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
 
@@ -325,22 +325,22 @@ class FieldAnalysis3DLayout(Analysis):
             Setup object.
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
         for setup in self._setups:
-            if setupname == setup.name:
+            if name == setup.name:
                 return setup
-        setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
-        self.active_setup = setupname
+        setup = Setup3DLayout(self, setup_type, name, is_new_setup=False)
+        self.active_setup = name
         return setup
 
-    @pyaedt_function_handler()
-    def delete_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def delete_setup(self, name):
         """Delete a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -360,14 +360,14 @@ class FieldAnalysis3DLayout(Analysis):
         >>> import pyaedt
         >>> hfss3dlayout = pyaedt.Hfss3dLayout()
         >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
-        >>> hfss3dlayout.delete_setup(setupname='Setup1')
+        >>> hfss3dlayout.delete_setup()
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if setupname in self.existing_analysis_setups:
-            self.osolution.Delete(setupname)
+        if name in self.existing_analysis_setups:
+            self.osolution.Delete(name)
             for s in self.setups:
-                if s.name == setupname:
+                if s.name == name:
                     self.setups.remove(s)
             return True
         return False

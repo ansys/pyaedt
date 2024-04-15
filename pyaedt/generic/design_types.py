@@ -402,7 +402,6 @@ def Emit(
     projectname=None,
     designname=None,
     solution_type=None,
-    setup_name=None,
     specified_version=None,
     non_graphical=False,
     new_desktop_session=False,
@@ -428,10 +427,6 @@ def Emit(
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
     specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
@@ -511,7 +506,6 @@ def Emit(
         projectname=projectname,
         designname=designname,
         solution_type=solution_type,
-        setup_name=setup_name,
         specified_version=specified_version,
         non_graphical=non_graphical,
         new_desktop_session=new_desktop_session,

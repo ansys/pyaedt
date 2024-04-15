@@ -354,7 +354,6 @@ class TestClass:
         assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
         assert self.dcir_example_project.post.create_report(
             self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
-            setup_sweep_name="SIwaveDCIR1",
             domain="DCIR",
             context="RL",
         )

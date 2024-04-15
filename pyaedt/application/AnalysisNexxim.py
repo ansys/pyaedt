@@ -69,13 +69,13 @@ class FieldAnalysisCircuit(Analysis):
             self._modeler = self.modeler
             self._post = self.post
 
-    @pyaedt_function_handler()
-    def delete_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def delete_setup(self, name):
         """Delete a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -88,10 +88,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oModule.RemoveSimSetup
         """
-        if setupname in self.existing_analysis_setups:
-            self.oanalysis.RemoveSimSetup([setupname])
+        if name in self.existing_analysis_setups:
+            self.oanalysis.RemoveSimSetup([name])
             for s in self.setups:
-                if s.name == setupname:
+                if s.name == name:
                     self.setups.remove(s)
             return True
         return False
@@ -339,13 +339,13 @@ class FieldAnalysisCircuit(Analysis):
                                 props[new_port] = Excitations(self, new_port)
         return props
 
-    @pyaedt_function_handler()
-    def get_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def get_setup(self, name):
         """Retrieve the setup from the current design.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -354,20 +354,20 @@ class FieldAnalysisCircuit(Analysis):
             Setup object.
 
         """
-        setup = SetupCircuit(self, self.solution_type, setupname, isnewsetup=False)
+        setup = SetupCircuit(self, self.solution_type, name, is_new_setup=False)
         if setup.props:
-            self.active_setup = setupname
+            self.active_setup = name
         return setup
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
         ----------
-        setupname : str, optional
+        name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setuptype : str, optional
+        setup_type : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -400,12 +400,12 @@ class FieldAnalysisCircuit(Analysis):
         >>> app = Circuit()
         >>> app.create_setup(name="Setup1",setup_type=app.SETUPS.NexximLNA,Data="LINC 0GHz 4GHz 501")
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        name = self.generate_unique_setup_name(setupname)
-        setup = SetupCircuit(self, setuptype, name)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
+        name = self.generate_unique_setup_name(name)
+        setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
