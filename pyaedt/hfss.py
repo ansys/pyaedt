@@ -5887,7 +5887,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             sheet_name = self.modeler.convert_to_selections(assignment, False)
             if isinstance(integration_line, list):
                 if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
-                    self.logger.error("List of coordinates is not set correctly")
+                    self.logger.error("List of coordinates is not set correctly.")
                     return False
                 point0 = integration_line[0]
                 point1 = integration_line[1]
