@@ -226,7 +226,7 @@ class TestLogMessages:
     """Class used to test log messages."""
 
     def test_log_when_accessing_non_existing_object(self, caplog):
-        """Check that accessing non existing object log an error message."""
+        """Check that accessing a non-existent object logs an error message."""
         from pyaedt import Hfss
 
         app = Hfss(

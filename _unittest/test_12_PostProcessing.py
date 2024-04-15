@@ -177,8 +177,8 @@ class TestClass:
             field_test.nominal_adaptive,
             variations=variations,
             primary_sweep_variable="Theta",
-            context="3D",
             report_category="Far Fields",
+            context="3D",
         )
         assert data.plot(is_polar=True)
         assert data.plot_3d()
@@ -195,8 +195,8 @@ class TestClass:
             field_test.nominal_adaptive,
             variations=variations,
             primary_sweep_variable="Theta",
-            context=context,
             report_category="Far Fields",
+            context=context,
         )
         assert data.plot(is_polar=True)
         assert data.plot_3d()
@@ -223,11 +223,7 @@ class TestClass:
         new_report.report_type = "Smith Chart"
         assert new_report.create()
         data = field_test.setups[0].get_solution_data(
-            "Mag_E",
-            variations=variations2,
-            primary_sweep_variable="Theta",
-            context="Poly1",
-            report_category="Fields",
+            "Mag_E", variations=variations2, primary_sweep_variable="Theta", report_category="Fields", context="Poly1"
         )
         assert data.units_sweeps["Phase"] == "deg"
 
@@ -304,9 +300,7 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(
-            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
-        )
+        assert circuit_test.post.create_report(["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum")
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -386,10 +380,7 @@ class TestClass:
         sbr_test.analyze(sbr_test.active_setup, use_auto_settings=False)
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
-            expressions=["NearEX", "NearEY", "NearEZ"],
-            # variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
-            context="Near_Field",
-            report_category="Near Fields",
+            expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
         )
         assert solution_data
         assert len(solution_data.primary_sweep_values) > 0
@@ -615,7 +606,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
-        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
         ffdata.phase_offset = [0, 90]
         assert ffdata.phase_offset == [0, 90]
         ffdata.phase_offset = [0]
@@ -667,7 +658,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_72_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
             quantity="RealizedGain",
@@ -707,7 +698,7 @@ class TestClass:
             convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
+        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D", overwrite=False)
         assert ffdata1.plot_farfield_contour(
             quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata1.frequency),
@@ -720,35 +711,30 @@ class TestClass:
         ami_test.solution_type = "NexximAMI"
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterSource<b_output4_42.int_ami_tx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="InitialWave<b_output4_42.int_ami_tx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterChannel<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="ClockTics<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Clock Times",
             variations=ami_test.available_variations.nominal,
         )

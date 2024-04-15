@@ -98,9 +98,9 @@ class TestClass:
         phases = [str(i * 5) + "deg" for i in range(2)]
         model_gif = self.aedtapp.post.plot_animated_field(
             quantity="Mag_E",
-            objects=cutlist,
+            assignment=cutlist,
             plot_type="CutPlane",
-            setup_name=self.aedtapp.nominal_adaptive,
+            setup=self.aedtapp.nominal_adaptive,
             intrinsics={"Freq": "5GHz", "Phase": "0deg"},
             variation_variable="Phase",
             variations=phases,
@@ -269,12 +269,10 @@ class TestClass:
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
-            setup_sweep_name="Setup1 : AdaptivePass",
             variations={"Pass": ["All"]},
             primary_sweep_variable="Pass",
             report_category="Modal Solution Data",
             plot_type="Rectangular Plot",
-            plot_name="Solution Convergence Plot",
         )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -553,7 +551,7 @@ class TestClass:
             "Vector_E",
             cutlist,
             "CutPlane",
-            setup_name=setup_name,
+            setup=setup_name,
             intrinsics=intrinsic,
             mesh_on_fields=False,
             view="isometric",
@@ -580,7 +578,7 @@ class TestClass:
         plot = self.aedtapp.post._create_fieldplot(
             assignment=cutlist,
             quantity="Mag_E",
-            setup_name=self.aedtapp.nominal_adaptive,
+            setup=self.aedtapp.nominal_adaptive,
             intrinsics={},
             list_type="CutPlane",
         )

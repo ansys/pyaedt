@@ -189,12 +189,7 @@ ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim
 # ~~~~~~~~~~~~~~~
 # Map ohmic losses from Maxwell to the Icepak design.
 
-ipk.assign_em_losses(
-    designname="1 Maxwell",
-    setupname=m3d.setups[0].name,
-    sweepname="LastAdaptive",
-    object_list=["Coil"],
-)
+ipk.assign_em_losses(design="1 Maxwell", setup=m3d.setups[0].name, sweep="LastAdaptive", assignment=["Coil"])
 
 ###############################################################################
 # Boundary conditions

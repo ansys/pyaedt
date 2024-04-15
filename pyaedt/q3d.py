@@ -213,13 +213,13 @@ class QExtractor(FieldAnalysis3D, object):
             category=category,
         )
 
-    @pyaedt_function_handler()
-    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None, setup_type="CG"):
+    @pyaedt_function_handler(setup_name="setup")
+    def export_mesh_stats(self, setup, variation_string="", mesh_path=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
@@ -241,7 +241,7 @@ class QExtractor(FieldAnalysis3D, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup_name, variation_string, setup_type, mesh_path)
+        self.odesign.ExportMeshStats(setup, variation_string, setup_type, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
@@ -281,7 +281,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
-        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
+        >>> hfss.edit_sources(sources_cg,sources_acrl,sources_dcrl)
         """
         setting_AC = []
         setting_CG = []
@@ -395,12 +395,13 @@ class QExtractor(FieldAnalysis3D, object):
 
         return True
 
+    @pyaedt_function_handler(setup_name="setup")
     def export_matrix_data(
         self,
         file_name,
         problem_type=None,
         variations=None,
-        setup_name=None,
+        setup=None,
         sweep=None,
         reduce_matrix=None,
         r_unit="ohm",
@@ -410,7 +411,7 @@ class QExtractor(FieldAnalysis3D, object):
         freq=None,
         freq_unit=None,
         matrix_type=None,
-        export_AC_DC_res=False,
+        export_ac_dc_res=False,
         precision=None,
         field_width=None,
         use_sci_notation=True,
@@ -431,7 +432,7 @@ class QExtractor(FieldAnalysis3D, object):
         variations : str, optional
             Design variation. The default is ``None``, in which case the
             current nominal variation is used.
-        setup_name : str, optional
+        setup : str, optional
             Setup name. The default value is ``None``, in which case the first
             analysis setup is used.
         sweep : str, optional
@@ -459,12 +460,11 @@ class QExtractor(FieldAnalysis3D, object):
             Frequency unit. The default value is ``None``, in which case the
             default unit is used.
         matrix_type : str, optional
-            Matrix Type.
-            Possible Values are "Maxwell", "Spice" and "Couple".
-            The default value is ``None``.
-        export_AC_DC_res : bool, optional
-            Whether to add the AC and DC res.
-            The default value is ``False``.
+            Matrix type. The default is ``None``.
+            Options are ``"Couple"``, ``"Maxwell"``, and ``"Spice"``.
+        export_ac_dc_res : bool, optional
+            Whether to add the AC and DC resistance.
+            The default is ``False``.
         precision : int, optional
             Precision format.
             The default value is ``15``.
@@ -560,10 +560,10 @@ class QExtractor(FieldAnalysis3D, object):
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
-        if setup_name is None:
-            setup_name = self.active_setup
-        elif setup_name != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
+        if setup is None:
+            setup = self.active_setup
+        elif setup != self.active_setup:
+            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
             return False
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
@@ -572,7 +572,7 @@ class QExtractor(FieldAnalysis3D, object):
             if sweep.replace(" ", "") not in sweep_array:
                 self.logger.error("Sweep is invalid. Provide a valid sweep.")
                 return False
-        analysis_setup = setup_name + " : " + sweep.replace(" ", "")
+        analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if reduce_matrix is None:
             reduce_matrix = "Original"
@@ -623,9 +623,7 @@ class QExtractor(FieldAnalysis3D, object):
             freq = (
                 re.compile(r"(\d+)\s*(\w+)")
                 .match(
-                    self.modeler._odesign.GetChildObject("Analysis")
-                    .GetChildObject(setup_name)
-                    .GetPropValue("Adaptive Freq")
+                    self.modeler._odesign.GetChildObject("Analysis").GetChildObject(setup).GetPropValue("Adaptive Freq")
                 )
                 .groups()[0]
             )
@@ -633,8 +631,8 @@ class QExtractor(FieldAnalysis3D, object):
             if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
                 freq = go.parse_dim_arg("{}{}".format(freq, freq_unit), self.odesktop.GetDefaultUnit("Frequency"))
 
-        if export_AC_DC_res is None:
-            export_AC_DC_res = False
+        if export_ac_dc_res is None:
+            export_ac_dc_res = False
 
         if precision is None:
             precision = 15
@@ -702,7 +700,7 @@ class QExtractor(FieldAnalysis3D, object):
                     length_setting,
                     length,
                     matrix_type,
-                    export_AC_DC_res,
+                    export_ac_dc_res,
                     precision,
                     field_width,
                     use_sci_notation,
@@ -725,7 +723,7 @@ class QExtractor(FieldAnalysis3D, object):
                     g_unit,
                     freq,
                     matrix_type,
-                    export_AC_DC_res,
+                    export_ac_dc_res,
                     precision,
                     field_width,
                     use_sci_notation,
@@ -1976,17 +1974,16 @@ class Q3d(QExtractor, object):
         except Exception:
             return False
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", **kwargs):
+    @pyaedt_function_handler(setupname="name")
+    def create_setup(self, name="MySetupAuto", **kwargs):
         """Create an analysis setup for Q3D Extractor.
 
-        Optional arguments are passed along with the ``setupname`` parameter.
-
+        Optional arguments are passed along with the ``name`` parameter.
 
         Parameters
         ----------
 
-        setupname : str, optional
+        name : str, optional
             Name of the setup. The default is "Setup1".
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
@@ -2010,12 +2007,12 @@ class Q3d(QExtractor, object):
         >>> app.create_setup(name="Setup1",DC__MinPass=2)
 
         """
-        setuptype = self.design_solutions.default_setup
+        setup_type = self.design_solutions.default_setup
 
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
@@ -2492,22 +2489,22 @@ class Q2d(QExtractor, object):
             self.logger.error("Error in updating conductor type")
             return False
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setup_name="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
 
-        Optional arguments are passed along with the ``setuptype`` and ``setupname``
-        parameters.  Keyword names correspond to the ``setuptype``
+        Optional arguments are passed along with the ``setup_type`` and ``name``
+        parameters.  Keyword names correspond to the ``setup_type``
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is "Setup1".
+        setup_type : int, str, optional
             Type of the setup. Options are "IcepakSteadyState"
             and "IcepakTransient". The default is "IcepakSteadyState".
-        setupname : str, optional
-            Name of the setup. The default is "Setup1".
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesQ3D`.
@@ -2528,15 +2525,16 @@ class Q2d(QExtractor, object):
         >>> from pyaedt import Q2d
         >>> app = Q2d()
         >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
+
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

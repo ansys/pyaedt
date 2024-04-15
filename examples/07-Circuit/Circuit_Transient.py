@@ -91,7 +91,7 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransient")
+trans_setup = cir.create_setup(name="TransientRun", setup_type="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 

@@ -129,18 +129,10 @@ aedtapp.mesh.assign_length_mesh(assignment=o2.faces, inside_selection=False, max
 # the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
 # creates a PEC cap.
 
-aedtapp.wave_port(signal="inner",
-                  reference="outer",
-                  integration_line=1,
-                  create_port_sheet=True,
-                  create_pec_cap=True,
-                  name="P1")
-aedtapp.wave_port(signal="inner",
-                  reference="outer",
-                  integration_line=4,
-                  create_pec_cap=True,
-                  create_port_sheet=True,
-                  name="P2")
+aedtapp.wave_port(assignment="inner", reference="outer", create_port_sheet=True, create_pec_cap=True,
+                  integration_line=1, name="P1")
+aedtapp.wave_port(assignment="inner", reference="outer", create_port_sheet=True, create_pec_cap=True,
+                  integration_line=4, name="P2")
 
 port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
@@ -163,7 +155,7 @@ setup.props["MaximumPasses"] = 1
 # ~~~~~~~~~~~~
 # Create a sweep. A sweep is created with default values.
 
-sweepname = aedtapp.create_linear_count_sweep(setupname="MySetup", unit="GHz", freqstart=0.8, freqstop=1.2,
+sweepname = aedtapp.create_linear_count_sweep(setup="MySetup", units="GHz", start_frequency=0.8, stop_frequency=1.2,
                                               num_of_freq_points=401, sweep_type="Interpolating")
 
 ################################################################################
@@ -182,8 +174,8 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # Link sources to the EM losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", sweepname="LastAdaptive",
-                        map_frequency="1GHz", surface_objects=surfaceobj, paramlist=["$coax_dimension", "inner"])
+ipkapp.assign_em_losses(design=aedtapp.design_name, setup="MySetup", sweep="LastAdaptive", map_frequency="1GHz",
+                        surface_objects=surfaceobj, parameters=["$coax_dimension", "inner"])
 
 #################################################################################
 # Edit gravity setting
@@ -271,8 +263,8 @@ start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
 
-animated = aedtapp.post.plot_animated_field(quantity="Mag_E", objects=cutlist, plot_type="CutPlane",
-                                            setup_name=aedtapp.nominal_adaptive,
+animated = aedtapp.post.plot_animated_field(quantity="Mag_E", assignment=cutlist, plot_type="CutPlane",
+                                            setup=aedtapp.nominal_adaptive,
                                             intrinsics={"Freq": "1GHz", "Phase": "0deg"}, variation_variable="Phase",
                                             variations=phases, show=False, log_scale=True, export_gif=False,
                                             export_path=results_folder)

@@ -4,6 +4,7 @@ from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class RMXprtModule(object):
@@ -249,26 +250,25 @@ class Rmxprt(FieldAnalysisRMxprt):
     def design_type(self, value):
         self.design_solutions.design_type = value
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(name="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for RmXport.
 
-        Optional arguments are passed along with the ``setuptype`` and ``setupname``
-        parameters. Keyword names correspond to the ``setuptype``
+        Optional arguments are passed along with the ``setup_type`` and ``name``
+        parameters. Keyword names correspond to the ``setup_type``
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is "Setup1".
+        setup_type : int, str, optional
             Type of the setup. Options are "IcepakSteadyState"
             and "IcepakTransient". The default is "IcepakSteadyState".
-        setupname : str, optional
-            Name of the setup. The default is "Setup1".
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesRmxprt`.
-
 
         Returns
         -------
@@ -288,14 +288,14 @@ class Rmxprt(FieldAnalysisRMxprt):
         >>> hfss.create_setup(name="Setup1",setup_type="HFSSDriven",Frequency="10GHz")
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

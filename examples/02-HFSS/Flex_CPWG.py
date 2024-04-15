@@ -189,7 +189,7 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
-    hfss.wave_port(s.id, name=port_name, reference=reference)
+    hfss.wave_port(s.id, reference=reference, name=port_name)
 
 ###############################################################################
 # Create setup and sweep
@@ -200,16 +200,8 @@ setup = hfss.create_setup("setup1")
 setup["Frequency"] = "2GHz"
 setup.props["MaximumPasses"] = 10
 setup.props["MinimumConvergedPasses"] = 2
-hfss.create_linear_count_sweep(
-    setupname="setup1",
-    unit="GHz",
-    freqstart=1e-1,
-    freqstop=4,
-    num_of_freq_points=101,
-    sweepname="sweep1",
-    save_fields=False,
-    sweep_type="Interpolating",
-)
+hfss.create_linear_count_sweep(setup="setup1", units="GHz", start_frequency=1e-1, stop_frequency=4,
+                               num_of_freq_points=101, name="sweep1", save_fields=False, sweep_type="Interpolating")
 
 ###############################################################################
 # Plot model

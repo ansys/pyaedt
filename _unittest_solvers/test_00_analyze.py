@@ -107,10 +107,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
-        assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
+        assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
         sbr_platform.analyze(num_cores=6)
-        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
-        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
+        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
 
         ffdata.plot_2d_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
                            title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10",
@@ -172,7 +172,7 @@ class TestClass:
         hfss_app.add_3d_component_array_from_json(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = hfss_app.create_setup(setupname="test")
+        setup = hfss_app.create_setup(name="test")
         setup.props["Frequency"] = "1GHz"
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
@@ -278,8 +278,7 @@ class TestClass:
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value()
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value(
-            setup_name=self.icepak_app.existing_analysis_sweeps[0]
-        )
+            setup=self.icepak_app.existing_analysis_sweeps[0])
         assert self.icepak_app.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
     def test_03d_icepak_eval_tempc(self):
@@ -378,8 +377,7 @@ class TestClass:
         rx = ports
         insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
         assert circuit_app.post.create_report(insertions, circuit_app.nominal_adaptive, report_category="Standard",
-                                              plot_type="Rectangular Plot", subdesign_id=myedb.id,
-                                              plot_name="Insertion Losses")
+                                              plot_type="Rectangular Plot", subdesign_id=myedb.id)
         new_report = circuit_app.post.reports_by_category.standard(insertions)
         new_report.sub_design_id = myedb.id
         assert new_report.create()

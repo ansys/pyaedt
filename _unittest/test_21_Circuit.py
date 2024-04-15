@@ -355,7 +355,6 @@ class TestClass:
             diff_name=None,
             common_ref_z=34,
             diff_ref_z=123,
-            active=True,
         )
         assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
