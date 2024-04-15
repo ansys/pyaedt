@@ -93,7 +93,7 @@ jobs:
           python doc/print_errors.py
 
       - name: Upload Documentation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: Documentation
           path: doc/_build/html
@@ -103,14 +103,8 @@ jobs:
         run: |
           make -C doc pdf-no-examples
 
-      - name: Add assets to HTML docs
-        run: |
-          zip -r documentation-html.zip ./doc/_build/html
-          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
-          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
-
       - name: Upload documentation PDF artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: Documentation-pdf
           path: doc/_build/latex/*.pdf
