@@ -1558,6 +1558,8 @@ class GeometryOperators(object):
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
+        This version supports also self-intersecting polygons.
+
         point : List
             List of ``[x, y]`` coordinates.
         polygon : List
@@ -1591,9 +1593,10 @@ class GeometryOperators(object):
             if abs(abs(a) - math.pi) < tol:
                 return 0
             asum += a
+        r = asum % (2*math.pi)
         if abs(asum) < tol:
             return -1
-        elif ((abs(asum)+tol/2)%(2*math.pi)) < tol:
+        elif r < tol or (2*math.pi - r) < tol:
             return 1
         else:  # pragma: no cover
             raise Exception("Unexpected error!")
