@@ -649,10 +649,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Material to use. The default is ``None``.
         conductivity : float, optional
             Conductivity. The default is ``58000000``.
-            If no material is provided, a value must be supplied. 
+            If no material is provided, a value must be supplied.
         permittivity : float, optional
             Permittivity. The default is ``1``. If no
-            material is provided, a value must be supplied. 
+            material is provided, a value must be supplied.
         use_thickness : bool, optional
             Whether to use thickness. The default is ``False``.
         thickness : str, optional
@@ -4172,7 +4172,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Name of the boundary. The default is ``""``.
         hybrid_region : str, optional
             Hybrid region to assign. The default is `"SBR+"``. Options are ``"IE"``, ``"PO"``
-            and ``"SBR+"``. 
+            and ``"SBR+"``.
 
         Returns
         -------
