@@ -1262,7 +1262,7 @@ class Analysis(Design, object):
             setup = SetupSBR(self, setup_type, name)
         elif setup_type in [5, 6, 7, 8, 9, 10, 56, 58, 59]:
             setup = SetupMaxwell(self, setup_type, name)
-        elif setup_type in [14]:
+        elif setup_type == 14:
             setup = SetupQ3D(self, setup_type, name)
         else:
             setup = SetupHFSS(self, setup_type, name)
