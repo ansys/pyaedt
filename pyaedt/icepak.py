@@ -1417,8 +1417,7 @@ class Icepak(FieldAnalysis3D):
             else:
                 self[name_map[var_name]] = self.modeler._arg_with_dim(var)
 
-        if numcolumn_perside > 1:
-            self[name_map["NumColumnsPerSide"]] = numcolumn_perside
+        self[name_map["NumColumnsPerSide"]] = numcolumn_perside
         if symmetric:
             if relative:
                 self[name_map["SymSeparation_Factor"]] = symmetric_separation
@@ -1543,17 +1542,16 @@ class Icepak(FieldAnalysis3D):
             name_map["_num"] + "*2",
             True,
         )
-        if numcolumn_perside > 0:
-            self.modeler.duplicate_along_line(
-                fin_base.name,
-                self.Position(
-                    name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
-                    name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
-                    0,
-                ),
-                name_map["NumColumnsPerSide"],
-                True,
-            )
+        self.modeler.duplicate_along_line(
+            fin_base.name,
+            self.Position(
+                name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
+                name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                0,
+            ),
+            name_map["NumColumnsPerSide"],
+            True,
+        )
         cs = self.modeler.oeditor.GetActiveCoordinateSystem()
         cs_ymax = self.modeler.create_coordinate_system(
             self.Position(0, name_map["HSHeight"] + "/2", 0),
