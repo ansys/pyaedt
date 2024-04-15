@@ -460,12 +460,11 @@ class QExtractor(FieldAnalysis3D, object):
             Frequency unit. The default value is ``None``, in which case the
             default unit is used.
         matrix_type : str, optional
-            Matrix Type.
-            Possible Values are "Maxwell", "Spice" and "Couple".
-            The default value is ``None``.
+            Matrix type. The default is ``None``.
+            Options are ``"Couple"``, ``"Maxwell"``, and ``"Spice"``.
         export_ac_dc_res : bool, optional
-            Whether to add the AC and DC res.
-            The default value is ``False``.
+            Whether to add the AC and DC resistance.
+            The default is ``False``.
         precision : int, optional
             Precision format.
             The default value is ``15``.

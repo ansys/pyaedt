@@ -648,9 +648,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         material : str, optional
             Material to use. The default is ``None``.
         conductivity : float, optional
-            If no material is provided, a conductivity value must be supplied. The default is ``58000000``.
+            Conductivity. The default is ``58000000``.
+            If no material is provided, a value must be supplied.
         permittivity : float, optional
-            If no material is provided, a permittivity value must be supplied. The default is ``1``.
+            Permittivity. The default is ``1``. If no
+            material is provided, a value must be supplied.
         use_thickness : bool, optional
             Whether to use thickness. The default is ``False``.
         thickness : str, optional
@@ -664,6 +666,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         is_internal : bool, optional
             Whether the finite conductivity is internal. The default is ``True``.
         is_shell_element : bool, optional
+            Whether the finite conductivity is a shell element.
             The default is ``False``.
         use_huray : bool, optional
             Whether to use a Huray coefficient. The default is ``False``.
@@ -854,7 +857,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             are "Fast"`` and ``5`` for ``sweep_type = ""Discrete"``.
         name : str, optional
             Name of the sweep. The default is ``None``, in which
-            case the default name is automatically assigned.
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -964,7 +967,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         step_size : float
             Frequency size of the step.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in
+            which case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -1044,7 +1048,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in
+            which case a name is automatically assigned.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
             If a list is specified, the length must be the same as the list of frequencies.
@@ -1138,7 +1143,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
         setup : optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
         field_type : str, optional
             Field type. The options are ``"nearfield"`` and ``"farfield"``.
             The default is ``"nearfield"``.
@@ -1830,7 +1836,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
-            First solid connected to the voltage source.
+            First object connected to the voltage source.
         reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Second object connected to the voltage source.
         start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
@@ -1888,7 +1894,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
-            First solid connected to the current source.
+            First object connected to the current source.
         reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Second object connected to the current source.
         start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
@@ -1899,7 +1905,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
-            Whether to create the source on the plane orthogonal to ``start_direction``. The default is ``True``.
+            Whether to create the source on the plane orthogonal to
+            the start direction. The default is ``True``.
 
 
         Returns
@@ -2219,7 +2226,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         coordinate_system : str, optional
             Name of the coordinate system for U coordinates.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``,
+            in which case a name is automatically assigned.
 
         Returns
         -------
@@ -2277,7 +2285,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Name of the coordinate system for the U coordinates. The
             default is ``"Global"``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``,
+            in which case a name is automatically assigned.
 
         Returns
         -------
@@ -2379,12 +2388,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
             is ``Application.AxisDir.XNeg``.
         name : str, optional
-            Perfect E name. The default is ``None``.
+            Perfect E name. The default is ``None``, in which
+            case a name is automatically assigned.
         is_infinite_ground : bool, optional
             Whether the Perfect E is an infinite ground. The default is ``False``.
         is_boundary_on_plane : bool, optional
             Whether to create the Perfect E on the plane orthogonal to
-            ``AxisDir``. The default is ``True``.
+            the axis direction. The default is ``True``.
 
         Returns
         -------
@@ -2450,9 +2460,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
         name : str, optional
-            Perfect H name. The default is ``None``.
+            Perfect H name. The default is ``None``,
+             in which case a name is automatically assigned.
         is_boundary_on_plane : bool, optional
-            Whether to create the Perfect H on the plane orthogonal to ``AxisDir``. The default is ``True``.
+            Whether to create the Perfect H on the plane
+            orthogonal to the axis direction. The default is ``True``.
 
         Returns
         -------
@@ -2515,7 +2527,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         voxel_size : optional
             Size of a voxel in millimeters. The default is ``1``.
         average_sar_method : optional
-            SAR method. There are two options, ``0`` for IEEE std 1528 and ``1`` for classical Ansys method.
+            SAR method. There are two options, ``0`` for IEEE Standard 1528 and ``1`` for the standard Ansys method.
             The default is ``0``.
 
         Returns
@@ -2613,7 +2625,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
         name : str, optional
-            Perfect H name. The default is ``None``.
+            Perfect H name. The default is ``None``, in which
+            case a name is automatically assigned.
         rlc_type : str, optional
             Type of the RLC. Options are ``"Parallel"`` and ``"Serial"``.
             The default is ``"Parallel"``.
@@ -4163,7 +4176,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
         hybrid_region : str, optional
-            Hybrid region to assign. Options are ``"SBR+"``, ``"IE"``, ``"PO"``. The default is `"SBR+"``.
+            Hybrid region to assign. The default is `"SBR+"``. Options are ``"IE"``, ``"PO"``
+            and ``"SBR+"``.
 
         Returns
         -------
@@ -5878,7 +5892,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             sheet_name = self.modeler.convert_to_selections(assignment, False)
             if isinstance(integration_line, list):
                 if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
-                    self.logger.error("List of coordinates is not set correctly")
+                    self.logger.error("List of coordinates is not set correctly.")
                     return False
                 point0 = integration_line[0]
                 point1 = integration_line[1]
@@ -5953,7 +5967,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         modes : int, optional
             Number of modes. The default is ``1``.
         name : str, optional
-            Name of the port. The default is ``None``.
+            Name of the port. The default is ``None``, in which
+            case a name is automatically assigned.
         renormalize : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         deembed : float, optional

@@ -337,7 +337,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         source_project : str
             Source project name or project path.
         source_design_name : str
-            Source Design name in specified project.
+            Source design name.
         setup : str
             Setup name.
         sweep : str
