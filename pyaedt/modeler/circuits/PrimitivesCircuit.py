@@ -233,7 +233,7 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def create_interface_port(self, name, location=[], angle=0):
+    def create_interface_port(self, name, location=None, angle=0):
         """Create an interface port.
 
         Parameters
@@ -255,6 +255,9 @@ class CircuitComponents(object):
 
         >>> oEditor.CreateIPort
         """
+        if location is None:
+            location = []
+
         if name in self._app.excitations:
             self.logger.warning("Port name already assigned.")
             return False
@@ -633,7 +636,7 @@ class CircuitComponents(object):
     def create_touchstone_component(
         self,
         model_name,
-        location=[],
+        location=None,
         angle=0,
         show_bitmap=True,
     ):
@@ -673,6 +676,8 @@ class CircuitComponents(object):
         >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
         >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
+        if location is None:
+            location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         if os.path.exists(model_name):
@@ -1234,7 +1239,7 @@ class ComponentInfo(object):
         return self._props
 
     @pyaedt_function_handler()
-    def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
+    def place(self, inst_name, location=None, angle=0, use_instance_id_netlist=False):
         """Create a component from a library.
 
         Parameters
@@ -1259,6 +1264,8 @@ class ComponentInfo(object):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         return self._component_manager.create_component(
             inst_name=inst_name,
             component_library=self.component_library,
