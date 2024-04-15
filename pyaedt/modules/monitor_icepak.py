@@ -760,10 +760,10 @@ class ObjectMonitor:
             all monitored quantity will be considered.
         design_variation_dict : dict, optional
             Dictionary containing the project and design variables and values. If this parameter
-            is not provided, all variations will be considered.
+            is not provided, all variations are considered.
         setup : str, optional
-            String that specifies the name of the setup from which to extract the monitor value.
-            If this parameter is not provided, the first one of the design will be selected.
+            Name of the setup to extract the monitor value from.
+            If this parameter is not provided, the first setup of the design is used.
         si_out : bool, optional
             Whether to return the values of th monitor object in SI units. Default is ``True``.
 

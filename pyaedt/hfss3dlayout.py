@@ -930,7 +930,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         num_of_freq_points : int
             Number of frequency points in the range.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
             default is ``True``.
@@ -1037,7 +1038,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         step_size : float
             Frequency size of the step.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
             default is ``True``.

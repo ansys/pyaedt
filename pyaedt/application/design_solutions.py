@@ -763,14 +763,14 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @pyaedt_function_handler(boundary_type="opening_type")
     def set_auto_open(self, enable=True, opening_type="Radiation"):
-        """Set Hfss auto open type.
+        """Set HFSS auto open type.
 
         Parameters
         ----------
         enable : bool, optional
-            Either to enable or not auto open. The default is ``True``.
+            Whether to enable auto open. The default is ``True``.
         opening_type : str, optional
-            Boundary Type to be used with auto open. Default is `"Radiation"`.
+            Boundary type to use with auto open. The default is `"Radiation"`.
 
         Returns
         -------
