@@ -4201,11 +4201,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             objID = self.modeler.oeditor.GetFaceIDs(el)
             faceCenter = self.modeler.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
-            l = min(aedt_bounding_dim) / 2
+            thickness = min(aedt_bounding_dim) / 2
             while not directionfound:
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(thickness) + "mm", "BothSides:=", False],
                 )
                 # aedt_bounding_box2 = self.oeditor.GetModelBoundingBox()
                 aedt_bounding_box2 = self.modeler.get_model_bounding_box()
@@ -4215,7 +4215,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     directionfound = True
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(thickness) + "mm", "BothSides:=", False],
                 )
                 # aedt_bounding_box2 = self.oeditor.GetModelBoundingBox()
                 aedt_bounding_box2 = self.modeler.get_model_bounding_box()
@@ -4226,7 +4226,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + min(aedt_bounding_dim) / 2
+                    thickness = thickness + min(aedt_bounding_dim) / 2
         for el in inputlist:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             maxarea = 0
@@ -4299,7 +4299,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                             )
                     except Exception:
                         self.logger.info("done")
-                        # self.modeler_oproject.ClearMessages()
         return ports_ID
 
     @pyaedt_function_handler()

@@ -2935,7 +2935,7 @@ class Primitives3D(GeometryModeler):
                 or f_key == "Wire Section"
             ):
                 for s_key in values[f_key].keys():
-                    if isinstance(values[f_key][s_key],  bool):
+                    if isinstance(values[f_key][s_key], bool):
                         if count_true:
                             values[f_key][s_key] = False
                         if values[f_key][s_key]:

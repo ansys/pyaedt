@@ -137,7 +137,7 @@ class Objects(dict):
                     o = self.__parent._create_object(name, id)
                     self.__setitem__(id, o)
                     return o
-                except:
+                except Exception:
                     raise KeyError(item)
 
             elif isinstance(item, str):
@@ -147,7 +147,7 @@ class Objects(dict):
                     o = self.__parent._create_object(name, id)
                     self.__setitem__(id, o)
                     return o
-                except:
+                except Exception:
                     raise KeyError(item)
 
             elif isinstance(item, (Object3d, Polyline)):
@@ -208,7 +208,7 @@ class GeometryModeler(Modeler):
             return partId
         try:
             return self.objects[partId]
-        except:
+        except Exception:
             if partId in self.user_defined_components.keys():
                 return self.user_defined_components[partId]
         self.logger.error("Object '{}' not found.".format(partId))
@@ -846,13 +846,13 @@ class GeometryModeler(Modeler):
                 if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
-                    except Exception:  # pragma: no cover
-                        pass
+                    except Exception as e:  # pragma: no cover
+                        self.logger.error(e)
                 elif operations and isinstance(operations.get("Operation", None), list):
                     try:
                         pid = operations["Operation"][0]["ParentPartID"]
                     except Exception:
-                        pass
+                        self.logger.error(e)
 
                 is_polyline = False
                 if operations and "PolylineParameters" in operations.get("Operation", {}):
@@ -1231,13 +1231,13 @@ class GeometryModeler(Modeler):
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
                 except Exception:
-                    pass
+                    self.logger.error(e)
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs._ref_cs = id2name[name2refid[cs.name]]
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        self.logger.error(e)
         coord.reverse()
         return coord
 
@@ -8275,7 +8275,7 @@ class GeometryModeler(Modeler):
                     except Exception:
                         self.logger.warning("Unable to assign " + str(k) + " to object " + o.name + ".")
                 else:
-                    self.logger.error("'" + str(k) + "' is not a valid property of the primitive ")
+                    self.logger.error("'" + str(k) + "' is not a valid property of the primitive.")
         return o
 
     @pyaedt_function_handler()

@@ -944,7 +944,7 @@ class Desktop(object):
                             self.is_grpc_api = True
                             last_session.parent_desktop_id.append(self.aedt_process_id)
                             return True
-                    except:
+                    except Exception:
                         messages = desktop.GetMessages("", "", 0)
                         for message in messages:
                             if " GRPC server running on port: " in message and str(port) in message:
