@@ -4115,7 +4115,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
 
         Returns
         -------
@@ -4156,7 +4156,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
         hybrid_region : str, optional
             Hybrid region to assign. Options are ``"SBR+"``, ``"IE"``, ``"PO"``. The default is `"SBR+"``.
 
