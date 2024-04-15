@@ -4743,7 +4743,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setup : str
             Name of the setup.
         probe_names : str or list
-            One or more names of the probe to plot in the eye diagram.
+            One or more names of the probes to plot in the eye diagram.
         variation_list_w_value : list
             List of variations with relative values.
         plot_name : str, optional
