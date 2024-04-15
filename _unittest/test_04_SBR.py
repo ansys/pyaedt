@@ -62,6 +62,14 @@ class TestClass:
             source, target_cs="feederPosition", field_type="farfield", name="LinkedAntenna"
         )
         assert len(self.aedtapp.native_components) == 2
+        assert self.aedtapp.create_sbr_linked_antenna(
+            source, target_cs="feederPosition", name="LinkedAntennaNF1", current_conformance=True
+        )
+        assert len(self.aedtapp.native_components) == 3
+        assert self.aedtapp.create_sbr_linked_antenna(
+            source, target_cs="feederPosition", name="LinkedAntennaNF2", current_conformance=False
+        )
+        assert len(self.aedtapp.native_components) == 4
 
     def test_02_add_antennas(self):
         self.aedtapp.insert_design("add_antennas")

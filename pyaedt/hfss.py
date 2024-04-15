@@ -1123,7 +1123,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         field_type="nearfield",
         use_composite_ports=False,
         use_global_current=True,
-        current_conformance="Disable",
+        current_conformance=False,
         thin_sources=True,
         power_fraction="0.95",
         visible=True,
@@ -1146,10 +1146,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to use composite ports. The default is ``False``.
         use_global_current : bool, optional
             Whether to use the global current. The default is ``True``.
-        current_conformance : str, optional
-            The default is ``"Disable"``.
+        current_conformance : bool, optional
+            Whether to enable current conformance. The default is ``False``.
         thin_sources : bool, optional
-             The default is ``True``.
+             Whether to enable thin sources. The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
         visible : bool, optional.
@@ -1215,7 +1215,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         )
         if field_type == "nearfield":
             native_props["UseGlobalCurrentSrcOption"] = use_global_current
-            native_props["Current Source Conformance"] = current_conformance
+            if current_conformance:
+                native_props["Current Source Conformance"] = "Enable"
+            else:
+                native_props["Current Source Conformance"] = "Disable"
             native_props["Thin Sources"] = thin_sources
             native_props["Power Fraction"] = power_fraction
         if visible:
@@ -2779,7 +2782,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(sheet_name="assignment", boundary_name="name", is_inifinite_gnd="is_inifinite_ground")
-    def create_boundary(self, boundary_type=BoundaryType.PerfectE, assignment=None, name="", is_inifinite_ground=False):
+    def create_boundary(
+        self, boundary_type=BoundaryType.PerfectE, assignment=None, name=None, is_inifinite_ground=False
+    ):
         """Assign a boundary condition to a sheet or surface. This method is generally
            used by other methods in the ``Hfss`` class such as the :meth:``Hfss.assign_febi``
            or :meth:``Hfss.assign_radiation_boundary_to_faces`` method.
@@ -2803,7 +2808,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             default is ``None``. You can provide an integer (face ID), a string (sheet),
             or a list of integers and strings.
         name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``None``.
         is_inifinite_ground : bool, optional
             Whether the boundary is an infinite ground. The default is ``False``.
 
@@ -4107,7 +4112,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return True
 
     @pyaedt_function_handler(obh_names="assignment", boundary_name="name")
-    def assign_radiation_boundary_to_objects(self, assignment, name=""):
+    def assign_radiation_boundary_to_objects(self, assignment, name=None):
         """Assign a radiation boundary to one or more objects (usually airbox objects).
 
         Parameters
@@ -4115,7 +4120,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
-            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
+            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
 
         Returns
         -------
@@ -4148,7 +4153,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return self.create_boundary(self.BoundaryType.Radiation, object_list, rad_name)
 
     @pyaedt_function_handler(obj_names="assignment", boundary_name="name")
-    def assign_hybrid_region(self, assignment, name="", hybrid_region="SBR+"):
+    def assign_hybrid_region(self, assignment, name=None, hybrid_region="SBR+"):
         """Assign a hybrid region to one or more objects.
 
         Parameters
@@ -4156,7 +4161,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
-            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
+            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
         hybrid_region : str, optional
             Hybrid region to assign. Options are ``"SBR+"``, ``"IE"``, ``"PO"``. The default is `"SBR+"``.
 
@@ -4194,7 +4199,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return bound
 
     @pyaedt_function_handler(obj_names="assignment", boundary_name="name")
-    def assign_febi(self, assignment, name=""):
+    def assign_febi(self, assignment, name=None):
         """Assign an FE-BI region to one or more objects.
 
         Parameters
@@ -4202,7 +4207,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
-            Name of the boundary. The default is ``""``, in which case a name is automatically assigned.
+            Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
 
         Returns
         -------
@@ -4237,7 +4242,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return bound
 
     @pyaedt_function_handler(faces_id="assignment", boundary_name="name")
-    def assign_radiation_boundary_to_faces(self, assignment, name=""):
+    def assign_radiation_boundary_to_faces(self, assignment, name=None):
         """Assign a radiation boundary to one or more faces.
 
         Parameters
@@ -4245,7 +4250,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment :
             Face ID to assign the boundary condition to.
         name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
