@@ -59,6 +59,7 @@ All objects support executing any modeler operation, such as union or subtractio
      box.subract(cyl)
 
 
-.. image:: ../Resources/objects_operations.gif
-  :width: 800
-  :alt: Object Modeler Operations
+.. only:: html
+  .. image:: ../Resources/objects_operations.gif
+    :width: 800
+    :alt: Object Modeler Operations
