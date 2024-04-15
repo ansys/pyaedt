@@ -352,7 +352,7 @@ class CommonSetup(PropsManager, object):
         name=None,
         sweep=None,
     ):
-        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
         Parameters
         ----------
@@ -382,13 +382,14 @@ class CommonSetup(PropsManager, object):
         name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
-            Number of points on which create the report for plots on polylines.
+            Number of points for creating the report for plots on polylines.
         subdesign_id : int, optional
-            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            Specify a subdesign ID to export a Touchstone file of this subdesign to.
+            This parameter is valid only for a circuit.
             The default value is ``None``.
         context : str, optional
         sweep : str, optional
-            Name of the sweep adaptive setup from which get solutions. Default is ``LastAdaptive``.
+            Name of the sweep adaptive setup to get solutions from. The default is ``LastAdaptive``.
 
         Returns
         -------
@@ -771,10 +772,10 @@ class Setup(CommonSetup):
             Name of the design.
         solution : str, optional
             Name of the solution in the format ``"setup_name : solution_name"``.
-            If ``None`` the default value is ``setup_name : LastAdaptive``.
+            If ``None``, the default value is ``setup_name : LastAdaptive``.
         parameters : dict, optional
             Dictionary of the parameters.
-            If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
+            If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
@@ -892,7 +893,7 @@ class Setup(CommonSetup):
             ``True``.
         parameters : dict, optional
             Dictionary of the parameters. This parameter is not considered if
-            ``map_variables_by_name = True``. If ``None``, the default value is
+            ``map_variables_by_name=True``. If ``None``, the default is
             ``appname.available_variations.nominal_w_values_dict``.
         project : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
@@ -1643,7 +1644,7 @@ class SetupCircuit(CommonSetup):
         name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
-            Number of points on which create the report for plots on polylines.
+            Number of points for creating the report for plots on polylines.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -2157,7 +2158,8 @@ class Setup3DLayout(CommonSetup):
         Parameters
         ----------
         name : str, optional
-            Name of the sweep. the default is ``None`` which returns the first sweep.
+            Name of the sweep. The default is ``None``, in which case
+            the first sweep is used.
 
         Returns
         -------
@@ -2297,10 +2299,10 @@ class SetupHFSS(Setup, object):
         Parameters
         ----------
         unit : str, optional
-            Unit of the frequency.. The default is ``None`` which takes the default desktop units.
+            Unit of the frequency.. The default is ``None``, in which case the default desktop units are used.
         start_frequency : float, str, optional
             Starting frequency of the sweep. The default is ``1.0``.
-            If a unit is passed with number, such as ``"1MHz"``, the unit will be ignored.
+            If a unit is passed with number, such as ``"1MHz"``, the unit is ignored.
         stop_frequency : float, str, optional
             Stopping frequency of the sweep. The default is ``10.0``.
             If a unit is passed with number, such as ``"1MHz"`, the unit is ignored.
@@ -2495,7 +2497,7 @@ class SetupHFSS(Setup, object):
             case a name is automatically assigned.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
-            If a list is specified, the length must be the same as freq length.
+            If a list is specified, the length must be the same as the frequency length.
         save_fields : bool, optional
             Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
         save_rad_fields : bool, optional
@@ -2940,9 +2942,9 @@ class SetupHFSSAuto(Setup, object):
         Parameters
         ----------
         frequency : float, str, optional
-            Frequency at which to set the adaptive convergence.
-            The default is ``None`` which will not update the value in setup.
-            You can enter a float value in (GHz) or a string.
+            Frequency to set the adaptive convergence at.
+            The default is ``None``, in which case the value in the setup is
+            not updated. You can specify a float value (GHz) or a string.
         max_passes : int, optional
             Maximum number of adaptive passes. The default is ``None`` which will not update the value in setup.
         max_delta_s : float, optional
@@ -2976,10 +2978,11 @@ class SetupHFSSAuto(Setup, object):
         Parameters
         ----------
         low_frequency : float, str
-            Lower Frequency at which set the adaptive convergence.
-            It can be float (GHz) or str.
+            Lower frequency to set the adaptive convergence at.
+            You can specify a float value (GHz) or a string.
         high_frequency : float, str
-            Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
+            Lower frequency to set the adaptive convergence at. You can
+            specify a float value (GHz) or a string.
         max_passes : int, optional
             Maximum number of adaptive passes. The default is ``6``.
         max_delta_s : float, optional
@@ -3487,14 +3490,15 @@ class SetupQ3D(Setup, object):
         unit : str, optional
             Unit of the frequency. The default is ``"GHz"``.
         freq : float, list, optional
-            Frequency of the single point or list of frequencies to create distinct single points.
+            One or more frequencies for creating distinct single points.
             The default is ``1.0``.
         name : str, optional
             Name of the sweep. The default is ``None``, in which
             case a name is automatically assigned.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
-            If a list is specified, the length must be the same as freq length.
+            If a list is specified, the length must be the same as the
+            frequency length.
         save_fields : bool, optional
             Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
 
@@ -3612,7 +3616,8 @@ class SetupQ3D(Setup, object):
         Parameters
         ----------
         name : str, optional
-            Name of the sweep. the default is ``None`` which returns the first sweep.
+            Name of the sweep. The default is ``None``, in which case the
+            first sweep is used.
 
         Returns
         -------
