@@ -881,9 +881,10 @@ class Mesh(object):
         --------
 
         >>> from pyaedt import Maxwell3d
-        >>> Maxwell3d.create_setup(setupname="Setup1")
-        >>> Maxwell3d.mesh.assign_length_mesh(maxlength=5, maxel="None")
-        >>> Maxwell3d.mesh.generate_mesh("Setup1")
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_setup(setupname="Setup1")
+        >>> m3d.mesh.assign_length_mesh(maxlength=5, maxel="None")
+        >>> m3d.mesh.generate_mesh("Setup1")
 
         """
         return self._odesign.GenerateMesh(name) == 0
