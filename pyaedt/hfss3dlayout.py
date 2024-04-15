@@ -1134,7 +1134,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
         name : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for all points and subranges defined in the sweep. The default is ``False``.
         save_rad_fields_only : bool, optional
