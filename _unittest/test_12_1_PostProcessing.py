@@ -92,6 +92,10 @@ class TestClass:
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
 
+        min_value = self.aedtapp.post.get_scalar_field_value(
+            "E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True
+        )
+
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
@@ -281,6 +285,11 @@ class TestClass:
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
+
+        new_report = self.aedtapp.post.reports_by_category.modal_solution(
+            "dB(S(1,1))", setup=self.aedtapp.nominal_sweep
+        )
+        assert new_report.create()
 
     def test_09c_import_into_report(self):
         new_report = self.aedtapp.create_scattering("import_test")

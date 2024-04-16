@@ -172,6 +172,11 @@ class TestClass:
         )
         new_report3.report_type = "Data Table"
         assert new_report3.create()
+        new_report4 = field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", infinite_sphere="3D"
+        )
+        new_report4.report_type = "Data Table"
+        assert new_report4.create()
 
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -226,6 +231,10 @@ class TestClass:
         new_report.variations = variations2
         new_report.polyline = "Poly1"
         assert new_report.create()
+        new_report = field_test.post.reports_by_category.fields("Mag_H")
+        new_report.variations = variations2
+        new_report.polyline = "Poly1"
+        assert new_report.create()
         new_report = field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.report_type = "Smith Chart"
         assert new_report.create()
@@ -243,6 +252,12 @@ class TestClass:
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
         assert data_farfield2.plot(formula="db20", is_polar=True)
+
+        assert field_test.post.reports_by_category.terminal_solution()
+
+        assert not field_test.post.get_solution_data_per_variation(
+            solution_type="Far Fields", expressions="RealizedGainTotal"
+        )
 
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
@@ -296,6 +311,8 @@ class TestClass:
         new_report.time_start = "1ns"
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
+        assert new_report.create()
+        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
         assert new_report.create()
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
