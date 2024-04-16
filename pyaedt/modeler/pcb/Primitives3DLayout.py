@@ -976,10 +976,10 @@ class Primitives3DLayout(object):
             Position on the Y axis.
         radius : float
             Radius of the circle.
-        name: str, optional
+        name : str, optional
             Name of the circle. The default is ``None``, in which case the
             default name is assigned.
-        net: str, optional
+        net : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
