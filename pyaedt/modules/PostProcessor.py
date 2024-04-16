@@ -976,8 +976,7 @@ class PostProcessorCommon(object):
 
         if solution and report_category and display_type:
             return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
-        else:  # pragma: no cover
-            return []
+        return []  # pragma: no cover
 
     @pyaedt_function_handler()
     def available_report_quantities(
@@ -1053,8 +1052,7 @@ class PostProcessorCommon(object):
                     report_category, display_type, solution, context, quantities_category
                 )
             )
-        else:  # pragma: no cover
-            return []
+        return []  # pragma: no cover
 
     @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
@@ -1079,8 +1077,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableSolutions(report_category))
-        else:  # pragma: no cover
-            return None
+        return None  # pragma: no cover
 
     @pyaedt_function_handler()
     def _get_plot_inputs(self):
@@ -2250,8 +2247,7 @@ class PostProcessor(PostProcessorCommon, object):
                     if sol["ID"] == setups_data[setup]["SolutionId"]:
                         base_name += " : " + sol["Name"]
                         return base_name
-        else:  # pragma: no cover
-            return ""
+        return ""  # pragma: no cover
 
     @pyaedt_function_handler()
     def _get_intrinsic(self, setup):
@@ -2262,8 +2258,7 @@ class PostProcessor(PostProcessorCommon, object):
             for intr in intrinsics:
                 if isinstance(intr, list) and len(intr) == 2:
                     intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
-        else:  # pragma: no cover
-            return intr_dict
+        return intr_dict  # pragma: no cover
 
     @pyaedt_function_handler(list_objs="assignment")
     def _get_volume_objects(self, assignment):
