@@ -37,6 +37,7 @@ non_graphical = False
 
 hfss = pyaedt.Hfss(specified_version=aedt_version, non_graphical=non_graphical, designname="A1",
                    new_desktop_session=True)
+hfss.solution_type = "Modal"
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 

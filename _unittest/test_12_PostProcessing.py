@@ -33,6 +33,7 @@ else:
     m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
+test_emi_name = "EMI_RCV_241"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 ipk_post_proj = "for_icepak_post"
@@ -49,6 +50,12 @@ def field_test(add_app):
 @pytest.fixture(scope="class")
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def emi_receiver_test(add_app):
+    app = add_app(project_name=test_emi_name, design_name="CE_band", application=Circuit, subfolder=test_subfolder)
     return app
 
 
@@ -165,6 +172,11 @@ class TestClass:
         )
         new_report3.report_type = "Data Table"
         assert new_report3.create()
+        new_report4 = field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", infinite_sphere="3D"
+        )
+        new_report4.report_type = "Data Table"
+        assert new_report4.create()
 
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -219,6 +231,10 @@ class TestClass:
         new_report.variations = variations2
         new_report.polyline = "Poly1"
         assert new_report.create()
+        new_report = field_test.post.reports_by_category.fields("Mag_H")
+        new_report.variations = variations2
+        new_report.polyline = "Poly1"
+        assert new_report.create()
         new_report = field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.report_type = "Smith Chart"
         assert new_report.create()
@@ -236,6 +252,12 @@ class TestClass:
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
         assert data_farfield2.plot(formula="db20", is_polar=True)
+
+        assert field_test.post.reports_by_category.terminal_solution()
+
+        assert not field_test.post.get_solution_data_per_variation(
+            solution_type="Far Fields", expressions="RealizedGainTotal"
+        )
 
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
@@ -289,6 +311,8 @@ class TestClass:
         new_report.time_start = "1ns"
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
+        assert new_report.create()
+        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
         assert new_report.create()
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
@@ -841,6 +865,24 @@ class TestClass:
         assert not plot.update()
         plot.surfaces.append(8)
         assert not plot.update()
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
+    def test_76_emi_receiver(self, emi_receiver_test):
+        emi_receiver_test.analyze()
+        new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
+        new_report.band = "2"
+        new_report.emission = "RE"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "2us"
+        new_report.net = "net_invented"
+        assert new_report.net != "net_invented"
+        assert new_report.create()
+        new_report2 = emi_receiver_test.post.reports_by_category.emi_receiver(
+            ["dBu(Average[net_6])", "dBu(Peak[net_6])", "dBu(QuasiPeak[net_6])", "dBu(RMS[net_6])"], "EMItransient"
+        )
+        assert new_report2.net == "net_6"
+        new_report2.time_stop = "2.5us"
+        assert new_report2.create()
 
     def test_98_get_variations(self, field_test):
         vars = field_test.available_variations.get_variation_strings()
