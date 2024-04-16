@@ -45,9 +45,9 @@ from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
 
 if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess
+    import subprocessdotnet as subprocess  # nosec
 else:
-    import subprocess
+    import subprocess  # nosec
 
 
 class Analysis(Design, object):
@@ -285,7 +285,8 @@ class Analysis(Design, object):
     def active_setup(self, setup_name):
         setup_list = self.existing_analysis_setups
         if setup_list:
-            assert setup_name in setup_list, "Invalid setup name {}".format(setup_name)
+            if setup_name not in setup_list:
+                raise ValueError("Invalid setup name {}".format(setup_name))
             self._setup = setup_name
         else:
             raise AttributeError("No setup defined")
@@ -706,7 +707,7 @@ class Analysis(Design, object):
                 self.post.oreportsetup.ExportToFile(str(report_name), export_path)
                 self.logger.info("Export Data: {}".format(export_path))
             except Exception:
-                pass
+                self.logger.info("Failed in exporting to file.")
             exported_files.append(export_path)
 
         if touchstone_format == "MagPhase":
@@ -945,19 +946,18 @@ class Analysis(Design, object):
                 data_vals = [data_vals]
             for ds in data_vals:
                 try:
+                    component_name = "undefined"
                     if isinstance(ds, (OrderedDict, dict)):
-                        boundaries.append(
-                            NativeComponentObject(
-                                self,
-                                ds["NativeComponentDefinitionProvider"]["Type"],
-                                ds["BasicComponentInfo"]["ComponentName"],
-                                ds,
-                            )
-                        )
+                        component_type = ds["NativeComponentDefinitionProvider"]["Type"]
+                        component_name = ds["BasicComponentInfo"]["ComponentName"]
+                        native_component_object = NativeComponentObject(self, component_type, component_name, ds)
+                        boundaries.append(native_component_object)
                 except Exception:
-                    pass
+                    msg = "Failed in adding native component object"
+                    msg_end = "." if component_name == "undefined" else "(named {}).".format(component_name)
+                    self.logger.debug(msg + msg_end)
         except Exception:
-            pass
+            self.logger.debug("Failed in adding native component object.")
         return boundaries
 
     class AvailableVariations(object):
@@ -1499,7 +1499,8 @@ class Analysis(Design, object):
         >>> oDesign.GetNominalVariation
         >>> oModule.GetOutputVariableValue
         """
-        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
+        if variable not in self.output_variables:
+            raise KeyError("Output variable {} does not exist.".format(variable))
         nominal_variation = self.odesign.GetNominalVariation()
         if solution is None:
             solution = self.existing_analysis_sweeps[0]
@@ -1693,11 +1694,9 @@ class Analysis(Design, object):
                         name = line.strip().split("=")[1]
                         break
             if name:
-                try:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
+                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
+                if success:
                     set_custom_dso = True
-                except Exception:
-                    pass
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
@@ -1771,7 +1770,7 @@ class Analysis(Design, object):
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
                     set_custom_dso = True
                 except Exception:
-                    pass
+                    self.logger.info("Failed in setting registry from file {}".format(target_name))
         if not name:
             try:
                 self.logger.info("Solving all design setups")
@@ -1919,25 +1918,16 @@ class Analysis(Design, object):
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
 
-        if is_linux and settings.use_lsf_scheduler:
-            options = [
-                "-ng",
-                "-BatchSolve",
-                "-machinelist",
-                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
-                "-Monitor",
-            ]
-            if num_tasks == -1:
-                options.append("-distributed")
-                options.append("-auto")
-        else:
-            options = [
-                "-ng",
-                "-BatchSolve",
-                "-machinelist",
-                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
-                "-Monitor",
-            ]
+        options = [
+            "-ng",
+            "-BatchSolve",
+            "-machinelist",
+            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+            "-Monitor",
+        ]
+        if is_linux and settings.use_lsf_scheduler and num_tasks == -1:
+            options.append("-distributed")
+            options.append("-auto")
         if setup_name and design_name:
             options.append(
                 "{}:{}:{}".format(
@@ -1983,7 +1973,6 @@ class Analysis(Design, object):
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
             self.logger.info("Batch job launched.")
-
         else:
             subprocess.Popen(batch_run)
             self.logger.info("Batch job finished.")
