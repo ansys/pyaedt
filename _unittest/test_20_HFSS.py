@@ -77,8 +77,12 @@ class TestClass:
 
         # Check the area of the outer surface of the cylinder "outer_2".
         assert abs(max([f.area for f in outer_2.faces]) - 2 * coax2_len * r2 * math.pi) < small_number
-        inner = self.aedtapp.modeler.unite(["inner_1", "inner_2"])
-        outer = self.aedtapp.modeler.unite(["outer_1", "outer_2"])
+        inner = self.aedtapp.modeler.unite(
+            ["inner_1", "inner_2"],
+        )
+        outer = self.aedtapp.modeler.unite(
+            ["outer_1", "outer_2"],
+        )
         assert outer == "outer_1"
         assert inner == "inner_1"
         assert self.aedtapp.modeler.subtract(outer_1, inner_1, keep_originals=True)
@@ -94,7 +98,9 @@ class TestClass:
         assert cyl_1.material_name == "teflon_based"
 
     def test_04_assign_coating(self):
-        id = self.aedtapp.modeler.get_obj_id("inner_1")
+        id = self.aedtapp.modeler.get_obj_id(
+            "inner_1",
+        )
         args = {
             "mat": "aluminum",
             "usethickness": True,
@@ -810,7 +816,7 @@ class TestClass:
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
         assert port.name in self.aedtapp.excitations
-        assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
+        assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1") == "1V"
         port = self.aedtapp.assign_voltage_source_to_sheet(
             rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], "LumpVolt2"
         )
@@ -927,8 +933,8 @@ class TestClass:
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
         setup = self.aedtapp.create_setup("MySetup2")
         setup.props["Frequency"] = "1GHz"
-        assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
-        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
+        assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1") == "false"
+        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2") == "1GHz"
 
     def test_33_copy_solid_bodies(self, add_app):
         project_name = "HfssCopiedProject"

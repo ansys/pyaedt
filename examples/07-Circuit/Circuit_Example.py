@@ -53,9 +53,9 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # ~~~~~~~~~~~~~~~~~
 # Create components, such as an inductor, resistor, and capacitor.
 
-inductor = aedt_app.modeler.schematic.create_inductor(compname="L1", value=1e-9, location=[0, 0])
-resistor = aedt_app.modeler.schematic.create_resistor(compname="R1", value=50, location=[500, 0])
-capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-12, location=[1000, 0])
+inductor = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[0, 0])
+resistor = aedt_app.modeler.schematic.create_resistor(value=50, location=[500, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 0])
 
 ###############################################################################
 # Get all pins
@@ -77,10 +77,10 @@ gnd = aedt_app.modeler.components.create_gnd(location=[1200, -100])
 # ~~~~~~~~~~~~~~~~~~
 # Connect components with wires.
 
-port.pins[0].connect_to_component(component_pin=inductor.pins[0], use_wire=True)
-inductor.pins[1].connect_to_component(component_pin=resistor.pins[1], use_wire=True)
-resistor.pins[0].connect_to_component(component_pin=capacitor.pins[0], use_wire=True)
-capacitor.pins[1].connect_to_component(component_pin=gnd.pins[0], use_wire=True)
+port.pins[0].connect_to_component(assignment=inductor.pins[0], use_wire=True)
+inductor.pins[1].connect_to_component(assignment=resistor.pins[1], use_wire=True)
+resistor.pins[0].connect_to_component(assignment=capacitor.pins[0], use_wire=True)
+capacitor.pins[1].connect_to_component(assignment=gnd.pins[0], use_wire=True)
 
 ###############################################################################
 # Create transient setup

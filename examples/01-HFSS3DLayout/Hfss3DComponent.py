@@ -176,9 +176,9 @@ h3d = pyaedt.Hfss3dLayout()
 # ~~~~~~~~~~~~~~~~~~
 # Add stackup layers.
 
-l1 = h3d.modeler.layers.add_layer("L1", "signal", thickness=sig_height)
-h3d.modeler.layers.add_layer("diel", "dielectric", thickness=diel_height, material="FR4_epoxy")
-h3d.modeler.layers.add_layer("G1", "signal", thickness=sig_height, isnegative=True)
+l1 = h3d.modeler.layers.add_layer("L1", "signal")
+h3d.modeler.layers.add_layer("diel", "dielectric")
+h3d.modeler.layers.add_layer("G1", "signal")
 
 ###############################################################################
 # Place 3d Component

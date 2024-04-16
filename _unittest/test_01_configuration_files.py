@@ -280,18 +280,14 @@ class TestClass:
         filename = icepak_b.design_name
         icepak_b.export_3d_model(filename, icepak_b.working_directory, ".x_b", [], [])
         fan = icepak_b.create_fan("test_fan")
-        icepak_b.modeler.user_defined_components[fan.name].move(
-            [1, 2, 3],
-        )
+        icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan2 = icepak_b.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
         icepak_b.modeler.user_defined_components[fan.name].rotate("Y")
         fan3 = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
         icepak_b.monitor.assign_face_monitor(
             list(icepak_b.modeler.user_defined_components[fan3[0]].parts.values())[0].faces[0].id
         )
-        icepak_b.modeler.user_defined_components[fan.name].move(
-            [1, 2, 3],
-        )
+        icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan4 = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
         icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
         icepak_b.monitor.assign_point_monitor_in_object(

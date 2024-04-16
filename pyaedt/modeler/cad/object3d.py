@@ -258,8 +258,8 @@ class Object3d(object):
                 show=show,
             )
 
-    @pyaedt_function_handler()
-    def export_image(self, file_path=None):
+    @pyaedt_function_handler(file_path="output_file")
+    def export_image(self, output_file=None):
         """Export the current object to a specified file path.
 
 
@@ -268,7 +268,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        file_path : str, optional
+        output_file : str, optional
             File name with full path. If `None` the exported image will be a ``png`` file that
             will be saved in ``working_directory``.
             To access the ``working_directory`` the use ``app.working_directory`` property.
@@ -279,12 +279,12 @@ class Object3d(object):
             File path.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            if not file_path:
-                file_path = os.path.join(self._primitives._app.working_directory, self.name + ".png")
+            if not output_file:
+                output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
             model_obj = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 show=False,
-                export_path=file_path,
+                export_path=output_file,
                 plot_as_separate_objects=True,
                 clean_files=True,
             )
@@ -327,13 +327,13 @@ class Object3d(object):
                 list_names.extend(a)
         return list_names
 
-    @pyaedt_function_handler()
-    def get_touching_faces(self, object_name):
+    @pyaedt_function_handler(object_name="assignment")
+    def get_touching_faces(self, assignment):
         """Get the objects that touch one of the face center of each face of the object.
 
         Parameters
         ----------
-        object_name : str, :class:`Object3d`
+        assignment : str, :class:`Object3d`
             Object to check.
         Returns
         -------
@@ -341,11 +341,11 @@ class Object3d(object):
             list of objects and faces touching."""
 
         _names = []
-        if isinstance(object_name, Object3d):
-            object_name = object_name.name
+        if isinstance(assignment, Object3d):
+            assignment = assignment.name
         for face in self.faces:
             body_names = self._primitives.get_bodynames_from_position(face.center)
-            if object_name in body_names:
+            if assignment in body_names:
                 _names.append(face)
         return _names
 
@@ -1375,13 +1375,13 @@ class Object3d(object):
         self._change_property(vArg1)
         self._model = fModel
 
-    @pyaedt_function_handler()
-    def unite(self, object_list):
+    @pyaedt_function_handler(object_list="assignment")
+    def unite(self, assignment):
         """Unite a list of objects with this object.
 
         Parameters
         ----------
-        object_list : list of str or list of pyaedt.modeler.cad.object3d.Object3d
+        assignment : list of str or list of pyaedt.modeler.cad.object3d.Object3d
             List of objects.
 
         Returns
@@ -1395,17 +1395,17 @@ class Object3d(object):
         >>> oEditor.Unite
 
         """
-        unite_list = [self.name] + self._primitives.convert_to_selections(object_list, return_list=True)
+        unite_list = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
         self._primitives.unite(unite_list)
         return self
 
-    @pyaedt_function_handler()
-    def intersect(self, theList, keep_originals=False):
+    @pyaedt_function_handler(theList="assignment")
+    def intersect(self, assignment, keep_originals=False):
         """Intersect the active object with a given list.
 
         Parameters
         ----------
-        theList : list
+        assignment : list
             List of objects.
         keep_originals : bool, optional
             Whether to keep the original object. The default is ``False``.
@@ -1420,8 +1420,8 @@ class Object3d(object):
 
         >>> oEditor.Intersect
         """
-        theList = [self.name] + self._primitives.convert_to_selections(theList, return_list=True)
-        self._primitives.intersect(theList, keep_originals)
+        assignment = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
+        self._primitives.intersect(assignment)
         return self
 
     @pyaedt_function_handler()
@@ -1462,6 +1462,9 @@ class Object3d(object):
         vector : list of float
             Vector in Cartesian coordinates ``[x1, y1, z1]``  or
             the ``Application.Position`` object for the vector normal to the plane used for the mirror operation.
+        duplicate : bool, optional
+             Whether to duplicate the object after mirroring it .n. The default
+             is ``False``, in which case AEDT is not duplicating the object.
 
         Returns
         -------
@@ -1478,8 +1481,8 @@ class Object3d(object):
             return self
         return False
 
-    @pyaedt_function_handler(cs_axis="axis")
-    def rotate(self, axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(cs_axis="axis", unit="units")
+    def rotate(self, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
         Parameters
@@ -1489,7 +1492,7 @@ class Object3d(object):
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-        unit : text, optional
+        units : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
 
@@ -1503,7 +1506,7 @@ class Object3d(object):
 
         >>> oEditor.Rotate
         """
-        if self._primitives.rotate(self.id):
+        if self._primitives.rotate(self.id, axis=axis, angle=angle, units=units):
             return self
         return False
 
@@ -1513,8 +1516,6 @@ class Object3d(object):
 
         Parameters
         ----------
-        objid : list, Position object
-            List of object IDs.
         vector : list
             Vector of the direction move. It can be a list of the ``[x, y, z]``
             coordinates or a Position object.
@@ -1529,22 +1530,21 @@ class Object3d(object):
         ----------
         >>> oEditor.Move
         """
-        if self._primitives.move(
-            self.id,
-        ):
+        if self._primitives.move(self.id):
             return self
         return False
 
-    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
+    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
         """Duplicate the object around the axis.
 
         Parameters
         ----------
-        cs_axis : Application.AXIS object
+        axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float
             Angle of rotation in degrees. The default is ``90``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects : bool, optional
             Whether to create copies as new objects. The default is ``True``.
@@ -1560,20 +1560,22 @@ class Object3d(object):
         >>> oEditor.DuplicateAroundAxis
 
         """
-        _, added_objects = self._primitives.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
+        _, added_objects = self._primitives.duplicate_around_axis(
+            self, axis, angle, clones, create_new_objects=create_new_objects
+        )
         return added_objects
 
-    @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, attachObject=False):
+    @pyaedt_function_handler(nclones="clones", attachObject="attach")
+    def duplicate_along_line(self, vector, clones=2, attach=False):
         """Duplicate the object along a line.
 
         Parameters
         ----------
         vector : list
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
-        attachObject : bool, optional
+        attach : bool, optional
             Whether to attach the object. The default is ``False``.
 
         Returns
@@ -1587,7 +1589,7 @@ class Object3d(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        _, added_objects = self._primitives.duplicate_along_line(self, vector, nclones, attachObject)
+        _, added_objects = self._primitives.duplicate_along_line(self, vector, clones, attach=attach)
         return added_objects
 
     @pyaedt_function_handler()
@@ -1654,13 +1656,13 @@ class Object3d(object):
         )
         return self
 
-    @pyaedt_function_handler()
-    def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
+    @pyaedt_function_handler(cs_axis="axis")
+    def sweep_around_axis(self, axis, sweep_angle=360, draft_angle=0):
         """Sweep around an axis.
 
         Parameters
         ----------
-        cs_axis : :class:`pyaedt.generic.constants.AXIS`
+        axis : :class:`pyaedt.generic.constants.AXIS`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
@@ -1678,7 +1680,7 @@ class Object3d(object):
         >>> oEditor.SweepAroundAxis
 
         """
-        self._primitives.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        self._primitives.sweep_around_axis(self, axis, sweep_angle, draft_angle)
         return self
 
     @pyaedt_function_handler()

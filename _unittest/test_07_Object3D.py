@@ -361,16 +361,20 @@ class TestClass:
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
-        o.move([1, 0, 0])
+        o.move(
+            [1, 0, 0],
+        )
         v1 = o.vertices[0].position
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]
         assert v1[2] == v0[2]
-        assert o.move([1, 0, 0])
+        assert o.move(
+            [1, 0, 0],
+        )
 
     def test_15_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
-        added_objects = turn.duplicate_around_axis(cs_axis="Z", angle=8, nclones=19)
+        added_objects = turn.duplicate_around_axis(axis="Z", angle=8, clones=19)
         turn.unite(added_objects)
         assert len(added_objects) == 18
         assert "single_turn" in self.aedtapp.modeler.line_names
@@ -532,7 +536,9 @@ class TestClass:
     def test_26_unclassified_object(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         box2 = self.aedtapp.modeler.create_box([2, 2, 2], [2, 2, 2])
-        self.aedtapp.modeler.intersect([box1, box2])
+        self.aedtapp.modeler.intersect(
+            [box1, box2],
+        )
         vArg1 = ["NAME:Selections", "Selections:=", ", ".join([box1.name, box2.name])]
         vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", False]
 

@@ -227,7 +227,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 location=[xpos, 0],
                 global_netlist_list=model,
             )
-            self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
+            self.modeler.schematic.disable_data_netlist(assignment="Models_Netlist")
             xpos += 0.0254
         counter = 0
         with open_file(file_to_import, "rb") as f:
@@ -307,11 +307,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                                 already_exist = True
                         if not already_exist:
                             self.modeler.schematic.create_new_component_from_symbol(
-                                parameter,
-                                pins,
-                                refbase=fields[0][0],
-                                parameter_list=parameter_list,
-                                parameter_value=parameter_value,
+                                parameter, pins, refbase=fields[0][0], parameters=parameter_list, values=parameter_value
                             )
                         mycomp = self.modeler.schematic.create_component(
                             fields[0],
@@ -342,11 +338,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             already_exist = True
                     if not already_exist:
                         self.modeler.schematic.create_new_component_from_symbol(
-                            parameter,
-                            pins,
-                            refbase=fields[0][0],
-                            parameter_list=parameter_list,
-                            parameter_value=parameter_value,
+                            parameter, pins, refbase=fields[0][0], parameters=parameter_list, values=parameter_value
                         )
                     mycomp = self.modeler.schematic.create_component(
                         fields[0],
@@ -1708,18 +1700,18 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     p1.pins[0].connect_to_component(pin, use_wire=True)
 
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
-            self.modeler.move(first, [0, 100], "mil")
+            self.modeler.move(first, [0, 100])
             if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0], "mil")
+                self.modeler.move(second, [1000, 0])
             else:
-                self.modeler.move(second, [-1000, 0], "mil")
+                self.modeler.move(second, [-1000, 0])
             if differential:
                 _, first, second = new_tdr_comp.pins[1].connect_to_component(n_pin)
-                self.modeler.move(first, [0, -100], "mil")
+                self.modeler.move(first, [0, -100])
                 if second.pins[0].location[0] > center_x:
-                    self.modeler.move(second, [1000, 0], "mil")
+                    self.modeler.move(second, [1000, 0])
                 else:
-                    self.modeler.move(second, [-1000, 0], "mil")
+                    self.modeler.move(second, [-1000, 0])
             new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
             new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
             if differential:
@@ -1823,7 +1815,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 new_loc = [loc[0] + delta, loc[1]]
                 right += 1
             port = self.modeler.components.create_interface_port(name=pin.name, location=new_loc)
-            port.pins[0].connect_to_component(component_pin=pin, use_wire=True)
+            port.pins[0].connect_to_component(assignment=pin, use_wire=True)
             ports.append(port)
         diff_pairs = []
         comm_pairs = []
@@ -1976,30 +1968,30 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             tx_eye_names.append(tx.parameters["probe_name"])
             rx_eye_names.append(rx.parameters["source_name"])
             _, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
-            self.modeler.move(first, [0, 100], "mil")
+            self.modeler.move(first, [0, 100])
             if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0], "mil")
+                self.modeler.move(second, [1000, 0])
             else:
-                self.modeler.move(second, [-1000, 0], "mil")
+                self.modeler.move(second, [-1000, 0])
             _, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
-            self.modeler.move(first, [0, -100], "mil")
+            self.modeler.move(first, [0, -100])
             if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0], "mil")
+                self.modeler.move(second, [1000, 0])
             else:
-                self.modeler.move(second, [-1000, 0], "mil")
+                self.modeler.move(second, [-1000, 0])
             if differential:
                 _, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
-                self.modeler.move(first, [0, -100], "mil")
+                self.modeler.move(first, [0, -100])
                 if second.pins[0].location[0] > center_x:
-                    self.modeler.move(second, [1000, 0], "mil")
+                    self.modeler.move(second, [1000, 0])
                 else:
-                    self.modeler.move(second, [-1000, 0], "mil")
+                    self.modeler.move(second, [-1000, 0])
                 _, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
-                self.modeler.move(first, [0, 100], "mil")
+                self.modeler.move(first, [0, 100])
                 if second.pins[0].location[0] > center_x:
-                    self.modeler.move(second, [1000, 0], "mil")
+                    self.modeler.move(second, [1000, 0])
                 else:
-                    self.modeler.move(second, [-1000, 0], "mil")
+                    self.modeler.move(second, [-1000, 0])
             if unit_interval:
                 tx.parameters["UIorBPSValue"] = unit_interval
             if bit_pattern:

@@ -60,9 +60,7 @@ class TestClass:
         assert len(self.aedtapp.materials.material_keys) == 3
 
     def test_02_stackup(self):
-        s1 = self.aedtapp.modeler.layers.add_layer(
-            layername="Bottom", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
-        )
+        s1 = self.aedtapp.modeler.layers.add_layer(layer="Bottom")
         s1.color = [220, 10, 10]
         s1.is_visible = False
         assert not s1._is_visible
@@ -158,9 +156,7 @@ class TestClass:
         assert s1._NR == 0.2
         assert s1._BNR == 0.1
 
-        d1 = self.aedtapp.modeler.layers.add_layer(
-            layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
-        )
+        d1 = self.aedtapp.modeler.layers.add_layer(layer="Diel3")
         assert d1.material == "plexiglass"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
         assert d1.transparency == 60
@@ -169,14 +165,7 @@ class TestClass:
 
         assert d1.material == "fr4_epoxy"
         assert d1.transparency == 23
-        s2 = self.aedtapp.modeler.layers.add_layer(
-            layername="Top",
-            layertype="signal",
-            thickness=3.5e-5,
-            elevation="1.035mm",
-            material="copper",
-            isnegative=True,
-        )
+        s2 = self.aedtapp.modeler.layers.add_layer(layer="Top")
         assert s2.name == "Top"
         assert s2.type == "signal"
         assert s2.material == "copper"
@@ -220,12 +209,16 @@ class TestClass:
     def test_06_unite(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 8, "mycircle2")
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
-        assert self.aedtapp.modeler.unite([n1, n2])
+        assert self.aedtapp.modeler.unite(
+            [n1, n2],
+        )
 
     def test_07_intersect(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 8, "mycircle3")
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
-        assert self.aedtapp.modeler.intersect([n1, n2])
+        assert self.aedtapp.modeler.intersect(
+            [n1, n2],
+        )
 
     def test_08_objectlist(self):
         a = self.aedtapp.modeler.geometries
@@ -242,7 +235,7 @@ class TestClass:
         pad1 = self.aedtapp.modeler.new_padstack("My_padstack2")
         hole1 = pad1.add_hole()
         pad1.add_layer("Start", pad_hole=hole1, thermal_hole=hole1)
-        hole2 = pad1.add_hole(holetype="Rct", sizes=[0.5, 0.8])
+        hole2 = pad1.add_hole(hole_type="Rct", sizes=[0.5, 0.8])
         pad1.add_layer("Default", pad_hole=hole2, thermal_hole=hole2)
         pad1.add_layer("Stop", pad_hole=hole1, thermal_hole=hole1)
         pad1.hole.sizes = ["0.8mm"]
@@ -286,7 +279,7 @@ class TestClass:
         assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
-        line = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net="VCC")
+        line = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]])
         assert line.name == "line2"
         line.name = "line1"
         assert isinstance(line.center_line, dict)
@@ -534,14 +527,16 @@ class TestClass:
 
     def test_30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
-        self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
+        self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]])
         out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
     def test_31_heal(self):
-        l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
-        l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
-        self.aedtapp.modeler.unite([l1, l2])
+        l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5)
+        l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5)
+        self.aedtapp.modeler.unite(
+            [l1, l2],
+        )
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
     def test_32_cosim_simulation(self):
@@ -578,9 +573,7 @@ class TestClass:
 
     def test_35a_export_layout(self):
         self.aedtapp.insert_design("export_layout")
-        s1 = self.aedtapp.modeler.layers.add_layer(
-            layername="Top", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
-        )
+        s1 = self.aedtapp.modeler.layers.add_layer(layer="Top")
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         output = self.aedtapp.export_3d_model()
         time_out = 0
@@ -628,7 +621,7 @@ class TestClass:
         self.aedtapp.insert_design("ipc")
         dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
-        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+        assert self.aedtapp.import_ipc2581(dxf_file)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self, add_app):

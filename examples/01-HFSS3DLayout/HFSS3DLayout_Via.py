@@ -50,9 +50,9 @@ h3d["len"] = "50mm"
 # ~~~~~~~~~~~~~~~~~~
 # Add stackup layers.
 
-h3d.modeler.layers.add_layer(layername="GND", layertype="signal", thickness="0", isnegative=True)
-h3d.modeler.layers.add_layer(layername="diel", layertype="dielectric", thickness="0.2mm", material="FR4_epoxy")
-h3d.modeler.layers.add_layer(layername="TOP", layertype="signal", thickness="0.035mm", elevation="0.2mm")
+h3d.modeler.layers.add_layer(layer="GND")
+h3d.modeler.layers.add_layer(layer="diel")
+h3d.modeler.layers.add_layer(layer="TOP")
 
 ###############################################################################
 # Create signal net and ground planes

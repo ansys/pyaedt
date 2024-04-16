@@ -1747,9 +1747,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         spiral = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
         spiral.name = name
-        spiral.move(
-            move_vector_mid,
-        )
+        spiral.move(move_vector_mid)
         spiral_center = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
 
         # get the polyline center point (before width operation). They need to be moved as well.

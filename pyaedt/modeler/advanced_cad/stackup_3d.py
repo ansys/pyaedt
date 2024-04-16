@@ -311,8 +311,7 @@ class Layer3D(object):
     >>> from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
-    >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
-    >>> thickness=3, fill_material=None)
+    >>> my_layer = my_stackup.add_layer("my_layer")
     >>> gnd = my_stackup.add_ground_layer("gnd")
     >>> diel = my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
     >>> top = my_stackup.add_signal_layer("top")
@@ -1553,8 +1552,7 @@ class Stackup3D(object):
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
-        >>> thickness=3, fill_material=None)
+        >>> my_layer = my_stackup.add_layer("my_layer")
 
         """
         self._shifted_index += 1

@@ -207,7 +207,7 @@ class TestClass:
         setup_name = "DomSetup"
         my_setup = self.aedtapp.create_setup(setup_name)
         my_setup.props["Convergence Criteria - Max Iterations"] = 10
-        assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
+        assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup")
         assert my_setup.update()
         assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
         templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
@@ -344,7 +344,7 @@ class TestClass:
         assert network_block_result[1].props["Nodes"]["Internal"][0] == "3W"
 
     def test_24_get_boundary_property_value(self):
-        assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
+        assert self.aedtapp.get_property_value("BoundarySetup:box2") == "2W"
 
     def test_25_copy_solid_bodies(self, add_app):
         project_name = "IcepakCopiedProject"
@@ -1019,9 +1019,7 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
-        self.aedtapp.modeler.user_defined_components[fan.name].move(
-            [1, 2, 3],
-        )
+        self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
         self.aedtapp.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
         fan_1_history = self.aedtapp.modeler.user_defined_components[fan.name].history()
         assert fan_1_history.command == "Move"
@@ -1339,9 +1337,7 @@ class TestClass:
         assert component_filepath
         comp = self.aedtapp.modeler.user_defined_components["test"].edit_definition()
         comp.modeler.refresh_all_ids()
-        comp.modeler.objects_by_name["surf1"].move(
-            [1, 1, 1],
-        )
+        comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
         assert self.aedtapp.modeler.user_defined_components["test"].update_definition()

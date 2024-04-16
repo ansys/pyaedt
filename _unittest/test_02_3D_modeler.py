@@ -213,7 +213,12 @@ class TestClass:
     def test_17_unite(self):
         o1 = self.aedtapp.modeler["outer"].clone()
         o2 = self.aedtapp.modeler["inner"].clone()
-        assert self.aedtapp.modeler.unite([o1, o2], purge=True) == o1.name
+        assert (
+            self.aedtapp.modeler.unite(
+                [o1, o2],
+            )
+            == o1.name
+        )
 
     def test_18_chamfer(self):
         o1 = self.aedtapp.modeler["box_to_split"]
@@ -230,7 +235,12 @@ class TestClass:
         udp = [0, 0, 0]
         o1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10], name="Rect1")
         o2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12], name="Rect2")
-        assert self.aedtapp.modeler.intersect([o1, o2]) == o1.name
+        assert (
+            self.aedtapp.modeler.intersect(
+                [o1, o2],
+            )
+            == o1.name
+        )
 
     def test_21_connect(self):
         udp = [0, 0, 0]
@@ -343,7 +353,7 @@ class TestClass:
         id1 = self.aedtapp.modeler.create_box([10, 10, 10], [4, 5, 5])
         axis = self.aedtapp.AXIS.X
         _, obj_list = self.aedtapp.modeler.duplicate_around_axis(
-            id1, cs_axis=axis, angle="180deg", nclones=2, create_new_objects=False
+            id1, axis=axis, angle="180deg", clones=2, create_new_objects=False
         )
         # if create_new_objects is set to False, there should be no new objects
         assert not obj_list
@@ -693,7 +703,7 @@ class TestClass:
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         first_points = [[1.0, 1.0, 0], [1.0, 2.0, 1.0], [1.0, 3.0, 1.0]]
         first_line = self.aedtapp.modeler.create_polyline([[0.0, 0.0, 0.0], first_points[0]])
-        assert first_line.insert_segment(position_list=first_points, segment=PolylineSegment("Spline", num_points=3))
+        assert first_line.insert_segment(points=first_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert (
             self.aedtapp.get_oo_property_value(
@@ -716,10 +726,10 @@ class TestClass:
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
         second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
-        assert second_line.insert_segment(position_list=second_points, segment=PolylineSegment("Spline", num_points=3))
+        assert second_line.insert_segment(points=second_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert second_line.insert_segment(
-            position_list=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
+            points=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
             segment=PolylineSegment("Spline", num_points=5),
         )
 

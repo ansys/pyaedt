@@ -475,7 +475,12 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
-        assert self.aedtapp.modeler.get_obj_id(o.name) == o.id
+        assert (
+            self.aedtapp.modeler.get_obj_id(
+                o.name,
+            )
+            == o.id
+        )
 
     def test_26_get_object_names(self):
         p1, p2, points = self.create_polylines()
@@ -773,7 +778,7 @@ class TestClass:
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
         insert_point2 = ["95mm", "20mm", "0mm"]
-        assert P.insert_segment(position_list=[start_point, insert_point])
+        assert P.insert_segment(points=[start_point, insert_point])
         assert len(P.points) == 5
         assert P.points == [
             ["0mm", "p1", "0mm"],
@@ -782,7 +787,7 @@ class TestClass:
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
         ]
-        assert P.insert_segment(position_list=[insert_point, insert_point2])
+        assert P.insert_segment(points=[insert_point, insert_point2])
         assert len(P.points) == 6
         assert P.points == [
             ["0mm", "p1", "0mm"],
@@ -792,7 +797,7 @@ class TestClass:
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
         ]
-        assert P.insert_segment(position_list=[["-p1", "0mm", "0mm"], ["-110mm", "-35mm", "0mm"]])
+        assert P.insert_segment(points=[["-p1", "0mm", "0mm"], ["-110mm", "-35mm", "0mm"]])
         assert len(P.points) == 7
         assert P.points == [
             ["0mm", "p1", "0mm"],
@@ -803,7 +808,7 @@ class TestClass:
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
         ]
-        assert P.insert_segment(position_list=[["-80mm", "10mm", "0mm"], ["-p1", "0mm", "0mm"]])
+        assert P.insert_segment(points=[["-80mm", "10mm", "0mm"], ["-p1", "0mm", "0mm"]])
         assert len(P.points) == 8
         assert P.points == [
             ["0mm", "p1", "0mm"],
@@ -815,7 +820,7 @@ class TestClass:
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
         ]
-        assert P.insert_segment(position_list=[["0mm", "0mm", "0mm"], ["10mm", "10mm", "0mm"]])
+        assert P.insert_segment(points=[["0mm", "0mm", "0mm"], ["10mm", "10mm", "0mm"]])
         assert len(P.points) == 9
         assert P.points == [
             ["0mm", "p1", "0mm"],
@@ -828,7 +833,7 @@ class TestClass:
             ["0mm", "0mm", "0mm"],
             ["10mm", "10mm", "0mm"],
         ]
-        assert P.insert_segment(position_list=[["10mm", "5mm", "0mm"], ["0mm", "0mm", "0mm"]])
+        assert P.insert_segment(points=[["10mm", "5mm", "0mm"], ["0mm", "0mm", "0mm"]])
         assert len(P.points) == 10
         assert P.points == [
             ["0mm", "p1", "0mm"],
@@ -854,7 +859,7 @@ class TestClass:
         insert_point1 = ["-120mm", "-25mm", "0mm"]
         insert_point2 = [-115, -40, 0]
 
-        P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
+        P.insert_segment(points=[start_point, insert_point1, insert_point2], segment="Arc")
 
     def test_49_modify_crossection(self):
         P = self.aedtapp.modeler.create_polyline(
@@ -899,44 +904,44 @@ class TestClass:
         time.sleep(0.1)
 
         P4 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P4.remove_point(["0mm", "1mm", "2mm"], abstol=1e-6)
+        P4.remove_point(["0mm", "1mm", "2mm"], tolerance=1e-6)
 
     def test_51_remove_edges_from_polyline(self):
         modeler = self.aedtapp.modeler
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P.remove_edges(edge_id=0)
+        P.remove_edges(assignment=0)
         assert P.points == [[0, 2, 3], [2, 1, 4]]
         assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_segments(segment_id=[0, 1])
+        P.remove_segments(assignment=[0, 1])
         assert P.points == [[2, 1, 4], [3, 1, 6]]
         assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_segments(segment_id=1)
+        P.remove_segments(assignment=1)
         assert P.points == [[0, 1, 2], [2, 1, 4], [3, 1, 6]]
         assert len(P.segment_types) == 2
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [2, 2, 5], [3, 1, 6]])
-        P.remove_segments(segment_id=[1, 3])
+        P.remove_segments(assignment=[1, 3])
         assert P.points == [[0, 1, 2], [2, 1, 4], [2, 2, 5]]
         assert len(P.segment_types) == 2
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_segments(segment_id=[1, 2])
+        P.remove_segments(assignment=[1, 2])
         assert P.points == [[0, 1, 2], [0, 2, 3]]
         assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_segments(segment_id=2)
+        P.remove_segments(assignment=2)
         assert P.points == [[0, 1, 2], [0, 2, 3], [2, 1, 4]]
         assert len(P.segment_types) == 2
         assert P.name in self.aedtapp.modeler.line_names
 
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P.remove_edges(edge_id=[0, 1])
+        P.remove_edges(assignment=[0, 1])
         assert not P.name in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
@@ -1648,7 +1653,7 @@ class TestClass:
         assert obj_3dcomp.rotate(axis="Y", angle=180)
         assert obj_3dcomp.move(udp2)
 
-        new_comps = obj_3dcomp.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
+        new_comps = obj_3dcomp.duplicate_around_axis(axis="Z", angle=8, clones=3)
         assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
 
         udp = self.aedtapp.modeler.Position(5, 5, 5)
@@ -1721,7 +1726,7 @@ class TestClass:
         assert obj_udm.mirror(udp, udp2)
         assert obj_udm.rotate(axis="Y", angle=180)
         assert obj_udm.move(udp2)
-        assert not obj_udm.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
+        assert not obj_udm.duplicate_around_axis(axis="Z", angle=8, clones=3)
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)

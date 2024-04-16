@@ -781,7 +781,7 @@ class Primitives3DLayout(object):
                             lay = prop[i]
                             lay_name = lay[2]
                             lay_id = int(lay[4])
-                            self._padstacks[name].add_layer(layername=lay_name, layer_id=lay_id)
+                            self._padstacks[name].add_layer(layer=lay_name, layer_id=lay_id)
                             self._padstacks[name].layers[lay_name].layername = lay_name
                             self._padstacks[name].layers[lay_name].pad = self._padstacks[name].add_hole(
                                 lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
@@ -1014,7 +1014,7 @@ class Primitives3DLayout(object):
         self._circles[name] = primitive
 
         if net:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net])
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
 
         return primitive
 
@@ -1079,7 +1079,7 @@ class Primitives3DLayout(object):
         self._rectangles[name] = primitive
 
         if net:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net])
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
 
         return primitive
 
@@ -1135,7 +1135,7 @@ class Primitives3DLayout(object):
         self._polygons[name] = primitive
 
         if net:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net])
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
 
         return primitive
 
@@ -1277,7 +1277,7 @@ class Primitives3DLayout(object):
         self._lines[name] = primitive
 
         if net:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net])
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
         return primitive
 
     @pyaedt_function_handler()

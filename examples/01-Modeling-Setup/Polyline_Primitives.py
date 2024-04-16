@@ -178,7 +178,7 @@ P = prim3D.create_polyline(points=test_points, close_surface=True, name="PL08_se
 p2 = P.points[1]
 insert_point = ["-100mm", "20mm", "0mm"]
 
-P.insert_segment(position_list=[insert_point, p2])
+P.insert_segment(points=[insert_point, p2])
 
 ###############################################################################
 # Insert compound line with insert curve
@@ -194,7 +194,7 @@ start_point = P.vertex_positions[1]
 insert_point1 = ["90mm", "20mm", "0mm"]
 insert_point2 = [40, 40, 0]
 
-P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
+P.insert_segment(points=[start_point, insert_point1, insert_point2], segment="Arc")
 
 ###############################################################################
 # Insert compound line at end of a center-point arc
@@ -218,7 +218,7 @@ P = prim3D.create_polyline(points=[start_point],
 start_of_line_segment = P.end_point
 end_of_line_segment = [3600, 200, 30]
 
-P.insert_segment(position_list=[start_of_line_segment, end_of_line_segment])
+P.insert_segment(points=[start_of_line_segment, end_of_line_segment])
 
 ###############################################################################
 # Step 3: Append a center-point arc segment to the line object.
@@ -226,10 +226,8 @@ P.insert_segment(position_list=[start_of_line_segment, end_of_line_segment])
 arc_angle_2 = "39.716deg"
 arc_center_2 = [3400, 200, 3800]
 
-P.insert_segment(
-    position_list=[end_of_line_segment],
-    segment=prim3D.polyline_segment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2),
-)
+P.insert_segment(points=[end_of_line_segment],
+                 segment=prim3D.polyline_segment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2))
 
 ###############################################################################
 # You can use the compound polyline definition to complete all three steps in

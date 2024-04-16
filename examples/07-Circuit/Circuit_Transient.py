@@ -62,7 +62,7 @@ tr1.parameters["P"] = "50mm"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a resistor and ground in the schematic.
 
-res = cir.modeler.components.create_resistor(compname="R1", value="1Meg")
+res = cir.modeler.components.create_resistor(value="1Meg")
 gnd1 = cir.modeler.components.create_gnd()
 
 ###############################################################################

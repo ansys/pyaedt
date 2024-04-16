@@ -2555,9 +2555,8 @@ class Primitives3D(GeometryModeler):
         polyline = self.create_polyline(points=points, name=name, material=material)
         union_polyline1 = [polyline.name]
         if turns > 1:
-            union_polyline2 = polyline.duplicate_around_axis(
-                cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
-            )
+            union_polyline2 = polyline.duplicate_around_axis(axis="Z", angle=2 * teta, clones=turns,
+                                                             create_new_objects=True)
         else:
             union_polyline2 = []
         union_polyline = union_polyline1 + union_polyline2

@@ -1009,7 +1009,7 @@ class GeometryModeler(Modeler):
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
                 try:
-                    pid = self.oeditor.GetObjectIDByName(obj)
+                    pid = self.oeditor.GetObjectIDByName(obj_name)
                 except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
@@ -1017,7 +1017,7 @@ class GeometryModeler(Modeler):
         for obj_name in self.unclassified_names:
             if obj_name not in self._object_names_to_ids:
                 try:
-                    pid = self.oeditor.GetObjectIDByName(obj)
+                    pid = self.oeditor.GetObjectIDByName(obj_name)
                 except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
@@ -2272,9 +2272,7 @@ class GeometryModeler(Modeler):
 
         offset = self.find_point_around(assignment, start, sheet_dim, cs)
         p1 = self.create_polyline([start, offset])
-        p2 = p1.clone().move(
-            vector,
-        )
+        p2 = p1.clone().move(vector)
         self.connect([p1, p2])
 
         return p1
@@ -2858,13 +2856,13 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objid : list, str, int, Object3d or UserDefinedComponent
+        assignment : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
-        cs_axis :
+        coordinate_system :
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects :
             Whether to create the copies as new objects. The
@@ -2883,7 +2881,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.DuplicateAroundAxis
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = [
@@ -2891,11 +2889,11 @@ class GeometryModeler(Modeler):
             "CreateNewObjects:=",
             create_new_objects,
             "WhichAxis:=",
-            GeometryOperators.cs_axis_str(cs_axis),
+            GeometryOperators.cs_axis_str(coordinate_system),
             "AngleStr:=",
             self._arg_with_dim(angle, "deg"),
             "Numclones:=",
-            str(nclones),
+            str(clones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
@@ -2932,14 +2930,14 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         vector : list
             List of ``[x1,y1,z1]`` coordinates or the Application.Position object for
             the vector.
-        attachObject : bool, optional
+        attach : bool, optional
             The default is ``False``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         is_3d_comp : bool, optional
             If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
@@ -2955,21 +2953,21 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.DuplicateAlongLine
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
         Xpos, Ypos, Zpos = self._pos_with_arg(vector)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:DuplicateToAlongLineParameters"]
-        vArg2.append("CreateNewObjects:="), vArg2.append(not attachObject)
+        vArg2.append("CreateNewObjects:="), vArg2.append(not attach)
         vArg2.append("XComponent:="), vArg2.append(Xpos)
         vArg2.append("YComponent:="), vArg2.append(Ypos)
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
-        vArg2.append("Numclones:="), vArg2.append(str(nclones))
+        vArg2.append("Numclones:="), vArg2.append(str(clones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
-        if attachObject:
+        if attach:
             return True, []
         return self._duplicate_added_objects_tuple()
 
@@ -3297,8 +3295,9 @@ class GeometryModeler(Modeler):
     @pyaedt_function_handler(
         objid="assignment",
         cs_axis="axis",
+        unit="units",
     )
-    def rotate(self, assignment, axis, angle=90.0, unit="deg"):
+    def rotate(self, assignment, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
         Parameters
@@ -3310,7 +3309,7 @@ class GeometryModeler(Modeler):
         angle : float
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-        unit : text, optional
+        units : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
 
@@ -3328,7 +3327,7 @@ class GeometryModeler(Modeler):
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:RotateParameters"]
         vArg2.append("RotateAxis:="), vArg2.append(GeometryOperators.cs_axis_str(axis))
-        vArg2.append("RotateAngle:="), vArg2.append(self._arg_with_dim(angle, unit))
+        vArg2.append("RotateAngle:="), vArg2.append(self._arg_with_dim(angle, units))
 
         if self.oeditor is not None:
             self.oeditor.Rotate(vArg1, vArg2)

@@ -1947,7 +1947,7 @@ class Setup3DLayout(CommonSetup):
                 obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
-                united_object = aedtapp.modeler.unite(obj_list, purge=True)
+                united_object = aedtapp.modeler.unite(obj_list)
                 obj_ind = aedtapp.modeler.objects[united_object].id
                 try:
                     net = net.replace("-", "m")

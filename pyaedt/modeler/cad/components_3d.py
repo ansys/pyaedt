@@ -507,7 +507,7 @@ class UserDefinedComponent(object):
 
         >>> oEditor.DuplicateMirror
         """
-        return self._primitives.duplicate_and_mirror(self.name, origin)
+        return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector)
 
     @pyaedt_function_handler()
     def mirror(self, position, vector):
@@ -541,8 +541,8 @@ class UserDefinedComponent(object):
             return self
         return False
 
-    @pyaedt_function_handler(cs_axis="axis")
-    def rotate(self, axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(cs_axis="axis", unit="units")
+    def rotate(self, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
         Parameters
@@ -552,7 +552,7 @@ class UserDefinedComponent(object):
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-        unit : text, optional
+        units : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
 
@@ -567,11 +567,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Rotate
         """
         if self.is3dcomponent:
-            if self._primitives.rotate(self.name):
+            if self._primitives.rotate(self.name, axis=axis, angle=angle, units=units):
                 return self
         else:
             for part in self.parts:
-                self._primitives.rotate(part)
+                self._primitives.rotate(part, axis=axis, angle=angle, units=units)
             return self
         return False
 
@@ -595,30 +595,26 @@ class UserDefinedComponent(object):
         >>> oEditor.Move
         """
         if self.is3dcomponent:
-            if self._primitives.move(
-                self.name,
-            ):
+            if self._primitives.move(self.name):
                 return self
         else:
             for part in self.parts:
-                self._primitives.move(
-                    part,
-                )
+                self._primitives.move(part)
             return self
 
         return False
 
-    @pyaedt_function_handler()
-    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
+    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
         """Duplicate the component around the axis.
 
         Parameters
         ----------
-        cs_axis : Application.AXIS object
+        axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects : bool, optional
             Whether to create copies as new objects. The default is ``True``.
@@ -636,23 +632,23 @@ class UserDefinedComponent(object):
         """
         if self.is3dcomponent:
             ret, added_objects = self._primitives.duplicate_around_axis(
-                self.name, cs_axis, angle, nclones, create_new_objects, True
+                self.name, axis, angle, clones, create_new_objects=create_new_objects
             )
             return added_objects
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, attach_object=False, **kwargs):
+    @pyaedt_function_handler(nclones="clones", attach_object="attach")
+    def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
         """Duplicate the object along a line.
 
         Parameters
         ----------
         vector : list
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
-        attach_object : bool, optional
+        attach : bool, optional
             Whether to attach the object. The default is ``False``.
 
         Returns
@@ -675,7 +671,7 @@ class UserDefinedComponent(object):
 
         if self.is3dcomponent:
             old_component_list = self._primitives.user_defined_component_names
-            _, added_objects = self._primitives.duplicate_along_line(self.name, vector, nclones, attach_object, True)
+            _, added_objects = self._primitives.duplicate_along_line(self.name, vector, clones, attach=attach)
             return list(set(added_objects) - set(old_component_list))
         self._logger.warning("User-defined models do not support this operation.")
         return False
@@ -820,15 +816,15 @@ class UserDefinedComponent(object):
             "3D Component File Path"
         )
 
-    @pyaedt_function_handler()
-    def update_definition(self, password="", new_filepath=""):
+    @pyaedt_function_handler(new_filepath="output_file")
+    def update_definition(self, password="", output_file=""):
         """Update 3d component definition.
 
         Parameters
         ----------
         password : str, optional
             Password for encrypted models. The default value is ``""``.
-        new_filepath : str, optional
+        output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
 
@@ -848,7 +844,7 @@ class UserDefinedComponent(object):
                 "Passwords:=",
                 [password],
                 "NewFilePath:=",
-                new_filepath,
+                output_file,
             ]
         )
         self._primitives._app.modeler.refresh_all_ids()
