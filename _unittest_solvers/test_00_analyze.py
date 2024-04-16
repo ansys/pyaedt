@@ -380,7 +380,7 @@ class TestClass:
                                               plot_type="Rectangular Plot", subdesign_id=myedb.id)
         new_report = circuit_app.post.reports_by_category.standard(insertions)
         new_report.sub_design_id = myedb.id
-        assert new_report.create(),,
+        assert new_report.create()
 
     def test_05b_circuit_add_hfss_component(self, circuit_app):
         my_model, myname = circuit_app.modeler.schematic.create_field_model(
