@@ -52,13 +52,6 @@ jobs:
         run: |
           python doc/print_errors.py
 
-      - name: Upload documentation HTML artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: Documentation
-          path: doc/_build/html
-          retention-days: 7
-
       - name: Documentation Build (PDF)
         run: |
           make -C doc pdf-no-examples
@@ -68,6 +61,13 @@ jobs:
           zip -r documentation-html.zip ./doc/_build/html
           mv documentation-html.zip ./doc/_build/html/_static/assets/download/
           cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
+
+      - name: Upload documentation HTML artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-html
+          path: doc/_build/html
+          retention-days: 7
 
       - name: Upload documentation PDF artifact
         uses: actions/upload-artifact@v3
