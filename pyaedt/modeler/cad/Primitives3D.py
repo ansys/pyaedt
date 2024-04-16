@@ -14,6 +14,7 @@ import os
 from pyaedt import Edb
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import generate_unique_project_name
 from pyaedt.generic.general_methods import normalize_path
@@ -1729,7 +1730,7 @@ class Primitives3D(GeometryModeler):
         is_edb_open = False
         parameters = {}
         component_cs = []
-        for edb_object in self._app.desktop_class.edb_objects:
+        for edb_object in _edb_sessions:
             if edb_object.edbpath == aedb_component_path:
                 is_edb_open = True
                 # Extract and map parameters

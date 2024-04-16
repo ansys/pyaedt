@@ -40,6 +40,7 @@ else:
 from pyaedt import __version__
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.desktop_sessions import _desktop_sessions
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import get_string_version
@@ -659,7 +660,6 @@ class Desktop(object):
             self.port = self.odesktop.GetGrpcServerPort()
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
-        self.edb_objects = []
 
     def __enter__(self):
         return self
@@ -1474,12 +1474,11 @@ class Desktop(object):
             close_projects = True
             close_on_exit = True
 
-        for edb_object in self.edb_objects:
+        for edb_object in _edb_sessions:
             try:
                 edb_object.close()
             except Exception:
                 self.logger.warning("Failed to close Edb object.")
-        self.edb_objects = None
 
         if close_projects:
             projects = self.odesktop.GetProjectList()

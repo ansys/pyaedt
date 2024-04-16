@@ -8,6 +8,7 @@ import warnings
 
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
@@ -951,7 +952,7 @@ class LayoutComponent(object):
         if not self._edb_object:
             aedb_component_path = self._edb_path
 
-            for edb_object in self._primitives._app.desktop_class.edb_objects:
+            for edb_object in _edb_sessions:
                 if edb_object.edbpath == aedb_component_path:
                     self._edb_object = edb_object
                     return self._edb_object
@@ -966,7 +967,7 @@ class LayoutComponent(object):
                 student_version=self._primitives._app.student_version,
             )
 
-            self._primitives._app.desktop_class.edb_objects.append(app)
+            _edb_sessions.append(app)
 
             self._edb_object = app
 
