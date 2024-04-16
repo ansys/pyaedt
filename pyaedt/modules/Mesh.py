@@ -868,7 +868,7 @@ class Mesh(object):
         Parameters
         ----------
         name : str
-            Name of the design.
+            Name of the simulation setup.
 
         Returns
         -------
@@ -879,6 +879,16 @@ class Mesh(object):
         ----------
 
         >>> oDesign.GenerateMesh
+
+        Examples
+        --------
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_setup(setupname="Setup1")
+        >>> m3d.mesh.assign_length_mesh(maxlength=5, maxel="None")
+        >>> m3d.mesh.generate_mesh("Setup1")
+
         """
         return self._odesign.GenerateMesh(name) == 0
 
